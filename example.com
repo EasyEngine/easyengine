@@ -2,7 +2,7 @@ server{
 	server_name		example.com;
     listen          80;         
  
-	access_log       /var/www/example.com/logs/access.log main ;
+	access_log       /var/www/example.com/logs/access.log ;
 	error_log       /var/www/example.com/logs/error.log;
 
     root   /var/www/example.com/htdocs;
