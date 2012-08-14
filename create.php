@@ -3,7 +3,7 @@
 	CREATE A SITE WITH WORDPRESS
  */
 
-include_once('config.pgp');
+include_once('config.php');
  
  
 /**
