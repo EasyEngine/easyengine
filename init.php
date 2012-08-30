@@ -5,8 +5,8 @@
 error_reporting(E_ALL);
 
 if (file_exists('config.php')){
-	include 'config.php'}
-else{
+	include 'config.php';
+}else{
 	die("Create a config.php to start with...");
 }
 

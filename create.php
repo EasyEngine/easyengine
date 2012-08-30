@@ -3,8 +3,7 @@
 	CREATE A SITE WITH WORDPRESS
  */
 
-include_once('config.php');
- 
+include_once('init.php');
  
 /**
  * prompt user to eneter domain name
