@@ -1,5 +1,5 @@
 <?php
-
+chdir(dirname(__FILE__));
 /* This will have configuration */
 // Report all PHP errors (see changelog)
 error_reporting(E_ALL);
@@ -30,7 +30,6 @@ echo $hello . "\n";
 
 /*** OK enough now. This is second & last time I am reminding YOU CAN IGNORE ANYTHING BELOW THIS LINE **/
 
-chdir(dirname(__FILE__));
 
 /* Useful test to avoid time-wastage */
 if($local_env['mysql_user'] == 'USER' || $local_env['mysql_pass'] == 'PASS'){

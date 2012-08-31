@@ -1,4 +1,6 @@
 <?php
+include_once('init.php');
+
 /**
  * prompt user to eneter domain name
  */
@@ -17,14 +19,17 @@ if(strpos($usr_domain,"..") !== false ){
 if(strpos($usr_domain,"\\") !== false ){
         die("domain cannot contain \\ !");
 }
+
 /*
  * Set domain environment values
  */
+ 
 $domain['name'] = $usr_domain;
-$domain['conf'] = $local_env['nginx_dir_sites_avilable'] . '/' . $domain['name'];
-$domain['rootdir'] = $local_env['webroot'] . '/' . $domain['name'];
+$domain['conf'] = $local_env['nginx_dir_sites_avilable'] . '/' . $domain['name'] ;
+$domain['rootdir'] = $local_env['webroot'] . '/' . $domain['name'] ;
 $domain['htdocs'] = $domain['rootdir'] . '/' . $local_env['htdocs'] ;
 $domain['logs'] = $domain['rootdir'] . '/' . $local_env['logs'] ;
+
 
 /**
  * Check if domain config file already exists
