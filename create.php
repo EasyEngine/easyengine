@@ -78,8 +78,14 @@ $result = system("mkdir " . $domain['htdocs']);
 $result = system("mkdir " . $domain['logs']);
 
 //create log files
-$result = system("touch " . $domain['logs'] . "/access.log");
-$result = system("touch " . $domain['logs'] . "/error.log");
+//in nginx folder
+$result = system("touch " . "/var/log/nginx/" . $domain['name'] . ".access.log");
+$result = system("touch " . "/var/log/nginx/" . $domain['name'] . ".error.log");
+
+//symlink
+$result = system("ln -s " . "/var/log/nginx/" . $domain['name'] . ".access.log " . $domain['logs'] . "/access.log");
+$result = system("ln -s " . "/var/log/nginx/" . $domain['name'] . ".error.log " . $domain['logs'] . "/error.log");
+
 
 //Error check 
 if ($result != '') {
