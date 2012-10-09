@@ -11,30 +11,48 @@ This is work in PROGRESS. This will break things on your end most likely!
 
 ### engine Commands:
 
-`engine site` site-specific commands
+`engine site` #site-specific commands
+
 `engine system` system-wide commands
+
 `engine config` configuration commands
 
-## engine site
+### engine site
 
 `engine site create <site-name> [--with-wordpress]`
+
 `engine site read --active`
+
 `engine site update <site-name>`
+
 `engine site delete <site-name>`
 
-## engine system
+### engine system
 
 `engine system install [php mysql nginx apc postfix] [--all] [--source]`
+
 `engine system upgrade [php mysql nginx apc postfix] [--all]`
+
 `engine system remove [php mysql nginx apc postfix] [--all]`
+
 `engine system purge [php mysql nginx apc postfix] [--all]`
 
-## engine config
+### engine config
 
 `engine config set [memory | timeout] [value]`
+
 `engine config get [[memory | timeout]|--all]`
+
 `engine config --interactive` #reconfigure everything
 
+
+## Files
+
+### Logs location: 
+
+Main Log: `/var/log/easyengine/main.log`
+
+Debug Log: `/var/log/easyengine/debug.log`
 
 
 
