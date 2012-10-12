@@ -1,8 +1,14 @@
 <?php
+/*
+	CREATE A SITE WITH WORDPRESS
+ */
 
+include_once('init.php');
+ 
 /**
  * prompt user to eneter domain name
  */
+ 
 echo "Enter a domain name which needs to be migrated...\n";
 $usr_domain = (trim(fgets(STDIN)));
 echo "You have entered :: $usr_domain \n";
@@ -10,11 +16,13 @@ echo "You have entered :: $usr_domain \n";
 /*
  * Set domain environment values
  */
+ 
 $domain['name'] = $usr_domain;
-$domain['conf'] = $local_env['nginx_dir_sites_avilable'] . '/' . $domain['name'];
-$domain['rootdir'] = $local_env['webroot'] . '/' . $domain['name'];
+$domain['conf'] = $local_env['nginx_dir_sites_avilable'] . '/' . $domain['name'] ;
+$domain['rootdir'] = $local_env['webroot'] . '/' . $domain['name'] ;
 $domain['htdocs'] = $domain['rootdir'] . '/' . $local_env['htdocs'] ;
 $domain['logs'] = $domain['rootdir'] . '/' . $local_env['logs'] ;
+
 
 /**
  * Check if domain config file already exists
@@ -24,7 +32,7 @@ if (file_exists($domain['conf'])) {
     echo "\nDo you want to overwrite previous configuration? [Y/N] (default=Y)";
 
     if (in_array(strtolower(fgets(STDIN)), array('n', 'no'))) {
-        die("\nYou choose to terminate this script! Poor you! :D \n");
+        die("\nYou choose to terminate this script! Bye-Bye!!! \n");
     }
 }
 
@@ -43,7 +51,7 @@ file_put_contents($domain['conf'], $nginx_conf);
 
 //Error Check - if config file is created successfully or not
 if (!file_exists($domain['conf'])) {
-    die("\nError encounterd while creating " . $domain['conf']);
+    die("\nError encountered while creating " . $domain['conf']);
 }
 
 /**
@@ -55,7 +63,7 @@ $result = system($command);
 
 //Error check - if linking config file succeed
 if ($result != '') {
-    die("\nError encounterd whie creating script. Please check if file '" . $domain['conf'] . "'is created or not!\n");
+    die("\nError encountered while creating script. Please check if file '" . $domain['conf'] . "'is created or not!\n");
 }
 
 //Go Ahead.
@@ -73,10 +81,17 @@ $result = system("mkdir " . $domain['logs']);
 $result = system("touch " . $domain['logs'] . "/access.log");
 $result = system("touch " . $domain['logs'] . "/error.log");
 
-//Error check
+//Error check 
 if ($result != '') {
     die("\nError encountered while creating websites directories & files for " . $domain['name'] . "\n");
 }
+
+/**
+ * MySQL Creation
+ */
+ 
+$command = "mysql -h " . $local_env['mysql_host'] . " -u " . $local_env['mysql_user'] . " -p" . $local_env['mysql_pass'] . " -e 'create database `'" . $domain['name'] . "'` '";
+$result = system($command);
 
 /**
  * Chown
@@ -87,13 +102,22 @@ $result = system($command);
 
 //Error check
 if ($result != '') {
-    die("\nError encountered while chaging owner of " . $domain['rootdir'] . "\n" . $result);
+    die("\nError encountered while charging owner of " . $domain['rootdir'] . "\n" . $result);
 }
 
 
 /**
  * ALL SEENS WELL - Restart nginx
  */
-echo "\n Issuing nginx reboot command...\n\n";
-system('service nginx restart');
+echo "\n Relaoding nginx configuration...\n\n";
+system('service nginx reload');		
+
+/**
+ * THE END
+ */
+//just echo URL for new domain like http://$domain
+//user will click it and verify if its working fine! ;-)
+
+echo $domain['name'] . " Successfully created\n\n";
+
 ?>
