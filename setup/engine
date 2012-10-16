@@ -1,0 +1,268 @@
+#!/bin/bash
+
+
+
+# Checking Permissions
+Permission=$(id -u)
+if [ $Permission -ne 0 ] 
+then
+        echo -e "\033[31m Root Privilege Required... \e[0m"
+        echo -e "\033[31m Uses:  sudo $0 \e[0m"
+        exit 100 
+fi
+
+
+# Capture Errors
+OwnError()
+{
+        echo -e "[ $0 ][ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
+        exit 101
+}
+
+
+# Make Variables Available For Later Use
+LOGDIR=/var/log/easyengine
+MAINLOG=/var/log/easyengine/main.log
+ERRORLOG=/var/log/easyengine/error.log
+
+
+
+# Pre Checks To Avoid Later Screw Ups
+# Checking Logs Directory
+if [ ! -d $LOGDIR ]
+then
+	echo -e "\033[34m Creating easyengine log directory..." 
+        mkdir -p $LOGDIR || OwnError "Unable to create log directory $LOGDIR"
+else
+        echo -e "\033[34m Easyengine log directory found...  \e[0m" 
+fi
+
+# Checking Tee
+if [ ! -x  /usr/bin/tee ]
+then
+        echo -e "\033[31m Tee command not found !! \e[0m"
+        echo -e "\033[34m Installing tee  \e[0m"
+        sudo apt-get -y install coreutils || OwnError "Unable to install tee"
+fi
+
+# Checking Wget
+if [ ! -x  /usr/bin/wget ]
+then
+        echo -e "\033[31m Wget command not found !! \e[0m"
+        echo -e "\033[34m Installing wget  \e[0m"
+        sudo apt-get -y install wget || OwnError "Unable to install wget"
+fi
+
+# Checking Tar
+if [ ! -x  /bin/tar ]
+then
+        echo -e "\033[31m Tar command not found !! \e[0m"
+        echo -e "\033[34m Installing tar  \e[0m"
+        sudo apt-get -y install tar || OwnError "Unable to install tar"
+fi
+
+# Checking Name Servers
+if [[ -z $(cat /etc/resolv.conf | grep -v ^#) ]]
+then
+        echo -e "\033[31m No nameservers detected !! \e[0m" | tee -ai $ERRORLOG
+        echo -e "\033[31m Please configure /etc/resolv.conf \e[0m" | tee -ai $ERRORLOG
+        exit 100
+fi
+# Pre Checks End
+
+
+
+# Easy Engine System Settings
+if [ $1 = "system" ]
+then
+	# Easy Engine Install
+	if [ $2 = "install" ]
+	then
+		
+		if [ $3 = "nginx" ]
+		then
+			# Install Python Software Properties
+			sudo apt-get -y install python-software-properties \
+			|| OwnError "Unable to install python software properties"
+
+			# Add Nginx Launchpad Repository
+			sudo add-apt-repository ppa:nginx/stable \
+			|| OwnError "Unable to add nginx launchpad repository"
+
+			# Update The APT Cache
+			sudo apt-get update || OwnError "Unable to update apt cache"
+
+			# Install Nginx
+			sudo apt-get -y install nginx || OwnError "Unable to install nginx"
+			
+		elif [$3 = "php" ]
+		then
+
+			# Install Python Software Properties
+			sudo apt-get -y install python-software-properties \
+			|| OwnError "Unable to install python software properties"
+
+			# Add PHP Launchpad Repository
+			sudo add-apt-repository ppa:ondrej/php5 \
+			|| OwnError "Unable to add php5 launchpad repository"
+
+			# Update The APT Cache
+			sudo apt-get update || OwnError "Unable to update apt cache"
+
+			# Install PHP5
+			sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
+			php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+			php5-dev php5-imap php5-mcrypt || OwnError "Unable to install php5"
+			
+		elif [ $3 = "mysql" ]
+		then
+
+			# Update The APT Cache
+			sudo apt-get update || OwnError "Unable to update apt cache"
+
+			# Install MySQL
+			sudo apt-get -y install mysql-server mysqltuner \
+			|| OwnError "Unable to install mysql"			
+
+		elif [ $3 = "postfix" ]
+		then
+			# Update The APT Cache
+			sudo apt-get update || OwnError "Unable to update apt cache"
+			
+			# Install Postfix
+			sudo apt-get -y install postfix || OwnError "Unable to install postfix"
+
+		elif [ $3 = "--all" ]
+		then
+			
+			# Install Python Software Properties
+                        sudo apt-get -y install python-software-properties \
+                        || OwnError "Unable to install python software properties"
+
+                        # Add Nginx Launchpad Repository
+                        sudo add-apt-repository ppa:nginx/stable \
+                        || OwnError "Unable to add nginx launchpad repository"
+
+			# Add PHP Launchpad Repository
+                        sudo add-apt-repository ppa:ondrej/php5 \
+                        || OwnError "Unable to add php5 launchpad repository"
+
+                        # Update The APT Cache
+                        sudo apt-get update || OwnError "Unable to update apt cache"
+
+			# Install Nginx PHP5 MySQL Postfix
+                        sudo apt-get -y install nginx php5-common php5-mysql php5-xmlrpc \
+                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+                        php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+			|| OwnError "Unable to install nginx php5 mysql postfix"
+
+		fi
+	fi
+
+	# Easy Engine Remove
+	if [ $2 = "remove" ]
+	then
+		
+		if [ $3 = "nginx" ]
+                then
+			# Remove Nginx
+			sudo apt-get -y remove nginx || OwnError "Unable to remove nginx"
+
+		elif [ $3 = "php" ]
+                then
+
+			# Remove PHP5
+			sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
+                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+                        php5-dev php5-imap php5-mcrypt || OwnError "Unable to remove php5"
+
+		elif [ $3 = "mysql" ]
+		then
+
+			# Remove MySQL
+			sudo apt-get -y remove mysql-server mysqltuner \
+                        || OwnError "Unable to remove mysql"
+
+		elif [ $3 = "postfix" ]
+		then
+
+			# Remove Postfix
+			sudo apt-get -y remove postfix || OwnError "Unable to remove postfix"
+
+		elif [ $3 = "--all" ]
+		then
+
+			# Remove All
+			sudo apt-get -y remove nginx php5-common php5-mysql php5-xmlrpc \
+                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+                        php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+                        || OwnError "Unable to remove nginx php5 mysql postfix"	
+
+		fi
+	fi
+
+	# Easy Engine Purge
+	if [ $2 = "purge" ]
+	then
+		
+		if [ $3 = "nginx" ]
+                then
+			# Remove Nginx
+			sudo apt-get -y remove --purge nginx || OwnError "Unable to purge nginx"
+
+		elif [ $3 = "php" ]
+                then
+
+			# Remove PHP5
+			sudo apt-get -y remove --purge php5-common php5-mysql php5-xmlrpc \
+                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+                        php5-dev php5-imap php5-mcrypt || OwnError "Unable to purge php5"
+
+		elif [ $3 = "mysql" ]
+		then
+
+			# Remove MySQL
+			sudo apt-get -y remove --purge mysql-server mysqltuner \
+                        || OwnError "Unable to purge mysql"
+
+		elif [ $3 = "postfix" ]
+		then
+
+			# Remove Postfix
+			sudo apt-get -y remove --purge postfix || OwnError "Unable to purge postfix"
+
+		elif [ $3 = "--all" ]
+		then
+
+			# Remove All
+			sudo apt-get -y remove --purge nginx php5-common php5-mysql php5-xmlrpc \
+                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+                        php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+                        || OwnError "Unable to purge nginx php5 mysql postfix"	
+
+		fi
+	fi
+
+elif [ $1 = "site" ]
+then
+
+
+elif [ $1 = "config" ]
+then
+
+
+else
+	echo "Usage: $0 [OPTION] [ARGUMENTS]..."
+	echo "Admin tools for Nginx based wordpress sites management."
+
+	echo "OPTIONS:"
+	echo " $0 [system] [install|remove|purge] [nginx|php|mysql|postfix|--all]"
+	echo " $0 [site] [read|craete|update|delete] [sitename]"
+	echo " $0 [config] [set|get] [memory|timeout]"
+
+	echo "Exit status:"
+	echo "   0 if OK,"
+	echo " 100 sudo privilege required,"
+	echo " 101 command failed to execute,"
+
+fi
