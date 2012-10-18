@@ -245,11 +245,12 @@ then
 
 elif [ $1 = "site" ]
 then
-
+	echo "Under Developments !!"
 
 elif [ $1 = "config" ]
 then
 
+	echo "Under Developments !!"
 
 else
 	echo "Usage: $0 [OPTION] [ARGUMENTS]..."
