@@ -30,14 +30,14 @@ EngineHelp()
 {
 	
 	echo
-	echo "Usage: $0 [OPTION] [ARGUMENTS]..."
+	echo "Usage: `basename $0` [OPTION] [ARGUMENTS]..."
 	echo "Admin tools for Nginx based wordpress sites management."
 	
 	echo
 	echo "OPTIONS:"
-	echo " $0 [system] [install|remove|purge] [nginx|php|mysql|postfix|--all]"
-	echo " $0 [site]   [read|craete|update|delete] [sitename]"
-	echo " $0 [config] [set|get] [memory|timeout]"
+	echo " `basename $0` [system] [install|remove|purge] [nginx|php|mysql|postfix|--all]"
+	echo " `basename $0` [site]   [read|craete|update|delete] [sitename]"
+	echo " `basename $0` [config] [set|get] [memory|timeout]"
 
 	echo
 	echo "Exit status:"
