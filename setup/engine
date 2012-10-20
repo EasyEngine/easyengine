@@ -6,17 +6,17 @@
 Permission=$(id -u)
 if [ $Permission -ne 0 ] 
 then
-        echo -e "\033[31m Root Privilege Required... \e[0m"
-        echo -e "\033[31m Uses:  sudo $0 \e[0m"
-        exit 100 
+	echo -e "\033[31m Root Privilege Required... \e[0m"
+	echo -e "\033[31m Uses:  sudo $0 \e[0m"
+	exit 100 
 fi
 
 
 # Capture Errors
 OwnError()
 {
-        echo -e "[ $0 ][ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
-        exit 101
+	echo -e "[ $0 ][ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
+	exit 101
 }
 
 
@@ -35,9 +35,15 @@ EngineHelp()
 	
 	echo
 	echo "OPTIONS:"
-	echo " `basename $0` [system] [install|remove|purge] [nginx|php|mysql|postfix|--all]"
-	echo " `basename $0` [site]   [read|craete|update|delete] [sitename]"
-	echo " `basename $0` [config] [set|get] [memory|timeout]"
+	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]"
+
+	echo " `basename $0` [site]	[read]	 [--all|--active|sitename]"
+	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
+	echo " `basename $0` [site]	[update] [sitename] []"
+	echo " `basename $0` [site]	[delete] [sitename] [--with-data]"
+	#echo " `basename $0` [site]	[read|craete|update|delete] [sitename]"
+
+	echo " `basename $0` [config]	[set|get] [memory|timeout]"
 
 	echo
 	echo "Exit status:"
@@ -51,41 +57,41 @@ EngineHelp()
 if [ ! -d $LOGDIR ]
 then
 	echo -e "\033[34m Creating easyengine log directory...  \e[0m" 
-        mkdir -p $LOGDIR || OwnError "Unable to create log directory $LOGDIR"
-else
-        echo -e "\033[34m Easyengine log directory found...  \e[0m" 
+	mkdir -p $LOGDIR || OwnError "Unable to create log directory $LOGDIR"
+#else
+	#echo -e "\033[34m Easyengine log directory found...  \e[0m" 
 fi
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
 then
-        echo -e "\033[31m Tee command not found !! \e[0m"
-        echo -e "\033[34m Installing tee  \e[0m"
-        sudo apt-get -y install coreutils || OwnError "Unable to install tee"
+	echo -e "\033[31m Tee command not found !! \e[0m"
+	echo -e "\033[34m Installing tee  \e[0m"
+	sudo apt-get -y install coreutils || OwnError "Unable to install tee"
 fi
 
 # Checking Wget
 if [ ! -x  /usr/bin/wget ]
 then
-        echo -e "\033[31m Wget command not found !! \e[0m"
-        echo -e "\033[34m Installing wget  \e[0m"
-        sudo apt-get -y install wget || OwnError "Unable to install wget"
+	echo -e "\033[31m Wget command not found !! \e[0m"
+	echo -e "\033[34m Installing wget  \e[0m"
+	sudo apt-get -y install wget || OwnError "Unable to install wget"
 fi
 
 # Checking Tar
 if [ ! -x  /bin/tar ]
 then
-        echo -e "\033[31m Tar command not found !! \e[0m"
-        echo -e "\033[34m Installing tar  \e[0m"
-        sudo apt-get -y install tar || OwnError "Unable to install tar"
+	echo -e "\033[31m Tar command not found !! \e[0m"
+	echo -e "\033[34m Installing tar  \e[0m"
+	sudo apt-get -y install tar || OwnError "Unable to install tar"
 fi
 
 # Checking Name Servers
 if [[ -z $(cat /etc/resolv.conf | grep -v ^#) ]]
 then
-        echo -e "\033[31m No nameservers detected !! \e[0m" | tee -ai $ERRORLOG
-        echo -e "\033[31m Please configure /etc/resolv.conf \e[0m" | tee -ai $ERRORLOG
-        exit 100
+	echo -e "\033[31m No nameservers detected !! \e[0m" | tee -ai $ERRORLOG
+	echo -e "\033[31m Please configure /etc/resolv.conf \e[0m" | tee -ai $ERRORLOG
+	exit 100
 fi
 # Pre Checks End
 
@@ -294,13 +300,39 @@ then
 			EngineHelp
 		fi
 	#fi
+
+	# Easy Engine Help
 	else
 		EngineHelp
 	fi
 
+
+
 elif [ "$1" = "site" ]
 then
-	echo "Under Developments !!"
+	# Easy Engine Read
+	if [ "$2" = "read" ]
+	then
+
+		if [ "$3" = 
+
+	# Easy Engine Create
+	elif [ "$2" = "create" ]
+	then
+
+	# Easy Engine Update
+	elif [ "$2" = "update" ]
+	then
+
+	# Easy Engine Delete
+	elif [ "$2" = "delete" ]
+	then
+
+	# Easy Engine Help
+	else
+	fi
+	
+	#echo "Under Developments !!"
 
 elif [ "$1" = "config" ]
 then
