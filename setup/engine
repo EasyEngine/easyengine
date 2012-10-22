@@ -354,40 +354,45 @@ then
 		if [ -n "$3" ]
 		then
 
+			# Remove http:// & www.
+			Domain=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+
 			# Creating Site
-			echo "Creating  $3, please wait..."
-			sed "s/example.com/$3/g" ../conf/nginx/basic.conf \
-			> /etc/nginx/sites-available/$3 \
-			|| OwnError "Unable to create configuration file for $3"
+			echo "Creating  $Domain, please wait..."
+			sed "s/example.com/$Domain/g" ../conf/nginx/basic.conf \
+			> /etc/nginx/sites-available/$Domain \
+			|| OwnError "Unable to create configuration file for $Domain"
 
 			# Creating Symbolic Link
-			ln -s /etc/nginx/sites-available/$3 /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable to create symbolic link for $3"
+			ln -s /etc/nginx/sites-available/$Domain /etc/nginx/sites-enabled/ \
+			|| OwnError "Unable to create symbolic link for $Domain"
 
 			# Creating Htdocs & Logs Directory
-			mkdir -p /var/www/$3/{htdocs,logs} \
+			mkdir -p /var/www/$Domain/{htdocs,logs} \
 			|| OwnError "Unable to create htdocs and logs directory"
 
 			# Creating Symbolic Links For Logs
-			ln -s /var/log/nginx/$3.{accss.log,error.log} /var/www/$3/logs/ \
-			|| OwnError "Unable to create symbolic link for $3 logs"
+			ln -s /var/log/nginx/$Domain.{accss.log,error.log} /var/www/$Domain/logs/ \
+			|| OwnError "Unable to create symbolic link for $Domain logs"
 
 
 			if [ "$4" = "--with-wordpress" ]
 			then
 				# Download Latest Wordpress
-				wget -cO /var/www/$3/htdocs/latest.tar.gz  \
+				wget -cO /var/www/$Domain/htdocs/latest.tar.gz  \
 				http://wordpress.org/latest.tar.gz
 
 				# Extracting Wordpress
-				tar --strip-components=1 -zxf /var/www/$3/htdocs/latest.tar.gz \
-				-C /var/www/$3/htdocs/
+				tar --strip-components=1 -zxf /var/www/$Domain/htdocs/latest.tar.gz \
+				-C /var/www/$Domain/htdocs/
 
 				# Removing Wordpress Archive
-				rm /var/www/$3/htdocs/latest.tar.gz
+				rm /var/www/$Domain/htdocs/latest.tar.gz
 
 				# Modify wp-config.php
 
+				# Change Ownership
+				chown -R www-data:www-data /var/www/$Domain/
 
 			fi
 
