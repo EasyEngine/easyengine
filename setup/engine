@@ -358,20 +358,23 @@ then
 			Domain=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
 			# Creating Site
-			echo "Creating  $Domain, please wait..."
+			echo -e "\033[34m Creating  $Domain, please wait...  \e[0m"
 			sed "s/example.com/$Domain/g" ../conf/nginx/basic.conf \
 			> /etc/nginx/sites-available/$Domain \
 			|| OwnError "Unable to create configuration file for $Domain"
 
 			# Creating Symbolic Link
+			echo -e "\033[34m Creating symbolic link  \e[0m"
 			ln -s /etc/nginx/sites-available/$Domain /etc/nginx/sites-enabled/ \
 			|| OwnError "Unable to create symbolic link for $Domain"
 
 			# Creating Htdocs & Logs Directory
+			echo -e "\033[34m Creating htdocs and logs directory  \e[0m"
 			mkdir -p /var/www/$Domain/{htdocs,logs} \
 			|| OwnError "Unable to create htdocs and logs directory"
 
 			# Creating Symbolic Links For Logs
+			echo -e "\033[34m Creating symbolic link for logs  \e[0m"
 			ln -s /var/log/nginx/$Domain.{accss.log,error.log} /var/www/$Domain/logs/ \
 			|| OwnError "Unable to create symbolic link for $Domain logs"
 
@@ -379,6 +382,7 @@ then
 			if [ "$4" = "--with-wordpress" ]
 			then
 				# Download Latest Wordpress
+				echo -e "\033[34m Downloading wordpress  \e[0m"
 				wget -cO /var/www/$Domain/htdocs/latest.tar.gz  \
 				http://wordpress.org/latest.tar.gz
 
@@ -392,6 +396,7 @@ then
 				# Modify wp-config.php
 
 				# Change Ownership
+				echo -e "\033[34m Changing ownership  \e[0m"
 				chown -R www-data:www-data /var/www/$Domain/
 
 			fi
