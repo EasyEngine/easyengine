@@ -37,12 +37,14 @@ EngineHelp()
 	echo "OPTIONS:"
 	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]"
 
-	echo " `basename $0` [site]	[read]	 [--all|--active|sitename]"
+	echo
+	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] []"
 	echo " `basename $0` [site]	[delete] [sitename] [--with-data]"
 	#echo " `basename $0` [site]	[read|craete|update|delete] [sitename]"
 
+	echo
 	echo " `basename $0` [config]	[set|get] [memory|timeout]"
 
 	echo
@@ -314,22 +316,102 @@ then
 	if [ "$2" = "read" ]
 	then
 
-		if [ "$3" = 
+		if [ "$3" = "all" ]
+		then
+			# Display The List Of All Sites
+			ls /etc/nginx/sites-available/ \
+			|| OwnError "Unable to display the list of websites"
+
+		elif [ "$3" = "active" ]
+		then
+			# Display The List Of Active Sites
+			ls /etc/nginx/sites-enabled/ \
+			|| OwnError "Unable to display the list of active websites"
+
+		elif [ "$3" != "all" ] && [ "$3" != "active" ] && [ -n "$3" ]
+		then
+
+			# Check The Website Is Exist
+			ls /etc/nginx/sites-available/$3 &> /dev/null \
+			|| OwnError "The $3 is not found in available websites list"
+			if [ $? -eq 0 ]
+			then
+
+				# Display The Specific Site Configuration
+				cat /etc/nginx/sites-available/$3 \
+				|| OwnError "Unable to display the $3 configuration settings"
+			fi
+
+		else
+			EngineHelp
+
+		fi 
 
 	# Easy Engine Create
 	elif [ "$2" = "create" ]
 	then
 
+		if [ -n "$3" ]
+		then
+
+			# Creating Site
+			echo "Creating  $3, please wait..."
+			sed "s/example.com/$3/g" ../conf/nginx/basic.conf \
+			> /etc/nginx/sites-available/$3 \
+			|| OwnError "Unable to create configuration file for $3"
+
+			# Creating Symbolic Link
+			ln -s /etc/nginx/sites-available/$3 /etc/nginx/sites-enabled/ \
+			|| OwnError "Unable to create symbolic link for $3"
+
+			# Creating Htdocs & Logs Directory
+			mkdir -p /var/www/$3/{htdocs,logs} \
+			|| OwnError "Unable to create htdocs and logs directory"
+
+			# Creating Symbolic Links For Logs
+			ln -s /var/log/nginx/$3.{accss.log,error.log} /var/www/$3/logs/ \
+			|| OwnError "Unable to create symbolic link for $3 logs"
+
+
+			if [ "$4" = "--with-wordpress" ]
+			then
+				# Download Latest Wordpress
+				wget -cO /var/www/$3/htdocs/latest.tar.gz  \
+				http://wordpress.org/latest.tar.gz
+
+				# Extracting Wordpress
+				tar --strip-components=1 -zxf /var/www/$3/htdocs/latest.tar.gz \
+				-C /var/www/$3/htdocs/
+
+				# Removing Wordpress Archive
+				rm /var/www/$3/htdocs/latest.tar.gz
+
+				# Modify wp-config.php
+
+
+			fi
+
+
+
+
+		else
+			EngineHelp
+
+		fi
+
 	# Easy Engine Update
 	elif [ "$2" = "update" ]
 	then
+		echo "Update"
 
 	# Easy Engine Delete
 	elif [ "$2" = "delete" ]
 	then
+		echo "Delete"
 
 	# Easy Engine Help
 	else
+		EngineHelp
 	fi
 	
 	#echo "Under Developments !!"
