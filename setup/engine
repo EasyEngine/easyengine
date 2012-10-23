@@ -54,6 +54,34 @@ EngineHelp()
 	echo " 101 command failed to execute,"
 }
 
+# GET Information Function
+GETINFO()
+{
+
+	# Get The MySQL Username/Password
+	read -p "MySQL Host [localhost]: " TEMP
+	read -p "Enter The MySQL Username: " MYSQLUSER
+	read -p "Enter The MySQL Password: " MYSQLPASS
+	read -p "Enter The MySQL Database Name For $DOMAIN: " WPDBNAME
+
+	# If Enter Is Pressed, Then Use localhost as MySQL Host
+	if [[ $TEMP = "" ]]
+	then
+		MYSQLHOST=localhost
+	else
+		MYSQLHOST=$TEMP
+	fi
+
+	# Create Database
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
+	|| OwnError "Unable to create $WPDBNAME"
+
+	# Nginx User
+	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
+	|| OwnError "Unable to findout nginx user"
+
+}
+
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
 if [ ! -d $LOGDIR ]
@@ -310,6 +338,9 @@ then
 
 
 
+
+
+# Easy Engine Site Settings
 elif [ "$1" = "site" ]
 then
 	# Easy Engine Read
@@ -345,7 +376,9 @@ then
 		else
 			EngineHelp
 
-		fi 
+		fi
+
+ 
 
 	# Easy Engine Create
 	elif [ "$2" = "create" ]
@@ -355,49 +388,71 @@ then
 		then
 
 			# Remove http:// & www.
-			Domain=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
 			# Creating Site
-			echo -e "\033[34m Creating  $Domain, please wait...  \e[0m"
-			sed "s/example.com/$Domain/g" ../conf/nginx/basic.conf \
-			> /etc/nginx/sites-available/$Domain \
-			|| OwnError "Unable to create configuration file for $Domain"
+			echo -e "\033[34m Creating $DOMAIN, please wait...  \e[0m"
+			sed "s/example.com/$DOMAIN/g" ../conf/nginx/basic.conf \
+			> /etc/nginx/sites-available/$DOMAIN \
+			|| OwnError "Unable to create configuration file for $DOMAIN"
 
 			# Creating Symbolic Link
 			echo -e "\033[34m Creating symbolic link  \e[0m"
-			ln -s /etc/nginx/sites-available/$Domain /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable to create symbolic link for $Domain"
+			ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
+			|| OwnError "Unable to create symbolic link for $DOMAIN"
 
 			# Creating Htdocs & Logs Directory
 			echo -e "\033[34m Creating htdocs and logs directory  \e[0m"
-			mkdir -p /var/www/$Domain/{htdocs,logs} \
+			mkdir -p /var/www/$DOMAIN/{htdocs,logs} \
 			|| OwnError "Unable to create htdocs and logs directory"
 
 			# Creating Symbolic Links For Logs
 			echo -e "\033[34m Creating symbolic link for logs  \e[0m"
-			ln -s /var/log/nginx/$Domain.{accss.log,error.log} /var/www/$Domain/logs/ \
-			|| OwnError "Unable to create symbolic link for $Domain logs"
+			ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
+			&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
+			|| OwnError "Unable to create symbolic link for $DOMAIN logs"
 
 
 			if [ "$4" = "--with-wordpress" ]
 			then
 				# Download Latest Wordpress
 				echo -e "\033[34m Downloading wordpress  \e[0m"
-				wget -cO /var/www/$Domain/htdocs/latest.tar.gz  \
+				wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 				http://wordpress.org/latest.tar.gz
 
 				# Extracting Wordpress
-				tar --strip-components=1 -zxf /var/www/$Domain/htdocs/latest.tar.gz \
-				-C /var/www/$Domain/htdocs/
+				tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
+				-C /var/www/$DOMAIN/htdocs/
 
 				# Removing Wordpress Archive
-				rm /var/www/$Domain/htdocs/latest.tar.gz
+				rm /var/www/$DOMAIN/htdocs/latest.tar.gz
+
+				# Call GETINFO Function For MySQL & Nginx Values
+				GETINFO
 
 				# Modify wp-config.php
+				cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
+				/var/www/$DOMAIN/htdocs/wp-config.php
 
+
+				sed -i "s/username_here/$MYSQLUSER/" \
+				/var/www/$DOMAIN/htdocs/wp-config.php
+
+				
+				sed -i "s/password_here/$MYSQLPASS/" \
+				/var/www/$DOMAIN/htdocs/wp-config.php
+
+				sed -i "s/localhost/$MYSQLHOST/" \
+				/var/www/$DOMAIN/htdocs/wp-config.php
+
+				printf '%s\n' "g/put your unique phrase here/d" \
+				a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
+				| ed -s wp-config.php
+								
+				
 				# Change Ownership
 				echo -e "\033[34m Changing ownership  \e[0m"
-				chown -R www-data:www-data /var/www/$Domain/
+				chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
 
 			fi
 
