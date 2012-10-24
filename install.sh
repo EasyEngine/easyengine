@@ -81,7 +81,7 @@ fi
 EXIST=$(basename `pwd`)
 if [ "$EXIST" != "easyengine" ]
 then
-	echo -e "\033[34m Cloning Easy Engine, please wait...  \e[0m"
+	echo -e "\033[34m Cloning Easy Engine, please wait...  \e[0m" | tee -ai $INSTALLLOG
 	cd /tmp
 
 	# Remove Older Easy Engine If Found
@@ -99,10 +99,23 @@ then
 	|| OwnError "Unable to create dir /usr/share/easyengine"
 fi
 
-echo -e "\033[34m Installing Easy Engine, please wait...  \e[0m" 
+# Install Easy Engine
+echo -e "\033[34m Installing Easy Engine, please wait...  \e[0m" | tee -ai $INSTALLLOG
 cp -av conf/* /usr/share/easyengine
 cp -av setup/engine /usr/local/sbin/
+
+# Create Symbolic Link If Not Exist
 if [ ! -L /usr/local/sbin/ee ]
 then
 	ln -s /usr/local/sbin/engine /usr/local/sbin/ee
 fi
+
+
+
+
+
+
+
+echo
+echo "Easy Engine Installed"
+
