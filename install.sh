@@ -81,8 +81,9 @@ fi
 EXIST=$(basename `pwd`)
 if [ "$EXIST" != "easyengine" ]
 then
-	echo -e "\033[34m Cloning Easy Engine, please wait...  \e[0m" 
+	echo -e "\033[34m Cloning Easy Engine, please wait...  \e[0m"
 	cd /tmp
+	rm -rf /tmp/easyengine
 	git clone git://github.com/rtCamp/easyengine.git || OwnError "Unable to clone easy engine"
 	cd easyengine
 fi
