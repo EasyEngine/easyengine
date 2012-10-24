@@ -115,7 +115,6 @@ fi
 
 
 
-
 echo
-echo "Easy Engine Installed"
-
+echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
+echo
