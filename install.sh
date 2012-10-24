@@ -102,9 +102,7 @@ fi
 echo -e "\033[34m Installing Easy Engine, please wait...  \e[0m" 
 cp -av conf/* /usr/share/easyengine
 cp -av setup/engine /usr/local/sbin/
-if [ -L /usr/local/sbin/ee ]
+if [ ! -L /usr/local/sbin/ee ]
 then
-	echo "The ee command already set"
-else
 	ln -s /usr/local/sbin/engine /usr/local/sbin/ee
 fi
