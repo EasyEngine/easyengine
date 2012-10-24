@@ -83,7 +83,11 @@ if [ "$EXIST" != "easyengine" ]
 then
 	echo -e "\033[34m Cloning Easy Engine, please wait...  \e[0m"
 	cd /tmp
+
+	# Remove Older Easy Engine If Found
 	rm -rf /tmp/easyengine
+
+	# Git Clone
 	git clone git://github.com/rtCamp/easyengine.git || OwnError "Unable to clone easy engine"
 	cd easyengine
 fi
@@ -98,4 +102,9 @@ fi
 echo -e "\033[34m Installing Easy Engine, please wait...  \e[0m" 
 cp -av conf/* /usr/share/easyengine
 cp -av setup/engine /usr/local/sbin/
-ln -s /usr/local/sbin/engine /usr/local/sbin/ee
+if [ -L /usr/local/sbin/ee ]
+then
+	echo "The ee command already set"
+else
+	ln -s /usr/local/sbin/engine /usr/local/sbin/ee
+fi
