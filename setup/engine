@@ -15,7 +15,7 @@ fi
 # Capture Errors
 OwnError()
 {
-	echo -e "[ $0 ][ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
+	echo -e "[ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
 	exit 101
 }
 
@@ -30,11 +30,11 @@ EngineHelp()
 {
 	
 	echo
-	echo "Usage: `basename $0` [OPTION] [ARGUMENTS]..."
-	echo "Admin tools for Nginx based wordpress sites management."
+	echo "Usage: `basename $0` [OPTION] [ARGUMENT]..."
+	echo "Admin tools for nginx based wordpress sites management."
 	
 	echo
-	echo "OPTIONS:"
+	echo "OPTION:"
 	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]"
 
 	echo
@@ -42,7 +42,6 @@ EngineHelp()
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] []"
 	echo " `basename $0` [site]	[delete] [sitename] [--with-data]"
-	#echo " `basename $0` [site]	[read|craete|update|delete] [sitename]"
 
 	echo
 	echo " `basename $0` [config]	[set|get] [memory|timeout]"
@@ -53,6 +52,10 @@ EngineHelp()
 	echo " 100 sudo privilege required,"
 	echo " 101 command failed to execute,"
 }
+
+
+
+
 
 # GET Information Function
 GETINFO()
@@ -88,14 +91,25 @@ GETINFO()
 
 }
 
+NGINXRELOAD()
+{
+
+	# Test & Reload Nginx
+	echo -e "\033[34m Reloading nginx, please wait...  \e[0m"
+	nginx -t && service nginx reload || OwnError "Unable to reload nginx"
+
+}
+
+
+
+
+
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
 if [ ! -d $LOGDIR ]
 then
 	echo -e "\033[34m Creating easyengine log directory...  \e[0m" 
 	mkdir -p $LOGDIR || OwnError "Unable to create log directory $LOGDIR"
-#else
-	#echo -e "\033[34m Easyengine log directory found...  \e[0m" 
 fi
 
 # Checking Tee
@@ -237,7 +251,7 @@ then
 		else
 			EngineHelp
 		fi
-	#fi
+
 
 	# Easy Engine Remove
 	elif [ "$2" = "remove" ]
@@ -286,7 +300,7 @@ then
 		else
 			EngineHelp
 		fi
-	#fi
+
 
 	# Easy Engine Purge
 	elif [ "$2" = "purge" ]
@@ -335,7 +349,7 @@ then
 		else
 			EngineHelp
 		fi
-	#fi
+
 
 	# Easy Engine Help
 	else
@@ -384,7 +398,6 @@ then
 
 		fi
 
- 
 
 	# Easy Engine Create
 	elif [ "$2" = "create" ]
@@ -398,7 +411,7 @@ then
 
 			# Creating Site
 			echo -e "\033[34m Creating $DOMAIN, please wait...  \e[0m"
-			sed "s/example.com/$DOMAIN/g" ../conf/nginx/basic.conf \
+			sed "s/example.com/$DOMAIN/g" ../conf/nginx/singlesite/basic.conf \
 			> /etc/nginx/sites-available/$DOMAIN \
 			|| OwnError "Unable to create configuration file for $DOMAIN"
 
@@ -463,6 +476,8 @@ then
 			fi
 
 
+			# Reload Nginx Configuration
+			NGINXRELOAD
 
 
 		else
@@ -473,7 +488,28 @@ then
 	# Easy Engine Update
 	elif [ "$2" = "update" ]
 	then
-		echo "Update"
+
+		if [ -n "$3" ]
+		then
+
+			# Remove http:// & www.
+			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+
+
+			if [ "$4" = "" ]
+			then
+
+				# Updating Site
+
+			else
+				EngineHelp
+
+			fi
+
+		else
+			EnginHelp
+
+		fi
 
 	# Easy Engine Delete
 	elif [ "$2" = "delete" ]
@@ -487,11 +523,13 @@ then
 	
 	#echo "Under Developments !!"
 
+# Easy Engine Config Settings
 elif [ "$1" = "config" ]
 then
 
 	echo "Under Developments !!"
 
+# Easy Engine Help
 else
 	EngineHelp
 fi
