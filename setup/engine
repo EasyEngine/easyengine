@@ -411,7 +411,8 @@ then
 
 			# Creating Site
 			echo -e "\033[34m Creating $DOMAIN, please wait...  \e[0m"
-			sed "s/example.com/$DOMAIN/g" ../conf/nginx/singlesite/basic.conf \
+			sed "s/example.com/$DOMAIN/g" \
+			/usr/share/easyengine/nginx/singlesite/basic.conf \
 			> /etc/nginx/sites-available/$DOMAIN \
 			|| OwnError "Unable to create configuration file for $DOMAIN"
 
@@ -500,7 +501,7 @@ then
 			then
 
 				# Updating Site
-
+				echo Updating
 			else
 				EngineHelp
 
