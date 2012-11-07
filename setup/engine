@@ -2,14 +2,14 @@
 
 
 
-# Checking Permissions
-Permission=$(id -u)
-if [ $Permission -ne 0 ] 
-then
-	echo -e "\033[31m Root Privilege Required... \e[0m"
-	echo -e "\033[31m Uses:  sudo $0 \e[0m"
-	exit 100 
-fi
+# Make Variables Available For Later Use
+LOGDIR=/var/log/easyengine
+MAINLOG=/var/log/easyengine/main.log
+ERRORLOG=/var/log/easyengine/error.log
+
+
+
+
 
 
 # Capture Errors
@@ -19,11 +19,6 @@ OwnError()
 	exit 101
 }
 
-
-# Make Variables Available For Later Use
-LOGDIR=/var/log/easyengine
-MAINLOG=/var/log/easyengine/main.log
-ERRORLOG=/var/log/easyengine/error.log
 
 # Help Function
 EngineHelp()
@@ -99,51 +94,6 @@ NGINXRELOAD()
 	nginx -t && service nginx reload || OwnError "Unable to reload nginx"
 
 }
-
-
-
-
-
-# Pre Checks To Avoid Later Screw Ups
-# Checking Logs Directory
-if [ ! -d $LOGDIR ]
-then
-	echo -e "\033[34m Creating easyengine log directory...  \e[0m" 
-	mkdir -p $LOGDIR || OwnError "Unable to create log directory $LOGDIR"
-fi
-
-# Checking Tee
-if [ ! -x  /usr/bin/tee ]
-then
-	echo -e "\033[31m Tee command not found !! \e[0m"
-	echo -e "\033[34m Installing tee  \e[0m"
-	sudo apt-get -y install coreutils || OwnError "Unable to install tee"
-fi
-
-# Checking Wget
-if [ ! -x  /usr/bin/wget ]
-then
-	echo -e "\033[31m Wget command not found !! \e[0m"
-	echo -e "\033[34m Installing wget  \e[0m"
-	sudo apt-get -y install wget || OwnError "Unable to install wget"
-fi
-
-# Checking Tar
-if [ ! -x  /bin/tar ]
-then
-	echo -e "\033[31m Tar command not found !! \e[0m"
-	echo -e "\033[34m Installing tar  \e[0m"
-	sudo apt-get -y install tar || OwnError "Unable to install tar"
-fi
-
-# Checking Name Servers
-if [[ -z $(cat /etc/resolv.conf | grep -v ^#) ]]
-then
-	echo -e "\033[31m No nameservers detected !! \e[0m" | tee -ai $ERRORLOG
-	echo -e "\033[31m Please configure /etc/resolv.conf \e[0m" | tee -ai $ERRORLOG
-	exit 100
-fi
-# Pre Checks End
 
 
 
