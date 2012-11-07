@@ -56,7 +56,7 @@ MYSQLINFO()
 {
 
 	# Get The MySQL Username/Password
-	read -p "MySQL Host [localhost]: " TEMP
+	read -p "MySQL Host [localhost]: " MYSQLHOST
 	read -p "Enter The MySQL Username: " MYSQLUSER
 
 	# Turn Off Echo For Passwords
@@ -65,14 +65,20 @@ MYSQLINFO()
 	stty echo
 	echo
 	
-	read -p "Enter The MySQL Database Name For $DOMAIN: " WPDBNAME
+	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
 
 	# If Enter Is Pressed, Then Use localhost as MySQL Host
-	if [[ $TEMP = "" ]]
+	if [[ $MYSQLHOST = "" ]]
 	then
 		MYSQLHOST=localhost
-	else
-		MYSQLHOST=$TEMP
+		#echo $MYSQLHOST
+	fi
+
+	# If Enter Is Pressed, Then Use $DOMAIN As Database Name
+	if [[ $WPDBNAME = "" ]]
+	then
+		WPDBNAME=$DOMAIN
+		#echo $WPDBNAME
 	fi
 
 	# Create Database
@@ -414,10 +420,11 @@ then
 				cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
 				/var/www/$DOMAIN/htdocs/wp-config.php
 
+				sed -i "s/database_name_here/$WPDBNAME/" \
+				/var/www/$DOMAIN/htdocs/wp-config.php
 
 				sed -i "s/username_here/$MYSQLUSER/" \
 				/var/www/$DOMAIN/htdocs/wp-config.php
-
 				
 				sed -i "s/password_here/$MYSQLPASS/" \
 				/var/www/$DOMAIN/htdocs/wp-config.php
@@ -427,7 +434,7 @@ then
 
 				printf '%s\n' "g/put your unique phrase here/d" \
 				a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
-				| ed -s wp-config.php
+				| ed -s /var/www/$DOMAIN/htdocs/wp-config.php
 								
 			fi
 
@@ -464,8 +471,6 @@ then
 
 				# Updating Site
 				echo Updating
-			else
-				EngineHelp
 
 			fi
 
@@ -477,7 +482,74 @@ then
 	# Easy Engine Delete
 	elif [ "$2" = "delete" ]
 	then
-		echo "Delete"
+
+		if [ -n "$3" ]
+		then
+			# Remove http:// & www.
+			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+
+			# Delete Site
+			echo -e "\033[34m Deleting $DOMAIN, Please Wait...  \e[0m"
+			rm /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN
+
+			# Remove Symbolic Links For Logs Files
+			echo -e "\033[34m Remove Symbolic Link For $DOMAIN Logs...  \e[0m"
+			rm /var/www/$DOMAIN/logs/{access,error}.log
+
+			if [ "$4" = "--with-data" ]
+			then
+
+				# Remove Database
+				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
+
+				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
+				
+				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
+
+				# Conformation
+				echo
+				echo
+				echo -e "\033[31m Caution: After This Operation,\e[0m"
+				echo -e "\033[31m 	1. The Database $WPDBNAME Is Deleted \e[0m"
+				echo -e "\033[31m 	2. The /var/www/$DOMAIN Directory Deleted \e[0m"
+				echo -ne "\033[31m Are You Sure [yes/no]: \e[0m"
+				read CAUTION
+
+				if [ "$CAUTION" = "yes" ]
+				then
+
+					# Remove Database
+					echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
+					mysql -u $MYSQLUSER -p$MYSQLPASS \
+					-e "drop database \`$WPDBNAME\`" \
+					|| OwnError "Unable To Drop $WPDBNAME Database"
+ 
+					# Remove Webroot For $DOMAIN
+					echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
+					rm -rf /var/www/$DOMAIN
+
+					# Give Space For Better Echo On Screen
+					echo
+					echo
+
+				else
+					echo -e "\033[34m Exit Without Remove \e[0m"
+
+					# Give Space For Better Echo On Screen
+					echo
+					echo
+				fi
+
+			fi
+
+			# Reload Nginx Configuration
+			NGINXRELOAD
+
+		fi
+		
 
 	# Easy Engine Help
 	else
