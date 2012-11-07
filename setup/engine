@@ -52,7 +52,7 @@ EngineHelp()
 
 
 # GET Information Function
-GETINFO()
+MYSQLINFO()
 {
 
 	# Get The MySQL Username/Password
@@ -79,17 +79,25 @@ GETINFO()
 	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
 
+}
+
+
+WEBUSERINFO()
+{
+
 	# Nginx User
 	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
 	|| OwnError "Unable To Findout Nginx Username"
 
 }
 
+
+
 NGINXRELOAD()
 {
 
 	# Test & Reload Nginx
-	echo -e "\033[34m Reloading Nginx, Please wait...  \e[0m"
+	echo -e "\033[34m Reloading Nginx Configuration, Please wait...  \e[0m"
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 
 }
@@ -319,12 +327,14 @@ then
 		if [ "$3" = "all" ]
 		then
 			# Display The List Of All Sites
+			echo -e "\033[34m List Of All (sites-available) Websites \e[0m"
 			ls /etc/nginx/sites-available/ \
 			|| OwnError "Unable To Display The List Of Websites"
 
 		elif [ "$3" = "active" ]
 		then
 			# Display The List Of Active Sites
+			echo -e "\033[34m List Of Active (sites-enabled) Websites \e[0m"
 			ls /etc/nginx/sites-enabled/ \
 			|| OwnError "Unable To Display The List Of Active Websites"
 
@@ -338,6 +348,7 @@ then
 			then
 
 				# Display The Specific Site Configuration
+				echo -e "\033[34m Display The $3 Configuration Settings \e[0m"
 				cat /etc/nginx/sites-available/$3 \
 				|| OwnError "Unable To Display The $3 Configuration Settings"
 			fi
@@ -396,8 +407,8 @@ then
 				# Removing Wordpress Archive
 				rm /var/www/$DOMAIN/htdocs/latest.tar.gz
 
-				# Call GETINFO Function For MySQL & Nginx Values
-				GETINFO
+				# Call MYSQLINFO Function For MySQL Values
+				MYSQLINFO
 
 				# Modify wp-config.php
 				cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
@@ -418,13 +429,15 @@ then
 				a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
 				| ed -s wp-config.php
 								
-				
-				# Change Ownership
-				echo -e "\033[34m Changing Ownership  \e[0m"
-				chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-
 			fi
 
+			# Call WEBUSERINFO Function For Web User Details
+			WEBUSERINFO
+
+			# Change Ownership
+			echo -e "\033[34m Changing Ownership  \e[0m"
+			#echo $NGINXUSER $DOMAIN
+			chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
 
 			# Reload Nginx Configuration
 			NGINXRELOAD
