@@ -101,8 +101,8 @@ fi
 
 # Install Easy Engine
 echo -e "\033[34m Installing Easy Engine, please wait...  \e[0m" | tee -ai $INSTALLLOG
-cp -av conf/* /usr/share/easyengine
-cp -av setup/engine /usr/local/sbin/
+cp -a conf/* /usr/share/easyengine
+cp -a setup/engine /usr/local/sbin/
 
 # Create Symbolic Link If Not Exist
 if [ ! -L /usr/local/sbin/ee ]
