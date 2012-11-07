@@ -26,7 +26,6 @@ EngineHelp()
 	
 	echo
 	echo "Usage: `basename $0` [OPTION] [ARGUMENT]..."
-	echo "Admin tools for nginx based wordpress sites management."
 	
 	echo
 	echo "OPTION:"
@@ -78,11 +77,11 @@ GETINFO()
 
 	# Create Database
 	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
-	|| OwnError "Unable to create $WPDBNAME"
+	|| OwnError "Unable To Create $WPDBNAME Database"
 
 	# Nginx User
 	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
-	|| OwnError "Unable to findout nginx user"
+	|| OwnError "Unable To Findout Nginx Username"
 
 }
 
@@ -90,8 +89,8 @@ NGINXRELOAD()
 {
 
 	# Test & Reload Nginx
-	echo -e "\033[34m Reloading nginx, please wait...  \e[0m"
-	nginx -t && service nginx reload || OwnError "Unable to reload nginx"
+	echo -e "\033[34m Reloading Nginx, Please wait...  \e[0m"
+	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 
 }
 
@@ -107,96 +106,96 @@ then
 		if [ "$3" = "nginx" ]
 		then
 			# Install Python Software Properties
-			echo -e "\033[34m Installing python software properties...  \e[0m"
+			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
 			sudo apt-get -y install python-software-properties \
-			|| OwnError "Unable to install python software properties"
+			|| OwnError "Unable To Install Python Software Properties"
 
 			# Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding nginx launchpad repository...  \e[0m"
+			echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
 			sudo add-apt-repository ppa:nginx/stable \
-			|| OwnError "Unable to add nginx launchpad repository"
+			|| OwnError "Unable To Add Nginx Launchpad Repository"
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating apt cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable to update apt cache"
+			echo -e "\033[34m Updating APT Cache...  \e[0m"
+			sudo apt-get update || OwnError "Unable To Update APT Cache"
 
 			# Install Nginx
-			echo -e "\033[34m Installing nginx...  \e[0m"
-			sudo apt-get -y install nginx || OwnError "Unable to install nginx"
+			echo -e "\033[34m Installing Nginx...  \e[0m"
+			sudo apt-get -y install nginx || OwnError "Unable To Install Nginx"
 			
 		elif [ "$3" = "php" ]
 		then
 
 			# Install Python Software Properties
-			echo -e "\033[34m Installing python software properties...  \e[0m"
+			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
 			sudo apt-get -y install python-software-properties \
-			|| OwnError "Unable to install python software properties"
+			|| OwnError "Unable To Install Python Software Properties"
 
 			# Add PHP Launchpad Repository
-			echo -e "\033[34m Adding php5 launchpad repository...  \e[0m"
+			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
 			sudo add-apt-repository ppa:ondrej/php5 \
-			|| OwnError "Unable to add php5 launchpad repository"
+			|| OwnError "Unable To Add PHP5 Launchpad Repository"
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating apt cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable to update apt cache"
+			echo -e "\033[34m Updating APT Cache...  \e[0m"
+			sudo apt-get update || OwnError "Unable To Update APT Cache"
 
 			# Install PHP5
-			echo -e "\033[34m Installing php5...  \e[0m"
+			echo -e "\033[34m Installing PHP5...  \e[0m"
 			sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
 			php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-			php5-dev php5-imap php5-mcrypt || OwnError "Unable to install php5"
+			php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
 			
 		elif [ "$3" = "mysql" ]
 		then
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating apt cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable to update apt cache"
+			echo -e "\033[34m Updating APT Cache...  \e[0m"
+			sudo apt-get update || OwnError "Unable To Update APT Cache"
 
 			# Install MySQL
-			echo -e "\033[34m Installing mysql...  \e[0m"
+			echo -e "\033[34m Installing MySQL...  \e[0m"
 			sudo apt-get -y install mysql-server mysqltuner \
-			|| OwnError "Unable to install mysql"			
+			|| OwnError "Unable To Install MySQL"			
 
 		elif [ "$3" = "postfix" ]
 		then
 			# Update The APT Cache
-			echo -e "\033[34m Updating apt cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable to update apt cache"
+			echo -e "\033[34m Updating APT Cache...  \e[0m"
+			sudo apt-get update || OwnError "Unable To Update APT Cache"
 			
 			# Install Postfix
-			echo -e "\033[34m Installing postfix...  \e[0m"
-			sudo apt-get -y install postfix || OwnError "Unable to install postfix"
+			echo -e "\033[34m Installing Postfix...  \e[0m"
+			sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
 
 		elif [ "$3" = "--all" ]
 		then
 			
 			# Install Python Software Properties
-			echo -e "\033[34m Installing python software properties...  \e[0m"
+			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
                         sudo apt-get -y install python-software-properties \
-                        || OwnError "Unable to install python software properties"
+                        || OwnError "Unable To Install Python Software Properties"
 
                         # Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding nginx launchpad repository...  \e[0m"
+			echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
                         sudo add-apt-repository ppa:nginx/stable \
-                        || OwnError "Unable to add nginx launchpad repository"
+                        || OwnError "Unable To Add Nginx Launchpad Repository"
 
 			# Add PHP Launchpad Repository
-			echo -e "\033[34m Adding php5 launchpad repository...  \e[0m"
+			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
                         sudo add-apt-repository ppa:ondrej/php5 \
-                        || OwnError "Unable to add php5 launchpad repository"
+                        || OwnError "Unable To Add PHP5 Launchpad Repository"
 
                         # Update The APT Cache
-			echo -e "\033[34m Updating apt cache...  \e[0m"
-                        sudo apt-get update || OwnError "Unable to update apt cache"
+			echo -e "\033[34m Updating APT Cache...  \e[0m"
+                        sudo apt-get update || OwnError "Unable To Update APT Cache"
 
 			# Install Nginx PHP5 MySQL Postfix
-			echo -e "\033[34m Installing nginx php5 mysql postfix...  \e[0m"
+			echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
                         sudo apt-get -y install nginx php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-			|| OwnError "Unable to install nginx php5 mysql postfix"
+			|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 
 		else
 			EngineHelp
@@ -210,42 +209,42 @@ then
 		if [ "$3" = "nginx" ]
                 then
 			# Remove Nginx
-			echo -e "\033[34m Removing nginx...  \e[0m"
-			sudo apt-get -y remove nginx || OwnError "Unable to remove nginx"
+			echo -e "\033[34m Removing Nginx...  \e[0m"
+			sudo apt-get -y remove nginx || OwnError "Unable To Remove Nginx"
 
 		elif [ "$3" = "php" ]
                 then
 
 			# Remove PHP5
-			echo -e "\033[34m Removing php5...  \e[0m"
+			echo -e "\033[34m Removing PHP5...  \e[0m"
 			sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-                        php5-dev php5-imap php5-mcrypt || OwnError "Unable to remove php5"
+                        php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
 
 		elif [ "$3" = "mysql" ]
 		then
 
 			# Remove MySQL
-			echo -e "\033[34m Removing mysql...  \e[0m"
+			echo -e "\033[34m Removing MySQL...  \e[0m"
 			sudo apt-get -y remove mysql-server mysqltuner \
-                        || OwnError "Unable to remove mysql"
+                        || OwnError "Unable To Remove MySQL"
 
 		elif [ "$3" = "postfix" ]
 		then
 
 			# Remove Postfix
-			echo -e "\033[34m Removing postfix...  \e[0m"
-			sudo apt-get -y remove postfix || OwnError "Unable to remove postfix"
+			echo -e "\033[34m Removing Postfix...  \e[0m"
+			sudo apt-get -y remove postfix || OwnError "Unable To Remove Postfix"
 
 		elif [ "$3" = "--all" ]
 		then
 
 			# Remove All
-			echo -e "\033[34m Removing nginx php5 mysql postfix...  \e[0m"
+			echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 			sudo apt-get -y remove nginx php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-                        || OwnError "Unable to remove nginx php5 mysql postfix"	
+                        || OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"	
 
 		else
 			EngineHelp
@@ -259,42 +258,42 @@ then
 		if [ "$3" = "nginx" ]
                 then
 			# Purge Nginx
-			echo -e "\033[34m Purge nginx...  \e[0m"
-			sudo apt-get -y remove --purge nginx || OwnError "Unable to purge nginx"
+			echo -e "\033[34m Purge Nginx...  \e[0m"
+			sudo apt-get -y remove --purge nginx || OwnError "Unable To Purge Nginx"
 
 		elif [ "$3" = "php" ]
                 then
 
 			# Purge PHP5
-			echo -e "\033[34m Purge php5...  \e[0m"
+			echo -e "\033[34m Purge PHP5...  \e[0m"
 			sudo apt-get -y remove --purge php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-                        php5-dev php5-imap php5-mcrypt || OwnError "Unable to purge php5"
+                        php5-dev php5-imap php5-mcrypt || OwnError "Unable To Purge PHP5"
 
 		elif [ "$3" = "mysql" ]
 		then
 
 			# Purge MySQL
-			echo -e "\033[34m Purge mysql...  \e[0m"
+			echo -e "\033[34m Purge MySQL...  \e[0m"
 			sudo apt-get -y remove --purge mysql-server mysqltuner \
-                        || OwnError "Unable to purge mysql"
+                        || OwnError "Unable To Purge MySQL"
 
 		elif [ "$3" = "postfix" ]
 		then
 
 			# Purge Postfix
-			echo -e "\033[34m Purge postfix...  \e[0m"
-			sudo apt-get -y remove --purge postfix || OwnError "Unable to purge postfix"
+			echo -e "\033[34m Purge Postfix...  \e[0m"
+			sudo apt-get -y remove --purge postfix || OwnError "Unable To Purge Postfix"
 
 		elif [ "$3" = "--all" ]
 		then
 
 			# Purge All
-			echo -e "\033[34m Purge nginx php5 mysql postfix...  \e[0m"
+			echo -e "\033[34m Purge Nginx PHP5 MySQL Postfix...  \e[0m"
 			sudo apt-get -y remove --purge nginx php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-                        || OwnError "Unable to purge nginx php5 mysql postfix"	
+                        || OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"	
 
 		else
 			EngineHelp
@@ -321,26 +320,26 @@ then
 		then
 			# Display The List Of All Sites
 			ls /etc/nginx/sites-available/ \
-			|| OwnError "Unable to display the list of websites"
+			|| OwnError "Unable To Display The List Of Websites"
 
 		elif [ "$3" = "active" ]
 		then
 			# Display The List Of Active Sites
 			ls /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable to display the list of active websites"
+			|| OwnError "Unable To Display The List Of Active Websites"
 
 		elif [ "$3" != "all" ] && [ "$3" != "active" ] && [ -n "$3" ]
 		then
 
 			# Check The Website Is Exist
 			ls /etc/nginx/sites-available/$3 &> /dev/null \
-			|| OwnError "The $3 is not found in available websites list"
+			|| OwnError "The $3 Is Not Found In Available Websites List"
 			if [ $? -eq 0 ]
 			then
 
 				# Display The Specific Site Configuration
 				cat /etc/nginx/sites-available/$3 \
-				|| OwnError "Unable to display the $3 configuration settings"
+				|| OwnError "Unable To Display The $3 Configuration Settings"
 			fi
 
 		else
@@ -360,33 +359,33 @@ then
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
 			# Creating Site
-			echo -e "\033[34m Creating $DOMAIN, please wait...  \e[0m"
+			echo -e "\033[34m Creating $DOMAIN, Please Wait...  \e[0m"
 			sed "s/example.com/$DOMAIN/g" \
 			/usr/share/easyengine/nginx/singlesite/basic.conf \
 			> /etc/nginx/sites-available/$DOMAIN \
-			|| OwnError "Unable to create configuration file for $DOMAIN"
+			|| OwnError "Unable To Create Configuration File For $DOMAIN"
 
 			# Creating Symbolic Link
-			echo -e "\033[34m Creating symbolic link  \e[0m"
+			echo -e "\033[34m Creating Symbolic Link  \e[0m"
 			ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable to create symbolic link for $DOMAIN"
+			|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
 
 			# Creating Htdocs & Logs Directory
-			echo -e "\033[34m Creating htdocs and logs directory  \e[0m"
+			echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
 			mkdir -p /var/www/$DOMAIN/{htdocs,logs} \
-			|| OwnError "Unable to create htdocs and logs directory"
+			|| OwnError "Unable To Create htdocs & logs Directory"
 
 			# Creating Symbolic Links For Logs
-			echo -e "\033[34m Creating symbolic link for logs  \e[0m"
+			echo -e "\033[34m Creating Symbolic Link For Logs  \e[0m"
 			ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
 			&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
-			|| OwnError "Unable to create symbolic link for $DOMAIN logs"
+			|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
 
 
 			if [ "$4" = "--with-wordpress" ]
 			then
 				# Download Latest Wordpress
-				echo -e "\033[34m Downloading wordpress  \e[0m"
+				echo -e "\033[34m Downloading WordPress  \e[0m"
 				wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 				http://wordpress.org/latest.tar.gz
 
@@ -421,7 +420,7 @@ then
 								
 				
 				# Change Ownership
-				echo -e "\033[34m Changing ownership  \e[0m"
+				echo -e "\033[34m Changing Ownership  \e[0m"
 				chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
 
 			fi
