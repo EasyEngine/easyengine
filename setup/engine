@@ -35,7 +35,7 @@ EngineHelp()
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] []"
-	echo " `basename $0` [site]	[delete] [sitename] [--with-data]"
+	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
 
 	echo
 	echo " `basename $0` [config]	[set|get] [memory|timeout]"
@@ -496,10 +496,10 @@ then
 			echo -e "\033[34m Remove Symbolic Link For $DOMAIN Logs...  \e[0m"
 			rm /var/www/$DOMAIN/logs/{access,error}.log
 
-			if [ "$4" = "--with-data" ]
+			if [ "$4" = "--database" ]
 			then
 
-				# Remove Database
+				# Get The Database Details
 				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/htdocs/wp-config.php \
 				| cut -d"'" -f4)
 
@@ -509,39 +509,39 @@ then
 				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/htdocs/wp-config.php \
 				| cut -d"'" -f4)
 
-				# Conformation
-				echo
-				echo
-				echo -e "\033[31m Caution: After This Operation,\e[0m"
-				echo -e "\033[31m 	1. The Database $WPDBNAME Is Deleted \e[0m"
-				echo -e "\033[31m 	2. The /var/www/$DOMAIN Directory Deleted \e[0m"
-				echo -ne "\033[31m Are You Sure [yes/no]: \e[0m"
-				read CAUTION
+				# Remove Database
+				echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
+				mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
+				|| OwnError "Unable To Drop $WPDBNAME Database"
 
-				if [ "$CAUTION" = "yes" ]
-				then
+			elif [ "$4" = "--webroot" ]
+			then
 
-					# Remove Database
-					echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
-					mysql -u $MYSQLUSER -p$MYSQLPASS \
-					-e "drop database \`$WPDBNAME\`" \
-					|| OwnError "Unable To Drop $WPDBNAME Database"
- 
-					# Remove Webroot For $DOMAIN
-					echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
-					rm -rf /var/www/$DOMAIN
+				# Remove Webroot For $DOMAIN
+				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
+				rm -rf /var/www/$DOMAIN
 
-					# Give Space For Better Echo On Screen
-					echo
-					echo
+			elif [ "$4" = "--all" ]
+			then
+				
+				# Get The Database Details
+				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
 
-				else
-					echo -e "\033[34m Exit Without Remove \e[0m"
+				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
+				
+				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/htdocs/wp-config.php \
+				| cut -d"'" -f4)
 
-					# Give Space For Better Echo On Screen
-					echo
-					echo
-				fi
+				# Remove Database
+				echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
+				mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
+				|| OwnError "Unable To Drop $WPDBNAME Database"
+
+				# Remove Webroot For $DOMAIN
+				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
+				rm -rf /var/www/$DOMAIN
 
 			fi
 
