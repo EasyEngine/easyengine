@@ -103,11 +103,27 @@ NGINXRELOAD()
 {
 
 	# Test & Reload Nginx
-	echo -e "\033[34m Reloading Nginx Configuration, Please wait...  \e[0m"
+	echo -e "\033[34m Reloading Nginx Configuration, Please Wait...  \e[0m"
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 
 }
 
+
+
+
+PHPSTART()
+{
+
+	# Check PHP5-FPM IS Running
+	service php5-fpm status
+
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[34m Restarting PHP5-FPM, Please Wait...  \e[0m"
+		service php5-fpm start || OwnError "Unable To Restart PHP5-FPM"
+	fi
+
+}
 
 
 # Easy Engine System Settings
@@ -448,6 +464,9 @@ then
 
 			# Reload Nginx Configuration
 			NGINXRELOAD
+
+			# Start PHP-FPM If Not Running
+			PHPSTART
 
 
 		else
