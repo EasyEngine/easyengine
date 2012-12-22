@@ -34,7 +34,8 @@ EngineHelp()
 	echo
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
-	echo " `basename $0` [site]	[update] [sitename] []"
+	echo " `basename $0` [site]	[update] [sitename] [single] [w3total|wpsuper|fastcgi]"
+	echo " `basename $0` [site]	[update] [sitename] [multi]  []"
 	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
 
 	echo
@@ -485,11 +486,59 @@ then
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
 
-			if [ "$4" = "" ]
+			if [ "$4" = "single" ]
 			then
 
-				# Updating Site
-				echo Updating
+				if [ "$5" = "w3total" ]
+				then
+
+					# Taking Backup
+					mv /etc/nginx/sites-available/$DOMAIN \
+					/etc/nginx/sites-available/$DOMAIN.bak
+
+					# Updating Site
+					echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
+					sed "s/example.com/$DOMAIN/g" \
+					/usr/share/easyengine/nginx/singlesite/w3-total-cache.conf \
+					> /etc/nginx/sites-available/$DOMAIN \
+					|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+					# Reload Nginx Configuration
+					NGINXRELOAD
+					
+				elif [ "$5" = "wpsuper" ]
+				then
+
+					# Taking Backup
+					mv /etc/nginx/sites-available/$DOMAIN \
+					/etc/nginx/sites-available/$DOMAIN.bak
+
+					# Updating Site
+					echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
+					sed "s/example.com/$DOMAIN/g" \
+					/usr/share/easyengine/nginx/singlesite/wp-super-cache.conf \
+					> /etc/nginx/sites-available/$DOMAIN \
+					|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+					# Reload Nginx Configuration
+					NGINXRELOAD
+					
+
+				elif [ "$5" = "fastcgi" ]
+				then
+
+
+
+				else
+					EngineHelp
+
+			fi
+
+			elif [ "$4" = "multi" ]
+			then
+
+			else
+				EngineHelp
 
 			fi
 
