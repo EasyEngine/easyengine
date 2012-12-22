@@ -524,21 +524,21 @@ then
 					NGINXRELOAD
 					
 
-				elif [ "$5" = "fastcgi" ]
-				then
+				#elif [ "$5" = "fastcgi" ]
+				#then
 
 
 
 				else
 					EngineHelp
+			
+				fi
 
-			fi
+			#elif [ "$4" = "multi" ]
+			#then
 
-			elif [ "$4" = "multi" ]
-			then
-
-			else
-				EngineHelp
+			#else
+			#	EngineHelp
 
 			fi
 
