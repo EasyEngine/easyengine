@@ -523,11 +523,22 @@ then
 					# Reload Nginx Configuration
 					NGINXRELOAD
 					
+				elif [ "$5" = "fastcgi" ]
+				then
 
-				#elif [ "$5" = "fastcgi" ]
-				#then
+					# Taking Backup
+					mv /etc/nginx/sites-available/$DOMAIN \
+					/etc/nginx/sites-available/$DOMAIN.bak
 
+					# Updating Site
+					echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
+					sed "s/example.com/$DOMAIN/g" \
+					/usr/share/easyengine/nginx/singlesite/fastcgi-cache.conf \
+					> /etc/nginx/sites-available/$DOMAIN \
+					|| OwnError "Unable To Update Configuration File For $DOMAIN"
 
+					# Reload Nginx Configuration
+					NGINXRELOAD
 
 				else
 					EngineHelp
