@@ -1,23 +1,4 @@
-#!/bin/bash
 
-
-
-# Make Variables Available For Later Use
-LOGDIR=/var/log/easyengine
-MAINLOG=/var/log/easyengine/main.log
-ERRORLOG=/var/log/easyengine/error.log
-
-
-
-
-
-
-# Capture Errors
-OwnError()
-{
-	echo -e "[ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
-	exit 101
-}
 
 
 # Help Function
@@ -46,10 +27,24 @@ EngineHelp()
 	echo "   0 if OK,"
 	echo " 100 sudo privilege required,"
 	echo " 101 command failed to execute,"
+
 }
 
 
+# Make Variables Available For Later Use
+LOGDIR=/var/log/easyengine
+MAINLOG=/var/log/easyengine/main.log
+ERRORLOG=/var/log/easyengine/error.log
 
+
+# Capture Errors
+OwnError()
+{
+
+	echo -e "[ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
+	exit 101
+
+}
 
 
 # GET Information Function
@@ -99,7 +94,6 @@ WEBUSERINFO()
 }
 
 
-
 NGINXRELOAD()
 {
 
@@ -108,8 +102,6 @@ NGINXRELOAD()
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 
 }
-
-
 
 
 PHPSTART()
@@ -127,15 +119,20 @@ PHPSTART()
 }
 
 
+
+
+
 # Easy Engine System Settings
 if [ "$1" = "system" ]
 then
+
 	# Easy Engine Install
 	if [ "$2" = "install" ]
 	then
 		
 		if [ "$3" = "nginx" ]
 		then
+
 			# Install Python Software Properties
 			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
 			sudo apt-get -y install python-software-properties \
@@ -239,6 +236,7 @@ then
 		
 		if [ "$3" = "nginx" ]
                 then
+
 			# Remove Nginx
 			echo -e "\033[34m Removing Nginx...  \e[0m"
 			sudo apt-get -y remove nginx || OwnError "Unable To Remove Nginx"
@@ -288,6 +286,7 @@ then
 		
 		if [ "$3" = "nginx" ]
                 then
+
 			# Purge Nginx
 			echo -e "\033[34m Purge Nginx...  \e[0m"
 			sudo apt-get -y remove --purge nginx || OwnError "Unable To Purge Nginx"
@@ -343,12 +342,14 @@ then
 # Easy Engine Site Settings
 elif [ "$1" = "site" ]
 then
+
 	# Easy Engine Read
 	if [ "$2" = "read" ]
 	then
 
 		if [ "$3" = "all" ]
 		then
+
 			# Display The List Of All Sites
 			echo -e "\033[34m List Of All (sites-available) Websites \e[0m"
 			ls /etc/nginx/sites-available/ \
@@ -356,6 +357,7 @@ then
 
 		elif [ "$3" = "active" ]
 		then
+
 			# Display The List Of Active Sites
 			echo -e "\033[34m List Of Active (sites-enabled) Websites \e[0m"
 			ls /etc/nginx/sites-enabled/ \
@@ -418,6 +420,7 @@ then
 
 			if [ "$4" = "--with-wordpress" ]
 			then
+
 				# Download Latest Wordpress
 				echo -e "\033[34m Downloading WordPress  \e[0m"
 				wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
@@ -469,11 +472,10 @@ then
 			# Start PHP-FPM If Not Running
 			PHPSTART
 
-
 		else
 			EngineHelp
-
 		fi
+
 
 	# Easy Engine Update
 	elif [ "$2" = "update" ]
@@ -484,7 +486,6 @@ then
 
 			# Remove http:// & www.
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
-
 
 			if [ "$4" = "single" ]
 			then
@@ -541,22 +542,24 @@ then
 					NGINXRELOAD
 
 				else
-					EngineHelp
-			
+					EngineHelp		
 				fi
 
-			#elif [ "$4" = "multi" ]
-			#then
 
-			#else
-			#	EngineHelp
+			elif [ "$4" = "multi" ]
+			then
 
+				
+
+			else
+				EngineHelp
 			fi
 
-		else
-			EnginHelp
 
+		else
+			EngineHelp
 		fi
+
 
 	# Easy Engine Delete
 	elif [ "$2" = "delete" ]
@@ -564,6 +567,7 @@ then
 
 		if [ -n "$3" ]
 		then
+
 			# Remove http:// & www.
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
@@ -629,16 +633,17 @@ then
 
 		else
 			EnginHelp
-
 		fi
-		
+
 
 	# Easy Engine Help
 	else
 		EngineHelp
 	fi
+
+
 	
-	#echo "Under Developments !!"
+
 
 # Easy Engine Config Settings
 elif [ "$1" = "config" ]
