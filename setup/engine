@@ -15,8 +15,8 @@ EngineHelp()
 	echo
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
-	echo " `basename $0` [site]	[update] [sitename] [single] [w3total|wpsuper|fastcgi]"
-	echo " `basename $0` [site]	[update] [sitename] [multi]  []"
+	echo " `basename $0` [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]"
+	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]"
 	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
 
 	echo
@@ -487,7 +487,7 @@ then
 			# Remove http:// & www.
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
 
-			if [ "$4" = "single" ]
+			if [ "$4" = "singlesite" ]
 			then
 
 				if [ "$5" = "w3total" ]
@@ -546,7 +546,7 @@ then
 				fi
 
 
-			elif [ "$4" = "multi" ]
+			elif [ "$4" = "multisite" ]
 			then
 
 					echo "Under Developments !!"
