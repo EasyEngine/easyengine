@@ -632,7 +632,7 @@ then
 			NGINXRELOAD
 
 		else
-			EnginHelp
+			EngineHelp
 		fi
 
 
