@@ -408,7 +408,7 @@ then
 
 			# Creating Htdocs & Logs Directory
 			echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
-			mkdir -p /var/www/$DOMAIN/{htdocs,logs} \
+			(mkdir -p /var/www/$DOMAIN/htdocs; mkdir -p /var/www/$DOMAIN/logs) \
 			|| OwnError "Unable To Create htdocs & logs Directory"
 
 			# Creating Symbolic Links For Logs
