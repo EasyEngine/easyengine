@@ -150,7 +150,8 @@ then
 			then
 				echo -e "\033[34m Nginx DotDeb Repository Already Enabled... \e[0m"	
 			else
-				echo "#DotDeb Nginx Repository" >> /etc/apt/sources.list
+				echo >> /etc/apt/sources.list
+				echo "# DotDeb Nginx Repository" >> /etc/apt/sources.list
 				echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
 				|| OwnError "Ubable To Add Nginx DotDeb Repository"
 
@@ -235,7 +236,8 @@ then
 			then
 				echo -e "\033[34m Nginx DotDeb Repository Already Enabled... \e[0m"	
 			else
-				echo "#DotDeb Nginx Repository" >> /etc/apt/sources.list
+				echo >> /etc/apt/sources.list
+				echo "# DotDeb Nginx Repository" >> /etc/apt/sources.list
 				echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
 				|| OwnError "Ubable To Add Nginx DotDeb Repository"
 
