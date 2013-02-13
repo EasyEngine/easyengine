@@ -168,7 +168,7 @@ then
 
 			# Install Nginx
 			echo -e "\033[34m Installing Nginx...  \e[0m"
-			sudo apt-get -y install nginx || OwnError "Unable To Install Nginx"
+			sudo apt-get -y install nginx-full || OwnError "Unable To Install Nginx"
 			
 		elif [ "$3" = "php" ]
 		then
@@ -258,7 +258,7 @@ then
 
 			# Install Nginx PHP5 MySQL Postfix
 			echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-                        sudo apt-get -y install nginx php5-common php5-mysql php5-xmlrpc \
+                        sudo apt-get -y install nginx-full php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
 			|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
