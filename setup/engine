@@ -139,9 +139,28 @@ then
 			|| OwnError "Unable To Install Python Software Properties"
 
 			# Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
-			sudo add-apt-repository ppa:nginx/stable \
-			|| OwnError "Unable To Add Nginx Launchpad Repository"
+			#echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
+			#sudo add-apt-repository ppa:nginx/stable \
+			#|| OwnError "Unable To Add Nginx Launchpad Repository"
+			
+			# Add Nginx DotDeb Repository
+			cat /etc/apt/sources.list | grep dotdeb &> /dev/null
+
+			if [ $? -eq 0 ]
+			then
+				echo -e "\033[34m Nginx DotDeb Repository Already Enabled... \e[0m"	
+			else
+				echo "#DotDeb Nginx Repository" >> /etc/apt/sources.list
+				echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
+				|| OwnError "Ubable To Add Nginx DotDeb Repository"
+
+				echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
+				|| OwnError "Ubable To Add Nginx DotDeb Repository"
+
+				# Fetch DotDeb GPG Key
+				wget -c wget http://www.dotdeb.org/dotdeb.gpg
+				cat dotdeb.gpg | sudo apt-key add -
+			fi
 
 			# Update The APT Cache
 			echo -e "\033[34m Updating APT Cache...  \e[0m"
@@ -205,9 +224,28 @@ then
                         || OwnError "Unable To Install Python Software Properties"
 
                         # Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
-                        sudo add-apt-repository ppa:nginx/stable \
-                        || OwnError "Unable To Add Nginx Launchpad Repository"
+			#echo -e "\033[34m Adding Nginx Launchpad Repository...  \e[0m"
+                        #sudo add-apt-repository ppa:nginx/stable \
+                        #|| OwnError "Unable To Add Nginx Launchpad Repository"
+			
+			# Add Nginx DotDeb Repository
+			cat /etc/apt/sources.list | grep dotdeb &> /dev/null
+
+			if [ $? -eq 0 ]
+			then
+				echo -e "\033[34m Nginx DotDeb Repository Already Enabled... \e[0m"	
+			else
+				echo "#DotDeb Nginx Repository" >> /etc/apt/sources.list
+				echo "deb http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
+				|| OwnError "Ubable To Add Nginx DotDeb Repository"
+
+				echo "deb-src http://packages.dotdeb.org squeeze all" >> /etc/apt/sources.list \
+				|| OwnError "Ubable To Add Nginx DotDeb Repository"
+
+				# Fetch DotDeb GPG Key
+				wget -c wget http://www.dotdeb.org/dotdeb.gpg
+				cat dotdeb.gpg | sudo apt-key add -
+			fi
 
 			# Add PHP Launchpad Repository
 			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
