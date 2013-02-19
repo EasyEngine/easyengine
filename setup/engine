@@ -145,7 +145,12 @@ then
 			
 			# Update The APT Cache
 			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Update APT Cache"
+			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+			do
+				echo -e "\033[34m Processing key: $key \e[0m"
+				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+			done
 
 			# Install Nginx
 			echo -e "\033[34m Installing Nginx...  \e[0m"
@@ -166,7 +171,12 @@ then
 
 			# Update The APT Cache
 			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Update APT Cache"
+			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+			do
+				echo -e "\033[34m Processing key: $key \e[0m"
+				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+			done
 
 			# Install PHP5
 			echo -e "\033[34m Installing PHP5...  \e[0m"
@@ -216,7 +226,12 @@ then
 
                         # Update The APT Cache
 			echo -e "\033[34m Updating APT Cache...  \e[0m"
-                        sudo apt-get update || OwnError "Unable To Update APT Cache"
+			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Update APT Cache"
+			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+			do
+				echo -e "\033[34m Processing key: $key \e[0m"
+				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+			done
 
 			# Install Nginx PHP5 MySQL Postfix
 			echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
