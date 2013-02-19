@@ -145,7 +145,8 @@ then
 			
 			# Fix GPG Key Problems
 			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
-			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
+			sudo apt-get update > /dev/null 2> /tmp/keymissing \
+			|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
 			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 			do
 				echo -e "\033[34m Processing key: $key \e[0m"
@@ -175,7 +176,8 @@ then
 
 			# Fix GPG Key Problems
 			echo -e "\033[34m Checking GPG Keys For Ondrej PHP5 Repository...  \e[0m"
-			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Fix GPG Keys For Ondrej PHP5 Repository "
+			sudo apt-get update > /dev/null 2> /tmp/keymissing \
+			|| OwnError "Unable To Fix GPG Keys For Ondrej PHP5 Repository "
 			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 			do
 				echo -e "\033[34m Processing key: $key \e[0m"
@@ -234,7 +236,8 @@ then
 
 			# Fix GPG Key Problems
 			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx & Ondrej PHP5 Repository...  \e[0m"
-			sudo apt-get update 2> /tmp/keymissing || OwnError "Unable To Fix GPG Keys For Nginx & PHP5 Repository "
+			sudo apt-get update > /dev/null2> /tmp/keymissing \
+			|| OwnError "Unable To Fix GPG Keys For Nginx & PHP5 Repository "
 			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 			do
 				echo -e "\033[34m Processing key: $key \e[0m"
