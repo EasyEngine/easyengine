@@ -236,7 +236,7 @@ then
 
 			# Fix GPG Key Problems
 			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx & Ondrej PHP5 Repository...  \e[0m"
-			sudo apt-get update > /dev/null2> /tmp/keymissing \
+			sudo apt-get update > /dev/null 2> /tmp/keymissing \
 			|| OwnError "Unable To Fix GPG Keys For Nginx & PHP5 Repository "
 			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 			do
