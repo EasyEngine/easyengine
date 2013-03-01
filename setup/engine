@@ -549,7 +549,7 @@ then
 			PHPSTART
 			
 			# Display Success Message
-			echo -e "\033[34m $DOMAIN Successfully Created \e[0m"
+			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
 		else
 			EngineHelp
@@ -720,7 +720,7 @@ then
 			NGINXRELOAD
 			
 			# Display Success Message
-			echo -e "\033[34m $DOMAIN Is Successfully Deleted \e[0m"
+			echo -e "\033[34m http://$DOMAIN Successfully Deleted \e[0m"
 
 		else
 			EngineHelp
