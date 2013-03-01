@@ -161,6 +161,9 @@ then
 			echo -e "\033[34m Installing Nginx...  \e[0m"
 			sudo apt-get -y install nginx-custom || OwnError "Unable To Install Nginx"
 			
+			# Display Success Message
+			echo -e "\033[34m Nginx Successfully Installed \e[0m"
+			
 		elif [ "$3" = "php" ]
 		then
 
@@ -194,6 +197,10 @@ then
 			php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 			php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
 			
+			
+			# Display Success Message
+			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
+			
 		elif [ "$3" = "mysql" ]
 		then
 
@@ -204,7 +211,10 @@ then
 			# Install MySQL
 			echo -e "\033[34m Installing MySQL...  \e[0m"
 			sudo apt-get -y install mysql-server mysqltuner \
-			|| OwnError "Unable To Install MySQL"			
+			|| OwnError "Unable To Install MySQL"
+			
+			# Display Success Message
+			echo -e "\033[34m MySQL Successfully Installed \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -215,6 +225,9 @@ then
 			# Install Postfix
 			echo -e "\033[34m Installing Postfix...  \e[0m"
 			sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Postfix Successfully Installed \e[0m"
 
 		elif [ "$3" = "--all" ]
 		then
@@ -254,6 +267,9 @@ then
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
 			|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Installed \e[0m"
 
 		else
 			EngineHelp
@@ -270,6 +286,9 @@ then
 			# Remove Nginx
 			echo -e "\033[34m Removing Nginx...  \e[0m"
 			sudo apt-get -y remove nginx || OwnError "Unable To Remove Nginx"
+			
+			# Display Success Message
+			echo -e "\033[34m Nginx Successfully Removed \e[0m"
 
 		elif [ "$3" = "php" ]
                 then
@@ -279,6 +298,9 @@ then
 			sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
+			
+			# Display Success Message
+			echo -e "\033[34m PHP5 Successfully Removed \e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -287,6 +309,9 @@ then
 			echo -e "\033[34m Removing MySQL...  \e[0m"
 			sudo apt-get -y remove mysql-server mysqltuner \
                         || OwnError "Unable To Remove MySQL"
+			
+			# Display Success Message
+			echo -e "\033[34m MySQL Successfully Removed \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -294,6 +319,9 @@ then
 			# Remove Postfix
 			echo -e "\033[34m Removing Postfix...  \e[0m"
 			sudo apt-get -y remove postfix || OwnError "Unable To Remove Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Postfix Successfully Removed \e[0m"
 
 		elif [ "$3" = "--all" ]
 		then
@@ -303,7 +331,10 @@ then
 			sudo apt-get -y remove nginx php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-                        || OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"	
+                        || OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Removed \e[0m"
 
 		else
 			EngineHelp
@@ -320,6 +351,9 @@ then
 			# Purge Nginx
 			echo -e "\033[34m Purge Nginx...  \e[0m"
 			sudo apt-get -y remove --purge nginx || OwnError "Unable To Purge Nginx"
+			
+			# Display Success Message
+			echo -e "\033[34m Nginx Successfully Purged \e[0m"
 
 		elif [ "$3" = "php" ]
                 then
@@ -329,6 +363,9 @@ then
 			sudo apt-get -y remove --purge php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt || OwnError "Unable To Purge PHP5"
+			
+			# Display Success Message
+			echo -e "\033[34m PHP5 Successfully Purged \e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -337,6 +374,9 @@ then
 			echo -e "\033[34m Purge MySQL...  \e[0m"
 			sudo apt-get -y remove --purge mysql-server mysqltuner \
                         || OwnError "Unable To Purge MySQL"
+			
+			# Display Success Message
+			echo -e "\033[34m MySQL Successfully Purged \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -344,6 +384,9 @@ then
 			# Purge Postfix
 			echo -e "\033[34m Purge Postfix...  \e[0m"
 			sudo apt-get -y remove --purge postfix || OwnError "Unable To Purge Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Postfix Successfully Purged \e[0m"
 
 		elif [ "$3" = "--all" ]
 		then
@@ -353,7 +396,10 @@ then
 			sudo apt-get -y remove --purge nginx php5-common php5-mysql php5-xmlrpc \
                         php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
                         php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-                        || OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"	
+                        || OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
+			
+			# Display Success Message
+			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Purged \e[0m"
 
 		else
 			EngineHelp
@@ -501,6 +547,9 @@ then
 
 			# Start PHP-FPM If Not Running
 			PHPSTART
+			
+			# Display Success Message
+			echo -e "\033[34m $DOMAIN Successfully Created \e[0m"
 
 		else
 			EngineHelp
@@ -536,6 +585,9 @@ then
 
 					# Reload Nginx Configuration
 					NGINXRELOAD
+			
+					# Display Success Message
+					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
 					
 				elif [ "$5" = "wpsuper" ]
 				then
@@ -553,6 +605,9 @@ then
 
 					# Reload Nginx Configuration
 					NGINXRELOAD
+			
+					# Display Success Message
+					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
 					
 				elif [ "$5" = "fastcgi" ]
 				then
@@ -570,6 +625,9 @@ then
 
 					# Reload Nginx Configuration
 					NGINXRELOAD
+			
+					# Display Success Message
+					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
 
 				else
 					EngineHelp		
@@ -660,6 +718,9 @@ then
 
 			# Reload Nginx Configuration
 			NGINXRELOAD
+			
+			# Display Success Message
+			echo -e "\033[34m $DOMAIN Is Successfully Deleted \e[0m"
 
 		else
 			EngineHelp
