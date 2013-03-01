@@ -13,47 +13,57 @@ curl -L http://goo.gl/FvARq | sudo bash
 
 ## Usage
 
-`engine [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]"`
+`ee [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]`
 
-`engine [site]	[read]	 [all|active|sitename]"`
+`ee [site]	[read]	 [all|active|sitename]`
+`ee [site]	[create] [sitename] [--with-wordpress]`
+`ee [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]`
+`ee [site]	[update] [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]`
+`ee [site]	[delete] [sitename] [--database|--webroot|--all]`
 
-`engine [site]	[create] [sitename] [--with-wordpress]"`
+`ee [config]	[set|get] [memory|timeout]`
 
-`engine [site]	[update] [sitename] [single] [w3total|wpsuper|fastcgi]"`
+### engine commands:
 
-`engine [site]	[update] [sitename] [multi]  []"`
+`ee system`	system-wide commands
 
-`engine [site]	[delete] [sitename] [--database|--webroot|--all]"`
+`ee site`	site-specific commands
 
-`engine [config]	[set|get] [memory|timeout]"`
+`ee config`	configuration commands
 
-### engine Commands:
+### ee system example
 
-`engine system` system-wide commands
+	1. Install nginx
+	`ee system install nginx`
+	
+	2. Insall nginx php mysql postfix
+	`ee system install --all`
+	
+	
+### ee site example
 
-`engine site` #site-specific commands
-
-`engine config` configuration commands
-
-### engine system
-
-`engine system install [php mysql nginx apc postfix] [--all] [--source]`
-
-`engine system upgrade [php mysql nginx apc postfix] [--all]`
-
-`engine system remove [php mysql nginx apc postfix] [--all]`
-
-`engine system purge [php mysql nginx apc postfix] [--all]`
-
-### engine site
-
-`engine site create <site-name> [--with-wordpress]`
-
-`engine site read --active`
-
-`engine site update <site-name>`
-
-`engine site delete <site-name>`
+	1. List all the sites
+	`ee site read all`
+	
+	2. List only active sites
+	`ee site read active`
+	
+	3. Read nginx configuration for example.com
+	`ee site read example.com`
+	
+	4. Create a domain
+	`ee site create example.com`
+	
+	5. Create a wordpress site
+	`ee site create example.com --with-wordpress`
+	
+	6. Update nginx configuration for w3total cache
+	`ee site update example.com singlesite w3total`
+	
+	7. Delete site without any data loss
+	`ee site delete example.com`
+	
+	
 
 ### engine config
 
