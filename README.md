@@ -31,41 +31,40 @@ curl -L http://goo.gl/FvARq | sudo bash
 
 `ee config`	configuration commands
 
-### ee system example
-
-	1. Install nginx
+### ee system example:
+* **Install nginx**
 	`ee system install nginx`
 	
-	2. Insall nginx php mysql postfix
+* **Insall nginx php mysql postfix**
 	`ee system install --all`
 	
 	
-### ee site example
+### ee site example:
 
-	1. List all the sites
+* **List all the sites**
 	`ee site read all`
 	
-	2. List only active sites
+* **List only active sites**
 	`ee site read active`
 	
-	3. Read nginx configuration for example.com
+* **Read nginx configuration for example.com**
 	`ee site read example.com`
 	
-	4. Create a domain
+* **Create a domain**
 	`ee site create example.com`
 	
-	5. Create a wordpress site
+* **Create a wordpress site**
 	`ee site create example.com --with-wordpress`
 	
-	6. Update nginx configuration for w3total cache
+* **Update nginx configuration for w3total cache**
 	`ee site update example.com singlesite w3total`
 	
-	7. Delete site without any data loss
+* **Delete site**
 	`ee site delete example.com`
 	
 	
 
-### engine config
+### engine config:
 
 `engine config set [memory | timeout] [value]`
 
@@ -74,7 +73,7 @@ curl -L http://goo.gl/FvARq | sudo bash
 `engine config --interactive` #reconfigure everything
 
 
-## Files
+## Files:
 
 ### Logs location: 
 
