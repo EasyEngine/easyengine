@@ -285,7 +285,7 @@ then
 
 			# Remove Nginx
 			echo -e "\033[34m Removing Nginx...  \e[0m"
-			sudo apt-get -y remove nginx || OwnError "Unable To Remove Nginx"
+			sudo apt-get -y remove nginx-custom nginx-common || OwnError "Unable To Remove Nginx"
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Removed \e[0m"
@@ -350,7 +350,7 @@ then
 
 			# Purge Nginx
 			echo -e "\033[34m Purge Nginx...  \e[0m"
-			sudo apt-get -y remove --purge nginx || OwnError "Unable To Purge Nginx"
+			sudo apt-get -y remove --purge nginx-custom nginx-common || OwnError "Unable To Purge Nginx"
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Purged \e[0m"
