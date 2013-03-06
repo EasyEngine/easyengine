@@ -562,26 +562,26 @@ then
 				# Call MYSQLINFO Function For MySQL Values
 				MYSQLINFO
 
-				# Modify wp-config.php
+				# Modify wp-config.php & Move Outside The Webroot
 				cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
-				/var/www/$DOMAIN/htdocs/wp-config.php
+				/var/www/$DOMAIN/wp-config.php
 
 				sed -i "s/database_name_here/$WPDBNAME/" \
-				/var/www/$DOMAIN/htdocs/wp-config.php
+				/var/www/$DOMAIN/wp-config.php
 
 				sed -i "s/username_here/$MYSQLUSER/" \
-				/var/www/$DOMAIN/htdocs/wp-config.php
+				/var/www/$DOMAIN/wp-config.php
 				
 				sed -i "s/password_here/$MYSQLPASS/" \
-				/var/www/$DOMAIN/htdocs/wp-config.php
+				/var/www/$DOMAIN/wp-config.php
 
 				sed -i "s/localhost/$MYSQLHOST/" \
-				/var/www/$DOMAIN/htdocs/wp-config.php
+				/var/www/$DOMAIN/wp-config.php
 
 				printf '%s\n' "g/put your unique phrase here/d" \
 				a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
-				| ed -s /var/www/$DOMAIN/htdocs/wp-config.php
-								
+				| ed -s /var/www/$DOMAIN/wp-config.php
+												
 			fi
 
 			# Call WEBUSERINFO Function For Web User Details
