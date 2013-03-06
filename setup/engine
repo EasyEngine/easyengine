@@ -23,6 +23,9 @@ EngineHelp()
 	echo " `basename $0` [config]	[set|get] [memory|timeout]"
 
 	echo
+	echo " `basename $0` [update] "
+
+	echo
 	echo "Exit status:"
 	echo "   0 if OK,"
 	echo " 100 sudo privilege required,"
