@@ -615,6 +615,12 @@ then
 
 			# Remove http:// & www.
 			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+			
+			# Make Backup Directory For Storing Older Nginx Configurations
+			if [ ! -d /etc/nginx/sites-available/backups/ ]
+			then
+				mkdir -p etc/nginx/sites-available/backups/
+			fi
 
 			if [ "$4" = "singlesite" ]
 			then
@@ -624,7 +630,7 @@ then
 
 					# Taking Backup
 					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/$DOMAIN.bak
+					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
 
 					# Updating Site
 					echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
@@ -644,7 +650,7 @@ then
 
 					# Taking Backup
 					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/$DOMAIN.bak
+					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
 
 					# Updating Site
 					echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
@@ -664,7 +670,7 @@ then
 
 					# Taking Backup
 					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/$DOMAIN.bak
+					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
 
 					# Updating Site
 					echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
@@ -687,7 +693,19 @@ then
 			elif [ "$4" = "multisite" ]
 			then
 
-					echo "Under Developments !!"
+					if [ "$5" = "subdomain" ]
+					then
+
+						echo "Under Developments !!"
+
+					elif [ "$5" = "subdirectory" ]
+					then
+
+						echo "Under Developments !!"
+
+					else
+						EngineHelp
+					fi
 
 			else
 				EngineHelp
