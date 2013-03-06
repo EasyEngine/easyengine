@@ -56,13 +56,20 @@ MYSQLINFO()
 
 	# Get The MySQL Username/Password
 	read -p "MySQL Host [localhost]: " MYSQLHOST
-	read -p "Enter The MySQL Username: " MYSQLUSER
+	
+	if [ -f ~/.my.cnf ]
+	then
+		MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
+		MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+	else
+		read -p "Enter The MySQL Username: " MYSQLUSER
 
-	# Turn Off Echo For Passwords
-	stty -echo
-	read -p "Enter The MySQL Password: " MYSQLPASS
-	stty echo
-	echo
+		# Turn Off Echo For Passwords
+		stty -echo
+		read -p "Enter The MySQL Password: " MYSQLPASS
+		stty echo
+		echo
+	fi
 	
 	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
 
