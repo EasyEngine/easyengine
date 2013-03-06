@@ -739,13 +739,13 @@ then
 			then
 
 				# Get The Database Details
-				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/htdocs/wp-config.php \
+				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 
-				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/htdocs/wp-config.php \
+				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 				
-				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/htdocs/wp-config.php \
+				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 
 				# Remove Database
@@ -764,13 +764,13 @@ then
 			then
 				
 				# Get The Database Details
-				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/htdocs/wp-config.php \
+				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 
-				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/htdocs/wp-config.php \
+				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 				
-				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/htdocs/wp-config.php \
+				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php \
 				| cut -d"'" -f4)
 
 				# Remove Database
