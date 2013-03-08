@@ -16,7 +16,7 @@ EngineHelp()
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]"
-	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]"
+	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdomain|subdirectory] [w3total|wpsuper|fastcgi]"
 	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
 
 	echo
@@ -692,20 +692,217 @@ then
 
 			elif [ "$4" = "multisite" ]
 			then
+			
+				# Presetup For WordPress MU
+				sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
+				sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
 
-					if [ "$5" = "subdomain" ]
+				if [ "$5" = "subdomain" ]
+				then
+
+					# Add Rules In wp-config.php gile
+					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
+					define('SUBDOMAIN_INSTALL', true);\n\
+					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
+					define('PATH_CURRENT_SITE', '/');\n\
+					define('SITE_ID_CURRENT_SITE', 1);\n\
+					define('BLOG_ID_CURRENT_SITE', 1);\n" /var/www/$DOMAIN/wp-config.php
+						
+					# Make Blogs.Dir
+					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+						
+					# Give Ownership To WEBUSER
+					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+
+					if [ "$6" = "basic" ]
 					then
 
-						echo "Under Developments !!"
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
 
-					elif [ "$5" = "subdirectory" ]
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For Basic WPMU, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdomain/basic.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "w3total" ]
 					then
 
-						echo "Under Developments !!"
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdomain/w3-total-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "wpsuper" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdomain/wp-super-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "fastcgi" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdomain/fastcgi-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
 
 					else
-						EngineHelp
+						EngineHelp		
 					fi
+						
+
+				elif [ "$5" = "subdirectory" ]
+				then
+					
+					# Add Rules In wp-config.php gile
+					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
+					define('SUBDOMAIN_INSTALL', false);\n\
+					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
+					define('PATH_CURRENT_SITE', '/');\n\
+					define('SITE_ID_CURRENT_SITE', 1);\n\
+					define('BLOG_ID_CURRENT_SITE', 1);\n" /var/www/$DOMAIN/wp-config.php
+						
+					# Make Blogs.Dir
+					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+						
+					# Give Ownership To WEBUSER
+					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+
+					if [ "$6" = "basic" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For Basic WPMU, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdir/basic.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "w3total" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdir/w3-total-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "wpsuper" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdir/wp-super-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					elif [ "$6" = "fastcgi" ]
+					then
+
+						# Taking Backup
+						mv /etc/nginx/sites-available/$DOMAIN \
+						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
+
+						# Updating Site
+						echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
+						sed "s/example.com/$DOMAIN/g" \
+						/usr/share/easyengine/nginx/multisite/subdir/fastcgi-cache.conf \
+						> /etc/nginx/sites-available/$DOMAIN \
+						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+
+						# Reload Nginx Configuration
+						NGINXRELOAD
+
+						# Display Success Message
+						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+
+					else
+						EngineHelp		
+					fi
+
+				else
+					EngineHelp
+				fi
 
 			else
 				EngineHelp
@@ -782,6 +979,9 @@ then
 				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
 				rm -rf /var/www/$DOMAIN
 
+			else
+				EngineHelp
+
 			fi
 
 			# Reload Nginx Configuration
@@ -802,8 +1002,6 @@ then
 
 
 	
-
-
 # Easy Engine Config Settings
 elif [ "$1" = "config" ]
 then
