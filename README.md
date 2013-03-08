@@ -23,6 +23,8 @@ curl -L http://goo.gl/FvARq | sudo bash
 
 `ee [config]	[set|get] [memory|timeout]`
 
+`ee [update]`
+
 ### engine commands:
 
 `ee system`	system-wide commands
@@ -73,6 +75,12 @@ curl -L http://goo.gl/FvARq | sudo bash
 `engine config --interactive` #reconfigure everything
 
 
+### ee update:
+
+* ** Update easy engine**
+	`ee update`
+	
+	
 ## Files:
 
 ### Logs location: 
