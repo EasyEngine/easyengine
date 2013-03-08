@@ -733,6 +733,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "w3total" ]
 					then
@@ -753,6 +755,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "wpsuper" ]
 					then
@@ -773,6 +777,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "fastcgi" ]
 					then
@@ -835,6 +841,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "w3total" ]
 					then
@@ -855,6 +863,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "wpsuper" ]
 					then
@@ -875,6 +885,8 @@ then
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
+						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin \
+						(http://wordpress.org/extend/plugins/nginx-helper/) \e[0m"
 
 					elif [ "$6" = "fastcgi" ]
 					then
