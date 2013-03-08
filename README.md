@@ -77,7 +77,7 @@ curl -L http://goo.gl/FvARq | sudo bash
 
 ### ee update:
 
-* ** Update easy engine**
+* **Update easy engine**
 	`ee update`
 	
 	
