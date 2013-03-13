@@ -619,7 +619,7 @@ then
 			# Make Backup Directory For Storing Older Nginx Configurations
 			if [ ! -d /etc/nginx/sites-available/backups/ ]
 			then
-				mkdir -p etc/nginx/sites-available/backups/
+				mkdir -p /etc/nginx/sites-available/backups/
 			fi
 
 			if [ "$4" = "singlesite" ]
