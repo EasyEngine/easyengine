@@ -703,6 +703,7 @@ then
 					# Add Rules In wp-config.php gile
 					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
 					define('SUBDOMAIN_INSTALL', true);\n\
+					\$base = '/';\n\
 					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
 					define('PATH_CURRENT_SITE', '/');\n\
 					define('SITE_ID_CURRENT_SITE', 1);\n\
@@ -811,6 +812,7 @@ then
 					# Add Rules In wp-config.php gile
 					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
 					define('SUBDOMAIN_INSTALL', false);\n\
+					\$base = '/';\n\
 					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
 					define('PATH_CURRENT_SITE', '/');\n\
 					define('SITE_ID_CURRENT_SITE', 1);\n\
