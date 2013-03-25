@@ -70,8 +70,18 @@ fi
 if [ ! -x  /usr/bin/git ]
 then
 	echo -e "\033[31m Git Command Not Found !! \e[0m"
-	echo -e "\033[34m Installing Git  \e[0m"
+	echo -e "\033[34m Installing Git, Please Wait...  \e[0m"
 	sudo apt-get -y install git-core || OwnError "Unable To Install Git"
+fi
+
+# Checking WP-CLI
+if [ ! -d /root/wp-cli ]
+then
+	echo -e "\033[31m WP Command Not Found !! \e[0m"
+	echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+	git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+	cd /root/wp-cli
+	sudo utils/dev-build
 fi
 
 # Pre Checks End
