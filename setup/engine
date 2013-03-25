@@ -644,7 +644,7 @@ then
 					wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
 					
 					# Activate W3 Total Cache
-					wp plugin activate w3-total-cache OwnError "Unable To Activate W3 Total Cache Plugin"
+					wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
 					
 					# Call WEBUSERINFO Function For Web User Details
 					WEBUSERINFO
@@ -675,6 +675,24 @@ then
 					/usr/share/easyengine/nginx/singlesite/wp-super-cache.conf \
 					> /etc/nginx/sites-available/$DOMAIN \
 					|| OwnError "Unable To Update Configuration File For $DOMAIN"
+					
+					# Installing WP Super Cache
+					cd /var/www/$DOMAIN/htdocs/
+					wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
+					
+					# Activate WP Super Cache
+					wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
+					
+					# Call WEBUSERINFO Function For Web User Details
+					WEBUSERINFO
+					
+					# Give Ownership To $NGINXUSER
+					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
+					
+					# Display W3 Total Cache URL For Settings
+					echo -e "\033[34m Please Configure WP Super Cache Settings \e[0m"
+					echo -e "\033[34m W3 Total Cache: \
+					http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
 
 					# Reload Nginx Configuration
 					NGINXRELOAD
