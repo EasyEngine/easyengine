@@ -16,7 +16,7 @@ EngineHelp()
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]"
-	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdomain|subdirectory] [w3total|wpsuper|fastcgi]"
+	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdomain|subdirectory] [basic|w3total|wpsuper|fastcgi]"
 	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
 
 	echo
