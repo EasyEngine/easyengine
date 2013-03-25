@@ -1028,7 +1028,7 @@ then
 
 				# Remove Webroot For $DOMAIN
 				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
-				rm -rf /var/www/$DOMAIN
+				rm -rf /var/www/$DOMAIN/
 
 			elif [ "$4" = "--all" ]
 			then
