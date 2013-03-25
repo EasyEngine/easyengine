@@ -691,7 +691,7 @@ then
 					
 					# Display W3 Total Cache URL For Settings
 					echo -e "\033[34m Please Configure WP Super Cache Settings \e[0m"
-					echo -ne "\033[34m W3 Total Cache: \e[0m"
+					echo -ne "\033[34m W3 Total Cache:\e[0m"
 					echo -e  "\033[34m http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
 
 					# Reload Nginx Configuration
