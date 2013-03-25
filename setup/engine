@@ -646,6 +646,9 @@ then
 					# Activate W3 Total Cache
 					wp plugin activate w3-total-cache OwnError "Unable To Activate W3 Total Cache Plugin"
 					
+					# Call WEBUSERINFO Function For Web User Details
+					WEBUSERINFO
+					
 					# Give Ownership To $NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
 					
@@ -725,6 +728,9 @@ then
 						
 					# Make Blogs.Dir
 					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+					
+					# Call WEBUSERINFO Function For Web User Details
+					WEBUSERINFO
 						
 					# Give Ownership To WEBUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
@@ -834,6 +840,9 @@ then
 						
 					# Make Blogs.Dir
 					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
+					
+					# Call WEBUSERINFO Function For Web User Details
+					WEBUSERINFO
 						
 					# Give Ownership To WEBUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
