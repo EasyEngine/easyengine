@@ -638,6 +638,18 @@ then
 					/usr/share/easyengine/nginx/singlesite/w3-total-cache.conf \
 					> /etc/nginx/sites-available/$DOMAIN \
 					|| OwnError "Unable To Update Configuration File For $DOMAIN"
+					
+					# Installing W3 Total Cache
+					cd /var/www/$DOMAIN/htdocs/
+					wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+					
+					# Activate W3 Total Cache
+					wp plugin activate w3-total-cache OwnError "Unable To Activate W3 Total Cache Plugin"
+					
+					# Display W3 Total Cache URL For Settings
+					echo -e "\033[34m W3 Total Cache Plugin Sucessfully Installed & Activated \e[0m"
+					echo -e "\033[34m Please Configure W3 Total Cache Settings \e[0m"
+					echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
 					# Reload Nginx Configuration
 					NGINXRELOAD
