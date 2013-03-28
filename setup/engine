@@ -752,6 +752,12 @@ then
 				if [ "$5" = "subdomain" ]
 				then
 
+					# Configure Network Setup
+					echo -e "\033[34m Please Open Following URL & Click On Sub Domain & Save \e[0m"
+					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
+					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
+					read 
+					
 					# Add Rules In wp-config.php gile
 					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
 					define('SUBDOMAIN_INSTALL', true);\n\
@@ -881,6 +887,11 @@ then
 
 				elif [ "$5" = "subdirectory" ]
 				then
+					# Configure Network Setup
+					echo -e "\033[34m Please Open Following URL & Click On Sub Directory & Save \e[0m"
+					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
+					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
+					read
 					
 					# Add Rules In wp-config.php gile
 					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
