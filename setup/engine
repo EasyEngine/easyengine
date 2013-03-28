@@ -731,7 +731,6 @@ then
 					echo -e "\033[34m Please Configure Nginx Helper Settings \e[0m"
 					echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
 
-
 					# Reload Nginx Configuration
 					NGINXRELOAD
 			
@@ -784,6 +783,24 @@ then
 						/usr/share/easyengine/nginx/multisite/subdomain/basic.conf \
 						> /etc/nginx/sites-available/$DOMAIN \
 						|| OwnError "Unable To Update Configuration File For $DOMAIN"
+						
+						# Installing Nginx Helper
+						cd /var/www/$DOMAIN/htdocs/
+						wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
+					
+						# Activate Nginx Helper
+						wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
+					
+						# Call WEBUSERINFO Function For Web User Details
+						WEBUSERINFO
+					
+						# Give Ownership To $NGINXUSER
+						chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
+					
+						# Display W3 Total Cache URL For Settings
+						echo -e "\033[34m Please Configure Nginx Helper Settings \e[0m"
+						echo -ne "\033[34m Nginx Helper:\e[0m"
+						echo -e  "\033[34m http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
 
 						# Reload Nginx Configuration
 						NGINXRELOAD
