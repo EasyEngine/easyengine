@@ -16,9 +16,12 @@ curl -L http://goo.gl/FvARq | sudo bash
 `ee [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]`
 
 `ee [site]	[read]	 [all|active|sitename]`
+
 `ee [site]	[create]     [sitename] [--with-wordpress]`
+
 `ee [site]	[update]     [sitename] [singlesite] [w3total|wpsuper|fastcgi]`
 `ee [site]	[update]     [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]`
+
 `ee [site]	[delete]     [sitename] [--database|--webroot|--all]`
 
 `ee [site]      [dis[aable]]   [sitename] `
