@@ -753,7 +753,7 @@ then
 				then
 
 					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub-Domains & Save \e[0m"
+					echo -e "\033[34m Please Open Following URL & Click On Sub-Domains & Install \e[0m"
 					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
 					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
 					read 
@@ -889,7 +889,7 @@ then
 				elif [ "$5" = "subdirectory" ]
 				then
 					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub-Directories & Save \e[0m"
+					echo -e "\033[34m Please Open Following URL & Click On Sub-Directories & Install \e[0m"
 					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
 					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
 					read
