@@ -16,10 +16,13 @@ curl -L http://goo.gl/FvARq | sudo bash
 `ee [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]`
 
 `ee [site]	[read]	 [all|active|sitename]`
-`ee [site]	[create] [sitename] [--with-wordpress]`
-`ee [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]`
-`ee [site]	[update] [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]`
-`ee [site]	[delete] [sitename] [--database|--webroot|--all]`
+`ee [site]	[create]     [sitename] [--with-wordpress]`
+`ee [site]	[update]     [sitename] [singlesite] [w3total|wpsuper|fastcgi]`
+`ee [site]	[update]     [sitename] [multisite]  [subdirectory|subdomain] [w3total|wpsuper|fastcgi]`
+`ee [site]	[delete]     [sitename] [--database|--webroot|--all]`
+
+`ee [site]      [dis[aable]]   [sitename] `
+`ee [site]      [en[able]]     [sitename] `
 
 `ee [config]	[set|get] [memory|timeout]`
 
@@ -62,8 +65,7 @@ curl -L http://goo.gl/FvARq | sudo bash
 	`ee site update example.com singlesite w3total`
 	
 * **Delete site**
-	`ee site delete example.com`
-	
+	`ee site delete example.com`	
 	
 
 ### engine config:
