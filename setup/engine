@@ -753,7 +753,7 @@ then
 				then
 
 					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub Domain & Save \e[0m"
+					echo -e "\033[34m Please Open Following URL & Click On Sub-Domains & Save \e[0m"
 					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
 					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
 					read 
@@ -805,16 +805,19 @@ then
 					
 						# Display W3 Total Cache URL For Settings
 						echo -e "\033[34m Please Configure Nginx Helper Settings \e[0m"
+						echo -e "\033[34m Please Open Following URL & Click Enable Map \e[0m"
 						echo -ne "\033[34m Nginx Helper:\e[0m"
 						echo -e  "\033[34m http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
+						echo -e "\033[34m Press Enter, Once You Setup Nginx Helper Plugin: \e[0m"
+						read
+						
 
 						# Reload Nginx Configuration
 						NGINXRELOAD
 
 						# Display Success Message
 						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						echo -e "\033[34m Please Configure Nginx Helper WordPress Plugin  \e[0m"
-						echo -e "\033[34m Nginx Helper: http://wordpress.org/extend/plugins/nginx-helper \e[0m"
+						
 
 					elif [ "$6" = "w3total" ]
 					then
@@ -888,7 +891,7 @@ then
 				elif [ "$5" = "subdirectory" ]
 				then
 					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub Directory & Save \e[0m"
+					echo -e "\033[34m Please Open Following URL & Click On Sub-Directories & Save \e[0m"
 					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
 					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
 					read
