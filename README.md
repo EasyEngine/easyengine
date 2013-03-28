@@ -7,7 +7,7 @@ This is work in PROGRESS. This will break things on your end most likely!
 
 ## Install EasyEngine
 
-curl -L http://rt.cx/ee | sudo bash
+curl -L rt.cx/ee | sudo bash
 
 # TODO
 
