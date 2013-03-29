@@ -1111,7 +1111,8 @@ elif [ "$1" = "update" ]
 then
 
 	echo -e "\033[34m Updating Easy Engine, Please wait... \e[0m"
-	curl -L http://goo.gl/FvARq | sudo bash
+	#curl -L http://goo.gl/FvARq | sudo bash
+	curl -L rt.cx/ee | sudo bash
 
 # Easy Engine Help
 else
