@@ -95,7 +95,7 @@ then
 	cd /tmp
 
 	# Remove Older Easy Engine If Found
-	rm -rf /tmp/easyengine
+	rm -rf /tmp/easyengine &>> /dev/null
 
 	# Git Clone
 	git clone git://github.com/rtCamp/easyengine.git || OwnError "Unable To Clone Easy Engine"
@@ -111,8 +111,8 @@ fi
 
 # Install Easy Engine
 echo -e "\033[34m Installing Easy Engine, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
-cp -a conf/* /usr/share/easyengine || OwnError "Unable To Copy Configuration Files "
-cp -a setup/engine /usr/local/sbin/ || OwnError "Unable To Copy Engine Command"
+cp -a conf/* /usr/share/easyengine &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -a setup/engine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy Engine Command"
 chmod 750 /usr/local/sbin/engine || OwnError "Unable To Change Engine Coommand Permission"
 
 # Create Symbolic Link If Not Exist
