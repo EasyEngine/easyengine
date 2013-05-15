@@ -80,8 +80,7 @@ then
 	echo -e "\033[31m WP Command Not Found !! \e[0m"
 	echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
 	git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-	cd /root/wp-cli
-	sudo utils/dev-build
+	sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
 fi
 
 # Pre Checks End
