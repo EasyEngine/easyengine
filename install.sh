@@ -7,7 +7,7 @@ Permission=$(id -u)
 if [ $Permission -ne 0 ] 
 then
 	echo -e "\033[31m Sudo Privilege Required... \e[0m"
-	echo -e "\033[31m Uses:\e[0m \033[34m curl -sL rt.cx/ee | sudo bash \e[0m"
+	echo -e "\033[31m Uses: \e[0m \033[34m curl -sL rt.cx/ee | sudo bash \e[0m"
 	exit 100 
 fi
 
@@ -119,10 +119,6 @@ if [ ! -L /usr/local/sbin/ee ]
 then
 	ln -s /usr/local/sbin/engine /usr/local/sbin/ee
 fi
-
-
-
-
 
 echo
 echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
