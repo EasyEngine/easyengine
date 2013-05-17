@@ -6,8 +6,8 @@
 Permission=$(id -u)
 if [ $Permission -ne 0 ] 
 then
-	echo -e "\033[31m Root Privilege Required... \e[0m"
-	echo -e "\033[31m Uses:  sudo $0 \e[0m"
+	echo -e "\033[31m Sudo Privilege Required... \e[0m"
+	echo -e "\033[31m Uses:\e[0m \033[34m curl -sL rt.cx/ee | sudo bash \e[0m"
 	exit 100 
 fi
 
