@@ -28,8 +28,8 @@ INSTALLLOG=/var/log/easyengine/install.log
 
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
-echo | tee -ai $INSTALLLOG
-echo
+echo &>> $INSTALLLOG
+echo &>> $INSTALLLOG
 echo -e "\033[34m EasyEngine Installation Started `date +%d-%b-%Y:%H:%M:%S` \e[0m" | tee -ai $INSTALLLOG
 
 if [ ! -d $LOGDIR ]
