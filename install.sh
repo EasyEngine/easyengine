@@ -21,15 +21,15 @@ OwnError()
 
 
 # Make Variables Available For Later Use
-LOGDIR=/var/log/easyengine
-INSTALLLOG=/var/log/easyengine/install.log
+LOGDIR=/var/log/easyengine &> /dev/null
+INSTALLLOG=/var/log/easyengine/install.log &> /dev/null
 
 
 
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
 echo | tee -ai $INSTALLLOG
-echo
+echo | tee -ai $INSTALLLOG
 echo -e "\033[34m EasyEngine Installation Started `date +%d-%b-%Y:%H:%M:%S` \e[0m" | tee -ai $INSTALLLOG
 
 if [ ! -d $LOGDIR ]
