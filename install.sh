@@ -7,7 +7,7 @@ Permission=$(id -u)
 if [ $Permission -ne 0 ] 
 then
 	echo -e "\033[31m Sudo Privilege Required... \e[0m"
-	echo -e "\033[31m Uses: \e[0m \033[34m curl -sL rt.cx/ee | sudo bash \e[0m"
+	echo -e "\033[31m Uses:\e[0m\033[34m curl -sL rt.cx/ee | sudo bash \e[0m"
 	exit 100 
 fi
 
@@ -28,33 +28,37 @@ INSTALLLOG=/var/log/easyengine/install.log
 
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
+echo | tee -ai $INSTALLLOG
+echo
+echo -e "\033[34m EasyEngine Installation Started `date +%d-%b-%Y:%H:%M:%S` \e[0m" | tee -ai $INSTALLLOG
+
 if [ ! -d $LOGDIR ]
 then
-	echo -e "\033[34m Creating Easy Engine Log Directory...  \e[0m" 
+	echo -e "\033[34m Creating Easy Engine Log Directory...  \e[0m" | tee -ai $INSTALLLOG
 	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR"
 fi
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
 then
-	echo -e "\033[31m Tee Command Not Found !! \e[0m"
-	echo -e "\033[34m Installing Tee  \e[0m"
+	echo -e "\033[31m Tee Command Not Found !! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Tee  \e[0m" | tee -ai $INSTALLLOG
 	sudo apt-get -y install coreutils || OwnError "Unable to install tee"
 fi
 
 # Checking Wget
 if [ ! -x  /usr/bin/wget ]
 then
-	echo -e "\033[31m Wget Command Not Found !! \e[0m"
-	echo -e "\033[34m Installing Wget  \e[0m"
+	echo -e "\033[31m Wget Command Not Found !! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Wget  \e[0m" | tee -ai $INSTALLLOG
 	sudo apt-get -y install wget || OwnError "Unable To Install Wget"
 fi
 
 # Checking Tar
 if [ ! -x  /bin/tar ]
 then
-	echo -e "\033[31m Tar Command Not Found !! \e[0m"
-	echo -e "\033[34m Installing Tar  \e[0m"
+	echo -e "\033[31m Tar Command Not Found !! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Tar  \e[0m" | tee -ai $INSTALLLOG
 	sudo apt-get -y install tar || OwnError "Unable To Install Tar"
 fi
 
@@ -69,8 +73,8 @@ fi
 # Checking Git
 if [ ! -x  /usr/bin/git ]
 then
-	echo -e "\033[31m Git Command Not Found !! \e[0m"
-	echo -e "\033[34m Installing Git, Please Wait...  \e[0m"
+	echo -e "\033[31m Git Command Not Found !! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Git, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
 	sudo apt-get -y install git-core || OwnError "Unable To Install Git"
 fi
 
