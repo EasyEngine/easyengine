@@ -44,7 +44,7 @@ OwnError()
 	exit 101
 }
 
-# GET Installation Function
+# Install Package Functions
 PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
@@ -130,6 +130,52 @@ WP-CLI()
 		git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
 		sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
 	fi
+}
+
+# Remove Package Functions
+REMOVENGINX()
+{
+	# Remove Nginx
+	echo -e "\033[34m Removing Nginx...  \e[0m"
+	sudo apt-get -y remove nginx-custom || OwnError "Unable To Remove Nginx"
+}
+
+REMOVEPHP()
+{
+	# Remove PHP5
+	echo -e "\033[34m Removing PHP5...  \e[0m"
+	sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
+	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
+}
+
+REMOVEMYSQL()
+{
+	# Remove MySQL
+	echo -e "\033[34m Removing MySQL...  \e[0m"
+	sudo apt-get -y remove mysql-server mysqltuner \
+	|| OwnError "Unable To Remove MySQL"
+}
+
+REMOVEPOSTFIX()
+{
+	# Remove Postfix
+	echo -e "\033[34m Removing Postfix...  \e[0m"
+	sudo apt-get -y remove postfix || OwnError "Unable To Remove Postfix"
+}
+
+REMOVEWPCLI()
+{
+	# Remove WP-CLI
+	echo -e "\033[34m Removing WP-CLI...  \e[0m"
+	sudo rm -rf /root/wp-cli || OwnError "Unable To Remove WP-CLI"
+}
+
+AUTOREMOVE()
+{
+	# Remove Unwanted Packages
+	echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
+	sudo apt-get -y autoremove	
 }
 
 # GET Information Function
@@ -322,12 +368,10 @@ then
                 then
 
 			# Remove Nginx
-			echo -e "\033[34m Removing Nginx...  \e[0m"
-			sudo apt-get -y remove nginx-custom || OwnError "Unable To Remove Nginx"
+			REMOVENGINX
 			
 			# Remove Unwanted Packages
-			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-			sudo apt-get -y autoremove	
+			AUTOREMOVE
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Removed \e[0m"
@@ -336,14 +380,11 @@ then
                 then
 
 			# Remove PHP5
-			echo -e "\033[34m Removing PHP5...  \e[0m"
-			sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
-            php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-            php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
+			REMOVEPHP
+			REMOVEWPCLI
 			
 			# Remove Unwanted Packages
-			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-			sudo apt-get -y autoremove
+			AUTOREMOVE
 						
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Removed \e[0m"
@@ -352,13 +393,10 @@ then
 		then
 
 			# Remove MySQL
-			echo -e "\033[34m Removing MySQL...  \e[0m"
-			sudo apt-get -y remove mysql-server mysqltuner \
-                        || OwnError "Unable To Remove MySQL"
+			REMOVEMYSQL
 			
 			# Remove Unwanted Packages
-			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-			sudo apt-get -y autoremove
+			AUTOREMOVE
 			
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Removed \e[0m"
@@ -367,12 +405,10 @@ then
 		then
 
 			# Remove Postfix
-			echo -e "\033[34m Removing Postfix...  \e[0m"
-			sudo apt-get -y remove postfix || OwnError "Unable To Remove Postfix"
+			REMOVEPOSTFIX
 			
 			# Remove Unwanted Packages
-			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-			sudo apt-get -y autoremove
+			AUTOREMOVE
 			
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Removed \e[0m"
@@ -381,15 +417,14 @@ then
 		then
 
 			# Remove All
-			echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
-			sudo apt-get -y remove nginx-custom php5-common php5-mysql php5-xmlrpc \
-                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-                        php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-                        || OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
+			REMOVENGINX
+			REMOVEPHP
+			REMOVEMYSQL
+			REMOVEPOSTFIX
+			REMOVEWPCLI
 			
 			# Remove Unwanted Packages
-			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-			sudo apt-get -y autoremove
+			AUTOREMOVE
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Removed \e[0m"
