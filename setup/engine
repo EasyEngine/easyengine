@@ -82,18 +82,6 @@ GPGKEY()
 	done
 }
 
-WP-CLI()
-{
-	# Install WP-CLI
-	if [ ! -d /root/wp-cli ]
-	then
-		echo -e "\033[31m WP Command Not Found ! \e[0m"
-		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-		git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-		sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
-	fi
-}
-
 UPDATEAPT()
 {
 	# Update The APT Cache
@@ -130,6 +118,18 @@ INSTALLPOSTFIX()
 	# Install Postfix
 	echo -e "\033[34m Installing Postfix...  \e[0m"
 	sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
+}
+
+WP-CLI()
+{
+	# Install WP-CLI
+	if [ ! -d /root/wp-cli ]
+	then
+		echo -e "\033[31m WP Command Not Found ! \e[0m"
+		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+		git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+		sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+	fi
 }
 
 # GET Information Function
@@ -338,8 +338,8 @@ then
 			# Remove PHP5
 			echo -e "\033[34m Removing PHP5...  \e[0m"
 			sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
-                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-                        php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
+            php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+            php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
 			
 			# Remove Unwanted Packages
 			echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
