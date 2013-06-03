@@ -4,7 +4,6 @@
 # Help Function
 EngineHelp()
 {
-	
 	echo
 	echo "Usage: `basename $0` [OPTION] [ARGUMENT]..."
 	
@@ -30,30 +29,24 @@ EngineHelp()
 	echo "   0 if OK,"
 	echo " 100 sudo privilege required,"
 	echo " 101 command failed to execute,"
-
 }
 
 
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
-MAINLOG=/var/log/easyengine/main.log
 ERRORLOG=/var/log/easyengine/error.log
 
 
 # Capture Errors
 OwnError()
 {
-
 	echo -e "[ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
 	exit 101
-
 }
-
 
 # GET Information Function
 MYSQLINFO()
 {
-
 	# Get The MySQL Username/Password
 	read -p "MySQL Host [localhost]: " MYSQLHOST
 	
@@ -90,33 +83,27 @@ MYSQLINFO()
 	# Create Database
 	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
-
 }
 
 
 WEBUSERINFO()
 {
-
 	# Nginx User
 	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
 	|| OwnError "Unable To Findout Nginx Username"
-
 }
 
 
 NGINXRELOAD()
 {
-
 	# Test & Reload Nginx
 	echo -e "\033[34m Reloading Nginx Configuration, Please Wait...  \e[0m"
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
-
 }
 
 
 PHPSTART()
 {
-
 	# Check PHP5-FPM IS Running
 	service php5-fpm status
 
@@ -125,10 +112,7 @@ PHPSTART()
 		echo -e "\033[34m Restarting PHP5-FPM, Please Wait...  \e[0m"
 		service php5-fpm start || OwnError "Unable To Restart PHP5-FPM"
 	fi
-
 }
-
-
 
 
 
@@ -139,7 +123,7 @@ then
 	# Easy Engine Install
 	if [ "$2" = "install" ]
 	then
-		
+
 		if [ "$3" = "nginx" ]
 		then
 
@@ -173,10 +157,9 @@ then
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Installed \e[0m"
-			
+
 		elif [ "$3" = "php" ]
 		then
-
 			# Install Python Software Properties
 			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
 			sudo apt-get -y install python-software-properties \
@@ -207,10 +190,18 @@ then
 			php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 			php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
 			
-			
+			# Install WP-CLI
+			if [ ! -d /root/wp-cli ]
+			then
+				echo -e "\033[31m WP Command Not Found ! \e[0m"
+				echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+				git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+				sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+			fi
+
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
-			
+
 		elif [ "$3" = "mysql" ]
 		then
 
@@ -244,18 +235,18 @@ then
 			
 			# Install Python Software Properties
 			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
-                        sudo apt-get -y install python-software-properties \
-                        || OwnError "Unable To Install Python Software Properties"
+            sudo apt-get -y install python-software-properties \
+            || OwnError "Unable To Install Python Software Properties"
 
-                        # Add Nginx Launchpad Repository
+            # Add Nginx Launchpad Repository
 			echo -e "\033[34m Adding Brianmercer Nginx Launchpad Repository...  \e[0m"
-                        sudo add-apt-repository ppa:brianmercer/nginx \
-                        || OwnError "Unable To Add Nginx Launchpad Repository"
+            sudo add-apt-repository ppa:brianmercer/nginx \
+            || OwnError "Unable To Add Nginx Launchpad Repository"
 			
 			# Add PHP Launchpad Repository
 			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
-                        sudo add-apt-repository ppa:ondrej/php5 \
-                        || OwnError "Unable To Add PHP5 Launchpad Repository"
+            sudo add-apt-repository ppa:ondrej/php5 \
+            || OwnError "Unable To Add PHP5 Launchpad Repository"
 
 			# Fix GPG Key Problems
 			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx & Ondrej PHP5 Repository...  \e[0m"
@@ -273,10 +264,19 @@ then
 
 			# Install Nginx PHP5 MySQL Postfix
 			echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-                        sudo apt-get -y install nginx-custom php5-common php5-mysql php5-xmlrpc \
-                        php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-                        php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+            sudo apt-get -y install nginx-custom php5-common php5-mysql php5-xmlrpc \
+            php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+            php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
 			|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
+
+			# Install WP-CLI
+			if [ ! -d /root/wp-cli ]
+			then
+				echo -e "\033[31m WP Command Not Found ! \e[0m"
+				echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+				git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+				sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+			fi
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Installed \e[0m"
