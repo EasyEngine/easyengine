@@ -26,15 +26,16 @@ OwnError()
 
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
-echo &>> $INSTALLLOG
-echo &>> $INSTALLLOG
-echo -e "\033[34m EasyEngine Installation Started `date +"%d-%b-%Y %H:%M:%S"` \e[0m" | tee -ai $INSTALLLOG
 
 if [ ! -d $LOGDIR ]
 then
-	echo -e "\033[34m Creating Easy Engine Log Directory, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Creating Easy Engine Log Directory, Please Wait...  \e[0m"
 	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR"
 fi
+
+echo &>> $INSTALLLOG
+echo &>> $INSTALLLOG
+echo -e "\033[34m EasyEngine Installation Started `date +"%d-%b-%Y %H:%M:%S"` \e[0m" | tee -ai $INSTALLLOG
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
