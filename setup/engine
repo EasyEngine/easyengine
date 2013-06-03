@@ -44,6 +44,94 @@ OwnError()
 	exit 101
 }
 
+# GET Installation Function
+PYTHONSOFTWARE()
+{
+	# Install Python Software Properties
+	echo -e "\033[34m Installing Python Software Properties...  \e[0m"
+	sudo apt-get -y install python-software-properties \
+	|| OwnError "Unable To Install Python Software Properties"
+}
+
+NGINXREPO()
+{
+	# Add Nginx Launchpad Repository
+	echo -e "\033[34m Adding Brianmercer Nginx Launchpad Repository...  \e[0m"
+	sudo add-apt-repository ppa:brianmercer/nginx \
+	|| OwnError "Unable To Add Nginx Launchpad Repository"
+}
+
+PHPREPO()
+{
+	# Add PHP Launchpad Repository
+	echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
+	sudo add-apt-repository ppa:ondrej/php5 \
+	|| OwnError "Unable To Add PHP5 Launchpad Repository"
+}
+
+GPGKEY()
+{
+	# Fix GPG Key Problems
+	echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
+	sudo apt-get update > /dev/null 2> /tmp/keymissing \
+	|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
+	for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+	do
+		echo -e "\033[34m Processing key: $key \e[0m"
+		gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+	done
+}
+
+WP-CLI()
+{
+	# Install WP-CLI
+	if [ ! -d /root/wp-cli ]
+	then
+		echo -e "\033[31m WP Command Not Found ! \e[0m"
+		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+		git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+		sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+	fi
+}
+
+UPDATEAPT()
+{
+	# Update The APT Cache
+	echo -e "\033[34m Updating APT Cache...  \e[0m"
+	sudo apt-get update || OwnError "Unable To Update APT Cache"
+}
+
+INSTALLNGINX()
+{
+	# Install Nginx
+	echo -e "\033[34m Installing Nginx...  \e[0m"
+	sudo apt-get -y install nginx-custom || OwnError "Unable To Install Nginx"
+}
+
+INSTALLPHP()
+{
+	# Install PHP5
+	echo -e "\033[34m Installing PHP5...  \e[0m"
+	sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
+	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
+}
+
+INSTALLMYSQL()
+{
+	# Install MySQL
+	echo -e "\033[34m Installing MySQL...  \e[0m"
+	sudo apt-get -y install mysql-server mysqltuner \
+	|| OwnError "Unable To Install MySQL"
+}
+
+INSTALLPOSTFIX()
+{
+	# Install Postfix
+	echo -e "\033[34m Installing Postfix...  \e[0m"
+	sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
+}
+
 # GET Information Function
 MYSQLINFO()
 {
@@ -128,32 +216,19 @@ then
 		then
 
 			# Install Python Software Properties
-			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
-			sudo apt-get -y install python-software-properties \
-			|| OwnError "Unable To Install Python Software Properties"
+			PYTHONSOFTWARE
 
 			# Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding Brianmercer Nginx Launchpad Repository...  \e[0m"
-			sudo add-apt-repository ppa:brianmercer/nginx \
-			|| OwnError "Unable To Add Nginx Launchpad Repository"
-			
+			NGINXREPO
+
 			# Fix GPG Key Problems
-			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
-			sudo apt-get update > /dev/null 2> /tmp/keymissing \
-			|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
-			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
-			do
-				echo -e "\033[34m Processing key: $key \e[0m"
-				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
-			done
+			GPGKEY
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"			
+			UPDATEAPT			
 
 			# Install Nginx
-			echo -e "\033[34m Installing Nginx...  \e[0m"
-			sudo apt-get -y install nginx-custom || OwnError "Unable To Install Nginx"
+			INSTALLNGINX
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Installed \e[0m"
@@ -161,43 +236,22 @@ then
 		elif [ "$3" = "php" ]
 		then
 			# Install Python Software Properties
-			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
-			sudo apt-get -y install python-software-properties \
-			|| OwnError "Unable To Install Python Software Properties"
+			PYTHONSOFTWARE
 
 			# Add PHP Launchpad Repository
-			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
-			sudo add-apt-repository ppa:ondrej/php5 \
-			|| OwnError "Unable To Add PHP5 Launchpad Repository"
+			PHPREPO
 
 			# Fix GPG Key Problems
-			echo -e "\033[34m Checking GPG Keys For Ondrej PHP5 Repository...  \e[0m"
-			sudo apt-get update > /dev/null 2> /tmp/keymissing \
-			|| OwnError "Unable To Fix GPG Keys For Ondrej PHP5 Repository "
-			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
-			do
-				echo -e "\033[34m Processing key: $key \e[0m"
-				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
-			done
+			GPGKEY
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			UPDATEAPT
 
 			# Install PHP5
-			echo -e "\033[34m Installing PHP5...  \e[0m"
-			sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
-			php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-			php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
+			INSTALLPHP
 			
 			# Install WP-CLI
-			if [ ! -d /root/wp-cli ]
-			then
-				echo -e "\033[31m WP Command Not Found ! \e[0m"
-				echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-				git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-				sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
-			fi
+			WP-CLI
 
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
@@ -206,13 +260,10 @@ then
 		then
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			UPDATEAPT
 
 			# Install MySQL
-			echo -e "\033[34m Installing MySQL...  \e[0m"
-			sudo apt-get -y install mysql-server mysqltuner \
-			|| OwnError "Unable To Install MySQL"
+			INSTALLMYSQL
 			
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Installed \e[0m"
@@ -220,12 +271,10 @@ then
 		elif [ "$3" = "postfix" ]
 		then
 			# Update The APT Cache
-			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			UPDATEAPT
 			
 			# Install Postfix
-			echo -e "\033[34m Installing Postfix...  \e[0m"
-			sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
+			INSTALLPOSTFIX
 			
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Installed \e[0m"
@@ -234,49 +283,28 @@ then
 		then
 			
 			# Install Python Software Properties
-			echo -e "\033[34m Installing Python Software Properties...  \e[0m"
-            sudo apt-get -y install python-software-properties \
-            || OwnError "Unable To Install Python Software Properties"
+			PYTHONSOFTWARE
 
             # Add Nginx Launchpad Repository
-			echo -e "\033[34m Adding Brianmercer Nginx Launchpad Repository...  \e[0m"
-            sudo add-apt-repository ppa:brianmercer/nginx \
-            || OwnError "Unable To Add Nginx Launchpad Repository"
+			NGINXREPO
 			
 			# Add PHP Launchpad Repository
-			echo -e "\033[34m Adding PHP5 Launchpad Repository...  \e[0m"
-            sudo add-apt-repository ppa:ondrej/php5 \
-            || OwnError "Unable To Add PHP5 Launchpad Repository"
+			PHPREPO
 
 			# Fix GPG Key Problems
-			echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx & Ondrej PHP5 Repository...  \e[0m"
-			sudo apt-get update > /dev/null 2> /tmp/keymissing \
-			|| OwnError "Unable To Fix GPG Keys For Nginx & PHP5 Repository "
-			for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
-			do
-				echo -e "\033[34m Processing key: $key \e[0m"
-				gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
-			done
+			GPGKEY
 
 			# Update The APT Cache
-			echo -e "\033[34m Updating APT Cache...  \e[0m"
-			sudo apt-get update || OwnError "Unable To Update APT Cache"
+			UPDATEAPT
 
 			# Install Nginx PHP5 MySQL Postfix
-			echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-            sudo apt-get -y install nginx-custom php5-common php5-mysql php5-xmlrpc \
-            php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-            php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
-			|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
+			INSTALLNGINX
+			INSTALLPHP
+			INSTALLMYSQL
+			INSTALLPOSTFIX
 
 			# Install WP-CLI
-			if [ ! -d /root/wp-cli ]
-			then
-				echo -e "\033[31m WP Command Not Found ! \e[0m"
-				echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-				git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-				sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
-			fi
+			WP-CLI
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Installed \e[0m"
