@@ -9,7 +9,7 @@ EngineHelp()
 	
 	echo
 	echo "OPTION:"
-	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|postfix|--all]"
+	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|--all]"
 
 	echo
 	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
@@ -113,6 +113,14 @@ INSTALLMYSQL()
 	|| OwnError "Unable To Install MySQL"
 }
 
+INSTALLPMA()
+{
+	# Install PMA
+	echo -e "\033[34m Installing PMA...  \e[0m"
+	sudo apt-get -y install phpmyadmin \
+	|| OwnError "Unable To Install PMA"
+}
+
 INSTALLPOSTFIX()
 {
 	# Install Postfix
@@ -126,7 +134,7 @@ INSTALLALL()
 	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo apt-get -y install nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 }
 
@@ -168,6 +176,14 @@ REMOVEMYSQL()
 	|| OwnError "Unable To Remove MySQL"
 }
 
+REMOVEPMA()
+{
+	# Remove PMA
+	echo -e "\033[34m Installing PMA...  \e[0m"
+	sudo apt-get -y remove phpmyadmin \
+	|| OwnError "Unable To Remove PMA"
+}
+
 REMOVEPOSTFIX()
 {
 	# Remove Postfix
@@ -181,7 +197,7 @@ REMOVEALL()
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo apt-get -y remove nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
 }
 
@@ -225,6 +241,14 @@ PURGEMYSQL()
 	|| OwnError "Unable To Purge MySQL"
 }
 
+PURGEPMA()
+{
+	# Purge PMA
+	echo -e "\033[34m Installing PMA...  \e[0m"
+	sudo apt-get -y purge phpmyadmin \
+	|| OwnError "Unable To Purge PMA"
+}
+
 PURGEPOSTFIX()
 {
 	# Purge Postfix
@@ -238,7 +262,7 @@ PURGEALL()
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo apt-get -y purge nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
 
@@ -343,6 +367,7 @@ then
 
 		elif [ "$3" = "php" ]
 		then
+
 			# Install Python Software Properties
 			PYTHONSOFTWARE
 
@@ -376,8 +401,21 @@ then
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Installed \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Update The APT Cache
+			UPDATEAPT
+
+			# Install PMA
+			INSTALLPMA
+
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Installed \e[0m"
+
 		elif [ "$3" = "postfix" ]
 		then
+
 			# Update The APT Cache
 			UPDATEAPT
 			
@@ -405,14 +443,14 @@ then
 			# Update The APT Cache
 			UPDATEAPT
 
-			# Install Nginx PHP5 MySQL Postfix
+			# Install Nginx PHP5 MySQL PMA Postfix
 			INSTALLALL
 
 			# Install WP-CLI
 			WP-CLI
 			
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Installed \e[0m"
+			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Installed \e[0m"
 
 		else
 			EngineHelp
@@ -424,7 +462,7 @@ then
 	then
 		
 		if [ "$3" = "nginx" ]
-                then
+		then
 
 			# Remove Nginx
 			REMOVENGINX
@@ -436,7 +474,7 @@ then
 			echo -e "\033[34m Nginx Successfully Removed \e[0m"
 
 		elif [ "$3" = "php" ]
-                then
+		then
 
 			# Remove PHP5
 			REMOVEPHP
@@ -460,6 +498,18 @@ then
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Removed \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Remove PMA
+			REMOVEPMA
+			
+			# Remove Unwanted Packages
+			AUTOREMOVE
+			
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Removed \e[0m"
+
 		elif [ "$3" = "postfix" ]
 		then
 
@@ -482,7 +532,7 @@ then
 			AUTOREMOVE
 			
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Removed \e[0m"
+			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Removed \e[0m"
 
 		else
 			EngineHelp
@@ -530,6 +580,18 @@ then
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Purged \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Purge PMA
+			PURGEPMA
+			
+			# Remove Unwanted Packages
+			AUTOREMOVE
+
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Purged \e[0m"
+
 		elif [ "$3" = "postfix" ]
 		then
 
@@ -552,7 +614,7 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL Postfix Successfully Purged \e[0m"
+			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Purged \e[0m"
 
 		else
 			EngineHelp
