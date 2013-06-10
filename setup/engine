@@ -12,7 +12,7 @@ EngineHelp()
 	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|--all]"
 
 	echo
-	echo " `basename $0` [site]	[read]	 [all|active|sitename]"
+	echo " `basename $0` [site]	[read]	 [available|enabled|sitename]"
 	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
 	echo " `basename $0` [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]"
 	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdomain|subdirectory] [basic|w3total|wpsuper|fastcgi]"
@@ -657,21 +657,21 @@ then
 	if [ "$2" = "read" ]
 	then
 
-		if [ "$3" = "all" ]
+		if [ "$3" = "available" ]
 		then
 
-			# Display The List Of All Sites
-			echo -e "\033[34m List Of All (sites-available) Websites \e[0m"
+			# Display The List Of Available Sites
+			echo -e "\033[34m List Of Available Websites \e[0m"
 			ls /etc/nginx/sites-available/ \
-			|| OwnError "Unable To Display The List Of Websites"
+			|| OwnError "Unable To Display The List Of Available Websites"
 
-		elif [ "$3" = "active" ]
+		elif [ "$3" = "enabled" ]
 		then
 
-			# Display The List Of Active Sites
-			echo -e "\033[34m List Of Active (sites-enabled) Websites \e[0m"
+			# Display The List Of Enabled Sites
+			echo -e "\033[34m List Of Enabled Websites \e[0m"
 			ls /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable To Display The List Of Active Websites"
+			|| OwnError "Unable To Display The List Of Enabled Websites"
 
 		elif [ "$3" != "all" ] && [ "$3" != "active" ] && [ -n "$3" ]
 		then
