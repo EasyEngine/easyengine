@@ -115,6 +115,27 @@ INSTALLMYSQL()
 
 INSTALLPMA()
 {
+	# Check PMA Directory Exist
+	#if [ ! -d /var/www/pma ]
+	#then
+	#		mkdir -p /var/www/pma || OwnError "Unable To Create /var/www/pma Directory"
+	#fi
+
+	# Download PMA
+	#wget -O /var/www/pma/pma.tar.gz -c http://downloads.sourceforge.net/project/phpmyadmin/phpMyAdmin/4.0.3/phpMyAdmin-4.0.3-all-languages.tar.gz \
+	#|| OwnError "Unable To Download PMA"
+
+	# Extract PMA
+	#cd /var/www/pma
+	#tar --strip-components=1 -zxvf pma.tar.gz
+
+	# Call NGINXUSERINFO Function For NGINX User Details
+	#NGINXUSERINFO
+
+	# Change Ownership
+	#echo -e "\033[34m Changing Ownership  \e[0m"
+	#chown -R $NGINXUSER:$NGINXUSER /var/www/pma
+
 	# Install PMA
 	echo -e "\033[34m Installing PMA...  \e[0m"
 	sudo apt-get -y install phpmyadmin \
@@ -308,7 +329,7 @@ MYSQLINFO()
 	|| OwnError "Unable To Create $WPDBNAME Database"
 }
 
-WEBUSERINFO()
+NGINXUSERINFO()
 {
 	# Nginx User
 	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
@@ -747,8 +768,8 @@ then
 												
 			fi
 
-			# Call WEBUSERINFO Function For Web User Details
-			WEBUSERINFO
+			# Call NGINXUSERINFO Function For NGINX User Details
+			NGINXUSERINFO
 
 			# Change Ownership
 			echo -e "\033[34m Changing Ownership  \e[0m"
@@ -809,8 +830,8 @@ then
 					# Activate W3 Total Cache
 					wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
 					
-					# Call WEBUSERINFO Function For Web User Details
-					WEBUSERINFO
+					# Call NGINXUSERINFO Function For NGINX User Details
+					NGINXUSERINFO
 					
 					# Give Ownership To $NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
@@ -846,8 +867,8 @@ then
 					# Activate WP Super Cache
 					wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
 					
-					# Call WEBUSERINFO Function For Web User Details
-					WEBUSERINFO
+					# Call NGINXUSERINFO Function For NGINX User Details
+					NGINXUSERINFO
 					
 					# Give Ownership To $NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
@@ -884,8 +905,8 @@ then
 					# Activate Nginx Helper
 					wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
 					
-					# Call WEBUSERINFO Function For Web User Details
-					WEBUSERINFO
+					# Call NGINXUSERINFO Function For NGINX User Details
+					NGINXUSERINFO
 					
 					# Give Ownership To $NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
@@ -933,10 +954,10 @@ then
 					# Make Blogs.Dir
 					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
 					
-					# Call WEBUSERINFO Function For Web User Details
-					WEBUSERINFO
+					# Call NGINXUSERINFO Function For NGINX User Details
+					NGINXUSERINFO
 						
-					# Give Ownership To WEBUSER
+					# Give Ownership To NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
 
 					if [ "$6" = "basic" ]
@@ -949,8 +970,8 @@ then
 						# Activate Nginx Helper
 						wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
 					
-						# Call WEBUSERINFO Function For Web User Details
-						WEBUSERINFO
+						# Call NGINXUSERINFO Function For NGINX User Details
+						NGINXUSERINFO
 					
 						# Give Ownership To $NGINXUSER
 						chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
@@ -1068,10 +1089,10 @@ then
 					# Make Blogs.Dir
 					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
 					
-					# Call WEBUSERINFO Function For Web User Details
-					WEBUSERINFO
+					# Call NGINXUSERINFO Function For NGINX User Details
+					NGINXUSERINFO
 						
-					# Give Ownership To WEBUSER
+					# Give Ownership To NGINXUSER
 					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
 
 					if [ "$6" = "basic" ]
