@@ -742,7 +742,7 @@ then
 		if [ -n "$3" ]
 		then
 
-			# Remove http:// & www.
+			# Remove http://  https:// & www.
 			DOMAIN=$(echo $3 | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
 
 			# Creating Site
@@ -838,8 +838,8 @@ then
 		if [ -n "$3" ]
 		then
 
-			# Remove http:// & www.
-			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
+			# Remove http://  https:// & www.
+			DOMAIN=$(echo $3 | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
 			
 			# Make Backup Directory For Storing Older Nginx Configurations
 			if [ ! -d /etc/nginx/sites-available/backups/ ]
