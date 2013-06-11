@@ -121,7 +121,7 @@ COMMONNGINX()
 	
 	# Update Nginx Common Files
 	cp -v /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
-	|| OwnError "Unable To Copy Nginx Common Files"	
+	|| OwnError "Unable To Copy Nginx Common Files"
 }
 
 
@@ -132,6 +132,12 @@ INSTALLPHP()
 	sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
+}
+
+CHANGEPHPSOCKET()
+{
+	# Change PHP Fastcgi Socket
+	sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
 }
 
 INSTALLMYSQL()
@@ -372,6 +378,13 @@ NGINXRELOAD()
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 }
 
+PHPRELOAD()
+{
+	# Reload PHP
+	echo -e "\033[34m Reloading PHP5-FPM Configuration, Please Wait...  \e[0m"
+	service php5-fpm reload || OwnError "Unable To Reload PHP5-FPM"
+}
+
 PHPSTART()
 {
 	# Check PHP5-FPM IS Running
@@ -414,6 +427,9 @@ then
 
 			# Personal Settings For Nginx
 			COMMONNGINX
+
+			# Reload Nginx To Take Effect Of COMMONNGINX Functions
+			NGINXRELOAD
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Installed \e[0m"
@@ -437,7 +453,10 @@ then
 			INSTALLPHP
 
 			# Change PHP Fastcgi Socket
-			sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
+			CHANGEPHPSOCKET
+
+			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
+			PHPRELOAD
 			
 			# Install WP-CLI
 			WP-CLI
@@ -505,8 +524,14 @@ then
 			# Personal Settings For Nginx
 			COMMONNGINX
 
+			# Reload Nginx To Take Effect Of COMMONNGINX Functions
+			NGINXRELOAD
+
 			# Change PHP Fastcgi Socket
-			sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
+			CHANGEPHPSOCKET
+
+			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
+			PHPRELOAD
 
 			# Install WP-CLI
 			WP-CLI
