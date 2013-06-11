@@ -71,15 +71,19 @@ PHPREPO()
 
 GPGKEY()
 {
-	# Fix GPG Key Problems
-	echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
-	sudo apt-get update > /dev/null 2> /tmp/keymissing \
-	|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
-	for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
-	do
-		echo -e "\033[34m Processing key: $key \e[0m"
-		gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
-	done
+	if [ -f ~/.gpgkeyfix ]
+	then
+		# Fix GPG Key Problems
+		echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
+		sudo apt-get update > /dev/null 2> /tmp/keymissing \
+		|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
+
+		for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
+		do
+			echo -e "\033[34m Processing key: $key \e[0m"
+			gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+		done
+	fi
 }
 
 UPDATEAPT()
