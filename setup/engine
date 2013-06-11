@@ -96,6 +96,31 @@ INSTALLNGINX()
 	sudo apt-get -y install nginx-custom || OwnError "Unable To Install Nginx"
 }
 
+COMMONNGINX()
+{
+	# Personal Settings For Nginx
+	echo -e "\033[34m Updating Nginx Configuration/Common Files...  \e[0m"
+	# Check Directory Exist
+	if [ ! -d /etc/nginx/conf.d ]
+	then
+		mkdir /etc/nginx/conf.d || OwnError "Unable To Create /etc/nginx/conf.d"
+	fi
+
+	if [ ! -d /etc/nginx/common ]
+	then
+		mkdir /etc/nginx/common || OwnError "Unable To Create /etc/nginx/common"
+	fi
+
+	# Update Nginx Configuration Files
+	cp -v /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
+	|| OwnError "Unable To Copy Nginx Configuration Files"
+	
+	# Update Nginx Common Files
+	cp -v /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
+	|| OwnError "Unable To Copy Nginx Common Files"	
+}
+
+
 INSTALLPHP()
 {
 	# Install PHP5
@@ -382,6 +407,9 @@ then
 
 			# Install Nginx
 			INSTALLNGINX
+
+			# Personal Settings For Nginx
+			COMMONNGINX
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Installed \e[0m"
@@ -466,6 +494,9 @@ then
 
 			# Install Nginx PHP5 MySQL PMA Postfix
 			INSTALLALL
+
+			# Personal Settings For Nginx
+			COMMONNGINX
 
 			# Install WP-CLI
 			WP-CLI
