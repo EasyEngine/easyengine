@@ -99,7 +99,7 @@ INSTALLNGINX()
 COMMONNGINX()
 {
 	# Personal Settings For Nginx
-	echo -e "\033[34m Updating Nginx Configuration/Common Files...  \e[0m"
+	echo -e "\033[34m Updating Nginx Configuration Files...  \e[0m"
 	# Check Directory Exist
 	if [ ! -d /etc/nginx/conf.d ]
 	then
@@ -431,6 +431,9 @@ then
 
 			# Install PHP5
 			INSTALLPHP
+
+			# Change PHP Fastcgi Socket
+			sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
 			
 			# Install WP-CLI
 			WP-CLI
@@ -497,6 +500,9 @@ then
 
 			# Personal Settings For Nginx
 			COMMONNGINX
+
+			# Change PHP Fastcgi Socket
+			sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
 
 			# Install WP-CLI
 			WP-CLI
