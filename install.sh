@@ -117,13 +117,13 @@ fi
 # Install Easy Engine
 echo -e "\033[34m Installing Easy Engine, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
 cp -a conf/* /usr/share/easyengine &>> /dev/null || OwnError "Unable To Copy Configuration Files "
-cp -a setup/engine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy Engine Command"
-chmod 750 /usr/local/sbin/engine || OwnError "Unable To Change Engine Coommand Permission"
+cp -a setup/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
+chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
 
 # Create Symbolic Link If Not Exist
 if [ ! -L /usr/local/sbin/ee ]
 then
-	ln -s /usr/local/sbin/engine /usr/local/sbin/ee
+	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
 
 echo
