@@ -131,7 +131,7 @@ EEGITINIT()
 	cd $EEGITDIR
 	git init
 	git add .
-	git commit -am "Initialise Git On /etc/$EEGITDIR"
+	git commit -am "Initialise Git On $EEGITDIR"
 }
 
 INSTALLPHP()
