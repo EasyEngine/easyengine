@@ -124,6 +124,15 @@ COMMONNGINX()
 	|| OwnError "Unable To Copy Nginx Common Files"
 }
 
+EEGITINIT()
+{
+	# Initialise Git
+	echo -e "\033[34m Initialise Git On $EEGITDIR...  \e[0m"
+	cd $EEGITDIR
+	git init
+	git add .
+	git commit -am "Initialise Git On /etc/$EEGITDIR"
+}
 
 INSTALLPHP()
 {
@@ -137,7 +146,7 @@ INSTALLPHP()
 CHANGEPHPSOCKET()
 {
 	# Change PHP Fastcgi Socket
-	sed -i.bak "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
+	sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
 }
 
 INSTALLMYSQL()
@@ -430,6 +439,10 @@ then
 
 			# Reload Nginx To Take Effect Of COMMONNGINX Functions
 			NGINXRELOAD
+
+			# Initialise Git
+			EEGITDIR=/etc/nginx/
+			EEGITINIT
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx Successfully Installed \e[0m"
@@ -461,6 +474,10 @@ then
 			# Install WP-CLI
 			WP-CLI
 
+			# Initialise Git
+			EEGITDIR=/etc/php5/
+			EEGITINIT
+
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
 
@@ -472,6 +489,10 @@ then
 
 			# Install MySQL
 			INSTALLMYSQL
+
+			# Initialise Git
+			EEGITDIR=/etc/mysql/
+			EEGITINIT
 			
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Installed \e[0m"
@@ -485,6 +506,10 @@ then
 			# Install PMA
 			INSTALLPMA
 
+			# Initialise Git
+			EEGITDIR=/etc/phpmyadmin/
+			EEGITINIT
+
 			# Display Success Message
 			echo -e "\033[34m PMA Successfully Installed \e[0m"
 
@@ -496,6 +521,10 @@ then
 			
 			# Install Postfix
 			INSTALLPOSTFIX
+
+			# Initialise Git
+			EEGITDIR=/etc/postfix/
+			EEGITINIT
 			
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Installed \e[0m"
@@ -535,7 +564,27 @@ then
 
 			# Install WP-CLI
 			WP-CLI
-			
+
+			# Initialise Git
+			EEGITDIR=/etc/nginx/
+			EEGITINIT
+
+			# Initialise Git
+			EEGITDIR=/etc/php5/
+			EEGITINIT
+
+			# Initialise Git
+			EEGITDIR=/etc/mysql/
+			EEGITINIT
+
+			# Initialise Git
+			EEGITDIR=/etc/phpmyadmin/
+			EEGITINIT
+
+			# Initialise Git
+			EEGITDIR=/etc/postfix/
+			EEGITINIT
+
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Installed \e[0m"
 
