@@ -124,16 +124,6 @@ COMMONNGINX()
 	|| OwnError "Unable To Copy Nginx Common Files"
 }
 
-EEGITINIT()
-{
-	# Initialise Git
-	echo -e "\033[34m Initialise Git On $EEGITDIR...  \e[0m"
-	cd $EEGITDIR
-	git init
-	git add .
-	git commit -am "Initialise Git On $EEGITDIR"
-}
-
 INSTALLPHP()
 {
 	# Install PHP5
@@ -331,6 +321,32 @@ PURGEALL()
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
 
+
+# EE GIT Function
+EEGITINIT()
+{
+	# Initialise Git
+	echo -e "\033[34m Initialise Git On $EEGITDIR...  \e[0m"
+	cd $EEGITDIR
+	git init
+	git add .
+	git commit -am "Initialise Git On $EEGITDIR"
+}
+
+EEGITCOMMIT()
+{
+	cd $EEGITDIR
+	git status | grep --color=auto clean
+
+	if [ $? -ne 0 ]
+	then
+		# Git Commit Functionality
+		echo -e "\033[34m Take Nginx Configuration In Git Version Control...  \e[0m"
+
+		# Add Newly Created Files && Commit It
+		git add . && git commit -am "$EEGITMESSAGE"
+	fi
+}
 
 # GET Information Function
 MYSQLINFO()
@@ -830,6 +846,11 @@ then
 			echo -e "\033[34m Creating Symbolic Link  \e[0m"
 			ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
 			|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
+
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Created New Website $DOMAIN"
+			EEGITCOMMIT
 
 			# Creating Htdocs & Logs Directory
 			echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
