@@ -31,7 +31,7 @@ EEAUTO()
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "info list show create enable disable delete backup" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "info list show create enable disable update delete backup" -- $CURRENT ) )
 			return 0
 			;;
 	esac
