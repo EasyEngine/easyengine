@@ -1,0 +1,41 @@
+# Easy Engine Auto Complete Feature
+
+
+
+EEAUTO()
+{
+	# Get Current Word
+	local CURRENT=${COMP_WORDS[COMP_CWORD]}
+
+	# List Of Suggested Words
+	COMPREPLY=( $(compgen -W "system site" -- $CURRENT) )
+
+	# Get Previous Word
+	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
+
+	# List Of Suggested Words
+	case "$PREVIOUS" in
+		system)
+			COMPREPLY=( $( compgen -W "install remove purge" -- $CURRENT ) )
+			return 0
+			;;
+
+		install|remove|purge)
+			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix --all" -- $CURRENT ) )
+			return 0
+			;;
+
+		nginx|php|mysql|pma|postfix|--all)
+			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
+			return 0
+			;;
+	esac
+
+	# completing an option
+  if [[ "$CURRENT" == -* ]]
+  then
+	COMPREPLY=( $( compgen -W "-E -S -A -J -s -P -M -q -G -C -U -T -K" -- $CURRENT ) )
+  fi
+}
+
+complete -F EEAUTO ee easyengine
