@@ -29,13 +29,12 @@ EEAUTO()
 			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
 			return 0
 			;;
-	esac
 
-	# completing an option
-  if [[ "$CURRENT" == -* ]]
-  then
-	COMPREPLY=( $( compgen -W "-E -S -A -J -s -P -M -q -G -C -U -T -K" -- $CURRENT ) )
-  fi
+		site)
+			COMPREPLY=( $( compgen -W "info list show create enable disable delete backup" -- $CURRENT ) )
+			return 0
+			;;
+	esac
 }
 
 complete -F EEAUTO ee easyengine
