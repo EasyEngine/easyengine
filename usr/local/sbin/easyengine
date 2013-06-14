@@ -37,7 +37,7 @@ LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 
 # Check Auto Yes To Apt-Get
-grep apt-get /etc/easyengine/ee.conf | grep -i yes
+grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true
 if [ $? -eq 0]
 then
 	EEAPTGET="apt-get -y"
@@ -58,7 +58,7 @@ PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
 	echo -e "\033[34m Installing Python Software Properties...  \e[0m"
-	sudo apt-get -y install python-software-properties \
+	sudo $EEAPTGET install python-software-properties \
 	|| OwnError "Unable To Install Python Software Properties"
 }
 
@@ -106,7 +106,7 @@ INSTALLNGINX()
 {
 	# Install Nginx
 	echo -e "\033[34m Installing Nginx...  \e[0m"
-	sudo apt-get -y install nginx-custom || OwnError "Unable To Install Nginx"
+	sudo $EEAPTGET install nginx-custom || OwnError "Unable To Install Nginx"
 }
 
 COMMONNGINX()
@@ -137,7 +137,7 @@ INSTALLPHP()
 {
 	# Install PHP5
 	echo -e "\033[34m Installing PHP5...  \e[0m"
-	sudo apt-get -y install php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET install php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
 }
@@ -152,7 +152,7 @@ INSTALLMYSQL()
 {
 	# Install MySQL
 	echo -e "\033[34m Installing MySQL...  \e[0m"
-	sudo apt-get -y install mysql-server mysqltuner \
+	sudo $EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
 
@@ -181,7 +181,7 @@ INSTALLPMA()
 
 	# Install PMA
 	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo apt-get -y install phpmyadmin \
+	sudo $EEAPTGET install phpmyadmin \
 	|| OwnError "Unable To Install PMA"
 }
 
@@ -189,14 +189,14 @@ INSTALLPOSTFIX()
 {
 	# Install Postfix
 	echo -e "\033[34m Installing Postfix...  \e[0m"
-	sudo apt-get -y install postfix || OwnError "Unable To Install Postfix"
+	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
 INSTALLALL()
 {
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo apt-get -y install nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET install nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
@@ -256,14 +256,14 @@ REMOVENGINX()
 {
 	# Remove Nginx
 	echo -e "\033[34m Removing Nginx...  \e[0m"
-	sudo apt-get -y remove nginx-custom || OwnError "Unable To Remove Nginx"
+	sudo $EEAPTGET remove nginx-custom || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
 {
 	# Remove PHP5
 	echo -e "\033[34m Removing PHP5...  \e[0m"
-	sudo apt-get -y remove php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET remove php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
 }
@@ -272,7 +272,7 @@ REMOVEMYSQL()
 {
 	# Remove MySQL
 	echo -e "\033[34m Removing MySQL...  \e[0m"
-	sudo apt-get -y remove mysql-server mysqltuner \
+	sudo $EEAPTGET remove mysql-server mysqltuner \
 	|| OwnError "Unable To Remove MySQL"
 }
 
@@ -280,7 +280,7 @@ REMOVEPMA()
 {
 	# Remove PMA
 	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo apt-get -y remove phpmyadmin \
+	sudo $EEAPTGET remove phpmyadmin \
 	|| OwnError "Unable To Remove PMA"
 }
 
@@ -288,14 +288,14 @@ REMOVEPOSTFIX()
 {
 	# Remove Postfix
 	echo -e "\033[34m Removing Postfix...  \e[0m"
-	sudo apt-get -y remove postfix || OwnError "Unable To Remove Postfix"
+	sudo $EEAPTGET remove postfix || OwnError "Unable To Remove Postfix"
 }
 
 REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo apt-get -y remove nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET remove nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
@@ -312,7 +312,7 @@ AUTOREMOVE()
 {
 	# Remove Unwanted Packages
 	echo -e "\033[34m Removing Unwanted Packages...  \e[0m"
-	sudo apt-get -y autoremove || OwnError "Unable To Auto Remove"
+	sudo $EEAPTGET autoremove || OwnError "Unable To Auto Remove"
 }
 
 
@@ -321,14 +321,14 @@ PURGENGINX()
 {
 	# Purge Nginx
 	echo -e "\033[34m Purge Nginx...  \e[0m"
-	sudo apt-get -y purge nginx-custom || OwnError "Unable To Purge Nginx"
+	sudo $EEAPTGET purge nginx-custom || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
 {
 	# Purge PHP5
 	echo -e "\033[34m Purge PHP5...  \e[0m"
-	sudo apt-get -y purge php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET purge php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Purge PHP5"
 }
@@ -337,7 +337,7 @@ PURGEMYSQL()
 {
 	# Purge MySQL
 	echo -e "\033[34m Purge MySQL...  \e[0m"
-	sudo apt-get -y purge mysql-server mysqltuner \
+	sudo $EEAPTGET purge mysql-server mysqltuner \
 	|| OwnError "Unable To Purge MySQL"
 }
 
@@ -345,7 +345,7 @@ PURGEPMA()
 {
 	# Purge PMA
 	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo apt-get -y purge phpmyadmin \
+	sudo $EEAPTGET purge phpmyadmin \
 	|| OwnError "Unable To Purge PMA"
 }
 
@@ -353,14 +353,14 @@ PURGEPOSTFIX()
 {
 	# Purge Postfix
 	echo -e "\033[34m Purge Postfix...  \e[0m"
-	sudo apt-get -y purge postfix || OwnError "Unable To Purge Postfix"
+	sudo $EEAPTGET purge postfix || OwnError "Unable To Purge Postfix"
 }
 
 PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo apt-get -y purge nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET purge nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
