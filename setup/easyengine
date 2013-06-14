@@ -228,6 +228,16 @@ WP-CLI()
 		echo 'then' >> /var/www/.profile
 		echo -e  '\t PATH="/var/www/.composer/bin:$PATH"' >> /var/www/.profile
 		echo 'fi' >> /var/www/.profile
+
+		if [ -e /var/www/.composer/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
+		then
+			echo -e "\033[34m Set WP-CLI Auto Ccompletions \e[0m"
+			echo >> /var/www/.profile
+			echo '# WP-CLI Auto Ccompletions' >> /var/www/.profile 
+			echo 'source /var/www/.composer/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
+			>> /var/www/.profile
+		fi
+
 	fi
 }
 
