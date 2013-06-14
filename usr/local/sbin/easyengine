@@ -215,7 +215,7 @@ WP-CLI()
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
 		mkdir -p /var/www/wp-cli || OwnError "Unable To Create Directory /var/www/wp-cli"
 		curl http://wp-cli.org/installer.sh | bash || OwnError "Unable To Install WP-CLI"
-		mv ~/.composer /var/www/wp-cli/ || OwnError "Unable To Move WP-CLI"
+		mv ~/.composer/* /var/www/wp-cli/ || OwnError "Unable To Move WP-CLI"
 
 		# Call NGINXUSERINFO Function For NGINX User Details
 		NGINXUSERINFO
