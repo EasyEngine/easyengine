@@ -121,15 +121,15 @@ fi
 echo -e "\033[34m Installing Easy Engine, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
 
 # EE /etc Files
-cp -av /tmp/easyengine/etc/ee /etc/bash_completion.d/ &>> /dev/null || OwnError "Unable To Copy EE Auto Complete File"
-cp -av /tmp/easyengine/etc/ee.conf /etc/easyengine/ &>> /dev/null || OwnError "Unable To Copy ee.conf File"
+cp -a /tmp/easyengine/etc/ee /etc/bash_completion.d/ &>> /dev/null || OwnError "Unable To Copy EE Auto Complete File"
+cp -a /tmp/easyengine/etc/ee.conf /etc/easyengine/ &>> /dev/null || OwnError "Unable To Copy ee.conf File"
 
 # EE /usr/share/easyengine Files
-cp -av /tmp/easyengine/etc/nginx/ /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
-cp -av /tmp/easyengine/usr/share/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -a /tmp/easyengine/etc/nginx/ /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -a /tmp/easyengine/usr/share/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
 
 # EE Command
-cp -av /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
+cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
 
 # Change Permission For EE
 chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
@@ -143,6 +143,8 @@ else
 	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
 
+# Source EE Auto Complete To Take Effect
+source /etc/bash_completion.d/ee
 
 # Copy Defaults EE Options 
 echo
