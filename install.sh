@@ -24,6 +24,7 @@ OwnError()
 	exit 101
 }
 
+
 # Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
 
@@ -85,15 +86,6 @@ then
 	sudo apt-get -y install git-core || OwnError "Unable To Install Git"
 fi
 
-# Checking WP-CLI
-#if [ ! -d /root/wp-cli ]
-#then
-#	echo -e "\033[31m WP Command Not Found ! \e[0m"
-#	echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-#	git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-#	sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
-#fi
-
 # Pre Checks End
 
 
@@ -104,29 +96,35 @@ then
 	echo -e "\033[34m Cloning Easy Engine, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
 	
 	# Remove Older Easy Engine If Found
-	cd /tmp
 	rm -rf /tmp/easyengine &>> /dev/null
 
-	# Git Clone
-	git clone git://github.com/rtCamp/easyengine.git || OwnError "Unable To Clone Easy Engine"
+	# Clone Easy Engine Repository
+	git clone git://github.com/rtCamp/easyengine.git /tmp/easyengine || OwnError "Unable To Clone Easy Engine"
+fi
 
-	# Change Directory
-	cd easyengine
+# Create Directory /etc/easyengine
+if [ ! -d /etc/easyengine ]
+then
+	# Create A Directory For EE Configurations
+	mkdir -p /etc/easyengine || OwnError "Unable To Create Dir /etc/easyengine"
 fi
 
 # Create Directory /usr/share/easyengine
 if [ ! -d /usr/share/easyengine ]
 then
-	# Create A Directory For EE Configurations
+	# Create A Directory For EE Nginx Configurations
 	mkdir -p /usr/share/easyengine \
 	|| OwnError "Unable To Create Dir /usr/share/easyengine"
 fi
 
 # Install Easy Engine
 echo -e "\033[34m Installing Easy Engine, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
-cp -a conf/* /usr/share/easyengine &>> /dev/null || OwnError "Unable To Copy Configuration Files "
-cp -a setup/ee /etc/bash_completion.d/ &>> /dev/null || OwnError "Unable To Copy EE Auto Complete File"
-cp -a setup/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
+cp -av /tmp/easyengine/etc/ee /etc/bash_completion.d/ &>> /dev/null || OwnError "Unable To Copy EE Auto Complete File"
+cp -av /tmp/easyengine/etc/ee.conf /etc/easyengine/ &>> /dev/null || OwnError "Unable To Copy ee.conf File"
+cp -av /tmp/easyengine/etc/nginx/ /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -av /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
+cp -av /tmp/easyengine/usr/share/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+
 chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
 
 # Create Symbolic Link If Not Exist
@@ -138,6 +136,8 @@ else
 	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
 
+
+# Copy Defaults EE Options 
 echo
 echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
 echo
