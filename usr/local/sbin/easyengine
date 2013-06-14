@@ -36,6 +36,15 @@ EngineHelp()
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 
+# Check Auto Yes To Apt-Get
+grep apt-get /etc/easyengine/ee.conf | grep -i yes
+if [ $? -eq 0]
+then
+	EEAPTGET="apt-get -y"
+else
+	EEAPTGET="apt-get"
+fi
+
 
 # Capture Errors
 OwnError()
