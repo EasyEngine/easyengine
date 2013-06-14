@@ -196,12 +196,38 @@ INSTALLALL()
 WP-CLI()
 {
 	# Install WP-CLI
-	if [ ! -d /root/wp-cli ]
+	#if [ ! -d /root/wp-cli ]
+	#then
+	#	echo -e "\033[31m WP Command Not Found ! \e[0m"
+	#	echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+	#	git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
+	#	sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+	#fi
+
+	# Install WP-CLI
+	if [ ! -d /var/www/.composer ]
 	then
 		echo -e "\033[31m WP Command Not Found ! \e[0m"
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-		git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-		sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
+		curl http://wp-cli.org/installer.sh | bash || OwnError "Unable To Install WP-CLI"
+		mv ~/.composer /var/www/ || OwnError "Unable To Move WP-CLI"
+
+		# Call NGINXUSERINFO Function For NGINX User Details
+		NGINXUSERINFO
+
+		# Change Ownership
+		echo -e "\033[34m Changing Ownership For WP-CLI \e[0m"
+		#echo $NGINXUSER $DOMAIN
+		chown -R $NGINXUSER:$NGINXUSER /var/www/.composer
+
+		# Add WP Command In PATH Variable
+		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
+		echo >> /var/www/.profile 
+		echo '# Set WP-CLI In PATH Variable' >> /var/www/.profile 
+		echo 'if [ -d "/var/www/.composer/bin" ]' >> /var/www/.profile
+		echo 'then' >> /var/www/.profile
+		echo -e  '\t PATH="/var/www/.composer/bin:$PATH"' >> /var/www/.profile
+		echo 'fi' >> /var/www/.profile
 	fi
 }
 
