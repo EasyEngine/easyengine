@@ -53,6 +53,14 @@ then
 	sudo apt-get -y install wget || OwnError "Unable To Install Wget"
 fi
 
+# Checking Curl
+if [ ! -x  /usr/bin/curl ]
+then
+	echo -e "\033[31m Curl Command Not Found ! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Curl  \e[0m" | tee -ai $INSTALLLOG
+	sudo apt-get -y install curl || OwnError "Unable To Install Curl"
+fi
+
 # Checking Tar
 if [ ! -x  /bin/tar ]
 then
