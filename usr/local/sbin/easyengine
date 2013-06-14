@@ -36,7 +36,7 @@ EngineHelp()
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 
-# Check Auto Yes To Apt-Get
+# Check Auto Assume Yes To Apt-Get
 grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true &>> /dev/null
 if [ $? -eq 0 ]
 then
@@ -44,6 +44,7 @@ then
 else
 	EEAPTGET="apt-get"
 fi
+
 
 
 # Capture Errors
@@ -80,7 +81,10 @@ PHPREPO()
 
 GPGKEY()
 {
-	if [ -f ~/.gpgkeyfix ]
+	# Force GPG KEYS Check
+	grep gpg-keys-fix /etc/easyengine/ee.conf | grep -i true &>> /dev/null
+
+	if [ $? -eq 0 ]
 	then
 		# Fix GPG Key Problems
 		echo -e "\033[34m Checking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
