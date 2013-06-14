@@ -38,7 +38,7 @@ ERRORLOG=/var/log/easyengine/error.log
 
 # Check Auto Yes To Apt-Get
 grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true
-if [ $? -eq 0]
+if [ $? -eq 0 ]
 then
 	EEAPTGET="apt-get -y"
 else
