@@ -209,19 +209,11 @@ INSTALLALL()
 WP-CLI()
 {
 	# Install WP-CLI
-	#if [ ! -d /root/wp-cli ]
-	#then
-	#	echo -e "\033[31m WP Command Not Found ! \e[0m"
-	#	echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-	#	git clone git://github.com/wp-cli/wp-cli.git /root/wp-cli
-	#	sudo /root/wp-cli/utils/dev-build || OwnError "Unable To Build WP-CLI"
-	#fi
-
-	# Install WP-CLI
 	if [ ! -d /var/www/wp-cli ]
 	then
 		echo -e "\033[31m WP Command Not Found ! \e[0m"
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
+		mkdir -p /var/www/wp-cli || OwnError "Unable To Create Directory /var/www/wp-cli"
 		curl http://wp-cli.org/installer.sh | bash || OwnError "Unable To Install WP-CLI"
 		mv ~/.composer /var/www/wp-cli/ || OwnError "Unable To Move WP-CLI"
 
