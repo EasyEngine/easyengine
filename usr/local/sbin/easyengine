@@ -214,12 +214,12 @@ WP-CLI()
 	#fi
 
 	# Install WP-CLI
-	if [ ! -d /var/www/.composer ]
+	if [ ! -d /var/www/wp-cli ]
 	then
 		echo -e "\033[31m WP Command Not Found ! \e[0m"
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
 		curl http://wp-cli.org/installer.sh | bash || OwnError "Unable To Install WP-CLI"
-		mv ~/.composer /var/www/ || OwnError "Unable To Move WP-CLI"
+		mv ~/.composer /var/www/wp-cli/ || OwnError "Unable To Move WP-CLI"
 
 		# Call NGINXUSERINFO Function For NGINX User Details
 		NGINXUSERINFO
@@ -227,23 +227,23 @@ WP-CLI()
 		# Change Ownership
 		echo -e "\033[34m Changing Ownership For WP-CLI \e[0m"
 		#echo $NGINXUSER $DOMAIN
-		chown -R $NGINXUSER:$NGINXUSER /var/www/.composer
+		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli
 
 		# Add WP Command In PATH Variable
 		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
 		echo >> /var/www/.profile 
 		echo '# Set WP-CLI In PATH Variable' >> /var/www/.profile 
-		echo 'if [ -d "/var/www/.composer/bin" ]' >> /var/www/.profile
+		echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /var/www/.profile
 		echo 'then' >> /var/www/.profile
-		echo -e  '\t PATH="/var/www/.composer/bin:$PATH"' >> /var/www/.profile
+		echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /var/www/.profile
 		echo 'fi' >> /var/www/.profile
 
-		if [ -e /var/www/.composer/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
+		if [ -e /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
 		then
 			echo -e "\033[34m Set WP-CLI Auto Ccompletions \e[0m"
 			echo >> /var/www/.profile
 			echo '# WP-CLI Auto Ccompletions' >> /var/www/.profile 
-			echo 'source /var/www/.composer/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
+			echo 'source /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
 			>> /var/www/.profile
 		fi
 
