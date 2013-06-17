@@ -389,7 +389,14 @@ MYSQLINFO()
 	fi
 	
 	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
-	read -p "Enter The MySQL Database Table Prefix [wp_]" WPDBPREFIX
+	read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
+
+	# Display WPDBPREFIX Valid Characters Warning & Try Again
+	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
+	do
+		echo -e "\033[31m Warning: \033[34mTable Prefix Can Only Contain Numbers, Letters, And Underscores.  \e[0m"
+		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
+	done
 
 	# If Enter Is Pressed, Then Use localhost as MySQL Host
 	if [[ $MYSQLHOST = "" ]]
@@ -409,6 +416,7 @@ MYSQLINFO()
 	if [[ $WPDBPREFIX = "" ]]
 	then
 		WPDBPREFIX=wp_
+		#echo $WPDBPREFIX
 	fi
 
 	# Create Database
