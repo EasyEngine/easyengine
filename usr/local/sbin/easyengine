@@ -162,27 +162,6 @@ INSTALLMYSQL()
 
 INSTALLPMA()
 {
-	# Check PMA Directory Exist
-	#if [ ! -d /var/www/pma ]
-	#then
-	#		mkdir -p /var/www/pma || OwnError "Unable To Create /var/www/pma Directory"
-	#fi
-
-	# Download PMA
-	#wget -O /var/www/pma/pma.tar.gz -c http://downloads.sourceforge.net/project/phpmyadmin/phpMyAdmin/4.0.3/phpMyAdmin-4.0.3-all-languages.tar.gz \
-	#|| OwnError "Unable To Download PMA"
-
-	# Extract PMA
-	#cd /var/www/pma
-	#tar --strip-components=1 -zxvf pma.tar.gz
-
-	# Call NGINXUSERINFO Function For NGINX User Details
-	#NGINXUSERINFO
-
-	# Change Ownership
-	#echo -e "\033[34m Changing Ownership  \e[0m"
-	#chown -R $NGINXUSER:$NGINXUSER /var/www/pma
-
 	# Install PMA
 	echo -e "\033[34m Installing PMA...  \e[0m"
 	sudo $EEAPTGET install phpmyadmin \
@@ -410,6 +389,7 @@ MYSQLINFO()
 	fi
 	
 	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
+	read -p "Enter The MySQL Database Table Prefix [wp_]" WPDBPREFIX
 
 	# If Enter Is Pressed, Then Use localhost as MySQL Host
 	if [[ $MYSQLHOST = "" ]]
@@ -423,6 +403,12 @@ MYSQLINFO()
 	then
 		WPDBNAME=$DOMAIN
 		#echo $WPDBNAME
+	fi
+
+	# If Enter Is Pressed, Then Use wp_ As Database Table Prefix
+	if [[ $WPDBPREFIX = "" ]]
+	then
+		WPDBPREFIX=wp_
 	fi
 
 	# Create Database
@@ -937,6 +923,9 @@ then
 				/var/www/$DOMAIN/wp-config.php
 
 				sed -i "s/localhost/$MYSQLHOST/" \
+				/var/www/$DOMAIN/wp-config.php
+
+				sed -i "s/wp_/$WPDBPREFIX/" \
 				/var/www/$DOMAIN/wp-config.php
 
 				printf '%s\n' "g/put your unique phrase here/d" \
