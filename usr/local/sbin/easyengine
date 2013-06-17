@@ -9,7 +9,7 @@ EngineHelp()
 	
 	echo
 	echo "OPTION:"
-	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|--all]"
+	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|all]"
 
 	echo
 	echo " `basename $0` [site]	[read]	 [available|enabled|sitename]"
@@ -580,7 +580,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Installed \e[0m"
 
-		elif [ "$3" = "--all" ]
+		elif [ "$3" = "all" ]
 		then
 			
 			# Install Python Software Properties
@@ -709,7 +709,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Removed \e[0m"
 
-		elif [ "$3" = "--all" ]
+		elif [ "$3" = "all" ]
 		then
 
 			# Remove Nginx PHP5 MySQL Postfix
@@ -792,7 +792,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Purged \e[0m"
 
-		elif [ "$3" = "--all" ]
+		elif [ "$3" = "all" ]
 		then
 
 			# Purge Nginx PHP5 MySQL Postfix

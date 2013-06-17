@@ -21,11 +21,11 @@ EEAUTO()
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix --all" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix all" -- $CURRENT ) )
 			return 0
 			;;
 
-		nginx|php|mysql|pma|postfix|--all)
+		nginx|php|mysql|pma|postfix|all)
 			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
 			return 0
 			;;
