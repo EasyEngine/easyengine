@@ -10,16 +10,17 @@ EngineHelp()
 	echo
 	echo "OPTION:"
 	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|all]"
+	echo " `basename $0` [system]	[config] [set|get] [memory|timeout]"
 
 	echo
-	echo " `basename $0` [site]	[read]	 [available|enabled|sitename]"
-	echo " `basename $0` [site]	[create] [sitename] [--with-wordpress]"
-	echo " `basename $0` [site]	[update] [sitename] [singlesite] [w3total|wpsuper|fastcgi]"
-	echo " `basename $0` [site]	[update] [sitename] [multisite]  [subdomain|subdirectory] [basic|w3total|wpsuper|fastcgi]"
-	echo " `basename $0` [site]	[delete] [sitename] [--database|--webroot|--all]"
-
+	echo " `basename $0` [site]	[list|listall]"
+	echo " `basename $0` [site]	[show|info]	[sitename]"
 	echo
-	echo " `basename $0` [config]	[set|get] [memory|timeout]"
+	echo " `basename $0` [site]	[create|update] [html|php] [sitename]"
+	echo " `basename $0` [site]	[create|update] [wpsingle|wpsubdir|wpsubdomain] [basic|w3tc|wpsc|wpfc] [sitename]"
+	echo
+	echo " `basename $0` [site]	[delete] [files|db|all]"
+
 
 	echo
 	echo " `basename $0` [update] "

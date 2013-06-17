@@ -8,7 +8,7 @@ EEAUTO()
 	local CURRENT=${COMP_WORDS[COMP_CWORD]}
 
 	# List Of Suggested Words
-	COMPREPLY=( $(compgen -W "system site" -- $CURRENT) )
+	COMPREPLY=( $(compgen -W "system site help" -- $CURRENT) )
 
 	# Get Previous Word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
@@ -16,7 +16,7 @@ EEAUTO()
 	# List Of Suggested Words
 	case "$PREVIOUS" in
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge config" -- $CURRENT ) )
 			return 0
 			;;
 
@@ -25,13 +25,49 @@ EEAUTO()
 			return 0
 			;;
 
-		nginx|php|mysql|pma|postfix|all)
+		config)
+			COMPREPLY=( $( compgen -W "get set" -- $CURRENT ) )
+			return 0
+			;;
+
+		get|set)
+			COMPREPLY=( $( compgen -W "memory timeout" -- $CURRENT ) )
+			return 0
+			;;
+
+		nginx|php|mysql|pma|postfix|all|memory|timeout)
 			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
 			return 0
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "info list show create enable disable update delete backup" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list listall show info create update delete" -- $CURRENT ) )
+			return 0
+			;;
+
+		create|update)
+			COMPREPLY=( $( compgen -W "html php wpsingle wpsubdir wpsubdomain" -- $CURRENT ) )
+			return 0
+			;;
+
+		wpsingle|wpsubdir|wpsubdomain)
+			COMPREPLY=( $( compgen -W "basic w3tc wpsc wpfc" -- $CURRENT ) )
+			return 0
+			;;
+
+		delete)
+			COMPREPLY=( $( compgen -W "files db all" -- $CURRENT ) )
+			return 0
+			;;
+
+		list|listall|show|info|html|php|basic|w3tc|wpsc|wpfc|files|db|all)
+			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
+			return 0
+			;;
+
+
+		help)
+			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
 			return 0
 			;;
 	esac
