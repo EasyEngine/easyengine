@@ -1,43 +1,12 @@
 #!/bin/bash
 
 
-# Help Function
-EngineHelp()
-{
-	echo
-	echo "Usage: `basename $0` [OPTION] [ARGUMENT]..."
-	
-	echo
-	echo "OPTION:"
-	echo " `basename $0` [system]	[install|remove|purge] [nginx|php|mysql|pma|postfix|all]"
-	echo " `basename $0` [system]	[config] [set|get] [memory|timeout]"
-
-	echo
-	echo " `basename $0` [site]	[list|listall]"
-	echo " `basename $0` [site]	[show|info]	[sitename]"
-	echo
-	echo " `basename $0` [site]	[create|update] [html|php] [sitename]"
-	echo " `basename $0` [site]	[create|update] [wpsingle|wpsubdir|wpsubdomain] [basic|w3tc|wpsc|wpfc] [sitename]"
-	echo
-	echo " `basename $0` [site]	[delete] [files|db|all]"
-
-
-	echo
-	echo " `basename $0` [update] "
-
-	echo
-	echo "Exit status:"
-	echo "   0 if OK,"
-	echo " 100 sudo privilege required,"
-	echo " 101 command failed to execute,"
-}
-
 
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 
-# Check Auto Assume Yes To Apt-Get
+# Check Auto Assume Yes Or No To Apt-Get
 grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true &>> /dev/null
 if [ $? -eq 0 ]
 then
@@ -45,7 +14,6 @@ then
 else
 	EEAPTGET="apt-get"
 fi
-
 
 
 # Capture Errors
@@ -118,6 +86,7 @@ COMMONNGINX()
 {
 	# Personal Settings For Nginx
 	echo -e "\033[34m Updating Nginx Configuration Files...  \e[0m"
+
 	# Check Directory Exist
 	if [ ! -d /etc/nginx/conf.d ]
 	then
@@ -150,6 +119,7 @@ INSTALLPHP()
 CHANGEPHPSOCKET()
 {
 	# Change PHP Fastcgi Socket
+	echo -e "\033[34m Change PHP Fastcgi Socket...  \e[0m"
 	sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
 }
 
@@ -349,9 +319,9 @@ EEGITINIT()
 	# Initialise Git
 	echo -e "\033[34m Initialise Git On $EEGITDIR...  \e[0m"
 	cd $EEGITDIR
-	git init
-	git add .
-	git commit -am "Initialise Git On $EEGITDIR"
+	git init || OwnError "Unable To Initialise Git On $EEGITDIR"
+	git add . && git commit -am "Initialise Git On $EEGITDIR" \
+	|| OwnError "Unable To Git Commit On $EEGITDIR"
 }
 
 EEGITCOMMIT()
@@ -463,6 +433,7 @@ PHPSTART()
 # Easy Engine System Settings
 if [ "$1" = "system" ]
 then
+
 
 	# Easy Engine Install
 	if [ "$2" = "install" ]
@@ -640,8 +611,6 @@ then
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Installed \e[0m"
 
-		else
-			EngineHelp
 		fi
 
 
@@ -723,8 +692,6 @@ then
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Removed \e[0m"
 
-		else
-			EngineHelp
 		fi
 
 
@@ -733,7 +700,7 @@ then
 	then
 		
 		if [ "$3" = "nginx" ]
-                then
+		then
 
 			# Purge Nginx
 			PURGENGINX
@@ -745,7 +712,7 @@ then
 			echo -e "\033[34m Nginx Successfully Purged \e[0m"
 
 		elif [ "$3" = "php" ]
-                then
+		then
 
 			# Purge PHP5
 			PURGEPHP
@@ -806,15 +773,28 @@ then
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Purged \e[0m"
 
-		else
-			EngineHelp
 		fi
 
 
-	# Easy Engine Help
-	else
-		EngineHelp
+	# Easy Engine Config
+	elif [ "$2" = "config" ]
+	then
+
+		if [ "$3" = "set" ]
+		then
+
+			echo "Under Developments"
+
+		elif [ "$3" = "get" ]
+		then
+
+			echo "Under Developments"
+			
+		fi
+
+
 	fi
+
 
 
 
