@@ -186,7 +186,7 @@ WP-CLI()
 
 		if [ -e /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
 		then
-			echo -e "\033[34m Set WP-CLI Auto Ccompletions \e[0m"
+			echo -e "\033[34m Set WP-CLI Auto Completions \e[0m"
 			echo >> /var/www/.profile
 			echo '# WP-CLI Auto Ccompletions' >> /var/www/.profile 
 			echo 'source /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
@@ -339,6 +339,30 @@ EEGITCOMMIT()
 	fi
 }
 
+
+# EE Site Functions
+EEDOMAIN()
+{
+	# Remove http://  https:// & www.
+	DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
+}
+
+EESITENAME()
+{
+	# Check SITENAME Is Empty Or Not
+	if [ -z "$SITENAMECHECK" ]
+	then
+		# Ask Users To Enter Domain Name
+		read -p "Enter Domain Name: " SITENAMECHECK
+		# Pass Web Site Name To EEDOMAIN Function
+		EEDOMAIN
+	else
+		# Pass Web Site Name To EEDOMAIN Function
+		EEDOMAIN
+	fi
+}
+
+
 # GET Information Function
 MYSQLINFO()
 {
@@ -427,6 +451,8 @@ PHPSTART()
 		service php5-fpm start || OwnError "Unable To Restart PHP5-FPM"
 	fi
 }
+
+
 
 
 
@@ -789,11 +815,12 @@ then
 		then
 
 			echo "Under Developments"
-			
+
 		fi
 
 
 	fi
+
 
 
 
@@ -802,660 +829,88 @@ then
 elif [ "$1" = "site" ]
 then
 
-	# Easy Engine Read
-	if [ "$2" = "read" ]
+	# Easy Engine Site Enabled List
+	if [ "$2" = "list" ]
 	then
 
-		if [ "$3" = "available" ]
+		# Display The List Of Enabled Websites
+		echo -e "\033[34m Display The List Of Enabled Websites: \e[0m"
+		ls /etc/nginx/sites-enabled/ \
+		|| OwnError "Unable To Display The List Of Enabled Websites"
+
+	elif [ "$2" = "listall" ]
+	then
+
+		# Display The List Of Available Sites
+		echo -e "\033[34m Display The List Of Available Websites: \e[0m"
+		ls /etc/nginx/sites-available/ \
+		|| OwnError "Unable To Display The List Of Available Websites"
+
+
+	elif [ "$2" = "show" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+		
+		# Check The Website Is Exist
+		ls /etc/nginx/sites-available/$DOMAIN &> /dev/null \
+		|| OwnError "The $DOMAIN Is Not Found In Available Websites List"
+
+		if [ $? -eq 0 ]
 		then
 
-			# Display The List Of Available Sites
-			echo -e "\033[34m List Of Available Websites \e[0m"
-			ls /etc/nginx/sites-available/ \
-			|| OwnError "Unable To Display The List Of Available Websites"
+			# Display The Specific Site Configuration
+			echo -e "\033[34m Display Nginx Configuration For $DOMAIN \e[0m"
+			cat /etc/nginx/sites-available/$DOMAIN \
+			|| OwnError "Unable To Display Nginx Configuration For $DOMAIN"
 
-		elif [ "$3" = "enabled" ]
+		fi
+
+	elif [ "$2" = "info" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+		
+		# Check The Website Is Exist
+		ls /etc/nginx/sites-available/$DOMAIN &> /dev/null \
+		|| OwnError "The $DOMAIN Is Not Found In Available Websites List"
+
+		if [ $? -eq 0 ]
 		then
 
-			# Display The List Of Enabled Sites
-			echo -e "\033[34m List Of Enabled Websites \e[0m"
-			ls /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable To Display The List Of Enabled Websites"
-
-		elif [ "$3" != "all" ] && [ "$3" != "active" ] && [ -n "$3" ]
-		then
-
-			# Check The Website Is Exist
-			ls /etc/nginx/sites-available/$3 &> /dev/null \
-			|| OwnError "The $3 Is Not Found In Available Websites List"
-			if [ $? -eq 0 ]
-			then
-
-				# Display The Specific Site Configuration
-				echo -e "\033[34m Display The $3 Configuration Settings \e[0m"
-				cat /etc/nginx/sites-available/$3 \
-				|| OwnError "Unable To Display The $3 Configuration Settings"
-			fi
-
-		else
-			EngineHelp
+			# Display The Various Information About $DOMAIN
+			echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
+			echo -e "\033[34m Under Developments \e[0m"
 
 		fi
 
 
-	# Easy Engine Create
 	elif [ "$2" = "create" ]
 	then
 
-		if [ -n "$3" ]
+		if [ "$3" = "html"]
 		then
 
-			# Remove http://  https:// & www.
-			DOMAIN=$(echo $3 | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
+			# Check SITENAME Is Empty Or Not
+			SITENAMECHECK=$4
+			EESITENAME
 
-			# Creating Site
-			echo -e "\033[34m Creating $DOMAIN, Please Wait...  \e[0m"
-			sed "s/example.com/$DOMAIN/g" \
-			/usr/share/easyengine/nginx/singlesite/basic.conf \
-			> /etc/nginx/sites-available/$DOMAIN \
-			|| OwnError "Unable To Create Configuration File For $DOMAIN"
-
-			# Creating Symbolic Link
-			echo -e "\033[34m Creating Symbolic Link  \e[0m"
-			ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
-			|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
-
-			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Created New Website $DOMAIN"
-			EEGITCOMMIT
-
-			# Creating Htdocs & Logs Directory
-			echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
-			(mkdir -p /var/www/$DOMAIN/htdocs; mkdir -p /var/www/$DOMAIN/logs) \
-			|| OwnError "Unable To Create htdocs & logs Directory"
-
-			# Creating Symbolic Links For Logs
-			echo -e "\033[34m Creating Symbolic Link For Logs  \e[0m"
-			ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
-			&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
-			|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
-
-
-			if [ "$4" = "--with-wordpress" ]
-			then
-
-				# Download Latest Wordpress
-				echo -e "\033[34m Downloading WordPress  \e[0m"
-				wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
-				http://wordpress.org/latest.tar.gz
-
-				# Extracting Wordpress
-				tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
-				-C /var/www/$DOMAIN/htdocs/
-
-				# Removing Wordpress Archive
-				rm /var/www/$DOMAIN/htdocs/latest.tar.gz
-
-				# Call MYSQLINFO Function For MySQL Values
-				MYSQLINFO
-
-				# Modify wp-config.php & Move Outside The Webroot
-				cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
-				/var/www/$DOMAIN/wp-config.php
-
-				sed -i "s/database_name_here/$WPDBNAME/" \
-				/var/www/$DOMAIN/wp-config.php
-
-				sed -i "s/username_here/$MYSQLUSER/" \
-				/var/www/$DOMAIN/wp-config.php
-				
-				sed -i "s/password_here/$MYSQLPASS/" \
-				/var/www/$DOMAIN/wp-config.php
-
-				sed -i "s/localhost/$MYSQLHOST/" \
-				/var/www/$DOMAIN/wp-config.php
-
-				sed -i "s/wp_/$WPDBPREFIX/" \
-				/var/www/$DOMAIN/wp-config.php
-
-				printf '%s\n' "g/put your unique phrase here/d" \
-				a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
-				| ed -s /var/www/$DOMAIN/wp-config.php
-												
-			fi
-
-			# Call NGINXUSERINFO Function For NGINX User Details
-			NGINXUSERINFO
-
-			# Change Ownership
-			echo -e "\033[34m Changing Ownership  \e[0m"
-			#echo $NGINXUSER $DOMAIN
-			chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-
-			# Reload Nginx Configuration
-			NGINXRELOAD
-
-			# Start PHP-FPM If Not Running
-			PHPSTART
-			
-			# Display Success Message
-			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
-
-		else
-			EngineHelp
 		fi
-
-
-	# Easy Engine Update
-	elif [ "$2" = "update" ]
-	then
-
-		if [ -n "$3" ]
-		then
-
-			# Remove http://  https:// & www.
-			DOMAIN=$(echo $3 | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
-			
-			# Make Backup Directory For Storing Older Nginx Configurations
-			if [ ! -d /etc/nginx/sites-available/backups/ ]
-			then
-				mkdir -p /etc/nginx/sites-available/backups/
-			fi
-
-			if [ "$4" = "singlesite" ]
-			then
-
-				if [ "$5" = "w3total" ]
-				then
-
-					# Taking Backup
-					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-					# Updating Site
-					echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
-					sed "s/example.com/$DOMAIN/g" \
-					/usr/share/easyengine/nginx/singlesite/w3-total-cache.conf \
-					> /etc/nginx/sites-available/$DOMAIN \
-					|| OwnError "Unable To Update Configuration File For $DOMAIN"
-					
-					# Installing W3 Total Cache
-					cd /var/www/$DOMAIN/htdocs/
-					wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
-					
-					# Activate W3 Total Cache
-					wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
-					
-					# Call NGINXUSERINFO Function For NGINX User Details
-					NGINXUSERINFO
-					
-					# Give Ownership To $NGINXUSER
-					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-					
-					# Display W3 Total Cache URL For Settings
-					echo -e "\033[34m Please Configure W3 Total Cache Settings \e[0m"
-					echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
-
-					# Reload Nginx Configuration
-					NGINXRELOAD
-			
-					# Display Success Message
-					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-					
-				elif [ "$5" = "wpsuper" ]
-				then
-
-					# Taking Backup
-					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-					# Updating Site
-					echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
-					sed "s/example.com/$DOMAIN/g" \
-					/usr/share/easyengine/nginx/singlesite/wp-super-cache.conf \
-					> /etc/nginx/sites-available/$DOMAIN \
-					|| OwnError "Unable To Update Configuration File For $DOMAIN"
-					
-					# Installing WP Super Cache
-					cd /var/www/$DOMAIN/htdocs/
-					wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
-					
-					# Activate WP Super Cache
-					wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
-					
-					# Call NGINXUSERINFO Function For NGINX User Details
-					NGINXUSERINFO
-					
-					# Give Ownership To $NGINXUSER
-					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-					
-					# Display W3 Total Cache URL For Settings
-					echo -e "\033[34m Please Configure WP Super Cache Settings \e[0m"
-					echo -ne "\033[34m WP Super Cache:\e[0m"
-					echo -e  "\033[34m http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
-
-					# Reload Nginx Configuration
-					NGINXRELOAD
-			
-					# Display Success Message
-					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-					
-				elif [ "$5" = "fastcgi" ]
-				then
-
-					# Taking Backup
-					mv /etc/nginx/sites-available/$DOMAIN \
-					/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-					# Updating Site
-					echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
-					sed "s/example.com/$DOMAIN/g" \
-					/usr/share/easyengine/nginx/singlesite/fastcgi-cache.conf \
-					> /etc/nginx/sites-available/$DOMAIN \
-					|| OwnError "Unable To Update Configuration File For $DOMAIN"
-					
-					# Installing Nginx Helper
-					cd /var/www/$DOMAIN/htdocs/
-					wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
-					
-					# Activate Nginx Helper
-					wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-					
-					# Call NGINXUSERINFO Function For NGINX User Details
-					NGINXUSERINFO
-					
-					# Give Ownership To $NGINXUSER
-					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-					
-					# Display W3 Total Cache URL For Settings
-					echo -e "\033[34m Please Configure Nginx Helper Settings \e[0m"
-					echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
-
-					# Reload Nginx Configuration
-					NGINXRELOAD
-			
-					# Display Success Message
-					echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-
-				else
-					EngineHelp		
-				fi
-
-
-			elif [ "$4" = "multisite" ]
-			then
-			
-				# Presetup For WordPress MU
-				sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
-				sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
-
-				if [ "$5" = "subdomain" ]
-				then
-
-					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub-Domains & Install \e[0m"
-					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
-					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
-					read 
-					
-					# Add Rules In wp-config.php gile
-					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
-					define('SUBDOMAIN_INSTALL', true);\n\
-					\$base = '/';\n\
-					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
-					define('PATH_CURRENT_SITE', '/');\n\
-					define('SITE_ID_CURRENT_SITE', 1);\n\
-					define('BLOG_ID_CURRENT_SITE', 1);\n" /var/www/$DOMAIN/wp-config.php
-						
-					# Make Blogs.Dir
-					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
-					
-					# Call NGINXUSERINFO Function For NGINX User Details
-					NGINXUSERINFO
-						
-					# Give Ownership To NGINXUSER
-					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
-
-					if [ "$6" = "basic" ]
-					then
-
-						# Installing Nginx Helper
-						cd /var/www/$DOMAIN/htdocs/
-						wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
-					
-						# Activate Nginx Helper
-						wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-					
-						# Call NGINXUSERINFO Function For NGINX User Details
-						NGINXUSERINFO
-					
-						# Give Ownership To $NGINXUSER
-						chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
-					
-						# Display W3 Total Cache URL For Settings
-						echo -e "\033[34m Please Configure Nginx Helper Settings \e[0m"
-						echo -e "\033[34m Please Open Following URL & Click Enable Map \e[0m"
-						echo -ne "\033[34m Nginx Helper:\e[0m"
-						echo -e  "\033[34m http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
-						echo -e "\033[34m Press Enter, Once You Setup Nginx Helper Plugin: \e[0m"
-						read
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For Basic WPMU, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdomain/basic.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-						
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-
-					elif [ "$6" = "w3total" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdomain/w3-total-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-						
-					elif [ "$6" = "wpsuper" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdomain/wp-super-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-
-					elif [ "$6" = "fastcgi" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdomain/fastcgi-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-
-					else
-						EngineHelp		
-					fi
-						
-
-				elif [ "$5" = "subdirectory" ]
-				then
-					# Configure Network Setup
-					echo -e "\033[34m Please Open Following URL & Click On Sub-Directories & Install \e[0m"
-					echo -e "\033[34m Configure Network Setup: http://$DOMAIN/wp-admin/network.php \e[0m"
-					echo -e "\033[34m Press Enter, Once You Setup Network: \e[0m"
-					read
-					
-					# Add Rules In wp-config.php gile
-					sed -i "/WPMU_ACCEL_REDIRECT/a  \define('MULTISITE', true);\n\
-					define('SUBDOMAIN_INSTALL', false);\n\
-					\$base = '/';\n\
-					define('DOMAIN_CURRENT_SITE', '$DOMAIN');\n\
-					define('PATH_CURRENT_SITE', '/');\n\
-					define('SITE_ID_CURRENT_SITE', 1);\n\
-					define('BLOG_ID_CURRENT_SITE', 1);\n" /var/www/$DOMAIN/wp-config.php
-						
-					# Make Blogs.Dir
-					mkdir /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
-					
-					# Call NGINXUSERINFO Function For NGINX User Details
-					NGINXUSERINFO
-						
-					# Give Ownership To NGINXUSER
-					chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/htdocs/wp-content/blogs.dir
-
-					if [ "$6" = "basic" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For Basic WPMU, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdir/basic.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-
-					elif [ "$6" = "w3total" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For W3TotalCache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdir/w3-total-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-
-					elif [ "$6" = "wpsuper" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For WPSuperCache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdir/wp-super-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-						
-
-					elif [ "$6" = "fastcgi" ]
-					then
-
-						# Taking Backup
-						mv /etc/nginx/sites-available/$DOMAIN \
-						/etc/nginx/sites-available/backups/$DOMAIN.$(date +%d%m%Y.%H%M%S)
-
-						# Updating Site
-						echo -e "\033[34m Updating $DOMAIN For Fastcgi Cache, Please Wait...  \e[0m"
-						sed "s/example.com/$DOMAIN/g" \
-						/usr/share/easyengine/nginx/multisite/subdir/fastcgi-cache.conf \
-						> /etc/nginx/sites-available/$DOMAIN \
-						|| OwnError "Unable To Update Configuration File For $DOMAIN"
-
-						# Reload Nginx Configuration
-						NGINXRELOAD
-
-						# Display Success Message
-						echo -e "\033[34m Nginx Configuration For $DOMAIN Is Successfully Updated \e[0m"
-
-					else
-						EngineHelp		
-					fi
-
-				else
-					EngineHelp
-				fi
-
-			else
-				EngineHelp
-			fi
-
-
-		else
-			EngineHelp
-		fi
-
-
-	# Easy Engine Delete
-	elif [ "$2" = "delete" ]
-	then
-
-		if [ -n "$3" ]
-		then
-
-			# Remove http:// & www.
-			DOMAIN=$(echo $3 | sed "s'http://''" | sed "s'www.''")
-
-			# Delete Site
-			echo -e "\033[34m Deleting $DOMAIN, Please Wait...  \e[0m"
-			rm /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN
-
-			# Remove Symbolic Links For Logs Files
-			echo -e "\033[34m Remove Symbolic Link For $DOMAIN Logs...  \e[0m"
-			rm /var/www/$DOMAIN/logs/{access,error}.log
-
-			if [ "$4" = "--database" ]
-			then
-
-				# Get The Database Details
-				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-
-				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-				
-				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-
-				# Remove Database
-				echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
-				mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
-				|| OwnError "Unable To Drop $WPDBNAME Database"
-
-			elif [ "$4" = "--webroot" ]
-			then
-
-				# Remove Webroot For $DOMAIN
-				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
-				rm -rf /var/www/$DOMAIN/
-
-			elif [ "$4" = "--all" ]
-			then
-				
-				# Get The Database Details
-				MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-
-				MYSQLPASS=$(grep DB_PASSWORD /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-				
-				WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php \
-				| cut -d"'" -f4)
-
-				# Remove Database
-				echo -e "\033[34m Removing Database $WPDBNAME... \e[0m"
-				mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
-				|| OwnError "Unable To Drop $WPDBNAME Database"
-
-				# Remove Webroot For $DOMAIN
-				echo -e "\033[34m Removing /var/www/$DOMAIN Directory... \e[0m"
-				rm -rf /var/www/$DOMAIN
-
-			else
-				EngineHelp
-
-			fi
-
-			# Reload Nginx Configuration
-			NGINXRELOAD
-			
-			# Display Success Message
-			echo -e "\033[34m http://$DOMAIN Successfully Deleted \e[0m"
-
-		else
-			EngineHelp
-		fi
-
-
-	# Easy Engine Help
-	else
-		EngineHelp
 	fi
 
 
-	
-# Easy Engine Config Settings
-elif [ "$1" = "config" ]
-then
 
-	echo "Under Developments !!"
+
 
 # Easy Engine Update
 elif [ "$1" = "update" ]
 then
 
 	echo -e "\033[34m Updating Easy Engine, Please wait... \e[0m"
-	#curl -L http://goo.gl/FvARq | sudo bash
 	curl -L rt.cx/ee | sudo bash
 
-# Easy Engine Help
-else
-	EngineHelp
 fi
