@@ -280,7 +280,7 @@ REMOVEWPCLI()
 {
 	# Remove WP-CLI
 	echo -e "\033[34m Removing WP-CLI...  \e[0m"
-	sudo rm -rf /root/wp-cli || OwnError "Unable To Remove WP-CLI"
+	sudo rm -rf /var/www/wp-cli || OwnError "Unable To Remove WP-CLI"
 }
 
 AUTOREMOVE()
@@ -717,6 +717,7 @@ then
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
+			REMOVEWPCLI
 			
 			# Display Success Message
 			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Removed \e[0m"
@@ -796,6 +797,7 @@ then
 
 			# Purge Nginx PHP5 MySQL Postfix
 			PURGEALL
+			REMOVEWPCLI
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
