@@ -953,7 +953,7 @@ then
 	elif [ "$2" = "create" ]
 	then
 
-		if [ "$3" = "html"]
+		if [ "$3" = "html" ]
 		then
 
 			# Check SITENAME Is Empty Or Not
@@ -973,7 +973,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
-		elif [ "$3" = "php"]
+		elif [ "$3" = "php" ]
 		then
 
 			# Check SITENAME Is Empty Or Not
@@ -993,7 +993,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
-		elif [ "$3" = "wpsingle"]
+		elif [ "$3" = "wpsingle" ]
 		then
 
 			if [ "$4" = "basic" ]
