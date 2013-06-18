@@ -335,30 +335,8 @@ EEGITCOMMIT()
 		echo -e "\033[34m Take $GITDIR Configuration In Git Version Control...  \e[0m"
 
 		# Add Newly Created Files && Commit It
-		git add . && git commit -am "$EEGITMESSAGE"
-	fi
-}
-
-
-# EE Site Functions
-EEDOMAIN()
-{
-	# Remove http://  https:// & www.
-	DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
-}
-
-EESITENAME()
-{
-	# Check SITENAME Is Empty Or Not
-	if [ -z "$SITENAMECHECK" ]
-	then
-		# Ask Users To Enter Domain Name
-		read -p "Enter Domain Name: " SITENAMECHECK
-		# Pass Web Site Name To EEDOMAIN Function
-		EEDOMAIN
-	else
-		# Pass Web Site Name To EEDOMAIN Function
-		EEDOMAIN
+		git add . && git commit -am "$EEGITMESSAGE" \
+		|| OwnError "Unable To Git Commits On $EEGITDIR"
 	fi
 }
 
@@ -429,31 +407,114 @@ NGINXUSERINFO()
 NGINXRELOAD()
 {
 	# Test & Reload Nginx
-	echo -e "\033[34m Reloading Nginx Configuration, Please Wait...  \e[0m"
+	echo -e "\033[34m Reloading Nginx Configuration, Please Wait... \e[0m"
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 }
 
 PHPRELOAD()
 {
 	# Reload PHP
-	echo -e "\033[34m Reloading PHP5-FPM Configuration, Please Wait...  \e[0m"
+	echo -e "\033[34m Reloading PHP5-FPM Configuration, Please Wait... \e[0m"
 	service php5-fpm reload || OwnError "Unable To Reload PHP5-FPM"
 }
 
-PHPSTART()
-{
-	# Check PHP5-FPM IS Running
-	service php5-fpm status
 
-	if [ $? -ne 0 ]
+
+# EE Domian Functions
+EESITENAME()
+{
+	# Check SITENAME Is Empty Or Not
+	if [ -z "$SITENAMECHECK" ]
 	then
-		echo -e "\033[34m Restarting PHP5-FPM, Please Wait...  \e[0m"
-		service php5-fpm start || OwnError "Unable To Restart PHP5-FPM"
+		# Ask Users To Enter Domain Name
+		read -p "Enter Domain Name: " SITENAMECHECK
+		# Remove http://  https:// & www.
+		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
+	else
+		# Remove http://  https:// & www.
+		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''")
 	fi
 }
 
+EEDOMAINSETUP()
+{
+	# Creating Website $DOMAIN
+	echo -e "\033[34m Creating $DOMAIN, Please Wait... \e[0m"
+	sed "s/example.com/$DOMAIN/g" \
+	/usr/share/easyengine/nginx/$NGINXCONF \
+	> /etc/nginx/sites-available/$DOMAIN \
+	|| OwnError "Unable To Create Configuration File For $DOMAIN"
 
+	# Creating Symbolic Link
+	echo -e "\033[34m Creating Symbolic Link  \e[0m"
+	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
+	|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
 
+	# Creating Htdocs & Logs Directory
+	echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
+	mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
+	|| OwnError "Unable To Create htdocs & logs Directory"
+
+	# Creating Symbolic Links For Logs
+	echo -e "\033[34m Creating Symbolic Link For Logs  \e[0m"
+	ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
+	&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
+	|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
+}
+
+EEWPSETUP()
+{
+	# Download Latest Wordpress
+	echo -e "\033[34m Downloading WordPress, Please Wait... \e[0m"
+	wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
+	http://wordpress.org/latest.tar.gz
+
+	# Extracting Wordpress
+	tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
+	-C /var/www/$DOMAIN/htdocs/
+
+	# Removing Wordpress Archive
+	rm /var/www/$DOMAIN/htdocs/latest.tar.gz
+
+	# Call MYSQLINFO Function For MySQL Values
+	MYSQLINFO
+
+	# Modify wp-config.php & Move Outside The Webroot
+	cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
+	/var/www/$DOMAIN/wp-config.php
+
+	sed -i "s/database_name_here/$WPDBNAME/" \
+	/var/www/$DOMAIN/wp-config.php
+
+	sed -i "s/username_here/$MYSQLUSER/" \
+	/var/www/$DOMAIN/wp-config.php
+				
+	sed -i "s/password_here/$MYSQLPASS/" \
+	/var/www/$DOMAIN/wp-config.php
+
+	sed -i "s/localhost/$MYSQLHOST/" \
+	/var/www/$DOMAIN/wp-config.php
+
+	sed -i "s/wp_/$WPDBPREFIX/" \
+	/var/www/$DOMAIN/wp-config.php
+
+	printf '%s\n' "g/put your unique phrase here/d" \
+	a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
+	| ed -s /var/www/$DOMAIN/wp-config.php
+}
+
+EEPERMISSION()
+{
+	# Call NGINXUSERINFO Function For NGINX User Details
+	NGINXUSERINFO
+
+	# Change Ownership
+	echo -e "\033[34m Changing Ownership  \e[0m"
+	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
+
+	# Reload Nginx Configuration
+	NGINXRELOAD
+}
 
 
 # Easy Engine System Settings
@@ -898,6 +959,99 @@ then
 			# Check SITENAME Is Empty Or Not
 			SITENAMECHECK=$4
 			EESITENAME
+
+			# Creating Website $DOMAIN
+			NGINXCONF=html/basic.conf
+			EEDOMAINSETUP
+			EEPERMISSION
+
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Created New $3 Website: $DOMAIN"
+			EEGITCOMMIT
+
+			# Display Success Message
+			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
+		elif [ "$3" = "php"]
+		then
+
+			# Check SITENAME Is Empty Or Not
+			SITENAMECHECK=$4
+			EESITENAME
+
+			# Creating Website $DOMAIN
+			NGINXCONF=wpsingle/basic.conf
+			EEDOMAINSETUP
+			EEPERMISSION
+
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Created New $3 Website: $DOMAIN"
+			EEGITCOMMIT
+
+			# Display Success Message
+			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
+		elif [ "$3" = "wpsingle"]
+		then
+
+			if [ "$4" = "basic" ]
+			then
+			
+				# Check SITENAME Is Empty Or Not
+				SITENAMECHECK=$5
+				EESITENAME
+
+				# Creating Website $DOMAIN
+				NGINXCONF=wpsingle/basic.conf
+				EEDOMAINSETUP
+
+				# Setup WordPress Webroot
+				EEWPSETUP
+				EEPERMISSION
+
+				# Take Nginx Configuration In Git Version Control
+				EEGITDIR=/etc/nginx
+				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+				EEGITCOMMIT
+
+				# Display Success Message
+				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
+			elif [ "$4" = "w3tc" ]
+			then
+
+				# Check SITENAME Is Empty Or Not
+				SITENAMECHECK=$5
+				EESITENAME
+
+				# Creating Website $DOMAIN
+				NGINXCONF=wpsingle/w3tc.conf
+				EEDOMAINSETUP
+
+				# Setup WordPress Webroot
+				EEWPSETUP
+
+				# Installing W3 Total Cache
+				cd /var/www/$DOMAIN/htdocs/
+				wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+
+				# Activate W3 Total Cache
+				wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+
+				# Change Webroot Permission
+				EEPERMISSION
+
+				# Take Nginx Configuration In Git Version Control
+				EEGITDIR=/etc/nginx
+				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+				EEGITCOMMIT
+
+				# Display Success Message
+				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
+			fi
 
 		fi
 	fi
