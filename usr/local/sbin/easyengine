@@ -1086,11 +1086,14 @@ then
 				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
 				EEGITCOMMIT
 
-				# Display Success Message
+				# Display WordPress Plugin Configuration Message
 				echo
 				echo -e "\033[34m Please Configure Following Settings... \e[0m"
 				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
 				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+
+				# Display Success Message
+				echo
 				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
 			elif [ "$4" = "wpsc" ]
@@ -1123,7 +1126,14 @@ then
 				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
 				EEGITCOMMIT
 
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
+
 				# Display Success Message
+				echo
 				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
 			elif [ "$4" = "wpfc" ]
