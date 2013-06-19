@@ -120,7 +120,8 @@ CHANGEPHPSOCKET()
 {
 	# Change PHP Fastcgi Socket
 	echo -e "\033[34m Change PHP Fastcgi Socket...  \e[0m"
-	sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf
+	sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf \
+	|| OwnError "Unable To Change PHP Fastcgi Socket"
 }
 
 INSTALLMYSQL()
@@ -153,7 +154,7 @@ INSTALLALL()
 	sudo $EEAPTGET install nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
+	|| OwnError "Unable To Install Nginx PHP5 MySQL PMA Postfix"
 }
 
 WP-CLI()
@@ -173,26 +174,25 @@ WP-CLI()
 		# Change Ownership
 		echo -e "\033[34m Changing Ownership For WP-CLI \e[0m"
 		#echo $NGINXUSER $DOMAIN
-		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli
+		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli || OwnError "Unable Change Ownership WP-CLI"
 
 		# Add WP Command In PATH Variable
 		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
-		echo >> /var/www/.profile 
-		echo '# Set WP-CLI In PATH Variable' >> /var/www/.profile 
-		echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /var/www/.profile
-		echo 'then' >> /var/www/.profile
-		echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /var/www/.profile
-		echo 'fi' >> /var/www/.profile
+		echo >> /root/.profile 
+		echo '# Set WP-CLI In PATH Variable' >> /root/.profile 
+		echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /root/.profile
+		echo 'then' >> /root/.profile
+		echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /root/.profile
+		echo 'fi' >> /root/.profile
 
 		if [ -e /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
 		then
 			echo -e "\033[34m Set WP-CLI Auto Completions \e[0m"
-			echo >> /var/www/.profile
-			echo '# WP-CLI Auto Ccompletions' >> /var/www/.profile 
+			echo >> /root/.profile
+			echo '# WP-CLI Auto Ccompletions' >> /root/.profile 
 			echo 'source /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
-			>> /var/www/.profile
+			>> /root/.profile
 		fi
-
 	fi
 }
 
@@ -244,7 +244,7 @@ REMOVEALL()
 	sudo $EEAPTGET remove nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
+	|| OwnError "Unable To Remove Nginx PHP5 MySQL PMA Postfix"
 }
 
 REMOVEWPCLI()
@@ -309,7 +309,7 @@ PURGEALL()
 	sudo $EEAPTGET purge nginx-custom php5-common php5-mysql php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
+	|| OwnError "Unable To Purge Nginx PHP5 MySQL PMA Postfix"
 }
 
 
@@ -318,7 +318,7 @@ EEGITINIT()
 {
 	# Initialise Git
 	echo -e "\033[34m Initialise Git On $EEGITDIR...  \e[0m"
-	cd $EEGITDIR
+	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
 	git init || OwnError "Unable To Initialise Git On $EEGITDIR"
 	git add . && git commit -am "Initialise Git On $EEGITDIR" \
 	|| OwnError "Unable To Git Commit On $EEGITDIR"
@@ -326,7 +326,7 @@ EEGITINIT()
 
 EEGITCOMMIT()
 {
-	cd $EEGITDIR
+	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
 	git status | grep --color=auto clean
 
 	if [ $? -ne 0 ]
@@ -443,7 +443,7 @@ EEDOMAINSETUP()
 	sed "s/example.com/$DOMAIN/g" \
 	/usr/share/easyengine/nginx/$NGINXCONF \
 	> /etc/nginx/sites-available/$DOMAIN \
-	|| OwnError "Unable To Create Configuration File For $DOMAIN"
+	|| OwnError "Unable To Create Nginx Configuration File For $DOMAIN"
 
 	# Creating Symbolic Link
 	echo -e "\033[34m Creating Symbolic Link  \e[0m"
@@ -467,11 +467,13 @@ EEWPSETUP()
 	# Download Latest Wordpress
 	echo -e "\033[34m Downloading WordPress, Please Wait... \e[0m"
 	wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
-	http://wordpress.org/latest.tar.gz
+	http://wordpress.org/latest.tar.gz \
+	|| OwnError "Unable To Download WordPress"
 
 	# Extracting Wordpress
 	tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
-	-C /var/www/$DOMAIN/htdocs/
+	-C /var/www/$DOMAIN/htdocs/ \
+	|| OwnError "Unable To Extract WordPress"
 
 	# Removing Wordpress Archive
 	rm /var/www/$DOMAIN/htdocs/latest.tar.gz
@@ -524,8 +526,9 @@ EEWPDBSETUP()
 	fi
 
 	# Create WordPress Tables
-	/var/www/wp-cli/bin/wp core install --url=$DOMAIN --title=$SITETITLE \
-	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL
+	wp core install --url=$DOMAIN --title=$SITETITLE \
+	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
+	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 }
 
 EEPERMISSION()
@@ -535,7 +538,7 @@ EEPERMISSION()
 
 	# Change Ownership
 	echo -e "\033[34m Changing Ownership  \e[0m"
-	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/
+	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
 	NGINXRELOAD
