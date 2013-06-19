@@ -556,11 +556,9 @@ EEPERMISSION()
 BASICNGINX()
 {
 	# Check SITENAME Is Empty Or Not
-	SITENAMECHECK=$5
 	EESITENAME
 
 	# Creating Website $DOMAIN
-	NGINXCONF=$3/basic.conf
 	EEDOMAINSETUP
 
 	# Setup WordPress Webroot & Database
@@ -577,11 +575,9 @@ BASICNGINX()
 TOTALCACHENGINX()
 {
 	# Check SITENAME Is Empty Or Not
-	SITENAMECHECK=$5
 	EESITENAME
 
 	# Creating Website $DOMAIN
-	NGINXCONF=$3/w3tc.conf
 	EEDOMAINSETUP
 
 	# Setup WordPress Webroot & Database
@@ -613,11 +609,9 @@ TOTALCACHENGINX()
 SUPERCACHENGINX()
 {
 	# Check SITENAME Is Empty Or Not
-	SITENAMECHECK=$5
 	EESITENAME
 
 	# Creating Website $DOMAIN
-	NGINXCONF=$3/wpsc.conf
 	EEDOMAINSETUP
 
 	# Setup WordPress Webroot & Database
@@ -649,11 +643,9 @@ SUPERCACHENGINX()
 FASTCGINGINX()
 {
 	# Check SITENAME Is Empty Or Not
-	SITENAMECHECK=$5
 	EESITENAME
 
 	# Creating Website $DOMAIN
-	NGINXCONF=$3/wpfc.conf
 	EEDOMAINSETUP
 
 	# Setup WordPress Webroot & Database
@@ -689,7 +681,6 @@ FASTCGINGINX()
 	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
 	echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
 	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
-
 }
 
 # Easy Engine System Settings
@@ -1173,7 +1164,12 @@ then
 
 			if [ "$4" = "basic" ]
 			then
-			
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/basic.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
+
 				# Setup Basic Nginx
 				BASICNGINX
 
@@ -1183,6 +1179,11 @@ then
 
 			elif [ "$4" = "w3tc" ]
 			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/w3tc.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup W3 Total Cahe Nginx
 				TOTALCACHENGINX
@@ -1194,6 +1195,11 @@ then
 			elif [ "$4" = "wpsc" ]
 			then
 
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/wpsc.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
+
 				# Setup WP Super Cahe Nginx
 				SUPERCACHENGINX
 
@@ -1203,6 +1209,11 @@ then
 
 			elif [ "$4" = "wpfc" ]
 			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/wpfc.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup WP Super Cahe Nginx
 				FASTCGINGINX
@@ -1218,6 +1229,11 @@ then
 
 			if [ "$4" = "basic" ]
 			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/basic.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup Basic Nginx
 				BASICNGINX
