@@ -193,6 +193,11 @@ WP-CLI()
 			echo 'source /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
 			>> /root/.profile
 		fi
+
+		# Add WP Command In PATH Variable
+		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
+		export PATH="/var/www/wp-cli/bin:$PATH"
+		
 	fi
 }
 
@@ -404,18 +409,18 @@ NGINXUSERINFO()
 	|| OwnError "Unable To Findout Nginx Username"
 }
 
-NGINXRELOAD()
+NGINXRESTART()
 {
 	# Test & Reload Nginx
-	echo -e "\033[34m Reloading Nginx Configuration, Please Wait... \e[0m"
-	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
+	echo -e "\033[34m Restarting Nginx Configuration, Please Wait... \e[0m"
+	nginx -t && service nginx restart || OwnError "Unable To Restart Nginx"
 }
 
-PHPRELOAD()
+PHPRESTART()
 {
 	# Reload PHP
-	echo -e "\033[34m Reloading PHP5-FPM Configuration, Please Wait... \e[0m"
-	service php5-fpm reload || OwnError "Unable To Reload PHP5-FPM"
+	echo -e "\033[34m Restarting PHP5-FPM Configuration, Please Wait... \e[0m"
+	service php5-fpm restart || OwnError "Unable To Restart PHP5-FPM"
 }
 
 
@@ -542,7 +547,8 @@ EEPERMISSION()
 	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
-	NGINXRELOAD
+	echo -e "\033[34m Reloading Nginx Configuration, Please Wait... \e[0m"
+	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 }
 
 
@@ -576,8 +582,8 @@ then
 			# Personal Settings For Nginx
 			COMMONNGINX
 
-			# Reload Nginx To Take Effect Of COMMONNGINX Functions
-			NGINXRELOAD
+			# Restart Nginx To Take Effect Of COMMONNGINX Functions
+			NGINXRESTART
 
 			# Initialise Git
 			EEGITDIR=/etc/nginx/
@@ -608,7 +614,7 @@ then
 			CHANGEPHPSOCKET
 
 			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
-			PHPRELOAD
+			PHPRESTART
 			
 			# Install WP-CLI
 			WP-CLI
@@ -693,13 +699,13 @@ then
 			COMMONNGINX
 
 			# Reload Nginx To Take Effect Of COMMONNGINX Functions
-			NGINXRELOAD
+			NGINXRESTART
 
 			# Change PHP Fastcgi Socket
 			CHANGEPHPSOCKET
 
 			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
-			PHPRELOAD
+			PHPRESTART
 
 			# Install WP-CLI
 			WP-CLI
