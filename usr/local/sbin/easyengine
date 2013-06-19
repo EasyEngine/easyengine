@@ -1088,7 +1088,7 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34m Please Configure Following Settings... \e[0m"
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
 				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
 				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
@@ -1128,9 +1128,9 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34m Please Configure Following Settings... \e[0m"
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
 				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
+				echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
 
 				# Display Success Message
 				echo
@@ -1174,9 +1174,16 @@ then
 				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
 				EEGITCOMMIT
 
-				# Display Success Message
-				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
+				# Display Success Message
+				echo
+				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 			fi
 
 		fi
