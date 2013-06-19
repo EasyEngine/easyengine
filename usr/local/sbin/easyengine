@@ -552,6 +552,145 @@ EEPERMISSION()
 	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
 }
 
+# NGINX Configuration Function
+BASICNGINX()
+{
+	# Check SITENAME Is Empty Or Not
+	SITENAMECHECK=$5
+	EESITENAME
+
+	# Creating Website $DOMAIN
+	NGINXCONF=$3/basic.conf
+	EEDOMAINSETUP
+
+	# Setup WordPress Webroot & Database
+	EEWPSETUP
+	EEWPDBSETUP
+	EEPERMISSION
+
+	# Take Nginx Configuration In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+	EEGITCOMMIT
+}
+
+TOTALCACHENGINX()
+{
+	# Check SITENAME Is Empty Or Not
+	SITENAMECHECK=$5
+	EESITENAME
+
+	# Creating Website $DOMAIN
+	NGINXCONF=$3/w3tc.conf
+	EEDOMAINSETUP
+
+	# Setup WordPress Webroot & Database
+	EEWPSETUP
+	EEWPDBSETUP
+
+	# Installing W3 Total Cache
+	cd /var/www/$DOMAIN/htdocs/
+	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+
+	# Activate W3 Total Cache
+	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+
+	# Change Webroot Permission
+	EEPERMISSION
+
+	# Take Nginx Configuration In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+	EEGITCOMMIT
+
+	# Display WordPress Plugin Configuration Message
+	echo
+	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+}
+
+SUPERCACHENGINX()
+{
+	# Check SITENAME Is Empty Or Not
+	SITENAMECHECK=$5
+	EESITENAME
+
+	# Creating Website $DOMAIN
+	NGINXCONF=$3/wpsc.conf
+	EEDOMAINSETUP
+
+	# Setup WordPress Webroot & Database
+	EEWPSETUP
+	EEWPDBSETUP
+
+	# Installing WP Super Cache
+	cd /var/www/$DOMAIN/htdocs/
+	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
+
+	# Activate WP Super Cache
+	wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
+
+	# Change Webroot Permission
+	EEPERMISSION
+
+	# Take Nginx Configuration In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+	EEGITCOMMIT
+
+	# Display WordPress Plugin Configuration Message
+	echo
+	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+	echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
+}
+
+FASTCGINGINX()
+{
+	# Check SITENAME Is Empty Or Not
+	SITENAMECHECK=$5
+	EESITENAME
+
+	# Creating Website $DOMAIN
+	NGINXCONF=$3/wpfc.conf
+	EEDOMAINSETUP
+
+	# Setup WordPress Webroot & Database
+	EEWPSETUP
+	EEWPDBSETUP
+
+	# Installing WordPress Plugins
+	cd /var/www/$DOMAIN/htdocs/
+
+	# Installing Nginx Helper
+	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
+
+	# Activate Nginx Helper
+	wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
+				
+	# Installing W3 Total Cache
+	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+
+	# Activate W3 Total Cache
+	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+
+	# Change Webroot Permission
+	EEPERMISSION
+
+	# Take Nginx Configuration In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+	EEGITCOMMIT
+
+	# Display WordPress Plugin Configuration Message
+	echo
+	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+	echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
+	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+
+}
 
 # Easy Engine System Settings
 if [ "$1" = "system" ]
@@ -1035,155 +1174,57 @@ then
 			if [ "$4" = "basic" ]
 			then
 			
-				# Check SITENAME Is Empty Or Not
-				SITENAMECHECK=$5
-				EESITENAME
-
-				# Creating Website $DOMAIN
-				NGINXCONF=wpsingle/basic.conf
-				EEDOMAINSETUP
-
-				# Setup WordPress Webroot & Database
-				EEWPSETUP
-				EEWPDBSETUP
-				EEPERMISSION
-
-				# Take Nginx Configuration In Git Version Control
-				EEGITDIR=/etc/nginx
-				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-				EEGITCOMMIT
+				# Setup Basic Nginx
+				BASICNGINX
 
 				# Display Success Message
-				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+				echo
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
 
-				# Check SITENAME Is Empty Or Not
-				SITENAMECHECK=$5
-				EESITENAME
-
-				# Creating Website $DOMAIN
-				NGINXCONF=wpsingle/w3tc.conf
-				EEDOMAINSETUP
-
-				# Setup WordPress Webroot & Database
-				EEWPSETUP
-				EEWPDBSETUP
-
-				# Installing W3 Total Cache
-				cd /var/www/$DOMAIN/htdocs/
-				wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
-
-				# Activate W3 Total Cache
-				wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
-
-				# Change Webroot Permission
-				EEPERMISSION
-
-				# Take Nginx Configuration In Git Version Control
-				EEGITDIR=/etc/nginx
-				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-				EEGITCOMMIT
-
-				# Display WordPress Plugin Configuration Message
-				echo
-				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+				# Setup W3 Total Cahe Nginx
+				TOTALCACHENGINX
 
 				# Display Success Message
 				echo
-				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
 
-				# Check SITENAME Is Empty Or Not
-				SITENAMECHECK=$5
-				EESITENAME
-
-				# Creating Website $DOMAIN
-				NGINXCONF=wpsingle/wpsc.conf
-				EEDOMAINSETUP
-
-				# Setup WordPress Webroot & Database
-				EEWPSETUP
-				EEWPDBSETUP
-
-				# Installing WP Super Cache
-				cd /var/www/$DOMAIN/htdocs/
-				wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
-
-				# Activate WP Super Cache
-				wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
-
-				# Change Webroot Permission
-				EEPERMISSION
-
-				# Take Nginx Configuration In Git Version Control
-				EEGITDIR=/etc/nginx
-				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-				EEGITCOMMIT
-
-				# Display WordPress Plugin Configuration Message
-				echo
-				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
+				# Setup WP Super Cahe Nginx
+				SUPERCACHENGINX
 
 				# Display Success Message
 				echo
-				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
 
-				# Check SITENAME Is Empty Or Not
-				SITENAMECHECK=$5
-				EESITENAME
-
-				# Creating Website $DOMAIN
-				NGINXCONF=wpsingle/wpfc.conf
-				EEDOMAINSETUP
-
-				# Setup WordPress Webroot & Database
-				EEWPSETUP
-				EEWPDBSETUP
-
-				# Installing WordPress Plugins
-				cd /var/www/$DOMAIN/htdocs/
-
-				# Installing Nginx Helper
-				wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
-
-				# Activate Nginx Helper
-				wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-				
-				# Installing W3 Total Cache
-				wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
-
-				# Activate W3 Total Cache
-				wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
-
-				# Change Webroot Permission
-				EEPERMISSION
-
-				# Take Nginx Configuration In Git Version Control
-				EEGITDIR=/etc/nginx
-				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-				EEGITCOMMIT
-
-				# Display WordPress Plugin Configuration Message
-				echo
-				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
-				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+				# Setup WP Super Cahe Nginx
+				FASTCGINGINX
 
 				# Display Success Message
 				echo
-				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+
+			fi
+
+		elif [ "$3" = "wpsubdir" ]
+		then
+
+			if [ "$4" = "basic" ]
+			then
+
+				# Setup Basic Nginx
+				BASICNGINX
+
+				# Display Success Message
+				echo
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
 			fi
 
 		fi
