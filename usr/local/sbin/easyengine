@@ -521,6 +521,7 @@ EEWPDBSETUP()
 	read -p "Password: " WPADMINPASS
 	stty echo
 
+	echo
 	read -p "Email: " WPADMINEMAIL
 
 	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
@@ -1086,6 +1087,7 @@ then
 				EEGITCOMMIT
 
 				# Display Success Message
+				echo
 				echo -e "\033[34m Please Configure Following Settings... \e[0m"
 				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
 				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
