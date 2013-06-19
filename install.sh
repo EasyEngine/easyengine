@@ -148,7 +148,7 @@ VARRUNSIZE=$(df --block-size=M /var/run | awk '{print $4}' | tail -n1 |cut -d'M'
 FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
 
 # Change Size
-sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf
+sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
 
 # Source EE Auto Complete To Take Effect
 source /etc/bash_completion.d/ee
