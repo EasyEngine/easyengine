@@ -1081,6 +1081,80 @@ then
 				# Display Success Message
 				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
+			elif [ "$4" = "wpsc" ]
+			then
+
+				# Check SITENAME Is Empty Or Not
+				SITENAMECHECK=$5
+				EESITENAME
+
+				# Creating Website $DOMAIN
+				NGINXCONF=wpsingle/wpsc.conf
+				EEDOMAINSETUP
+
+				# Setup WordPress Webroot & Database
+				EEWPSETUP
+				EEWPDBSETUP
+
+				# Installing WP Super Cache
+				cd /var/www/$DOMAIN/htdocs/
+				wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
+
+				# Activate WP Super Cache
+				wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
+
+				# Change Webroot Permission
+				EEPERMISSION
+
+				# Take Nginx Configuration In Git Version Control
+				EEGITDIR=/etc/nginx
+				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+				EEGITCOMMIT
+
+				# Display Success Message
+				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
+			elif [ "$4" = "wpfc" ]
+			then
+
+				# Check SITENAME Is Empty Or Not
+				SITENAMECHECK=$5
+				EESITENAME
+
+				# Creating Website $DOMAIN
+				NGINXCONF=wpsingle/wpfc.conf
+				EEDOMAINSETUP
+
+				# Setup WordPress Webroot & Database
+				EEWPSETUP
+				EEWPDBSETUP
+
+				# Installing WordPress Plugins
+				cd /var/www/$DOMAIN/htdocs/
+
+				# Installing Nginx Helper
+				wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
+
+				# Activate Nginx Helper
+				wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
+				
+				# Installing W3 Total Cache
+				wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+
+				# Activate W3 Total Cache
+				wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+
+				# Change Webroot Permission
+				EEPERMISSION
+
+				# Take Nginx Configuration In Git Version Control
+				EEGITDIR=/etc/nginx
+				EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
+				EEGITCOMMIT
+
+				# Display Success Message
+				echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
+
 			fi
 
 		fi
