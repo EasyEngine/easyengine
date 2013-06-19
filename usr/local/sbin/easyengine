@@ -174,16 +174,19 @@ WP-CLI()
 		# Change Ownership
 		echo -e "\033[34m Changing Ownership For WP-CLI \e[0m"
 		#echo $NGINXUSER $DOMAIN
-		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli || OwnError "Unable Change Ownership WP-CLI"
+		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli || OwnError "Unable To Change Ownership WP-CLI"
 
 		# Add WP Command In PATH Variable
-		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
-		echo >> /root/.profile 
-		echo '# Set WP-CLI In PATH Variable' >> /root/.profile 
-		echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /root/.profile
-		echo 'then' >> /root/.profile
-		echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /root/.profile
-		echo 'fi' >> /root/.profile
+		ln -s /var/www/wp-cli/vendor/wp-cli/wp-cli/bin/wp /usr/local/sbin/ \
+		|| OwnError "Unable To Create Symbolic Link For WP Command"
+
+		#echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
+		#echo >> /root/.profile 
+		#echo '# Set WP-CLI In PATH Variable' >> /root/.profile 
+		#echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /root/.profile
+		#echo 'then' >> /root/.profile
+		#echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /root/.profile
+		#cho 'fi' >> /root/.profile
 
 		if [ -e /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
 		then
@@ -194,10 +197,6 @@ WP-CLI()
 			>> /root/.profile
 		fi
 
-		# Add WP Command In PATH Variable
-		echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
-		export PATH="/var/www/wp-cli/bin:$PATH"
-		
 	fi
 }
 
