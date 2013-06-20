@@ -659,6 +659,26 @@ FASTCGINGINX()
 	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 }
 
+# Setup Wordpress Network
+WPSUBDIRNETWORK()
+{
+	# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
+	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
+	wp core install-network --title="$SITETITLE" || OwnError "Unable To Setup WordPress SubDirectory Network"
+
+	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
+	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
+}
+
+WPSUBDOMAINNETWORK()
+{
+	# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
+	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
+	wp core install-network --title="$SITETITLE" --subdomains || OwnError "Unable To Setup WordPress SubDirectory Network"
+
+	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
+	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
+}
 
 
 
@@ -1218,9 +1238,8 @@ then
 				# Setup Basic Nginx
 				BASICNGINX
 
-				# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
-				cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
-				wp core install-network --title="$SITETITLE" || OwnError "Unable To Setup WordPress SubDirectory Network"
+				# Setup WordPress Network
+				WPSUBDIRNETWORK
 
 				# Display Success Message
 				echo
