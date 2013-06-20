@@ -1219,6 +1219,7 @@ then
 				BASICNGINX
 
 				# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
+				cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 				wp core install-network --title="$SITETITLE" || OwnError "Unable To Setup WordPress SubDirectory Network"
 
 				# Display Success Message
