@@ -160,43 +160,19 @@ INSTALLALL()
 WP-CLI()
 {
 	# Install WP-CLI
-	if [ ! -d /var/www/wp-cli ]
+	if [ ! -d /usr/share/easyengine/wp-cli ]
 	then
 		echo -e "\033[31m WP Command Not Found ! \e[0m"
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
-		mkdir -p /var/www/wp-cli || OwnError "Unable To Create Directory /var/www/wp-cli"
-		curl http://wp-cli.org/installer.sh | bash || OwnError "Unable To Install WP-CLI"
-		mv ~/.composer/* /var/www/wp-cli/ || OwnError "Unable To Move WP-CLI"
-
-		# Call NGINXUSERINFO Function For NGINX User Details
-		NGINXUSERINFO
-
-		# Change Ownership
-		echo -e "\033[34m Changing Ownership For WP-CLI \e[0m"
-		#echo $NGINXUSER $DOMAIN
-		chown -R $NGINXUSER:$NGINXUSER /var/www/wp-cli || OwnError "Unable To Change Ownership WP-CLI"
+		curl http://wp-cli.org/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash \
+		|| OwnError "Unable To Install WP-CLI"
 
 		# Add WP Command In PATH Variable
-		ln -s /var/www/wp-cli/vendor/wp-cli/wp-cli/bin/wp /usr/local/sbin/ \
-		|| OwnError "Unable To Create Symbolic Link For WP Command"
+		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP Command"
 
-		#echo -e "\033[34m Add WP Command In PATH Variable \e[0m"
-		#echo >> /root/.profile 
-		#echo '# Set WP-CLI In PATH Variable' >> /root/.profile 
-		#echo 'if [ -d "/var/www/wp-cli/bin" ]' >> /root/.profile
-		#echo 'then' >> /root/.profile
-		#echo -e  '\t PATH="/var/www/wp-cli/bin:$PATH"' >> /root/.profile
-		#cho 'fi' >> /root/.profile
-
-		if [ -e /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash ]
-		then
-			echo -e "\033[34m Set WP-CLI Auto Completions \e[0m"
-			echo >> /root/.profile
-			echo '# WP-CLI Auto Ccompletions' >> /root/.profile 
-			echo 'source /var/www/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash' \
-			>> /root/.profile
-		fi
-
+		# Add WP Auto Completion
+		cp -v /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		source /etc/bash_completion.d/wp-completion.bash
 	fi
 }
 
