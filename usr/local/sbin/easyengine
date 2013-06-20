@@ -1243,7 +1243,7 @@ then
 				BASICNGINX
 
 				# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
-				wp core install-network --title="$SITETITLE"
+				wp core install-network --title="$SITETITLE" || OwnError "Unable To Setup WordPress SubDirectory Network"
 
 				# Display Success Message
 				echo
