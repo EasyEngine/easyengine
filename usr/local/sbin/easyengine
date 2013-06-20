@@ -683,6 +683,10 @@ FASTCGINGINX()
 	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 }
 
+
+
+
+
 # Easy Engine System Settings
 if [ "$1" = "system" ]
 then
@@ -1237,6 +1241,9 @@ then
 
 				# Setup Basic Nginx
 				BASICNGINX
+
+				# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
+				wp core install-network --title="$SITETITLE"
 
 				# Display Success Message
 				echo
