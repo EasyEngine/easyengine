@@ -41,7 +41,7 @@ EEAUTO()
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "list listall show info create update delete" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list listall show info create update delete backup restore" -- $CURRENT ) )
 			return 0
 			;;
 
