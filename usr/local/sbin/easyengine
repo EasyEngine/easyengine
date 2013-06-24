@@ -1244,6 +1244,22 @@ then
 				# Display Success Message
 				echo
 				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+
+			elif [ "$4" = "w3tc" ]
+			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/w3tc.conf
+				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
+
+				# Setup W3 Total Cahe Nginx
+				TOTALCACHENGINX
+
+				# Display Success Message
+				echo
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+
 			fi
 
 		fi
