@@ -1238,8 +1238,11 @@ then
 				# Setup Basic Nginx
 				BASICNGINX
 
-				# Setup WordPress Network
+				# Setup WordPress SubDirectory Network
 				WPSUBDIRNETWORK
+
+				# Setup phpMyAdmin
+				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
 
 				# Display Success Message
 				echo
@@ -1255,6 +1258,12 @@ then
 
 				# Setup W3 Total Cahe Nginx
 				TOTALCACHENGINX
+
+				# Setup WordPress SubDirectory Network
+				WPSUBDIRNETWORK
+
+				# Setup phpMyAdmin
+				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
 
 				# Display Success Message
 				echo
