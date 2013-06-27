@@ -46,12 +46,12 @@ EEAUTO()
 			;;
 
 		show)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-availale/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
 		info)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-availale/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
