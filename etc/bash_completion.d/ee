@@ -7,14 +7,18 @@ EEAUTO()
 	# Get Current Word
 	local CURRENT=${COMP_WORDS[COMP_CWORD]}
 
-	# List Of Suggested Words
-	COMPREPLY=( $(compgen -W "system site help" -- $CURRENT) )
-
 	# Get Previous Word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
 
 	# List Of Suggested Words
 	case "$PREVIOUS" in
+
+		# List Of Suggested Words
+		easyengine|ee)
+			COMPREPLY=( $(compgen -W "system site help" -- $CURRENT) )
+			return 0
+			;;
+
 		system)
 			COMPREPLY=( $( compgen -W "install remove purge config" -- $CURRENT ) )
 			return 0
@@ -35,13 +39,19 @@ EEAUTO()
 			return 0
 			;;
 
-		nginx|php|mysql|pma|postfix|all|memory|timeout)
-			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
-			return 0
-			;;
 
 		site)
 			COMPREPLY=( $( compgen -W "list listall show info create update delete backup restore" -- $CURRENT ) )
+			return 0
+			;;
+
+		show)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-availale/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			return 0
+			;;
+
+		info)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-availale/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
@@ -60,16 +70,6 @@ EEAUTO()
 			return 0
 			;;
 
-		list|listall|show|info|html|php|basic|w3tc|wpsc|wpfc|files|db|all)
-			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
-			return 0
-			;;
-
-
-		help)
-			COMPREPLY=( $( compgen -W "" -- $CURRENT ) )
-			return 0
-			;;
 	esac
 }
 
