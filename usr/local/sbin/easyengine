@@ -684,6 +684,10 @@ WPSUBDOMAINNETWORK()
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 	wp core install-network --title="$SITETITLE" --subdomains || OwnError "Unable To Setup WordPress SubDirectory Network"
 
+	# Install Nginx Helper
+	# Remove index.php from http://$DOMAIN/wp-admin/options-permalink.php
+	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper Plugin"
+
 	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
 	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
 }
