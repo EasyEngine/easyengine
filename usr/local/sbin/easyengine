@@ -48,6 +48,14 @@ PHPREPO()
 	|| OwnError "Unable To Add PHP5 Launchpad Repository"
 }
 
+PHPMYADMINREPO()
+{
+	# Add phpMyAdmin Launchpad Repository
+	echo -e "\033[34m Adding phpMyAdmin Launchpad Repository...  \e[0m"
+	sudo add-apt-repository ppa:nijel/phpmyadmin \
+	|| OwnError "Unable To Add phpMyAdmin Launchpad Repository"
+}
+
 GPGKEY()
 {
 	# Force GPG KEYS Check
@@ -111,7 +119,7 @@ INSTALLPHP()
 {
 	# Install PHP5
 	echo -e "\033[34m Installing PHP5...  \e[0m"
-	sudo $EEAPTGET install php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
 }
@@ -151,7 +159,7 @@ INSTALLALL()
 {
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo $EEAPTGET install nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL PMA Postfix"
@@ -189,7 +197,7 @@ REMOVEPHP()
 {
 	# Remove PHP5
 	echo -e "\033[34m Removing PHP5...  \e[0m"
-	sudo $EEAPTGET remove php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
 }
@@ -221,7 +229,7 @@ REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo $EEAPTGET remove nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET remove nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL PMA Postfix"
@@ -254,7 +262,7 @@ PURGEPHP()
 {
 	# Purge PHP5
 	echo -e "\033[34m Purge PHP5...  \e[0m"
-	sudo $EEAPTGET purge php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Purge PHP5"
 }
@@ -286,7 +294,7 @@ PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo $EEAPTGET purge nginx-custom php5-common php5-mysql php5-xmlrpc \
+	sudo $EEAPTGET purge nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
 	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL PMA Postfix"
@@ -776,6 +784,12 @@ then
 		elif [ "$3" = "pma" ]
 		then
 
+			# Install Python Software Properties
+			PYTHONSOFTWARE
+
+			# Add phpMyAdmin Launchpad Repository
+			PHPMYADMINREPO
+
 			# Update The APT Cache
 			UPDATEAPT
 
@@ -816,6 +830,9 @@ then
 			
 			# Add PHP Launchpad Repository
 			PHPREPO
+
+			# Add phpMyAdmin Launchpad Repository
+			PHPMYADMINREPO
 
 			# Fix GPG Key Problems
 			GPGKEY
