@@ -537,7 +537,7 @@ EEPERMISSION()
 }
 
 # NGINX Configuration Function
-BASICNGINX()
+SETUPDOMAIN()
 {
 	# Check SITENAME Is Empty Or Not
 	EESITENAME
@@ -548,6 +548,11 @@ BASICNGINX()
 	# Setup WordPress Webroot & Database
 	EEWPSETUP
 	EEWPDBSETUP
+}
+
+PERMISSIONANDGIT()
+{
+	# Change Webroot Permission
 	EEPERMISSION
 
 	# Take Nginx Configuration In Git Version Control
@@ -558,114 +563,34 @@ BASICNGINX()
 
 TOTALCACHENGINX()
 {
-	# Check SITENAME Is Empty Or Not
-	EESITENAME
-
-	# Creating Website $DOMAIN
-	EEDOMAINSETUP
-
-	# Setup WordPress Webroot & Database
-	EEWPSETUP
-	EEWPDBSETUP
-
 	# Installing W3 Total Cache
 	cd /var/www/$DOMAIN/htdocs/
 	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
 	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
-
-	# Change Webroot Permission
-	EEPERMISSION
-
-	# Take Nginx Configuration In Git Version Control
-	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-	EEGITCOMMIT
-
-	# Display WordPress Plugin Configuration Message
-	echo
-	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 }
 
 SUPERCACHENGINX()
 {
-	# Check SITENAME Is Empty Or Not
-	EESITENAME
-
-	# Creating Website $DOMAIN
-	EEDOMAINSETUP
-
-	# Setup WordPress Webroot & Database
-	EEWPSETUP
-	EEWPDBSETUP
-
 	# Installing WP Super Cache
 	cd /var/www/$DOMAIN/htdocs/
 	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
 	wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
-
-	# Change Webroot Permission
-	EEPERMISSION
-
-	# Take Nginx Configuration In Git Version Control
-	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-	EEGITCOMMIT
-
-	# Display WordPress Plugin Configuration Message
-	echo
-	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-	echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
 }
 
-FASTCGINGINX()
+NGINXHELPER()
 {
-	# Check SITENAME Is Empty Or Not
-	EESITENAME
-
-	# Creating Website $DOMAIN
-	EEDOMAINSETUP
-
-	# Setup WordPress Webroot & Database
-	EEWPSETUP
-	EEWPDBSETUP
-
-	# Installing WordPress Plugins
-	cd /var/www/$DOMAIN/htdocs/
-
 	# Installing Nginx Helper
+	cd /var/www/$DOMAIN/htdocs/
 	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
 	wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-				
-	# Installing W3 Total Cache
-	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
-
-	# Activate W3 Total Cache
-	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
-
-	# Change Webroot Permission
-	EEPERMISSION
-
-	# Take Nginx Configuration In Git Version Control
-	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="Created New $3 $4 Website: $DOMAIN"
-	EEGITCOMMIT
-
-	# Display WordPress Plugin Configuration Message
-	echo
-	echo -e "\033[34m Please Configure The Following Settings... \e[0m"
-	echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-	echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
-	echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 }
+
 
 # Setup Wordpress Network
 WPSUBDIRNETWORK()
@@ -674,16 +599,12 @@ WPSUBDIRNETWORK()
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 	wp core install-network --title="$SITETITLE" || OwnError "Unable To Setup WordPress SubDirectory Network"
 
-	# Remove index.php from http://$DOMAIN/wp-admin/options-permalink.php
-	
-	# Install Nginx Helper
-	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper Plugin"
-
-	# Activate Nginx Helper
-	wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-
 	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
 	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
+	
+	# Remove index.php from permalink
+	# Install Nginx Helper
+	NGINXHELPER
 }
 
 WPSUBDOMAINNETWORK()
@@ -692,16 +613,12 @@ WPSUBDOMAINNETWORK()
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 	wp core install-network --title="$SITETITLE" --subdomains || OwnError "Unable To Setup WordPress SubDirectory Network"
 
-	# Remove index.php from http://$DOMAIN/wp-admin/options-permalink.php
-	
-	# Install Nginx Helper
-	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper Plugin"
-
-	# Activate Nginx Helper
-	wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
-
 	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
 	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
+
+	# Remove index.php from permalink
+	# Install Nginx Helper
+	NGINXHELPER	
 }
 
 
@@ -1204,7 +1121,8 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup Basic Nginx
-				BASICNGINX
+				SETUPDOMAIN
+				PERMISSIONANDGIT
 
 				# Display Success Message
 				echo
@@ -1219,7 +1137,15 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup W3 Total Cahe Nginx
+				SETUPDOMAIN
 				TOTALCACHENGINX
+				PERMISSIONANDGIT
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
 				# Display Success Message
 				echo
@@ -1234,7 +1160,15 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup WP Super Cahe Nginx
+				SETUPDOMAIN
 				SUPERCACHENGINX
+				PERMISSIONANDGIT
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
 
 				# Display Success Message
 				echo
@@ -1249,7 +1183,17 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup WP Super Cahe Nginx
-				FASTCGINGINX
+				SETUPDOMAIN
+				NGINXHELPER
+				TOTALCACHENGINX
+				PERMISSIONANDGIT
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
 				# Display Success Message
 				echo
@@ -1269,10 +1213,11 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup Basic Nginx
-				BASICNGINX
-
+				SETUPDOMAIN
+				
 				# Setup WordPress SubDirectory Network
 				WPSUBDIRNETWORK
+				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
 				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
@@ -1290,13 +1235,21 @@ then
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
 				# Setup W3 Total Cahe Nginx
-				TOTALCACHENGINX
+				SETUPDOMAIN
 
 				# Setup WordPress SubDirectory Network
 				WPSUBDIRNETWORK
+				TOTALCACHENGINX
+				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
 				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
 
 				# Display Success Message
 				echo
