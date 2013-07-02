@@ -565,16 +565,21 @@ TOTALCACHENGINX()
 {
 	# Installing W3 Total Cache
 	cd /var/www/$DOMAIN/htdocs/
+	echo -e "\033[34m Installing W3 Total Cache Plugin, Please Wait... \e[0m"
 	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
 	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+
+	# APC Settings
+	cp -v /usr/share/doc/php-apc/apc.php /var/www/$DOMAIN/htdocs/ || OwnError "Unable To Copy APC"
 }
 
 SUPERCACHENGINX()
 {
 	# Installing WP Super Cache
 	cd /var/www/$DOMAIN/htdocs/
+	echo -e "\033[34m Installing WP Super Cache Plugin, Please Wait... \e[0m"
 	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
@@ -585,6 +590,7 @@ NGINXHELPER()
 {
 	# Installing Nginx Helper
 	cd /var/www/$DOMAIN/htdocs/
+	echo -e "\033[34m Installing Nginx Helper Plugin, Please Wait... \e[0m"
 	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
