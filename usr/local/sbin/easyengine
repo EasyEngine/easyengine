@@ -569,7 +569,7 @@ TOTALCACHENGINX()
 	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
-	wp plugin activate w3-total-cache || OwnError "Unable To Activate W3 Total Cache Plugin"
+	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
 
 	# APC Settings
 	cp -v /usr/share/doc/php-apc/apc.php /var/www/$DOMAIN/htdocs/ || OwnError "Unable To Copy APC"
@@ -583,7 +583,7 @@ SUPERCACHENGINX()
 	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
-	wp plugin activate wp-super-cache || OwnError "Unable To Activate WP Super Cache Plugin"
+	wp plugin activate wp-super-cache $NETWORKACTIVATE || OwnError "Unable To Activate WP Super Cache Plugin"
 }
 
 NGINXHELPER()
@@ -594,7 +594,7 @@ NGINXHELPER()
 	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
-	wp plugin activate nginx-helper || OwnError "Unable To Activate Nginx Helper Plugin"
+	wp plugin activate nginx-helper $NETWORKACTIVATE || OwnError "Unable To Activate Nginx Helper Plugin"
 }
 
 
@@ -1238,7 +1238,8 @@ then
 				# Congigure Variable
 				SITENAMECHECK=$5
 				NGINXCONF=$3/w3tc.conf
-				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
+				NETWORKACTIVATE="--network"
+				echo "SITENAMECHECK = $SITENAMECHECK NGINXCONF = $NGINXCONF AND NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup W3 Total Cahe Nginx
 				SETUPDOMAIN
@@ -1255,7 +1256,7 @@ then
 				echo
 				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
 				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
 
 				# Display Success Message
 				echo
