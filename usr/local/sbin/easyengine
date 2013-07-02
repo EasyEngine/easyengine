@@ -1188,7 +1188,7 @@ then
 				NGINXCONF=$3/wpfc.conf
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
-				# Setup WP Super Cahe Nginx
+				# Setup Fastcgi Cahe Nginx
 				SETUPDOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
@@ -1218,7 +1218,7 @@ then
 				NGINXCONF=$3/basic.conf
 				echo "SITENAMECHECK = $SITENAMECHECK AND NGINXCONF = $NGINXCONF"
 
-				# Setup Basic Nginx
+				# Setup Domain WordPress & Database
 				SETUPDOMAIN
 				
 				# Setup WordPress SubDirectory Network
@@ -1241,7 +1241,67 @@ then
 				NETWORKACTIVATE="--network"
 				echo "SITENAMECHECK = $SITENAMECHECK NGINXCONF = $NGINXCONF AND NETWORKACTIVATE = $NETWORKACTIVATE"
 
-				# Setup W3 Total Cahe Nginx
+				# Setup Domain WordPress & Database
+				SETUPDOMAIN
+
+				# Setup WordPress SubDirectory Network
+				WPSUBDIRNETWORK
+				TOTALCACHENGINX
+				PERMISSIONANDGIT
+
+				# Setup phpMyAdmin
+				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
+
+				# Display Success Message
+				echo
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+
+			elif [ "$4" = "wpsc" ]
+			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/wpsc.conf
+				NETWORKACTIVATE="--network"
+				echo "SITENAMECHECK = $SITENAMECHECK NGINXCONF = $NGINXCONF AND NETWORKACTIVATE = $NETWORKACTIVATE"
+
+				# Setup Domain WordPress & Database
+				SETUPDOMAIN
+
+				# Setup WordPress SubDirectory Network
+				WPSUBDIRNETWORK
+				SUPERCACHENGINX
+				PERMISSIONANDGIT
+
+				# Setup phpMyAdmin
+				ln -s /usr/share/phpmyadmin /var/www/$DOMAIN/htdocs/
+
+				# Display WordPress Plugin Configuration Message
+				echo
+				echo -e "\033[34m Please Configure The Following Settings... \e[0m"
+				echo -e "\033[34m Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
+				echo -e "\033[34m WP Super Cache: http://$DOMAIN/wp-admin/network/options-general.php?page=wpsupercache \e[0m"
+
+				# Display Success Message
+				echo
+				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+
+			elif [ "$4" = "wpfc" ]
+			then
+
+				# Congigure Variable
+				SITENAMECHECK=$5
+				NGINXCONF=$3/wpfc.conf
+				NETWORKACTIVATE="--network"
+				echo "SITENAMECHECK = $SITENAMECHECK NGINXCONF = $NGINXCONF AND NETWORKACTIVATE = $NETWORKACTIVATE"
+
+				# Setup Domain WordPress & Database
 				SETUPDOMAIN
 
 				# Setup WordPress SubDirectory Network
@@ -1263,6 +1323,9 @@ then
 				echo -e "\033[34m Successfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
 
 			fi
+
+		#elif [ "$3" = "wpsubdomain" ]
+		#then
 
 		fi
 	fi
