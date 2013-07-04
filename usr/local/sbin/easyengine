@@ -1016,7 +1016,6 @@ then
 		ls /etc/nginx/sites-available/ \
 		|| OwnError "Unable To Display The List Of Available Websites"
 
-
 	elif [ "$2" = "show" ]
 	then
 
@@ -1057,7 +1056,6 @@ then
 			echo -e "\033[34m Under Developments \e[0m"
 
 		fi
-
 
 	elif [ "$2" = "create" ]
 	then
@@ -1434,6 +1432,10 @@ then
 
 			fi
 		fi
+
+	#elif [ "$2" = "delete" ]
+	#then
+
 	fi
 
 
