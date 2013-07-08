@@ -431,6 +431,14 @@ EESITENAME()
 	fi
 }
 
+NGINXSYMBOLICLINK()
+{
+	# Creating Symbolic Link
+	echo -e "\033[34m Creating Symbolic Link For $DOMAIN \e[0m"
+	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
+	|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
+}
+
 EEDOMAINSETUP()
 {
 	# Creating Website $DOMAIN
@@ -441,9 +449,7 @@ EEDOMAINSETUP()
 	|| OwnError "Unable To Create Nginx Configuration File For $DOMAIN"
 
 	# Creating Symbolic Link
-	echo -e "\033[34m Creating Symbolic Link For $DOMAIN \e[0m"
-	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
-	|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
+	NGINXSYMBOLICLINK
 
 	# Creating Htdocs & Logs Directory
 	echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
@@ -542,6 +548,7 @@ EEPERMISSION()
 	NGINXRELOAD
 }
 
+
 # NGINX Configuration Function
 SETUPDOMAIN()
 {
@@ -617,6 +624,64 @@ SETUPWPNETWORK()
 	# Remove index.php from permalink
 	# Install Nginx Helper
 	NGINXHELPER
+}
+
+
+# Remove Database
+REMOVEDB()
+{
+	# MySQL Informatiom
+	WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+	MYSQLUSER=$(grep DB_USER /var/www/mitesh.com/wp-config.php | cut -d"'" -f4)
+	MYSQLPASS=$(grep DB_PASS /var/www/mitesh.com/wp-config.php | cut -d"'" -f4)
+	echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER \n MYSQLPASS = $MYSQLPASS"
+
+	# Remove Database
+	echo
+	read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+
+	if [ "$ANSWER" = "y"]
+	then
+		# Remove Database
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
+		|| OwnError "Unable To Drop $WPDBNAME Database"
+	else
+		# User Denied Messages
+		echo -e "\033[31m User Denied To Drop $WPDBNAME Database. \e[0m"
+	fi
+}
+
+REMOVEFILES()
+{
+	# Remove Webroot
+	echo
+	read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
+
+	if [ "$ANSWER" = "y"]
+	then
+		# Remove Webroot
+		rm -rf /var/www/$DOMAIN	|| OwnError "Unable To Remove $DOMAIN Webroot"
+	else
+		# User Denied Messages
+		echo -e "\033[31m User Denied To Remove $DOMAIN Webroot. \e[0m"
+	fi
+}
+
+REMOVENGINXCONF()
+{
+	# Remove Nginx Configuraion
+	echo
+	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
+
+	if [ "$ANSWER" = "y"]
+	then
+		# Remove Webroot
+		rm -rf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN \
+		|| OwnError "Unable To Remove $DOMAIN Nginx Configuration"
+	else
+		# User Denied Messages
+		echo -e "\033[31m User Denied To Remove $DOMAIN Nginx Configuration. \e[0m"
+	fi
 }
 
 
@@ -1447,13 +1512,15 @@ then
 		EESITENAME
 
 		# Creating Symbolic Link
-		echo -e "\033[34m Creating Symbolic Link For $DOMAIN \e[0m"
-		ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
-		|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
+		NGINXSYMBOLICLINK
 
 		# Reload Nginx Configuration
 		NGINXRELOAD
 
+		# Take Nginx Configuration In Git Version Control
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Enable Website: $DOMAIN"
+		EEGITCOMMIT
 
 	elif [ "$2" = "disable" ]
 	then
@@ -1469,6 +1536,50 @@ then
 
 		# Reload Nginx Configuration
 		NGINXRELOAD
+
+		# Take Nginx Configuration In Git Version Control
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Disable Website: $DOMAIN"
+		EEGITCOMMIT
+
+	elif [ "$2" = "delete" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$4
+		EESITENAME
+
+		if [ "$3" = "db" ]
+		then
+
+			# Remove Database
+			REMOVEDB
+
+		elif [ "$3" = "files" ]
+		then
+
+			# Remove Webroot
+			REMOVEFILES
+
+		elif [ "$3" = "all" ]
+
+			# Remove All Database And Webroot
+			REMOVEDB
+			REMOVEFILES
+
+			# Remove Nginx Configuraion
+			REMOVENGINXCONF
+
+			# Reload Nginx
+			NGINXRELOAD
+
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Delete Website with $3 Option: $DOMAIN"
+			EEGITCOMMIT
+
+		fi
+
 
 	#elif [ "$2" = "delete" ]
 	#then
