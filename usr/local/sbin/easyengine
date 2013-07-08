@@ -392,6 +392,13 @@ NGINXUSERINFO()
 	|| OwnError "Unable To Findout Nginx Username"
 }
 
+NGINXRELOAD()
+{
+	# Reload Nginx Configuration
+	echo -e "\033[34m Reloading Nginx Configuration, Please Wait... \e[0m"
+	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
+}
+
 NGINXRESTART()
 {
 	# Test & Reload Nginx
@@ -532,8 +539,7 @@ EEPERMISSION()
 	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
-	echo -e "\033[34m Reloading Nginx Configuration, Please Wait... \e[0m"
-	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
+	NGINXRELOAD
 }
 
 # NGINX Configuration Function
@@ -1445,6 +1451,9 @@ then
 		ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
 		|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
 
+		# Reload Nginx Configuration
+		NGINXRELOAD
+
 
 	elif [ "$2" = "disable" ]
 	then
@@ -1457,6 +1466,9 @@ then
 		echo -e "\033[34m Removing Symbolic Link For $DOMAIN \e[0m"
 		rm /etc/nginx/sites-enabled/$DOMAIN \
 		|| OwnError "Unable To Remove Symbolic Link For $DOMAIN"
+
+		# Reload Nginx Configuration
+		NGINXRELOAD
 
 	#elif [ "$2" = "delete" ]
 	#then
