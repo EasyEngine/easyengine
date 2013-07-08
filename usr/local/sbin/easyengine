@@ -1562,6 +1562,7 @@ then
 			REMOVEFILES
 
 		elif [ "$3" = "all" ]
+		then
 
 			# Remove All Database And Webroot
 			REMOVEDB
