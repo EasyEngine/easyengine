@@ -51,7 +51,7 @@ EEAUTO()
 			;;
 
 		disable)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
