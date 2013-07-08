@@ -640,7 +640,7 @@ REMOVEDB()
 	echo
 	read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
 
-	if [ "$ANSWER" = "y"]
+	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Database
 		mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
