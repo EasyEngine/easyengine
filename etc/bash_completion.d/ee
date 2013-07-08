@@ -45,7 +45,7 @@ EEAUTO()
 			return 0
 			;;
 
-		show|info|enable|db)
+		show|info|enable|db|files|all)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;

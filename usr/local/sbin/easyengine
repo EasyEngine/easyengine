@@ -657,7 +657,7 @@ REMOVEFILES()
 	echo
 	read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
 
-	if [ "$ANSWER" = "y"]
+	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Webroot
 		rm -rf /var/www/$DOMAIN	|| OwnError "Unable To Remove $DOMAIN Webroot"
@@ -673,7 +673,7 @@ REMOVENGINXCONF()
 	echo
 	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
 
-	if [ "$ANSWER" = "y"]
+	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Webroot
 		rm -rf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN \
