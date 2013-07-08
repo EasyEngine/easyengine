@@ -434,7 +434,7 @@ EEDOMAINSETUP()
 	|| OwnError "Unable To Create Nginx Configuration File For $DOMAIN"
 
 	# Creating Symbolic Link
-	echo -e "\033[34m Creating Symbolic Link  \e[0m"
+	echo -e "\033[34m Creating Symbolic Link For $DOMAIN \e[0m"
 	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
 	|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
 
@@ -1432,6 +1432,31 @@ then
 
 			fi
 		fi
+
+	elif [ "$2" = "enable" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+
+		# Creating Symbolic Link
+		echo -e "\033[34m Creating Symbolic Link For $DOMAIN \e[0m"
+		ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
+		|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
+
+
+	elif [ "$2" = "disable" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+
+		# Remove Symbolic Link
+		echo -e "\033[34m Removing Symbolic Link For $DOMAIN \e[0m"
+		rm /etc/nginx/sites-enabled/$DOMAIN \
+		|| OwnError "Unable To Remove Symbolic Link For $DOMAIN"
 
 	#elif [ "$2" = "delete" ]
 	#then

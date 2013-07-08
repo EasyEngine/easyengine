@@ -41,17 +41,17 @@ EEAUTO()
 
 
 		site)
-			COMPREPLY=( $( compgen -W "list listall show info create update delete backup restore" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list listall show info create enable disable delete backup restore update" -- $CURRENT ) )
 			return 0
 			;;
 
-		show)
+		show|info|enable)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
-		info)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+		disable)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
