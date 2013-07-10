@@ -529,6 +529,7 @@ EEWPDBSETUP()
 	fi
 
 	# Create WordPress Tables
+	echo -e "\033[34m Setting Up WordPress, Please Wait... \e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory For WP-CLI"
 	wp core install --url=$DOMAIN --title="$SITETITLE" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
