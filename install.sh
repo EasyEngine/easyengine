@@ -46,6 +46,14 @@ then
 	sudo apt-get -y install coreutils || OwnError "Unable to install tee"
 fi
 
+# Checking Ed
+if [ ! -x  /bin/ed ]
+then
+	echo -e "\033[31m Ed Command Not Found ! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34m Installing Ed  \e[0m" | tee -ai $INSTALLLOG
+	sudo apt-get -y install ed || OwnError "Unable to install ed"
+fi
+
 # Checking Wget
 if [ ! -x  /usr/bin/wget ]
 then
