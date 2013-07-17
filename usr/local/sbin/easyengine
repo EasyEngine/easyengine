@@ -107,11 +107,11 @@ COMMONNGINX()
 	fi
 
 	# Update Nginx Configuration Files
-	cp -v /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
+	cp -vi /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
 	|| OwnError "Unable To Copy Nginx Configuration Files"
 	
 	# Update Nginx Common Files
-	cp -v /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
+	cp -vi /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
 	|| OwnError "Unable To Copy Nginx Common Files"
 }
 
@@ -179,7 +179,7 @@ WP-CLI()
 		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP Command"
 
 		# Add WP Auto Completion
-		cp -v /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		cp -vi /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	fi
 }
