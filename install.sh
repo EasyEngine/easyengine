@@ -124,7 +124,8 @@ fi
 if [ ! -d /etc/easyengine ]
 then
 	# Create A Directory For EE Configurations
-	mkdir -p /etc/easyengine || OwnError "Unable To Create Dir /etc/easyengine"
+	mkdir -p /etc/easyengine \
+	|| OwnError "Unable To Create Dir /etc/easyengine"
 fi
 
 # Create Directory /usr/share/easyengine
@@ -167,11 +168,13 @@ FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
 
 # Change Size
 sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
-
-# Copy Defaults EE Options 
-echo
-echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
-echo -e "\033[34m For Easy Engine Auto Completion Run Following Command \e[0m" | tee -ai $INSTALLLOG
+ 
 # Source EE Auto Complete To Take Effect
+echo -e "\033[34m For Easy Engine Auto Completion Run Following Command \e[0m" | tee -ai $INSTALLLOG
 echo -e "\033[34m source /etc/bash_completion.d/ee \e[0m" | tee -ai $INSTALLLOG
+echo
+
+# Display Success Message
+echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
+echo -e "\033[34m Easy Engine Help: https://github.com/rtCamp/easyengine/wiki \e[0m" | tee -ai $INSTALLLOG
 echo
