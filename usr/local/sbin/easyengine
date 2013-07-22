@@ -586,7 +586,13 @@ TOTALCACHENGINX()
 	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
 
 	# APC Settings
-	cp -v /usr/share/doc/php-apc/apc.php* /var/www/$DOMAIN/htdocs/apc.php || OwnError "Unable To Copy APC"
+	if [ -f /usr/share/doc/php-apc/apc.php ]
+	then
+		cp -v /usr/share/doc/php-apc/apc.php /var/www/$DOMAIN/htdocs/apc.php || OwnError "Unable To Copy APC"
+	elif [ -f /usr/share/doc/php-apc/apc.php.gz ]
+	then
+		cp -v /usr/share/doc/php-apc/apc.php.gz /var/www/$DOMAIN/htdocs/apc.php || OwnError "Unable To Copy APC"
+	fi
 }
 
 SUPERCACHENGINX()
