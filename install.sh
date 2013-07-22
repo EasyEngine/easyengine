@@ -2,7 +2,7 @@
 
 
 
-# Checking Linux Distro
+# Checking Linux Distro Is Ubuntu
 if [ ! -f /etc/lsb-release ]
 then
 	echo -e "\033[31m EasyEngine Is Made For Ubuntu Only As Of Now \e[0m"
