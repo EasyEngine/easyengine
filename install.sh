@@ -9,6 +9,9 @@ then
 	echo -e "\033[31m You Are Free To Fork EasyEngine: https://github.com/rtCamp/easyengine/fork \e[0m"
 	exit 100
 fi
+
+
+
 # Checking Permissions
 Permission=$(id -u)
 if [ $Permission -ne 0 ] 
