@@ -165,10 +165,10 @@ FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
 # Change Size
 sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
 
-# Source EE Auto Complete To Take Effect
-source /etc/bash_completion.d/ee
-
 # Copy Defaults EE Options 
 echo
 echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
+echo -e "\033[34m For Easy Engine Auto Completion Run Following Command \e[0m" | tee -ai $INSTALLLOG
+# Source EE Auto Complete To Take Effect
+echo -e "\033[34m source /etc/bash_completion.d/ee \e[0m" | tee -ai $INSTALLLOG
 echo
