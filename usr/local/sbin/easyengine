@@ -441,26 +441,34 @@ NGINXSYMBOLICLINK()
 
 EEDOMAINSETUP()
 {
-	# Creating Website $DOMAIN
-	echo -e "\033[34m Creating $DOMAIN, Please Wait... \e[0m"
-	sed "s/example.com/$DOMAIN/g" \
-	/usr/share/easyengine/nginx/$NGINXCONF \
-	> /etc/nginx/sites-available/$DOMAIN \
-	|| OwnError "Unable To Create Nginx Configuration File For $DOMAIN"
+	#Check The Nginx Configuration Exist For $DOMAIN
+	ls /etc/nginx/sites-available/$DOMAIN &> $ERRORLOG
 
-	# Creating Symbolic Link
-	NGINXSYMBOLICLINK
+	if [ $? -ne 0 ]
+	then
+		# Creating Website $DOMAIN
+		echo -e "\033[34m Creating $DOMAIN, Please Wait... \e[0m"
+		sed "s/example.com/$DOMAIN/g" \
+		/usr/share/easyengine/nginx/$NGINXCONF \
+		> /etc/nginx/sites-available/$DOMAIN \
+		|| OwnError "Unable To Create Nginx Configuration File For $DOMAIN"
 
-	# Creating Htdocs & Logs Directory
-	echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
-	mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
-	|| OwnError "Unable To Create htdocs & logs Directory"
+		# Creating Symbolic Link
+		NGINXSYMBOLICLINK
 
-	# Creating Symbolic Links For Logs
-	echo -e "\033[34m Creating Symbolic Link For Logs  \e[0m"
-	ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
-	&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
-	|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
+		# Creating Htdocs & Logs Directory
+		echo -e "\033[34m Creating htdocs & logs Directory  \e[0m"
+		mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
+		|| OwnError "Unable To Create htdocs & logs Directory"
+
+		# Creating Symbolic Links For Logs
+		echo -e "\033[34m Creating Symbolic Link For Logs  \e[0m"
+		ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
+		&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
+		|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
+	else
+		echo -e "[ `date` ] \033[31m $DOMAIN Already Exist \e[0m" | tee -ai $ERRORLOG
+	fi
 }
 
 EEWPSETUP()
