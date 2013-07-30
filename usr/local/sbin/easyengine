@@ -467,7 +467,7 @@ EEDOMAINSETUP()
 		&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
 		|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
 	else
-		echo -e "[ `date` ] \033[31m $DOMAIN Already Exist \e[0m" | tee -ai $ERRORLOG
+		OwnError "$DOMAIN Already Exist"
 	fi
 }
 
