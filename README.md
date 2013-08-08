@@ -13,4 +13,4 @@ curl -sL rt.cx/ee | sudo bash
 
 ## Need even more info?
 
-Check out our [wiki] (https://github.com/rtCamp/easyengine/wiki) and [faq] (https://github.com/rtCamp/easyengine/wiki/FAQ) page
+Check out our [wiki] (http://rtcamp.com/easyengine/docs/) and [faq] (http://rtcamp.com/easyengine/faq/) page
