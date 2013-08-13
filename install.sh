@@ -88,20 +88,20 @@ then
 	sudo apt-get -y install tar || OwnError "Unable To Install Tar"
 fi
 
-# Checking Name Servers
-if [[ -z $(cat /etc/resolv.conf | grep -v ^#) ]]
-then
-	echo -e "\033[31m No Name Servers Detected ! \e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[31m Please Configure /etc/resolv.conf \e[0m" | tee -ai $INSTALLLOG
-	exit 102
-fi
-
 # Checking Git
 if [ ! -x  /usr/bin/git ]
 then
 	echo -e "\033[31m Git Command Not Found ! \e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34m Installing Git, Please Wait...  \e[0m" | tee -ai $INSTALLLOG
 	sudo apt-get -y install git-core || OwnError "Unable To Install Git"
+fi
+
+# Checking Name Servers
+if [[ -z $(cat /etc/resolv.conf 2> /dev/null | awk '/^nameserver/ { print $2 }') ]]
+then
+	echo -e "\033[31m No Name Servers Detected ! \e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[31m Please Configure /etc/resolv.conf \e[0m" | tee -ai $INSTALLLOG
+	exit 102
 fi
 
 # Pre Checks End
