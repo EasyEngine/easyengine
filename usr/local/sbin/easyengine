@@ -48,14 +48,6 @@ PHPREPO()
 	|| OwnError "Unable To Add PHP5 Launchpad Repository"
 }
 
-PHPMYADMINREPO()
-{
-	# Add phpMyAdmin Launchpad Repository
-	echo -e "\033[34m Adding phpMyAdmin Launchpad Repository...  \e[0m"
-	sudo add-apt-repository ppa:nijel/phpmyadmin \
-	|| OwnError "Unable To Add phpMyAdmin Launchpad Repository"
-}
-
 GPGKEY()
 {
 	# Force GPG KEYS Check
@@ -132,39 +124,6 @@ CHANGEPHPSOCKET()
 	|| OwnError "Unable To Change PHP Fastcgi Socket"
 }
 
-INSTALLMYSQL()
-{
-	# Install MySQL
-	echo -e "\033[34m Installing MySQL...  \e[0m"
-	sudo $EEAPTGET install mysql-server mysqltuner \
-	|| OwnError "Unable To Install MySQL"
-}
-
-INSTALLPMA()
-{
-	# Install PMA
-	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo $EEAPTGET install phpmyadmin \
-	|| OwnError "Unable To Install PMA"
-}
-
-INSTALLPOSTFIX()
-{
-	# Install Postfix
-	echo -e "\033[34m Installing Postfix...  \e[0m"
-	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
-}
-
-INSTALLALL()
-{
-	# Install Nginx PHP5 MySQL Postfix
-	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
-	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
-	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Install Nginx PHP5 MySQL PMA Postfix"
-}
-
 WP-CLI()
 {
 	# Install WP-CLI
@@ -182,6 +141,49 @@ WP-CLI()
 		cp -vi /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	fi
+}
+
+INSTALLPMA()
+{
+	# Install PMA/phpMyAdmin
+	echo -e "\033[34m Installing PMA...  \e[0m"
+
+	# Setup PMA/phpMyAdmin
+	mkdir -p /var/www/pma || OwnError "Unable To Create Directory: /var/www/pma"
+
+	# Download PMA/phpMyAdmin
+	cd /var/www/pma || OwnError "Unable To Change Directory: /var/www/pma"
+	wget -c http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+	|| OwnError "Unable To Download PMA"
+
+	# Extract PMA/phpMyAdmin
+	tar --strip-components=1 -zxvf  phpMyAdmin-master-latest.tar.gz -C /var/www/pma \
+	|| OwnError "Unable To Extract PMA"
+}
+
+INSTALLMYSQL()
+{
+	# Install MySQL
+	echo -e "\033[34m Installing MySQL...  \e[0m"
+	sudo $EEAPTGET install mysql-server mysqltuner \
+	|| OwnError "Unable To Install MySQL"
+}
+
+INSTALLPOSTFIX()
+{
+	# Install Postfix
+	echo -e "\033[34m Installing Postfix...  \e[0m"
+	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
+}
+
+INSTALLALL()
+{
+	# Install Nginx PHP5 MySQL Postfix
+	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
+	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
+	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 }
 
 
@@ -202,20 +204,27 @@ REMOVEPHP()
 	php5-dev php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
 }
 
+REMOVEWPCLI()
+{
+	# Remove WP-CLI
+	echo -e "\033[34m Removing WP-CLI...  \e[0m"
+	sudo rm -rf /var/www/wp-cli || OwnError "Unable To Remove WP-CLI"
+}
+
+REMOVEPMA()
+{
+	# Remove PMA/phpMyAdmin
+	echo -e "\033[34m Removing PMA...  \e[0m"
+	sudo rm -rf /var/www/pma \
+	|| OwnError "Unable To Remove PMA"
+}
+
 REMOVEMYSQL()
 {
 	# Remove MySQL
 	echo -e "\033[34m Removing MySQL...  \e[0m"
 	sudo $EEAPTGET remove mysql-server mysqltuner \
 	|| OwnError "Unable To Remove MySQL"
-}
-
-REMOVEPMA()
-{
-	# Remove PMA
-	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo $EEAPTGET remove phpmyadmin \
-	|| OwnError "Unable To Remove PMA"
 }
 
 REMOVEPOSTFIX()
@@ -231,15 +240,8 @@ REMOVEALL()
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET remove nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Remove Nginx PHP5 MySQL PMA Postfix"
-}
-
-REMOVEWPCLI()
-{
-	# Remove WP-CLI
-	echo -e "\033[34m Removing WP-CLI...  \e[0m"
-	sudo rm -rf /var/www/wp-cli || OwnError "Unable To Remove WP-CLI"
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
 }
 
 AUTOREMOVE()
@@ -275,14 +277,6 @@ PURGEMYSQL()
 	|| OwnError "Unable To Purge MySQL"
 }
 
-PURGEPMA()
-{
-	# Purge PMA
-	echo -e "\033[34m Installing PMA...  \e[0m"
-	sudo $EEAPTGET purge phpmyadmin \
-	|| OwnError "Unable To Purge PMA"
-}
-
 PURGEPOSTFIX()
 {
 	# Purge Postfix
@@ -296,8 +290,8 @@ PURGEALL()
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET purge nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-cgi php5-curl php5-gd php5-cli php5-fpm php-apc php-pear \
-	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner phpmyadmin postfix \
-	|| OwnError "Unable To Purge Nginx PHP5 MySQL PMA Postfix"
+	php5-dev php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
 
 
@@ -790,6 +784,19 @@ then
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Install PMA
+			INSTALLPMA
+
+			# Initialise Git
+			EEGITDIR=/var/www/pma/
+			EEGITINIT
+
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Installed \e[0m"
+
 		elif [ "$3" = "mysql" ]
 		then
 
@@ -805,28 +812,6 @@ then
 			
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Installed \e[0m"
-
-		elif [ "$3" = "pma" ]
-		then
-
-			# Install Python Software Properties
-			PYTHONSOFTWARE
-
-			# Add phpMyAdmin Launchpad Repository
-			PHPMYADMINREPO
-
-			# Update The APT Cache
-			UPDATEAPT
-
-			# Install PMA
-			INSTALLPMA
-
-			# Initialise Git
-			EEGITDIR=/etc/phpmyadmin/
-			EEGITINIT
-
-			# Display Success Message
-			echo -e "\033[34m PMA Successfully Installed \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -856,16 +841,13 @@ then
 			# Add PHP Launchpad Repository
 			PHPREPO
 
-			# Add phpMyAdmin Launchpad Repository
-			PHPMYADMINREPO
-
 			# Fix GPG Key Problems
 			GPGKEY
 
 			# Update The APT Cache
 			UPDATEAPT
 
-			# Install Nginx PHP5 MySQL PMA Postfix
+			# Install Nginx PHP5 MySQL Postfix
 			INSTALLALL
 
 			# Personal Settings For Nginx
@@ -883,6 +865,9 @@ then
 			# Install WP-CLI
 			WP-CLI
 
+			# Install PMA/phpMyAdmin
+			INSTALLPMA
+
 			# Initialise Git
 			EEGITDIR=/etc/nginx/
 			EEGITINIT
@@ -896,7 +881,7 @@ then
 			EEGITINIT
 
 			# Initialise Git
-			EEGITDIR=/etc/phpmyadmin/
+			EEGITDIR=/var/www/pma/
 			EEGITINIT
 
 			# Initialise Git
@@ -904,7 +889,7 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Installed \e[0m"
+			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Installed \e[0m"
 
 		fi
 
@@ -938,6 +923,15 @@ then
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Removed \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Remove PMA
+			REMOVEPMA
+			
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Removed \e[0m"
+
 		elif [ "$3" = "mysql" ]
 		then
 
@@ -949,18 +943,6 @@ then
 			
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Removed \e[0m"
-
-		elif [ "$3" = "pma" ]
-		then
-
-			# Remove PMA
-			REMOVEPMA
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			
-			# Display Success Message
-			echo -e "\033[34m PMA Successfully Removed \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -983,9 +965,10 @@ then
 			# Remove Unwanted Packages
 			AUTOREMOVE
 			REMOVEWPCLI
-			
+			REMOVEPMA
+
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Removed \e[0m"
+			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Removed \e[0m"
 
 		fi
 
@@ -1019,6 +1002,15 @@ then
 			# Display Success Message
 			echo -e "\033[34m PHP5 Successfully Purged \e[0m"
 
+		elif [ "$3" = "pma" ]
+		then
+
+			# Purge PMA
+			REMOVEPMA
+			
+			# Display Success Message
+			echo -e "\033[34m PMA Successfully Purged \e[0m"
+
 		elif [ "$3" = "mysql" ]
 		then
 
@@ -1030,18 +1022,6 @@ then
 
 			# Display Success Message
 			echo -e "\033[34m MySQL Successfully Purged \e[0m"
-
-		elif [ "$3" = "pma" ]
-		then
-
-			# Purge PMA
-			PURGEPMA
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-
-			# Display Success Message
-			echo -e "\033[34m PMA Successfully Purged \e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -1066,7 +1046,7 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 MySQL PMA Postfix Successfully Purged \e[0m"
+			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Purged \e[0m"
 
 		fi
 
