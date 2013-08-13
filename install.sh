@@ -129,11 +129,11 @@ then
 fi
 
 # Create Directory /usr/share/easyengine
-if [ ! -d /usr/share/easyengine ]
+if [ ! -d /usr/share/easyengine/nginx ]
 then
 	# Create A Directory For EE Nginx Configurations
-	mkdir -p /usr/share/easyengine \
-	|| OwnError "Unable To Create Dir /usr/share/easyengine"
+	mkdir -p /usr/share/easyengine/nginx \
+	|| OwnError "Unable To Create Dir /usr/share/easyengine/nginx"
 fi
 
 # Install Easy Engine
@@ -144,14 +144,6 @@ cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> /dev/
 cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> /dev/null || OwnError "Unable To Copy ee.conf File"
 
 # EE /usr/share/easyengine Files
-
-# Check If Directory Exist Or Not
-if [ ! -d /usr/share/easyengine/nginx ]
-then
-	mkdir /usr/share/easyengine/nginx/
-
-fi
-
 cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
 cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
 
