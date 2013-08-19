@@ -82,6 +82,33 @@ INSTALLNGINX()
 	sudo $EEAPTGET install nginx-custom || OwnError "Unable To Install Nginx"
 }
 
+EEMD5SUM()
+{
+	SOURCE=$EESOURCE
+	DEST=$EEDEST
+
+	for i in $SOURCE/*
+	do
+        # Get File Name
+        EEFILE=$(basename $i)
+
+        SOURCEMD5SUM=$(md5sum $SOURCE/$EEFILE | cut -d' ' -f1)
+        DESTMD5SUM=$(md5sum $DEST/$EEFILE 2> /dev/null | cut -d' ' -f1)
+
+        # Check If Destination File Exist
+        if [ -z "$DESTMD5SUM" ]
+        then
+                # Copy Missing Destination Files
+                cp -avi $SOURCE/$EEFILE $DEST/$EEFILE
+
+        elif [ "$SOURCEMD5SUM" != "$DESTMD5SUM" ]
+        then
+                # Update Destination On MD5SUM Not Matched
+                cp -vi $SOURCE/$EEFILE $DEST/$EEFILE
+        fi  
+	done
+}
+
 COMMONNGINX()
 {
 	# Personal Settings For Nginx
@@ -99,12 +126,14 @@ COMMONNGINX()
 	fi
 
 	# Update Nginx Configuration Files
-	rsync -ac /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
-	|| OwnError "Unable To Copy Nginx Configuration Files"
-	
+	EESOURCE="/usr/share/easyengine/nginx/conf.d"
+	EEDEST="/etc/nginx/conf.d"
+	EEMD5SUM
+
 	# Update Nginx Common Files
-	rsync -ac /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
-	|| OwnError "Unable To Copy Nginx Common Files"
+	EESOURCE="/usr/share/easyengine/nginx/common"
+	EEDEST="/etc/nginx/common"
+	EEMD5SUM
 }
 
 INSTALLPHP()
