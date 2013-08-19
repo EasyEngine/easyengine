@@ -157,7 +157,7 @@ INSTALLPMA()
 	|| OwnError "Unable To Download PMA"
 
 	# Extract PMA/phpMyAdmin
-	tar --strip-components=1 -zxvf  phpMyAdmin-master-latest.tar.gz -C /var/www/pma \
+	tar --strip-components=1 -zxf  phpMyAdmin-master-latest.tar.gz -C /var/www/pma \
 	|| OwnError "Unable To Extract PMA"
 
 	# Remove Unwanted Files
