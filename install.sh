@@ -144,8 +144,8 @@ cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> /dev/
 cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> /dev/null || OwnError "Unable To Copy ee.conf File"
 
 # EE /usr/share/easyengine Files
-cp -au /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
-cp -au /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
+cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> /dev/null || OwnError "Unable To Copy Configuration Files "
 
 # EE Command
 cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"

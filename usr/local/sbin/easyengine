@@ -99,11 +99,11 @@ COMMONNGINX()
 	fi
 
 	# Update Nginx Configuration Files
-	cp -iuv /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
+	rsync -ac /usr/share/easyengine/nginx/conf.d/* /etc/nginx/conf.d/ \
 	|| OwnError "Unable To Copy Nginx Configuration Files"
 	
 	# Update Nginx Common Files
-	cp -iuv /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
+	rsync -ac /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
 	|| OwnError "Unable To Copy Nginx Common Files"
 }
 
