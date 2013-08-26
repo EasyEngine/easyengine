@@ -178,19 +178,19 @@ INSTALLPMA()
 	echo -e "\033[34m Installing PMA...  \e[0m"
 
 	# Setup PMA/phpMyAdmin
-	mkdir -p /var/www/pma || OwnError "Unable To Create Directory: /var/www/pma"
+	mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create Directory: /var/www/shared/pma/"
 
 	# Download PMA/phpMyAdmin
-	cd /var/www/pma || OwnError "Unable To Change Directory: /var/www/pma"
-	wget -c http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+	#cd /var/www/shared/pma/ || OwnError "Unable To Change Directory: /var/www/shared/pma/"
+	wget -cO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
 	|| OwnError "Unable To Download PMA"
 
 	# Extract PMA/phpMyAdmin
-	tar --strip-components=1 -zxf  phpMyAdmin-master-latest.tar.gz -C /var/www/pma \
+	tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
 	|| OwnError "Unable To Extract PMA"
 
 	# Remove Unwanted Files
-	rm -f phpMyAdmin-master-latest.tar.gz
+	rm -f /var/www/shared/pma/pma.tar.gz
 }
 
 INSTALLMYSQL()
@@ -247,7 +247,7 @@ REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34m Removing PMA...  \e[0m"
-	sudo rm -rf /var/www/pma \
+	sudo rm -rf /var/www/shared/pma \
 	|| OwnError "Unable To Remove PMA"
 }
 
@@ -814,7 +814,7 @@ then
 			INSTALLPMA
 
 			# Initialise Git
-			EEGITDIR=/var/www/pma/
+			EEGITDIR=/var/www/shared/pma/
 			EEGITINIT
 
 			# Display Success Message
@@ -904,7 +904,7 @@ then
 			EEGITINIT
 
 			# Initialise Git
-			EEGITDIR=/var/www/pma/
+			EEGITDIR=/var/www/shared/pma/
 			EEGITINIT
 
 			# Initialise Git
