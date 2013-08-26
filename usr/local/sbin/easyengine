@@ -141,8 +141,8 @@ INSTALLPHP()
 	# Install PHP5
 	echo -e "\033[34m Installing PHP5...  \e[0m"
 	sudo $EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt || OwnError "Unable To Install PHP5"
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache  || OwnError "Unable To Install PHP5"
 }
 
 CHANGEPHPSOCKET()
@@ -213,8 +213,8 @@ INSTALLALL()
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 }
 
@@ -232,8 +232,8 @@ REMOVEPHP()
 	# Remove PHP5
 	echo -e "\033[34m Removing PHP5...  \e[0m"
 	sudo $EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt || OwnError "Unable To Remove PHP5"
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache || OwnError "Unable To Remove PHP5"
 }
 
 REMOVEWPCLI()
@@ -271,8 +271,8 @@ REMOVEALL()
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET remove nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
 }
 
@@ -297,8 +297,8 @@ PURGEPHP()
 	# Purge PHP5
 	echo -e "\033[34m Purge PHP5...  \e[0m"
 	sudo $EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt || OwnError "Unable To Purge PHP5"
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache || OwnError "Unable To Purge PHP5"
 }
 
 PURGEMYSQL()
@@ -321,8 +321,8 @@ PURGEALL()
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Removing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET purge nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm \
-	php5-imap php5-mcrypt mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcache mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
 
