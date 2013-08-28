@@ -632,14 +632,17 @@ TOTALCACHENGINX()
 	# Activate W3 Total Cache
 	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
 
-	# Memcached Settings
-	mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Memcached Directory"
-	cd /var/www/shared/opcache || OwnError "Unable To Change Memcached Directory"
+	if [ ! -d /var/www/shared/opcache ]
+	then
+		# Memcached Settings
+		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Memcached Directory"
+		cd /var/www/shared/opcache || OwnError "Unable To Change Memcached Directory"
 
-	# Download Memcache Status Files
-	wget -c https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-	wget -c https://raw.github.com/amnuts/opcache-gui/master/index.php -O opgui.php
-	wget -c https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		# Download Memcache Status Files
+		wget -c https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -c https://raw.github.com/amnuts/opcache-gui/master/index.php -O opgui.php
+		wget -c https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+	fi	
 }
 
 SUPERCACHENGINX()
