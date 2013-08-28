@@ -67,11 +67,11 @@ EEAUTO()
 			;;
 
 		create|update)
-			COMPREPLY=( $( compgen -W "html php wpsingle wpsubdir wpsubdomain" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "html php wp wpsubdir wpsubdomain" -- $CURRENT ) )
 			return 0
 			;;
 
-		wpsingle|wpsubdir|wpsubdomain)
+		wp|wpsubdir|wpsubdomain)
 			COMPREPLY=( $( compgen -W "basic w3tc wpsc wpfc" -- $CURRENT ) )
 			return 0
 			;;

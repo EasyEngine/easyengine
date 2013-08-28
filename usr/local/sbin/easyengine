@@ -1199,7 +1199,7 @@ then
 			EESITENAME
 
 			# Creating Website $DOMAIN
-			NGINXCONF=wpsingle/basic.conf
+			NGINXCONF=wp/basic.conf
 			EEDOMAINSETUP
 			EEPERMISSION
 
@@ -1211,7 +1211,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m http://$DOMAIN Domain Successfully Created \e[0m"
 
-		elif [ "$3" = "wpsingle" ]
+		elif [ "$3" = "wp" ]
 		then
 
 			if [ "$4" = "basic" ]
