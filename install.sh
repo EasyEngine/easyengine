@@ -165,7 +165,7 @@ fi
 # Adjust FastCGI Cache Size 20% Of /var/run
 VARRUNSIZE=$(df --block-size=M /var/run | awk '{print $4}' | tail -n1 |cut -d'M' -f1)
 FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
-
+f
 # Change Size
 sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
  
@@ -176,5 +176,5 @@ echo
 
 # Display Success Message
 echo -e "\033[34m Easy Engine Installed Successfully \e[0m" | tee -ai $INSTALLLOG
-echo -e "\033[34m Easy Engine Help: https://github.com/rtCamp/easyengine/wiki \e[0m" | tee -ai $INSTALLLOG
+echo -e "\033[34m Easy Engine Help: http://rtcamp.com/easyengine/docs/ \e[0m" | tee -ai $INSTALLLOG
 echo
