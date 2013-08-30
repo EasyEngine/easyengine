@@ -175,22 +175,26 @@ WP-CLI()
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	echo -e "\033[34m Installing PMA...  \e[0m"
+	if [ ! -d /var/www/shared/pma ]
+	then
+		echo -e "\033[34m Installing PMA...  \e[0m"
 
-	# Setup PMA/phpMyAdmin
-	mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create Directory: /var/www/shared/pma/"
+		# Setup PMA/phpMyAdmin
+		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create Directory: /var/www/shared/pma/"
 
-	# Download PMA/phpMyAdmin
-	#cd /var/www/shared/pma/ || OwnError "Unable To Change Directory: /var/www/shared/pma/"
-	wget -cO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
-	|| OwnError "Unable To Download PMA"
+		# Download PMA/phpMyAdmin
+		wget -cO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+		|| OwnError "Unable To Download PMA"
 
-	# Extract PMA/phpMyAdmin
-	tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
-	|| OwnError "Unable To Extract PMA"
+		# Extract PMA/phpMyAdmin
+		tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
+		|| OwnError "Unable To Extract PMA"
 
-	# Remove Unwanted Files
-	rm -f /var/www/shared/pma/pma.tar.gz
+		# Remove Unwanted Files
+		rm -f /var/www/shared/pma/pma.tar.gz
+	else
+		echo -e "\033[34m Already Installed phpMyAdmin (/var/www/shared/pma)...  \e[0m"
+	fi
 }
 
 INSTALLMYSQL()
