@@ -99,7 +99,7 @@ EEMD5SUM()
         if [ -z "$DESTMD5SUM" ]
         then
                 # Copy Missing Destination Files
-                cp -avi $SOURCE/$EEFILE $DEST/$EEFILE
+                cp -vi $SOURCE/$EEFILE $DEST/$EEFILE
 
         elif [ "$SOURCEMD5SUM" != "$DESTMD5SUM" ]
         then
