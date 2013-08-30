@@ -868,7 +868,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Installed \e[0m"
 
-		elif [ "$3" = "all" ]
+		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
 			
 			# Install Python Software Properties
@@ -995,7 +995,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Removed \e[0m"
 
-		elif [ "$3" = "all" ]
+		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
 
 			# Remove Nginx PHP5 MySQL Postfix
@@ -1074,7 +1074,7 @@ then
 			# Display Success Message
 			echo -e "\033[34m Postfix Successfully Purged \e[0m"
 
-		elif [ "$3" = "all" ]
+		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
 
 			# Purge Nginx PHP5 MySQL Postfix
