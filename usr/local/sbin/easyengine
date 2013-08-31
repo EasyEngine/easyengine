@@ -244,7 +244,7 @@ REMOVENGINX()
 {
 	# Remove Nginx
 	echo -e "\033[34m Removing Nginx...  \e[0m"
-	sudo $EEAPTGET remove nginx-custom || OwnError "Unable To Remove Nginx"
+	sudo $EEAPTGET remove nginx-custom nginx-common || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
@@ -309,7 +309,7 @@ PURGENGINX()
 {
 	# Purge Nginx
 	echo -e "\033[34m Purge Nginx...  \e[0m"
-	sudo $EEAPTGET purge nginx-custom || OwnError "Unable To Purge Nginx"
+	sudo $EEAPTGET purge nginx-custom nginx-common || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
