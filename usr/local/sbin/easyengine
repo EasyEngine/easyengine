@@ -124,7 +124,7 @@ COMMONNGINX()
 		sed -i "s/worker_processes.*/worker_processes `cat /proc/cpuinfo | grep processor | wc -l`;/" /etc/nginx/nginx.conf
 
 		# Set Custome Headers Variables And Proxy Settings
-		sed -i "s/http {/http {\n\t##\n\t# Easy Engine Settings\n\t##\n\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;/" /etc/nginx/nginx.conf
+		sed -i "s/http {/http {\n\t##\n\t# Easy Engine Settings\n\t##\n\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n/" /etc/nginx/nginx.conf
 
 		# Set Custome Logs
 		sed -i "s/error_log.*/error_log \/var\/log\/nginx\/error.log;\n\n\tlog_format rt_cache '\$remote_addr - \$upstream_cache_status [\$time_local]'\n\t\t'\"\$request\" \$status \$body_bytes_sent'\n\t\t'\"\$http_referer\" \"\$http_user_agent\"';/" /etc/nginx/nginx.conf
