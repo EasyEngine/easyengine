@@ -444,10 +444,10 @@ MYSQLINFO()
 	|| OwnError "Unable To Create $WPDBNAME Database"
 }
 
-NGINXUSERINFO()
+PHPUSERINFO()
 {
 	# Nginx User
-	NGINXUSER=$(grep ^user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
+	PHPUSER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2) \
 	|| OwnError "Unable To Findout Nginx Username"
 }
 
@@ -605,12 +605,12 @@ EEWPDBSETUP()
 
 EEPERMISSION()
 {
-	# Call NGINXUSERINFO Function For NGINX User Details
-	NGINXUSERINFO
+	# Call PHPUSERINFO Function For NGINX User Details
+	PHPUSERINFO
 
 	# Change Ownership
 	echo -e "\033[34m Changing Ownership  \e[0m"
-	chown -R $NGINXUSER:$NGINXUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
+	chown -R $PHPUSER:$PHPUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
 	NGINXRELOAD
