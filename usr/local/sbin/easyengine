@@ -446,9 +446,9 @@ MYSQLINFO()
 
 PHPUSERINFO()
 {
-	# Nginx User
+	# PHP User
 	PHPUSER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2) \
-	|| OwnError "Unable To Findout Nginx Username"
+	|| OwnError "Unable To Findout PHP Username"
 }
 
 NGINXRELOAD()
@@ -605,7 +605,7 @@ EEWPDBSETUP()
 
 EEPERMISSION()
 {
-	# Call PHPUSERINFO Function For NGINX User Details
+	# Call PHPUSERINFO Function For PHP User Details
 	PHPUSERINFO
 
 	# Change Ownership
