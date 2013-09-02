@@ -1249,6 +1249,7 @@ then
 
 				# Setup Basic Nginx
 				SETUPDOMAIN
+				NGINXHELPER
 				PERMISSIONANDGIT
 
 				# Display Success Message
@@ -1267,6 +1268,7 @@ then
 
 				# Setup W3 Total Cahe Nginx
 				SETUPDOMAIN
+				NGINXHELPER
 				TOTALCACHENGINX
 				PERMISSIONANDGIT
 
@@ -1292,6 +1294,7 @@ then
 
 				# Setup WP Super Cahe Nginx
 				SETUPDOMAIN
+				NGINXHELPER
 				SUPERCACHENGINX
 				PERMISSIONANDGIT
 
