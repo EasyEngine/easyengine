@@ -447,7 +447,7 @@ MYSQLINFO()
 NGINXUSERINFO()
 {
 	# Nginx User
-	NGINXUSER=$(grep user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
+	NGINXUSER=$(grep ^user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1) \
 	|| OwnError "Unable To Findout Nginx Username"
 }
 
