@@ -652,17 +652,31 @@ TOTALCACHENGINX()
 	# Activate W3 Total Cache
 	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
 
+	# Opcache Settings
 	if [ ! -d /var/www/shared/opcache ]
 	then
-		# Memcached Settings
-		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Memcached Directory"
-		cd /var/www/shared/opcache || OwnError "Unable To Change Memcached Directory"
+		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
 
-		# Download Memcache Status Files
-		wget -c https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -c https://raw.github.com/amnuts/opcache-gui/master/index.php -O opgui.php
-		wget -c https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
-	fi	
+		# Download Opcache Status Files
+		wget -cO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+	fi
+
+	# Memcache Settings
+	if [ ! -d /var/www/shared/memcache ]
+	then
+		mkdir -p /var/www/shared/memcache || OwnError "Unable To Create Memcache Directory"
+
+		# Download phpMemcachedAdmin
+		wget -cO /var/www/shared/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+
+		# Extract phpMemcachedAdmin
+		tar -zxf /var/www/shared/memcache/memcache.tar.gz -C /var/www/shared/memcache
+
+		# Remove Unwanted Files
+		rm -f /var/www/shared/memcache/memcache.tar.gz
+	fi
 }
 
 SUPERCACHENGINX()
