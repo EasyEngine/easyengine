@@ -1378,7 +1378,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display Success Message
 				echo
@@ -1404,7 +1404,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1436,7 +1436,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1468,7 +1468,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1505,7 +1505,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display Success Message
 				echo
@@ -1532,7 +1532,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1565,7 +1565,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1598,7 +1598,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared/pma /var/www/$DOMAIN/htdocs/
+				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
 
 				# Display WordPress Plugin Configuration Message
 				echo
