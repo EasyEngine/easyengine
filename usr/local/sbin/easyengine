@@ -161,12 +161,37 @@ INSTALLPHP()
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
 }
 
-CHANGEPHPSOCKET()
+COMMONPHP()
 {
-	# Change PHP Fastcgi Socket
-	echo -e "\033[34m Change PHP Fastcgi Socket...  \e[0m"
-	sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf \
-	|| OwnError "Unable To Change PHP Fastcgi Socket"
+	# Personal Settings For PHP
+	echo -e "\033[34m Updating PHP Configuration Files...  \e[0m"
+
+	grep "Easy Engine" /etc/php5/fpm/php.ini &> /dev/null
+	if [ $? -ne 0 ]
+	then
+
+		# Change PHP Settings
+		sed -i "s/\[PHP\]/[PHP]\n; Easy Engine/" /etc/php5/fpm/php.ini
+		sed -i "s/expose_php.*/expose_php = Off/" /etc/php5/fpm/php.ini
+		sed -i "s/post_max_size.*/post_max_size = 100M/" /etc/php5/fpm/php.ini
+		sed -i "s/upload_max_filesize.*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
+		sed -i "s/max_execution_time.*/max_execution_time = 300/" /etc/php5/fpm/php.ini
+
+		# Enable PHP Status & Ping
+		sed -i "s/;ping.path/ping.path/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/;pm.status_path/pm.status_path/" /etc/php5/fpm/pool.d/www.conf
+
+		# Change PHP Pool Settings MAX Servers & Request Terminate Timeout
+		sed -i "s/;pm.max_requests/pm.max_requests/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/pm.max_children = 5/pm.max_children = 100/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/pm.start_servers = 2/pm.start_servers = 20/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/pm.min_spare_servers = 1/pm.min_spare_servers = 10/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/pm.max_spare_servers = 3/pm.max_spare_servers = 30/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/;request_terminate_timeout.*/request_terminate_timeout = 300/" /etc/php5/fpm/pool.d/www.conf
+		
+		# Change PHP Fastcgi Socket
+		sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf || OwnError "Unable To Change PHP Fastcgi Socket"
+	fi
 }
 
 WP-CLI()
@@ -843,10 +868,10 @@ then
 			# Install PHP5
 			INSTALLPHP
 
-			# Change PHP Fastcgi Socket
-			CHANGEPHPSOCKET
+			# Personal Settings For PHP
+			COMMONPHP
 
-			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
+			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 			
 			# Install WP-CLI
@@ -931,10 +956,10 @@ then
 			# Reload Nginx To Take Effect Of COMMONNGINX Functions
 			NGINXRESTART
 
-			# Change PHP Fastcgi Socket
-			CHANGEPHPSOCKET
+			# Personal Settings For PHP
+			COMMONPHP
 
-			## Reload PHP To Take Effect Of CHANGEPHPSOCKET Functions
+			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 
 			# Install WP-CLI
