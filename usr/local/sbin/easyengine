@@ -476,6 +476,25 @@ PHPUSERINFO()
 	|| OwnError "Unable To Findout PHP Username"
 }
 
+SERVERINFO()
+{
+	# Nginx Information
+	NGINXUSER=$(cat /etc/nginx/nginx.conf | grep ^user | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXPROCESSES=$(cat /etc/nginx/nginx.conf | grep worker_processes | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXCONNECTIONS=$(cat /etc/nginx/nginx.conf | grep worker_connections | cut -d' ' -f2 | cut -d';' -f1)
+	FASTCGITIMEOUT=$(cat /etc/nginx/nginx.conf | grep fastcgi_read_timeout | cut -d' ' -f2 | cut -d';' -f1)
+	CLIENTMAXBODYSIZE=$(cat /etc/nginx/nginx.conf | grep client_max_body_size | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXALLOWEDIPADD=$(grep allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
+
+	echo -e "\033[34m Nginx Information:\n \e[0m"
+	echo -e "\033[34m Nginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
+	echo -e "\033[34m Nginx Worker Processes:\t \033[37m $NGINXPROCESSES \e[0m"
+	echo -e "\033[34m Nginx Worker Connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
+	echo -e "\033[34m Nginx Fastcgi Read Timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
+	echo -e "\033[34m Nginx Client Max Body Size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
+	echo -e "\033[34m Nginx Allowed IP Address:\t \033[37m $NGINXALLOWEDIPADD \e[0m"
+}
+
 NGINXRELOAD()
 {
 	# Reload Nginx Configuration
@@ -1219,20 +1238,28 @@ then
 	elif [ "$2" = "info" ]
 	then
 
+		# Server Information
+		SERVERINFO
+
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
-		EESITENAME
-		
-		# Check The Website Is Exist
-		ls /etc/nginx/sites-available/$DOMAIN &> /dev/null \
-		|| OwnError "The $DOMAIN Is Not Found In Available Websites List"
-
-		if [ $? -eq 0 ]
+		if [ ! -z "$3" ]
 		then
+		
+			SITENAMECHECK=$3
+			EESITENAME
+		
+			# Check The Website Is Exist
+			ls /etc/nginx/sites-available/$DOMAIN &> /dev/null \
+			|| OwnError "The $DOMAIN Is Not Found In Available Websites List"
 
-			# Display The Various Information About $DOMAIN
-			echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
-			echo -e "\033[34m Under Developments \e[0m"
+			if [ $? -eq 0 ]
+			then
+
+				# Display The Various Information About $DOMAIN
+				echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
+				echo -e "\033[34m Under Developments \e[0m"
+
+			fi
 
 		fi
 
