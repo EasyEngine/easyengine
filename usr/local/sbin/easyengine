@@ -479,6 +479,7 @@ PHPUSERINFO()
 SERVERINFO()
 {
 	# Nginx Information
+	NGINXVER=$(nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2)
 	NGINXUSER=$(cat /etc/nginx/nginx.conf | grep ^user | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXPROCESSES=$(cat /etc/nginx/nginx.conf | grep worker_processes | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXCONNECTIONS=$(cat /etc/nginx/nginx.conf | grep worker_connections | cut -d' ' -f2 | cut -d';' -f1)
@@ -486,7 +487,7 @@ SERVERINFO()
 	CLIENTMAXBODYSIZE=$(cat /etc/nginx/nginx.conf | grep client_max_body_size | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXALLOWEDIPADD=$(grep allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
 
-	echo -e "\033[34m Nginx Information:\n \e[0m"
+	echo -e "\033[34m Nginx ($NGINXVER) Information:\n \e[0m"
 	echo -e "\033[34m Nginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
 	echo -e "\033[34m Nginx Worker Processes:\t \033[37m $NGINXPROCESSES \e[0m"
 	echo -e "\033[34m Nginx Worker Connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
