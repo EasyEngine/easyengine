@@ -494,6 +494,41 @@ SERVERINFO()
 	echo -e "\033[34m Nginx fastcgi_read_timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
 	echo -e "\033[34m Nginx client_max_body_size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
 	echo -e "\033[34m Nginx Allowed IP Address:\t \033[37m $NGINXALLOWEDIPADD \e[0m"
+
+	# PHP Information
+	# Collect Information From php.ini
+	PHPUSERINFO
+	PHPVER=$(php -v | head -n1 | cut -d' ' -f2 | cut -d'+' -f1)
+	PHPPOSTMAXSIZE=$(cat /etc/php5/fpm/php.ini | grep post_max_size | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPUPLOADMAXFSIZE=$(cat /etc/php5/fpm/php.ini | grep upload_max_filesize | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPMAXEXECUTIONTIME=$(cat /etc/php5/fpm/php.ini | grep max_execution_time | cut -d'=' -f2 | cut -d' ' -f2)
+
+	# Collect Information From www.conf
+	PHPPINGPATH=$(grep ^ping.path /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PHPSTATUSPATH=$(grep ^pm.status_path /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PMMAXREQUEST=$(grep ^pm.max_requests /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PMMAXCHILDREN=$(grep ^pm.max_children /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PMSTARTSERVERS=$(grep ^pm.start_servers /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PMMINSPARESERVERS=$(grep ^pm.min_spare_servers /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PMMAXSPARESERVERS=$(grep ^pm.max_spare_servers /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PHPREQUESTTERMINATE=$(grep ^request_terminate_timeout /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PHPFASTCGIREQUEST=$(grep ^listen /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+
+	echo -e "\033[34m \n\n PHP ($PHPVER) Information:\n \e[0m"
+	echo -e "\033[34m PHP User:\t\t\t \033[37m $PHPUSER \e[0m"
+	echo -e "\033[34m PHP post_max_size:\t\t \033[37m $PHPPOSTMAXSIZE \e[0m"
+	echo -e "\033[34m PHP upload_max_filesize:\t \033[37m $PHPUPLOADMAXFSIZE \e[0m"
+	echo -e "\033[34m PHP max_execution_time:\t \033[37m $PHPMAXEXECUTIONTIME \e[0m"
+
+	echo -e "\033[34m\n PHP ping.path:\t\t\t \033[37m $PHPPINGPATH \e[0m"
+	echo -e "\033[34m PHP pm.status_path:\t\t \033[37m $PHPSTATUSPATH \e[0m"
+	echo -e "\033[34m PHP pm.max_requests:\t\t \033[37m $PMMAXREQUEST \e[0m"
+	echo -e "\033[34m PHP pm.max_children:\t\t \033[37m $PMMAXCHILDREN \e[0m"
+	echo -e "\033[34m PHP pm.start_servers:\t\t \033[37m $PMSTARTSERVERS \e[0m"
+	echo -e "\033[34m PHP pm.min_spare_servers:\t \033[37m $PMMINSPARESERVERS \e[0m"
+	echo -e "\033[34m PHP pm.max_spare_servers:\t \033[37m $PMMAXSPARESERVERS \e[0m"
+	echo -e "\033[34m PHP request_terminate_timeout:\t \033[37m $PHPREQUESTTERMINATE \e[0m"
+	echo -e "\033[34m PHP Fastcgi Listen:\t\t \033[37m $PHPFASTCGIREQUEST \e[0m"
 }
 
 NGINXRELOAD()
