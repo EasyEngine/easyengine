@@ -489,10 +489,10 @@ SERVERINFO()
 
 	echo -e "\033[34m Nginx ($NGINXVER) Information:\n \e[0m"
 	echo -e "\033[34m Nginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
-	echo -e "\033[34m Nginx Worker Processes:\t \033[37m $NGINXPROCESSES \e[0m"
-	echo -e "\033[34m Nginx Worker Connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
-	echo -e "\033[34m Nginx Fastcgi Read Timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
-	echo -e "\033[34m Nginx Client Max Body Size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
+	echo -e "\033[34m Nginx worker_processes:\t \033[37m $NGINXPROCESSES \e[0m"
+	echo -e "\033[34m Nginx worker_connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
+	echo -e "\033[34m Nginx fastcgi_read_timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
+	echo -e "\033[34m Nginx client_max_body_size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
 	echo -e "\033[34m Nginx Allowed IP Address:\t \033[37m $NGINXALLOWEDIPADD \e[0m"
 }
 
