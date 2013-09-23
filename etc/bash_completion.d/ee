@@ -10,8 +10,8 @@ EEAUTO()
 	# Get Previous Word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
 
-	# Use All Word Twice
-	local EEALL=${COMP_WORDS[COMP_CWORD-2]}
+	# Use Word Twice In Auto Completion
+	local EECOMMON=${COMP_WORDS[COMP_CWORD-2]}
 
 	# List Of Suggested Words
 	case "$PREVIOUS" in
@@ -48,18 +48,26 @@ EEAUTO()
 			return 0
 			;;
 
-		show|info|enable|db|files)
+		show|enable|db|files)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
 		all)
-			if [ "$EEALL" = "delete" ]
+			if [ "$EECOMMON" = "delete" ]
 			then
 				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			fi
 			return 0
 			;;	
+
+		info)
+			if [ "$EECOMMON" = "site" ]
+			then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			fi
+			return 0
+			;;
 
 		disable)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
