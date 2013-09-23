@@ -480,11 +480,11 @@ SYSTEMINFO()
 {
 	# Nginx Information
 	NGINXVER=$(nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2)
-	NGINXUSER=$(cat /etc/nginx/nginx.conf | grep ^user | cut -d' ' -f2 | cut -d';' -f1)
-	NGINXPROCESSES=$(cat /etc/nginx/nginx.conf | grep worker_processes | cut -d' ' -f2 | cut -d';' -f1)
-	NGINXCONNECTIONS=$(cat /etc/nginx/nginx.conf | grep worker_connections | cut -d' ' -f2 | cut -d';' -f1)
-	FASTCGITIMEOUT=$(cat /etc/nginx/nginx.conf | grep fastcgi_read_timeout | cut -d' ' -f2 | cut -d';' -f1)
-	CLIENTMAXBODYSIZE=$(cat /etc/nginx/nginx.conf | grep client_max_body_size | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXUSER=$(grep ^user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXPROCESSES=$(grep worker_processes /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXCONNECTIONS=$(grep worker_connections /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
+	FASTCGITIMEOUT=$(grep fastcgi_read_timeout /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
+	CLIENTMAXBODYSIZE=$(grep client_max_body_size /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXALLOWEDIPADD=$(grep ^allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
 
 	echo -e "\033[34m Nginx ($NGINXVER) Information:\n \e[0m"
@@ -499,9 +499,10 @@ SYSTEMINFO()
 	# Collect Information From php.ini
 	PHPUSERINFO
 	PHPVER=$(php -v | head -n1 | cut -d' ' -f2 | cut -d'+' -f1)
-	PHPPOSTMAXSIZE=$(cat /etc/php5/fpm/php.ini | grep post_max_size | cut -d'=' -f2 | cut -d' ' -f2)
-	PHPUPLOADMAXFSIZE=$(cat /etc/php5/fpm/php.ini | grep upload_max_filesize | cut -d'=' -f2 | cut -d' ' -f2)
-	PHPMAXEXECUTIONTIME=$(cat /etc/php5/fpm/php.ini | grep max_execution_time | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPEXPOSE=$(grep ^expose_php /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPPOSTMAXSIZE=$(grep post_max_size /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPUPLOADMAXFSIZE=$(grep upload_max_filesize /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
+	PHPMAXEXECUTIONTIME=$(grep max_execution_time /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
 
 	# Collect Information From www.conf
 	PHPPINGPATH=$(grep ^ping.path /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
@@ -515,7 +516,8 @@ SYSTEMINFO()
 	PHPFASTCGIREQUEST=$(grep ^listen /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 
 	echo -e "\033[34m \n\n PHP ($PHPVER) Information:\n \e[0m"
-	echo -e "\033[34m PHP User:\t\t\t \033[37m $PHPUSER \e[0m"
+	echo -e "\033[34m PHP User:\t\t\t \033[37m $PHPEXPOSE \e[0m"
+	echo -e "\033[34m PHP expose_php:\t\t\t \033[37m $PHPUSER \e[0m"
 	echo -e "\033[34m PHP post_max_size:\t\t \033[37m $PHPPOSTMAXSIZE \e[0m"
 	echo -e "\033[34m PHP upload_max_filesize:\t \033[37m $PHPUPLOADMAXFSIZE \e[0m"
 	echo -e "\033[34m PHP max_execution_time:\t \033[37m $PHPMAXEXECUTIONTIME \e[0m"
