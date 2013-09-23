@@ -516,8 +516,8 @@ SYSTEMINFO()
 	PHPFASTCGIREQUEST=$(grep ^listen /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 
 	echo -e "\033[34m \n\n PHP ($PHPVER) Information:\n \e[0m"
-	echo -e "\033[34m PHP User:\t\t\t \033[37m $PHPEXPOSE \e[0m"
-	echo -e "\033[34m PHP expose_php:\t\t\t \033[37m $PHPUSER \e[0m"
+	echo -e "\033[34m PHP User:\t\t\t \033[37m $PHPUSER \e[0m"
+	echo -e "\033[34m PHP expose_php:\t\t \033[37m $PHPEXPOSE \e[0m"
 	echo -e "\033[34m PHP post_max_size:\t\t \033[37m $PHPPOSTMAXSIZE \e[0m"
 	echo -e "\033[34m PHP upload_max_filesize:\t \033[37m $PHPUPLOADMAXFSIZE \e[0m"
 	echo -e "\033[34m PHP max_execution_time:\t \033[37m $PHPMAXEXECUTIONTIME \e[0m"
