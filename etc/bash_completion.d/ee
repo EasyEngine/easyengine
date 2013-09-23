@@ -23,7 +23,7 @@ EEAUTO()
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge config" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge info config" -- $CURRENT ) )
 			return 0
 			;;
 
