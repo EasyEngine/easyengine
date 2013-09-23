@@ -1330,7 +1330,7 @@ then
 			EESITENAME
 
 			# Creating Website $DOMAIN
-			NGINXCONF=wp/basic.conf
+			NGINXCONF=php/basic.conf
 			EEDOMAINSETUP
 			EEPERMISSION
 
