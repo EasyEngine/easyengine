@@ -1212,8 +1212,6 @@ then
 
 		# Get Nginx PHP & MySQL Information
 		SYSTEMINFO
-		
-	fi
 
 
 	# Easy Engine Config
@@ -1231,7 +1229,6 @@ then
 			echo "Under Developments"
 
 		fi
-
 
 	fi
 
