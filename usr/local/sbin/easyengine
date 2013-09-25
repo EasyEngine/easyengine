@@ -483,6 +483,7 @@ SYSTEMINFO()
 	NGINXUSER=$(grep ^user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXPROCESSES=$(grep worker_processes /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXCONNECTIONS=$(grep worker_connections /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
+	NGINXKEEPALIVE=$(grep keepalive_timeout /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	FASTCGITIMEOUT=$(grep fastcgi_read_timeout /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	CLIENTMAXBODYSIZE=$(grep client_max_body_size /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXALLOWEDIPADD=$(grep ^allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
@@ -491,6 +492,7 @@ SYSTEMINFO()
 	echo -e "\033[34m Nginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
 	echo -e "\033[34m Nginx worker_processes:\t \033[37m $NGINXPROCESSES \e[0m"
 	echo -e "\033[34m Nginx worker_connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
+	echo -e "\033[34m Nginx keepalive_timeout:\t \033[37m $NGINXKEEPALIVE \e[0m"
 	echo -e "\033[34m Nginx fastcgi_read_timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
 	echo -e "\033[34m Nginx client_max_body_size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
 	echo -e "\033[34m Nginx Allowed IP Address:\t \033[37m $NGINXALLOWEDIPADD \e[0m"
