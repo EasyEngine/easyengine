@@ -18,12 +18,12 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "system site help" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "system site" -- $CURRENT) )
 			return 0
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge info config" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge info" -- $CURRENT ) )
 			return 0
 			;;
 
@@ -32,19 +32,8 @@ EEAUTO()
 			return 0
 			;;
 
-		config)
-			COMPREPLY=( $( compgen -W "get set" -- $CURRENT ) )
-			return 0
-			;;
-
-		get|set)
-			COMPREPLY=( $( compgen -W "memory timeout" -- $CURRENT ) )
-			return 0
-			;;
-
-
 		site)
-			COMPREPLY=( $( compgen -W "list listall show info create enable disable delete backup restore update" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list listall show create enable disable delete" -- $CURRENT ) )
 			return 0
 			;;
 
@@ -74,7 +63,7 @@ EEAUTO()
 			return 0
 			;;
 
-		create|update)
+		create)
 			COMPREPLY=( $( compgen -W "html php wp wpsubdir wpsubdomain" -- $CURRENT ) )
 			return 0
 			;;

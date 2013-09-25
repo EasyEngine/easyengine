@@ -1219,22 +1219,22 @@ then
 
 
 	# Easy Engine Config
-	elif [ "$2" = "config" ]
-	then
+	#elif [ "$2" = "config" ]
+	#then
 
-		if [ "$3" = "set" ]
-		then
+	#	if [ "$3" = "set" ]
+	#	then
 
-			echo "Under Developments"
+	#		echo "Under Developments"
 
-		elif [ "$3" = "get" ]
-		then
+	#	elif [ "$3" = "get" ]
+	#	then
 
-			echo "Under Developments"
+	#		echo "Under Developments"
 
-		fi
+	#	fi
 
-	fi
+	#fi
 
 
 
@@ -1282,24 +1282,24 @@ then
 
 		fi
 
-	elif [ "$2" = "info" ]
-	then
+	#elif [ "$2" = "info" ]
+	#then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
-		EESITENAME
+	#	SITENAMECHECK=$3
+	#	EESITENAME
 		
 		# Check The Website Enabled
-		ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null \
-		|| OwnError "The $DOMAIN Is Not Enabled"
+	#	ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null \
+	#	|| OwnError "The $DOMAIN Is Not Enabled"
 
-		if [ $? -eq 0 ]
-		then
+	#	if [ $? -eq 0 ]
+	#	then
 			# Display The Various Information About $DOMAIN
-			echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
-			echo -e "\033[34m Under Developments \e[0m"
+	#		echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
+	#		echo -e "\033[34m Under Developments \e[0m"
 
-		fi
+	#	fi
 
 	elif [ "$2" = "create" ]
 	then
@@ -1782,9 +1782,6 @@ then
 		fi
 
 
-	#elif [ "$2" = "delete" ]
-	#then
-
 	fi
 
 
@@ -1792,10 +1789,10 @@ then
 
 
 # Easy Engine Update
-elif [ "$1" = "update" ]
-then
+#elif [ "$1" = "update" ]
+#then
 
-	echo -e "\033[34m Updating Easy Engine, Please wait... \e[0m"
-	curl -L rt.cx/ee | sudo bash
+#	echo -e "\033[34m Updating Easy Engine, Please wait... \e[0m"
+#	curl -L rt.cx/ee | sudo bash
 
 fi
