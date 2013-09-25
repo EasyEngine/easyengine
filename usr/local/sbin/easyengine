@@ -1052,7 +1052,6 @@ then
 
 		fi
 
-
 	# Easy Engine Remove
 	elif [ "$2" = "remove" ]
 	then
@@ -1131,7 +1130,6 @@ then
 
 		fi
 
-
 	# Easy Engine Purge
 	elif [ "$2" = "purge" ]
 	then
@@ -1209,7 +1207,6 @@ then
 
 		fi
 
-
 	# Easy Engine Info
 	elif [ "$2" = "info" ]
 	then
@@ -1217,24 +1214,7 @@ then
 		# Get Nginx PHP & MySQL Information
 		SYSTEMINFO
 
-
-	# Easy Engine Config
-	#elif [ "$2" = "config" ]
-	#then
-
-	#	if [ "$3" = "set" ]
-	#	then
-
-	#		echo "Under Developments"
-
-	#	elif [ "$3" = "get" ]
-	#	then
-
-	#		echo "Under Developments"
-
-	#	fi
-
-	#fi
+	fi
 
 
 
@@ -1281,25 +1261,6 @@ then
 			|| OwnError "Unable To Display Nginx Configuration For $DOMAIN"
 
 		fi
-
-	#elif [ "$2" = "info" ]
-	#then
-
-		# Check SITENAME Is Empty Or Not
-	#	SITENAMECHECK=$3
-	#	EESITENAME
-		
-		# Check The Website Enabled
-	#	ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null \
-	#	|| OwnError "The $DOMAIN Is Not Enabled"
-
-	#	if [ $? -eq 0 ]
-	#	then
-			# Display The Various Information About $DOMAIN
-	#		echo -e "\033[34m Display The Various Information About $DOMAIN \e[0m"
-	#		echo -e "\033[34m Under Developments \e[0m"
-
-	#	fi
 
 	elif [ "$2" = "create" ]
 	then
@@ -1781,18 +1742,7 @@ then
 
 		fi
 
-
 	fi
 
-
-
-
-
-# Easy Engine Update
-#elif [ "$1" = "update" ]
-#then
-
-#	echo -e "\033[34m Updating Easy Engine, Please wait... \e[0m"
-#	curl -L rt.cx/ee | sudo bash
 
 fi
