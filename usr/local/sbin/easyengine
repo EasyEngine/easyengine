@@ -285,15 +285,14 @@ REMOVEWPCLI()
 {
 	# Remove WP-CLI
 	echo -e "\033[34m Removing WP-CLI...  \e[0m"
-	sudo rm -rf /usr/share/easyengine/wp-cli /usr/bin/wp || OwnError "Unable To Remove WP-CLI"
+	rm -rf /usr/share/easyengine/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || OwnError "Unable To Remove WP-CLI"
 }
 
 REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34m Removing PMA...  \e[0m"
-	sudo rm -rf /var/www/shared/pma \
-	|| OwnError "Unable To Remove PMA"
+	rm -rf /var/www/shared/pma || OwnError "Unable To Remove PMA"
 }
 
 REMOVEMYSQL()
