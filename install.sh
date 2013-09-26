@@ -116,8 +116,8 @@ then
 	# Remove Older Easy Engine If Found
 	rm -rf /tmp/easyengine &>> /dev/null
 
-	# Clone Easy Engine Repository
-	git clone git://github.com/rtCamp/easyengine.git /tmp/easyengine || OwnError "Unable To Clone Easy Engine"
+	# Clone Easy Engine Stable Repository
+	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine || OwnError "Unable To Clone Easy Engine"
 fi
 
 # Create Directory /etc/easyengine
