@@ -1244,7 +1244,6 @@ then
 			# Purge Nginx PHP5 MySQL Postfix
 			PURGEALL
 
-			
 			# Remove Unwanted Packages
 			AUTOREMOVE
 			REMOVEWPCLI
