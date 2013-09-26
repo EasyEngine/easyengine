@@ -464,6 +464,7 @@ MYSQLINFO()
 	MYSQLPASSCHECK
 
 	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
+
 	# If Enter Is Pressed, Then Use $DOMAIN As Database Name
 	if [[ $WPDBNAME = "" ]]
 	then
@@ -484,7 +485,7 @@ MYSQLINFO()
 	then
 		WPDBPREFIX=wp_
 	fi
-	
+
 	# Create Database
 	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
@@ -682,23 +683,48 @@ EEWPDBSETUP()
 {
 	# Get WordPress Site Title
 	echo -e "\033[34m WordPress Information Required... \e[0m"
-	read -p "Site Title: " SITETITLE
+
+	read -p "Site Title [$DOMAIN]: " SITETITLE
+
+	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
+	if [[ $SITETITLE = "" ]]
+	then
+		SITETITLE=$DOMAIN
+	fi
+
 	read -p "Username [admin]: " WPADMINUSER
+
+	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
+	if [[ $WPADMINUSER = "" ]]
+	then
+		WPADMINUSER=admin
+	fi
 
 	# Turn Off Echo For Passwords
 	stty -echo
 	read -p "Password: " WPADMINPASS
 	stty echo
 
+	# Cross Check Blank WordPress Admin Password
+	while [ -z $WPADMINPASS ]
+	do
+		echo -e "\033[31m \n Warning: \033[34m WordPress Admin Password Should Not Blank \e[0m"
+
+		# Turn Off Echo For Passwords
+		stty -echo
+		read -p "Password: " WPADMINPASS
+		stty echo
+	done
+
 	echo
 	read -p "Email: " WPADMINEMAIL
 
-	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
-	if [[ $WPADMINUSER = "" ]]
-	then
-		WPADMINUSER=admin
-		#echo $WPADMINUSER
-	fi
+	# Cross Check Blank WordPress Admin Email Address
+	while [ -z $WPADMINEMAIL ]
+	do
+		echo -e "\033[31m Warning: \033[34m WordPress Admin Email Should Not Blank \e[0m"
+		read -p "Email: " WPADMINEMAIL
+	done
 
 	# Create WordPress Tables
 	echo -e "\033[34m Setting Up WordPress, Please Wait... \e[0m"
