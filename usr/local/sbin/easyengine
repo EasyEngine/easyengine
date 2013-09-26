@@ -412,30 +412,66 @@ EEGITCOMMIT()
 	fi
 }
 
+MYSQLUSERPASS()
+{
+	read -p "Enter The MySQL Username [root]: " MYSQLUSER
+	# If Enter Is Pressed, Then Use root as MySQL User
+	if [[ $MYSQLUSER = "" ]]
+	then
+		MYSQLUSER=root
+	fi
+
+	# Turn Off Echo For Passwords
+	stty -echo
+	read -p "Enter The MySQL Password: " MYSQLPASS
+	stty echo
+	echo
+}
+
+
+MYSQLPASSCHECK()
+{
+	while [ -n $(mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS ping 2> /dev/null | grep alive) &> /dev/null ]
+	do
+		# Verify MySQL Credentials
+		MYSQLUSERPASS
+	done
+}
+
 
 # GET Information Function
 MYSQLINFO()
 {
 	# Get The MySQL Username/Password
 	read -p "MySQL Host [localhost]: " MYSQLHOST
+
+	# If Enter Is Pressed, Then Use localhost as MySQL Host
+	if [[ $MYSQLHOST = "" ]]
+	then
+		MYSQLHOST=localhost
+	fi
 	
 	if [ -f ~/.my.cnf ]
 	then
 		MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
 		MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
 	else
-		read -p "Enter The MySQL Username: " MYSQLUSER
-
-		# Turn Off Echo For Passwords
-		stty -echo
-		read -p "Enter The MySQL Password: " MYSQLPASS
-		stty echo
-		echo
+		# Verify MySQL Credentials
+		MYSQLUSERPASS
 	fi
-	
-	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
-	read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
 
+	# Verify MySQL Credentials
+	MYSQLPASSCHECK
+
+	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
+	# If Enter Is Pressed, Then Use $DOMAIN As Database Name
+	if [[ $WPDBNAME = "" ]]
+	then
+		WPDBNAME=$DOMAIN
+	fi
+
+	read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
+	
 	# Display WPDBPREFIX Valid Characters Warning & Try Again
 	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
 	do
@@ -443,27 +479,12 @@ MYSQLINFO()
 		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
 	done
 
-	# If Enter Is Pressed, Then Use localhost as MySQL Host
-	if [[ $MYSQLHOST = "" ]]
-	then
-		MYSQLHOST=localhost
-		#echo $MYSQLHOST
-	fi
-
-	# If Enter Is Pressed, Then Use $DOMAIN As Database Name
-	if [[ $WPDBNAME = "" ]]
-	then
-		WPDBNAME=$DOMAIN
-		#echo $WPDBNAME
-	fi
-
 	# If Enter Is Pressed, Then Use wp_ As Database Table Prefix
 	if [[ $WPDBPREFIX = "" ]]
 	then
 		WPDBPREFIX=wp_
-		#echo $WPDBPREFIX
 	fi
-
+	
 	# Create Database
 	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
