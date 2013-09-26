@@ -150,6 +150,9 @@ cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> /dev/nul
 # EE Command
 cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Command"
 
+# EE Man Pages
+cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> /dev/null || OwnError "Unable To Copy EasyEngine Man Pages"
+
 # Change Permission For EE
 chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
 

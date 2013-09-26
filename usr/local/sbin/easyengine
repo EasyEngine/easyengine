@@ -912,11 +912,16 @@ REMOVENGINXCONF()
 }
 
 
+# Easy Engine Help
+if [ "$1" = "help" ] || [ "$1" = "--help" ]
+then
 
+	# Display Man Pages
+	man ee
 
 
 # Easy Engine System Settings
-if [ "$1" = "system" ]
+elif [ "$1" = "system" ]
 then
 
 
