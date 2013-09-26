@@ -1264,9 +1264,6 @@ then
 	fi
 
 
-
-
-
 # Easy Engine Site Settings
 elif [ "$1" = "site" ]
 then
