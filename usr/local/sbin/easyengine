@@ -2,7 +2,7 @@
 
 
 
-# EE (EasyEngine) Version: V1.0
+# EE (EasyEngine) Version: V1.0.0
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
