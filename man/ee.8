@@ -1,82 +1,133 @@
-.TH EE 8 "v\ 1.0" "Thu, September 26, 2013" "EasyEngine"
+.TH ee 8 "easyengine version: 1.0.0" "September 30, 2013" "easyengine"
 .SH NAME
 .B ee
 \- Manage Nginx Based Websites.
 .SH SYNOPSIS
-ee help
+ee [ -h | help | --help ]
 .TP
-ee site [ create | delete | disable | enable | list | listall | show ]
+ee [ -v | version | --version]
 .TP
 ee system [ info| install | remove | purge ]
+.TP
+ee site [ create | delete | enable | disable | list | listall | show ]
 .br
 .SH DESCRIPTION
-EasyEngine (EE) is a shell script to help site administrators manage nginx-based websites.
+EasyEngine (EE) is a linux shell-script to manage your wordpress-Nginx websites on an Ubuntu server.
+.br
+After ee kindly press tab key to view all arguments.
 .br
 .SH OPTIONS
 .TP
 .B create
 .br
-Create HTML, PHP and WordPress Websites
+Create HTML, PHP and Wordpress website.
+.br
 .TP
 .B delete
 .br
-Delete HTML, PHP and WordPress Websites
-.TP
-.B disable
-.br
-Disable Website
+Delete HTML, PHP and WordPress website.
 .TP
 .B enable
 .br
-Enable Website
+Enable website.
+.TP
+.B disable
+.br
+Disable website.
 .TP
 .B list
 .br
-List Enabled Websites
+List all the enabled websites.
 .TP
 .B listall
 .br
-List All Websites
+List all websites.
 .TP
 .B show
 .br
-Show Nginx Configuration For Website
+Show Nginx configuration for website.
 .TP
 .B info
 .br
-Information About Nginx And PHP
+Information about Nginx and PHP.
 .TP
 .B install
 .br
-Install Nginx PHP5 MySQL Postfix System Packages
+Install Nginx PHP5 MySQL Postfix System Packages.
 .TP
 .B remove
 .br
-Remove Nginx PHP5 MySQL Postfix System Packages
+Remove Nginx PHP5 MySQL Postfix System Packages.
 .TP
 .B purge
 .br
-Purge Nginx PHP5 MySQL Postfix System Packages
-.SH EXAMPLES
+Purge Nginx PHP5 MySQL Postfix System Packages.
+.SH ARGUMENTS
+.TP
+.B html
 .br
-Please visit: http://rtcamp.com/easyengine/docs/
-.P
-.SH VERSION
-.B ee (EasyEngine)
-version 1.0
-.SH "SEE ALSO"
+Create a HTML website. 
+.TP
+.B php
+.br
+Create a PHP website. 
+.TP
+.B wp
+.br
+Create a Wordpress Website. 
+.TP
+.B wpsubdir
+.br
+Create a Wordpress Multisite with Sub Directories Setup. 
+.TP
+.B wpsubdomain
+.br
+Create a Wordpress Multisite with Sub Domains Setup. 
 .br
 .TP
-EE: 
-.I   http://rtcamp.com/easyengine
+.B all
+.br
+If uses with ee system, its install, remove or purge Nginx PHP5 MySQL Postfix System Packages.
+.br
+If uses with ee site delete, its delete Database, Webroot and Nginx configuration.
 .br
 .TP
-FAQ: 
-.I  http://rtcamp.com/easyengine/faq/
+.B db
+.br
+Delete website database.
 .br
 .TP
-DOCS:
-.I http://rtcamp.com/easyengine/docs/
+.B files
+.br
+Delete website webroot.
+.br
+.SH WORDPRESS CACHING OPTIONS
+.br
+.TP
+.B basic
+.br
+Create WordPress website without cache.
+.br
+.TP
+.B w3tc
+.br
+Install and activate Nginx-helper and W3 Total Cache plugin.
+.br
+.TP
+.B wpsc
+.br
+Install and activate Nginx-helper and WP Super Cache plugin.
+.br
+.TP
+.B wpfc
+.br
+Install and activate Nginx-helper and W3 Total Cache plugin with Nginx FastCGI cache.
+.br
+.SH FILES
+.br
+/etc/easyengine/ee.conf
+.SH BUGS
+Report bugs at <http://github.com/rtCamp/easyengine/issues/>
 .SH AUTHOR
 .br
 .B rtCamp Team 
@@ -87,3 +138,14 @@ DOCS:
 .br
 .B Manish 
 .I \<Manish.Songirkar@rtcamp.com\>
+.SH "SEE ALSO"
+.br
+EE: 
+.I   http://rtcamp.com/easyengine
+.br
+FAQ: 
+.I  http://rtcamp.com/easyengine/faq/
+.br
+DOCS:
+.I http://rtcamp.com/easyengine/docs/
+
