@@ -2,7 +2,6 @@
 
 
 
-# EE (EasyEngine) Version: V1.0.0
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
@@ -913,8 +912,16 @@ REMOVENGINXCONF()
 }
 
 
+# Easy Engine Version
+if [ "$1" = "-v" ] || [ "$1" = "--version" ]
+then
+
+	# Display Easy Engine Version
+	echo "easyengine version: 1.0.0"
+
+
 # Easy Engine Help
-if [ "$1" = "help" ] || [ "$1" = "--help" ]
+elif [ "$1" = "help" ] || [ "$1" = "--help" ]
 then
 
 	# Display Man Pages
