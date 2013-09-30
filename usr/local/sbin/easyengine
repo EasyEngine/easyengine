@@ -2,6 +2,16 @@
 
 
 
+# This script is free software: you can redistribute it and/or modify
+# it under the terms of the MIT License (MIT).
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MIT License (MIT) at (http://opensource.org/licenses/MIT) for
+# more details.
+
+
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
