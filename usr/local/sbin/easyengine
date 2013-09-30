@@ -913,7 +913,7 @@ REMOVENGINXCONF()
 
 
 # Easy Engine Version
-if [ "$1" = "-v" ] || [ "$1" = "--version" ]
+if [ "$1" = "-v" ] || [ "$1" = "version" ] || [ "$1" = "--version" ]
 then
 
 	# Display Easy Engine Version
@@ -921,7 +921,7 @@ then
 
 
 # Easy Engine Help
-elif [ "$1" = "help" ] || [ "$1" = "--help" ]
+elif [ "$1" = "-h" ] || [ "$1" = "help" ] || [ "$1" = "--help" ]
 then
 
 	# Display Man Pages
