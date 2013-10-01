@@ -1,11 +1,10 @@
-EasyEngine 
-==========
+![easyengine](http://rtcamp.com/wp-content/uploads/2013/08/easyengine-logo-858x232px.png "easyengine")
 
-EasyEngine aka EE is a shell script to manage nginx based websites.
+# easyengine
 
-This is work in PROGRESS. This will break things on your end most likely!
+easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on an ubuntu server.
 
-## Install EasyEngine aka EE
+## Install easyengine aka ee
 
 ```bash
 curl -sL rt.cx/ee | sudo bash
