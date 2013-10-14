@@ -4,10 +4,12 @@
 
 easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on an ubuntu server.
 
-## Install easyengine aka ee
+## Quick Start
 
 ```bash
-curl -sL rt.cx/ee | sudo bash
+curl -sL rt.cx/ee | sudo bash         # install easyengine
+ee system install                     # install nginx, php, mysql, postfix 
+ee site create wp basic example.com   # install wordpress on example.com
 ```
 
 ## Need even more info?
