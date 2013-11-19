@@ -248,11 +248,8 @@ INSTALLPMA()
 	fi
 }
 
-INSTALLMYSQL()
+MYSQLINSTALLTWEAKS()
 {
-	# Install MySQL
-	echo -e "\033[34m Installing MySQL...  \e[0m"
-
 	# Setting Up MySQL Password
 	MYSQLAUTOPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 	debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQLAUTOPASS"
@@ -260,27 +257,42 @@ INSTALLMYSQL()
 
 	# Generate ~/.my.cnf
 	echo -e "[client]\nuser=root\npassword=$MYSQLAUTOPASS" > ~/.my.cnf
+}
+
+INSTALLMYSQL()
+{
+	# Setting Up MySQL Password
+	MYSQLINSTALLTWEAKS
 
 	# Install MySQL
+	echo -e "\033[34m Installing MySQL...  \e[0m"
 	sudo $EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
 
-INSTALLPOSTFIX()
+POSTFIXINSTALLTWEAKS()
 {
-	# Install Postfix
-	echo -e "\033[34m Installing Postfix...  \e[0m"
-
 	# Setting Up Postfix
 	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
 	debconf-set-selections <<< "postfix postfix/mailname string $(hostname -f)"
+}
+
+INSTALLPOSTFIX()
+{
+	# Setting Up Postfix
+	POSTFIXINSTALLTWEAKS
 
 	# Install Postfix
+	echo -e "\033[34m Installing Postfix...  \e[0m"
 	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
 INSTALLALL()
 {
+	# Setting Up MySQL & Postfix
+	MYSQLINSTALLTWEAKS
+	POSTFIXINSTALLTWEAKS
+
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34m Installing Nginx PHP5 MySQL Postfix...  \e[0m"
 	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
