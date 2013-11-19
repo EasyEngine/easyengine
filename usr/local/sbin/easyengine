@@ -252,6 +252,16 @@ INSTALLMYSQL()
 {
 	# Install MySQL
 	echo -e "\033[34m Installing MySQL...  \e[0m"
+
+	# Setting Up MySQL Password
+	MYSQLAUTOPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+	echo mysql-server mysql-server/root_password password $MYSQLAUTOPASS | sudo debconf-set-selections
+	echo mysql-server mysql-server/root_password_again password $MYSQLAUTOPASS | sudo debconf-set-selections
+
+	# Generate ~/.my.cnf
+	echo -e "[client]\nuser=root\npassword=$MYSQLAUTOPASS" > ~/.my.cnf
+
+	# Install MySQL
 	sudo $EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
