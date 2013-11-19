@@ -255,8 +255,8 @@ INSTALLMYSQL()
 
 	# Setting Up MySQL Password
 	MYSQLAUTOPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-	echo mysql-server mysql-server/root_password password $MYSQLAUTOPASS | sudo debconf-set-selections
-	echo mysql-server mysql-server/root_password_again password $MYSQLAUTOPASS | sudo debconf-set-selections
+	debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQLAUTOPASS"
+	debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQLAUTOPASS"
 
 	# Generate ~/.my.cnf
 	echo -e "[client]\nuser=root\npassword=$MYSQLAUTOPASS" > ~/.my.cnf
@@ -270,6 +270,12 @@ INSTALLPOSTFIX()
 {
 	# Install Postfix
 	echo -e "\033[34m Installing Postfix...  \e[0m"
+
+	# Setting Up Postfix
+	debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Internet Site'"
+	debconf-set-selections <<< "postfix postfix/mailname string $(hostname -f)"
+
+	# Install Postfix
 	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
