@@ -250,13 +250,20 @@ INSTALLPMA()
 
 MYSQLINSTALLTWEAKS()
 {
-	# Setting Up MySQL Password
-	MYSQLAUTOPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-	debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQLAUTOPASS"
-	debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQLAUTOPASS"
+	# MySQL Password Only Set If MySQL Is Not Installed
+	# If MySQL Is Installed Dont Set Wrong Password In ~/.my.cnf
+	dpkg -l | grep mysql-server
 
-	# Generate ~/.my.cnf
-	echo -e "[client]\nuser=root\npassword=$MYSQLAUTOPASS" > ~/.my.cnf
+	if [ $? -ne 0 ]
+	then
+		# Setting Up MySQL Password
+		MYSQLAUTOPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		debconf-set-selections <<< "mysql-server mysql-server/root_password password $MYSQLAUTOPASS"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $MYSQLAUTOPASS"
+
+		# Generate ~/.my.cnf
+		echo -e "[client]\nuser=root\npassword=$MYSQLAUTOPASS" > ~/.my.cnf
+	fi
 }
 
 INSTALLMYSQL()
