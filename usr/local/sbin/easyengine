@@ -50,7 +50,7 @@ PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
 	echo -e "\033[34mInstalling Python Software Properties, Please Wait...  \e[0m"
-	sudo $EEAPTGET install python-software-properties &>> $INSTALLLOG \
+	sudo $EEAPTGET install python-software-properties \
 	|| OwnError "Unable To Install Python Software Properties"
 }
 
@@ -121,12 +121,12 @@ EEMD5SUM()
         if [ -z "$DESTMD5SUM" ]
         then
                 # Copy Missing Destination Files
-                cp -vi $SOURCE/$EEFILE $DEST/$EEFILE
+                cp -i $SOURCE/$EEFILE $DEST/$EEFILE
 
         elif [ "$SOURCEMD5SUM" != "$DESTMD5SUM" ]
         then
                 # Update Destination On MD5SUM Not Matched
-                cp -vi $SOURCE/$EEFILE $DEST/$EEFILE
+                cp -i $SOURCE/$EEFILE $DEST/$EEFILE
         fi  
 	done
 }
@@ -223,14 +223,14 @@ WP-CLI()
 	then
 		echo -e "\033[31mWP-CLI Command Not Found ! \e[0m"
 		echo -e "\033[34mInstalling WP-CLI, Please Wait...  \e[0m"
-		curl http://wp-cli.org/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash \
+		curl -s http://wp-cli.org/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash &>> $INSTALLLOG \
 		|| OwnError "Unable To Install WP-CLI"
 
 		# Add WP-CLI Command In PATH Variable
 		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP-CLI Command"
 
 		# Add WP-CLI Auto Completion
-		cp -vi /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	else
 		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)...  \e[0m"
@@ -248,7 +248,7 @@ INSTALLPMA()
 		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
 
 		# Download PMA/phpMyAdmin
-		wget -cO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+		wget -cqO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
 		|| OwnError "Unable To Download phpMyAdmin"
 
 		# Extract PMA/phpMyAdmin
@@ -441,7 +441,7 @@ EEGITINIT()
 	then
 		# Initialise Git
 		echo -e "\033[34mInitialise Git On $EEGITDIR...  \e[0m"
-		git init || OwnError "Unable To Initialise Git On $EEGITDIR"
+		git init &>> $INSTALLLOG || OwnError "Unable To Initialise Git On $EEGITDIR"
 	fi
 
 	# Check For Untracked Files
@@ -449,7 +449,7 @@ EEGITINIT()
 	if [ $? -ne 0 ]
 	then
 		# Add Files In Git Version Control
-		git add . && git commit -am "Initialise Git On $EEGITDIR" \
+		git add . && git commit -am "Initialise Git On $EEGITDIR"  &>> $INSTALLLOG \
 		|| OwnError "Unable To Git Commit On $EEGITDIR"
 	fi
 }
@@ -465,7 +465,7 @@ EEGITCOMMIT()
 		echo -e "\033[34mTake $GITDIR Configuration In Git Version Control...  \e[0m"
 
 		# Add Newly Created Files && Commit It
-		git add . && git commit -am "$EEGITMESSAGE" \
+		git add . && git commit -am "$EEGITMESSAGE" &>> $INSTALLLOG \
 		|| OwnError "Unable To Git Commits On $EEGITDIR"
 	fi
 }
