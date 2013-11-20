@@ -15,6 +15,18 @@
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
+INSTALLLOG=/var/log/easyengine/install.log
+
+# Main EasyEngine Function To Log All The Outputs
+EasyEngine()
+{
+
+# Add TimeStamps In Install Log File
+echo &>> $INSTALLLOG
+echo &>> $INSTALLLOG
+echo -e "\033[34m EasyEngine Installation Started At [$(date)] \e[0m" &>> $INSTALLLOG
+echo -e "\033[34m EasyEngine Command: $0 $@ \e[0m" &>> $INSTALLLOG
+
 
 # Check Auto Assume Yes Or No To Apt-Get
 grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true &>> /dev/null
@@ -1850,3 +1862,7 @@ then
 
 
 fi
+
+}
+
+EasyEngine $@ | tee -ai $INSTALLLOG
