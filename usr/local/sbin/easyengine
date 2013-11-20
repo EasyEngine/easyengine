@@ -570,7 +570,7 @@ SYSTEMINFO()
 
 	echo -e "\033[34mNginx ($NGINXVER) Information:\n \e[0m"
 	echo -e "\033[34mNginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
-	echo -e "\033[34mNginx worker_processes:\t \033[37m $NGINXPROCESSES \e[0m"
+	echo -e "\033[34mNginx worker_processes:\t\t \033[37m $NGINXPROCESSES \e[0m"
 	echo -e "\033[34mNginx worker_connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
 	echo -e "\033[34mNginx keepalive_timeout:\t \033[37m $NGINXKEEPALIVE \e[0m"
 	echo -e "\033[34mNginx fastcgi_read_timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
@@ -599,12 +599,12 @@ SYSTEMINFO()
 
 	echo -e "\033[34m\n\n PHP ($PHPVER) Information:\n \e[0m"
 	echo -e "\033[34mPHP User:\t\t\t \033[37m $PHPUSER \e[0m"
-	echo -e "\033[34mPHP expose_php:\t\t \033[37m $PHPEXPOSE \e[0m"
+	echo -e "\033[34mPHP expose_php:\t\t\t \033[37m $PHPEXPOSE \e[0m"
 	echo -e "\033[34mPHP post_max_size:\t\t \033[37m $PHPPOSTMAXSIZE \e[0m"
 	echo -e "\033[34mPHP upload_max_filesize:\t \033[37m $PHPUPLOADMAXFSIZE \e[0m"
-	echo -e "\033[34mPHP max_execution_time:\t \033[37m $PHPMAXEXECUTIONTIME \e[0m"
+	echo -e "\033[34mPHP max_execution_time:\t\t \033[37m $PHPMAXEXECUTIONTIME\n \e[0m"
 
-	echo -e "\033[34m\n PHP ping.path:\t\t\t \033[37m $PHPPINGPATH \e[0m"
+	echo -e "\033[34mPHP ping.path:\t\t\t \033[37m $PHPPINGPATH \e[0m"
 	echo -e "\033[34mPHP pm.status_path:\t\t \033[37m $PHPSTATUSPATH \e[0m"
 	echo -e "\033[34mPHP pm.max_requests:\t\t \033[37m $PMMAXREQUEST \e[0m"
 	echo -e "\033[34mPHP pm.max_children:\t\t \033[37m $PMMAXCHILDREN \e[0m"
