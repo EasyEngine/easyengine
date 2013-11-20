@@ -209,15 +209,15 @@ WP-CLI()
 	# Install WP-CLI
 	if [ ! -d /usr/share/easyengine/wp-cli ]
 	then
-		echo -e "\033[31m WP Command Not Found ! \e[0m"
+		echo -e "\033[31m WP-CLI Command Not Found ! \e[0m"
 		echo -e "\033[34m Installing WP-CLI, Please Wait...  \e[0m"
 		curl http://wp-cli.org/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash \
 		|| OwnError "Unable To Install WP-CLI"
 
-		# Add WP Command In PATH Variable
-		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP Command"
+		# Add WP-CLI Command In PATH Variable
+		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP-CLI Command"
 
-		# Add WP Auto Completion
+		# Add WP-CLI Auto Completion
 		cp -vi /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	fi
@@ -228,18 +228,18 @@ INSTALLPMA()
 	# Install PMA/phpMyAdmin
 	if [ ! -d /var/www/shared/pma ]
 	then
-		echo -e "\033[34m Installing PMA...  \e[0m"
+		echo -e "\033[34m Installing phpMyAdmin...  \e[0m"
 
 		# Setup PMA/phpMyAdmin
-		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create Directory: /var/www/shared/pma/"
+		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
 
 		# Download PMA/phpMyAdmin
 		wget -cO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
-		|| OwnError "Unable To Download PMA"
+		|| OwnError "Unable To Download phpMyAdmin"
 
 		# Extract PMA/phpMyAdmin
 		tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
-		|| OwnError "Unable To Extract PMA"
+		|| OwnError "Unable To Extract phpMyAdmin"
 
 		# Remove Unwanted Files
 		rm -f /var/www/shared/pma/pma.tar.gz
@@ -336,8 +336,8 @@ REMOVEWPCLI()
 REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
-	echo -e "\033[34m Removing PMA...  \e[0m"
-	rm -rf /var/www/shared/pma || OwnError "Unable To Remove PMA"
+	echo -e "\033[34m Removing phpMyAdmin...  \e[0m"
+	rm -rf /var/www/shared/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
@@ -772,7 +772,7 @@ EEWPDBSETUP()
 
 	# Create WordPress Tables
 	echo -e "\033[34m Setting Up WordPress, Please Wait... \e[0m"
-	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory For WP-CLI"
+	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
 	wp core install --url=$DOMAIN --title="$SITETITLE" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
@@ -1045,12 +1045,12 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34m PHP5 Successfully Installed \e[0m"
+			echo -e "\033[34m PHP5 & WP-CLI Successfully Installed \e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
 
-			# Install PMA
+			# Install PMA/phpMyAdmin
 			INSTALLPMA
 
 			# Initialise Git
@@ -1058,7 +1058,7 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34m PMA Successfully Installed \e[0m"
+			echo -e "\033[34m phpMyAdmin Successfully Installed \e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1152,7 +1152,9 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Installed \e[0m"
+			echo -e "\033[34m Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed \e[0m"
+			echo -e "\033[34m You Can Now Create Your First WordPress Site Powered By Nginx Using: \e[0m"
+			echo -e "\033[37m ee site create wp basic $(hostname -f) \e[0m"
 
 		fi
 
@@ -1183,16 +1185,16 @@ then
 			AUTOREMOVE
 						
 			# Display Success Message
-			echo -e "\033[34m PHP5 Successfully Removed \e[0m"
+			echo -e "\033[34m PHP5 & WP-CLI Successfully Removed \e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
 
-			# Remove PMA
+			# Remove PMA/phpMyAdmin
 			REMOVEPMA
 			
 			# Display Success Message
-			echo -e "\033[34m PMA Successfully Removed \e[0m"
+			echo -e "\033[34m phpMyAdmin Successfully Removed \e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1230,7 +1232,7 @@ then
 			REMOVEPMA
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Removed \e[0m"
+			echo -e "\033[34m Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Removed \e[0m"
 
 		fi
 
@@ -1261,16 +1263,16 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34m PHP5 Successfully Purged \e[0m"
+			echo -e "\033[34m PHP5 & WP-CLI Successfully Purged \e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
 
-			# Purge PMA
+			# Purge PMA/phpMyAdmin
 			REMOVEPMA
 			
 			# Display Success Message
-			echo -e "\033[34m PMA Successfully Purged \e[0m"
+			echo -e "\033[34m phpMyAdmin Successfully Purged \e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1308,7 +1310,7 @@ then
 			REMOVEPMA
 
 			# Display Success Message
-			echo -e "\033[34m Nginx PHP5 PMA MySQL Postfix Successfully Purged \e[0m"
+			echo -e "\033[34m Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged \e[0m"
 
 		fi
 
