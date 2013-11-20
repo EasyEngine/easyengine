@@ -24,8 +24,8 @@ EasyEngine()
 # Add TimeStamps In Install Log File
 echo &>> $INSTALLLOG
 echo &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine Installation Started At [$(date)] \e[0m" &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine Command: $0 $@ \e[0m" &>> $INSTALLLOG
+echo -e "\033[34mEasyEngine (ee) Execution Started At [$(date)] \e[0m" &>> $INSTALLLOG
+echo -e "\033[34mEasyEngine (ee) Command: $0 $@ \e[0m" &>> $INSTALLLOG
 
 
 # Check Auto Assume Yes Or No To Apt-Get
@@ -49,24 +49,24 @@ OwnError()
 PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
-	echo -e "\033[34mInstalling Python Software Properties...  \e[0m"
-	sudo $EEAPTGET install python-software-properties \
+	echo -e "\033[34mInstalling Python Software Properties, Please Wait...  \e[0m"
+	sudo $EEAPTGET install python-software-properties &>> $INSTALLLOG \
 	|| OwnError "Unable To Install Python Software Properties"
 }
 
 NGINXREPO()
 {
 	# Add Nginx Launchpad Repository
-	echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository...  \e[0m"
-	sudo add-apt-repository -y ppa:brianmercer/nginx \
+	echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...  \e[0m"
+	sudo add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
 	|| OwnError "Unable To Add Nginx Launchpad Repository"
 }
 
 PHPREPO()
 {
 	# Add PHP Launchpad Repository
-	echo -e "\033[34mAdding PHP5 Launchpad Repository...  \e[0m"
-	sudo add-apt-repository -y ppa:ondrej/php5 \
+	echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...  \e[0m"
+	sudo add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
 	|| OwnError "Unable To Add PHP5 Launchpad Repository"
 }
 
@@ -78,7 +78,7 @@ GPGKEY()
 	if [ $? -eq 0 ]
 	then
 		# Fix GPG Key Problems
-		echo -e "\033[34mChecking GPG Keys For Brianmercer Nginx Repository...  \e[0m"
+		echo -e "\033[34mChecking GPG Keys For Brianmercer Nginx Repository, Please Wait...  \e[0m"
 		sudo apt-get update > /dev/null 2> /tmp/keymissing \
 		|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
 
@@ -93,14 +93,14 @@ GPGKEY()
 UPDATEAPT()
 {
 	# Update The APT Cache
-	echo -e "\033[34mUpdating APT Cache...  \e[0m"
-	sudo apt-get update || OwnError "Unable To Update APT Cache"
+	echo -e "\033[34mUpdating APT Cache, Please Wait...  \e[0m"
+	sudo apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 }
 
 INSTALLNGINX()
 {
 	# Install Nginx
-	echo -e "\033[34mInstalling Nginx...  \e[0m"
+	echo -e "\033[34mInstalling Nginx, Please Wait...  \e[0m"
 	sudo $EEAPTGET install nginx-custom || OwnError "Unable To Install Nginx"
 }
 
@@ -134,7 +134,7 @@ EEMD5SUM()
 COMMONNGINX()
 {
 	# Personal Settings For Nginx
-	echo -e "\033[34mUpdating Nginx Configuration Files...  \e[0m"
+	echo -e "\033[34mUpdating Nginx Configuration Files, Please Wait...  \e[0m"
 
 	grep "Easy Engine" /etc/nginx/nginx.conf &> /dev/null
 	if [ $? -ne 0 ]
@@ -177,7 +177,7 @@ COMMONNGINX()
 INSTALLPHP()
 {
 	# Install PHP5
-	echo -e "\033[34mInstalling PHP5...  \e[0m"
+	echo -e "\033[34mInstalling PHP5, Please Wait...  \e[0m"
 	sudo $EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
@@ -186,7 +186,7 @@ INSTALLPHP()
 COMMONPHP()
 {
 	# Personal Settings For PHP
-	echo -e "\033[34mUpdating PHP Configuration Files...  \e[0m"
+	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...  \e[0m"
 
 	grep "Easy Engine" /etc/php5/fpm/php.ini &> /dev/null
 	if [ $? -ne 0 ]
@@ -242,7 +242,7 @@ INSTALLPMA()
 	# Install PMA/phpMyAdmin
 	if [ ! -d /var/www/shared/pma ]
 	then
-		echo -e "\033[34mInstalling phpMyAdmin...  \e[0m"
+		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...  \e[0m"
 
 		# Setup PMA/phpMyAdmin
 		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
@@ -266,7 +266,7 @@ MYSQLINSTALLTWEAKS()
 {
 	# MySQL Password Only Set If MySQL Is Not Installed
 	# If MySQL Is Installed Dont Set Wrong Password In ~/.my.cnf
-	dpkg -l | grep mysql-server
+	dpkg -l | grep mysql-server &>> $INSTALLLOG
 
 	if [ $? -ne 0 ]
 	then
@@ -286,7 +286,7 @@ INSTALLMYSQL()
 	MYSQLINSTALLTWEAKS
 
 	# Install MySQL
-	echo -e "\033[34mInstalling MySQL...  \e[0m"
+	echo -e "\033[34mInstalling MySQL, Please Wait...  \e[0m"
 	sudo $EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
@@ -304,7 +304,7 @@ INSTALLPOSTFIX()
 	POSTFIXINSTALLTWEAKS
 
 	# Install Postfix
-	echo -e "\033[34mInstalling Postfix...  \e[0m"
+	echo -e "\033[34mInstalling Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
@@ -315,7 +315,7 @@ INSTALLALL()
 	POSTFIXINSTALLTWEAKS
 
 	# Install Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix...  \e[0m"
+	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -327,14 +327,14 @@ INSTALLALL()
 REMOVENGINX()
 {
 	# Remove Nginx
-	echo -e "\033[34mRemoving Nginx...  \e[0m"
+	echo -e "\033[34mRemoving Nginx, Please Wait...  \e[0m"
 	sudo $EEAPTGET remove nginx-custom nginx-common || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
 {
 	# Remove PHP5
-	echo -e "\033[34mRemoving PHP5...  \e[0m"
+	echo -e "\033[34mRemoving PHP5, Please Wait...  \e[0m"
 	sudo $EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Remove PHP5"
@@ -343,21 +343,21 @@ REMOVEPHP()
 REMOVEWPCLI()
 {
 	# Remove WP-CLI
-	echo -e "\033[34mRemoving WP-CLI...  \e[0m"
+	echo -e "\033[34mRemoving WP-CLI, Please Wait...  \e[0m"
 	rm -rf /usr/share/easyengine/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || OwnError "Unable To Remove WP-CLI"
 }
 
 REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
-	echo -e "\033[34mRemoving phpMyAdmin...  \e[0m"
+	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...  \e[0m"
 	rm -rf /var/www/shared/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
 {
 	# Remove MySQL
-	echo -e "\033[34mRemoving MySQL...  \e[0m"
+	echo -e "\033[34mRemoving MySQL, Please Wait...  \e[0m"
 	sudo $EEAPTGET remove mysql-server mysqltuner \
 	|| OwnError "Unable To Remove MySQL"
 }
@@ -365,14 +365,14 @@ REMOVEMYSQL()
 REMOVEPOSTFIX()
 {
 	# Remove Postfix
-	echo -e "\033[34mRemoving Postfix...  \e[0m"
+	echo -e "\033[34mRemoving Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET remove postfix || OwnError "Unable To Remove Postfix"
 }
 
 REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix...  \e[0m"
+	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET remove nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -382,7 +382,7 @@ REMOVEALL()
 AUTOREMOVE()
 {
 	# Remove Unwanted Packages
-	echo -e "\033[34mRemoving Unwanted Packages...  \e[0m"
+	echo -e "\033[34mRemoving Unwanted Packages, Please Wait...  \e[0m"
 	sudo $EEAPTGET autoremove || OwnError "Unable To Auto Remove"
 }
 
@@ -391,14 +391,14 @@ AUTOREMOVE()
 PURGENGINX()
 {
 	# Purge Nginx
-	echo -e "\033[34mPurge Nginx...  \e[0m"
+	echo -e "\033[34mPurge Nginx, Please Wait...  \e[0m"
 	sudo $EEAPTGET purge nginx-custom nginx-common || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
 {
 	# Purge PHP5
-	echo -e "\033[34mPurge PHP5...  \e[0m"
+	echo -e "\033[34mPurge PHP5, Please Wait...  \e[0m"
 	sudo $EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Purge PHP5"
@@ -407,7 +407,7 @@ PURGEPHP()
 PURGEMYSQL()
 {
 	# Purge MySQL
-	echo -e "\033[34mPurge MySQL...  \e[0m"
+	echo -e "\033[34mPurge MySQL, Please Wait...  \e[0m"
 	sudo $EEAPTGET purge mysql-server mysqltuner \
 	|| OwnError "Unable To Purge MySQL"
 }
@@ -415,14 +415,14 @@ PURGEMYSQL()
 PURGEPOSTFIX()
 {
 	# Purge Postfix
-	echo -e "\033[34mPurge Postfix...  \e[0m"
+	echo -e "\033[34mPurge Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET purge postfix || OwnError "Unable To Purge Postfix"
 }
 
 PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix...  \e[0m"
+	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
 	sudo $EEAPTGET purge nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -619,21 +619,21 @@ NGINXRELOAD()
 {
 	# Reload Nginx Configuration
 	echo -e "\033[34mReloading Nginx Configuration, Please Wait... \e[0m"
-	nginx -t && service nginx reload || OwnError "Unable To Reload Nginx"
+	(nginx -t && service nginx reload) &>> $INSTALLLOG || OwnError "Unable To Reload Nginx"
 }
 
 NGINXRESTART()
 {
 	# Test & Reload Nginx
 	echo -e "\033[34mRestarting Nginx Configuration, Please Wait... \e[0m"
-	nginx -t && service nginx restart || OwnError "Unable To Restart Nginx"
+	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx"
 }
 
 PHPRESTART()
 {
 	# Reload PHP
 	echo -e "\033[34mRestarting PHP5-FPM Configuration, Please Wait... \e[0m"
-	service php5-fpm restart || OwnError "Unable To Restart PHP5-FPM"
+	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
 }
 
 
@@ -680,12 +680,12 @@ EEDOMAINSETUP()
 		NGINXSYMBOLICLINK
 
 		# Creating Htdocs & Logs Directory
-		echo -e "\033[34mCreating htdocs & logs Directory  \e[0m"
+		echo -e "\033[34mCreating htdocs & logs Directory \e[0m"
 		mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
 		|| OwnError "Unable To Create htdocs & logs Directory"
 
 		# Creating Symbolic Links For Logs
-		echo -e "\033[34mCreating Symbolic Link For Logs  \e[0m"
+		echo -e "\033[34mCreating Symbolic Link For Logs \e[0m"
 		ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
 		&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
 		|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
@@ -1168,7 +1168,7 @@ then
 			# Display Success Message
 			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed \e[0m"
 			echo -e "\033[34mYou Can Now Create Your First WordPress Site Powered By Nginx Using: \e[0m"
-			echo -e "\033[37m ee site create wp basic $(hostname -f) \e[0m"
+			echo -e "\033[37mee site create wp basic $(hostname -f) \e[0m"
 
 		fi
 
