@@ -462,7 +462,7 @@ EEGITCOMMIT()
 	if [ $? -ne 0 ]
 	then
 		# Git Commit Functionality
-		echo -e "\033[34mTake $GITDIR Configuration In Git Version Control...\e[0m"
+		echo -e "\033[34mTake $EEGITDIR Configuration In Git Version Control...\e[0m"
 
 		# Add Newly Created Files && Commit It
 		git add . && git commit -am "$EEGITMESSAGE" &>> $INSTALLLOG \
