@@ -535,6 +535,7 @@ MYSQLINFO()
 	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
 	do
 		echo -e "\033[31mWarning: \033[34mTable Prefix Can Only Contain Numbers, Letters, And Underscores.\e[0m"
+		# For Proper read Command Output
 		stty echo
 		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
 	done
@@ -742,6 +743,7 @@ EEWPDBSETUP()
 {
 	# Get WordPress Site Title
 	echo -e "\033[34mWordPress Information Required...\e[0m"
+	# For Proper read Command Output
 	stty echo
 	read -p "Site Title [$DOMAIN]: " SITETITLE
 
@@ -777,6 +779,7 @@ EEWPDBSETUP()
 
 	
 	echo
+	# For Proper read Command Output
 	stty echo
 	read -p "Email: " WPADMINEMAIL
 
@@ -784,6 +787,7 @@ EEWPDBSETUP()
 	while [ -z $WPADMINEMAIL ]
 	do
 		echo -e "\033[31mWarning: \033[34mWordPress Admin Email Should Not Blank\e[0m"
+		# For Proper read Command Output
 		stty echo
 		read -p "Email: " WPADMINEMAIL
 	done
@@ -927,8 +931,8 @@ REMOVEDB()
 	echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER"
 
 	# Remove Database
+	# For Proper read Command Output
 	stty echo
-	#echo
 	read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
 
 	if [ "$ANSWER" = "y" ]
@@ -945,6 +949,7 @@ REMOVEDB()
 REMOVEFILES()
 {
 	# Remove Webroot
+	# For Proper read Command Output
 	stty echo
 	read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
 
@@ -961,6 +966,7 @@ REMOVEFILES()
 REMOVENGINXCONF()
 {
 	# Remove Nginx Configuraion
+	# For Proper read Command Output
 	stty echo
 	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
 
