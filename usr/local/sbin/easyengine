@@ -24,8 +24,8 @@ EasyEngine()
 # Add TimeStamps In Install Log File
 echo &>> $INSTALLLOG
 echo &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine (ee) Execution Started At [$(date)] \e[0m" &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine (ee) Command: $0 $@ \e[0m" &>> $INSTALLLOG
+echo -e "\033[34mEasyEngine (ee) Execution Started [$(date)]\e[0m" &>> $INSTALLLOG
+echo -e "\033[34mEasyEngine (ee) Command: $0 $@\e[0m" &>> $INSTALLLOG
 
 
 # Check Auto Assume Yes Or No To Apt-Get
@@ -49,7 +49,7 @@ OwnError()
 PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
-	echo -e "\033[34mInstalling Python Software Properties, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
 	sudo $EEAPTGET install python-software-properties \
 	|| OwnError "Unable To Install Python Software Properties"
 }
@@ -57,7 +57,7 @@ PYTHONSOFTWARE()
 NGINXREPO()
 {
 	# Add Nginx Launchpad Repository
-	echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...  \e[0m"
+	echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
 	sudo add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
 	|| OwnError "Unable To Add Nginx Launchpad Repository"
 }
@@ -65,7 +65,7 @@ NGINXREPO()
 PHPREPO()
 {
 	# Add PHP Launchpad Repository
-	echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...  \e[0m"
+	echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...\e[0m"
 	sudo add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
 	|| OwnError "Unable To Add PHP5 Launchpad Repository"
 }
@@ -78,13 +78,13 @@ GPGKEY()
 	if [ $? -eq 0 ]
 	then
 		# Fix GPG Key Problems
-		echo -e "\033[34mChecking GPG Keys For Brianmercer Nginx Repository, Please Wait...  \e[0m"
+		echo -e "\033[34mChecking GPG Keys For Brianmercer Nginx Repository, Please Wait...\e[0m"
 		sudo apt-get update > /dev/null 2> /tmp/keymissing \
 		|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
 
 		for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 		do
-			echo -e "\033[34mProcessing key: $key \e[0m"
+			echo -e "\033[34mProcessing key: $key\e[0m"
 			gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
 		done
 	fi
@@ -93,14 +93,14 @@ GPGKEY()
 UPDATEAPT()
 {
 	# Update The APT Cache
-	echo -e "\033[34mUpdating APT Cache, Please Wait...  \e[0m"
+	echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
 	sudo apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 }
 
 INSTALLNGINX()
 {
 	# Install Nginx
-	echo -e "\033[34mInstalling Nginx, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
 	sudo $EEAPTGET install nginx-custom || OwnError "Unable To Install Nginx"
 }
 
@@ -134,7 +134,7 @@ EEMD5SUM()
 COMMONNGINX()
 {
 	# Personal Settings For Nginx
-	echo -e "\033[34mUpdating Nginx Configuration Files, Please Wait...  \e[0m"
+	echo -e "\033[34mUpdating Nginx Configuration Files, Please Wait...\e[0m"
 
 	grep "Easy Engine" /etc/nginx/nginx.conf &> /dev/null
 	if [ $? -ne 0 ]
@@ -177,7 +177,7 @@ COMMONNGINX()
 INSTALLPHP()
 {
 	# Install PHP5
-	echo -e "\033[34mInstalling PHP5, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling PHP5, Please Wait...\e[0m"
 	sudo $EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
@@ -186,7 +186,7 @@ INSTALLPHP()
 COMMONPHP()
 {
 	# Personal Settings For PHP
-	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...  \e[0m"
+	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
 
 	grep "Easy Engine" /etc/php5/fpm/php.ini &> /dev/null
 	if [ $? -ne 0 ]
@@ -221,8 +221,8 @@ WP-CLI()
 	# Install WP-CLI
 	if [ ! -d /usr/share/easyengine/wp-cli ]
 	then
-		echo -e "\033[31mWP-CLI Command Not Found ! \e[0m"
-		echo -e "\033[34mInstalling WP-CLI, Please Wait...  \e[0m"
+		echo -e "\033[31mWP-CLI Command Not Found\e[0m"
+		echo -e "\033[34mInstalling WP-CLI, Please Wait...\e[0m"
 		curl -s http://wp-cli.org/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash &>> $INSTALLLOG \
 		|| OwnError "Unable To Install WP-CLI"
 
@@ -233,7 +233,7 @@ WP-CLI()
 		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	else
-		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)...  \e[0m"
+		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)...\e[0m"
 	fi
 }
 
@@ -242,7 +242,7 @@ INSTALLPMA()
 	# Install PMA/phpMyAdmin
 	if [ ! -d /var/www/shared/pma ]
 	then
-		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...  \e[0m"
+		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...\e[0m"
 
 		# Setup PMA/phpMyAdmin
 		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
@@ -258,7 +258,7 @@ INSTALLPMA()
 		# Remove Unwanted Files
 		rm -f /var/www/shared/pma/pma.tar.gz
 	else
-		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/shared/pma)...  \e[0m"
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/shared/pma)...\e[0m"
 	fi
 }
 
@@ -286,7 +286,7 @@ INSTALLMYSQL()
 	MYSQLINSTALLTWEAKS
 
 	# Install MySQL
-	echo -e "\033[34mInstalling MySQL, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling MySQL, Please Wait...\e[0m"
 	sudo $EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
@@ -304,7 +304,7 @@ INSTALLPOSTFIX()
 	POSTFIXINSTALLTWEAKS
 
 	# Install Postfix
-	echo -e "\033[34mInstalling Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
@@ -315,7 +315,7 @@ INSTALLALL()
 	POSTFIXINSTALLTWEAKS
 
 	# Install Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -327,14 +327,14 @@ INSTALLALL()
 REMOVENGINX()
 {
 	# Remove Nginx
-	echo -e "\033[34mRemoving Nginx, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving Nginx, Please Wait...\e[0m"
 	sudo $EEAPTGET remove nginx-custom nginx-common || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
 {
 	# Remove PHP5
-	echo -e "\033[34mRemoving PHP5, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving PHP5, Please Wait...\e[0m"
 	sudo $EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Remove PHP5"
@@ -343,21 +343,21 @@ REMOVEPHP()
 REMOVEWPCLI()
 {
 	# Remove WP-CLI
-	echo -e "\033[34mRemoving WP-CLI, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving WP-CLI, Please Wait...\e[0m"
 	rm -rf /usr/share/easyengine/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || OwnError "Unable To Remove WP-CLI"
 }
 
 REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
-	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...\e[0m"
 	rm -rf /var/www/shared/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
 {
 	# Remove MySQL
-	echo -e "\033[34mRemoving MySQL, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving MySQL, Please Wait...\e[0m"
 	sudo $EEAPTGET remove mysql-server mysqltuner \
 	|| OwnError "Unable To Remove MySQL"
 }
@@ -365,14 +365,14 @@ REMOVEMYSQL()
 REMOVEPOSTFIX()
 {
 	# Remove Postfix
-	echo -e "\033[34mRemoving Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET remove postfix || OwnError "Unable To Remove Postfix"
 }
 
 REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET remove nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -382,7 +382,7 @@ REMOVEALL()
 AUTOREMOVE()
 {
 	# Remove Unwanted Packages
-	echo -e "\033[34mRemoving Unwanted Packages, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving Unwanted Packages, Please Wait...\e[0m"
 	sudo $EEAPTGET autoremove || OwnError "Unable To Auto Remove"
 }
 
@@ -391,14 +391,14 @@ AUTOREMOVE()
 PURGENGINX()
 {
 	# Purge Nginx
-	echo -e "\033[34mPurge Nginx, Please Wait...  \e[0m"
+	echo -e "\033[34mPurge Nginx, Please Wait...\e[0m"
 	sudo $EEAPTGET purge nginx-custom nginx-common || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
 {
 	# Purge PHP5
-	echo -e "\033[34mPurge PHP5, Please Wait...  \e[0m"
+	echo -e "\033[34mPurge PHP5, Please Wait...\e[0m"
 	sudo $EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Purge PHP5"
@@ -407,7 +407,7 @@ PURGEPHP()
 PURGEMYSQL()
 {
 	# Purge MySQL
-	echo -e "\033[34mPurge MySQL, Please Wait...  \e[0m"
+	echo -e "\033[34mPurge MySQL, Please Wait...\e[0m"
 	sudo $EEAPTGET purge mysql-server mysqltuner \
 	|| OwnError "Unable To Purge MySQL"
 }
@@ -415,14 +415,14 @@ PURGEMYSQL()
 PURGEPOSTFIX()
 {
 	# Purge Postfix
-	echo -e "\033[34mPurge Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mPurge Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET purge postfix || OwnError "Unable To Purge Postfix"
 }
 
 PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
-	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...  \e[0m"
+	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	sudo $EEAPTGET purge nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
@@ -440,7 +440,7 @@ EEGITINIT()
 	if [ ! -d .git ]
 	then
 		# Initialise Git
-		echo -e "\033[34mInitialise Git On $EEGITDIR...  \e[0m"
+		echo -e "\033[34mInitialise Git On $EEGITDIR...\e[0m"
 		git init &>> $INSTALLLOG || OwnError "Unable To Initialise Git On $EEGITDIR"
 	fi
 
@@ -462,7 +462,7 @@ EEGITCOMMIT()
 	if [ $? -ne 0 ]
 	then
 		# Git Commit Functionality
-		echo -e "\033[34mTake $GITDIR Configuration In Git Version Control...  \e[0m"
+		echo -e "\033[34mTake $GITDIR Configuration In Git Version Control...\e[0m"
 
 		# Add Newly Created Files && Commit It
 		git add . && git commit -am "$EEGITMESSAGE" &>> $INSTALLLOG \
@@ -534,7 +534,8 @@ MYSQLINFO()
 	# Display WPDBPREFIX Valid Characters Warning & Try Again
 	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
 	do
-		echo -e "\033[31mWarning: \033[34mTable Prefix Can Only Contain Numbers, Letters, And Underscores.  \e[0m"
+		echo -e "\033[31mWarning: \033[34mTable Prefix Can Only Contain Numbers, Letters, And Underscores.\e[0m"
+		stty echo
 		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
 	done
 
@@ -568,14 +569,14 @@ SYSTEMINFO()
 	CLIENTMAXBODYSIZE=$(grep client_max_body_size /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	NGINXALLOWEDIPADD=$(grep ^allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
 
-	echo -e "\033[34mNginx ($NGINXVER) Information:\n \e[0m"
-	echo -e "\033[34mNginx User:\t\t\t \033[37m $NGINXUSER \e[0m"
-	echo -e "\033[34mNginx worker_processes:\t\t \033[37m $NGINXPROCESSES \e[0m"
-	echo -e "\033[34mNginx worker_connections:\t \033[37m $NGINXCONNECTIONS \e[0m"
-	echo -e "\033[34mNginx keepalive_timeout:\t \033[37m $NGINXKEEPALIVE \e[0m"
-	echo -e "\033[34mNginx fastcgi_read_timeout:\t \033[37m $FASTCGITIMEOUT \e[0m"
-	echo -e "\033[34mNginx client_max_body_size:\t \033[37m $CLIENTMAXBODYSIZE \e[0m"
-	echo -e "\033[34mNginx Allowed IP Address:\t \033[37m $NGINXALLOWEDIPADD \e[0m"
+	echo -e "\033[34mNginx ($NGINXVER) Information:\n\e[0m"
+	echo -e "\033[34mNginx User:\t\t\t \033[37m$NGINXUSER\e[0m"
+	echo -e "\033[34mNginx worker_processes:\t\t \033[37m$NGINXPROCESSES\e[0m"
+	echo -e "\033[34mNginx worker_connections:\t \033[37m$NGINXCONNECTIONS\e[0m"
+	echo -e "\033[34mNginx keepalive_timeout:\t \033[37m$NGINXKEEPALIVE\e[0m"
+	echo -e "\033[34mNginx fastcgi_read_timeout:\t \033[37m$FASTCGITIMEOUT\e[0m"
+	echo -e "\033[34mNginx client_max_body_size:\t \033[37m$CLIENTMAXBODYSIZE\e[0m"
+	echo -e "\033[34mNginx Allowed IP Address:\t \033[37m$NGINXALLOWEDIPADD\e[0m"
 
 	# PHP Information
 	# Collect Information From php.ini
@@ -597,42 +598,42 @@ SYSTEMINFO()
 	PHPREQUESTTERMINATE=$(grep ^request_terminate_timeout /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 	PHPFASTCGIREQUEST=$(grep ^listen /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 
-	echo -e "\033[34m\n\n PHP ($PHPVER) Information:\n \e[0m"
-	echo -e "\033[34mPHP User:\t\t\t \033[37m $PHPUSER \e[0m"
-	echo -e "\033[34mPHP expose_php:\t\t\t \033[37m $PHPEXPOSE \e[0m"
-	echo -e "\033[34mPHP post_max_size:\t\t \033[37m $PHPPOSTMAXSIZE \e[0m"
-	echo -e "\033[34mPHP upload_max_filesize:\t \033[37m $PHPUPLOADMAXFSIZE \e[0m"
-	echo -e "\033[34mPHP max_execution_time:\t\t \033[37m $PHPMAXEXECUTIONTIME\n \e[0m"
+	echo -e "\033[34m\n\n PHP ($PHPVER) Information:\n\e[0m"
+	echo -e "\033[34mPHP User:\t\t\t \033[37m$PHPUSER\e[0m"
+	echo -e "\033[34mPHP expose_php:\t\t\t \033[37m$PHPEXPOSE\e[0m"
+	echo -e "\033[34mPHP post_max_size:\t\t \033[37m$PHPPOSTMAXSIZE\e[0m"
+	echo -e "\033[34mPHP upload_max_filesize:\t \033[37m$PHPUPLOADMAXFSIZE\e[0m"
+	echo -e "\033[34mPHP max_execution_time:\t\t \033[37m$PHPMAXEXECUTIONTIME\n\e[0m"
 
-	echo -e "\033[34mPHP ping.path:\t\t\t \033[37m $PHPPINGPATH \e[0m"
-	echo -e "\033[34mPHP pm.status_path:\t\t \033[37m $PHPSTATUSPATH \e[0m"
-	echo -e "\033[34mPHP pm.max_requests:\t\t \033[37m $PMMAXREQUEST \e[0m"
-	echo -e "\033[34mPHP pm.max_children:\t\t \033[37m $PMMAXCHILDREN \e[0m"
-	echo -e "\033[34mPHP pm.start_servers:\t\t \033[37m $PMSTARTSERVERS \e[0m"
-	echo -e "\033[34mPHP pm.min_spare_servers:\t \033[37m $PMMINSPARESERVERS \e[0m"
-	echo -e "\033[34mPHP pm.max_spare_servers:\t \033[37m $PMMAXSPARESERVERS \e[0m"
-	echo -e "\033[34mPHP request_terminate_timeout:\t \033[37m $PHPREQUESTTERMINATE \e[0m"
-	echo -e "\033[34mPHP Fastcgi Listen:\t\t \033[37m $PHPFASTCGIREQUEST \e[0m"
+	echo -e "\033[34mPHP ping.path:\t\t\t \033[37m$PHPPINGPATH\e[0m"
+	echo -e "\033[34mPHP pm.status_path:\t\t \033[37m$PHPSTATUSPATH\e[0m"
+	echo -e "\033[34mPHP pm.max_requests:\t\t \033[37m$PMMAXREQUEST\e[0m"
+	echo -e "\033[34mPHP pm.max_children:\t\t \033[37m$PMMAXCHILDREN\e[0m"
+	echo -e "\033[34mPHP pm.start_servers:\t\t \033[37m$PMSTARTSERVERS\e[0m"
+	echo -e "\033[34mPHP pm.min_spare_servers:\t \033[37m$PMMINSPARESERVERS\e[0m"
+	echo -e "\033[34mPHP pm.max_spare_servers:\t \033[37m$PMMAXSPARESERVERS\e[0m"
+	echo -e "\033[34mPHP request_terminate_timeout:\t \033[37m$PHPREQUESTTERMINATE\e[0m"
+	echo -e "\033[34mPHP Fastcgi Listen:\t\t \033[37m$PHPFASTCGIREQUEST\e[0m"
 }
 
 NGINXRELOAD()
 {
 	# Reload Nginx Configuration
-	echo -e "\033[34mReloading Nginx Configuration, Please Wait... \e[0m"
+	echo -e "\033[34mReloading Nginx Configuration, Please Wait...\e[0m"
 	(nginx -t && service nginx reload) &>> $INSTALLLOG || OwnError "Unable To Reload Nginx"
 }
 
 NGINXRESTART()
 {
 	# Test & Reload Nginx
-	echo -e "\033[34mRestarting Nginx Configuration, Please Wait... \e[0m"
+	echo -e "\033[34mRestarting Nginx Configuration, Please Wait...\e[0m"
 	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx"
 }
 
 PHPRESTART()
 {
 	# Reload PHP
-	echo -e "\033[34mRestarting PHP5-FPM Configuration, Please Wait... \e[0m"
+	echo -e "\033[34mRestarting PHP5-FPM Configuration, Please Wait...\e[0m"
 	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
 }
 
@@ -657,7 +658,7 @@ EESITENAME()
 NGINXSYMBOLICLINK()
 {
 	# Creating Symbolic Link
-	echo -e "\033[34mCreating Symbolic Link For $DOMAIN \e[0m"
+	echo -e "\033[34mCreating Symbolic Link For $DOMAIN\e[0m"
 	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
 	|| OwnError "Unable To Create Symbolic Link For $DOMAIN"
 }
@@ -670,7 +671,7 @@ EEDOMAINSETUP()
 	if [ $? -ne 0 ]
 	then
 		# Creating Website $DOMAIN
-		echo -e "\033[34mCreating $DOMAIN, Please Wait... \e[0m"
+		echo -e "\033[34mCreating $DOMAIN, Please Wait...\e[0m"
 		sed "s/example.com/$DOMAIN/g" \
 		/usr/share/easyengine/nginx/$NGINXCONF \
 		> /etc/nginx/sites-available/$DOMAIN \
@@ -680,12 +681,12 @@ EEDOMAINSETUP()
 		NGINXSYMBOLICLINK
 
 		# Creating Htdocs & Logs Directory
-		echo -e "\033[34mCreating htdocs & logs Directory \e[0m"
+		echo -e "\033[34mCreating htdocs & logs Directory\e[0m"
 		mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
 		|| OwnError "Unable To Create htdocs & logs Directory"
 
 		# Creating Symbolic Links For Logs
-		echo -e "\033[34mCreating Symbolic Link For Logs \e[0m"
+		echo -e "\033[34mCreating Symbolic Link For Logs\e[0m"
 		ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
 		&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
 		|| OwnError "Unable To Create Symbolic Link For $DOMAIN Logs"
@@ -697,7 +698,7 @@ EEDOMAINSETUP()
 EEWPSETUP()
 {
 	# Download Latest Wordpress
-	echo -e "\033[34mDownloading WordPress, Please Wait... \e[0m"
+	echo -e "\033[34mDownloading WordPress, Please Wait...\e[0m"
 	wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 	http://wordpress.org/latest.tar.gz \
 	|| OwnError "Unable To Download WordPress"
@@ -740,8 +741,8 @@ EEWPSETUP()
 EEWPDBSETUP()
 {
 	# Get WordPress Site Title
-	echo -e "\033[34mWordPress Information Required... \e[0m"
-
+	echo -e "\033[34mWordPress Information Required...\e[0m"
+	stty echo
 	read -p "Site Title [$DOMAIN]: " SITETITLE
 
 	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
@@ -766,7 +767,7 @@ EEWPDBSETUP()
 	# Cross Check Blank WordPress Admin Password
 	while [ -z $WPADMINPASS ]
 	do
-		echo -e "\033[31m\nWarning: \033[34mWordPress Admin Password Should Not Blank \e[0m"
+		echo -e "\033[31m\nWarning: \033[34mWordPress Admin Password Should Not Blank\e[0m"
 
 		# Turn Off Echo For Passwords
 		stty -echo
@@ -774,18 +775,21 @@ EEWPDBSETUP()
 		stty echo
 	done
 
+	
 	echo
+	stty echo
 	read -p "Email: " WPADMINEMAIL
 
 	# Cross Check Blank WordPress Admin Email Address
 	while [ -z $WPADMINEMAIL ]
 	do
-		echo -e "\033[31mWarning: \033[34mWordPress Admin Email Should Not Blank \e[0m"
+		echo -e "\033[31mWarning: \033[34mWordPress Admin Email Should Not Blank\e[0m"
+		stty echo
 		read -p "Email: " WPADMINEMAIL
 	done
 
 	# Create WordPress Tables
-	echo -e "\033[34mSetting Up WordPress, Please Wait... \e[0m"
+	echo -e "\033[34mSetting Up WordPress, Please Wait...\e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
 	wp core install --url=$DOMAIN --title="$SITETITLE" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
@@ -798,7 +802,7 @@ EEPERMISSION()
 	PHPUSERINFO
 
 	# Change Ownership
-	echo -e "\033[34mChanging Ownership  \e[0m"
+	echo -e "\033[34mChanging Ownership\e[0m"
 	chown -R $PHPUSER:$PHPUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
@@ -864,7 +868,7 @@ TOTALCACHENGINX()
 {
 	# Installing W3 Total Cache
 	cd /var/www/$DOMAIN/htdocs/
-	echo -e "\033[34mInstalling W3 Total Cache Plugin, Please Wait... \e[0m"
+	echo -e "\033[34mInstalling W3 Total Cache Plugin, Please Wait...\e[0m"
 	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
@@ -878,7 +882,7 @@ SUPERCACHENGINX()
 {
 	# Installing WP Super Cache
 	cd /var/www/$DOMAIN/htdocs/
-	echo -e "\033[34mInstalling WP Super Cache Plugin, Please Wait... \e[0m"
+	echo -e "\033[34mInstalling WP Super Cache Plugin, Please Wait...\e[0m"
 	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
@@ -889,7 +893,7 @@ NGINXHELPER()
 {
 	# Installing Nginx Helper
 	cd /var/www/$DOMAIN/htdocs/
-	echo -e "\033[34mInstalling Nginx Helper Plugin, Please Wait... \e[0m"
+	echo -e "\033[34mInstalling Nginx Helper Plugin, Please Wait...\e[0m"
 	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
@@ -923,7 +927,8 @@ REMOVEDB()
 	echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER"
 
 	# Remove Database
-	echo
+	stty echo
+	#echo
 	read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
 
 	if [ "$ANSWER" = "y" ]
@@ -933,14 +938,14 @@ REMOVEDB()
 		|| OwnError "Unable To Drop $WPDBNAME Database"
 	else
 		# User Denied Messages
-		echo -e "\033[31mUser Denied To Drop $WPDBNAME Database. \e[0m"
+		echo -e "\033[31mUser Denied To Drop $WPDBNAME Database.\e[0m"
 	fi
 }
 
 REMOVEFILES()
 {
 	# Remove Webroot
-	echo
+	stty echo
 	read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
 
 	if [ "$ANSWER" = "y" ]
@@ -949,14 +954,14 @@ REMOVEFILES()
 		rm -rf /var/www/$DOMAIN	|| OwnError "Unable To Remove $DOMAIN Webroot"
 	else
 		# User Denied Messages
-		echo -e "\033[31mUser Denied To Remove $DOMAIN Webroot. \e[0m"
+		echo -e "\033[31mUser Denied To Remove $DOMAIN Webroot.\e[0m"
 	fi
 }
 
 REMOVENGINXCONF()
 {
 	# Remove Nginx Configuraion
-	echo
+	stty echo
 	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
 
 	if [ "$ANSWER" = "y" ]
@@ -966,7 +971,7 @@ REMOVENGINXCONF()
 		|| OwnError "Unable To Remove $DOMAIN Nginx Configuration"
 	else
 		# User Denied Messages
-		echo -e "\033[31mUser Denied To Remove $DOMAIN Nginx Configuration. \e[0m"
+		echo -e "\033[31mUser Denied To Remove $DOMAIN Nginx Configuration.\e[0m"
 	fi
 }
 
@@ -1025,7 +1030,7 @@ then
 			EEGITINIT
 			
 			# Display Success Message
-			echo -e "\033[34mNginx Successfully Installed \e[0m"
+			echo -e "\033[34mNginx Successfully Installed\e[0m"
 
 		elif [ "$3" = "php" ]
 		then
@@ -1059,7 +1064,7 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34mPHP5 & WP-CLI Successfully Installed \e[0m"
+			echo -e "\033[34mPHP5 & WP-CLI Successfully Installed\e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
@@ -1072,7 +1077,7 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34mphpMyAdmin Successfully Installed \e[0m"
+			echo -e "\033[34mphpMyAdmin Successfully Installed\e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1088,7 +1093,7 @@ then
 			EEGITINIT
 			
 			# Display Success Message
-			echo -e "\033[34mMySQL Successfully Installed \e[0m"
+			echo -e "\033[34mMySQL Successfully Installed\e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -1104,7 +1109,7 @@ then
 			EEGITINIT
 			
 			# Display Success Message
-			echo -e "\033[34mPostfix Successfully Installed \e[0m"
+			echo -e "\033[34mPostfix Successfully Installed\e[0m"
 
 		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
@@ -1166,9 +1171,9 @@ then
 			EEGITINIT
 
 			# Display Success Message
-			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed \e[0m"
-			echo -e "\033[34mYou Can Now Create Your First WordPress Site Powered By Nginx Using: \e[0m"
-			echo -e "\033[37mee site create wp basic $(hostname -f) \e[0m"
+			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed\e[0m"
+			echo -e "\033[34mYou Can Now Create Your First WordPress Site Powered By Nginx Using:\e[0m"
+			echo -e "\033[37mee site create wp basic $(hostname -f)\e[0m"
 
 		fi
 
@@ -1186,7 +1191,7 @@ then
 			AUTOREMOVE
 			
 			# Display Success Message
-			echo -e "\033[34mNginx Successfully Removed \e[0m"
+			echo -e "\033[34mNginx Successfully Removed\e[0m"
 
 		elif [ "$3" = "php" ]
 		then
@@ -1199,7 +1204,7 @@ then
 			AUTOREMOVE
 						
 			# Display Success Message
-			echo -e "\033[34mPHP5 & WP-CLI Successfully Removed \e[0m"
+			echo -e "\033[34mPHP5 & WP-CLI Successfully Removed\e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
@@ -1208,7 +1213,7 @@ then
 			REMOVEPMA
 			
 			# Display Success Message
-			echo -e "\033[34mphpMyAdmin Successfully Removed \e[0m"
+			echo -e "\033[34mphpMyAdmin Successfully Removed\e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1220,7 +1225,7 @@ then
 			AUTOREMOVE
 			
 			# Display Success Message
-			echo -e "\033[34mMySQL Successfully Removed \e[0m"
+			echo -e "\033[34mMySQL Successfully Removed\e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -1232,7 +1237,7 @@ then
 			AUTOREMOVE
 			
 			# Display Success Message
-			echo -e "\033[34mPostfix Successfully Removed \e[0m"
+			echo -e "\033[34mPostfix Successfully Removed\e[0m"
 
 		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
@@ -1246,7 +1251,7 @@ then
 			REMOVEPMA
 
 			# Display Success Message
-			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Removed \e[0m"
+			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Removed\e[0m"
 
 		fi
 
@@ -1264,7 +1269,7 @@ then
 			AUTOREMOVE
 			
 			# Display Success Message
-			echo -e "\033[34mNginx Successfully Purged \e[0m"
+			echo -e "\033[34mNginx Successfully Purged\e[0m"
 
 		elif [ "$3" = "php" ]
 		then
@@ -1277,7 +1282,7 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34mPHP5 & WP-CLI Successfully Purged \e[0m"
+			echo -e "\033[34mPHP5 & WP-CLI Successfully Purged\e[0m"
 
 		elif [ "$3" = "pma" ]
 		then
@@ -1286,7 +1291,7 @@ then
 			REMOVEPMA
 			
 			# Display Success Message
-			echo -e "\033[34mphpMyAdmin Successfully Purged \e[0m"
+			echo -e "\033[34mphpMyAdmin Successfully Purged\e[0m"
 
 		elif [ "$3" = "mysql" ]
 		then
@@ -1298,7 +1303,7 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34mMySQL Successfully Purged \e[0m"
+			echo -e "\033[34mMySQL Successfully Purged\e[0m"
 
 		elif [ "$3" = "postfix" ]
 		then
@@ -1310,7 +1315,7 @@ then
 			AUTOREMOVE
 
 			# Display Success Message
-			echo -e "\033[34mPostfix Successfully Purged \e[0m"
+			echo -e "\033[34mPostfix Successfully Purged\e[0m"
 
 		elif [ "$3" = "all" ] || [ "$3" = "" ]
 		then
@@ -1324,7 +1329,7 @@ then
 			REMOVEPMA
 
 			# Display Success Message
-			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged \e[0m"
+			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged\e[0m"
 
 		fi
 
@@ -1347,7 +1352,7 @@ then
 	then
 
 		# Display The List Of Enabled Websites
-		echo -e "\033[34mDisplay The List Of Enabled Websites: \e[0m"
+		echo -e "\033[34mDisplay The List Of Enabled Websites:\e[0m"
 		ls /etc/nginx/sites-enabled/ \
 		|| OwnError "Unable To Display The List Of Enabled Websites"
 
@@ -1355,7 +1360,7 @@ then
 	then
 
 		# Display The List Of Available Sites
-		echo -e "\033[34mDisplay The List Of Available Websites: \e[0m"
+		echo -e "\033[34mDisplay The List Of Available Websites:\e[0m"
 		ls /etc/nginx/sites-available/ \
 		|| OwnError "Unable To Display The List Of Available Websites"
 
@@ -1374,7 +1379,7 @@ then
 		then
 
 			# Display The Specific Site Configuration
-			echo -e "\033[34mDisplay Nginx Configuration For $DOMAIN \e[0m"
+			echo -e "\033[34mDisplay Nginx Configuration For $DOMAIN\e[0m"
 			cat /etc/nginx/sites-available/$DOMAIN \
 			|| OwnError "Unable To Display Nginx Configuration For $DOMAIN"
 
@@ -1401,7 +1406,7 @@ then
 			EEGITCOMMIT
 
 			# Display Success Message
-			echo -e "\033[34mhttp://$DOMAIN Domain Successfully Created \e[0m"
+			echo -e "\033[34mhttp://$DOMAIN Domain Successfully Created\e[0m"
 
 		elif [ "$3" = "php" ]
 		then
@@ -1421,7 +1426,7 @@ then
 			EEGITCOMMIT
 
 			# Display Success Message
-			echo -e "\033[34mhttp://$DOMAIN Domain Successfully Created \e[0m"
+			echo -e "\033[34mhttp://$DOMAIN Domain Successfully Created\e[0m"
 
 		elif [ "$3" = "wp" ]
 		then
@@ -1443,7 +1448,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1463,13 +1468,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1489,13 +1494,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1515,14 +1520,14 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 
@@ -1551,7 +1556,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1577,13 +1582,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1609,13 +1614,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1641,14 +1646,14 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 
@@ -1678,7 +1683,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1705,13 +1710,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1738,13 +1743,13 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1771,14 +1776,14 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				echo -e "\033[34mPlease Configure The Following Settings... \e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php \e[0m"
-				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx \e[0m"
-				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general \e[0m"
+				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
+				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
+				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN \e[0m"
+				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 		fi
@@ -1809,7 +1814,7 @@ then
 		EESITENAME
 
 		# Remove Symbolic Link
-		echo -e "\033[34mRemoving Symbolic Link For $DOMAIN \e[0m"
+		echo -e "\033[34mRemoving Symbolic Link For $DOMAIN\e[0m"
 		rm /etc/nginx/sites-enabled/$DOMAIN \
 		|| OwnError "Unable To Remove Symbolic Link For $DOMAIN"
 

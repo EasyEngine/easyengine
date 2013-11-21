@@ -54,7 +54,7 @@ fi
 
 echo &>> $INSTALLLOG
 echo &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine (ee) Installation Started `date +"%d-%b-%Y %H:%M:%S"`\e[0m" | tee -ai $INSTALLLOG
+echo -e "\033[34mEasyEngine (ee) Installation Started [$(date)]\e[0m" | tee -ai $INSTALLLOG
 
 
 # Checking Ed
