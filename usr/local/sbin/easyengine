@@ -617,8 +617,22 @@ SYSTEMINFO()
 	echo -e "\033[34mPHP Fastcgi Listen:\t\t \033[37m$PHPFASTCGIREQUEST\e[0m"
 }
 
+NGINXBUCKETSIZE()
+{
+	nginx -t 2>&1 | grep server_names_hash_bucket_size
+	if [ $? -eq 0 ]
+	then
+		NGINXCALCULATION=$(echo "l($(ls /etc/nginx/sites-enabled/ | wc -c))/l(2)+2" | bc -l)
+		NGINXSETBUCKET=$(echo "2^$NGINXCALCULATION" | bc -l)
+		sed -i "s/.*server_names_hash_bucket_size.*/\tserver_names_hash_bucket_size $NGINXSETBUCKET;/" /etc/nginx/nginx.conf		
+	fi
+}
+
 NGINXRELOAD()
 {
+	# Check Nginx server_names_hash_bucket_size Value
+	NGINXBUCKETSIZE
+
 	# Reload Nginx Configuration
 	echo -e "\033[34mReloading Nginx Configuration, Please Wait...\e[0m"
 	(nginx -t && service nginx reload) &>> $INSTALLLOG || OwnError "Unable To Reload Nginx"
@@ -626,6 +640,9 @@ NGINXRELOAD()
 
 NGINXRESTART()
 {
+	# Check Nginx server_names_hash_bucket_size Value
+	NGINXBUCKETSIZE
+
 	# Test & Reload Nginx
 	echo -e "\033[34mRestarting Nginx Configuration, Please Wait...\e[0m"
 	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx"
