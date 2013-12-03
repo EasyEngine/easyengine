@@ -28,7 +28,7 @@ EEAUTO()
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix all" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix all allmdb mdb" -- $CURRENT ) )
 			return 0
 			;;
 
