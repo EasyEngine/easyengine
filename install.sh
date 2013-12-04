@@ -73,7 +73,6 @@ do
 	then
 		echo -e "$RED$i Command Not Found$ENDCOL"
 		echo "$i" > /tmp/requiredlist || OwnError "Unable to write required packages list to install."
-		rm /tmp/requiredlist
 	fi
 done
 
@@ -82,6 +81,7 @@ then
 	echo -e $BLUE"Installing `cat /tmp/requiredlist`, Please Wait...$ENDCOL"
 	sed -i 's/git/git-core/' /tmp/requiredlist
 	$EEAPT -y install `cat /tmp/requiredlist` || OwnError "Unable to install required packages."
+	rm /tmp/requiredlist
 fi
 
 # Checking Name Servers
