@@ -25,8 +25,8 @@ ERRORLOG=/var/log/easyengine/error.log
 INSTALLLOG=/var/log/easyengine/install.log
 
 # Where to get WordPress? Commented example is for french edition
-LatestWp="http://wordpress.org/latest.tar.gz"
-#LatestWp="http://fr.wordpress.org/latest-fr_FR.tar.gz"
+LATESTWP="http://wordpress.org/latest.tar.gz"
+#LATESTWP="http://fr.wordpress.org/latest-fr_FR.tar.gz"
 
 # Colors:
 RED="\033[0;31m"
