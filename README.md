@@ -2,7 +2,7 @@
 
 # easyengine
 
-easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on an Debian server.
+easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on an Debian Wheezy server.
 This one is a fork of ubuntu oriented one you can found at https://github.com/rtCamp/easyengine or http://rtcamp.com/easyengine/
 
 ## Quick Start
