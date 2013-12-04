@@ -858,10 +858,16 @@ EEWPSETUP()
 
 	sed -i "s/wp_/$WPDBPREFIX/" \
 	/var/www/$DOMAIN/wp-config.php
+	
+	echo -e "Enter a secret phrase"
+	read WPSECRET
+	
+	sed -i "s/put your unique phrase here/$WPSECRET/" \
+	/var/www/$DOMAIN/wp-config.php
 
-	printf '%s\n' "g/put your unique phrase here/d" \
-	a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
-	| ed -s /var/www/$DOMAIN/wp-config.php
+#	printf '%s\n' "g/put your unique phrase here/d" \
+#	a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
+#	| ed -s /var/www/$DOMAIN/wp-config.php
 }
 
 EEWPDBSETUP()
