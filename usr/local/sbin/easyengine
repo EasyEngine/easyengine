@@ -389,11 +389,11 @@ INSTALLALLMDB()
 	MARIADBINSTALLTWEAKS
 	POSTFIXINSTALLTWEAKS
 	
-	# Install Nginx, PHP5, MariaDB Keeping Exim4
+	# Install Nginx, PHP5, MariaDB, postfix
 	echo -e "$BLUE Installing Nginx PHP5 MariaDB, Please Wait...$ENDCOL"
 	$EEAPTGET install nginx-extras php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-tidy \
-	php5-memcache memcached mariadb-server postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-memcache memcached mariadb-server postfix\
 	|| OwnError "Unable To Install Nginx PHP5 MariaDB."
 }
 
