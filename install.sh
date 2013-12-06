@@ -1,124 +1,112 @@
 #!/bin/bash
 
+# Choose whenether to use apt-get or aptitude (aptitude recommended for latest debian versions and specially recommended for beginners)
+# TODO: ask for dev or stable mariadb version
+EEAPT="aptitude"
 
+# Colors:
+RED="\033[31m"
+WHITE="\033[37m"
+BLUE="\033[34m"
+ENDCOL="\033[0m"
 
-# Checking Linux Distro Is Ubuntu
-if [ ! -f /etc/lsb-release ]
+# Checking Linux Distro Is Debian
+if [ -f /etc/lsb-release ]
 then
-	echo -e "\033[31mEasyEngine (ee) Is Made For Ubuntu Only As Of Now\e[0m"
-	echo -e "\033[31mYou Are Free To Fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork\e[0m"
+	echo -e $RED"This Version Of EasyEngine (ee) Is Made For Debian Only As Of Now$ENDCOL"
+	echo -e $RED"You can clone ubuntu version at: https://github.com/rtCamp/easyengine/fork$ENDCOL"
+	exit 100
+elif [ ! -f /etc/debian_version ]
+then
+	echo -e $RED"This Version Of EasyEngine (ee) Is Made For Debian Or Ubuntu Only As Of Now$ENDCOL"
+	echo -e $RED"You Are Free To Fork this version at$BLUE\https://github.com/Mermouy/easyengine$ENDCOL\nOr grep the original ubuntu made EasyEngine (ee):$BLUE\https://github.com/rtCamp/easyengine/fork$ENDCOL"
 	exit 100
 fi
-
-
 
 # Checking Permissions
 Permission=$(id -u)
 if [ $Permission -ne 0 ] 
 then
-	echo -e "\033[31mSudo Privilege Required...\e[0m"
-	echo -e "\033[31mUses:\e[0m\033[34m curl -sL rt.cx/ee | sudo bash\e[0m"
+	echo -e $RED"Privilege Required...$ENDCOL"
+#	echo -e $RED"Uses:$BLUE\curl -sL rt.cx/ee | bash$ENDCOL"
 	exit 100 
 fi
-
 
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 INSTALLLOG=/var/log/easyengine/install.log
-
+VERSION=0.0.1
 
 # Capture Errors
 OwnError()
 {
-	echo -e "[ `date` ] \033[31m$@\e[0m" | tee -ai $INSTALLLOG
+	echo -e "[ `date` ] $RED$@$ENDCOL" | tee -ai $INSTALLLOG
 	exit 101
 }
 
+### Pre Checks To Avoid Later Screw Ups
 
-# Pre Checks To Avoid Later Screw Ups
 # Checking Logs Directory
-
 if [ ! -d $LOGDIR ]
 then
-	echo -e "\033[34mCreating EasyEngine (ee) Log Directory, Please Wait...\e[0m"
-	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR"
+	echo -e $BLUE"Creating EasyEngine (ee) Log Directory, Please Wait...$ENDCOL"
+	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR."
 fi
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
 then
-	echo -e "\033[31mTee Command Not Found\e[0m"
-	echo -e "\033[34mInstalling Tee, Please Wait...\e[0m"
-	sudo apt-get -y install coreutils &>> $INSTALLLOG || OwnError "Unable to install tee"
+	echo -e $RED"Tee Command Not Found$ENDCOL"
+	echo -e $BLUE"Installing Tee, Please Wait...$ENDCOL"
+	$EEAPT -y install coreutils &>> $INSTALLLOG || OwnError "Unable to install tee."
 fi
 
 echo &>> $INSTALLLOG
 echo &>> $INSTALLLOG
-echo -e "\033[34mEasyEngine (ee) Installation Started [$(date)]\e[0m" | tee -ai $INSTALLLOG
+echo -e $BLUE"EasyEngine (ee) version:$VERSION\nInstallation Started [$(date)]$ENDCOL" | tee -ai $INSTALLLOG
 
+# Checking if required packages exist and install if not
+REQUIREDLIST="ed wget tar curl git"
+for i in $REQUIREDLIST
+do
+	if [ ! -x /usr/bin/$i ] && [ ! -x /bin/$i ]
+	then
+		echo -e "$RED$i Command Not Found$ENDCOL"
+		echo "$i" > /tmp/requiredlist || OwnError "Unable to write required packages list to install."
+	fi
+done
 
-# Checking Ed
-if [ ! -x  /bin/ed ]
+if [ ! -z `cat /tmp/requiredlist` ]
 then
-	echo -e "\033[31mEd Command Not Found\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mInstalling Ed, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install ed &>> $INSTALLLOG || OwnError "Unable to install ed"
-fi
-
-# Checking Wget
-if [ ! -x  /usr/bin/wget ]
-then
-	echo -e "\033[31mWget Command Not Found\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mInstalling Wget, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install wget &>> $INSTALLLOG || OwnError "Unable To Install Wget"
-fi
-
-# Checking Curl
-if [ ! -x  /usr/bin/curl ]
-then
-	echo -e "\033[31mCurl Command Not Found\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mInstalling Curl, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install curl &>> $INSTALLLOG || OwnError "Unable To Install Curl"
-fi
-
-# Checking Tar
-if [ ! -x  /bin/tar ]
-then
-	echo -e "\033[31mTar Command Not Found\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mInstalling Tar, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install tar &>> $INSTALLLOG || OwnError "Unable To Install Tar"
-fi
-
-# Checking Git
-if [ ! -x  /usr/bin/git ]
-then
-	echo -e "\033[31mGit Command Not Found\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mInstalling Git, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install git-core &>> $INSTALLLOG || OwnError "Unable To Install Git"
+	echo -e $BLUE"Installing `cat /tmp/requiredlist`, Please Wait...$ENDCOL"
+	sed -i 's/git/git-core/' /tmp/requiredlist
+	$EEAPT -y install `cat /tmp/requiredlist` || OwnError "Unable to install required packages."
+	rm /tmp/requiredlist
 fi
 
 # Checking Name Servers
 if [[ -z $(cat /etc/resolv.conf 2> /dev/null | awk '/^nameserver/ { print $2 }') ]]
 then
-	echo -e "\033[31mNo Name Servers Detected\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[31mPlease Configure /etc/resolv.conf\e[0m" | tee -ai $INSTALLLOG
+	echo -e $RED"No Name Servers Detected$ENDCOL" | tee -ai $INSTALLLOG
+	echo -e $RED"Please Configure /etc/resolv.conf$ENDCOL" | tee -ai $INSTALLLOG
 	exit 102
 fi
 
-# Pre Checks End
-
+### Pre Checks End
 
 # Check The EasyEngine (ee) Is Available
 EXIST=$(basename `pwd`)
 if [ "$EXIST" != "easyengine" ]
 then
-	echo -e "\033[34mCloning EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
+	echo -e $BLUE"Cloning EasyEngine (ee), Please Wait...$ENDCOL" | tee -ai $INSTALLLOG
 	
 	# Remove Older EasyEngine (ee) If Found
 	rm -rf /tmp/easyengine &>> /dev/null
 
 	# Clone EasyEngine (ee) Stable Repository
-	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+	git clone git://github.com/Mermouy/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+else
+	cp -r . /tmp/easyengine
 fi
 
 # Create Directory /etc/easyengine
@@ -136,7 +124,7 @@ then
 fi
 
 # Install EasyEngine (ee)
-echo -e "\033[34mInstalling EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
+echo -e $BLUE"Installing EasyEngine (ee), Please Wait...$ENDCOL" | tee -ai $INSTALLLOG
 
 # EE /etc Files
 cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALLLOG || OwnError "Unable To Copy EE Auto Complete File"
@@ -178,9 +166,9 @@ EEGITEMAIL=$(git config --list | grep email | cut -d'=' -f2)
 if [ -z $EEGITNAME ] || [ -z $EEGITEMAIL ]
 then
 	echo
-	echo -e "\033[34mEasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mEasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mEasyEngine (ee) Will Never Send Your Information Across\e[0m" | tee -ai $INSTALLLOG
+	echo -e $BLUE"EasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git$ENDCOL" | tee -ai $INSTALLLOG
+	echo -e $BLUE"EasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version$ENDCOL" | tee -ai $INSTALLLOG
+	echo -e $BLUE"EasyEngine (ee) Will Never Send Your Information Across$ENDCOL" | tee -ai $INSTALLLOG
 fi
 # Check Git User Is Empty Or Not
 if [ -z $EEGITNAME ]
@@ -194,7 +182,7 @@ then
 	git config --global user.name "$EEGITNAME" &>> $INSTALLLOG	
 fi
 
-# Check Git User Is Empty Or Not
+# Check Git User Email Is Empty Or Not
 if [ -z $EEGITEMAIL ]
 then
 	read -p "Enter Your Email [$(whoami)@$(hostname -f)]: " EEGITEMAIL
@@ -209,11 +197,11 @@ fi
 
 # Source EasyEngine (ee) Auto Complete To Take Effect
 echo
-echo -e "\033[34mFor EasyEngine (ee) Auto Completion Run Following Command\e[0m" | tee -ai $INSTALLLOG
-echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
+echo -e $BLUE"For EasyEngine (ee) Auto Completion Run Following Command$ENDCOL" | tee -ai $INSTALLLOG
+echo -e $WHITE"source /etc/bash_completion.d/ee$ENDCOL" | tee -ai $INSTALLLOG
 echo
 
 # Display Success Message
-echo -e "\033[34mEasyEngine (ee) Installed Successfully\e[0m" | tee -ai $INSTALLLOG
-echo -e "\033[34mEasyEngine (ee) Help: http://rtcamp.com/easyengine/docs/\e[0m" | tee -ai $INSTALLLOG
+echo -e $BLUE"EasyEngine (ee) Installed Successfully$ENDCOL" | tee -ai $INSTALLLOG
+echo -e $BLUE"EasyEngine (ee) Help: http://rtcamp.com/easyengine/docs/$ENDCOL" | tee -ai $INSTALLLOG
 echo
