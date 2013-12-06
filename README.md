@@ -20,12 +20,7 @@ ee site create wp basic example.com                 # install wordpress on examp
 
 ## Need more info?
 
-You can follow instructions on original authors's website. I've just modify the script to install on Debian and added option to install MariaDB instead of MySql. For my own convenience I modified it also to keep the Exim4 mailer.
-You can still install it with:
+You can follow instructions on original authors's website. I've just modify the script to install on Debian Wheezy and added option to install MariaDB instead of MySql. 
 
-```bash
-ee system install postfix
-```
-
-Check out our [wiki] (http://rtcamp.com/easyengine/docs/) and [faq] (http://rtcamp.com/easyengine/faq/) page
+Check out the [wiki] (http://rtcamp.com/easyengine/docs/) and [faq] (http://rtcamp.com/easyengine/faq/) page
 
