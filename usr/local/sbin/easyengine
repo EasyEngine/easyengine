@@ -739,7 +739,7 @@ EEWPSETUP()
 {
 	# Download Latest Wordpress
 	echo -e "\033[34mDownloading WordPress, Please Wait...\e[0m"
-	wget -cO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
+	wget -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 	http://wordpress.org/latest.tar.gz \
 	|| OwnError "Unable To Download WordPress"
 
@@ -755,7 +755,7 @@ EEWPSETUP()
 	MYSQLINFO
 
 	# Modify wp-config.php & Move Outside The Webroot
-	cp -v /var/www/$DOMAIN/htdocs/wp-config-sample.php \
+	cp /var/www/$DOMAIN/htdocs/wp-config-sample.php \
 	/var/www/$DOMAIN/wp-config.php
 
 	sed -i "s/database_name_here/$WPDBNAME/" \
@@ -774,14 +774,14 @@ EEWPSETUP()
 	/var/www/$DOMAIN/wp-config.php
 
 	printf '%s\n' "g/put your unique phrase here/d" \
-	a "$(curl -L https://api.wordpress.org/secret-key/1.1/salt/)" . w \
+	a "$(curl -sL https://api.wordpress.org/secret-key/1.1/salt/)" . w \
 	| ed -s /var/www/$DOMAIN/wp-config.php
 }
 
 EEWPDBSETUP()
 {
 	# Get WordPress Site Title
-	echo -e "\033[34mWordPress Information Required...\e[0m"
+	#echo -e "\033[34mWordPress Information Required...\e[0m"
 
 	# WordPress Default User: admin
 	WPADMINUSER=$(grep wpadminuser /etc/easyengine/ee.conf | awk '{print($3)}')
@@ -859,9 +859,9 @@ EEOPMEMCACHE()
 		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
-		wget -cO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget -cqO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
@@ -870,7 +870,7 @@ EEOPMEMCACHE()
 		mkdir -p /var/www/shared/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
-		wget -cO /var/www/shared/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget -cqO /var/www/shared/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
 		tar -zxf /var/www/shared/memcache/memcache.tar.gz -C /var/www/shared/memcache
@@ -885,7 +885,7 @@ TOTALCACHENGINX()
 	# Installing W3 Total Cache
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling W3 Total Cache Plugin, Please Wait...\e[0m"
-	wp plugin install w3-total-cache || OwnError "Unable To Install W3 Total Cache Plugin"
+	wp plugin install w3-total-cache &>> $INSTALLLOG || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
 	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
@@ -899,7 +899,7 @@ SUPERCACHENGINX()
 	# Installing WP Super Cache
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling WP Super Cache Plugin, Please Wait...\e[0m"
-	wp plugin install wp-super-cache || OwnError "Unable To Install WP Super Cache Plugin"
+	wp plugin install wp-super-cache &>> $INSTALLLOG || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
 	wp plugin activate wp-super-cache $NETWORKACTIVATE || OwnError "Unable To Activate WP Super Cache Plugin"
@@ -910,7 +910,7 @@ NGINXHELPER()
 	# Installing Nginx Helper
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling Nginx Helper Plugin, Please Wait...\e[0m"
-	wp plugin install nginx-helper || OwnError "Unable To Install Nginx Helper"
+	wp plugin install nginx-helper &>> $INSTALLLOG || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
 	wp plugin activate nginx-helper $NETWORKACTIVATE || OwnError "Unable To Activate Nginx Helper Plugin"
@@ -1457,7 +1457,7 @@ then
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/basic.conf
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Basic Nginx
 				SETUPDOMAIN
@@ -1478,7 +1478,7 @@ then
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/w3tc.conf
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup W3 Total Cahe Nginx
 				SETUPDOMAIN
@@ -1507,7 +1507,7 @@ then
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpsc.conf
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup WP Super Cahe Nginx
 				SETUPDOMAIN
@@ -1536,7 +1536,7 @@ then
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpfc.conf
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Fastcgi Cahe Nginx
 				SETUPDOMAIN
@@ -1571,7 +1571,7 @@ then
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/basic.conf
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1598,7 +1598,7 @@ then
 				SITENAMECHECK=$5
 				NGINXCONF=$3/w3tc.conf
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1633,7 +1633,7 @@ then
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpsc.conf
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1668,7 +1668,7 @@ then
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpfc.conf
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1709,7 +1709,7 @@ then
 				SITENAMECHECK=$5
 				NGINXCONF=$3/basic.conf
 				WPSUBDOMAINS="--subdomains"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1737,7 +1737,7 @@ then
 				NGINXCONF=$3/w3tc.conf
 				WPSUBDOMAINS="--subdomains"
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1773,7 +1773,7 @@ then
 				NGINXCONF=$3/wpsc.conf
 				WPSUBDOMAINS="--subdomains"
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1809,7 +1809,7 @@ then
 				NGINXCONF=$3/wpfc.conf
 				WPSUBDOMAINS="--subdomains"
 				NETWORKACTIVATE="--network"
-				echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
