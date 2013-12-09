@@ -818,7 +818,7 @@ EEPERMISSION()
 	PHPUSERINFO
 
 	# Change Ownership
-	echo -e "\033[34mChanging Ownership[0m"
+	echo -e "\033[34mChanging Ownership\e[0m"
 	chown -R $PHPUSER:$PHPUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
@@ -858,7 +858,7 @@ EEOPMEMCACHE()
 	then
 		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
 
-		# Download Op-cache Status Files
+		# Download Opcache Status Files
 		wget -cqO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
 		wget -cqO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
 		wget -cqO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
@@ -920,7 +920,7 @@ NGINXHELPER()
 # Setup Wordpress Network
 SETUPWPNETWORK()
 {
-	# Prepare wp-config.php File Foe WordPsress Multisite With SubDirectory
+	# Prepare wp-config.php File Foe WordPress Multisite With SubDirectory
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 	wp core install-network --title="$SITETITLE" $WPSUBDOMAINS || OwnError "Unable To Setup WordPress SubDirectory Network"
 
