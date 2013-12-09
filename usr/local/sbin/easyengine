@@ -34,7 +34,14 @@ if [ $? -eq 0 ]
 then
 	EEAPTGET="apt-get -y"
 else
-	EEAPTGET="apt-get"
+	# Check Any WebServer Package Is Installed Or Not
+	dpkg -l | egrep -e 'nginx|php|mysql|postfix|apache' &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		EEAPTGET="apt-get -y"
+	else
+		EEAPTGET="apt-get"
+	fi
 fi
 
 
@@ -500,10 +507,10 @@ MYSQLPASSCHECK()
 # GET Information Function
 MYSQLINFO()
 {
-	# Get The MySQL Username/Password
-	read -p "MySQL Host [localhost]: " MYSQLHOST
+	# Get The MySQL Host
+	MYSQLHOST=$(grep mysqlhost /etc/easyengine/ee.conf | awk '{print($3)}')
 
-	# If Enter Is Pressed, Then Use localhost as MySQL Host
+	# MySQL Default Host: localhosts
 	if [[ $MYSQLHOST = "" ]]
 	then
 		MYSQLHOST=localhost
@@ -521,15 +528,30 @@ MYSQLINFO()
 	# Verify MySQL Credentials
 	MYSQLPASSCHECK
 
-	read -p "Enter The MySQL Database Name [$DOMAIN]: " WPDBNAME
+	# Replace Dot With Underscore In $DOMAIN Name
+	REPLACEDOT=$(echo $DOMAIN | tr '.' '_')
 
-	# If Enter Is Pressed, Then Use $DOMAIN As Database Name
-	if [[ $WPDBNAME = "" ]]
+	# Check Use Default DB Name Or Custom DB Name
+	grep customdbname /etc/easyengine/ee.conf | grep -i true &>> /dev/null
+
+	if [ $? -eq 0 ]
 	then
-		WPDBNAME=$DOMAIN
+		read -p "Enter The MySQL Database Name [$REPLACEDOT]: " WPDBNAME
 	fi
 
-	read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
+	# If customdbname = false 
+	# 		Then It Never Ask For MySQL Database Name In This Case $WPDBNAME Is Empty
+	# If customdbname = true
+	#		User Enter Custom Databse Name Then WPDBNAME Is Not Empty & We Used Provided Database Name
+ 	#		If User Pressed Enter Then $WPDBNAME Is Empty
+
+	if [[ $WPDBNAME = "" ]]
+	then
+		WPDBNAME=$REPLACEDOT
+	fi
+
+	# Get The WordPress Database Table Prefix
+	WPDBPREFIX=$(grep wpdbprefix /etc/easyengine/ee.conf | awk '{print($3)}')
 	
 	# Display WPDBPREFIX Valid Characters Warning & Try Again
 	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
@@ -540,14 +562,14 @@ MYSQLINFO()
 		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
 	done
 
-	# If Enter Is Pressed, Then Use wp_ As Database Table Prefix
+	# WordPress Database Table Prefix Default: wp_
 	if [[ $WPDBPREFIX = "" ]]
 	then
 		WPDBPREFIX=wp_
 	fi
 
 	# Create Database
-	mysql -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
+	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
 }
 
@@ -760,59 +782,32 @@ EEWPDBSETUP()
 {
 	# Get WordPress Site Title
 	echo -e "\033[34mWordPress Information Required...\e[0m"
-	# For Proper read Command Output
-	stty echo
-	read -p "Site Title [$DOMAIN]: " SITETITLE
 
-	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
-	if [[ $SITETITLE = "" ]]
-	then
-		SITETITLE=$DOMAIN
-	fi
-
-	read -p "Username [admin]: " WPADMINUSER
-
-	# If Enter Is Pressed, Then Use admin As WordPress Admin Username
+	# WordPress Default User: admin
+	WPADMINUSER=$(grep wpadminuser /etc/easyengine/ee.conf | awk '{print($3)}')
 	if [[ $WPADMINUSER = "" ]]
 	then
 		WPADMINUSER=admin
 	fi
 
-	# Turn Off Echo For Passwords
-	stty -echo
-	read -p "Password: " WPADMINPASS
-	stty echo
-
-	# Cross Check Blank WordPress Admin Password
-	while [ -z $WPADMINPASS ]
-	do
-		echo -e "\033[31m\nWarning: \033[34mWordPress Admin Password Should Not Blank\e[0m"
-
-		# Turn Off Echo For Passwords
-		stty -echo
-		read -p "Password: " WPADMINPASS
-		stty echo
-	done
-
+	# WordPress Default Password: Random Passoword
+	WPADMINPASS=$(grep wpadminpass /etc/easyengine/ee.conf | awk '{print($3)}')
+	if [[ $WPADMINPASS = "" ]]
+	then
+		WPADMINPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+	fi
 	
-	echo
-	# For Proper read Command Output
-	stty echo
-	read -p "Email: " WPADMINEMAIL
-
-	# Cross Check Blank WordPress Admin Email Address
-	while [ -z $WPADMINEMAIL ]
-	do
-		echo -e "\033[31mWarning: \033[34mWordPress Admin Email Should Not Blank\e[0m"
-		# For Proper read Command Output
-		stty echo
-		read -p "Email: " WPADMINEMAIL
-	done
+	# WordPress Default Email: `whoami`@`hostname -f`
+	WPADMINEMAIL=$(grep wpadminemail /etc/easyengine/ee.conf | awk '{print($3)}')
+	if [[ $WPADMINEMAIL = "" ]]
+	then
+		WPADMINEMAIL=`whoami`@`hostname -f`
+	fi
 
 	# Create WordPress Tables
 	echo -e "\033[34mSetting Up WordPress, Please Wait...\e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
-	wp core install --url=$DOMAIN --title="$SITETITLE" \
+	wp core install --url=$DOMAIN --title="$DOMAIN" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 }
@@ -1471,7 +1466,9 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1491,13 +1488,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1517,13 +1517,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1543,6 +1546,9 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx\e[0m"
@@ -1550,7 +1556,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 
@@ -1579,7 +1585,9 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1605,13 +1613,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1637,13 +1648,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1669,6 +1683,9 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
@@ -1676,7 +1693,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 
@@ -1706,7 +1723,9 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1733,13 +1752,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1766,13 +1788,16 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1799,6 +1824,9 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
+				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
+				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
+				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
 				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
@@ -1806,7 +1834,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[34mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$DOMAIN\e[0m"
 
 			fi
 		fi
