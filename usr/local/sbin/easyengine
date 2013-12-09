@@ -152,10 +152,10 @@ COMMONNGINX()
 		sed -i "s/worker_connections.*/worker_connections 1024;/" /etc/nginx/nginx.conf
 		sed -i "s/worker_processes.*/worker_processes `cat /proc/cpuinfo | grep processor | wc -l`;/" /etc/nginx/nginx.conf
 
-		# Disable Nginx Version Set Custome Headers Variables And Proxy Settings
+		# Disable Nginx Version Set Custom Headers Variables And Proxy Settings
 		sed -i "s/http {/http {\n\t##\n\t# Easy Engine Settings\n\t##\n\n\tserver_tokens off;\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
 
-		# Set Custome Logs
+		# Set Custom Logs
 		sed -i "s/error_log.*/error_log \/var\/log\/nginx\/error.log;\n\n\tlog_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '\n\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '\n\t\t'\"\$http_referer\" \"\$http_user_agent\"';/" /etc/nginx/nginx.conf
 	fi
 
@@ -272,7 +272,7 @@ INSTALLPMA()
 MYSQLINSTALLTWEAKS()
 {
 	# MySQL Password Only Set If MySQL Is Not Installed
-	# If MySQL Is Installed Dont Set Wrong Password In ~/.my.cnf
+	# If MySQL Is Installed Don't Set Wrong Password In ~/.my.cnf
 	dpkg -l | grep mysql-server &>> $INSTALLLOG
 
 	if [ $? -ne 0 ]
@@ -448,7 +448,7 @@ EEGITINIT()
 	then
 		# Initialise Git
 		echo -e "\033[34mInitialise Git On $EEGITDIR...\e[0m"
-		git init &>> $INSTALLLOG || OwnError "Unable To Initialise Git On $EEGITDIR"
+		git init &>> $INSTALLLOG || OwnError "Unable To Initialize Git On $EEGITDIR"
 	fi
 
 	# Check For Untracked Files
@@ -456,7 +456,7 @@ EEGITINIT()
 	if [ $? -ne 0 ]
 	then
 		# Add Files In Git Version Control
-		git add . && git commit -am "Initialise Git On $EEGITDIR"  &>> $INSTALLLOG \
+		git add . && git commit -am "Initialize Git On $EEGITDIR"  &>> $INSTALLLOG \
 		|| OwnError "Unable To Git Commit On $EEGITDIR"
 	fi
 }
@@ -510,7 +510,7 @@ MYSQLINFO()
 	# Get The MySQL Host
 	MYSQLHOST=$(grep mysqlhost /etc/easyengine/ee.conf | awk '{print($3)}')
 
-	# MySQL Default Host: localhosts
+	# MySQL Default Host: localhost
 	if [[ $MYSQLHOST = "" ]]
 	then
 		MYSQLHOST=localhost
@@ -577,7 +577,7 @@ PHPUSERINFO()
 {
 	# PHP User
 	PHPUSER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2) \
-	|| OwnError "Unable To Findout PHP Username"
+	|| OwnError "Unable To Find Out PHP Username"
 }
 
 SYSTEMINFO()
@@ -737,18 +737,18 @@ EEDOMAINSETUP()
 
 EEWPSETUP()
 {
-	# Download Latest Wordpress
+	# Download Latest WordPress
 	echo -e "\033[34mDownloading WordPress, Please Wait...\e[0m"
 	wget -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 	http://wordpress.org/latest.tar.gz \
 	|| OwnError "Unable To Download WordPress"
 
-	# Extracting Wordpress
+	# Extracting WordPress
 	tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
 	-C /var/www/$DOMAIN/htdocs/ \
 	|| OwnError "Unable To Extract WordPress"
 
-	# Removing Wordpress Archive
+	# Removing WordPress Archive
 	rm /var/www/$DOMAIN/htdocs/latest.tar.gz
 
 	# Call MYSQLINFO Function For MySQL Values
@@ -790,7 +790,7 @@ EEWPDBSETUP()
 		WPADMINUSER=admin
 	fi
 
-	# WordPress Default Password: Random Passoword
+	# WordPress Default Password: Random Password
 	WPADMINPASS=$(grep wpadminpass /etc/easyengine/ee.conf | awk '{print($3)}')
 	if [[ $WPADMINPASS = "" ]]
 	then
@@ -808,7 +808,7 @@ EEWPDBSETUP()
 	echo -e "\033[34mSetting Up WordPress, Please Wait...\e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
 	wp core install --url=$DOMAIN --title="$DOMAIN" \
-	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL \
+	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $INSTALLLOG \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 }
 
@@ -818,7 +818,7 @@ EEPERMISSION()
 	PHPUSERINFO
 
 	# Change Ownership
-	echo -e "\033[34mChanging Ownership\e[0m"
+	echo -e "\033[34mChanging Ownership[0m"
 	chown -R $PHPUSER:$PHPUSER /var/www/$DOMAIN/ || OwnError "Unable To Change Ownership For $DOMAIN"
 
 	# Reload Nginx Configuration
@@ -858,7 +858,7 @@ EEOPMEMCACHE()
 	then
 		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
 
-		# Download Opcache Status Files
+		# Download Op-cache Status Files
 		wget -cqO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
 		wget -cqO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
 		wget -cqO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
@@ -888,9 +888,9 @@ TOTALCACHENGINX()
 	wp plugin install w3-total-cache &>> $INSTALLLOG || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
-	wp plugin activate w3-total-cache $NETWORKACTIVATE || OwnError "Unable To Activate W3 Total Cache Plugin"
+	wp plugin activate w3-total-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate W3 Total Cache Plugin"
 
-	# Install Opcahe & Memcache
+	# Install Opcache & Memcache
 	EEOPMEMCACHE
 }
 
@@ -902,7 +902,7 @@ SUPERCACHENGINX()
 	wp plugin install wp-super-cache &>> $INSTALLLOG || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
-	wp plugin activate wp-super-cache $NETWORKACTIVATE || OwnError "Unable To Activate WP Super Cache Plugin"
+	wp plugin activate wp-super-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate WP Super Cache Plugin"
 }
 
 NGINXHELPER()
@@ -913,14 +913,14 @@ NGINXHELPER()
 	wp plugin install nginx-helper &>> $INSTALLLOG || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
-	wp plugin activate nginx-helper $NETWORKACTIVATE || OwnError "Unable To Activate Nginx Helper Plugin"
+	wp plugin activate nginx-helper $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate Nginx Helper Plugin"
 }
 
 
 # Setup Wordpress Network
 SETUPWPNETWORK()
 {
-	# Prepare wp-config.php File Foe Wordpress Multisite With SubDirectory
+	# Prepare wp-config.php File Foe WordPsress Multisite With SubDirectory
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
 	wp core install-network --title="$SITETITLE" $WPSUBDOMAINS || OwnError "Unable To Setup WordPress SubDirectory Network"
 
@@ -936,7 +936,7 @@ SETUPWPNETWORK()
 # Remove Database
 REMOVEDB()
 {
-	# MySQL Informatiom
+	# MySQL Information
 	WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
 	MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
 	MYSQLPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
@@ -977,7 +977,7 @@ REMOVEFILES()
 
 REMOVENGINXCONF()
 {
-	# Remove Nginx Configuraion
+	# Remove Nginx Configuration
 	# For Proper read Command Output
 	stty echo
 	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
@@ -1106,7 +1106,7 @@ then
 			# Install MySQL
 			INSTALLMYSQL
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/mysql/
 			EEGITINIT
 			
@@ -1122,7 +1122,7 @@ then
 			# Install Postfix
 			INSTALLPOSTFIX
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/postfix/
 			EEGITINIT
 			
@@ -1168,23 +1168,23 @@ then
 			# Install PMA/phpMyAdmin
 			INSTALLPMA
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/nginx/
 			EEGITINIT
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/php5/
 			EEGITINIT
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/mysql/
 			EEGITINIT
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/var/www/shared/pma/
 			EEGITINIT
 
-			# Initialise Git
+			# Initialize Git
 			EEGITDIR=/etc/postfix/
 			EEGITINIT
 
@@ -1452,7 +1452,7 @@ then
 			if [ "$4" = "basic" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1473,14 +1473,14 @@ then
 			elif [ "$4" = "w3tc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/w3tc.conf
 				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
-				# Setup W3 Total Cahe Nginx
+				# Setup W3 Total Cache Nginx
 				SETUPDOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
@@ -1502,14 +1502,14 @@ then
 			elif [ "$4" = "wpsc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpsc.conf
 				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
-				# Setup WP Super Cahe Nginx
+				# Setup WP Super Cache Nginx
 				SETUPDOMAIN
 				NGINXHELPER
 				SUPERCACHENGINX
@@ -1531,14 +1531,14 @@ then
 			elif [ "$4" = "wpfc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
 				NGINXCONF=$3/wpfc.conf
 				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
 
-				# Setup Fastcgi Cahe Nginx
+				# Setup Fastcgi Cache Nginx
 				SETUPDOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
@@ -1566,7 +1566,7 @@ then
 			if [ "$4" = "basic" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1592,7 +1592,7 @@ then
 			elif [ "$4" = "w3tc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1627,7 +1627,7 @@ then
 			elif [ "$4" = "wpsc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1662,7 +1662,7 @@ then
 			elif [ "$4" = "wpfc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1703,7 +1703,7 @@ then
 			if [ "$4" = "basic" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1730,7 +1730,7 @@ then
 			elif [ "$4" = "w3tc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1766,7 +1766,7 @@ then
 			elif [ "$4" = "wpsc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1802,7 +1802,7 @@ then
 			elif [ "$4" = "wpfc" ]
 			then
 
-				# Congigure Variable
+				# Configure Variable
 				WPNETWORKSITE=$3
 				WPCACHEOPTION=$4
 				SITENAMECHECK=$5
@@ -1903,7 +1903,7 @@ then
 			REMOVEDB
 			REMOVEFILES
 
-			# Remove Nginx Configuraion
+			# Remove Nginx Configuration
 			REMOVENGINXCONF
 
 			# Reload Nginx
