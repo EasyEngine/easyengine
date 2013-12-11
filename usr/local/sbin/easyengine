@@ -179,6 +179,28 @@ COMMONNGINX()
 	EESOURCE="/usr/share/easyengine/nginx/common"
 	EEDEST="/etc/nginx/common"
 	EEMD5SUM
+
+	# White List IP Address
+	sed -i "s/deny.*/$(echo "allow $(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}');")\ndeny all;/" /etc/nginx/common/allowed_ip.conf
+
+	# Protect EE Locations
+	# Get The htpasswd Details
+	HTPASSWDUSER=$(grep htpasswduser /etc/easyengine/ee.conf | awk '{print($3)}')
+	HTPASSWDPASS=$(grep htpasswdpass /etc/easyengine/ee.conf | awk '{print($3)}')
+
+	if [[ $HTPASSWDUSER = "" ]]
+	then
+		HTPASSWDUSER=easyengine
+	fi
+
+	if [[ $HTPASSWDPASS = "" ]]
+	then
+		HTPASSWDPASS=easyengine
+	fi
+
+	# Generate htpasswd-ee file
+	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS)\n" > /etc/nginx/htpasswd-ee
+
 }
 
 INSTALLPHP()
