@@ -936,25 +936,32 @@ SETUPWPNETWORK()
 # Remove Database
 REMOVEDB()
 {
-	# MySQL Information
-	WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-	MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-	MYSQLPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-	echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER"
-
-	# Remove Database
-	# For Proper read Command Output
-	stty echo
-	read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
-
-	if [ "$ANSWER" = "y" ]
+	# HTML & PHP Website Doesn't Have Database
+	head -n1 /etc/nginx/sites-available/$DOMAIN | egrep -e 'HTML|PHP' &>> $INSTALLLOG
+	if [ $? -ne 0 ]
 	then
+		# MySQL Information
+		WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		MYSQLPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER"
+
 		# Remove Database
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
-		|| OwnError "Unable To Drop $WPDBNAME Database"
+		# For Proper read Command Output
+		stty echo
+		read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+
+		if [ "$ANSWER" = "y" ]
+		then
+			# Remove Database
+			mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
+			|| OwnError "Unable To Drop $WPDBNAME Database"
+		else
+			# User Denied Messages
+			echo -e "\033[31mUser Denied To Drop $WPDBNAME Database.\e[0m"
+		fi
 	else
-		# User Denied Messages
-		echo -e "\033[31mUser Denied To Drop $WPDBNAME Database.\e[0m"
+		echo -e "\033[31mNo Database Found For $DOMAIN\e[0m"
 	fi
 }
 
