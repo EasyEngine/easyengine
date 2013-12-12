@@ -1,4 +1,4 @@
-# Easy Engine Auto Complete Feature
+# EasyEngine Auto Complete Feature
 
 
 
@@ -18,12 +18,12 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "help version system site" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "info help version system site" -- $CURRENT) )
 			return 0
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge info" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge" -- $CURRENT ) )
 			return 0
 			;;
 

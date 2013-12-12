@@ -643,7 +643,7 @@ SYSTEMINFO()
 	PHPREQUESTTERMINATE=$(grep ^request_terminate_timeout /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 	PHPFASTCGIREQUEST=$(grep ^listen /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 
-	echo -e "\033[34m\n\n PHP ($PHPVER) Information:\n\e[0m"
+	echo -e "\033[34m\n\nPHP ($PHPVER) Information:\n\e[0m"
 	echo -e "\033[34mPHP User:\t\t\t \033[37m$PHPUSER\e[0m"
 	echo -e "\033[34mPHP expose_php:\t\t\t \033[37m$PHPEXPOSE\e[0m"
 	echo -e "\033[34mPHP post_max_size:\t\t \033[37m$PHPPOSTMAXSIZE\e[0m"
@@ -1023,21 +1023,26 @@ REMOVENGINXCONF()
 }
 
 
-# Easy Engine Help
-if [ "$1" = "-h" ] || [ "$1" = "help" ] || [ "$1" = "--help" ]
-then
-
-	# Display Man Pages
-	man ee
-
-
 # Easy Engine Version
-elif [ "$1" = "-v" ] || [ "$1" = "version" ] || [ "$1" = "--version" ]
+if [ "$1" = "-v" ] || [ "$1" = "version" ] || [ "$1" = "--version" ]
 then
 
 	# Display Easy Engine Version
 	echo "easyengine version: 1.0.0"
 
+# Easy Engine Help
+elif [ "$1" = "-h" ] || [ "$1" = "help" ] || [ "$1" = "--help" ]
+then
+
+	# Display Man Pages
+	man ee
+
+# Easy Engine Info
+elif [ "$1" = "info" ]
+then
+
+		# Get Nginx PHP & MySQL Information
+		SYSTEMINFO
 
 # Easy Engine System Settings
 elif [ "$1" = "system" ]
@@ -1379,13 +1384,6 @@ then
 			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged\e[0m"
 
 		fi
-
-	# Easy Engine Info
-	elif [ "$2" = "info" ]
-	then
-
-		# Get Nginx PHP & MySQL Information
-		SYSTEMINFO
 
 	fi
 
