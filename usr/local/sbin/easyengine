@@ -659,6 +659,18 @@ SYSTEMINFO()
 	echo -e "\033[34mPHP pm.max_spare_servers:\t \033[37m$PMMAXSPARESERVERS\e[0m"
 	echo -e "\033[34mPHP request_terminate_timeout:\t \033[37m$PHPREQUESTTERMINATE\e[0m"
 	echo -e "\033[34mPHP Fastcgi Listen:\t\t \033[37m$PHPFASTCGIREQUEST\e[0m"
+
+	# MySQL Information
+	MYSQLVER=$(mysql -V | awk '{print($5)}' | cut -d ',' -f1)
+	MYSQLPORT=$(mysql -e "show variables" | grep ^port | awk '{print($2)}')
+	MYSQLSOCKET=$(mysql -e "show variables" | grep socket | awk '{print($2)}')
+	MYSQLDATADIR=$(mysql -e "show variables" | grep datadir | awk '{print($2)}')
+	MYSQLWAITTIMEOUT=$(mysql -e "show variables" | grep ^wait_timeout | awk '{print($2)}')
+	MYSQLMAXCONNECTION=$(mysql -e "show variables" | grep max_connections | awk '{print($2)}')
+	MYSQLMAXUSEDCONNECTION=$(mysql -e "show global status" | grep Max_used_connections | awk '{print($2)}')
+
+	echo -e "\033[34m\n\nMySQL ($MYSQLVER) Information:\n\e[0m"
+	
 }
 
 NGINXBUCKETSIZE()
