@@ -662,6 +662,7 @@ SYSTEMINFO()
 
 	# MySQL Information
 	MYSQLVER=$(mysql -V | awk '{print($5)}' | cut -d ',' -f1)
+	MYSQLUSER=$(grep ^user /etc/mysql/my.cnf | awk '{print($3)}')
 	MYSQLPORT=$(mysql -e "show variables" | grep ^port | awk '{print($2)}')
 	MYSQLSOCKET=$(mysql -e "show variables" | grep socket | awk '{print($2)}')
 	MYSQLDATADIR=$(mysql -e "show variables" | grep datadir | awk '{print($2)}')
@@ -670,7 +671,12 @@ SYSTEMINFO()
 	MYSQLMAXUSEDCONNECTION=$(mysql -e "show global status" | grep Max_used_connections | awk '{print($2)}')
 
 	echo -e "\033[34m\n\nMySQL ($MYSQLVER) Information:\n\e[0m"
-	
+	echo -e "\033[34mMySQL User:\t\t\t \033[37m$MYSQLUSER\e[0m"
+	echo -e "\033[34mMySQL port:\t\t\t \033[37m$MYSQLPORT\e[0m"
+	echo -e "\033[34mMySQL wait_timeout:\t\t \033[37m$MYSQLWAITTIMEOUT\e[0m"
+	echo -e "\033[34mMySQL Max_used_connections:\t \033[37m$MYSQLMAXUSEDCONNECTION/$MYSQLMAXCONNECTION\e[0m"
+	echo -e "\033[34mMySQL datadir:\t\t\t \033[37m$MYSQLDATADIR\e[0m"
+	echo -e "\033[34mMySQL socket:\t\t\t \033[37m$MYSQLSOCKET\e[0m"
 }
 
 NGINXBUCKETSIZE()
