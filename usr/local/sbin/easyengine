@@ -684,7 +684,7 @@ SYSTEMINFO()
 	echo -e "\033[34mPHP Status:\t\t\t \033[37mhttp://example.com/status\e[0m"
 	echo -e "\033[34mNginx Status:\t\t\t \033[37mhttp://example.com/nginx_status\e[0m"
 	echo -e "\033[34mOpcache & Memcache Status:\t \033[37mhttp://example.com/ee/\e[0m"
-	echo -e "\033[34mEasyEngine Log File:\t \033[37m/var/log/easyengine/install.log\e[0m"
+	echo -e "\033[34mEasyEngine Log File:\t\t \033[37m/var/log/easyengine/install.log\e[0m"
 	echo -e "\033[34mEasyEngine Configuration File:\t \033[37m/etc/easyengine/ee.conf\e[0m"
 
 }
