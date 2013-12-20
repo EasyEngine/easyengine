@@ -860,7 +860,7 @@ EEWPDBSETUP()
 	# Create WordPress Tables
 	echo -e "\033[34mSetting Up WordPress, Please Wait...\e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
-	wp core install --url=$WWWDOMAIN --title="$DOMAIN" \
+	wp core install --url=$WWWDOMAIN --title="$WWWDOMAIN" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $INSTALLLOG \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 }
@@ -975,7 +975,7 @@ SETUPWPNETWORK()
 {
 	# Prepare wp-config.php File Foe WordPress Multisite With SubDirectory
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
-	wp core install-network --title="$SITETITLE" $WPSUBDOMAINS || OwnError "Unable To Setup WordPress SubDirectory Network"
+	wp core install-network --title="$WWWDOMAIN" $WPSUBDOMAINS &>> $INSTALLLOG || OwnError "Unable To Setup WordPress SubDirectory Network"
 
 	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
 	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
