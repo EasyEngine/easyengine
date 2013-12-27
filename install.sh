@@ -172,18 +172,18 @@ FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
 sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
 
 # Git Config Settings
-EEGITNAME=$(git config --list | grep name | cut -d'=' -f2)
-EEGITEMAIL=$(git config --list | grep email | cut -d'=' -f2)
+EEGITNAME=$(git config user.name)
+EEGITEMAIL=$(git config user.email)
 
-if [ -z $EEGITNAME ] || [ -z $EEGITEMAIL ]
+if [ -z "$EEGITNAME" ] || [ -z "$EEGITEMAIL" ]
 then
 	echo
 	echo -e "\033[34mEasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mEasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mEasyEngine (ee) Will Never Send Your Information Across\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mEasyEngine (ee) Will NEVER Send Your Information Across\e[0m" | tee -ai $INSTALLLOG
 fi
 # Check Git User Is Empty Or Not
-if [ -z $EEGITNAME ]
+if [ -z "$EEGITNAME" ]
 then
 	read -p "Enter Your Name [$(whoami)]: " EEGITNAME
 	# If Enter Is Pressed
@@ -195,7 +195,7 @@ then
 fi
 
 # Check Git User Is Empty Or Not
-if [ -z $EEGITEMAIL ]
+if [ -z "$EEGITEMAIL" ]
 then
 	read -p "Enter Your Email [$(whoami)@$(hostname -f)]: " EEGITEMAIL
 	# If Enter Is Pressed
