@@ -850,11 +850,11 @@ EEWPDBSETUP()
 		WPADMINPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 	fi
 	
-	# WordPress Default Email: `whoami`@`hostname -f`
+	# WordPress Default Email: `git config user.email`
 	WPADMINEMAIL=$(grep wpadminemail /etc/easyengine/ee.conf | awk '{print($3)}')
 	if [[ $WPADMINEMAIL = "" ]]
 	then
-		WPADMINEMAIL=`whoami`@`hostname -f`
+		WPADMINEMAIL=`git config user.email`
 	fi
 
 	# Create WordPress Tables
