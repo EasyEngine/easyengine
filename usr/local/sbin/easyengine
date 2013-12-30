@@ -618,7 +618,7 @@ MYSQLINFO()
 	fi
 
 	# Create Separate User & Grant Permission
-	echo $WPDBNAME $WPDBUSER $WPDBPASS
+	echo -e "WPDBNAME = $WPDBNAME \nWPDBUSER = $WPDBUSER \nWPDBPASS = $WPDBPASS" &>> $INSTALLLOG
 	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create user '$WPDBUSER'@'$MYSQLHOST' identified by '$WPDBPASS'"
 	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "grant all privileges on \`$WPDBNAME\`.* to '$WPDBUSER'@'$MYSQLHOST'"
 	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges"
@@ -1497,6 +1497,27 @@ then
 			|| OwnError "Unable To Display Nginx Configuration For $DOMAIN"
 
 		fi
+
+	elif [ "$2" = "info" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+
+		# Display The Specific Site Configuration
+		SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+		ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+		ERRORLOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+		WEBROOT=$(grep root /etc/nginx/sites-available/$DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
+		WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+
+		echo -e "\033[34m$DOMAIN Information:\n\e[0m"
+		echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO\e[0m"
+		echo -e "\033[34mNginx access_log:\t\t \033[37m$ACCESSLOG\e[0m"
+		echo -e "\033[34mNginx error_log:\t\t \033[37m$ERRORLOG\e[0m"
+		echo -e "\033[34mNginx root:\t\t\t \033[37m$WEBROOT\e[0m"
+		echo -e "\033[34m$DOMAIN Database:\t\t \033[37m$WPDBNAME\e[0m"
 
 	elif [ "$2" = "create" ]
 	then
