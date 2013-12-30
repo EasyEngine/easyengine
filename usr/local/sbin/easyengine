@@ -525,7 +525,11 @@ MYSQLPASSCHECK()
 	done
 }
 
-
+MYSQLROOT()
+{
+	MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
+	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+}
 # GET Information Function
 MYSQLINFO()
 {
@@ -540,8 +544,7 @@ MYSQLINFO()
 	
 	if [ -f ~/.my.cnf ]
 	then
-		MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
-		MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+		MYSQLROOT
 	else
 		# Verify MySQL Credentials
 		MYSQLUSERPASS
@@ -593,6 +596,32 @@ MYSQLINFO()
 	# Create Database
 	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
+
+	# Check Use Default DB User Or Custom DB User
+	WPDBRANDOMPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+	grep customdbuser /etc/easyengine/ee.conf | grep -i true &>> /dev/null
+
+	if [ $? -eq 0 ]
+	then
+		read -p "Enter The MySQL Database Username [$REPLACEDOT]: " WPDBUSER
+		read -p "Enter The MySQL Database Password [$WPDBRANDOMPASS]: " WPDBPASS
+	fi
+
+	if [[ $WPDBUSER = "" ]]
+	then
+		WPDBUSER=$REPLACEDOT
+	fi
+
+	if [[ $WPDBPASS = "" ]]
+	then
+		WPDBPASS=$WPDBRANDOMPASS
+	fi
+
+	# Create Separate User & Grant Permission
+	echo $WPDBNAME $WPDBUSER $WPDBPASS
+	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create user '$WPDBUSER'@'$MYSQLHOST' identified by '$WPDBPASS'"
+	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "grant all privileges on \`$WPDBNAME\`.* to '$WPDBUSER'@'$MYSQLHOST'"
+	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges"
 }
 
 PHPUSERINFO()
@@ -814,10 +843,10 @@ EEWPSETUP()
 	sed -i "s/database_name_here/$WPDBNAME/" \
 	/var/www/$DOMAIN/wp-config.php
 
-	sed -i "s/username_here/$MYSQLUSER/" \
+	sed -i "s/username_here/$WPDBUSER/" \
 	/var/www/$DOMAIN/wp-config.php
 				
-	sed -i "s/password_here/$MYSQLPASS/" \
+	sed -i "s/password_here/$WPDBPASS/" \
 	/var/www/$DOMAIN/wp-config.php
 
 	sed -i "s/localhost/$MYSQLHOST/" \
@@ -994,10 +1023,12 @@ REMOVEDB()
 	if [ $? -ne 0 ]
 	then
 		# MySQL Information
+		MYSQLROOT
 		WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		MYSQLUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		MYSQLPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		echo -e " WPDBNAME = $WPDBNAME \n MYSQLUSER = $MYSQLUSER"
+		WPDBUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		WPDBPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		MYSQLHOST=$(grep DB_HOST /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		echo -e " WPDBNAME = $WPDBNAME \n WPDBUSER = $WPDBUSER \n MYSQLHOST = $MYSQLHOST"
 
 		# Remove Database
 		# For Proper read Command Output
@@ -1007,8 +1038,14 @@ REMOVEDB()
 		if [ "$ANSWER" = "y" ]
 		then
 			# Remove Database
-			mysql -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
+			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
 			|| OwnError "Unable To Drop $WPDBNAME Database"
+			# Remove Database User
+			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop user '$WPDBUSER'@'$MYSQLHOST'" \
+			|| OwnError "Unable To Drop Database User $WPDBUSER"
+			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges" \
+			|| OwnError "Unable To Flush MySQL Privileges"
+
 		else
 			# User Denied Messages
 			echo -e "\033[31mUser Denied To Drop $WPDBNAME Database.\e[0m"
