@@ -138,6 +138,42 @@ EEMD5SUM()
 	done
 }
 
+HTTPAUTH()
+{
+	# Get The htpasswd Details
+	HTPASSWDUSER=$(grep htpasswduser /etc/easyengine/ee.conf | awk '{print($3)}')
+	HTPASSWDPASS=$(grep htpasswdpass /etc/easyengine/ee.conf | awk '{print($3)}')
+
+	# Ask User To Provide HTTP AUTH Username & Password
+	if [ -z "$HTPASSWDUSER" ]
+	then
+		read -p "Enter The HTTP AUTH Username [easyengine]: " HTPASSWDUSER
+		# Turn Off Echo For Passwords
+		stty -echo
+		read -p "Enter The HTTP AUTH Password [easyengine]: " HTPASSWDPASS
+		stty echo
+		echo
+	fi
+
+	# If Enter Is Pressed, User Defaults
+	if [[ $HTPASSWDUSER = "" ]]
+	then
+		HTPASSWDUSER=easyengine
+	fi
+
+	if [[ $HTPASSWDPASS = "" ]]
+	then
+		HTPASSWDPASS=easyengine
+	fi
+
+	# Add HTTP Auth Details In EE Configuration File
+	sed -i "s/htpasswduser.*/htpasswduser = $HTPASSWDUSER/" /etc/easyengine/ee.conf
+	sed -i "s/htpasswdpass.*/htpasswdpass = $HTPASSWDPASS/" /etc/easyengine/ee.conf
+
+	# Generate htpasswd-ee file
+	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+}
+
 COMMONNGINX()
 {
 	# Personal Settings For Nginx
@@ -184,23 +220,7 @@ COMMONNGINX()
 	sed -i "s/deny.*/$(echo "allow $(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}');")\ndeny all;/" /etc/nginx/common/allowed_ip.conf
 
 	# Protect EE Locations
-	# Get The htpasswd Details
-	HTPASSWDUSER=$(grep htpasswduser /etc/easyengine/ee.conf | awk '{print($3)}')
-	HTPASSWDPASS=$(grep htpasswdpass /etc/easyengine/ee.conf | awk '{print($3)}')
-
-	if [[ $HTPASSWDUSER = "" ]]
-	then
-		HTPASSWDUSER=easyengine
-	fi
-
-	if [[ $HTPASSWDPASS = "" ]]
-	then
-		HTPASSWDPASS=easyengine
-	fi
-
-	# Generate htpasswd-ee file
-	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
-
+	HTTPAUTH
 }
 
 INSTALLPHP()
