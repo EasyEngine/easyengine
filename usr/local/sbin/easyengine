@@ -1464,18 +1464,21 @@ then
 	if [ "$2" = "list" ]
 	then
 
-		# Display The List Of Enabled Websites
-		echo -e "\033[34mDisplay The List Of Enabled Websites:\e[0m"
-		ls /etc/nginx/sites-enabled/ \
-		|| OwnError "Unable To Display The List Of Enabled Websites"
+		if [ "$3" = "available" ]
+		then
 
-	elif [ "$2" = "listall" ]
-	then
-
-		# Display The List Of Available Sites
-		echo -e "\033[34mDisplay The List Of Available Websites:\e[0m"
-		ls /etc/nginx/sites-available/ \
-		|| OwnError "Unable To Display The List Of Available Websites"
+			# Display The List Of Available Sites
+			echo -e "\033[34mDisplay The List Of Available Websites:\e[0m"
+			ls /etc/nginx/sites-available/ \
+			|| OwnError "Unable To Display The List Of Available Websites"
+			
+		else
+		
+			# Display The List Of Enabled Websites
+			echo -e "\033[34mDisplay The List Of Enabled Websites:\e[0m"
+			ls /etc/nginx/sites-enabled/ \
+			|| OwnError "Unable To Display The List Of Enabled Websites"
+		fi
 
 	elif [ "$2" = "show" ]
 	then

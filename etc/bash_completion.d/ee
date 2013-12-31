@@ -33,7 +33,12 @@ EEAUTO()
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "list listall show info create enable disable delete" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list show info create enable disable delete" -- $CURRENT ) )
+			return 0
+			;;
+
+		list)
+			COMPREPLY=( $( compgen -W "enable available" -- $CURRENT ) )
 			return 0
 			;;
 
