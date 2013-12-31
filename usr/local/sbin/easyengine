@@ -1471,7 +1471,7 @@ then
 			echo -e "\033[34mDisplay The List Of Available Websites:\e[0m"
 			ls /etc/nginx/sites-available/ \
 			|| OwnError "Unable To Display The List Of Available Websites"
-			
+
 		else
 		
 			# Display The List Of Enabled Websites
@@ -1509,6 +1509,7 @@ then
 		EESITENAME
 
 		# Display The Specific Site Configuration
+		SITESTATUS=$(ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null && echo Enable || echo Disable)
 		SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
 		ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
 		ERRORLOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
@@ -1516,7 +1517,7 @@ then
 		WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
 
 		echo -e "\033[34m$DOMAIN Information:\n\e[0m"
-		echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO\e[0m"
+		echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO ($SITESTATUS)\e[0m"
 		echo -e "\033[34mNginx access_log:\t\t \033[37m$ACCESSLOG\e[0m"
 		echo -e "\033[34mNginx error_log:\t\t \033[37m$ERRORLOG\e[0m"
 		echo -e "\033[34mNginx root:\t\t\t \033[37m$WEBROOT\e[0m"
