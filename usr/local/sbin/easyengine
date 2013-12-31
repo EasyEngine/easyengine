@@ -28,28 +28,30 @@ echo -e "\033[34mEasyEngine (ee) Execution Started [$(date)]\e[0m" &>> $INSTALLL
 echo -e "\033[34mEasyEngine (ee) Command: $0 $@\e[0m" &>> $INSTALLLOG
 
 
-# Check Auto Assume Yes Or No To Apt-Get
-grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true &>> /dev/null
-if [ $? -eq 0 ]
-then
-	EEAPTGET="apt-get -y"
-else
-	# Check Any WebServer Package Is Installed Or Not
-	dpkg -l | egrep -e 'nginx|php|mysql|postfix|apache' &>> $INSTALLLOG
-	if [ $? -ne 0 ]
-	then
-		EEAPTGET="apt-get -y"
-	else
-		EEAPTGET="apt-get"
-	fi
-fi
-
-
 # Capture Errors
 OwnError()
 {
 	echo -e "[ `date` ] \033[31m $@ \e[0m" | tee -ai $ERRORLOG
 	exit 101
+}
+
+# Check Auto Assume Yes Or No To Apt-Get
+APTASSUMEYES ()
+{
+	grep apt-get-assume-yes /etc/easyengine/ee.conf | grep -i true &>> /dev/null
+	if [ $? -eq 0 ]
+	then
+		EEAPTGET="apt-get -y"
+	else
+		# Check Any WebServer Package Is Installed Or Not
+		dpkg -l | egrep -e 'nginx|php|mysql|postfix|apache' &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			EEAPTGET="apt-get -y"
+		else
+			EEAPTGET="apt-get"
+		fi
+	fi
 }
 
 # Install Package Functions
@@ -1136,6 +1138,8 @@ then
 elif [ "$1" = "system" ]
 then
 
+	# Check Auto Assume Yes Or No To Apt-Get
+	APTASSUMEYES
 
 	# Easy Engine Install
 	if [ "$2" = "install" ]
