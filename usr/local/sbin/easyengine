@@ -1186,7 +1186,7 @@ then
 			# Display Success Message
 			echo -e "\033[34mPHP5 & WP-CLI Successfully Installed\e[0m"
 
-		elif [ "$3" = "pma" ] || [ "$3" = "phpmyadmin" ]
+		elif [ "$3" = "phpmyadmin" ] || [ "$3" = "pma" ]
 		then
 
 			# Install PMA/phpMyAdmin
@@ -1326,7 +1326,7 @@ then
 			# Display Success Message
 			echo -e "\033[34mPHP5 & WP-CLI Successfully Removed\e[0m"
 
-		elif [ "$3" = "pma" ]  || [ "$3" = "phpmyadmin" ]
+		elif [ "$3" = "phpmyadmin" ]  || [ "$3" = "pma" ]
 		then
 
 			# Remove PMA/phpMyAdmin
@@ -1404,7 +1404,7 @@ then
 			# Display Success Message
 			echo -e "\033[34mPHP5 & WP-CLI Successfully Purged\e[0m"
 
-		elif [ "$3" = "pma" ]  || [ "$3" = "phpmyadmin" ]
+		elif [ "$3" = "phpmyadmin" ]  || [ "$3" = "pma" ]
 		then
 
 			# Purge PMA/phpMyAdmin
