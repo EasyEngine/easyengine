@@ -744,11 +744,11 @@ EESITEINFO()
 {
 	# Display The Specific Site Configuration
 	SITESTATUS=$(ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null && echo Enable || echo Disable)
-	SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+	SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
 	ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
 	ERRORLOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
 	WEBROOT=$(grep root /etc/nginx/sites-available/$DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
-	WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+	WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php 2> /dev/null | cut -d"'" -f4)
 
 	echo -e "\033[34m$DOMAIN Information:\n\e[0m"
 	echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO ($SITESTATUS)\e[0m"
