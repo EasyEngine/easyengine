@@ -653,7 +653,7 @@ PHPUSERINFO()
 	|| OwnError "Unable To Find Out PHP Username"
 }
 
-SYSTEMINFO()
+EEINFO()
 {
 	# Nginx Information
 	NGINXVER=$(nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2)
@@ -738,6 +738,24 @@ SYSTEMINFO()
 	echo -e "\033[34mEasyEngine Log File:\t\t \033[37m/var/log/easyengine/install.log\e[0m"
 	echo -e "\033[34mEasyEngine Configuration File:\t \033[37m/etc/easyengine/ee.conf\e[0m"
 
+}
+
+EESITEINFO()
+{
+	# Display The Specific Site Configuration
+	SITESTATUS=$(ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null && echo Enable || echo Disable)
+	SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+	ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+	ERRORLOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+	WEBROOT=$(grep root /etc/nginx/sites-available/$DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
+	WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+
+	echo -e "\033[34m$DOMAIN Information:\n\e[0m"
+	echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO ($SITESTATUS)\e[0m"
+	echo -e "\033[34mNginx access_log:\t\t \033[37m$ACCESSLOG\e[0m"
+	echo -e "\033[34mNginx error_log:\t\t \033[37m$ERRORLOG\e[0m"
+	echo -e "\033[34mNginx root:\t\t\t \033[37m$WEBROOT\e[0m"
+	echo -e "\033[34m$DOMAIN Database:\t\t \033[37m$WPDBNAME\e[0m"
 }
 
 NGINXBUCKETSIZE()
@@ -1132,7 +1150,7 @@ elif [ "$1" = "info" ]
 then
 
 		# Get Nginx PHP & MySQL Information
-		SYSTEMINFO
+		EEINFO
 
 # Easy Engine System Settings
 elif [ "$1" = "system" ]
@@ -1533,19 +1551,7 @@ then
 		EESITENAME
 
 		# Display The Specific Site Configuration
-		SITESTATUS=$(ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null && echo Enable || echo Disable)
-		SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
-		ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
-		ERRORLOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
-		WEBROOT=$(grep root /etc/nginx/sites-available/$DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
-		WPDBNAME=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-
-		echo -e "\033[34m$DOMAIN Information:\n\e[0m"
-		echo -e "\033[34mNginx Configuration:\t\t \033[37m$SITEINFO ($SITESTATUS)\e[0m"
-		echo -e "\033[34mNginx access_log:\t\t \033[37m$ACCESSLOG\e[0m"
-		echo -e "\033[34mNginx error_log:\t\t \033[37m$ERRORLOG\e[0m"
-		echo -e "\033[34mNginx root:\t\t\t \033[37m$WEBROOT\e[0m"
-		echo -e "\033[34m$DOMAIN Database:\t\t \033[37m$WPDBNAME\e[0m"
+		EESITEINFO
 
 	elif [ "$2" = "create" ]
 	then
