@@ -1556,58 +1556,62 @@ then
 	elif [ "$2" = "create" ]
 	then
 
-		if [ "$3" = "html" ]
+		# Configure Variables
+		SITENAMECHECK=$3
+		EESITECREATE=$4
+		WPCACHEOPTION=$5
+
+		# WordPress SubDirectory Variables
+		if [ "$EESITECREATE" = "--wpsubdir" ] || [ "$EESITECREATE" = "--wpsubdirectory" ]
+		then
+			NETWORKACTIVATE="--network"
+		fi
+
+		# WordPress SubDomain Variables
+		if [ "$EESITECREATE" = "--wpsubdom" ] || [ "$EESITECREATE" = "--wpsubdomain" ]
+		then
+			NETWORKACTIVATE="--network"
+			WPSUBDOMAINS="--subdomains"
+		fi
+
+
+		if [ "$EESITECREATE" = "--html" ]
 		then
 
-			# Check SITENAME Is Empty Or Not
-			SITENAMECHECK=$4
-			EESITENAME
-
-			# Creating Website $DOMAIN
+			# Configure Variable
 			NGINXCONF=html/basic.conf
-			EEDOMAINSETUP
-			EEPERMISSION
 
-			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Created New $3 Website: $DOMAIN"
-			EEGITCOMMIT
-
-			# Display Success Message
-			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
-
-		elif [ "$3" = "php" ]
-		then
-
-			# Check SITENAME Is Empty Or Not
-			SITENAMECHECK=$4
+			# Setup HTML Nginx
 			EESITENAME
-
-			# Creating Website $DOMAIN
-			NGINXCONF=php/basic.conf
 			EEDOMAINSETUP
-			EEPERMISSION
-
-			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Created New $3 Website: $DOMAIN"
-			EEGITCOMMIT
+			PERMISSIONANDGIT
 
 			# Display Success Message
 			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-		elif [ "$3" = "wp" ]
+		elif [ "$EESITECREATE" = "--php" ]
 		then
 
-			if [ "$4" = "basic" ]
+			# Configure Variable
+			NGINXCONF=php/basic.conf
+
+			# Setup PHP Nginx
+			EESITENAME
+			EEDOMAINSETUP
+			PERMISSIONANDGIT
+
+			# Display Success Message
+			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
+
+		elif [ "$EESITECREATE" = "--wp" ]
+		then
+
+			if [ "$WPCACHEOPTION" = "--basic" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/basic.conf
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wp/basic.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Basic Nginx
 				SETUPDOMAIN
@@ -1620,15 +1624,12 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "w3tc" ]
+			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/w3tc.conf
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wp/w3tc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup W3 Total Cache Nginx
 				SETUPDOMAIN
@@ -1649,15 +1650,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpsc" ]
+			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpsc.conf
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wp/wpsc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup WP Super Cache Nginx
 				SETUPDOMAIN
@@ -1678,15 +1676,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpfc" ]
+			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpfc.conf
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wp/wpfc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Fastcgi Cache Nginx
 				SETUPDOMAIN
@@ -1710,18 +1705,15 @@ then
 
 			fi
 
-		elif [ "$3" = "wpsubdir" ]
+		elif [ "$EESITECREATE" = "--wpsubdir" ] || [ "$EESITECREATE" = "--wpsubdirectory" ]
 		then
 
-			if [ "$4" = "basic" ]
+			if [ "$WPCACHEOPTION" = "--basic" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/basic.conf
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdir/basic.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1739,16 +1731,12 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "w3tc" ]
+			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/w3tc.conf
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdir/w3tc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1774,16 +1762,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpsc" ]
+			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpsc.conf
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdir/wpsc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1809,16 +1793,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpfc" ]
+			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpfc.conf
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdir/wpfc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1847,19 +1827,15 @@ then
 
 			fi
 
-		elif [ "$3" = "wpsubdomain" ]
+		elif [ "$EESITECREATE" = "--wpsubdom" ] || [ "$EESITECREATE" = "--wpsubdomain" ]
 		then
 
-			if [ "$4" = "basic" ]
+			if [ "$WPCACHEOPTION" = "--basic" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/basic.conf
-				WPSUBDOMAINS="--subdomains"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdomain/basic.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1877,17 +1853,12 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "w3tc" ]
+			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/w3tc.conf
-				WPSUBDOMAINS="--subdomains"
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdomain/w3tc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1913,17 +1884,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpsc" ]
+			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpsc.conf
-				WPSUBDOMAINS="--subdomains"
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdomain/wpsc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
@@ -1949,17 +1915,12 @@ then
 				echo
 				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
-			elif [ "$4" = "wpfc" ]
+			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
-				WPNETWORKSITE=$3
-				WPCACHEOPTION=$4
-				SITENAMECHECK=$5
-				NGINXCONF=$3/wpfc.conf
-				WPSUBDOMAINS="--subdomains"
-				NETWORKACTIVATE="--network"
-				#echo -e " WPNETWORKSITE = $WPNETWORKSITE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE"
+				NGINXCONF=wpsubdomain/wpfc.conf
+				echo -e " EESITECREATE = $EESITECREATE \n WPCACHEOPTION = $WPCACHEOPTION \n SITENAMECHECK = $SITENAMECHECK \n NGINXCONF = $NGINXCONF \n WPSUBDOMAINS = $WPSUBDOMAINS \n NETWORKACTIVATE = $NETWORKACTIVATE" &>> $INSTALLLOG
 
 				# Setup Domain WordPress & Database
 				SETUPDOMAIN
