@@ -969,7 +969,7 @@ PERMISSIONANDGIT()
 
 	# Take Nginx Configuration In Git Version Control
 	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="Created New $WPNETWORKSITE $WPCACHEOPTION Website: $DOMAIN"
+	EEGITMESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $DOMAIN"
 	EEGITCOMMIT
 }
 
@@ -2014,21 +2014,28 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
+		SITEDELETEARG=$4
 		EESITENAME
 
-		if [ "$4" = "--db" ]
+		# USE DEFAULT WHEN POSSIBLES
+		if [ "$SITEDELETEARG" = "" ]
+		then
+			SITEDELETEARG=--all
+		fi
+
+		if [ "$SITEDELETEARG" = "--db" ]
 		then
 
 			# Remove Database
 			REMOVEDB
 
-		elif [ "$4" = "--files" ]
+		elif [ "$SITEDELETEARG" = "--files" ]
 		then
 
 			# Remove Webroot
 			REMOVEFILES
 
-		elif [ "$4" = "--all" ] || [ "$4" = "" ]
+		elif [ "$SITEDELETEARG" = "--all" ]
 		then
 
 			# Remove All Database And Webroot
@@ -2043,7 +2050,7 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Delete Website with $4 Option: $DOMAIN"
+			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
 			EEGITCOMMIT
 
 		fi
