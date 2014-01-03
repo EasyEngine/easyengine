@@ -1574,6 +1574,25 @@ then
 			WPSUBDOMAINS="--subdomains"
 		fi
 
+		# USE DEFAULT WHEN POSSIBLES
+		# ee site create example.com
+		if [ "$EESITECREATE" = "" ]
+		then
+			EESITECREATE=--html
+		fi
+
+		if [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
+		then
+			EESITECREATE=--wp
+			WPCACHEOPTION=$4
+		fi
+
+		# If No Cache Specified Use --basic As Default
+		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ]
+		then
+			WPCACHEOPTION=--basic
+		fi
+
 
 		if [ "$EESITECREATE" = "--html" ]
 		then
