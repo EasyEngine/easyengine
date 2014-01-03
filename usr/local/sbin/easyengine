@@ -1581,7 +1581,7 @@ then
 			EESITECREATE=--html
 		fi
 
-		if [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
+		if [ "$EESITECREATE" = "--basic" ] || [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
 		then
 			EESITECREATE=--wp
 			WPCACHEOPTION=$4
