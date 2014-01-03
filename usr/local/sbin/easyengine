@@ -2013,22 +2013,22 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$4
+		SITENAMECHECK=$3
 		EESITENAME
 
-		if [ "$3" = "db" ]
+		if [ "$4" = "--db" ]
 		then
 
 			# Remove Database
 			REMOVEDB
 
-		elif [ "$3" = "files" ]
+		elif [ "$4" = "--files" ]
 		then
 
 			# Remove Webroot
 			REMOVEFILES
 
-		elif [ "$3" = "all" ]
+		elif [ "$4" = "--all" ] || [ "$4" = "" ]
 		then
 
 			# Remove All Database And Webroot
@@ -2043,7 +2043,7 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Delete Website with $3 Option: $DOMAIN"
+			EEGITMESSAGE="Delete Website with $4 Option: $DOMAIN"
 			EEGITCOMMIT
 
 		fi
