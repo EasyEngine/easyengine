@@ -1574,7 +1574,7 @@ then
 			EEGITCOMMIT
 
 			# Display Success Message
-			echo -e "\033[34mhttp://$WWWDOMAIN Domain Successfully Created\e[0m"
+			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 		elif [ "$3" = "php" ]
 		then
@@ -1594,7 +1594,7 @@ then
 			EEGITCOMMIT
 
 			# Display Success Message
-			echo -e "\033[34mhttp://$WWWDOMAIN Domain Successfully Created\e[0m"
+			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 		elif [ "$3" = "wp" ]
 		then
@@ -1618,7 +1618,7 @@ then
 				echo
 				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1647,7 +1647,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1676,7 +1676,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1706,7 +1706,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			fi
 
@@ -1737,7 +1737,7 @@ then
 				echo
 				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1772,7 +1772,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1807,7 +1807,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1843,7 +1843,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			fi
 
@@ -1875,7 +1875,7 @@ then
 				echo
 				echo -e "\033[37mWordPress Admin Username: $WPADMINUSER\e[0m"
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "w3tc" ]
 			then
@@ -1911,7 +1911,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpsc" ]
 			then
@@ -1947,7 +1947,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			elif [ "$4" = "wpfc" ]
 			then
@@ -1984,7 +1984,7 @@ then
 
 				# Display Success Message
 				echo
-				echo -e "\033[37mSuccessfully Created New $3 $4 Website: http://$WWWDOMAIN\e[0m"
+				echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
 
 			fi
 		fi
