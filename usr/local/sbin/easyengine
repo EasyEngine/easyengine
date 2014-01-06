@@ -1344,7 +1344,7 @@ then
 			# Display Success Message
 			echo -e "\033[34mNginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed\e[0m"
 			echo -e "\033[34mYou Can Now Create Your First WordPress Site Powered By Nginx Using:\e[0m"
-			echo -e "\033[37mee site create wp basic $(hostname -f)\e[0m"
+			echo -e "\033[37mee site create example.com --wp\e[0m"
 
 		fi
 
@@ -1505,7 +1505,7 @@ then
 		fi
 
 	else
-		echo -e "\033[34mList Of Available Commands\e[0m"
+		echo -e "\033[34mList Of Available Commands:\e[0m"
 		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
 		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
 		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
@@ -2094,7 +2094,7 @@ then
 		fi
 
 	else
-		echo -e "\033[34mList Of Available Commands\e[0m"
+		echo -e "\033[34mList Of Available Commands:\e[0m"
 		echo -e "\tinfo:\t Dispaly Information About Given Website"
 		echo -e "\tlist:\t List Nginx Enabled Websites"
 		echo -e "\tshow:\t Display Nginx Configuration For Given Website"
@@ -2106,7 +2106,7 @@ then
 
 
 else
-	echo -e "\033[34mList Of Available Commands\e[0m"
+	echo -e "\033[34mList Of Available Commands:\e[0m"
 	echo -e "\tinfo:\t Display Nginx PHP MySQL Information\t"
 	echo -e "\thelp:\t Display EasyEngine Help\t"
 	echo -e "\tsite:\t Do Various Site Specific Operations\t"
