@@ -60,6 +60,17 @@ EEAUTO()
 			return 0
 			;;
 
+		*)
+			if [ "$EECOMMON" = "create" ]
+			then
+				COMPREPLY=( $( compgen -W "--html --php --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
+			elif [ "$EECOMMON" = "delete" ]
+			then
+				COMPREPLY=( $( compgen -W "--db --all --files" -- $CURRENT ) )		
+			fi
+			return 0
+			;;
+
 	esac
 }
 
