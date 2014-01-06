@@ -1504,6 +1504,12 @@ then
 
 		fi
 
+	else
+		echo -e "\033[31mDid you mean this?\e[0m"
+		echo -e "\tpurge:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
+		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
+		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
+
 	fi
 
 
@@ -2088,6 +2094,16 @@ then
 		fi
 
 	fi
+
+
+else
+	echo -e "\033[31mDid you mean this?\e[0m"
+	echo -e "\tinfo:\t Display Nginx PHP MySQL Information\t"
+	echo -e "\thelp:\t Display EasyEngine Help\t"
+	echo -e "\tsite:\t Do Various Site Specific Operations\t"
+	echo -e "\tsystem:\t Do Various System Level Operations\t"
+	echo -e "\tupdate:\t Update EasyEngine (ee)\t"
+	echo -e "\tversion: Display EasyEngine (ee) Version\t"
 
 
 fi
