@@ -2093,6 +2093,15 @@ then
 
 		fi
 
+	else
+		echo -e "\033[31mDid you mean this?\e[0m"
+		echo -e "\tinfo:\t Dispaly Information About Given Website"
+		echo -e "\tlist:\t List Nginx Enabled Websites"
+		echo -e "\tshow:\t Display Nginx Configuration For Given Website"
+		echo -e "\tcreate:\t Create A New HTML PHP MySQL & WordPress Website"
+		echo -e "\tdelete:\t Delete Existing Website"
+		echo -e "\tenable:\t Enable Website"
+		echo -e "\tdisable: Disable Website"
 	fi
 
 
