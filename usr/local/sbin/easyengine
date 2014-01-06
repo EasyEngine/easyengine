@@ -596,7 +596,10 @@ MYSQLINFO()
 	then
 		WPDBNAME=$REPLACEDOT
 	fi
+}
 
+EEWPDBPREFIX()
+{
 	# Get The WordPress Database Table Prefix
 	WPDBPREFIX=$(grep wpdbprefix /etc/easyengine/ee.conf | awk '{print($3)}')
 	
@@ -614,7 +617,10 @@ MYSQLINFO()
 	then
 		WPDBPREFIX=wp_
 	fi
+}
 
+EECREATEDATABASE()
+{
 	# Create Database
 	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
 	|| OwnError "Unable To Create $WPDBNAME Database"
@@ -875,6 +881,8 @@ EEWPSETUP()
 
 	# Call MYSQLINFO Function For MySQL Values
 	MYSQLINFO
+	EEWPDBPREFIX
+	EECREATEDATABASE
 
 	# Modify wp-config.php & Move Outside The Webroot
 	cp /var/www/$DOMAIN/htdocs/wp-config-sample.php \
@@ -1064,10 +1072,10 @@ REMOVEDB()
 	then
 		# MySQL Information
 		MYSQLROOT
-		WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		WPDBUSER=$(grep DB_USER /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		WPDBPASS=$(grep DB_PASS /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
-		MYSQLHOST=$(grep DB_HOST /var/www/$DOMAIN/wp-config.php | cut -d"'" -f4)
+		WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
+		WPDBUSER=$(grep DB_USER /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
+		WPDBPASS=$(grep DB_PASS /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
+		MYSQLHOST=$(grep DB_HOST /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
 		echo -e " WPDBNAME = $WPDBNAME \n WPDBUSER = $WPDBUSER \n MYSQLHOST = $MYSQLHOST"
 
 		# Remove Database
@@ -1620,6 +1628,29 @@ then
 			EESITENAME
 			EEDOMAINSETUP
 			PERMISSIONANDGIT
+
+			# Display Success Message
+			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
+
+		elif [ "$EESITECREATE" = "--mysql" ]
+		then
+
+			# Configure Variable
+			NGINXCONF=mysql/basic.conf
+			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $INSTALLLOG
+
+			# Setup PHP Nginx
+			EESITENAME
+			EEDOMAINSETUP
+			PERMISSIONANDGIT
+
+			# Call MYSQLINFO Function For MySQL Values
+			MYSQLINFO
+			EECREATEDATABASE
+
+			# Add Database Information On ee-config.php
+			echo -e "define('DB_NAME', '$WPDBNAME'); \ndefine('DB_USER', '$WPDBUSER'); \ndefine('DB_PASSWORD', '$WPDBPASS'); \ndefine('DB_HOST', '$MYSQLHOST');" \
+			&>> /var/www/$DOMAIN/ee-config.php
 
 			# Display Success Message
 			echo -e "\033[37mSuccessfully Created New Website: http://$WWWDOMAIN\e[0m"
