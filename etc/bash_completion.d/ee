@@ -18,7 +18,7 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "info help version system site" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "version info help system site" -- $CURRENT) )
 			return 0
 			;;
 
@@ -42,18 +42,10 @@ EEAUTO()
 			return 0
 			;;
 
-		show|enable|db|files)
+		show|enable|delete)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
-
-		all)
-			if [ "$EECOMMON" = "delete" ]
-			then
-				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			fi
-			return 0
-			;;	
 
 		info)
 			if [ "$EECOMMON" = "site" ]
@@ -65,21 +57,6 @@ EEAUTO()
 
 		disable)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			return 0
-			;;
-
-		create)
-			COMPREPLY=( $( compgen -W "html php wp wpsubdir wpsubdomain" -- $CURRENT ) )
-			return 0
-			;;
-
-		wp|wpsubdir|wpsubdomain)
-			COMPREPLY=( $( compgen -W "basic w3tc wpsc wpfc" -- $CURRENT ) )
-			return 0
-			;;
-
-		delete)
-			COMPREPLY=( $( compgen -W "files db all" -- $CURRENT ) )
 			return 0
 			;;
 
