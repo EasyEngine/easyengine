@@ -219,7 +219,7 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# White List IP Address
-	sed -i "s/deny.*/$(echo "allow $(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}');")\ndeny all;/" /etc/nginx/common/allowed_ip.conf
+	sed -i "s/deny.*/$(echo "allow $(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}');")\ndeny all;/" /etc/nginx/common/acl.conf
 
 	# Protect EE Locations
 	HTTPAUTH
@@ -669,7 +669,7 @@ EEINFO()
 	NGINXKEEPALIVE=$(grep keepalive_timeout /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	FASTCGITIMEOUT=$(grep fastcgi_read_timeout /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 	CLIENTMAXBODYSIZE=$(grep client_max_body_size /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
-	NGINXALLOWEDIPADD=$(grep ^allow /etc/nginx/common/allowed_ip.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
+	NGINXALLOWEDIPADD=$(grep ^allow /etc/nginx/common/acl.conf | cut -d' ' -f2 | cut -d';' -f1 | tr '\n' ' ')
 
 	echo -e "\033[34mNginx ($NGINXVER) Information:\n\e[0m"
 	echo -e "\033[34mNginx User:\t\t\t \033[37m$NGINXUSER\e[0m"
