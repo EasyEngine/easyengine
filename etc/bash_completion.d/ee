@@ -18,7 +18,7 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "version info help system site" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "version info update help system site" -- $CURRENT) )
 			return 0
 			;;
 
