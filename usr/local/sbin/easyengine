@@ -245,7 +245,7 @@ COMMONPHP()
 
 		# Move PHP’s Session Storage To Memcache
 		sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
-		
+
 		# Change PHP Settings
 		sed -i "s/\[PHP\]/[PHP]\n; Easy Engine/" /etc/php5/fpm/php.ini
 		sed -i "s/expose_php.*/expose_php = Off/" /etc/php5/fpm/php.ini
@@ -2107,6 +2107,12 @@ then
 		echo -e "\tdisable: Disable Website"
 	fi
 
+
+elif [ "$1" = "update" ]
+then
+
+	# Update EasyEngine
+	/bin/bash /usr/local/sbin/eeupdate
 
 else
 	echo -e "\033[34mList Of Available Commands:\e[0m"
