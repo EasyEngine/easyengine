@@ -138,7 +138,7 @@ fi
 # Install EasyEngine (ee)
 echo -e "\033[34mInstalling EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
 
-# EE /etc Files
+# EasyEngine (ee) /etc Files
 cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALLLOG || OwnError "Unable To Copy EE Auto Complete File"
 cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy ee.conf File"
 
@@ -147,20 +147,17 @@ cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> $INSTALLLOG |
 cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
 
 # EE Command
-cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
+cp -a /tmp/easyengine/usr/local/sbin/* /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
 
 # EE Man Pages
 cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Man Pages"
 
 # Change Permission For EE
-chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
+chmod 750 /usr/local/sbin/easyengine /usr/local/sbin/eeupdate || OwnError "Unable To Change EasyEngine Command Permission"
 
 # Create Symbolic Link If Not Exist
 if [ ! -L /usr/local/sbin/ee ]
 then
-	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
-else
-	rm /usr/local/sbin/ee
 	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
 
