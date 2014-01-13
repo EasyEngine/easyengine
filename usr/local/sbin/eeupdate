@@ -15,6 +15,7 @@ OwnError()
 EEUPDATE()
 {
 	# Clone EasyEngine (ee) Stable Repository
+	rm -rf /tmp/easyengine
 	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
 
 	# EasyEngine (ee) /etc Files
@@ -83,13 +84,54 @@ EEUPDATE()
 	fi
 }
 
+HTTPAUTH()
+{
+	# Get The htpasswd Details
+	HTPASSWDUSER=$(grep htpasswduser /etc/easyengine/ee.conf | awk '{print($3)}')
+	HTPASSWDPASS=$(grep htpasswdpass /etc/easyengine/ee.conf | awk '{print($3)}')
+
+	# Ask User To Provide HTTP AUTH Username & Password
+	if [ -z "$HTPASSWDUSER" ]
+	then
+		read -p "Enter The HTTP AUTH Username [easyengine]: " HTPASSWDUSER
+		# Turn Off Echo For Passwords
+		stty -echo
+		read -p "Enter The HTTP AUTH Password [easyengine]: " HTPASSWDPASS
+		stty echo
+		echo
+	fi
+
+	# If Enter Is Pressed, User Defaults
+	if [[ $HTPASSWDUSER = "" ]]
+	then
+		HTPASSWDUSER=easyengine
+	fi
+
+	if [[ $HTPASSWDPASS = "" ]]
+	then
+		HTPASSWDPASS=easyengine
+	fi
+
+	# Add HTTP Auth Details In EE Configuration File
+	sed -i "s/htpasswduser.*/htpasswduser = $HTPASSWDUSER/" /etc/easyengine/ee.conf
+	sed -i "s/htpasswdpass.*/htpasswdpass = $HTPASSWDPASS/" /etc/easyengine/ee.conf
+
+	# Generate htpasswd-ee file
+	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+}
 
 EE101()
 {
 	# Let Copy Some Missing Files
 	(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
 	cp -v /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common
-	
+	sed -i "s/fastcgi_cache_use_stale.*/fastcgi_cache_use_stale error timeout invalid_header updating http_500 http_503;\nfastcgi_cache_valid any 1h;/g" /etc/nginx/conf.d/fastcgi.conf
+	sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
+	sed -i "s/log_format rt_cache.*/log_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '/" /etc/nginx/nginx.conf
+	sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
+
+	# Move PHP’s Session Storage To Memcache
+	sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
 }
 
 
@@ -114,12 +156,19 @@ then
 
 		# Update EasyEngine (ee)
 		EEUPDATE
+		HTTPAUTH
 
 		if [[ $EECURRENTVERSION = 1.0.1 ]]
 		then
 			EE101
 		fi
 	fi
+
+	# Source EasyEngine (ee) Auto Complete To Take Effect
+	echo
+	echo -e "\033[34mFor EasyEngine (ee) Auto Completion Run Following Command\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
+	echo
 
 else
 	echo "EasyEngine Already Updated To The Latest Version"
