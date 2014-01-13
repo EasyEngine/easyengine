@@ -12,15 +12,38 @@ OwnError()
 	exit 101
 }
 
+GITCOMMIT ()
+{
+	# Change Directory
+	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
+
+	# Check .git
+	if [ ! -d .git ]
+	then
+		# Initialise Git
+		echo -e "\033[34mInitialise Git On $EEGITDIR...\e[0m"
+		git init &>> $INSTALLLOG || OwnError "Unable To Initialize Git On $EEGITDIR"
+	fi
+
+	# Check For Untracked Files
+	git status | grep clean &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Add Files In Git Version Control
+		git add . && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
+		|| OwnError "Unable To Git Commit On $EEGITDIR"
+	fi
+}
+
 EEUPDATE()
 {
 	# Clone EasyEngine (ee) Stable Repository
 	rm -rf /tmp/easyengine
+	echo -e "\033[34mUpdating EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
 	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
 
 	# EasyEngine (ee) /etc Files
 	cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALLLOG || OwnError "Unable To Copy EE Auto Complete File"
-	cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy ee.conf File"
 
 	# EE /usr/share/easyengine Files
 	cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
@@ -84,6 +107,69 @@ EEUPDATE()
 	fi
 }
 
+MYSQLUSERPASS()
+{
+        MYSQLUSER=root
+        MYSQLHOST=localhost
+
+        # Turn Off Echo For Passwords
+        stty -echo
+        read -p "Enter The MySQL Password For root User: " MYSQLPASS
+        stty echo
+        echo
+}
+
+MYSQLPASSCHECK()
+{
+        while [ -n $(mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS ping 2> /dev/null | grep alive) &> /dev/null ]
+        do
+                # Verify MySQL Credentials
+                MYSQLUSERPASS
+        done
+
+        # Generate ~/.my.cnf
+        echo -e "[client]\nuser=root\npassword=$MYSQLPASS" > ~/.my.cnf
+}
+
+MYCNFCHECK()
+{
+	# MySQL Root Password
+	if [ -f ~/.my.cnf ]
+	then
+		MYSQLUSER=root
+		MYSQLHOST=localhost
+		MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+		MYSQLPASSCHECK
+	else
+		# Turn Off Echo For Passwords
+        stty -echo
+        read -p "Enter The MySQL Password For root User: " MYSQLPASS
+        stty echo
+        echo
+
+		MYSQLPASSCHECK
+	fi
+
+
+}
+
+EE101()
+{
+	# EasyEngine (ee) /etc Files
+	cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy ee.conf File"
+
+	# Let Copy Some Missing Files & Chnage Nginx As Per Latest EasyEngine
+	(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
+	cp /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common
+	sed -i "s/fastcgi_cache_use_stale.*/fastcgi_cache_use_stale error timeout invalid_header updating http_500 http_503;\nfastcgi_cache_valid any 1h;/g" /etc/nginx/conf.d/fastcgi.conf
+	sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
+	sed -i "s/log_format rt_cache.*/log_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '/" /etc/nginx/nginx.conf
+	sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
+
+	# Move PHP’s Session Storage To Memcache
+	sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
+}
+
 HTTPAUTH()
 {
 	# Get The htpasswd Details
@@ -120,19 +206,13 @@ HTTPAUTH()
 	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
 }
 
-EE101()
+RESTARTSERVICE()
 {
-	# Let Copy Some Missing Files
-	(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
-	cp -v /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common
-	sed -i "s/fastcgi_cache_use_stale.*/fastcgi_cache_use_stale error timeout invalid_header updating http_500 http_503;\nfastcgi_cache_valid any 1h;/g" /etc/nginx/conf.d/fastcgi.conf
-	sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
-	sed -i "s/log_format rt_cache.*/log_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '/" /etc/nginx/nginx.conf
-	sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
-
-	# Move PHP’s Session Storage To Memcache
-	sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
+	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM After Update"
+	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx After Update"
 }
+
+
 
 
 
@@ -154,15 +234,36 @@ then
 		echo &>> $INSTALLLOG
 		echo -e "\033[34mEasyEngine (ee) Update Started [$(date)]\e[0m" | tee -ai $INSTALLLOG
 
+		# Before Update Take Nginx Conf In GIT
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Before Updating EasyEngine To $EELATESTVERSION"
+		GITCOMMIT
+
+		# Before Update Take PHP Conf In GIT
+		EEGITDIR=/etc/php5
+		GITCOMMIT
+
 		# Update EasyEngine (ee)
 		EEUPDATE
-		HTTPAUTH
+		
 
 		if [[ $EECURRENTVERSION = 1.0.1 ]]
 		then
 			EE101
+			HTTPAUTH
+			MYCNFCHECK
 		fi
 	fi
+
+	# Restart Nginx & PHP Services
+	RESTARTSERVICE
+
+	# Let's Take Conf In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="After Updating EasyEngine To $EELATESTVERSION"
+	GITCOMMIT
+	EEGITDIR=/etc/php5
+	GITCOMMIT
 
 	# Source EasyEngine (ee) Auto Complete To Take Effect
 	echo
