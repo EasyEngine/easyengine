@@ -60,6 +60,11 @@ EEAUTO()
 			return 0
 			;;
 
+		--wp|--wpsubdir|--wpsubdomain)
+			COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
+			return 0
+			;;
+
 		*)
 			if [ "$EECOMMON" = "create" ]
 			then
