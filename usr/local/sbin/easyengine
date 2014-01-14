@@ -627,7 +627,7 @@ FIXMYSQLUSER16()
 	# Fix MySQL USER ERROR 1470 (HY000)
 	MYSQLUSER16=$(echo -n $WPDBUSER | wc -c)
 
-	if [[ $MYSQLUSER16 > 16 ]]
+	if [[ $MYSQLUSER16 -gt 16 ]]
 	then
 		echo MySQL Database Username $WPDBUSER = $MYSQLUSER16 &>> $INSTALLLOG
 		REPLACEDOT16=$(echo $REPLACEDOT | cut -c1-16)
