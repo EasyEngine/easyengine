@@ -622,6 +622,30 @@ EEWPDBPREFIX()
 	fi
 }
 
+FIXMYSQLUSER16()
+{
+	# Fix MySQL USER ERROR 1470 (HY000)
+	MYSQLUSER16=$(echo -n $WPDBUSER | wc -c)
+
+	if [[ $MYSQLUSER16 > 16 ]]
+	then
+		echo MySQL Database Username $WPDBUSER = $MYSQLUSER16 &>> $INSTALLLOG
+		REPLACEDOT16=$(echo $REPLACEDOT | cut -c1-16)
+
+		echo -e "\033[31mERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username\e[0m"
+		# Turn Off Echo For Passwords
+		stty echo
+		read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
+
+		if [[ $WPDBUSER = "" ]]
+		then
+			WPDBUSER=$REPLACEDOT16
+		fi
+
+	fi
+
+}
+
 EECREATEDATABASE()
 {
 	# Create Database
@@ -635,12 +659,27 @@ EECREATEDATABASE()
 	if [ $? -eq 0 ]
 	then
 		read -p "Enter The MySQL Database Username [$REPLACEDOT]: " WPDBUSER
+
+		if [[ $WPDBUSER = "" ]]
+		then
+			WPDBUSER=$REPLACEDOT
+		fi
+
+		# Fix MySQL USER ERROR 1470 (HY000)
+		FIXMYSQLUSER16
+		
+		# Turn Off Echo For Passwords
+		stty -echo
 		read -p "Enter The MySQL Database Password [$WPDBRANDOMPASS]: " WPDBPASS
+		stty echo
+		echo
 	fi
 
 	if [[ $WPDBUSER = "" ]]
 	then
 		WPDBUSER=$REPLACEDOT
+		# Fix MySQL USER ERROR 1470 (HY000)
+		FIXMYSQLUSER16
 	fi
 
 	if [[ $WPDBPASS = "" ]]
