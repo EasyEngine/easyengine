@@ -227,7 +227,7 @@ RESTARTSERVICE()
 
 # Update EasyEngine (ee)
 EECURRENTVERSION=$(ee version | awk '{print($3)}')
-EELATESTVERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-)
+EELATESTVERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
 echo EECURRENTVERSION = $EECURRENTVERSION EELATESTVERSION = $EELATESTVERSION &>> $INSTALLLOG
 
 if [[ $EECURRENTVERSION < $EELATESTVERSION ]]
