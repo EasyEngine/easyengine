@@ -2151,7 +2151,9 @@ elif [ "$1" = "update" ]
 then
 
 	# Update EasyEngine
-	/bin/bash /usr/local/sbin/eeupdate
+	echo -e "\033[34mChecking EasyEngine Update, Please Wait...\e[0m"
+	/bin/bash <(curl -sL https://raw.github.com/rtCamp/easyengine/stable/usr/local/sbin/eeupdate) && exit 0;
+	#/bin/bash /usr/local/sbin/eeupdate
 
 else
 	echo -e "\033[34mList Of Available Commands:\e[0m"
