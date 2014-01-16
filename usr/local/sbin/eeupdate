@@ -50,13 +50,13 @@ EEUPDATE()
 	cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
 
 	# EE Command
-	cp -a /tmp/easyengine/usr/local/sbin/* /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
+	cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
 
 	# EE Man Pages
 	cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Man Pages"
 
 	# Change Permission For EE
-	chmod 750 /usr/local/sbin/easyengine /usr/local/sbin/eeupdate || OwnError "Unable To Change EasyEngine Command Permission"
+	chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
 
 	# Create Symbolic Link If Not Exist
 	if [ ! -L /usr/local/sbin/ee ]
