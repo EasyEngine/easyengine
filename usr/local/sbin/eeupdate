@@ -178,6 +178,11 @@ EE101()
 	sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
 }
 
+EE110()
+{
+	sed -i '/allow ;/d' /etc/nginx/common/acl.conf
+}
+
 HTTPAUTH()
 {
 	# Get The htpasswd Details
@@ -261,6 +266,11 @@ then
 			EE101
 			HTTPAUTH
 			MYCNFCHECK
+		fi
+
+		if [[ $EECURRENTVERSION = 1.1.0 ]]
+		then
+			EE110
 		fi
 	fi
 
