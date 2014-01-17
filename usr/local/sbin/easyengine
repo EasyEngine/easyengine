@@ -219,7 +219,11 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# White List IP Address
-	sed -i "s/deny.*/$(echo "allow $(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}');")\ndeny all;/" /etc/nginx/common/acl.conf
+	WHITELISTIP=$(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}')
+	if [ ! -z $WHITELISTIP ]
+	then
+		sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
+	fi
 
 	# Protect EE Locations
 	HTTPAUTH
