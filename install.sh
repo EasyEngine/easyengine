@@ -107,19 +107,15 @@ fi
 
 # Pre Checks End
 
-
-# Check The EasyEngine (ee) Is Available
-EXIST=$(basename `pwd`)
-if [ "$EXIST" != "easyengine" ]
-then
-	echo -e "\033[34mCloning EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
+# Clone EasyEngine (ee)
+echo -e "\033[34mCloning EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
 	
-	# Remove Older EasyEngine (ee) If Found
-	rm -rf /tmp/easyengine &>> /dev/null
+# Remove Older EasyEngine (ee) If Found
+rm -rf /tmp/easyengine &>> /dev/null
 
-	# Clone EasyEngine (ee) Stable Repository
-	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
-fi
+# Clone EasyEngine (ee) Stable Repository
+git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+
 
 # Create Directory /etc/easyengine
 if [ ! -d /etc/easyengine ]
