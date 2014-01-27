@@ -266,6 +266,7 @@ then
 			EE101
 			HTTPAUTH
 			MYCNFCHECK
+			EE110
 		fi
 
 		if [[ $EECURRENTVERSION = 1.1.0 ]]
