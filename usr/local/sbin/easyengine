@@ -219,9 +219,14 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# White List IP Address
-	WHITELISTIP=$(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}')
-	if [ ! -z $WHITELISTIP ]
+	IPDETECT=$(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}' | grep -v "-")
+	if [ ! -z $IPDETECT ]
 	then
+		read -p "Enter The IP Address To Whitelist: [$IPDETECT]: " WHITELISTIP
+		if [[ $WHITELISTIP = "" ]]
+		then
+				WHITELISTIP=$IPDETECT
+		fi
 		sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
 	fi
 
