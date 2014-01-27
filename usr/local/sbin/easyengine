@@ -219,7 +219,7 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# White List IP Address
-	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication"
+	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
 	IPDETECT=$(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}' | grep -v "-")
 	if [ ! -z $IPDETECT ]
 	then
