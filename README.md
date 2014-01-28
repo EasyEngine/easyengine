@@ -58,3 +58,7 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 - [Documentation] (http://rtcamp.com/easyengine/docs/) 
 - [FAQ] (http://rtcamp.com/easyengine/faq/)
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
+
+## License
+
+Same [GPL] (http://www.gnu.org/licenses/gpl-2.0.txt) that WordPress uses!
