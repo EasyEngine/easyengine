@@ -220,15 +220,10 @@ COMMONNGINX()
 
 	# White List IP Address
 	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
-	IPDETECT=$(w | grep $(echo $SSH_TTY| cut -d'/' -f3,4) | awk '{print($3)}' | grep -v "-")
-	if [ ! -z $IPDETECT ]
+	read -p "Enter The IP Address To Whitelist: " WHITELISTIP
+	if [[ $WHITELISTIP != "" ]]
 	then
-		read -p "Enter The IP Address To Whitelist: [$IPDETECT]: " WHITELISTIP
-		if [[ $WHITELISTIP = "" ]]
-		then
-				WHITELISTIP=$IPDETECT
-		fi
-		sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
+			sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
 	fi
 
 	# Protect EE Locations
