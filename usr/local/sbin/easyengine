@@ -220,6 +220,7 @@ COMMONNGINX()
 
 	# White List IP Address
 	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
+	stty echo
 	read -p "Enter The IP Address To Whitelist: " WHITELISTIP
 	if [[ $WHITELISTIP != "" ]]
 	then
