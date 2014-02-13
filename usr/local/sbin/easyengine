@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 # Make Variables Available For Later Use
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
@@ -977,7 +975,7 @@ EEWPDBSETUP()
 	# Create WordPress Tables
 	echo -e "\033[34mSetting Up WordPress, Please Wait...\e[0m"
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory To Install WordPress"
-	wp core install --url=$WWWDOMAIN --title="$WWWDOMAIN" \
+	wp core install --allow-root  --url=$WWWDOMAIN --title="$WWWDOMAIN" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $INSTALLLOG \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 }
@@ -1055,10 +1053,10 @@ TOTALCACHENGINX()
 	# Installing W3 Total Cache
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling W3 Total Cache Plugin, Please Wait...\e[0m"
-	wp plugin install w3-total-cache &>> $INSTALLLOG || OwnError "Unable To Install W3 Total Cache Plugin"
+	wp plugin --allow-root install w3-total-cache &>> $INSTALLLOG || OwnError "Unable To Install W3 Total Cache Plugin"
 
 	# Activate W3 Total Cache
-	wp plugin activate w3-total-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate W3 Total Cache Plugin"
+	wp plugin --allow-root activate w3-total-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate W3 Total Cache Plugin"
 
 	# Install Opcache & Memcache
 	EEOPMEMCACHE
@@ -1069,10 +1067,10 @@ SUPERCACHENGINX()
 	# Installing WP Super Cache
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling WP Super Cache Plugin, Please Wait...\e[0m"
-	wp plugin install wp-super-cache &>> $INSTALLLOG || OwnError "Unable To Install WP Super Cache Plugin"
+	wp plugin --allow-root install wp-super-cache &>> $INSTALLLOG || OwnError "Unable To Install WP Super Cache Plugin"
 
 	# Activate WP Super Cache
-	wp plugin activate wp-super-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate WP Super Cache Plugin"
+	wp plugin --allow-root activate wp-super-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate WP Super Cache Plugin"
 }
 
 NGINXHELPER()
@@ -1080,10 +1078,10 @@ NGINXHELPER()
 	# Installing Nginx Helper
 	cd /var/www/$DOMAIN/htdocs/
 	echo -e "\033[34mInstalling Nginx Helper Plugin, Please Wait...\e[0m"
-	wp plugin install nginx-helper &>> $INSTALLLOG || OwnError "Unable To Install Nginx Helper"
+	wp plugin --allow-root install nginx-helper &>> $INSTALLLOG || OwnError "Unable To Install Nginx Helper"
 
 	# Activate Nginx Helper
-	wp plugin activate nginx-helper $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate Nginx Helper Plugin"
+	wp plugin --allow-root activate nginx-helper $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate Nginx Helper Plugin"
 }
 
 

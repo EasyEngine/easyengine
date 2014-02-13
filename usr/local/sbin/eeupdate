@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-
 # Make Variables Available For Later Use
 INSTALLLOG=/var/log/easyengine/install.log
 
