@@ -1,6 +1,5 @@
 v 1.1.4
   - Fixed wp-cli issue with --allow-root error. 
-  - Started using own wp-cli mirror to avoid future issues.
   
 
 v 1.1.3
