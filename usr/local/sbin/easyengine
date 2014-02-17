@@ -1090,7 +1090,7 @@ SETUPWPNETWORK()
 {
 	# Prepare wp-config.php File Foe WordPress Multisite With SubDirectory
 	cd /var/www/$DOMAIN/htdocs || OwnError "Unable To Change Directory"
-	wp core install-network --title="$WWWDOMAIN" $WPSUBDOMAINS &>> $INSTALLLOG || OwnError "Unable To Setup WordPress SubDirectory Network"
+	wp core install-network --allow-root --title="$WWWDOMAIN" $WPSUBDOMAINS &>> $INSTALLLOG || OwnError "Unable To Setup WordPress SubDirectory Network"
 
 	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
 	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
