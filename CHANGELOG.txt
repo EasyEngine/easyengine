@@ -1,3 +1,7 @@
+v 1.1.5
+  - Fixed WordPress multisite issue (#127).
+
+
 v 1.1.4
   - Fixed wp-cli issue with --allow-root error. 
   
