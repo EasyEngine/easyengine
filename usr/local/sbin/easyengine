@@ -53,18 +53,46 @@ PYTHONSOFTWARE()
 
 NGINXREPO()
 {
-	# Add Nginx Launchpad Repository
-	echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
-	sudo add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
-	|| OwnError "Unable To Add Nginx Launchpad Repository"
+	if [ -f /etc/lsb-release ]
+	then
+		# Add Nginx Launchpad Repository
+		echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
+		sudo add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
+		|| OwnError "Unable To Add Nginx Launchpad Repository"
+
+	elif [ -f /etc/debian_version ]
+	then
+		# Add Nginx DotDeb Repository
+		echo -e "\033[34mAdding Nginx DotDeb Repository, Please Wait...\e[0m"
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}') all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}').list \
+		|| OwnError "Unable To Add Nginx DotDeb Repository"
+
+		# Fetch And Install The GnuPG Key
+		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg
+		apt-key add /tmp/dotdeb.gpg
+	fi
 }
 
 PHPREPO()
 {
-	# Add PHP Launchpad Repository
-	echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...\e[0m"
-	sudo add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
-	|| OwnError "Unable To Add PHP5 Launchpad Repository"
+	if [ -f /etc/lsb-release ]
+	then
+		# Add PHP Launchpad Repository
+		echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...\e[0m"
+		sudo add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
+		|| OwnError "Unable To Add PHP5 Launchpad Repository"
+
+	elif [ -f /etc/debian_version ]
+	then
+		# Add PHP DotDeb Repository
+		echo -e "\033[34mAdding PHP5 DotDeb Repository, Please Wait...\e[0m"
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}'-php55) all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
+		|| OwnError "Unable To Add PHP5 DotDeb Repository"
+
+		# Fetch And Install The GnuPG Key
+		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg
+		apt-key add /tmp/dotdeb.gpg
+	fi
 }
 
 GPGKEY()
@@ -98,7 +126,7 @@ INSTALLNGINX()
 {
 	# Install Nginx
 	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET install nginx-custom || OwnError "Unable To Install Nginx"
+	sudo $EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
 }
 
 EEMD5SUM()
@@ -364,7 +392,7 @@ INSTALLALL()
 
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET install nginx-custom php5-common php5-mysqlnd php5-xmlrpc \
+	sudo $EEAPTGET install $NGINXPACKAGE php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
@@ -376,7 +404,7 @@ REMOVENGINX()
 {
 	# Remove Nginx
 	echo -e "\033[34mRemoving Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET remove nginx-custom nginx-common || OwnError "Unable To Remove Nginx"
+	sudo $EEAPTGET remove $NGINXPACKAGE nginx-common || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
@@ -421,7 +449,7 @@ REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET remove nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
+	sudo $EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
@@ -440,7 +468,7 @@ PURGENGINX()
 {
 	# Purge Nginx
 	echo -e "\033[34mPurge Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET purge nginx-custom nginx-common || OwnError "Unable To Purge Nginx"
+	sudo $EEAPTGET purge $NGINXPACKAGE nginx-common || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
@@ -471,7 +499,7 @@ PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET purge nginx-custom nginx-common php5-common php5-mysqlnd php5-xmlrpc \
+	sudo $EEAPTGET purge $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
@@ -1205,6 +1233,17 @@ then
 
 	# Check Auto Assume Yes Or No To Apt-Get
 	APTASSUMEYES
+
+	# Define Nginx Package
+	if [ -f /etc/lsb-release ]
+	then
+		NGINXPACKAGE=nginx-custom
+
+	elif [ -f /etc/debian_version ]
+	then
+		NGINXPACKAGE=nginx-full
+	fi
+
 
 	# Easy Engine Install
 	if [ "$2" = "install" ]
