@@ -47,7 +47,7 @@ PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
 	echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
-	sudo $EEAPTGET install python-software-properties \
+	$EEAPTGET install python-software-properties \
 	|| OwnError "Unable To Install Python Software Properties"
 }
 
@@ -57,7 +57,7 @@ NGINXREPO()
 	then
 		# Add Nginx Launchpad Repository
 		echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
-		sudo add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
+		add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
 		|| OwnError "Unable To Add Nginx Launchpad Repository"
 
 	elif [ -f /etc/debian_version ]
@@ -79,7 +79,7 @@ PHPREPO()
 	then
 		# Add PHP Launchpad Repository
 		echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...\e[0m"
-		sudo add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
+		add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
 		|| OwnError "Unable To Add PHP5 Launchpad Repository"
 
 	elif [ -f /etc/debian_version ]
@@ -117,13 +117,13 @@ GPGKEY()
 	then
 		# Fix GPG Key Problems
 		echo -e "\033[34mChecking GPG Keys For Brianmercer Nginx Repository, Please Wait...\e[0m"
-		sudo apt-get update > /dev/null 2> /tmp/keymissing \
+		apt-get update > /dev/null 2> /tmp/keymissing \
 		|| OwnError "Unable To Fix GPG Keys For Brianmercer Nginx Repository "
 
 		for key in $(grep "NO_PUBKEY" /tmp/keymissing |sed "s/.*NO_PUBKEY //")
 		do
 			echo -e "\033[34mProcessing key: $key\e[0m"
-			gpg --keyserver subkeys.pgp.net --recv $key && sudo gpg --export --armor $key | apt-key add -
+			gpg --keyserver subkeys.pgp.net --recv $key && gpg --export --armor $key | apt-key add -
 		done
 	fi
 }
@@ -132,14 +132,14 @@ UPDATEAPT()
 {
 	# Update The APT Cache
 	echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
-	sudo apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
+	apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 }
 
 INSTALLNGINX()
 {
 	# Install Nginx
 	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
+	$EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
 }
 
 EEMD5SUM()
@@ -264,7 +264,7 @@ INSTALLPHP()
 {
 	# Install PHP5
 	echo -e "\033[34mInstalling PHP5, Please Wait...\e[0m"
-	sudo $EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
 }
@@ -376,7 +376,7 @@ INSTALLMYSQL()
 
 	# Install MySQL
 	echo -e "\033[34mInstalling MySQL, Please Wait...\e[0m"
-	sudo $EEAPTGET install mysql-server mysqltuner \
+	$EEAPTGET install mysql-server mysqltuner \
 	|| OwnError "Unable To Install MySQL"
 }
 
@@ -394,7 +394,7 @@ INSTALLPOSTFIX()
 
 	# Install Postfix
 	echo -e "\033[34mInstalling Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET install postfix || OwnError "Unable To Install Postfix"
+	$EEAPTGET install postfix || OwnError "Unable To Install Postfix"
 }
 
 INSTALLALL()
@@ -405,7 +405,7 @@ INSTALLALL()
 
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET install $NGINXPACKAGE php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET install $NGINXPACKAGE php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
@@ -417,14 +417,14 @@ REMOVENGINX()
 {
 	# Remove Nginx
 	echo -e "\033[34mRemoving Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET remove $NGINXPACKAGE nginx-common || OwnError "Unable To Remove Nginx"
+	$EEAPTGET remove $NGINXPACKAGE nginx-common || OwnError "Unable To Remove Nginx"
 }
 
 REMOVEPHP()
 {
 	# Remove PHP5
 	echo -e "\033[34mRemoving PHP5, Please Wait...\e[0m"
-	sudo $EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Remove PHP5"
 }
@@ -447,7 +447,7 @@ REMOVEMYSQL()
 {
 	# Remove MySQL
 	echo -e "\033[34mRemoving MySQL, Please Wait...\e[0m"
-	sudo $EEAPTGET remove mysql-server mysqltuner \
+	$EEAPTGET remove mysql-server mysqltuner \
 	|| OwnError "Unable To Remove MySQL"
 }
 
@@ -455,14 +455,14 @@ REMOVEPOSTFIX()
 {
 	# Remove Postfix
 	echo -e "\033[34mRemoving Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET remove postfix || OwnError "Unable To Remove Postfix"
+	$EEAPTGET remove postfix || OwnError "Unable To Remove Postfix"
 }
 
 REMOVEALL()
 {
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
@@ -472,7 +472,7 @@ AUTOREMOVE()
 {
 	# Remove Unwanted Packages
 	echo -e "\033[34mRemoving Unwanted Packages, Please Wait...\e[0m"
-	sudo $EEAPTGET autoremove || OwnError "Unable To Auto Remove"
+	$EEAPTGET autoremove || OwnError "Unable To Auto Remove"
 }
 
 
@@ -481,14 +481,14 @@ PURGENGINX()
 {
 	# Purge Nginx
 	echo -e "\033[34mPurge Nginx, Please Wait...\e[0m"
-	sudo $EEAPTGET purge $NGINXPACKAGE nginx-common || OwnError "Unable To Purge Nginx"
+	$EEAPTGET purge $NGINXPACKAGE nginx-common || OwnError "Unable To Purge Nginx"
 }
 
 PURGEPHP()
 {
 	# Purge PHP5
 	echo -e "\033[34mPurge PHP5, Please Wait...\e[0m"
-	sudo $EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached || OwnError "Unable To Purge PHP5"
 }
@@ -497,7 +497,7 @@ PURGEMYSQL()
 {
 	# Purge MySQL
 	echo -e "\033[34mPurge MySQL, Please Wait...\e[0m"
-	sudo $EEAPTGET purge mysql-server mysqltuner \
+	$EEAPTGET purge mysql-server mysqltuner \
 	|| OwnError "Unable To Purge MySQL"
 }
 
@@ -505,14 +505,14 @@ PURGEPOSTFIX()
 {
 	# Purge Postfix
 	echo -e "\033[34mPurge Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET purge postfix || OwnError "Unable To Purge Postfix"
+	$EEAPTGET purge postfix || OwnError "Unable To Purge Postfix"
 }
 
 PURGEALL()
 {
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
-	sudo $EEAPTGET purge $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
+	$EEAPTGET purge $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
 	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"

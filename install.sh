@@ -49,7 +49,7 @@ if [ ! -x  /usr/bin/tee ]
 then
 	echo -e "\033[31mTee Command Not Found\e[0m"
 	echo -e "\033[34mInstalling Tee, Please Wait...\e[0m"
-	sudo apt-get -y install coreutils &>> $INSTALLLOG || OwnError "Unable to install tee"
+	apt-get -y install coreutils &>> $INSTALLLOG || OwnError "Unable to install tee"
 fi
 
 echo &>> $INSTALLLOG
@@ -62,7 +62,7 @@ if [ ! -x  /bin/ed ]
 then
 	echo -e "\033[31mEd Command Not Found\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mInstalling Ed, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install ed &>> $INSTALLLOG || OwnError "Unable to install ed"
+	apt-get -y install ed &>> $INSTALLLOG || OwnError "Unable to install ed"
 fi
 
 # Checking Wget
@@ -70,7 +70,7 @@ if [ ! -x  /usr/bin/wget ]
 then
 	echo -e "\033[31mWget Command Not Found\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mInstalling Wget, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install wget &>> $INSTALLLOG || OwnError "Unable To Install Wget"
+	apt-get -y install wget &>> $INSTALLLOG || OwnError "Unable To Install Wget"
 fi
 
 # Checking Curl
@@ -78,7 +78,7 @@ if [ ! -x  /usr/bin/curl ]
 then
 	echo -e "\033[31mCurl Command Not Found\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mInstalling Curl, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install curl &>> $INSTALLLOG || OwnError "Unable To Install Curl"
+	apt-get -y install curl &>> $INSTALLLOG || OwnError "Unable To Install Curl"
 fi
 
 # Checking Tar
@@ -86,7 +86,7 @@ if [ ! -x  /bin/tar ]
 then
 	echo -e "\033[31mTar Command Not Found\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mInstalling Tar, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install tar &>> $INSTALLLOG || OwnError "Unable To Install Tar"
+	apt-get -y install tar &>> $INSTALLLOG || OwnError "Unable To Install Tar"
 fi
 
 # Checking Git
@@ -94,7 +94,7 @@ if [ ! -x  /usr/bin/git ]
 then
 	echo -e "\033[31mGit Command Not Found\e[0m" | tee -ai $INSTALLLOG
 	echo -e "\033[34mInstalling Git, Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	sudo apt-get -y install git-core &>> $INSTALLLOG || OwnError "Unable To Install Git"
+	apt-get -y install git-core &>> $INSTALLLOG || OwnError "Unable To Install Git"
 fi
 
 # Checking Name Servers
