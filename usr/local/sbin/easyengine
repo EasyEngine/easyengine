@@ -68,8 +68,8 @@ NGINXREPO()
 		|| OwnError "Unable To Add Nginx DotDeb Repository"
 
 		# Fetch And Install The GnuPG Key
-		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg
-		apt-key add /tmp/dotdeb.gpg
+		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
+		apt-key add /tmp/dotdeb.gpg &>> $INSTALLLOG || OwnError "Unable To Add DotDeb GnuPG Key"
 	fi
 }
 
@@ -90,8 +90,8 @@ PHPREPO()
 		|| OwnError "Unable To Add PHP5 DotDeb Repository"
 
 		# Fetch And Install The GnuPG Key
-		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg
-		apt-key add /tmp/dotdeb.gpg
+		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
+		apt-key add /tmp/dotdeb.gpg &>> $INSTALLLOG || OwnError "Unable To Add DotDeb GnuPG Key"
 	fi
 }
 
