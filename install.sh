@@ -36,13 +36,17 @@ OwnError()
 
 
 # Pre Checks To Avoid Later Screw Ups
-# Checking Logs Directory
 
+# Checking Logs Directory
 if [ ! -d $LOGDIR ]
 then
 	echo -e "\033[34mCreating EasyEngine (ee) Log Directory, Please Wait...\e[0m"
 	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR"
 fi
+
+# Update The APT Cache
+echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
+apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
