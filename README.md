@@ -60,7 +60,7 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
 
 ## Donations
-- [Using PayPal] https://rtcamp.com/donate/?project=easyengine
+- [Using PayPal] (https://rtcamp.com/donate/?project=easyengine)
 
 ## License
 
