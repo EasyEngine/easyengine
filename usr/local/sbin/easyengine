@@ -84,11 +84,24 @@ PHPREPO()
 
 	elif [ -f /etc/debian_version ]
 	then
-		# Add PHP DotDeb Repository
-		echo -e "\033[34mAdding PHP5 DotDeb Repository, Please Wait...\e[0m"
-		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}'-php55) all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
-		|| OwnError "Unable To Add PHP5 DotDeb Repository"
+		# Detect Debian Version To Select PHP Repo
+		DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
 
+		if [ $DEBIAN_VERSION -eq 6 ]
+		then
+			# Add PHP DotDeb Repository
+			echo -e "\033[34mAdding PHP5.4 DotDeb Repository, Please Wait...\e[0m"
+			echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php54.list \
+			|| OwnError "Unable To Add PHP5.4 DotDeb Repository"
+
+		elif [ $DEBIAN_VERSION -eq 7 ]
+		then
+			# Add PHP DotDeb Repository
+			echo -e "\033[34mAdding PHP5.5 DotDeb Repository, Please Wait...\e[0m"
+			echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
+			|| OwnError "Unable To Add PHP5.5 DotDeb Repository"
+		fi
+		
 		# Fetch And Install The GnuPG Key
 		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
 		apt-key add /tmp/dotdeb.gpg &>> $INSTALLLOG || OwnError "Unable To Add DotDeb GnuPG Key"
