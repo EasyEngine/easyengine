@@ -1204,7 +1204,7 @@ REMOVENGINXCONF()
 	# Remove Nginx Configuration
 	# For Proper read Command Output
 	stty echo
-	read -p "Are You Sure To Remove $DOMAIN Nginx Configuraion (y/n): " ANSWER
+	read -p "Are You Sure To Remove $DOMAIN Nginx Configuration (y/n): " ANSWER
 
 	if [ "$ANSWER" = "y" ]
 	then
