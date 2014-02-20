@@ -2,7 +2,7 @@
 
 ## Introduction
 
-easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on an ubuntu server.
+easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on a debian/ubuntu server.
 
 ## Quick Start
 
@@ -58,6 +58,9 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 - [Documentation] (http://rtcamp.com/easyengine/docs/) 
 - [FAQ] (http://rtcamp.com/easyengine/faq/)
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
+
+## Donations
+- [Using PayPal] https://rtcamp.com/donate/?project=easyengine
 
 ## License
 
