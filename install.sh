@@ -5,7 +5,7 @@
 # Checking Linux Distro Is Ubuntu
 if [ ! -f /etc/lsb-release ] && [ ! -f /etc/debian_version ]
 then
-	echo -e "\033[31mEasyEngine (ee) Is Made For Ubuntu Only As Of Now\e[0m"
+	echo -e "\033[31mEasyEngine (ee) Is Made For Ubuntu And Debian Only As Of Now\e[0m"
 	echo -e "\033[31mYou Are Free To Fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork\e[0m"
 	exit 100
 fi
