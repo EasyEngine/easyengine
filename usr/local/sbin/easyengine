@@ -329,25 +329,25 @@ WP-CLI()
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	if [ ! -d /var/www/shared/pma ]
+	if [ ! -d /var/www/eeadmin/htdocs/pma ]
 	then
 		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...\e[0m"
 
 		# Setup PMA/phpMyAdmin
-		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
+		mkdir -p /var/www/eeadmin/htdocs/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/eeadmin/htdocs/pma/"
 
 		# Download PMA/phpMyAdmin
-		wget -cqO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+		wget -cqO /var/www/eeadmin/htdocs/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
 		|| OwnError "Unable To Download phpMyAdmin"
 
 		# Extract PMA/phpMyAdmin
-		tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
+		tar --strip-components=1 -zxf  /var/www/eeadmin/htdocs/pma/pma.tar.gz -C /var/www/eeadmin/htdocs/pma/ \
 		|| OwnError "Unable To Extract phpMyAdmin"
 
 		# Remove Unwanted Files
-		rm -f /var/www/shared/pma/pma.tar.gz
+		rm -f /var/www/eeadmin/htdocs/pma/pma.tar.gz
 	else
-		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/shared/pma)...\e[0m"
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/eeadmin/htdocs/pma)...\e[0m"
 	fi
 }
 
@@ -440,7 +440,7 @@ REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...\e[0m"
-	rm -rf /var/www/shared/pma || OwnError "Unable To Remove phpMyAdmin"
+	rm -rf /var/www/eeadmin/htdocs/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
@@ -1063,29 +1063,29 @@ PERMISSIONANDGIT()
 EEOPMEMCACHE()
 {
 	# Opcache Settings
-	if [ ! -d /var/www/shared/opcache ]
+	if [ ! -d /var/www/eeadmin/htdocs/opcache ]
 	then
-		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
+		mkdir -p /var/www/eeadmin/htdocs/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
-		wget -cqO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget -cqO /var/www/eeadmin/htdocs/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/eeadmin/htdocs/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/eeadmin/htdocs/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
-	if [ ! -d /var/www/shared/memcache ]
+	if [ ! -d /var/www/eeadmin/htdocs/memcache ]
 	then
-		mkdir -p /var/www/shared/memcache || OwnError "Unable To Create Memcache Directory"
+		mkdir -p /var/www/eeadmin/htdocs/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
-		wget -cqO /var/www/shared/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget -cqO /var/www/eeadmin/htdocs/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
-		tar -zxf /var/www/shared/memcache/memcache.tar.gz -C /var/www/shared/memcache
+		tar -zxf /var/www/eeadmin/htdocs/memcache/memcache.tar.gz -C /var/www/eeadmin/htdocs/memcache
 
 		# Remove Unwanted Files
-		rm -f /var/www/shared/memcache/memcache.tar.gz
+		rm -f /var/www/eeadmin/htdocs/memcache/memcache.tar.gz
 	fi
 }
 
@@ -1334,7 +1334,7 @@ then
 			INSTALLPMA
 
 			# Initialise Git
-			EEGITDIR=/var/www/shared/pma/
+			EEGITDIR=/var/www/eeadmin/htdocs/pma/
 			EEGITINIT
 
 			# Display Success Message
@@ -1424,7 +1424,7 @@ then
 			EEGITINIT
 
 			# Initialize Git
-			EEGITDIR=/var/www/shared/pma/
+			EEGITDIR=/var/www/eeadmin/htdocs/pma/
 			EEGITINIT
 
 			# Initialize Git
@@ -1872,7 +1872,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -1896,7 +1896,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1927,7 +1927,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1958,7 +1958,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1994,7 +1994,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -2018,7 +2018,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2049,7 +2049,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2080,7 +2080,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
