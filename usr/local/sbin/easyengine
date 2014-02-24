@@ -588,7 +588,7 @@ MYSQLPASSCHECK()
 MYSQLROOT()
 {
 	MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
-	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
 }
 # GET Information Function
 MYSQLINFO()
