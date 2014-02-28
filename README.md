@@ -12,10 +12,18 @@ ee system install                                # install nginx, php, mysql, po
 ee site create example.com --wp                  # create example.com and install wordpress on it
 ```
 
-## Upgrading from easyengine 1.0 to 1.1 and above
+## Upgrading 
+
+### From easyengine 1.0 to 1.1 and above
 
 ```bash
 /bin/bash <(curl -sL https://raw.github.com/rtCamp/easyengine/stable/usr/local/sbin/eeupdate)
+```
+
+### From easyengine 1.1 and above
+
+```bash
+ee update
 ```
 
 ## Site Creation Commands
