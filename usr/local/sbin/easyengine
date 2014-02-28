@@ -313,7 +313,7 @@ WP-CLI()
 	then
 		echo -e "\033[31mWP-CLI Command Not Found\e[0m"
 		echo -e "\033[34mInstalling WP-CLI, Please Wait...\e[0m"
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash &>> $INSTALLLOG \
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.0' bash &>> $INSTALLLOG \
 		|| OwnError "Unable To Install WP-CLI"
 
 		# Add WP-CLI Command In PATH Variable
