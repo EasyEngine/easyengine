@@ -4,6 +4,7 @@
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 INSTALLLOG=/var/log/easyengine/install.log
+LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
 
 # Main EasyEngine Function To Log All The Outputs
 EasyEngine()
@@ -53,14 +54,14 @@ PYTHONSOFTWARE()
 
 NGINXREPO()
 {
-	if [ -f /etc/lsb-release ]
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
 		# Add Nginx Launchpad Repository
 		echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
 		add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
 		|| OwnError "Unable To Add Nginx Launchpad Repository"
 
-	elif [ -f /etc/debian_version ]
+	elif [ "$LINUX_DISTRO" == "Debian" ]
 	then
 		# Add Nginx DotDeb Repository
 		echo -e "\033[34mAdding Nginx DotDeb Repository, Please Wait...\e[0m"
@@ -75,14 +76,14 @@ NGINXREPO()
 
 PHPREPO()
 {
-	if [ -f /etc/lsb-release ]
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
 		# Add PHP Launchpad Repository
 		echo -e "\033[34mAdding Ondrej PHP5 Launchpad Repository, Please Wait...\e[0m"
 		add-apt-repository -y ppa:ondrej/php5 &>> $INSTALLLOG \
 		|| OwnError "Unable To Add PHP5 Launchpad Repository"
 
-	elif [ -f /etc/debian_version ]
+	elif [ "$LINUX_DISTRO" == "Debian" ]
 	then
 		# Detect Debian Version To Select PHP Repo
 		DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
