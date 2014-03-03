@@ -846,7 +846,7 @@ EESITEINFO()
 
 NGINXBUCKETSIZE()
 {
-	nginx -t 2>&1 | grep server_names_hash_bucket_size
+	nginx -t 2>&1 | grep server_names_hash_bucket_size &>> $INSTALLLOG
 	if [ $? -eq 0 ]
 	then
 		NGINXCALCULATION=$(echo "l($(ls /etc/nginx/sites-enabled/ | wc -c))/l(2)+2" | bc -l)
