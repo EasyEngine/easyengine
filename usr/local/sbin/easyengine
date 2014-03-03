@@ -1255,11 +1255,11 @@ then
 	APTASSUMEYES
 
 	# Define Nginx Package
-	if [ -f /etc/lsb-release ]
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
 		NGINXPACKAGE=nginx-custom
 
-	elif [ -f /etc/debian_version ]
+	elif [ "$LINUX_DISTRO" == "Debian" ]
 	then
 		NGINXPACKAGE=nginx-full
 	fi
