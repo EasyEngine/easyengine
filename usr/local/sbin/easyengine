@@ -850,7 +850,7 @@ NGINXBUCKETSIZE()
 	if [ $? -eq 0 ]
 	then
 		NGINXCALCULATION=$(echo "l($(ls /etc/nginx/sites-enabled/ | wc -c))/l(2)+2" | bc -l)
-		NGINXSETBUCKET=$(echo "2^$NGINXCALCULATION" | bc -l)
+		NGINXSETBUCKET=$(echo "2^$NGINXCALCULATION" | bc -l 2> /dev/null)
 		sed -i "s/.*server_names_hash_bucket_size.*/\tserver_names_hash_bucket_size $NGINXSETBUCKET;/" /etc/nginx/nginx.conf		
 	fi
 }
