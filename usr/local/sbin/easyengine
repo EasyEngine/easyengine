@@ -1020,6 +1020,12 @@ EEWPDBSETUP()
 	wp core install --allow-root  --url=$WWWDOMAIN --title="$WWWDOMAIN" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $INSTALLLOG \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
+	
+	# https://github.com/wp-cli/wp-cli/issues/1043
+	# Update WordPress Permalink Structure Day and Postname
+	#echo -e "\033[34mUpdating WordPress Permalink, Please Wait...\e[0m"
+	#wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ \
+	#|| OwnError "Unable To Update WordPress Permalink For $DOMAIN"
 }
 
 EEPERMISSION()
