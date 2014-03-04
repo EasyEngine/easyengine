@@ -120,13 +120,27 @@ fi
 # Pre Checks End
 
 # Clone EasyEngine (ee)
-echo -e "\033[34mCloning EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
+if [ -z "$EE_BRANCH" ]
+then
+	EE_BRANCH=stable
+else
+	# Cross Check The Branch Name
+	git ls-remote --heads https://github.com/rtCamp/easyengine | grep $EE_BRANCH &>> $INSTALLLOG
+
+	if [ $? -ne 0 ]
+	then
+		echo -e "\033[31mThe $EE_BRANCH Branch Does Not Exist, Please Provide The Correct Branch Name\e[0m" | tee -ai $INSTALLLOG
+		exit 103;
+	fi
+fi
+
+echo -e "\033[34mCloning EasyEngine (ee) $EE_BRANCH Branch, Please Wait...\e[0m" | tee -ai $INSTALLLOG
 	
 # Remove Older EasyEngine (ee) If Found
 rm -rf /tmp/easyengine &>> /dev/null
 
-# Clone EasyEngine (ee) Stable Repository
-git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+# Clone EasyEngine (ee) Repository
+git clone -b $EE_BRANCH git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
 
 
 # Create Directory /etc/easyengine
