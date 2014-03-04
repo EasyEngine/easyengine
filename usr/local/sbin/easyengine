@@ -313,7 +313,7 @@ WP-CLI()
 	then
 		echo -e "\033[31mWP-CLI Command Not Found\e[0m"
 		echo -e "\033[34mInstalling WP-CLI, Please Wait...\e[0m"
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' bash &>> $INSTALLLOG \
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $INSTALLLOG \
 		|| OwnError "Unable To Install WP-CLI"
 
 		# Add WP-CLI Command In PATH Variable
@@ -1021,11 +1021,10 @@ EEWPDBSETUP()
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $INSTALLLOG \
 	|| OwnError "Unable To Create WordPress Tables For $DOMAIN"
 	
-	# https://github.com/wp-cli/wp-cli/issues/1043
 	# Update WordPress Permalink Structure Day and Postname
-	#echo -e "\033[34mUpdating WordPress Permalink, Please Wait...\e[0m"
-	#wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ \
-	#|| OwnError "Unable To Update WordPress Permalink For $DOMAIN"
+	echo -e "\033[34mUpdating WordPress Permalink, Please Wait...\e[0m"
+	wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ &>> $INSTALLLOG \
+	|| OwnError "Unable To Update WordPress Permalink For $DOMAIN"
 }
 
 EEPERMISSION()
@@ -1799,7 +1798,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
@@ -1825,7 +1824,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
@@ -1851,7 +1850,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general\e[0m"
 
@@ -1911,7 +1910,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
@@ -1942,7 +1941,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
@@ -1973,7 +1972,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
@@ -2033,7 +2032,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
 				# Display Success Message
@@ -2064,7 +2063,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mWP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache\e[0m"
 
 				# Display Success Message
@@ -2095,7 +2094,7 @@ then
 				echo -e "\033[37mWordPress Admin Password: $WPADMINPASS\e[0m"
 				echo
 				echo -e "\033[34mPlease Configure The Following Settings...\e[0m"
-				echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
+				#echo -e "\033[34mPermalink Settings: http://$DOMAIN/wp-admin/options-permalink.php\e[0m"
 				echo -e "\033[34mNginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx\e[0m"
 				echo -e "\033[34mW3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general\e[0m"
 
