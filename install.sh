@@ -69,6 +69,14 @@ then
 	apt-get -y install ed &>> $INSTALLLOG || OwnError "Unable to install ed"
 fi
 
+# Checking Bc
+if [ ! -x  /usr/bin/bc ]
+then
+	echo -e "\033[31mBc Command Not Found\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mInstalling Bc, Please Wait...\e[0m" | tee -ai $INSTALLLOG
+	apt-get -y install bc &>> $INSTALLLOG || OwnError "Unable to install bc"
+fi
+
 # Checking Wget
 if [ ! -x  /usr/bin/wget ]
 then
