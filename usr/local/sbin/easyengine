@@ -339,25 +339,42 @@ WP-CLI()
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	if [ ! -d /var/www/eeadmin/htdocs/pma ]
+	if [ ! -d /var/www/eeadmin/htdocs/db ]
 	then
-		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...\e[0m"
+		if [ ! -d /var/www/eeadmin/htdocs/db/pma ]
+		then
+			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
 
-		# Setup PMA/phpMyAdmin
-		mkdir -p /var/www/eeadmin/htdocs/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/eeadmin/htdocs/pma/"
+			# Setup PMA/phpMyAdmin
+			mkdir -p /var/www/eeadmin/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/eeadmin/htdocs/db/pma/"
 
-		# Download PMA/phpMyAdmin
-		wget -cqO /var/www/eeadmin/htdocs/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
-		|| OwnError "Unable To Download phpMyAdmin"
+			# Download PMA/phpMyAdmin
+			wget -cqO /var/www/eeadmin/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			|| OwnError "Unable To Download phpMyAdmin"
 
-		# Extract PMA/phpMyAdmin
-		tar --strip-components=1 -zxf  /var/www/eeadmin/htdocs/pma/pma.tar.gz -C /var/www/eeadmin/htdocs/pma/ \
-		|| OwnError "Unable To Extract phpMyAdmin"
+			# Extract PMA/phpMyAdmin
+			tar --strip-components=1 -zxf  /var/www/eeadmin/htdocs/db/pma/pma.tar.gz -C /var/www/eeadmin/htdocs/db/pma/ \
+			|| OwnError "Unable To Extract phpMyAdmin"
 
-		# Remove Unwanted Files
-		rm -f /var/www/eeadmin/htdocs/pma/pma.tar.gz
+			# Remove Unwanted Files
+			rm -f /var/www/eeadmin/htdocs/db/pma/pma.tar.gz
+
+		fi
+	
+		if [ ! -d /var/www/eeadmin/htdocs/db/adminer ]
+		then
+			echo -e "\033[34mDownloading Adminer, Please Wait...\e[0m"
+			# Setup Adminer
+			mkdir -p /var/www/eeadmin/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/eeadmin/htdocs/db/adminer/"
+
+			# Download Adminer
+			wget -cqO /var/www/eeadmin/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			|| OwnError "Unable To Download Adminer"
+
+		fi
+
 	else
-		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/eeadmin/htdocs/pma)...\e[0m"
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/eeadmin/htdocs/db/pma)...\e[0m"
 	fi
 }
 
@@ -450,7 +467,7 @@ REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...\e[0m"
-	rm -rf /var/www/eeadmin/htdocs/pma || OwnError "Unable To Remove phpMyAdmin"
+	rm -rf /var/www/eeadmin/htdocs/db/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
@@ -1078,29 +1095,29 @@ PERMISSIONANDGIT()
 EEOPMEMCACHE()
 {
 	# Opcache Settings
-	if [ ! -d /var/www/eeadmin/htdocs/opcache ]
+	if [ ! -d /var/www/eeadmin/htdocs/php/opcache ]
 	then
-		mkdir -p /var/www/eeadmin/htdocs/opcache || OwnError "Unable To Create Opcache Directory"
+		mkdir -p /var/www/eeadmin/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
-		wget -cqO /var/www/eeadmin/htdocs/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/eeadmin/htdocs/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/eeadmin/htdocs/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget -cqO /var/www/eeadmin/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/eeadmin/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/eeadmin/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
-	if [ ! -d /var/www/eeadmin/htdocs/memcache ]
+	if [ ! -d /var/www/eeadmin/htdocs/php/memcache ]
 	then
-		mkdir -p /var/www/eeadmin/htdocs/memcache || OwnError "Unable To Create Memcache Directory"
+		mkdir -p /var/www/eeadmin/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
-		wget -cqO /var/www/eeadmin/htdocs/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget -cqO /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
-		tar -zxf /var/www/eeadmin/htdocs/memcache/memcache.tar.gz -C /var/www/eeadmin/htdocs/memcache
+		tar -zxf /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz -C /var/www/eeadmin/htdocs/php/memcache
 
 		# Remove Unwanted Files
-		rm -f /var/www/eeadmin/htdocs/memcache/memcache.tar.gz
+		rm -f /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz
 	fi
 }
 
@@ -1349,8 +1366,8 @@ then
 			INSTALLPMA
 
 			# Initialise Git
-			EEGITDIR=/var/www/eeadmin/htdocs/pma/
-			EEGITINIT
+			#EEGITDIR=/var/www/eeadmin/htdocs/db/pma/
+			#EEGITINIT
 
 			# Display Success Message
 			echo -e "\033[34mphpMyAdmin Successfully Installed\e[0m"
@@ -1439,8 +1456,8 @@ then
 			EEGITINIT
 
 			# Initialize Git
-			EEGITDIR=/var/www/eeadmin/htdocs/pma/
-			EEGITINIT
+			#EEGITDIR=/var/www/eeadmin/htdocs/db/pma/
+			#EEGITINIT
 
 			# Initialize Git
 			EEGITDIR=/etc/postfix/
@@ -1887,7 +1904,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -1911,7 +1928,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1942,7 +1959,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1973,7 +1990,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2009,7 +2026,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -2033,7 +2050,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2064,7 +2081,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2095,7 +2112,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
