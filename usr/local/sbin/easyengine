@@ -1779,10 +1779,10 @@ then
 		echo -e "\tstop:\t Stop Nginx PHP5-FPM MySQL And Postfix Services"
 		echo -e "\tstart:\t Start Nginx PHP5-FPM MySQL And Postfix Services"
 		echo -e "\treload:\t Reload Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\trestart:\t Restart Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
-		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
-		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
+		echo -e "\trestart: Restart Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
+		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
+		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
 
 	fi
 
