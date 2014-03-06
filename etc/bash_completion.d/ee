@@ -23,7 +23,7 @@ EEAUTO()
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge status start stop reload restart" -- $CURRENT ) )
 			return 0
 			;;
 

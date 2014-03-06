@@ -545,6 +545,46 @@ PURGEALL()
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
 
+# EasyEngine Status Function
+EE_SYSTEM_STATUS()
+{
+	OPERATING_SYSTEM=$(lsb_release -d | awk '{print $2,$3,$4}')
+	SYSTEM_LOAD=$(cat /proc/loadavg | awk '{print $1}')
+	PROCESSES=$(ps ax | wc -l)
+	MEMORY_TOTAL=$(free | grep Mem: | awk '{print $2}')
+	MEMORY_USED=$(free | grep Mem: | awk '{print $3}')
+	MEMORY_BUFFERS=$(free | grep Mem: | awk '{print $6}')
+	MEMORY_CACHE=$(free | grep Mem: | awk '{print $7}')
+	SWAP_TOTAL=$(free | grep Swap: | awk '{print $2}')
+	SWAP_USED=$(free | grep Swap: | awk '{print $3}')
+	MEMORY_USAGE=$(echo "($MEMORY_USED-$MEMORY_BUFFERS-$MEMORY_CACHE)*100/$MEMORY_TOTAL" | bc -l | cut -d'.' -f1)
+	SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1)
+	LOGGED_IN_USERS=$(w -h | wc -l)
+	ROOT_PARTITION_USAGE=$(df -h | grep /$ | awk '{print $5}')
+
+	NGINX_STATUS=$(service nginx status | grep 'nginx is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	PHP_STATUS=$(service php5-fpm status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	MYSQL_STATUS=$(service mysql status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	POSTFIX_STATUS=$(service postfix status | grep 'postfix is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+
+	echo
+	echo
+	echo -e "\033[37m  System information as of $(/bin/date)\e[0m"
+	echo
+	echo -e "  System load:\t$SYSTEM_LOAD\t\t  Processes:\t\t$PROCESSES"
+	echo -e "  Usage of /:\t$ROOT_PARTITION_USAGE\t\t  Users logged in:\t$LOGGED_IN_USERS"
+	echo -e "  Memory usage:\t$MEMORY_USAGE%\t\t  Swap usage:\t\t$SWAP_USAGE%"
+	echo
+	echo -e "\033[37m  Service status information\e[0m"
+	echo
+	echo -e "  Nginx:\t$NGINX_STATUS"
+	echo -e "  PHP5-FPM:\t$PHP_STATUS"
+	echo -e "  MySQL:\t$MYSQL_STATUS"
+	echo -e "  Postfix:\t$POSTFIX_STATUS"
+	echo
+	echo
+}
+
 
 # EE GIT Function
 EEGITINIT()
@@ -881,13 +921,23 @@ NGINXBUCKETSIZE()
 	fi
 }
 
+NGINXSTART ()
+{
+	# Check Nginx server_names_hash_bucket_size Value
+	NGINXBUCKETSIZE
+
+	# Start Nginx Service
+	echo -e "\033[34mStarting Nginx Service, Please Wait...\e[0m"
+	(nginx -t && service nginx start) &>> $INSTALLLOG || OwnError "Unable To Start Nginx"
+}
+
 NGINXRELOAD()
 {
 	# Check Nginx server_names_hash_bucket_size Value
 	NGINXBUCKETSIZE
 
-	# Reload Nginx Configuration
-	echo -e "\033[34mReloading Nginx Configuration, Please Wait...\e[0m"
+	# Reload Nginx Service
+	echo -e "\033[34mReloading Nginx Service, Please Wait...\e[0m"
 	(nginx -t && service nginx reload) &>> $INSTALLLOG || OwnError "Unable To Reload Nginx"
 }
 
@@ -896,16 +946,72 @@ NGINXRESTART()
 	# Check Nginx server_names_hash_bucket_size Value
 	NGINXBUCKETSIZE
 
-	# Test & Reload Nginx
-	echo -e "\033[34mRestarting Nginx Configuration, Please Wait...\e[0m"
+	# Test & Restart Nginx Service
+	echo -e "\033[34mRestarting Nginx Service, Please Wait...\e[0m"
 	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx"
+}
+
+PHPSTART()
+{
+	# Start PHP5-FPM Service
+	echo -e "\033[34mStarting PHP5-FPM Service, Please Wait...\e[0m"
+	service php5-fpm start &>> $INSTALLLOG || OwnError "Unable To Start PHP5-FPM"
+}
+
+PHPRELOAD()
+{
+	# Reload PHP5-FPM Service
+	echo -e "\033[34mReloading PHP5-FPM Service, Please Wait...\e[0m"
+	service php5-fpm reload &>> $INSTALLLOG || OwnError "Unable To Reloading PHP5-FPM"
 }
 
 PHPRESTART()
 {
-	# Reload PHP
-	echo -e "\033[34mRestarting PHP5-FPM Configuration, Please Wait...\e[0m"
+	# Restart PHP5-FPM Service
+	echo -e "\033[34mRestarting PHP5-FPM Service, Please Wait...\e[0m"
 	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
+}
+
+MYSQLSTART()
+{
+	# Start MySQL Service
+	echo -e "\033[34mStarting MySQL Service, Please Wait...\e[0m"
+	service mysql start &>> $INSTALLLOG || OwnError "Unable To Start MySQL"
+}
+
+MYSQLRELOAD()
+{
+	# Reload MySQL Service
+	echo -e "\033[34mReloading MySQL Service, Please Wait...\e[0m"
+	service mysql reload &>> $INSTALLLOG || OwnError "Unable To Reloading MySQL"
+}
+
+MYSQLRESTART()
+{
+	# Restart MySQL Service
+	echo -e "\033[34mRestarting MySQL Service, Please Wait...\e[0m"
+	service mysql restart &>> $INSTALLLOG || OwnError "Unable To Restart MySQL"
+}
+
+POSTFIXSTART()
+{
+	# Start Postfix Service
+	echo -e "\033[34mStarting Postfix Service, Please Wait...\e[0m"
+	service postfix start &>> $INSTALLLOG || OwnError "Unable To Start Postfix"
+}
+
+POSTFIXRELOAD()
+{
+	# Reload Postfix Service
+	echo -e "\033[34mReloading Postfix Service, Please Wait...\e[0m"
+	service postfix reload &>> $INSTALLLOG || OwnError "Unable To Reloading Postfix"
+}
+
+POSTFIXRESTART()
+{
+	# Restart Postfix Service
+	echo -e "\033[34mRestarting Postfix Service, Please Wait...\e[0m"
+	service postfix restart &>> $INSTALLLOG || OwnError "Unable To Restart Postfix"
 }
 
 
@@ -1626,8 +1732,54 @@ then
 
 		fi
 
+	elif [ "$2" = "status" ]
+	then
+		# Call The System Status Function
+		EE_SYSTEM_STATUS
+
+	elif [ "$2" = "stop" ]
+	then
+		# Stop Nginx PHP5-FPM MySQL & Postfix
+		echo -e "\033[34mStopping Nginx Service, Please Wait...\e[0m"
+		service nginx stop &>> $INSTALLLOG || OwnError "Unable To Stop Nginx"
+		echo -e "\033[34mStopping PHP5-FPM Service, Please Wait...\e[0m"
+		service php5-fpm stop &>> $INSTALLLOG || OwnError "Unable To Stop PHP5-FPM"
+		echo -e "\033[34mStopping MySQL Service, Please Wait...\e[0m"
+		service mysql stop &>> $INSTALLLOG || OwnError "Unable To Stop MySQL"
+		echo -e "\033[34mStopping Postfix Service, Please Wait...\e[0m"
+		service postfix stop &>> $INSTALLLOG || OwnError "Unable To Stop Postfix"
+
+	elif [ "$2" = "start" ]
+	then
+		# Start Nginx PHP5-FPM MySQL & Postfix
+		NGINXSTART
+		PHPSTART
+		MYSQLSTART
+		POSTFIXSTART
+
+	elif [ "$2" = "reload" ]
+	then
+		# Restart Nginx PHP5-FPM MySQL & Postfix
+		NGINXRELOAD
+		PHPRELOAD
+		MYSQLRELOAD
+		POSTFIXRELOAD
+
+	elif [ "$2" = "restart" ]
+	then
+		# Restart Nginx PHP5-FPM MySQL & Postfix
+		NGINXRESTART
+		PHPRESTART
+		MYSQLRESTART
+		POSTFIXRESTART
+
 	else
 		echo -e "\033[34mList Of Available Commands:\e[0m"
+		echo -e "\tstatus:\t Display The System Status Information"
+		echo -e "\tstop:\t Stop Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\tstart:\t Start Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\treload:\t Reload Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\trestart:\t Restart Nginx PHP5-FPM MySQL And Postfix Services"
 		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
 		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
 		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
