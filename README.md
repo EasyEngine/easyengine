@@ -26,7 +26,7 @@ ee site create example.com --wp                  # create example.com and instal
 ee update
 ```
 
-## Site Creation Commands
+## More Site Creation Commands
 
 ### Standard WordPress Sites
 
@@ -61,6 +61,17 @@ ee site create example.com --html     # create example.com for static/html sites
 ee site create example.com --php      # create example.com with php support
 ee site create example.com --mysql    # create example.com with php & mysql support
 ```
+
+## Cheatsheet - Site creation
+
+
+|                    |  Single Site  | 	Multisite w/ Subdir  |	Multisite w/ Subdom  |
+|--------------------|---------------|-----------------------|-----------------------|
+| **NO Cache**       |  	  --wp     |	    --wpsubdir       |	     --wpsubdom      |
+| **WP Super Cache** |	  --wpsc     |	  --wpsc --wpsubdir  |  	--wpsc --wpsubdom  |
+| **W3 Total Cache** |    --w3tc     |	  --w3tc --wpsubdir  |  	--w3tc --wpsubdom  |
+| **Nginx cache**    |    --wpfc     |    --wpfc --wpsubdir  |  	--wpfc --wpsubdom  |
+
 
 ## Useful Links
 - [Documentation] (http://rtcamp.com/easyengine/docs/) 
