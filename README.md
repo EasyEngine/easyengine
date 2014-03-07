@@ -68,9 +68,9 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 |                    |  Single Site  | 	Multisite w/ Subdir  |	Multisite w/ Subdom  |
 |--------------------|---------------|-----------------------|-----------------------|
 | **NO Cache**       |  	  --wp     |	    --wpsubdir       |	     --wpsubdom      |
-| **WP Super Cache** |	  --wpsc     |	  --wpsc --wpsubdir  |  	--wpsc --wpsubdom  |
-| **W3 Total Cache** |    --w3tc     |	  --w3tc --wpsubdir  |  	--w3tc --wpsubdom  |
-| **Nginx cache**    |    --wpfc     |    --wpfc --wpsubdir  |  	--wpfc --wpsubdom  |
+| **WP Super Cache** |	  --wpsc     |	  --wpsubdir --wpsc  |  	--wpsubdom --wpsc  |
+| **W3 Total Cache** |    --w3tc     |	  --wpsubdir --w3tc  |  	--wpsubdom --w3tc  |
+| **Nginx cache**    |    --wpfc     |    --wpsubdir --wpfc  |  	--wpsubdom --wpfc  |
 
 
 ## Useful Links
