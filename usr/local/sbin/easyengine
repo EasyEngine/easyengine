@@ -138,7 +138,16 @@ UPDATEAPT()
 
 INSTALLNGINX()
 {
-	# Install Nginx
+	# Define Nginx Package & Install IT
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
+	then
+		NGINXPACKAGE=nginx-custom
+
+	elif [ "$LINUX_DISTRO" == "Debian" ]
+	then
+		NGINXPACKAGE=nginx-full
+	fi
+
 	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
 	$EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
 }
@@ -1384,23 +1393,12 @@ then
 elif [ "$1" = "system" ]
 then
 
-	# Check Auto Assume Yes Or No To Apt-Get
-	APTASSUMEYES
-
-	# Define Nginx Package
-	if [ "$LINUX_DISTRO" == "Ubuntu" ]
-	then
-		NGINXPACKAGE=nginx-custom
-
-	elif [ "$LINUX_DISTRO" == "Debian" ]
-	then
-		NGINXPACKAGE=nginx-full
-	fi
-
-
 	# Easy Engine Install
 	if [ "$2" = "install" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 
 		if [ "$3" = "nginx" ]
 		then
@@ -1581,6 +1579,9 @@ then
 	# Easy Engine Remove
 	elif [ "$2" = "remove" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 		
 		if [ "$3" = "nginx" ]
 		then
@@ -1659,6 +1660,9 @@ then
 	# Easy Engine Purge
 	elif [ "$2" = "purge" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 		
 		if [ "$3" = "nginx" ]
 		then
