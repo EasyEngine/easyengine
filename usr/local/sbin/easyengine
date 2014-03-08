@@ -732,17 +732,19 @@ FIXMYSQLUSER16()
 	if [[ $MYSQLUSER16 -gt 16 ]]
 	then
 		echo MySQL Database Username $WPDBUSER = $MYSQLUSER16 &>> $INSTALLLOG
-		REPLACEDOT16=$(echo $REPLACEDOT | cut -c1-16)
+		echo -e "\033[34mAuto Fix MySQL Username To The 16 Characters\e[0m"
+		RANDOM_CHARACTER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n1)
+		WPDBUSER=$(echo $REPLACEDOT | cut -c1-16 | sed "s/.\{10\}$/$RANDOM_CHARACTER/")
 
-		echo -e "\033[31mERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username\e[0m"
+		#echo -e "\033[31mERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username\e[0m"
 		# Turn Off Echo For Passwords
-		stty echo
-		read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
+		#stty echo
+		#read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
 
-		if [[ $WPDBUSER = "" ]]
-		then
-			WPDBUSER=$REPLACEDOT16
-		fi
+		#if [[ $WPDBUSER = "" ]]
+		#then
+		#	WPDBUSER=$REPLACEDOT16
+		#fi
 
 	fi
 
