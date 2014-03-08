@@ -136,9 +136,9 @@ UPDATEAPT()
 	apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 }
 
-INSTALLNGINX()
+NGINXINSTALLTWEAKS ()
 {
-	# Define Nginx Package & Install IT
+	# Define Nginx Package
 	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
 		NGINXPACKAGE=nginx-custom
@@ -147,7 +147,14 @@ INSTALLNGINX()
 	then
 		NGINXPACKAGE=nginx-full
 	fi
+}
 
+INSTALLNGINX()
+{
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
+	# Install Nginx Package
 	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
 	$EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
 }
@@ -435,7 +442,8 @@ INSTALLPOSTFIX()
 
 INSTALLALL()
 {
-	# Setting Up MySQL & Postfix
+	# Setting Up Nginx MySQL & Postfix
+	NGINXINSTALLTWEAKS
 	MYSQLINSTALLTWEAKS
 	POSTFIXINSTALLTWEAKS
 
