@@ -459,6 +459,9 @@ INSTALLALL()
 # Remove Package Functions
 REMOVENGINX()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
 	# Remove Nginx
 	echo -e "\033[34mRemoving Nginx, Please Wait...\e[0m"
 	$EEAPTGET remove $NGINXPACKAGE nginx-common || OwnError "Unable To Remove Nginx"
@@ -504,6 +507,9 @@ REMOVEPOSTFIX()
 
 REMOVEALL()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
@@ -523,6 +529,9 @@ AUTOREMOVE()
 # Purge Package Functions
 PURGENGINX()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+	
 	# Purge Nginx
 	echo -e "\033[34mPurge Nginx, Please Wait...\e[0m"
 	$EEAPTGET purge $NGINXPACKAGE nginx-common || OwnError "Unable To Purge Nginx"
