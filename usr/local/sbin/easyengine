@@ -285,7 +285,7 @@ COMMONNGINX()
 	|| OwnError "Unable To Generate SSL Private Key"
 
 	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
-	openssl req -new -batch -subj /C=IN/ST=Maharashtra/O="rtCamp Solutions Pvt. Ltd."/localityName=Pune/commonName=127.0.0.1/organizationalUnitName=EasyEngine/emailAddress=$(git config user.email)/ -key /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.csr &>> $INSTALLLOG \
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.csr &>> $INSTALLLOG \
 	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
 
 	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
