@@ -273,6 +273,30 @@ COMMONNGINX()
 	EEDEST="/etc/nginx/common"
 	EEMD5SUM
 
+	# EEAdmin SSL Setup
+	if [ ! -d /etc/nginx/ssl ]
+	then
+		mkdir /etc/nginx/ssl || OwnError "Unable To Create /etc/nginx/ssl"
+	fi
+
+	# Generate SSL Key
+	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
+	openssl genrsa -out /etc/nginx/ssl/eeadmin.key 2048 &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Private Key"
+
+	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
+	openssl req -new -batch -subj /C=IN/ST=Maharashtra/O="rtCamp Solutions Pvt. Ltd."/localityName=Pune/commonName=127.0.0.1/organizationalUnitName=EasyEngine/emailAddress=$(git config user.email)/ -key /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.csr &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
+
+	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
+	mv /etc/nginx/ssl/eeadmin.key /etc/nginx/ssl/eeadmin.key.org
+	openssl rsa -in /etc/nginx/ssl/eeadmin.key.org -out /etc/nginx/ssl/eeadmin.key &>> $INSTALLLOG \
+	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
+
+	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
+	openssl x509 -req -days 3652 -in /etc/nginx/ssl/eeadmin.csr -signkey /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.crt &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Certificate"
+
 	# White List IP Address
 	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
 	stty echo
