@@ -2193,6 +2193,7 @@ then
 			EEGITDIR=/etc/nginx
 			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
 			EEGITCOMMIT
+		fi
 
 	elif [ "$2" = "edit" ]
         then
