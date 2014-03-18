@@ -846,9 +846,8 @@ EESITEINFO()
 
 EESITEEDIT()
 {
-	# Run default editor on /etc/nginx/sites-available/$DOMAIN
+	# Open Website In Default Editor
 	sensible-editor /etc/nginx/sites-available/$DOMAIN
-	echo -e "\033[34VirtualHost updated..\e[0m"
 }
 
 NGINXBUCKETSIZE()
@@ -2196,24 +2195,23 @@ then
 		fi
 
 	elif [ "$2" = "edit" ]
-        then
+	then
 
-                # Check SITENAME Is Empty Or Not
-                SITENAMECHECK=$3
-                EESITENAME
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+			
+		# Edit The Nginx Configuration For $DOMAIN
+		EESITEEDIT
+		
+		# Reload Nginx Configuration
+		NGINXRELOAD
+		
+		# Take Nginx Configuration In Git Version Control
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Edited Website: $DOMAIN"
+		EEGITCOMMIT
 
-                # Run editor
-                EESITEEDIT
-
-                # Reload Nginx Configuration
-                NGINXRELOAD
-
-                # Take Nginx Configuration In Git Version Control
-                EEGITDIR=/etc/nginx
-                EEGITMESSAGE="Edited Website: $DOMAIN"
-                EEGITCOMMIT
-
-	fi
 
 	else
 		echo -e "\033[34mList Of Available Commands:\e[0m"
