@@ -651,7 +651,7 @@ EEGITINIT()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean
+	git status | grep clean &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
 		# Add Files In Git Version Control
@@ -663,7 +663,7 @@ EEGITINIT()
 EEGITCOMMIT()
 {
 	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
-	git status | grep --color=auto clean
+	git status | grep clean &>> $INSTALLLOG
 
 	if [ $? -ne 0 ]
 	then
@@ -963,6 +963,12 @@ EESITEINFO()
 	echo -e "\033[34m$DOMAIN Database:\t\t \033[37m$WPDBNAME\e[0m"
 }
 
+EESITEEDIT()
+{
+	# Open Website In Default Editor
+	sensible-editor /etc/nginx/sites-available/$DOMAIN 2> /dev/null
+}
+
 NGINXBUCKETSIZE()
 {
 	nginx -t 2>&1 | grep server_names_hash_bucket_size &>> $INSTALLLOG
@@ -1069,7 +1075,7 @@ POSTFIXRESTART()
 
 
 
-# EE Domian Functions
+# EE Domain Functions
 EESITENAME()
 {
 	# Check SITENAME Is Empty Or Not
@@ -1932,8 +1938,8 @@ then
 		fi
 
 
-		# If No Cache Specified Use --basic As Default
-		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ]
+		# If No Cache Specified Use --basic As Default On WordPress Sites
+		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ] && [ "$EESITECREATE" != "--mysql" ]
 		then
 			WPCACHEOPTION=--basic
 		fi
@@ -2420,8 +2426,26 @@ then
 			EEGITDIR=/etc/nginx
 			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
 			EEGITCOMMIT
-
 		fi
+
+	elif [ "$2" = "edit" ]
+	then
+
+		# Check SITENAME Is Empty Or Not
+		SITENAMECHECK=$3
+		EESITENAME
+			
+		# Edit The Nginx Configuration For $DOMAIN
+		EESITEEDIT
+		
+		# Reload Nginx Configuration
+		NGINXRELOAD
+		
+		# Take Nginx Configuration In Git Version Control
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Edited Website: $DOMAIN"
+		EEGITCOMMIT
+
 
 	else
 		echo -e "\033[34mList Of Available Commands:\e[0m"
@@ -2431,9 +2455,9 @@ then
 		echo -e "\tcreate:\t Create A New HTML PHP MySQL & WordPress Website"
 		echo -e "\tdelete:\t Delete Existing Website"
 		echo -e "\tenable:\t Enable Website"
-		echo -e "\tdisable: Disable Website"
-	fi
+		echo -e "\tedit: Manually Edit Website"
 
+	fi
 
 elif [ "$1" = "update" ]
 then

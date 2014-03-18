@@ -29,7 +29,7 @@ GITCOMMIT ()
 	if [ $? -ne 0 ]
 	then
 		# Add Files In Git Version Control
-		git add . && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
+		git add --all && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
 		|| OwnError "Unable To Git Commit On $EEGITDIR"
 	fi
 }
