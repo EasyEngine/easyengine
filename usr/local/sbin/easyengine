@@ -844,6 +844,13 @@ EESITEINFO()
 	echo -e "\033[34m$DOMAIN Database:\t\t \033[37m$WPDBNAME\e[0m"
 }
 
+EESITEEDIT()
+{
+	# Run default editor on /etc/nginx/sites-available/$DOMAIN
+	sensible-editor /etc/nginx/sites-available/$DOMAIN
+	echo -e "\033[34VirtualHost updated..\e[0m"
+}
+
 NGINXBUCKETSIZE()
 {
 	nginx -t 2>&1 | grep server_names_hash_bucket_size &>> $INSTALLLOG
@@ -884,7 +891,7 @@ PHPRESTART()
 
 
 
-# EE Domian Functions
+# EE Domain Functions
 EESITENAME()
 {
 	# Check SITENAME Is Empty Or Not
@@ -2186,8 +2193,27 @@ then
 			EEGITDIR=/etc/nginx
 			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
 			EEGITCOMMIT
-
 		fi
+
+	elif [ "$2" = "edit" ]
+        then
+
+                # Check SITENAME Is Empty Or Not
+                SITENAMECHECK=$3
+                EESITENAME
+
+                # Run editor
+                EESITEEDIT
+
+                # Reload Nginx Configuration
+                NGINXRELOAD
+
+                # Take Nginx Configuration In Git Version Control
+                EEGITDIR=/etc/nginx
+                EEGITMESSAGE="Edited Website: $DOMAIN"
+                EEGITCOMMIT
+
+	fi
 
 	else
 		echo -e "\033[34mList Of Available Commands:\e[0m"
@@ -2197,9 +2223,9 @@ then
 		echo -e "\tcreate:\t Create A New HTML PHP MySQL & WordPress Website"
 		echo -e "\tdelete:\t Delete Existing Website"
 		echo -e "\tenable:\t Enable Website"
-		echo -e "\tdisable: Disable Website"
-	fi
+		echo -e "\tedit: Manually Edit Website"
 
+	fi
 
 elif [ "$1" = "update" ]
 then

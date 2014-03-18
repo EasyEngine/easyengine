@@ -33,7 +33,7 @@ EEAUTO()
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "list show info create enable disable delete" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list show info create enable disable delete edit" -- $CURRENT ) )
 			return 0
 			;;
 
@@ -48,6 +48,13 @@ EEAUTO()
 			;;
 
 		info)
+			if [ "$EECOMMON" = "site" ]
+			then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			fi
+			return 0
+			;;
+		edit)
 			if [ "$EECOMMON" = "site" ]
 			then
 				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
