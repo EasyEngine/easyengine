@@ -1235,7 +1235,7 @@ if [ "$1" = "version" ] || [ "$1" = "--version" ] || [ "$1" = "-v" ]
 then
 
 	# Display Easy Engine Version
-	echo "easyengine version: 1.2.1"
+	echo "easyengine version: 1.2.2"
 
 # Easy Engine Info
 elif [ "$1" = "info" ]
