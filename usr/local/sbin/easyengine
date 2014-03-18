@@ -1678,6 +1678,19 @@ then
 		EESITECREATE=$4
 		WPCACHEOPTION=$5
 
+		# Auto Switch The Options
+		if [ "$EESITECREATE" = "--basic" ] || [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
+		then
+			if [ "$WPCACHEOPTION" = "--wpsubdir" ] || [ "$WPCACHEOPTION" = "--wpsubdirectory" ] || [ "$WPCACHEOPTION" = "--wpsubdom" ] || [ "$WPCACHEOPTION" = "--wpsubdomain" ]
+			then
+				EESITECREATE=$5
+				WPCACHEOPTION=$4
+			else
+				EESITECREATE=--wp
+				WPCACHEOPTION=$4
+			fi
+		fi
+
 		# WordPress SubDirectory Variables
 		if [ "$EESITECREATE" = "--wpsubdir" ] || [ "$EESITECREATE" = "--wpsubdirectory" ]
 		then
@@ -1698,14 +1711,9 @@ then
 			EESITECREATE=--html
 		fi
 
-		if [ "$EESITECREATE" = "--basic" ] || [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
-		then
-			EESITECREATE=--wp
-			WPCACHEOPTION=$4
-		fi
 
-		# If No Cache Specified Use --basic As Default
-		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ]
+		# If No Cache Specified Use --basic As Default On WordPress Sites
+		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ] && [ "$EESITECREATE" != "--mysql" ]
 		then
 			WPCACHEOPTION=--basic
 		fi
