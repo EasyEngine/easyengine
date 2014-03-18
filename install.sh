@@ -2,8 +2,11 @@
 
 
 
+# Make Variables Available For Later Use
+LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+
 # Checking Linux Distro Is Ubuntu
-if [ ! -f /etc/lsb-release ] && [ ! -f /etc/debian_version ]
+if [ "$LINUX_DISTRO" != "Ubuntu" ] && [ "$LINUX_DISTRO" != "Debian" ]
 then
 	echo -e "\033[31mEasyEngine (ee) Is Made For Ubuntu And Debian Only As Of Now\e[0m"
 	echo -e "\033[31mYou Are Free To Fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork\e[0m"
