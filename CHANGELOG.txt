@@ -1,3 +1,22 @@
+v 1.2.2
+  - Check/Install bc command
+  - Fixed EasyEngine Update Issue #134 #148
+  - Automatic set WordPress Permalink Structure by @UmeshSingla
+  - Fixed @WP-CLI version to 0.14.1
+  - Correct Typo Mistake, Thanks to @sdenike on pull request #155
+  - Introduce ee site edit command by @Mermouy on pull request #153
+  - Auto Switch the site create options
+  - Better way to detetct Linux Ditribution
+
+
+v 1.2.1
+  - Fixed Debian Issue #136
+
+
+v 1.2
+  - Debian 6 and Debian 7 support added
+
+
 v 1.1.5
   - Fixed WordPress multisite issue (#127).
 
