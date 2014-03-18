@@ -535,7 +535,7 @@ EEGITINIT()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean
+	git status | grep clean &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
 		# Add Files In Git Version Control
@@ -547,7 +547,7 @@ EEGITINIT()
 EEGITCOMMIT()
 {
 	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
-	git status | grep --color=auto clean
+	git status | grep clean &>> $INSTALLLOG
 
 	if [ $? -ne 0 ]
 	then
@@ -847,7 +847,7 @@ EESITEINFO()
 EESITEEDIT()
 {
 	# Open Website In Default Editor
-	sensible-editor /etc/nginx/sites-available/$DOMAIN
+	sensible-editor /etc/nginx/sites-available/$DOMAIN 2> /dev/null
 }
 
 NGINXBUCKETSIZE()
