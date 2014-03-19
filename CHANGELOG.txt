@@ -6,7 +6,7 @@ v 1.2.2
   - Correct Typo Mistake, Thanks to @sdenike on pull request #155
   - Introduce ee site edit command by @Mermouy on pull request #153
   - Auto Switch the site create options
-  - Better way to detetct Linux Ditribution
+  - Better way to detect Linux Ditribution
 
 
 v 1.2.1
