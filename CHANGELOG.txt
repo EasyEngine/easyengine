@@ -1,4 +1,4 @@
-v 1.2.2
+v 1.2.2 - Mar 18, 2014
   - Check/Install bc command
   - Fixed EasyEngine Update Issue #134 #148
   - Automatic set WordPress Permalink Structure by @UmeshSingla
@@ -9,33 +9,33 @@ v 1.2.2
   - Better way to detect Linux Ditribution
 
 
-v 1.2.1
+v 1.2.1 - Mar 3, 2014
   - Fixed Debian Issue #136
 
 
-v 1.2
+v 1.2 - Feb 20, 2014
   - Debian 6 and Debian 7 support added
 
 
-v 1.1.5
+v 1.1.5 - Feb 17, 2014
   - Fixed WordPress multisite issue (#127).
 
 
-v 1.1.4
+v 1.1.4 - Feb 14, 2014
   - Fixed wp-cli issue with --allow-root error. 
   
 
-v 1.1.3
+v 1.1.3 - Jan 28, 2014
   - Added GPL License. Ref - https://rtcamp.com/easyengine-is-gpl/
 
   
-v 1.1.2
+v 1.1.2 - Jan 28, 2014
   - Fix White-list IP Address
   - Fix ee info command
   - Fix site delete issue (#111)
 
 
-v 1.1.1 
+v 1.1.1 - Jan 17, 2014
   - IP-detcect issue. (#108)
   
 
@@ -48,7 +48,7 @@ v 1.1 - Jan 16, 2014
   - SSL Session cache for nginx (#56)
 
   
-v 1.0.1
+v 1.0.1 - Dec 17, 2013
   - Fix wp-cli issue
   
 
