@@ -25,8 +25,7 @@ GITCOMMIT ()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
 		git add --all && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \

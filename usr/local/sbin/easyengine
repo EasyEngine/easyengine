@@ -651,8 +651,7 @@ EEGITINIT()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
 		git add --all && git commit -am "Initialize Git On $EEGITDIR"  &>> $INSTALLLOG \
@@ -663,9 +662,8 @@ EEGITINIT()
 EEGITCOMMIT()
 {
 	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
-	git status | grep clean &>> $INSTALLLOG
 
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Git Commit Functionality
 		echo -e "\033[34mTake $EEGITDIR Configuration In Git Version Control...\e[0m"
@@ -2438,13 +2436,16 @@ then
 		# Edit The Nginx Configuration For $DOMAIN
 		EESITEEDIT
 		
-		# Reload Nginx Configuration
-		NGINXRELOAD
-		
-		# Take Nginx Configuration In Git Version Control
-		EEGITDIR=/etc/nginx
-		EEGITMESSAGE="Edited Website: $DOMAIN"
-		EEGITCOMMIT
+		if [ $(git status -s /etc/nginx/sites-available/$DOMAIN | wc -l) -ne 0 ]
+		then
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Edited Website: $DOMAIN"
+			EEGITCOMMIT
+
+			# Reload Nginx Configuration
+			NGINXRELOAD
+		fi
 
 
 	else
