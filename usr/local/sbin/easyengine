@@ -315,7 +315,7 @@ INSTALLPHP()
 	# Install PHP5
 	echo -e "\033[34mInstalling PHP5, Please Wait...\e[0m"
 	$EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
 }
 
@@ -323,6 +323,12 @@ COMMONPHP()
 {
 	# Personal Settings For PHP
 	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
+
+	# Needed For Custome PHP5 Logs
+	if [ ! -d /var/log/php5/ ]
+	then
+		mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+	fi
 
 	grep "Easy Engine" /etc/php5/fpm/php.ini &> /dev/null
 	if [ $? -ne 0 ]
@@ -337,6 +343,9 @@ COMMONPHP()
 		sed -i "s/post_max_size.*/post_max_size = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/upload_max_filesize.*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/max_execution_time.*/max_execution_time = 300/" /etc/php5/fpm/php.ini
+
+		# Change PHP5-FPM Error Logs Location
+		sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
 
 		# Enable PHP Status & Ping
 		sed -i "s/;ping.path/ping.path/" /etc/php5/fpm/pool.d/www.conf
@@ -474,7 +483,7 @@ INSTALLALL()
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET install $NGINXPACKAGE php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 }
@@ -496,7 +505,7 @@ REMOVEPHP()
 	# Remove PHP5
 	echo -e "\033[34mRemoving PHP5, Please Wait...\e[0m"
 	$EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached || OwnError "Unable To Remove PHP5"
 }
 
@@ -537,7 +546,7 @@ REMOVEALL()
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
 }
@@ -566,7 +575,7 @@ PURGEPHP()
 	# Purge PHP5
 	echo -e "\033[34mPurge PHP5, Please Wait...\e[0m"
 	$EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached || OwnError "Unable To Purge PHP5"
 }
 
@@ -590,7 +599,7 @@ PURGEALL()
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET purge $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached mysql-server mysqltuner postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
 }
@@ -1412,6 +1421,67 @@ REMOVENGINXCONF()
 	fi
 }
 
+DEBUG_NGINX()
+{
+	# Enable Debug Connection
+	for DEBUG_IP_ADDRESS in $( grep ip_address /etc/easyengine/ee.conf | cut -d'=' -f2 |sed 's/ //g' | tr ',' '\n' )
+	do
+        sed -i "/multi_accept/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+	done
+}
+
+DEBUG_NGINX_REWRITE()
+{
+	# Enable Nginx Rewrite Logs
+	sed -i '/http {/a \\trewrite_log on;\n\n' /etc/nginx/nginx.conf
+}
+
+DEBUG_PHP()
+{
+	# Slowlog Settings
+	sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'" /etc/php5/fpm/pool.d/www.conf
+	sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'" /etc/php5/fpm/pool.d/www.conf
+
+	# Xdebug Settings
+	echo -e "xdebug.profiler_output_dir=/tmp \nxdebug.profiler_output_name=cachegrind.out.%p-%H-%R \nxdebug.profiler_enable_trigger=1 \nxdebug.profiler_enable=0" >> /etc/php5/fpm/conf.d/20-xdebug.ini
+
+	if [ ! -d /var/www/eeadmin/htdocs/php/webgrind/ ]
+	then
+		# Webgrind Install
+		mkdir -p mkdir -p /var/www/eeadmin/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory: /var/www/eeadmin/htdocs/php/webgrind/"
+		echo -e "\033[34mCloning webgrind, Please Wait...\e[0m"
+		git clone https://github.com/jokkedk/webgrind.git /var/www/eeadmin/htdocs/php/webgrind/
+		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/eeadmin/htdocs/php/webgrind/config.php
+
+		# Install Graphviz
+		dpkg -l | grep graphviz &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
+			$EEAPTGET install graphviz || OwnError "Unable To Install Graphviz"
+		fi
+	fi
+}
+
+DEBUG_PHP_FPM()
+{
+	# Enable PHP5-FPM Error Logs In Debug Mode
+	sed -i "s';log_level.*'log_level = debug'" /etc/php5/fpm/php-fpm.conf
+}
+
+DEBUG_MYSQL()
+{
+	# Enable MySQL Slow Logs
+	sed -i "/long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
+	sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
+	sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
+}
+
+DEBUG_WORDPRESS()
+{
+	# Debug WordPress
+	sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+}
 
 # Easy Engine Version
 if [ "$1" = "version" ] || [ "$1" = "--version" ] || [ "$1" = "-v" ]
@@ -2459,6 +2529,48 @@ then
 		echo -e "\tedit: Manually Edit Website"
 
 	fi
+
+elif [ "$1" = "debug" ]
+then
+
+	if [ "$2" = "--nginx" ]
+	then
+
+		# Debug Nginx
+		DEBUG_NGINX
+
+	elif [ "$2" = "--rewrite" ]
+	then
+
+		# Debug Nginx Rewrite Logs
+		DEBUG_NGINX_REWRITE
+
+	elif [ "$2" = "--php" ]
+	then
+
+		# Debug PHP
+		DEBUG_PHP
+
+	elif [ "$2" = "--fpm" ]
+	then
+
+		# Debug PHP FPM
+		DEBUG_PHP_FPM
+
+	elif [ "$2" = "--mysql" ]
+	then
+
+		# Debug MySQL Slow Query
+		DEBUG_MYSQL
+
+	elif [ "$2" = "--wp" ]
+	then
+
+		# Debug WordPress Debug Log
+		DEBUG_WORDPRESS
+
+	fi
+
 
 elif [ "$1" = "update" ]
 then
