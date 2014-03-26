@@ -1458,6 +1458,7 @@ DEBUG_PHP()
 		if [ $? -ne 0 ]
 		then
 			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
+			APTASSUMEYES
 			$EEAPTGET install graphviz || OwnError "Unable To Install Graphviz"
 		fi
 	fi
@@ -2533,37 +2534,60 @@ then
 elif [ "$1" = "debug" ]
 then
 
-	if [ "$2" = "--nginx" ]
+	# Auto Arrenge Options
+	for ARGS in $@
+	do
+		[ "$ARGS" = "--nginx" ] && EE_DEBUG_NGINX=$ARGS && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+		[ "$ARGS" = "--rewrite" ] && EE_DEBUG_REWRITE=$ARGS && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+		[ "$ARGS" = "--php" ] && EE_DEBUG_PHP=$ARGS && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+		[ "$ARGS" = "--fpm" ] && EE_DEBUG_FPM=$ARGS && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+		[ "$ARGS" = "--mysql" ] && EE_DEBUG_MYSQL=$ARGS && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+		[ "$ARGS" = "--wp" ] && EE_DEBUG_WP=$ARGS && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+		[ "$ARGS" != "debug" ]&& [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] && EE_DEBUG_SITENAME=$ARGS && echo EE_DEBUG_SITENAME = $EE_DEBUG_SITENAME &>> $INSTALLLOG
+
+	done
+
+	if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 	then
 
 		# Debug Nginx
 		DEBUG_NGINX
 
-	elif [ "$2" = "--rewrite" ]
+	fi
+
+	if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 	then
 
 		# Debug Nginx Rewrite Logs
 		DEBUG_NGINX_REWRITE
 
-	elif [ "$2" = "--php" ]
+	fi
+
+	if [ "$EE_DEBUG_PHP" = "--php" ]
 	then
 
 		# Debug PHP
 		DEBUG_PHP
 
-	elif [ "$2" = "--fpm" ]
+	fi
+
+	if [ "$EE_DEBUG_FPM" = "--fpm" ]
 	then
 
 		# Debug PHP FPM
 		DEBUG_PHP_FPM
 
-	elif [ "$2" = "--mysql" ]
+	fi
+
+	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 	then
 
 		# Debug MySQL Slow Query
 		DEBUG_MYSQL
 
-	elif [ "$2" = "--wp" ]
+	fi
+
+	if [ "$EE_DEBUG_WP" = "--wp" ]
 	then
 
 		# Debug WordPress Debug Log
