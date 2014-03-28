@@ -5,6 +5,7 @@ LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 INSTALLLOG=/var/log/easyengine/install.log
 LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+EE_IP_ADDRESS=$(grep ip_address /etc/easyengine/ee.conf | cut -d'=' -f2 |sed 's/ //g' | tr ',' '\n')
 
 # Main EasyEngine Function To Log All The Outputs
 EasyEngine()
@@ -299,11 +300,14 @@ COMMONNGINX()
 
 	# White List IP Address
 	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
-	stty echo
-	read -p "Enter The IP Address To Whitelist: " WHITELISTIP
-	if [[ $WHITELISTIP != "" ]]
+	if [ -n "$EE_IP_ADDRESS" ]
 	then
-			sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
+		for WHITELIST_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
+		do
+        	sed -i "/deny/i $(echo allow $WHITELIST_IP_ADDRESS\;)" /etc/nginx/common/acl.conf
+		done
+	else
+		echo -e "\033[34mEasyEngine Don't Find IP Address in /etc/easyengine/ee.conf file\e[0m"
 	fi
 
 	# Protect EE Locations
@@ -1423,17 +1427,42 @@ REMOVENGINXCONF()
 
 DEBUG_NGINX()
 {
+	if [ -z "$EE_IP_ADDRESS" ]
+	then
+		read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
+	fi
+	
 	# Enable Debug Connection
-	for DEBUG_IP_ADDRESS in $( grep ip_address /etc/easyengine/ee.conf | cut -d'=' -f2 |sed 's/ //g' | tr ',' '\n' )
+	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
 	do
-        sed -i "/multi_accept/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+       	sed -i "/multi_accept/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
 	done
+}
+
+DEBUG_NGINX_SITE()
+{
+	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Debug Log
+		echo -e "\033[34mStarting $DOMAIN Error Logs In Debugging Mode\e[0m"
+		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
+	else
+		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
+	fi
 }
 
 DEBUG_NGINX_REWRITE()
 {
 	# Enable Nginx Rewrite Logs
 	sed -i '/http {/a \\trewrite_log on;\n\n' /etc/nginx/nginx.conf
+}
+
+DEBUG_NGINX_REWRITE_SITE()
+{
+	# Enable Nginx Rewrite Logs
+	echo -e "\033[34mStart Rewrite Logs For $DOMAIN\e[0m"
+	sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
 }
 
 DEBUG_PHP()
@@ -1481,6 +1510,7 @@ DEBUG_MYSQL()
 DEBUG_WORDPRESS()
 {
 	# Debug WordPress
+	echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
 	sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
 }
 
@@ -2547,53 +2577,83 @@ then
 
 	done
 
-	if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+	if [ -z "$EE_DEBUG_SITENAME" ]
 	then
 
-		# Debug Nginx
-		DEBUG_NGINX
+		if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+		then
+			# Debug Nginx
+			DEBUG_NGINX
+		fi
 
-	fi
+		if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+		then
+			# Debug Nginx Rewrite Logs
+			DEBUG_NGINX_REWRITE
+		fi
 
-	if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
-	then
+	else
 
-		# Debug Nginx Rewrite Logs
-		DEBUG_NGINX_REWRITE
+		# Get The Domain Name
+		SITENAMECHECK=$EE_DEBUG_SITENAME
+		EESITENAME
+
+		if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+		then
+			# Debug Nginx
+			DEBUG_NGINX_SITE
+		fi
+
+		if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+		then
+			# Debug Nginx Rewrite Logs
+			DEBUG_NGINX_REWRITE_SITE
+		fi
+
+		if [ "$EE_DEBUG_WP" = "--wp" ]
+		then
+
+			# Debug WordPress Debug Log
+			DEBUG_WORDPRESS
+		fi
 
 	fi
 
 	if [ "$EE_DEBUG_PHP" = "--php" ]
 	then
-
 		# Debug PHP
 		DEBUG_PHP
-
 	fi
 
 	if [ "$EE_DEBUG_FPM" = "--fpm" ]
 	then
-
 		# Debug PHP FPM
 		DEBUG_PHP_FPM
-
 	fi
 
 	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 	then
-
 		# Debug MySQL Slow Query
 		DEBUG_MYSQL
-
 	fi
 
-	if [ "$EE_DEBUG_WP" = "--wp" ]
+	# Lets Restart Services
+	if [ "$EE_DEBUG_NGINX" = "--nginx" ] || [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 	then
+		# Restart Nginx
+		NGINXRESTART
 
-		# Debug WordPress Debug Log
-		DEBUG_WORDPRESS
+	elif [ "$EE_DEBUG_PHP" = "--php" ] || [ "$EE_DEBUG_FPM" = "--fpm" ]
+	then
+		# Restart PHP5-FPM
+		PHPRESTART
 
+	elif [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+	then
+		# Restart MySQL
+		MYSQLRESTART
 	fi
+
 
 
 elif [ "$1" = "update" ]
