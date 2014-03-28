@@ -1448,21 +1448,36 @@ DEBUG_NGINX_SITE()
 		echo -e "\033[34mStarting $DOMAIN Error Logs In Debugging Mode\e[0m"
 		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
 	else
+		EE_DEBUG_NGINX=""
 		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
 	fi
 }
 
 DEBUG_NGINX_REWRITE()
 {
-	# Enable Nginx Rewrite Logs
-	sed -i '/http {/a \\trewrite_log on;\n\n' /etc/nginx/nginx.conf
+	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Rewrite Logs
+		sed -i '/http {/a \\trewrite_log on;\n\n' /etc/nginx/nginx.conf
+	else
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mRewrites Logs Already ON\e[0m"
+	fi
 }
 
 DEBUG_NGINX_REWRITE_SITE()
 {
-	# Enable Nginx Rewrite Logs
-	echo -e "\033[34mStart Rewrite Logs For $DOMAIN\e[0m"
-	sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
+	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Rewrite Logs
+		echo -e "\033[34mStart Rewrite Logs For $DOMAIN\e[0m"
+		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
+	else
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mRewrites Logs Already ON For $DOMAIN\e[0m"
+	fi
 }
 
 DEBUG_PHP()
