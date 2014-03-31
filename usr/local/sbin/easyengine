@@ -1442,9 +1442,10 @@ DEBUG_NGINX()
 		then
 			# Enable Debug Connection
 			echo -e "\033[34mSetting Up Nginx Debug Connection, Please Wait...\e[0m"
-			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
 
 			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
+			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+
 			# Lets Trigger The Nginx Restart
 			EE_DEBUG_NGINX="--nginx"
        	fi
@@ -1671,7 +1672,7 @@ DEBUG_PHP_FPM_STOP()
 		sed -i "s/log_level = debug/log_level = notice/" /etc/php5/fpm/php-fpm.conf
 	else
 		EE_DEBUG_FPM=""
-		echo -e "\033[34mDiPHP5-FPM Log Level Already In Notice (Default) Mode\e[0m"
+		echo -e "\033[34mPHP5-FPM Log Level Already In Notice (Default) Mode\e[0m"
 	fi
 }
 
@@ -1735,6 +1736,38 @@ DEBUG_WORDPRESS_STOP()
 		echo -e "\033[34mWordPress Debug Log Already Stopped For $DOMAIN\e[0m"
 	fi
 }
+
+DEBUG_KILL()
+{
+	if [ -z "$EE_DEBUG_SITENAME" ]
+	then
+		ee debug --stop
+	else
+		ee debug --stop $EE_DEBUG_SITENAME
+	fi
+
+	# Unset Trap So We Don't Get Infinate Loop
+	trap - EXIT
+
+	# Flush File System Buffers
+	# More Details: info coreutils 'sync invocation'
+	sync
+
+	# Successfull Exit
+	exit 0;
+}
+trap "DEBUG_KILL" EXIT
+
+DEBUG_INTERACTIVE()
+{
+	if [ -z "$EE_DEBUG_SITENAME" ]
+	then
+		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log
+	else
+		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log /var/www/$DOMAIN/htdocs/wp-content/debug.log
+	fi
+}
+
 
 # Easy Engine Version
 if [ "$1" = "version" ] || [ "$1" = "--version" ] || [ "$1" = "-v" ]
@@ -2792,6 +2825,7 @@ then
 	# Auto Arrenge Options
 	for ARGS in $@
 	do
+		[ "$ARGS" = "-i" ] && EE_DEBUG_INTERACTIVE=$ARGS && echo EE_DEBUG_INTERACTIVE = $EE_DEBUG_INTERACTIVE &>> $INSTALLLOG
 		[ "$ARGS" = "--stop" ] && EE_DEBUG=$ARGS && echo EE_DEBUG = $EE_DEBUG &>> $INSTALLLOG
 		[ "$ARGS" = "--nginx" ] && EE_DEBUG_NGINX=$ARGS && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
 		[ "$ARGS" = "--rewrite" ] && EE_DEBUG_REWRITE=$ARGS && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
@@ -2799,7 +2833,7 @@ then
 		[ "$ARGS" = "--fpm" ] && EE_DEBUG_FPM=$ARGS && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
 		[ "$ARGS" = "--mysql" ] && EE_DEBUG_MYSQL=$ARGS && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
 		[ "$ARGS" = "--wp" ] && EE_DEBUG_WP=$ARGS && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
-		if [ "$ARGS" != "debug" ] && [ "$ARGS" != "--start" ] && [ "$ARGS" != "--stop" ] && [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] 
+		if [ "$ARGS" != "debug" ] && [ "$ARGS" != "-i" ] && [ "$ARGS" != "--start" ] && [ "$ARGS" != "--stop" ] && [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] 
 		then
 			ls /etc/nginx/sites-available/ | grep $ARGS &>> $INSTALLLOG
 			if [ $? -eq 0 ]
@@ -2954,8 +2988,8 @@ then
 			DEBUG_MYSQL_STOP
 		fi
 
-		
 	fi
+
 	# Lets Restart Services
 	if [ "$EE_DEBUG_NGINX" = "--nginx" ] || [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 	then
@@ -2973,6 +3007,12 @@ then
 	then
 		# Restart MySQL
 		MYSQLRESTART
+	fi
+
+	if [ "$EE_DEBUG_INTERACTIVE" = "-i" ]
+	then
+		# Lets Start Debug In Interactive Mode
+		DEBUG_INTERACTIVE
 	fi
 
 
