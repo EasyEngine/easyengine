@@ -1637,7 +1637,7 @@ DEBUG_PHP_STOP()
 	if [ $? -eq 0 ]
 	then
 		echo -e "\033[34mDisable Xdebug, Please Wait...\e[0m"
-		sed "/xdebug.profiler_/d" /etc/php5/fpm/conf.d/20-xdebug.ini
+		sed -i "/xdebug.profiler_/d" /etc/php5/fpm/conf.d/20-xdebug.ini
 
 		# Lets Trigger The PHP5-FPM Restart
 		EE_DEBUG_PHP="--php"
@@ -1664,7 +1664,7 @@ DEBUG_PHP_FPM()
 DEBUG_PHP_FPM_STOP()
 {
 	grep "log_level = notice" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
-	if [ $? -nq 0 ]
+	if [ $? -ne 0 ]
 	then
 		# Disable PHP5-FPM Error Logs In Debug Mode
 		echo -e "\033[34mStopping PHP5-FPM Log Level In Debug Mode, Please Wait...\e[0m"
