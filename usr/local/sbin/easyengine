@@ -1432,7 +1432,7 @@ DEBUG_NGINX()
 		read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
 	fi
 	
-	# Lets Disable EE_DEBUG_NGINX
+	# Lets Disable Nginx Restart Trigger
 	EE_DEBUG_NGINX=""
 
 	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
@@ -1441,6 +1441,7 @@ DEBUG_NGINX()
 		if [ $? -ne 0 ]
 		then
 			# Enable Debug Connection
+			echo -e "\033[34mSetting Up Nginx Debug Connection, Please Wait...\e[0m"
 			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
 
 			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
@@ -1451,21 +1452,21 @@ DEBUG_NGINX()
 
 	if [ -z "$EE_DEBUG_NGINX" ]
 	then
-		echo -e "\033[34mNginx Already Started Debug Connection For Listed IP Address\e[0m"
+		echo -e "\033[34mNginx Debug Connection Already Enabled\e[0m"
 	fi
 }
 
-DEBUG_NGINX_SITE()
+DEBUG_NGINX_STOP()
 {
-	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	grep "debug_connection" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
 	then
-		# Enable Nginx Debug Log
-		echo -e "\033[34mStarting $DOMAIN Error Logs In Debugging Mode\e[0m"
-		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
+		echo -e "\033[34mStopping Nginx Debug Connection, Please Wait...\e[0m"
+		sed -i "/debug_connection.*/d" /etc/nginx/nginx.conf
 	else
+		# Lets Disable Nginx Restart Trigger
 		EE_DEBUG_NGINX=""
-		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
+		echo -e "\033[34mNginx Debug Connection Already Stopped\e[0m"
 	fi
 }
 
@@ -1475,10 +1476,56 @@ DEBUG_NGINX_REWRITE()
 	if [ $? -ne 0 ]
 	then
 		# Enable Nginx Rewrite Logs
-		sed -i '/http {/a \\trewrite_log on;\n\n' /etc/nginx/nginx.conf
+		echo -e "\033[34mSetting Up Nginx Rewrite Logs, Please Wait...\e[0m"
+		sed -i '/http {/a \\trewrite_log on;' /etc/nginx/nginx.conf
 	else
 		EE_DEBUG_REWRITE=""
-		echo -e "\033[34mRewrites Logs Already ON\e[0m"
+		echo -e "\033[34mNginx Rewrites Logs Already ON\e[0m"
+	fi
+}
+
+DEBUG_NGINX_REWRITE_STOP()
+{
+	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Rewrite Logs
+		echo -e "\033[34mStopping Nginx Rewrite Logs, Please Wait...\e[0m"
+		sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf
+	else
+		# Lets Disable Nginx Restart Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mNginx Rewrites Logs Already STOP\e[0m"
+	fi
+}
+
+DEBUG_NGINX_SITE()
+{
+	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Debug Log
+		echo -e "\033[34mSetting Up $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
+		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Restart Trigger
+		EE_DEBUG_NGINX=""
+		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
+	fi
+}
+
+DEBUG_NGINX_SITE_STOP()
+{
+	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Debug Log
+		echo -e "\033[34mDisable $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
+		sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Restart Trigger
+		EE_DEBUG_NGINX=""
+		echo -e "\033[34mAlready Stopped $DOMAIN Error Logs In Debugging Mode\e[0m"
 	fi
 }
 
@@ -1488,21 +1535,40 @@ DEBUG_NGINX_REWRITE_SITE()
 	if [ $? -ne 0 ]
 	then
 		# Enable Nginx Rewrite Logs
-		echo -e "\033[34mStart Rewrite Logs For $DOMAIN\e[0m"
+		echo -e "\033[34mSetting Up Nginx Rewrite Logs For $DOMAIN\e[0m"
 		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
 	else
+		# Lets Disable Nginx Restart Trigger
 		EE_DEBUG_REWRITE=""
 		echo -e "\033[34mRewrites Logs Already ON For $DOMAIN\e[0m"
 	fi
 }
 
+DEBUG_NGINX_REWRITE_SITE_STOP()
+{
+	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Rewrite Logs
+		echo -e "\033[34mStopping Up Nginx Rewrite Logs For $DOMAIN\e[0m"
+		sed -i "/rewrite_log.*/d" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Restart Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mRewrites Logs Already Stop For $DOMAIN\e[0m"
+	fi
+}
+
 DEBUG_PHP()
 {
+	#  Lets Disable PHP Restart Trigger
 	EE_DEBUG_PHP=""
+
 	# Slowlog Settings
 	grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
+		echo -e "\033[34mSetting Up PHP5-FPM Slow Log, Please Wait...\e[0m"
 		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'" /etc/php5/fpm/pool.d/www.conf
 		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'" /etc/php5/fpm/pool.d/www.conf
 
@@ -1510,13 +1576,14 @@ DEBUG_PHP()
 		EE_DEBUG_PHP="--php"
 
 	else
-		echo -e "\033[34mSlowlog Already Enabled\e[0m"
+		echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
 	fi
 
 	# Xdebug Settings
 	grep xdebug.profiler_ /etc/php5/fpm/conf.d/20-xdebug.ini &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
+		echo -e "\033[34mSetting Up Xdebug, Please Wait...\e[0m"
 		echo -e "xdebug.profiler_output_dir=/tmp \nxdebug.profiler_output_name=cachegrind.out.%p-%H-%R \nxdebug.profiler_enable_trigger=1 \nxdebug.profiler_enable=0" >> /etc/php5/fpm/conf.d/20-xdebug.ini
 
 		# Lets Trigger The PHP5-FPM Restart
@@ -1545,16 +1612,66 @@ DEBUG_PHP()
 	fi
 }
 
+DEBUG_PHP_STOP()
+{
+	#  Lets Disable PHP Restart Trigger
+	EE_DEBUG_PHP=""
+
+	# Slowlog Settings
+	grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		echo -e "\033[34mStopping Up PHP5-FPM Slow Log, Please Wait...\e[0m"
+		sed -i "s'slowlog =';slowlog ='" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s'request_slowlog_timeout';request_slowlog_timeout'" /etc/php5/fpm/pool.d/www.conf
+
+		# Lets Trigger The PHP5-FPM Restart
+		EE_DEBUG_PHP="--php"
+
+	else
+		echo -e "\033[34mPHP5-FPM Slow Log Already Disable\e[0m"
+	fi
+
+	# Xdebug Settings
+	grep xdebug.profiler_ /etc/php5/fpm/conf.d/20-xdebug.ini &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		echo -e "\033[34mDisable Xdebug, Please Wait...\e[0m"
+		sed "/xdebug.profiler_/d" /etc/php5/fpm/conf.d/20-xdebug.ini
+
+		# Lets Trigger The PHP5-FPM Restart
+		EE_DEBUG_PHP="--php"
+
+	else
+		echo -e "\033[34mXdebug Already Disable\e[0m"
+	fi
+}
+
 DEBUG_PHP_FPM()
 {
 	grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
 		# Enable PHP5-FPM Error Logs In Debug Mode
+		echo -e "\033[34mSetting Up PHP5-FPM Log Level In Debug Mode, Please Wait...\e[0m"
 		sed -i "s';log_level.*'log_level = debug'" /etc/php5/fpm/php-fpm.conf
 	else
 		EE_DEBUG_FPM=""
 		echo -e "\033[34mPHP5-FPM Log Level Is Already In Debug Mode\e[0m"
+	fi
+}
+
+DEBUG_PHP_FPM_STOP()
+{
+	grep "log_level = notice" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
+	if [ $? -nq 0 ]
+	then
+		# Disable PHP5-FPM Error Logs In Debug Mode
+		echo -e "\033[34mStopping PHP5-FPM Log Level In Debug Mode, Please Wait...\e[0m"
+		sed -i "s/log_level = debug/log_level = notice/" /etc/php5/fpm/php-fpm.conf
+	else
+		EE_DEBUG_FPM=""
+		echo -e "\033[34mDiPHP5-FPM Log Level Already In Notice (Default) Mode\e[0m"
 	fi
 }
 
@@ -1564,12 +1681,29 @@ DEBUG_MYSQL()
 	if [ $? -ne 0 ]
 	then
 		# Enable MySQL Slow Logs
+		echo -e "\033[34mSetting Up MySQL Slow Log, Please Wait...\e[0m"
 		sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
 		sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
 		sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
 	else
 		EE_DEBUG_MYSQL=""
 		echo -e "\033[34mMySQL Slow Log Already Enabled\e[0m"
+	fi
+}
+
+DEBUG_MYSQL_STOP()
+{
+	grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable MySQL Slow Logs
+		echo -e "\033[34mStopping MySQL Slow Log, Please Wait...\e[0m"
+		sed -i "/slow-query-log/d" /etc/mysql/my.cnf
+		sed -i "s/long_query_time/#long_query_time/" /etc/mysql/my.cnf
+		sed -i "s/log-queries-not-using-indexes/#log-queries-not-using-indexes/" /etc/mysql/my.cnf
+	else
+		EE_DEBUG_MYSQL=""
+		echo -e "\033[34mMySQL Slow Log Already Disable\e[0m"
 	fi
 }
 
@@ -1583,6 +1717,22 @@ DEBUG_WORDPRESS()
 		sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
 	else
 		echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
+	fi
+}
+
+DEBUG_WORDPRESS_STOP()
+{
+	grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Stop Debug WordPress
+		echo -e "\033[34mStopping WordPress Debug Logs For $DOMAIN\e[0m"
+		sed -i "s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_DISPLAY', false);/d" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_LOG', true);/d" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('SAVEQUERIES', true);/d" /var/www/$DOMAIN/wp-config.php
+	else
+		echo -e "\033[34mWordPress Debug Log Already Stopped For $DOMAIN\e[0m"
 	fi
 }
 
@@ -2636,90 +2786,176 @@ then
 elif [ "$1" = "debug" ]
 then
 
+	# Default Action = Start Debugging
+	EE_DEBUG="--start"
+
 	# Auto Arrenge Options
 	for ARGS in $@
 	do
+		[ "$ARGS" = "--stop" ] && EE_DEBUG=$ARGS && echo EE_DEBUG = $EE_DEBUG &>> $INSTALLLOG
 		[ "$ARGS" = "--nginx" ] && EE_DEBUG_NGINX=$ARGS && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
 		[ "$ARGS" = "--rewrite" ] && EE_DEBUG_REWRITE=$ARGS && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
 		[ "$ARGS" = "--php" ] && EE_DEBUG_PHP=$ARGS && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
 		[ "$ARGS" = "--fpm" ] && EE_DEBUG_FPM=$ARGS && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
 		[ "$ARGS" = "--mysql" ] && EE_DEBUG_MYSQL=$ARGS && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
 		[ "$ARGS" = "--wp" ] && EE_DEBUG_WP=$ARGS && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
-		[ "$ARGS" != "debug" ]&& [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] && EE_DEBUG_SITENAME=$ARGS && echo EE_DEBUG_SITENAME = $EE_DEBUG_SITENAME &>> $INSTALLLOG
-
+		if [ "$ARGS" != "debug" ] && [ "$ARGS" != "--start" ] && [ "$ARGS" != "--stop" ] && [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] 
+		then
+			ls /etc/nginx/sites-available/ | grep $ARGS &>> $INSTALLLOG
+			if [ $? -eq 0 ]
+			then
+				EE_DEBUG_SITENAME=$ARGS && echo EE_DEBUG_SITENAME = $EE_DEBUG_SITENAME &>> $INSTALLLOG
+			fi
+		fi
 	done
 
-	if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
+	if [ "$EE_DEBUG" = "--start" ]
 	then
 		echo -e "\033[34mLets Start Debugging Server\e[0m"
-		EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
-		EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
-		EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
-		EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
-		EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
-		EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
-	fi
+		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
+		then
+			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+			EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+			EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+			EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+			EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+			EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+		fi	
 
-	if [ -z "$EE_DEBUG_SITENAME" ]
+		if [ -z "$EE_DEBUG_SITENAME" ]
+		then
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE
+			fi
+
+		else
+
+			# Get The Domain Name
+			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EESITENAME
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_SITE
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_SITE
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				# Debug WordPress Debug Log
+				DEBUG_WORDPRESS
+			fi
+
+		fi
+
+		if [ "$EE_DEBUG_PHP" = "--php" ]
+		then
+			# Debug PHP
+			DEBUG_PHP
+		fi
+
+		if [ "$EE_DEBUG_FPM" = "--fpm" ]
+		then
+			# Debug PHP FPM
+			DEBUG_PHP_FPM
+		fi
+
+		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+		then
+			# Debug MySQL Slow Query
+			DEBUG_MYSQL
+		fi
+
+	elif [ "$EE_DEBUG" = "--stop" ]
 	then
+		echo -e "\033[34mLets Stop Debugging Server\e[0m"
 
-		if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
 		then
-			# Debug Nginx
-			DEBUG_NGINX
-		fi
+			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+			EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+			EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+			EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+			EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+			EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+		fi	
 
-		if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
-		then
-			# Debug Nginx Rewrite Logs
-			DEBUG_NGINX_REWRITE
-		fi
-
-	else
-
-		# Get The Domain Name
-		SITENAMECHECK=$EE_DEBUG_SITENAME
-		EESITENAME
-
-		if [ "$EE_DEBUG_NGINX" = "--nginx" ]
-		then
-			# Debug Nginx
-			DEBUG_NGINX_SITE
-		fi
-
-		if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
-		then
-			# Debug Nginx Rewrite Logs
-			DEBUG_NGINX_REWRITE_SITE
-		fi
-
-		if [ "$EE_DEBUG_WP" = "--wp" ]
+		if [ -z "$EE_DEBUG_SITENAME" ]
 		then
 
-			# Debug WordPress Debug Log
-			DEBUG_WORDPRESS
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_STOP
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_STOP
+			fi
+
+		else
+
+			# Get The Domain Name
+			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EESITENAME
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_SITE_STOP
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_SITE_STOP
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				# Debug WordPress Debug Log
+				DEBUG_WORDPRESS_STOP
+			fi
+
 		fi
 
+		if [ "$EE_DEBUG_PHP" = "--php" ]
+		then
+			# Debug PHP
+			DEBUG_PHP_STOP
+		fi
+
+		if [ "$EE_DEBUG_FPM" = "--fpm" ]
+		then
+			# Debug PHP FPM
+			DEBUG_PHP_FPM_STOP
+		fi
+
+		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+		then
+			# Debug MySQL Slow Query
+			DEBUG_MYSQL_STOP
+		fi
+
+		
 	fi
-
-	if [ "$EE_DEBUG_PHP" = "--php" ]
-	then
-		# Debug PHP
-		DEBUG_PHP
-	fi
-
-	if [ "$EE_DEBUG_FPM" = "--fpm" ]
-	then
-		# Debug PHP FPM
-		DEBUG_PHP_FPM
-	fi
-
-	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
-	then
-		# Debug MySQL Slow Query
-		DEBUG_MYSQL
-	fi
-
 	# Lets Restart Services
 	if [ "$EE_DEBUG_NGINX" = "--nginx" ] || [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 	then
