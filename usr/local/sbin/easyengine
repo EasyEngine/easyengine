@@ -1432,11 +1432,27 @@ DEBUG_NGINX()
 		read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
 	fi
 	
-	# Enable Debug Connection
+	# Lets Disable EE_DEBUG_NGINX
+	EE_DEBUG_NGINX=""
+
 	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
 	do
-       	sed -i "/multi_accept/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+		grep "debug_connection $DEBUG_IP_ADDRESS" /etc/nginx/nginx.conf &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			# Enable Debug Connection
+			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+
+			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
+			# Lets Trigger The Nginx Restart
+			EE_DEBUG_NGINX="--nginx"
+       	fi
 	done
+
+	if [ -z "$EE_DEBUG_NGINX" ]
+	then
+		echo -e "\033[34mNginx Already Started Debug Connection For Listed IP Address\e[0m"
+	fi
 }
 
 DEBUG_NGINX_SITE()
@@ -1482,12 +1498,33 @@ DEBUG_NGINX_REWRITE_SITE()
 
 DEBUG_PHP()
 {
+	EE_DEBUG_PHP=""
 	# Slowlog Settings
-	sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'" /etc/php5/fpm/pool.d/www.conf
-	sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'" /etc/php5/fpm/pool.d/www.conf
+	grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'" /etc/php5/fpm/pool.d/www.conf
+
+		# Lets Trigger The PHP5-FPM Restart
+		EE_DEBUG_PHP="--php"
+
+	else
+		echo -e "\033[34mSlowlog Already Enabled\e[0m"
+	fi
 
 	# Xdebug Settings
-	echo -e "xdebug.profiler_output_dir=/tmp \nxdebug.profiler_output_name=cachegrind.out.%p-%H-%R \nxdebug.profiler_enable_trigger=1 \nxdebug.profiler_enable=0" >> /etc/php5/fpm/conf.d/20-xdebug.ini
+	grep xdebug.profiler_ /etc/php5/fpm/conf.d/20-xdebug.ini &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		echo -e "xdebug.profiler_output_dir=/tmp \nxdebug.profiler_output_name=cachegrind.out.%p-%H-%R \nxdebug.profiler_enable_trigger=1 \nxdebug.profiler_enable=0" >> /etc/php5/fpm/conf.d/20-xdebug.ini
+
+		# Lets Trigger The PHP5-FPM Restart
+		EE_DEBUG_PHP="--php"
+
+	else
+		echo -e "\033[34mXdebug Already Enabled\e[0m"
+	fi
 
 	if [ ! -d /var/www/eeadmin/htdocs/php/webgrind/ ]
 	then
@@ -1510,23 +1547,43 @@ DEBUG_PHP()
 
 DEBUG_PHP_FPM()
 {
-	# Enable PHP5-FPM Error Logs In Debug Mode
-	sed -i "s';log_level.*'log_level = debug'" /etc/php5/fpm/php-fpm.conf
+	grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable PHP5-FPM Error Logs In Debug Mode
+		sed -i "s';log_level.*'log_level = debug'" /etc/php5/fpm/php-fpm.conf
+	else
+		EE_DEBUG_FPM=""
+		echo -e "\033[34mPHP5-FPM Log Level Is Already In Debug Mode\e[0m"
+	fi
 }
 
 DEBUG_MYSQL()
 {
-	# Enable MySQL Slow Logs
-	sed -i "/long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
-	sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
-	sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
+	grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable MySQL Slow Logs
+		sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
+		sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
+		sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
+	else
+		EE_DEBUG_MYSQL=""
+		echo -e "\033[34mMySQL Slow Log Already Enabled\e[0m"
+	fi
 }
 
 DEBUG_WORDPRESS()
 {
-	# Debug WordPress
-	echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
-	sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+	grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Debug WordPress
+		echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
+		sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+	else
+		echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
+	fi
 }
 
 # Easy Engine Version
@@ -2592,6 +2649,17 @@ then
 
 	done
 
+	if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
+	then
+		echo -e "\033[34mLets Start Debugging Server\e[0m"
+		EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+		EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+		EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+		EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+		EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+		EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+	fi
+
 	if [ -z "$EE_DEBUG_SITENAME" ]
 	then
 
@@ -2657,13 +2725,15 @@ then
 	then
 		# Restart Nginx
 		NGINXRESTART
+	fi
 
-	elif [ "$EE_DEBUG_PHP" = "--php" ] || [ "$EE_DEBUG_FPM" = "--fpm" ]
+	if [ "$EE_DEBUG_PHP" = "--php" ] || [ "$EE_DEBUG_FPM" = "--fpm" ]
 	then
 		# Restart PHP5-FPM
 		PHPRESTART
+	fi
 
-	elif [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 	then
 		# Restart MySQL
 		MYSQLRESTART
