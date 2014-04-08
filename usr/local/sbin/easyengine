@@ -1683,7 +1683,7 @@ DEBUG_MYSQL()
 
 	# Check MySql Slow Logs Is ON
 	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
-	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $INSTALLLOG
 
 	if [ $? -ne 0 ]
 	then
@@ -1710,7 +1710,7 @@ DEBUG_MYSQL_STOP()
 
 	# Check MySql Slow Logs Is OFF
 	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
-	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $INSTALLLOG
 	
 	if [ $? -eq 0 ]
 	then
@@ -1737,6 +1737,15 @@ DEBUG_WORDPRESS()
 	then
 		# Debug WordPress
 		echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
+
+		# Call PHPUSERINFO Function For PHP User Details
+		PHPUSERINFO
+
+		# Create debug.log & Change Permission
+		touch /var/www/$DOMAIN/htdocs/wp-content/debug.log
+		chown $PHPUSER:$PHPUSER /var/www/$DOMAIN/htdocs/wp-content/debug.log
+		
+		# Turn On Debug
 		sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
 	else
 		echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
