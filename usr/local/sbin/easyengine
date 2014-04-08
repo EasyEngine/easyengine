@@ -365,6 +365,14 @@ COMMONPHP()
 		
 		# Change PHP Fastcgi Socket
 		sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf || OwnError "Unable To Change PHP Fastcgi Socket"
+
+		# Separate PHP POOL For Slow Logs
+		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/slowlog.conf
+		sed -i "s'\[www\]'[slowlog]'" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Pool Name"
+		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Slowlog"
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
 	fi
 }
 
@@ -1432,7 +1440,7 @@ DEBUG_NGINX()
 		read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
 	fi
 	
-	# Lets Disable Nginx Restart Trigger
+	# Lets Disable Nginx Reload Trigger
 	EE_DEBUG_NGINX=""
 
 	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
@@ -1446,7 +1454,7 @@ DEBUG_NGINX()
 			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
 			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
 
-			# Lets Trigger The Nginx Restart
+			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
        	fi
 	done
@@ -1465,7 +1473,7 @@ DEBUG_NGINX_STOP()
 		echo -e "\033[34mStopping Nginx Debug Connection, Please Wait...\e[0m"
 		sed -i "/debug_connection.*/d" /etc/nginx/nginx.conf
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_NGINX=""
 		echo -e "\033[34mNginx Debug Connection Already Stopped\e[0m"
 	fi
@@ -1480,6 +1488,7 @@ DEBUG_NGINX_REWRITE()
 		echo -e "\033[34mSetting Up Nginx Rewrite Logs, Please Wait...\e[0m"
 		sed -i '/http {/a \\trewrite_log on;' /etc/nginx/nginx.conf
 	else
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
 		echo -e "\033[34mNginx Rewrites Logs Already ON\e[0m"
 	fi
@@ -1494,7 +1503,7 @@ DEBUG_NGINX_REWRITE_STOP()
 		echo -e "\033[34mStopping Nginx Rewrite Logs, Please Wait...\e[0m"
 		sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
 		echo -e "\033[34mNginx Rewrites Logs Already STOP\e[0m"
 	fi
@@ -1509,7 +1518,7 @@ DEBUG_NGINX_SITE()
 		echo -e "\033[34mSetting Up $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
 		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_NGINX=""
 		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
 	fi
@@ -1524,7 +1533,7 @@ DEBUG_NGINX_SITE_STOP()
 		echo -e "\033[34mDisable $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
 		sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$DOMAIN
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_NGINX=""
 		echo -e "\033[34mAlready Stopped $DOMAIN Error Logs In Debugging Mode\e[0m"
 	fi
@@ -1539,7 +1548,7 @@ DEBUG_NGINX_REWRITE_SITE()
 		echo -e "\033[34mSetting Up Nginx Rewrite Logs For $DOMAIN\e[0m"
 		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
 		echo -e "\033[34mRewrites Logs Already ON For $DOMAIN\e[0m"
 	fi
@@ -1554,7 +1563,7 @@ DEBUG_NGINX_REWRITE_SITE_STOP()
 		echo -e "\033[34mStopping Up Nginx Rewrite Logs For $DOMAIN\e[0m"
 		sed -i "/rewrite_log.*/d" /etc/nginx/sites-available/$DOMAIN
 	else
-		# Lets Disable Nginx Restart Trigger
+		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
 		echo -e "\033[34mRewrites Logs Already Stop For $DOMAIN\e[0m"
 	fi
@@ -1566,18 +1575,42 @@ DEBUG_PHP()
 	EE_DEBUG_PHP=""
 
 	# Slowlog Settings
-	grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/slowlog.conf &>> $INSTALLLOG
+	#if [ $? -ne 0 ]
+	#hen
+		#echo -e "\033[34mSetting Up PHP5-FPM Slow Log, Please Wait...\e[0m"
+		#sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/slowlog.conf
+		#sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/slowlog.conf
+
+	#else
+		#echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
+	#fi
+
+	if [ -z $EE_DEBUG_SITENAME ]
 	then
-		echo -e "\033[34mSetting Up PHP5-FPM Slow Log, Please Wait...\e[0m"
-		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'" /etc/php5/fpm/pool.d/www.conf
-		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'" /etc/php5/fpm/pool.d/www.conf
+		grep 9001 /etc/nginx/conf.d/upstream.conf &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mEnable PHP5-FPM Slow Log, Please Wait...\e[0m"
+			sed -i "s/9000/9001/" /etc/nginx/conf.d/upstream.conf
 
-		# Lets Trigger The PHP5-FPM Restart
-		EE_DEBUG_PHP="--php"
-
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
+		fi
 	else
-		echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
+		grep 9001 /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mEnable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
+			sed -i "s/fastcgi_pass.*/fastcgi_pass 127.0.0.1:9001;/g" /etc/nginx/sites-available/$DOMAIN
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Enabled For $DOMAIN\e[0m"
+		fi
 	fi
 
 	# Xdebug Settings
@@ -1619,18 +1652,45 @@ DEBUG_PHP_STOP()
 	EE_DEBUG_PHP=""
 
 	# Slowlog Settings
-	grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
-	if [ $? -eq 0 ]
-	then
-		echo -e "\033[34mStopping Up PHP5-FPM Slow Log, Please Wait...\e[0m"
-		sed -i "s'slowlog =';slowlog ='" /etc/php5/fpm/pool.d/www.conf
-		sed -i "s'request_slowlog_timeout';request_slowlog_timeout'" /etc/php5/fpm/pool.d/www.conf
+	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	#if [ $? -eq 0 ]
+	#then
+		#echo -e "\033[34mStopping Up PHP5-FPM Slow Log, Please Wait...\e[0m"
+		#sed -i "s'slowlog =';slowlog ='" /etc/php5/fpm/pool.d/www.conf
+		#sed -i "s'request_slowlog_timeout';request_slowlog_timeout'" /etc/php5/fpm/pool.d/www.conf
 
 		# Lets Trigger The PHP5-FPM Restart
-		EE_DEBUG_PHP="--php"
+		#EE_DEBUG_PHP="--php"
 
+	#else
+		#echo -e "\033[34mPHP5-FPM Slow Log Already Disable\e[0m"
+	#fi
+
+	if [ -z $EE_DEBUG_SITENAME ]
+	then
+		grep 9001 /etc/nginx/conf.d/upstream.conf &>> $INSTALLLOG
+		if [ $? -eq 0 ]
+		then
+			echo -e "\033[34mDisable PHP5-FPM Slow Log, Please Wait...\e[0m"
+			sed -i "s/9001/9000/" /etc/nginx/conf.d/upstream.conf
+			
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled\e[0m"
+		fi
 	else
-		echo -e "\033[34mPHP5-FPM Slow Log Already Disable\e[0m"
+		grep 9001 /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mDisable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
+			sed -i "s/fastcgi_pass.*/fastcgi_pass php;/g" /etc/nginx/sites-available/$DOMAIN
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled For $DOMAIN\e[0m"
+		fi
 	fi
 
 	# Xdebug Settings
@@ -2879,7 +2939,7 @@ then
 
 	if [ "$EE_DEBUG" = "--start" ]
 	then
-		echo -e "\033[34mLets Start Debugging Server\e[0m"
+
 		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
 		then
 			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
@@ -2951,7 +3011,6 @@ then
 
 	elif [ "$EE_DEBUG" = "--stop" ]
 	then
-		echo -e "\033[34mLets Stop Debugging Server\e[0m"
 
 		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
 		then
@@ -3027,8 +3086,8 @@ then
 	# Lets Restart Services
 	if [ "$EE_DEBUG_NGINX" = "--nginx" ] || [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 	then
-		# Restart Nginx
-		NGINXRESTART
+		# Reload Nginx
+		NGINXRELOAD
 	fi
 
 	if [ "$EE_DEBUG_PHP" = "--php" ] || [ "$EE_DEBUG_FPM" = "--fpm" ]
