@@ -1678,33 +1678,54 @@ DEBUG_PHP_FPM_STOP()
 
 DEBUG_MYSQL()
 {
-	mysql -u show variables like 'slow_query_log';
+	# Collect MySQL Login Details
+	MYSQLROOT
+
+	# Check MySql Slow Logs Is ON
 	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON
+
 	if [ $? -ne 0 ]
 	then
 		# Enable MySQL Slow Logs
 		echo -e "\033[34mSetting Up MySQL Slow Log, Please Wait...\e[0m"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'ON';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=2;"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'ON';"
 		#sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
 		#sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
 		#sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
 	else
-		EE_DEBUG_MYSQL=""
+		# Lets Disable MySQL Restart Trigger
+		#EE_DEBUG_MYSQL=""
 		echo -e "\033[34mMySQL Slow Log Already Enabled\e[0m"
 	fi
 }
 
 DEBUG_MYSQL_STOP()
 {
-	grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	# Collect MySQL Login Details
+	MYSQLROOT
+
+	# Check MySql Slow Logs Is OFF
+	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON
+	
 	if [ $? -eq 0 ]
 	then
 		# Disable MySQL Slow Logs
 		echo -e "\033[34mStopping MySQL Slow Log, Please Wait...\e[0m"
-		sed -i "/slow-query-log/d" /etc/mysql/my.cnf
-		sed -i "s/long_query_time/#long_query_time/" /etc/mysql/my.cnf
-		sed -i "s/log-queries-not-using-indexes/#log-queries-not-using-indexes/" /etc/mysql/my.cnf
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'OFF';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=10;"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'OFF';"
+		#sed -i "/slow-query-log/d" /etc/mysql/my.cnf
+		#sed -i "s/long_query_time/#long_query_time/" /etc/mysql/my.cnf
+		#sed -i "s/log-queries-not-using-indexes/#log-queries-not-using-indexes/" /etc/mysql/my.cnf
 	else
-		EE_DEBUG_MYSQL=""
+		# Lets Disable MySQL Restart Trigger
+		#EE_DEBUG_MYSQL=""
 		echo -e "\033[34mMySQL Slow Log Already Disable\e[0m"
 	fi
 }
@@ -3007,11 +3028,11 @@ then
 		PHPRESTART
 	fi
 
-	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
-	then
+	#if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+	#then
 		# Restart MySQL
-		MYSQLRESTART
-	fi
+		#MYSQLRESTART
+	#fi
 
 	if [ "$EE_DEBUG_INTERACTIVE" = "-i" ]
 	then
