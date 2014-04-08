@@ -1678,14 +1678,15 @@ DEBUG_PHP_FPM_STOP()
 
 DEBUG_MYSQL()
 {
-	grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	mysql -u show variables like 'slow_query_log';
+	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
 	if [ $? -ne 0 ]
 	then
 		# Enable MySQL Slow Logs
 		echo -e "\033[34mSetting Up MySQL Slow Log, Please Wait...\e[0m"
-		sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
-		sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
-		sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
+		#sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
+		#sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
+		#sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
 	else
 		EE_DEBUG_MYSQL=""
 		echo -e "\033[34mMySQL Slow Log Already Enabled\e[0m"
@@ -1739,11 +1740,14 @@ DEBUG_WORDPRESS_STOP()
 
 DEBUG_KILL()
 {
-	if [ -z "$EE_DEBUG_SITENAME" ]
+	if [ "$EE_DEBUG" = "--start" ]
 	then
-		ee debug --stop
-	else
-		ee debug --stop $EE_DEBUG_SITENAME
+		if [ -z "$EE_DEBUG_SITENAME" ]
+		then
+			ee debug --stop
+		else
+			ee debug --stop $EE_DEBUG_SITENAME
+		fi
 	fi
 
 	# Unset Trap So We Don't Get Infinate Loop
