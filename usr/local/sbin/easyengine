@@ -275,27 +275,27 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# EEAdmin SSL Setup
-	if [ ! -d /etc/nginx/ssl ]
+	if [ ! -d /var/www/22222/cert ]
 	then
-		mkdir /etc/nginx/ssl || OwnError "Unable To Create /etc/nginx/ssl"
+		mkdir -p /var/www/22222/cert || OwnError "Unable To Create /var/www/22222/cert"
 	fi
 
 	# Generate SSL Key
 	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
-	openssl genrsa -out /etc/nginx/ssl/eeadmin.key 2048 &>> $INSTALLLOG \
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $INSTALLLOG \
 	|| OwnError "Unable To Generate SSL Private Key"
 
 	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
-	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.csr &>> $INSTALLLOG \
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $INSTALLLOG \
 	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
 
 	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
-	mv /etc/nginx/ssl/eeadmin.key /etc/nginx/ssl/eeadmin.key.org
-	openssl rsa -in /etc/nginx/ssl/eeadmin.key.org -out /etc/nginx/ssl/eeadmin.key &>> $INSTALLLOG \
+	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $INSTALLLOG \
 	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
 
 	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
-	openssl x509 -req -days 3652 -in /etc/nginx/ssl/eeadmin.csr -signkey /etc/nginx/ssl/eeadmin.key -out /etc/nginx/ssl/eeadmin.crt &>> $INSTALLLOG \
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
 	|| OwnError "Unable To Generate SSL Certificate"
 
 	# White List IP Address
@@ -400,42 +400,42 @@ WP-CLI()
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	if [ ! -d /var/www/eeadmin/htdocs/db ]
+	if [ ! -d /var/www/22222/htdocs/db ]
 	then
-		if [ ! -d /var/www/eeadmin/htdocs/db/pma ]
+		if [ ! -d /var/www/22222/htdocs/db/pma ]
 		then
 			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
 
 			# Setup PMA/phpMyAdmin
-			mkdir -p /var/www/eeadmin/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/eeadmin/htdocs/db/pma/"
+			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
 
 			# Download PMA/phpMyAdmin
-			wget -cqO /var/www/eeadmin/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			wget -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
 			|| OwnError "Unable To Download phpMyAdmin"
 
 			# Extract PMA/phpMyAdmin
-			tar --strip-components=1 -zxf  /var/www/eeadmin/htdocs/db/pma/pma.tar.gz -C /var/www/eeadmin/htdocs/db/pma/ \
+			tar --strip-components=1 -zxf  /var/www/22222/htdocs/db/pma/pma.tar.gz -C /var/www/22222/htdocs/db/pma/ \
 			|| OwnError "Unable To Extract phpMyAdmin"
 
 			# Remove Unwanted Files
-			rm -f /var/www/eeadmin/htdocs/db/pma/pma.tar.gz
+			rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
 
 		fi
 	
-		if [ ! -d /var/www/eeadmin/htdocs/db/adminer ]
+		if [ ! -d /var/www/22222/htdocs/db/adminer ]
 		then
 			echo -e "\033[34mDownloading Adminer, Please Wait...\e[0m"
 			# Setup Adminer
-			mkdir -p /var/www/eeadmin/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/eeadmin/htdocs/db/adminer/"
+			mkdir -p /var/www/22222/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/22222/htdocs/db/adminer/"
 
 			# Download Adminer
-			wget -cqO /var/www/eeadmin/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			wget -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
 			|| OwnError "Unable To Download Adminer"
 
 		fi
 
 	else
-		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/eeadmin/htdocs/db/pma)...\e[0m"
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/22222/htdocs/db/pma)...\e[0m"
 	fi
 }
 
@@ -532,7 +532,7 @@ REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...\e[0m"
-	rm -rf /var/www/eeadmin/htdocs/db/pma || OwnError "Unable To Remove phpMyAdmin"
+	rm -rf /var/www/22222/htdocs/db/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
@@ -1279,29 +1279,29 @@ PERMISSIONANDGIT()
 EEOPMEMCACHE()
 {
 	# Opcache Settings
-	if [ ! -d /var/www/eeadmin/htdocs/php/opcache ]
+	if [ ! -d /var/www/22222/htdocs/php/opcache ]
 	then
-		mkdir -p /var/www/eeadmin/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
+		mkdir -p /var/www/22222/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
-		wget -cqO /var/www/eeadmin/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/eeadmin/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/eeadmin/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
-	if [ ! -d /var/www/eeadmin/htdocs/php/memcache ]
+	if [ ! -d /var/www/22222/htdocs/php/memcache ]
 	then
-		mkdir -p /var/www/eeadmin/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
+		mkdir -p /var/www/22222/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
-		wget -cqO /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget -cqO /var/www/22222/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
-		tar -zxf /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz -C /var/www/eeadmin/htdocs/php/memcache
+		tar -zxf /var/www/22222/htdocs/php/memcache/memcache.tar.gz -C /var/www/22222/htdocs/php/memcache
 
 		# Remove Unwanted Files
-		rm -f /var/www/eeadmin/htdocs/php/memcache/memcache.tar.gz
+		rm -f /var/www/22222/htdocs/php/memcache/memcache.tar.gz
 	fi
 }
 
@@ -1627,13 +1627,13 @@ DEBUG_PHP()
 		echo -e "\033[34mXdebug Already Enabled\e[0m"
 	fi
 
-	if [ ! -d /var/www/eeadmin/htdocs/php/webgrind/ ]
+	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]
 	then
 		# Webgrind Install
-		mkdir -p mkdir -p /var/www/eeadmin/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory: /var/www/eeadmin/htdocs/php/webgrind/"
+		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory: /var/www/22222/htdocs/php/webgrind/"
 		echo -e "\033[34mCloning webgrind, Please Wait...\e[0m"
-		git clone https://github.com/jokkedk/webgrind.git /var/www/eeadmin/htdocs/php/webgrind/
-		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/eeadmin/htdocs/php/webgrind/config.php
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/
+		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
 
 		# Install Graphviz
 		dpkg -l | grep graphviz &>> $INSTALLLOG
@@ -1968,7 +1968,7 @@ then
 			INSTALLPMA
 
 			# Initialise Git
-			#EEGITDIR=/var/www/eeadmin/htdocs/db/pma/
+			#EEGITDIR=/var/www/22222/htdocs/db/pma/
 			#EEGITINIT
 
 			# Display Success Message
@@ -2058,7 +2058,7 @@ then
 			EEGITINIT
 
 			# Initialize Git
-			#EEGITDIR=/var/www/eeadmin/htdocs/db/pma/
+			#EEGITDIR=/var/www/22222/htdocs/db/pma/
 			#EEGITINIT
 
 			# Initialize Git
@@ -2566,7 +2566,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -2590,7 +2590,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2621,7 +2621,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2652,7 +2652,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2688,7 +2688,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -2712,7 +2712,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2743,7 +2743,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2774,7 +2774,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/eeadmin/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
