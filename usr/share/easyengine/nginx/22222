@@ -12,7 +12,7 @@ server {
 	# Force HTTP To HTTPS
 	error_page 497 =200 https://$host:22222$request_uri;
 
-	root /var/www/eeadmin/htdocs;
+	root /var/www/22222/htdocs;
 	index index.php index.htm index.html;
 
 	# Turn On Directory List
