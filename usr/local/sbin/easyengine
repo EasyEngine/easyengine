@@ -371,12 +371,13 @@ COMMONPHP()
 		sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf || OwnError "Unable To Change PHP Fastcgi Socket"
 
 		# Separate PHP POOL For Slow Logs
-		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/slowlog.conf
-		sed -i "s'\[www\]'[slowlog]'" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Pool Name"
-		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
-		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
-		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Slowlog"
-		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/slowlog.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+		sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
+		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/xdebug \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG
 	fi
 }
 
@@ -1579,12 +1580,12 @@ DEBUG_PHP()
 	EE_DEBUG_PHP=""
 
 	# Slowlog Settings
-	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/slowlog.conf &>> $INSTALLLOG
+	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG
 	#if [ $? -ne 0 ]
 	#hen
 		#echo -e "\033[34mSetting Up PHP5-FPM Slow Log, Please Wait...\e[0m"
-		#sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/slowlog.conf
-		#sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/slowlog.conf
+		#sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf
+		#sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf
 
 	#else
 		#echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
