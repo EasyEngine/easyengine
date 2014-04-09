@@ -274,7 +274,11 @@ COMMONNGINX()
 	EEDEST="/etc/nginx/common"
 	EEMD5SUM
 
-	# EEAdmin SSL Setup
+	# EasyEngine Admin Setup
+	cp -v /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
+	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
+
+	# EasyEngine Admin SSL Setup
 	if [ ! -d /var/www/22222/cert ]
 	then
 		mkdir -p /var/www/22222/cert || OwnError "Unable To Create /var/www/22222/cert"
