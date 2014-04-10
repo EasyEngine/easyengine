@@ -435,7 +435,7 @@ PHP_PACKAGES()
 		mkdir -p /var/www/22222/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
-		echo -e "\033[34mInstalling Opcache Tools, Please Wait...\e[0m"
+		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
 		wget -cqO /var/www/22222/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
 		wget -cqO /var/www/22222/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
 		wget -cqO /var/www/22222/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
@@ -448,7 +448,7 @@ PHP_PACKAGES()
 		mkdir -p /var/www/22222/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
-		echo -e "\033[34mInstalling Memcache Tools, Please Wait...\e[0m"
+		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
 		wget -cqO /var/www/22222/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
@@ -521,7 +521,7 @@ PHP_PACKAGES()
 	PHPUSERINFO
 
 	# Change Ownership
-	chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs || OwnError "Unable To Change Ownership For /var/www/22222/htdocs"
+	chown -R $PHPUSER:$PHPUSER /var/www/22222 || OwnError "Unable To Change Ownership For /var/www/22222"
 }
 
 INSTALLPMA()
@@ -601,7 +601,7 @@ COMMONMYSQL()
 	echo -e "\033[34mUpdating MySQL Configuration Files, Please Wait...\e[0m"
 
 	# Decrease MySQL Wait Timeout
-	sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60/" /etc/mysql/my.cnf
+	sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60" /etc/mysql/my.cnf
 }
 
 POSTFIXINSTALLTWEAKS()
@@ -1955,7 +1955,7 @@ if [ "$1" = "version" ] || [ "$1" = "--version" ] || [ "$1" = "-v" ]
 then
 
 	# Display Easy Engine Version
-	echo "easyengine version: 1.2.2"
+	echo "easyengine version: 1.2.3"
 
 # Easy Engine Info
 elif [ "$1" = "info" ]
