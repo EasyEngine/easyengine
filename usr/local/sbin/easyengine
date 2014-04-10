@@ -515,7 +515,6 @@ PHP_PACKAGES()
                   --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
 
 		# Execute On MySQL Logrotation
-		ANEMOMETERLOG=$(echo "pt-query-digest --user=anemometer --password=$ANEMOMETERPASS --review D=slow_query_log,t=global_query_review --review-history D=slow_query_log,t=global_query_review_history --no-report --limit=0% --filter=" \$event-\>{Bytes} = length\(\$event-\>{arg}\) and \$event-\>{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log  &> /dev/null 2>&1")
 		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
 		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
 		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
