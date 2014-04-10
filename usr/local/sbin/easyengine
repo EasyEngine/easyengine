@@ -331,7 +331,7 @@ COMMONNGINX()
         	sed -i "/deny/i $(echo allow $WHITELIST_IP_ADDRESS\;)" /etc/nginx/common/acl.conf
 		done
 	else
-		echo -e "\033[34mEasyEngine Don't Find IP Address in /etc/easyengine/ee.conf file\e[0m"
+		echo -e "\033[34mEasyEngine (ee) Don't Find IP Address in /etc/easyengine/ee.conf file\e[0m"
 	fi
 
 	# Protect EE Locations
@@ -464,7 +464,7 @@ PHP_PACKAGES()
 		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory"
 		
 		# Download Webgrind
-		echo -e "\033[34mCloning webgrind, Please Wait...\e[0m"
+		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
 		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
 		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
 
@@ -509,11 +509,15 @@ PHP_PACKAGES()
 		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
 
 		# Put Data In Anemometer Database
-		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS --review D=slow_query_log,t=global_query_review --history D=slow_query_log,t=global_query_review_history --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
+		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS --review D=slow_query_log,t=global_query_review  --review-history D=slow_query_log,t=global_query_review_history --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
 
 		# Copy Anemometer Configuration File
 		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
 		|| OwnError "Unable To Copy Anemometer Configuration File"
+
+		# Update Anemoneter Configuration File
+		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 
 	fi
 
@@ -527,7 +531,7 @@ PHP_PACKAGES()
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	if [ ! -d /var/www/22222/htdocs/db ]
+	if [ ! -d /var/www/22222/htdocs/db/pma ] || [ ! -d /var/www/22222/htdocs/db/adminer ]
 	then
 		if [ ! -d /var/www/22222/htdocs/db/pma ]
 		then
