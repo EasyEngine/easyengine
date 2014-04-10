@@ -110,14 +110,15 @@ PHPREPO()
 	fi
 }
 
-PERCONA_REPO()
-{
-	# Fetch And Install The GnuPG Key
-	gpg --keyserver  keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A && gpg --export CD2EFD2A | apt-key add - &>> $INSTALLLOG  || OwnError "Unable To Add Percona GnuPG Key"
+# PERCONA_REPO()
+# {
+#	# Fetch And Install The GnuPG Key
+#	gpg --keyserver  keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A &>> $INSTALLLOG || OwnError "Unable To Fetch Percona GnuPG Key"
+#	gpg --export CD2EFD2A | apt-key add - &>> $INSTALLLOG  || OwnError "Unable To Add Percona GnuPG Key"
 
-	# Add Percona Repository
-	echo -e "deb http://repo.percona.com/apt $(lsb_release -cs) main \ndeb-src http://repo.percona.com/apt $(lsb_release -cs) main" > /etc/apt/sources.list.d/percona.list 
-}
+#	# Add Percona Repository
+#	echo -e "deb http://repo.percona.com/apt $(lsb_release -cs) main \ndeb-src http://repo.percona.com/apt $(lsb_release -cs) main" > /etc/apt/sources.list.d/percona.list 
+# }
 
 GPGKEY()
 {
@@ -287,6 +288,16 @@ COMMONNGINX()
 	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
 	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
 
+	# EasyEngine Admin Logs Setup
+	if [ ! -d /var/www/22222/logs ]
+	then
+		mkdir -p /var/www/22222/logs || OwnError "Unable To Create /var/www/22222/logs"
+	fi
+
+	# Symbolic Links
+	ln -s /var/log/nginx/eeadmin.access.log /var/www/22222/logs/access.log
+	ln -s /var/log/nginx/eeadmin.error.log /var/www/22222/logs/error.log
+
 	# EasyEngine Admin SSL Setup
 	if [ ! -d /var/www/22222/cert ]
 	then
@@ -351,6 +362,8 @@ COMMONPHP()
 	if [ $? -ne 0 ]
 	then
 
+		TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
+
 		# Move PHP’s Session Storage To Memcache
 		sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
 
@@ -360,6 +373,7 @@ COMMONPHP()
 		sed -i "s/post_max_size.*/post_max_size = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/upload_max_filesize.*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/max_execution_time.*/max_execution_time = 300/" /etc/php5/fpm/php.ini
+		sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
 
 		# Change PHP5-FPM Error Logs Location
 		sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
@@ -386,7 +400,7 @@ COMMONPHP()
 		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
 		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
 		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
-		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/xdebug \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
 		|| OwnError "Unable To Add Xdebug Settings"
 	fi
 }
@@ -408,7 +422,7 @@ WP-CLI()
 		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	else
-		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)...\e[0m"
+		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)\e[0m"
 	fi
 }
 
@@ -451,7 +465,7 @@ PHP_PACKAGES()
 		
 		# Download Webgrind
 		echo -e "\033[34mCloning webgrind, Please Wait...\e[0m"
-		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
 		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
 
 		# Install Graphviz
@@ -470,7 +484,7 @@ PHP_PACKAGES()
 	if [ ! -d /var/www/22222/htdocs/php/status/ ]
 	then
 			mkdir -p /var/www/22222/htdocs/php/status/ || OwnError "Unable To Create webgrind Directory"
-			touch /var/www/22222/htdocs/php/status/{www,debug}
+			touch /var/www/22222/htdocs/php/status/{php,debug}
 	fi
 
 	# Anemometer Setup
@@ -479,11 +493,35 @@ PHP_PACKAGES()
 		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
 
 		# Download Anemometer
-		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG || OwnError "Unable To Clone Anemometer"
+		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+		|| OwnError "Unable To Clone Anemometer"
+
+		# Setup Anemometer
+		# Collect MySQL Login Details
+		MYSQLROOT
+
+		# Setup Anemometer Database
+		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+		|| OwnError "Unable To Import Anemometer Database"
+
+		# Setup Anemometer Database Grants
+		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
+
+		# Put Data In Anemometer Database
+		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS --review D=slow_query_log,t=global_query_review --history D=slow_query_log,t=global_query_review_history --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
+
+		# Copy Anemometer Configuration File
+		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+		|| OwnError "Unable To Copy Anemometer Configuration File"
+
 	fi
 
+	# Call PHPUSERINFO Function For PHP User Details
+	PHPUSERINFO
 
-
+	# Change Ownership
+	chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs || OwnError "Unable To Change Ownership For /var/www/22222/htdocs"
 }
 
 INSTALLPMA()
@@ -555,6 +593,15 @@ INSTALLMYSQL()
 	echo -e "\033[34mInstalling MySQL, Please Wait...\e[0m"
 	$EEAPTGET install mysql-server mysqltuner percona-toolkit \
 	|| OwnError "Unable To Install MySQL"
+}
+
+COMMONMYSQL()
+{
+	# Personal Settings For MySQL
+	echo -e "\033[34mUpdating MySQL Configuration Files, Please Wait...\e[0m"
+
+	# Decrease MySQL Wait Timeout
+	sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60/" /etc/mysql/my.cnf
 }
 
 POSTFIXINSTALLTWEAKS()
@@ -1122,21 +1169,21 @@ PHPSTART()
 {
 	# Start PHP5-FPM Service
 	echo -e "\033[34mStarting PHP5-FPM Service, Please Wait...\e[0m"
-	service php5-fpm start &>> $INSTALLLOG || OwnError "Unable To Start PHP5-FPM"
+	(php5-fpm -t && service php5-fpm start) &>> $INSTALLLOG || OwnError "Unable To Start PHP5-FPM"
 }
 
 PHPRELOAD()
 {
 	# Reload PHP5-FPM Service
 	echo -e "\033[34mReloading PHP5-FPM Service, Please Wait...\e[0m"
-	service php5-fpm reload &>> $INSTALLLOG || OwnError "Unable To Reloading PHP5-FPM"
+	(php5-fpm -t && service php5-fpm reload) &>> $INSTALLLOG || OwnError "Unable To Reloading PHP5-FPM"
 }
 
 PHPRESTART()
 {
 	# Restart PHP5-FPM Service
 	echo -e "\033[34mRestarting PHP5-FPM Service, Please Wait...\e[0m"
-	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
+	(php5-fpm -t && service php5-fpm restart) &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
 }
 
 MYSQLSTART()
@@ -1492,13 +1539,14 @@ REMOVENGINXCONF()
 
 DEBUG_NGINX()
 {
-	if [ -z "$EE_IP_ADDRESS" ]
-	then
-		read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
-	fi
-	
 	# Lets Disable Nginx Reload Trigger
 	EE_DEBUG_NGINX=""
+
+	if [ -z "$EE_IP_ADDRESS" ]
+	then
+		#read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
+		EE_IP_ADDRESS="0.0.0.0/0"
+	fi
 
 	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
 	do
@@ -1990,8 +2038,9 @@ then
 			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 			
-			# Install WP-CLI
+			# Install WP-CLI & PHP Packages
 			WP-CLI
+			PHP_PACKAGES
 
 			# Initialise Git
 			EEGITDIR=/etc/php5/
@@ -2017,7 +2066,7 @@ then
 		then
 
 			# Add Percona Repository
-			PERCONA_REPO
+			#PERCONA_REPO
 
 			# Fix GPG Key Problems
 			GPGKEY
@@ -2027,6 +2076,12 @@ then
 
 			# Install MySQL
 			INSTALLMYSQL
+
+			# Personal Settings For MySQL
+			COMMONMYSQL
+
+			# Restart MySQL
+			MYSQLRESTART
 
 			# Initialize Git
 			EEGITDIR=/etc/mysql/
@@ -2064,7 +2119,7 @@ then
 			PHPREPO
 
 			# Add Percona Repository
-			PERCONA_REPO
+			#PERCONA_REPO
 
 			# Fix GPG Key Problems
 			GPGKEY
@@ -2087,11 +2142,18 @@ then
 			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 
-			# Install WP-CLI
+			# Install WP-CLI & PHP Packages
 			WP-CLI
+			PHP_PACKAGES
 
 			# Install PMA/phpMyAdmin
 			INSTALLPMA
+
+			# Personal Settings For MySQL
+			COMMONMYSQL
+
+			# Restart MySQL
+			MYSQLRESTART
 
 			# Initialize Git
 			EEGITDIR=/etc/nginx/
