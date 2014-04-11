@@ -5,6 +5,7 @@ LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 INSTALLLOG=/var/log/easyengine/install.log
 LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+EE_IP_ADDRESS=$(grep ip_address /etc/easyengine/ee.conf | cut -d'=' -f2 |sed 's/ //g' | tr ',' '\n')
 
 # Main EasyEngine Function To Log All The Outputs
 EasyEngine()
@@ -109,6 +110,16 @@ PHPREPO()
 	fi
 }
 
+# PERCONA_REPO()
+# {
+#	# Fetch And Install The GnuPG Key
+#	gpg --keyserver  keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A &>> $INSTALLLOG || OwnError "Unable To Fetch Percona GnuPG Key"
+#	gpg --export CD2EFD2A | apt-key add - &>> $INSTALLLOG  || OwnError "Unable To Add Percona GnuPG Key"
+
+#	# Add Percona Repository
+#	echo -e "deb http://repo.percona.com/apt $(lsb_release -cs) main \ndeb-src http://repo.percona.com/apt $(lsb_release -cs) main" > /etc/apt/sources.list.d/percona.list 
+# }
+
 GPGKEY()
 {
 	# Force GPG KEYS Check
@@ -136,9 +147,25 @@ UPDATEAPT()
 	apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 }
 
+NGINXINSTALLTWEAKS ()
+{
+	# Define Nginx Package
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
+	then
+		NGINXPACKAGE=nginx-custom
+
+	elif [ "$LINUX_DISTRO" == "Debian" ]
+	then
+		NGINXPACKAGE=nginx-full
+	fi
+}
+
 INSTALLNGINX()
 {
-	# Install Nginx
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
+	# Install Nginx Package
 	echo -e "\033[34mInstalling Nginx, Please Wait...\e[0m"
 	$EEAPTGET install $NGINXPACKAGE || OwnError "Unable To Install Nginx"
 }
@@ -215,16 +242,25 @@ COMMONNGINX()
 	if [ $? -ne 0 ]
 	then
 
-		# Change Nginx Worker Processes Connections And Gzip
-		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
-		sed -i "s/worker_connections.*/worker_connections 1024;/" /etc/nginx/nginx.conf
-		sed -i "s/worker_processes.*/worker_processes `cat /proc/cpuinfo | grep processor | wc -l`;/" /etc/nginx/nginx.conf
+		# Change Nginx Main Section Settings	
+		sed -i "s/worker_processes.*/worker_processes auto;/" /etc/nginx/nginx.conf
+		sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
 
-		# Disable Nginx Version Set Custom Headers Variables And Proxy Settings
-		sed -i "s/http {/http {\n\t##\n\t# Easy Engine Settings\n\t##\n\n\tserver_tokens off;\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
+		# Change Nginx Events Section Settings
+		sed -i "s/worker_connections.*/worker_connections 1024;/" /etc/nginx/nginx.conf
+		sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
+
+		# Disable Nginx Version Set Custom Headers Proxy And SSL Settings
+		sed -i "s/http {/http {\n\t##\n\t# Easy Engine Settings\n\t##\n\n\tserver_tokens off;\n\treset_timedout_connection on;\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
+
+		# Change Keepalive Timeout Settings
+		sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
 
 		# Set Custom Logs
 		sed -i "s/error_log.*/error_log \/var\/log\/nginx\/error.log;\n\n\tlog_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '\n\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '\n\t\t'\"\$http_referer\" \"\$http_user_agent\"';/" /etc/nginx/nginx.conf
+
+		# Enable Gzip
+		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
 	fi
 
 	# Check Directory Exist
@@ -248,13 +284,54 @@ COMMONNGINX()
 	EEDEST="/etc/nginx/common"
 	EEMD5SUM
 
+	# EasyEngine Admin Setup
+	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
+	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
+
+	# EasyEngine Admin Logs Setup
+	if [ ! -d /var/www/22222/logs ]
+	then
+		mkdir -p /var/www/22222/logs || OwnError "Unable To Create /var/www/22222/logs"
+	fi
+
+	# Symbolic Links
+	ln -s /var/log/nginx/eeadmin.access.log /var/www/22222/logs/access.log
+	ln -s /var/log/nginx/eeadmin.error.log /var/www/22222/logs/error.log
+
+	# EasyEngine Admin SSL Setup
+	if [ ! -d /var/www/22222/cert ]
+	then
+		mkdir -p /var/www/22222/cert || OwnError "Unable To Create /var/www/22222/cert"
+	fi
+
+	# Generate SSL Key
+	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Private Key"
+
+	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
+
+	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
+	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $INSTALLLOG \
+	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
+
+	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Certificate"
+
 	# White List IP Address
 	echo -e "\033[34mEasyEngine (ee) Allow To Access Protected Files By Using Whitelisted IP Address Or HTTP Authentication\e[0m"
-	stty echo
-	read -p "Enter The IP Address To Whitelist: " WHITELISTIP
-	if [[ $WHITELISTIP != "" ]]
+	if [ -n "$EE_IP_ADDRESS" ]
 	then
-			sed -i "s/deny.*/$(echo "allow $WHITELISTIP;")\ndeny all;/" /etc/nginx/common/acl.conf
+		for WHITELIST_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
+		do
+        	sed -i "/deny/i $(echo allow $WHITELIST_IP_ADDRESS\;)" /etc/nginx/common/acl.conf
+		done
+	else
+		echo -e "\033[34mEasyEngine (ee) Don't Find IP Address in /etc/easyengine/ee.conf file\e[0m"
 	fi
 
 	# Protect EE Locations
@@ -266,7 +343,7 @@ INSTALLPHP()
 	# Install PHP5
 	echo -e "\033[34mInstalling PHP5, Please Wait...\e[0m"
 	$EEAPTGET install php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached  || OwnError "Unable To Install PHP5"
 }
 
@@ -275,9 +352,17 @@ COMMONPHP()
 	# Personal Settings For PHP
 	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
 
+	# Needed For Custome PHP5 Logs
+	if [ ! -d /var/log/php5/ ]
+	then
+		mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+	fi
+
 	grep "Easy Engine" /etc/php5/fpm/php.ini &> /dev/null
 	if [ $? -ne 0 ]
 	then
+
+		TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
 
 		# Move PHP’s Session Storage To Memcache
 		sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
@@ -288,6 +373,10 @@ COMMONPHP()
 		sed -i "s/post_max_size.*/post_max_size = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/upload_max_filesize.*/upload_max_filesize = 100M/" /etc/php5/fpm/php.ini
 		sed -i "s/max_execution_time.*/max_execution_time = 300/" /etc/php5/fpm/php.ini
+		sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
+
+		# Change PHP5-FPM Error Logs Location
+		sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
 
 		# Enable PHP Status & Ping
 		sed -i "s/;ping.path/ping.path/" /etc/php5/fpm/pool.d/www.conf
@@ -303,6 +392,16 @@ COMMONPHP()
 		
 		# Change PHP Fastcgi Socket
 		sed -i "s'listen = /var/run/php5-fpm.sock'listen = 127.0.0.1:9000'" /etc/php5/fpm/pool.d/www.conf || OwnError "Unable To Change PHP Fastcgi Socket"
+
+		# Separate PHP POOL For Slow Logs
+		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+		sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
+		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+		|| OwnError "Unable To Add Xdebug Settings"
 	fi
 }
 
@@ -323,32 +422,163 @@ WP-CLI()
 		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	else
-		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)...\e[0m"
+		echo -e "\033[34mAlready Installed WP-CLI (/usr/share/easyengine/wp-cli)\e[0m"
 	fi
+}
+
+PHP_PACKAGES()
+{
+	# Opcache Settings
+	if [ ! -d /var/www/22222/htdocs/php/opcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
+
+		# Download Opcache Status Files
+		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
+		wget -cqO /var/www/22222/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+	fi
+
+	# Memcache Settings
+	if [ ! -d /var/www/22222/htdocs/php/memcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
+
+		# Download phpMemcachedAdmin
+		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
+		wget -cqO /var/www/22222/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+
+		# Extract phpMemcachedAdmin
+		tar -zxf /var/www/22222/htdocs/php/memcache/memcache.tar.gz -C /var/www/22222/htdocs/php/memcache
+
+		# Remove Unwanted Files
+		rm -f /var/www/22222/htdocs/php/memcache/memcache.tar.gz
+	fi
+
+	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]
+	then
+		# Download Opcache Status Files
+		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory"
+		
+		# Download Webgrind
+		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
+		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
+
+		# Install Graphviz
+		dpkg -l | grep graphviz &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
+			apt-get -y install graphviz || OwnError "Unable To Install Graphviz"
+		fi
+	fi
+
+	# Create info.php File To Display The phpinfo Information
+	echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
+
+	# Fake PHP5-FPM Status Pages
+	if [ ! -d /var/www/22222/htdocs/php/status/ ]
+	then
+			mkdir -p /var/www/22222/htdocs/php/status/ || OwnError "Unable To Create webgrind Directory"
+			touch /var/www/22222/htdocs/php/status/{php,debug}
+	fi
+
+	# Anemometer Setup
+	if [ ! -d /var/www/22222/htdocs/db/anemometer/ ]
+	then
+		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
+
+		# Download Anemometer
+		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+		|| OwnError "Unable To Clone Anemometer"
+
+		# Setup Anemometer
+		# Collect MySQL Login Details
+		MYSQLROOT
+
+		# Setup Anemometer Database
+		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+		|| OwnError "Unable To Import Anemometer Database"
+
+		# Setup Anemometer Database Grants
+		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
+
+		# Put Data In Anemometer Database
+		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \
+                  --review D=slow_query_log,t=global_query_review \
+                  --review-history D=slow_query_log,t=global_query_review_history \
+                  --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
+
+		# Execute On MySQL Logrotation
+		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
+		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+		echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
+		echo -e "}" >> /etc/logrotate.d/mysql-server
+
+		# Copy Anemometer Configuration File
+		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+		|| OwnError "Unable To Copy Anemometer Configuration File"
+
+		# Update Anemoneter Configuration File
+		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+
+	fi
+
+	# Call PHPUSERINFO Function For PHP User Details
+	PHPUSERINFO
+
+	# Change Ownership
+	chown -R $PHPUSER:$PHPUSER /var/www/22222 || OwnError "Unable To Change Ownership For /var/www/22222"
 }
 
 INSTALLPMA()
 {
 	# Install PMA/phpMyAdmin
-	if [ ! -d /var/www/shared/pma ]
+	if [ ! -d /var/www/22222/htdocs/db/pma ] || [ ! -d /var/www/22222/htdocs/db/adminer ]
 	then
-		echo -e "\033[34mInstalling phpMyAdmin, Please Wait...\e[0m"
+		if [ ! -d /var/www/22222/htdocs/db/pma ]
+		then
+			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
 
-		# Setup PMA/phpMyAdmin
-		mkdir -p /var/www/shared/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/shared/pma/"
+			# Setup PMA/phpMyAdmin
+			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
 
-		# Download PMA/phpMyAdmin
-		wget -cqO /var/www/shared/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
-		|| OwnError "Unable To Download phpMyAdmin"
+			# Download PMA/phpMyAdmin
+			wget -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			|| OwnError "Unable To Download phpMyAdmin"
 
-		# Extract PMA/phpMyAdmin
-		tar --strip-components=1 -zxf  /var/www/shared/pma/pma.tar.gz -C /var/www/shared/pma/ \
-		|| OwnError "Unable To Extract phpMyAdmin"
+			# Extract PMA/phpMyAdmin
+			tar --strip-components=1 -zxf  /var/www/22222/htdocs/db/pma/pma.tar.gz -C /var/www/22222/htdocs/db/pma/ \
+			|| OwnError "Unable To Extract phpMyAdmin"
 
-		# Remove Unwanted Files
-		rm -f /var/www/shared/pma/pma.tar.gz
+			# Remove Unwanted Files
+			rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
+
+		fi
+	
+		if [ ! -d /var/www/22222/htdocs/db/adminer ]
+		then
+			echo -e "\033[34mDownloading Adminer, Please Wait...\e[0m"
+			# Setup Adminer
+			mkdir -p /var/www/22222/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/22222/htdocs/db/adminer/"
+
+			# Download Adminer
+			wget -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			|| OwnError "Unable To Download Adminer"
+
+		fi
+
 	else
-		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/shared/pma)...\e[0m"
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/22222/htdocs/db/pma)...\e[0m"
 	fi
 }
 
@@ -377,8 +607,17 @@ INSTALLMYSQL()
 
 	# Install MySQL
 	echo -e "\033[34mInstalling MySQL, Please Wait...\e[0m"
-	$EEAPTGET install mysql-server mysqltuner \
+	$EEAPTGET install mysql-server mysqltuner percona-toolkit \
 	|| OwnError "Unable To Install MySQL"
+}
+
+COMMONMYSQL()
+{
+	# Personal Settings For MySQL
+	echo -e "\033[34mUpdating MySQL Configuration Files, Please Wait...\e[0m"
+
+	# Decrease MySQL Wait Timeout
+	sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60" /etc/mysql/my.cnf
 }
 
 POSTFIXINSTALLTWEAKS()
@@ -400,15 +639,16 @@ INSTALLPOSTFIX()
 
 INSTALLALL()
 {
-	# Setting Up MySQL & Postfix
+	# Setting Up Nginx MySQL & Postfix
+	NGINXINSTALLTWEAKS
 	MYSQLINSTALLTWEAKS
 	POSTFIXINSTALLTWEAKS
 
 	# Install Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mInstalling Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET install $NGINXPACKAGE php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
-	php5-memcache memcached mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
+	php5-memcache memcached mysql-server mysqltuner percona-toolkit postfix \
 	|| OwnError "Unable To Install Nginx PHP5 MySQL Postfix"
 }
 
@@ -416,6 +656,9 @@ INSTALLALL()
 # Remove Package Functions
 REMOVENGINX()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
 	# Remove Nginx
 	echo -e "\033[34mRemoving Nginx, Please Wait...\e[0m"
 	$EEAPTGET remove $NGINXPACKAGE nginx-common || OwnError "Unable To Remove Nginx"
@@ -426,7 +669,7 @@ REMOVEPHP()
 	# Remove PHP5
 	echo -e "\033[34mRemoving PHP5, Please Wait...\e[0m"
 	$EEAPTGET remove php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached || OwnError "Unable To Remove PHP5"
 }
 
@@ -441,14 +684,14 @@ REMOVEPMA()
 {
 	# Remove PMA/phpMyAdmin
 	echo -e "\033[34mRemoving phpMyAdmin, Please Wait...\e[0m"
-	rm -rf /var/www/shared/pma || OwnError "Unable To Remove phpMyAdmin"
+	rm -rf /var/www/22222/htdocs/db/pma || OwnError "Unable To Remove phpMyAdmin"
 }
 
 REMOVEMYSQL()
 {
 	# Remove MySQL
 	echo -e "\033[34mRemoving MySQL, Please Wait...\e[0m"
-	$EEAPTGET remove mysql-server mysqltuner \
+	$EEAPTGET remove mysql-server mysqltuner percona-toolkit \
 	|| OwnError "Unable To Remove MySQL"
 }
 
@@ -461,11 +704,14 @@ REMOVEPOSTFIX()
 
 REMOVEALL()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+
 	# Remove Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET remove $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
-	php5-memcache memcached mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
+	php5-memcache memcached mysql-server mysqltuner percona-toolkit postfix \
 	|| OwnError "Unable To Remove Nginx PHP5 MySQL Postfix"
 }
 
@@ -480,6 +726,9 @@ AUTOREMOVE()
 # Purge Package Functions
 PURGENGINX()
 {
+	# Select Nginx Package
+	NGINXINSTALLTWEAKS
+	
 	# Purge Nginx
 	echo -e "\033[34mPurge Nginx, Please Wait...\e[0m"
 	$EEAPTGET purge $NGINXPACKAGE nginx-common || OwnError "Unable To Purge Nginx"
@@ -490,7 +739,7 @@ PURGEPHP()
 	# Purge PHP5
 	echo -e "\033[34mPurge PHP5, Please Wait...\e[0m"
 	$EEAPTGET purge php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 	php5-memcache memcached || OwnError "Unable To Purge PHP5"
 }
 
@@ -498,7 +747,7 @@ PURGEMYSQL()
 {
 	# Purge MySQL
 	echo -e "\033[34mPurge MySQL, Please Wait...\e[0m"
-	$EEAPTGET purge mysql-server mysqltuner \
+	$EEAPTGET purge mysql-server mysqltuner percona-toolkit \
 	|| OwnError "Unable To Purge MySQL"
 }
 
@@ -514,9 +763,49 @@ PURGEALL()
 	# Purge Nginx PHP5 MySQL Postfix
 	echo -e "\033[34mRemoving Nginx PHP5 MySQL Postfix, Please Wait...\e[0m"
 	$EEAPTGET purge $NGINXPACKAGE nginx-common php5-common php5-mysqlnd php5-xmlrpc \
-	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt \
-	php5-memcache memcached mysql-server mysqltuner postfix \
+	php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
+	php5-memcache memcached mysql-server mysqltuner percona-toolkit postfix \
 	|| OwnError "Unable To Purge Nginx PHP5 MySQL Postfix"
+}
+
+# EasyEngine Status Function
+EE_SYSTEM_STATUS()
+{
+	OPERATING_SYSTEM=$(lsb_release -d | awk '{print $2,$3,$4}')
+	SYSTEM_LOAD=$(cat /proc/loadavg | awk '{print $1}')
+	PROCESSES=$(ps ax | wc -l)
+	MEMORY_TOTAL=$(free | grep Mem: | awk '{print $2}')
+	MEMORY_USED=$(free | grep Mem: | awk '{print $3}')
+	MEMORY_BUFFERS=$(free | grep Mem: | awk '{print $6}')
+	MEMORY_CACHE=$(free | grep Mem: | awk '{print $7}')
+	SWAP_TOTAL=$(free | grep Swap: | awk '{print $2}')
+	SWAP_USED=$(free | grep Swap: | awk '{print $3}')
+	MEMORY_USAGE=$(echo "($MEMORY_USED-$MEMORY_BUFFERS-$MEMORY_CACHE)*100/$MEMORY_TOTAL" | bc -l | cut -d'.' -f1)
+	SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1)
+	LOGGED_IN_USERS=$(w -h | wc -l)
+	ROOT_PARTITION_USAGE=$(df -h | grep /$ | awk '{print $5}')
+
+	NGINX_STATUS=$(service nginx status | grep 'nginx is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	PHP_STATUS=$(service php5-fpm status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	MYSQL_STATUS=$(service mysql status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	POSTFIX_STATUS=$(service postfix status | grep 'postfix is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+
+	echo
+	echo
+	echo -e "\033[37m  System information as of $(/bin/date)\e[0m"
+	echo
+	echo -e "  System load:\t$SYSTEM_LOAD\t\t  Processes:\t\t$PROCESSES"
+	echo -e "  Usage of /:\t$ROOT_PARTITION_USAGE\t\t  Users logged in:\t$LOGGED_IN_USERS"
+	echo -e "  Memory usage:\t$MEMORY_USAGE%\t\t  Swap usage:\t\t$SWAP_USAGE%"
+	echo
+	echo -e "\033[37m  Service status information\e[0m"
+	echo
+	echo -e "  Nginx:\t$NGINX_STATUS"
+	echo -e "  PHP5-FPM:\t$PHP_STATUS"
+	echo -e "  MySQL:\t$MYSQL_STATUS"
+	echo -e "  Postfix:\t$POSTFIX_STATUS"
+	echo
+	echo
 }
 
 
@@ -535,8 +824,7 @@ EEGITINIT()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
 		git add --all && git commit -am "Initialize Git On $EEGITDIR"  &>> $INSTALLLOG \
@@ -547,9 +835,8 @@ EEGITINIT()
 EEGITCOMMIT()
 {
 	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
-	git status | grep clean &>> $INSTALLLOG
 
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Git Commit Functionality
 		echo -e "\033[34mTake $EEGITDIR Configuration In Git Version Control...\e[0m"
@@ -589,7 +876,7 @@ MYSQLPASSCHECK()
 MYSQLROOT()
 {
 	MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
-	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
 }
 # GET Information Function
 MYSQLINFO()
@@ -666,17 +953,19 @@ FIXMYSQLUSER16()
 	if [[ $MYSQLUSER16 -gt 16 ]]
 	then
 		echo MySQL Database Username $WPDBUSER = $MYSQLUSER16 &>> $INSTALLLOG
-		REPLACEDOT16=$(echo $REPLACEDOT | cut -c1-16)
+		echo -e "\033[34mAuto Fix MySQL Username To The 16 Characters\e[0m"
+		RANDOM_CHARACTER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n1)
+		WPDBUSER=$(echo $REPLACEDOT | cut -c1-16 | sed "s/.\{10\}$/$RANDOM_CHARACTER/")
 
-		echo -e "\033[31mERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username\e[0m"
+		#echo -e "\033[31mERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username\e[0m"
 		# Turn Off Echo For Passwords
-		stty echo
-		read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
+		#stty echo
+		#read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
 
-		if [[ $WPDBUSER = "" ]]
-		then
-			WPDBUSER=$REPLACEDOT16
-		fi
+		#if [[ $WPDBUSER = "" ]]
+		#then
+		#	WPDBUSER=$REPLACEDOT16
+		#fi
 
 	fi
 
@@ -816,11 +1105,12 @@ EEINFO()
 	echo -e "\033[34mMySQL socket:\t\t\t \033[37m$MYSQLSOCKET\e[0m"
 
 	# Common Locations:
-	echo -e "\033[34m\n\nEasyEngine (ee) Common Locations:\n\e[0m"
+	echo -e "\033[34m\n\nEasyEngine ($(ee version| awk '{print $3}')) Common Locations:\n\e[0m"
 	echo -e "\033[34mphpMyAdmin:\t\t\t \033[37mhttp://example.com/pma\e[0m"
 	echo -e "\033[34mPHP Status:\t\t\t \033[37mhttp://example.com/status\e[0m"
 	echo -e "\033[34mNginx Status:\t\t\t \033[37mhttp://example.com/nginx_status\e[0m"
-	echo -e "\033[34mOpcache & Memcache Status:\t \033[37mhttp://example.com/ee/\e[0m"
+	echo -e "\033[34mMemcache Status:\t\t \033[37mhttp://example.com/memcache\e[0m"
+	echo -e "\033[34mMemcache Status:\t\t \033[37mhttp://example.com/opcache\e[0m"
 	echo -e "\033[34mEasyEngine Log File:\t\t \033[37m/var/log/easyengine/install.log\e[0m"
 	echo -e "\033[34mEasyEngine Configuration File:\t \033[37m/etc/easyengine/ee.conf\e[0m"
 
@@ -861,13 +1151,23 @@ NGINXBUCKETSIZE()
 	fi
 }
 
+NGINXSTART ()
+{
+	# Check Nginx server_names_hash_bucket_size Value
+	NGINXBUCKETSIZE
+
+	# Start Nginx Service
+	echo -e "\033[34mStarting Nginx Service, Please Wait...\e[0m"
+	(nginx -t && service nginx start) &>> $INSTALLLOG || OwnError "Unable To Start Nginx"
+}
+
 NGINXRELOAD()
 {
 	# Check Nginx server_names_hash_bucket_size Value
 	NGINXBUCKETSIZE
 
-	# Reload Nginx Configuration
-	echo -e "\033[34mReloading Nginx Configuration, Please Wait...\e[0m"
+	# Reload Nginx Service
+	echo -e "\033[34mReloading Nginx Service, Please Wait...\e[0m"
 	(nginx -t && service nginx reload) &>> $INSTALLLOG || OwnError "Unable To Reload Nginx"
 }
 
@@ -876,16 +1176,72 @@ NGINXRESTART()
 	# Check Nginx server_names_hash_bucket_size Value
 	NGINXBUCKETSIZE
 
-	# Test & Reload Nginx
-	echo -e "\033[34mRestarting Nginx Configuration, Please Wait...\e[0m"
+	# Test & Restart Nginx Service
+	echo -e "\033[34mRestarting Nginx Service, Please Wait...\e[0m"
 	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx"
+}
+
+PHPSTART()
+{
+	# Start PHP5-FPM Service
+	echo -e "\033[34mStarting PHP5-FPM Service, Please Wait...\e[0m"
+	(php5-fpm -t && service php5-fpm start) &>> $INSTALLLOG || OwnError "Unable To Start PHP5-FPM"
+}
+
+PHPRELOAD()
+{
+	# Reload PHP5-FPM Service
+	echo -e "\033[34mReloading PHP5-FPM Service, Please Wait...\e[0m"
+	(php5-fpm -t && service php5-fpm reload) &>> $INSTALLLOG || OwnError "Unable To Reloading PHP5-FPM"
 }
 
 PHPRESTART()
 {
-	# Reload PHP
-	echo -e "\033[34mRestarting PHP5-FPM Configuration, Please Wait...\e[0m"
-	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
+	# Restart PHP5-FPM Service
+	echo -e "\033[34mRestarting PHP5-FPM Service, Please Wait...\e[0m"
+	(php5-fpm -t && service php5-fpm restart) &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM"
+}
+
+MYSQLSTART()
+{
+	# Start MySQL Service
+	echo -e "\033[34mStarting MySQL Service, Please Wait...\e[0m"
+	service mysql start &>> $INSTALLLOG || OwnError "Unable To Start MySQL"
+}
+
+MYSQLRELOAD()
+{
+	# Reload MySQL Service
+	echo -e "\033[34mReloading MySQL Service, Please Wait...\e[0m"
+	service mysql reload &>> $INSTALLLOG || OwnError "Unable To Reloading MySQL"
+}
+
+MYSQLRESTART()
+{
+	# Restart MySQL Service
+	echo -e "\033[34mRestarting MySQL Service, Please Wait...\e[0m"
+	service mysql restart &>> $INSTALLLOG || OwnError "Unable To Restart MySQL"
+}
+
+POSTFIXSTART()
+{
+	# Start Postfix Service
+	echo -e "\033[34mStarting Postfix Service, Please Wait...\e[0m"
+	service postfix start &>> $INSTALLLOG || OwnError "Unable To Start Postfix"
+}
+
+POSTFIXRELOAD()
+{
+	# Reload Postfix Service
+	echo -e "\033[34mReloading Postfix Service, Please Wait...\e[0m"
+	service postfix reload &>> $INSTALLLOG || OwnError "Unable To Reloading Postfix"
+}
+
+POSTFIXRESTART()
+{
+	# Restart Postfix Service
+	echo -e "\033[34mRestarting Postfix Service, Please Wait...\e[0m"
+	service postfix restart &>> $INSTALLLOG || OwnError "Unable To Restart Postfix"
 }
 
 
@@ -1072,35 +1428,6 @@ PERMISSIONANDGIT()
 	EEGITCOMMIT
 }
 
-EEOPMEMCACHE()
-{
-	# Opcache Settings
-	if [ ! -d /var/www/shared/opcache ]
-	then
-		mkdir -p /var/www/shared/opcache || OwnError "Unable To Create Opcache Directory"
-
-		# Download Opcache Status Files
-		wget -cqO /var/www/shared/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/shared/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/shared/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
-	fi
-
-	# Memcache Settings
-	if [ ! -d /var/www/shared/memcache ]
-	then
-		mkdir -p /var/www/shared/memcache || OwnError "Unable To Create Memcache Directory"
-
-		# Download phpMemcachedAdmin
-		wget -cqO /var/www/shared/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
-
-		# Extract phpMemcachedAdmin
-		tar -zxf /var/www/shared/memcache/memcache.tar.gz -C /var/www/shared/memcache
-
-		# Remove Unwanted Files
-		rm -f /var/www/shared/memcache/memcache.tar.gz
-	fi
-}
-
 TOTALCACHENGINX()
 {
 	# Installing W3 Total Cache
@@ -1110,9 +1437,6 @@ TOTALCACHENGINX()
 
 	# Activate W3 Total Cache
 	wp plugin --allow-root activate w3-total-cache $NETWORKACTIVATE &>> $INSTALLLOG || OwnError "Unable To Activate W3 Total Cache Plugin"
-
-	# Install Opcache & Memcache
-	EEOPMEMCACHE
 }
 
 SUPERCACHENGINX()
@@ -1229,13 +1553,383 @@ REMOVENGINXCONF()
 	fi
 }
 
+DEBUG_NGINX()
+{
+	# Lets Disable Nginx Reload Trigger
+	EE_DEBUG_NGINX=""
+
+	if [ -z "$EE_IP_ADDRESS" ]
+	then
+		#read -p "Enter The Single IP Address For Debugging: " EE_IP_ADDRESS
+		EE_IP_ADDRESS="0.0.0.0/0"
+	fi
+
+	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
+	do
+		grep "debug_connection $DEBUG_IP_ADDRESS" /etc/nginx/nginx.conf &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			# Enable Debug Connection
+			echo -e "\033[34mSetting Up Nginx Debug Connection, Please Wait...\e[0m"
+
+			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
+			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+       	fi
+	done
+
+	if [ -z "$EE_DEBUG_NGINX" ]
+	then
+		echo -e "\033[34mNginx Debug Connection Already Enabled\e[0m"
+	fi
+}
+
+DEBUG_NGINX_STOP()
+{
+	grep "debug_connection" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		echo -e "\033[34mStopping Nginx Debug Connection, Please Wait...\e[0m"
+		sed -i "/debug_connection.*/d" /etc/nginx/nginx.conf
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_NGINX=""
+		echo -e "\033[34mNginx Debug Connection Already Stopped\e[0m"
+	fi
+}
+
+DEBUG_NGINX_REWRITE()
+{
+	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Rewrite Logs
+		echo -e "\033[34mSetting Up Nginx Rewrite Logs, Please Wait...\e[0m"
+		sed -i '/http {/a \\trewrite_log on;' /etc/nginx/nginx.conf
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mNginx Rewrites Logs Already ON\e[0m"
+	fi
+}
+
+DEBUG_NGINX_REWRITE_STOP()
+{
+	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Rewrite Logs
+		echo -e "\033[34mStopping Nginx Rewrite Logs, Please Wait...\e[0m"
+		sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mNginx Rewrites Logs Already STOP\e[0m"
+	fi
+}
+
+DEBUG_NGINX_SITE()
+{
+	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Debug Log
+		echo -e "\033[34mSetting Up $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
+		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_NGINX=""
+		echo -e "\033[34mAlready Started $DOMAIN Error Logs In Debugging Mode\e[0m"
+	fi
+}
+
+DEBUG_NGINX_SITE_STOP()
+{
+	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Debug Log
+		echo -e "\033[34mDisable $DOMAIN Error Logs In Debugging Mode,Please Wait...\e[0m"
+		sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_NGINX=""
+		echo -e "\033[34mAlready Stopped $DOMAIN Error Logs In Debugging Mode\e[0m"
+	fi
+}
+
+DEBUG_NGINX_REWRITE_SITE()
+{
+	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable Nginx Rewrite Logs
+		echo -e "\033[34mSetting Up Nginx Rewrite Logs For $DOMAIN\e[0m"
+		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mRewrites Logs Already ON For $DOMAIN\e[0m"
+	fi
+}
+
+DEBUG_NGINX_REWRITE_SITE_STOP()
+{
+	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Disable Nginx Rewrite Logs
+		echo -e "\033[34mStopping Up Nginx Rewrite Logs For $DOMAIN\e[0m"
+		sed -i "/rewrite_log.*/d" /etc/nginx/sites-available/$DOMAIN
+	else
+		# Lets Disable Nginx Reload Trigger
+		EE_DEBUG_REWRITE=""
+		echo -e "\033[34mRewrites Logs Already Stop For $DOMAIN\e[0m"
+	fi
+}
+
+DEBUG_PHP()
+{
+	#  Lets Disable PHP Restart Trigger
+	EE_DEBUG_PHP=""
+
+	if [ -z $EE_DEBUG_SITENAME ]
+	then
+		grep -B2 9001 /etc/nginx/conf.d/upstream.conf | grep php &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mEnable PHP5-FPM Slow Log, Please Wait...\e[0m"
+			sed -i "4 s/9000/9001/" /etc/nginx/conf.d/upstream.conf
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
+		fi
+	else
+		grep 9001 /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mEnable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
+			sed -i "s/fastcgi_pass.*/fastcgi_pass debug;/g" /etc/nginx/sites-available/$DOMAIN
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Enabled For $DOMAIN\e[0m"
+		fi
+	fi
+}
+
+DEBUG_PHP_STOP()
+{
+	#  Lets Disable PHP Restart Trigger
+	EE_DEBUG_PHP=""
+
+	if [ -z $EE_DEBUG_SITENAME ]
+	then
+		grep -B2 9001 /etc/nginx/conf.d/upstream.conf | grep php &>> $INSTALLLOG
+		if [ $? -eq 0 ]
+		then
+			echo -e "\033[34mDisable PHP5-FPM Slow Log, Please Wait...\e[0m"
+			sed -i "4 s/9001/9000/" /etc/nginx/conf.d/upstream.conf
+			
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled\e[0m"
+		fi
+	else
+		grep "fastcgi_pass debug;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+		if [ $? -eq 0 ]
+		then
+			echo -e "\033[34mDisable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
+			sed -i "s/fastcgi_pass.*/fastcgi_pass php;/g" /etc/nginx/sites-available/$DOMAIN
+
+			# Lets Trigger The Nginx Reload
+			EE_DEBUG_NGINX="--nginx"
+		else
+			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled For $DOMAIN\e[0m"
+		fi
+	fi
+}
+
+DEBUG_PHP_FPM()
+{
+	grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Enable PHP5-FPM Error Logs In Debug Mode
+		echo -e "\033[34mSetting Up PHP5-FPM Log Level In Debug Mode, Please Wait...\e[0m"
+		sed -i "s';log_level.*'log_level = debug'" /etc/php5/fpm/php-fpm.conf
+	else
+		EE_DEBUG_FPM=""
+		echo -e "\033[34mPHP5-FPM Log Level Is Already In Debug Mode\e[0m"
+	fi
+}
+
+DEBUG_PHP_FPM_STOP()
+{
+	grep "log_level = notice" /etc/php5/fpm/php-fpm.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		# Disable PHP5-FPM Error Logs In Debug Mode
+		echo -e "\033[34mStopping PHP5-FPM Log Level In Debug Mode, Please Wait...\e[0m"
+		sed -i "s/log_level = debug/log_level = notice/" /etc/php5/fpm/php-fpm.conf
+	else
+		EE_DEBUG_FPM=""
+		echo -e "\033[34mPHP5-FPM Log Level Already In Notice (Default) Mode\e[0m"
+	fi
+}
+
+DEBUG_MYSQL()
+{
+	# Collect MySQL Login Details
+	MYSQLROOT
+
+	# Check MySql Slow Logs Is ON
+	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $INSTALLLOG
+
+	if [ $? -ne 0 ]
+	then
+		# Enable MySQL Slow Logs
+		echo -e "\033[34mSetting Up MySQL Slow Log, Please Wait...\e[0m"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'ON';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=2;"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'ON';"
+		#sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
+		#sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
+		#sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
+	else
+		# Lets Disable MySQL Restart Trigger
+		#EE_DEBUG_MYSQL=""
+		echo -e "\033[34mMySQL Slow Log Already Enabled\e[0m"
+	fi
+}
+
+DEBUG_MYSQL_STOP()
+{
+	# Collect MySQL Login Details
+	MYSQLROOT
+
+	# Check MySql Slow Logs Is OFF
+	#grep slow-query-log /etc/mysql/my.cnf &>> $INSTALLLOG
+	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $INSTALLLOG
+	
+	if [ $? -eq 0 ]
+	then
+		# Disable MySQL Slow Logs
+		echo -e "\033[34mStopping MySQL Slow Log, Please Wait...\e[0m"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'OFF';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=10;"
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'OFF';"
+		#sed -i "/slow-query-log/d" /etc/mysql/my.cnf
+		#sed -i "s/long_query_time/#long_query_time/" /etc/mysql/my.cnf
+		#sed -i "s/log-queries-not-using-indexes/#log-queries-not-using-indexes/" /etc/mysql/my.cnf
+	else
+		# Lets Disable MySQL Restart Trigger
+		#EE_DEBUG_MYSQL=""
+		echo -e "\033[34mMySQL Slow Log Already Disable\e[0m"
+	fi
+}
+
+DEBUG_WORDPRESS()
+{
+	if [ -e /var/www/$DOMAIN/wp-config.php ]
+	then
+
+		grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			# Debug WordPress
+			echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
+
+			# Call PHPUSERINFO Function For PHP User Details
+			PHPUSERINFO
+
+			# Create debug.log & Change Permission
+			touch /var/www/$DOMAIN/htdocs/wp-content/debug.log
+			chown $PHPUSER:$PHPUSER /var/www/$DOMAIN/htdocs/wp-content/debug.log
+		
+			# Turn On Debug
+			sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+
+			# Install Developer Plugin
+			# Installing Nginx Helper
+			cd /var/www/$DOMAIN/htdocs/
+			echo -e "\033[34mInstalling Developer Plugin, Please Wait...\e[0m"
+			wp plugin --allow-root install developer &>> $INSTALLLOG || OwnError "Unable To Install Developer Plugin"
+
+		else
+			echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
+		fi
+	else
+		echo -e "\033[31mUnable To Find wp-config.php File, Seems Like Not WordPress Site\e[0m"
+	fi
+}
+
+DEBUG_WORDPRESS_STOP()
+{
+	grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Stop Debug WordPress
+		echo -e "\033[34mStopping WordPress Debug Logs For $DOMAIN\e[0m"
+		sed -i "s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_DISPLAY', false);/d" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_LOG', true);/d" /var/www/$DOMAIN/wp-config.php
+		sed -i "/define('SAVEQUERIES', true);/d" /var/www/$DOMAIN/wp-config.php
+	else
+		echo -e "\033[34mWordPress Debug Log Already Stopped For $DOMAIN\e[0m"
+	fi
+}
+
+DEBUG_KILL()
+{
+	if [ "$EE_DEBUG" = "--start" ]
+	then
+		if [ -z "$EE_DEBUG_SITENAME" ]
+		then
+			ee debug --stop
+		else
+			ee debug --stop $EE_DEBUG_SITENAME
+		fi
+	fi
+
+	# Unset Trap So We Don't Get Infinate Loop
+	trap - EXIT
+
+	# Flush File System Buffers
+	# More Details: info coreutils 'sync invocation'
+	sync
+
+	# Successfull Exit
+	exit 0;
+}
+trap "DEBUG_KILL" EXIT
+
+DEBUG_INTERACTIVE()
+{
+	if [ -z "$EE_DEBUG_SITENAME" ]
+	then
+		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log
+	else
+		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log /var/www/$DOMAIN/htdocs/wp-content/debug.log
+	fi
+}
+
 
 # Easy Engine Version
 if [ "$1" = "version" ] || [ "$1" = "--version" ] || [ "$1" = "-v" ]
 then
 
 	# Display Easy Engine Version
-	echo "easyengine version: 1.2.2"
+	echo "easyengine version: 1.2.3"
 
 # Easy Engine Info
 elif [ "$1" = "info" ]
@@ -1256,23 +1950,12 @@ then
 elif [ "$1" = "system" ]
 then
 
-	# Check Auto Assume Yes Or No To Apt-Get
-	APTASSUMEYES
-
-	# Define Nginx Package
-	if [ "$LINUX_DISTRO" == "Ubuntu" ]
-	then
-		NGINXPACKAGE=nginx-custom
-
-	elif [ "$LINUX_DISTRO" == "Debian" ]
-	then
-		NGINXPACKAGE=nginx-full
-	fi
-
-
 	# Easy Engine Install
 	if [ "$2" = "install" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 
 		if [ "$3" = "nginx" ]
 		then
@@ -1329,8 +2012,9 @@ then
 			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 			
-			# Install WP-CLI
+			# Install WP-CLI & PHP Packages
 			WP-CLI
+			PHP_PACKAGES
 
 			# Initialise Git
 			EEGITDIR=/etc/php5/
@@ -1346,8 +2030,8 @@ then
 			INSTALLPMA
 
 			# Initialise Git
-			EEGITDIR=/var/www/shared/pma/
-			EEGITINIT
+			#EEGITDIR=/var/www/22222/htdocs/db/pma/
+			#EEGITINIT
 
 			# Display Success Message
 			echo -e "\033[34mphpMyAdmin Successfully Installed\e[0m"
@@ -1355,11 +2039,23 @@ then
 		elif [ "$3" = "mysql" ]
 		then
 
+			# Add Percona Repository
+			#PERCONA_REPO
+
+			# Fix GPG Key Problems
+			#GPGKEY
+
 			# Update The APT Cache
 			UPDATEAPT
 
 			# Install MySQL
 			INSTALLMYSQL
+
+			# Personal Settings For MySQL
+			COMMONMYSQL
+
+			# Restart MySQL
+			MYSQLRESTART
 
 			# Initialize Git
 			EEGITDIR=/etc/mysql/
@@ -1396,6 +2092,9 @@ then
 			# Add PHP Launchpad Repository
 			PHPREPO
 
+			# Add Percona Repository
+			#PERCONA_REPO
+
 			# Fix GPG Key Problems
 			GPGKEY
 
@@ -1417,11 +2116,18 @@ then
 			# Restart PHP To Take Effect Of COMMONPHP Functions
 			PHPRESTART
 
-			# Install WP-CLI
+			# Install WP-CLI & PHP Packages
 			WP-CLI
+			PHP_PACKAGES
 
 			# Install PMA/phpMyAdmin
 			INSTALLPMA
+
+			# Personal Settings For MySQL
+			COMMONMYSQL
+
+			# Restart MySQL
+			MYSQLRESTART
 
 			# Initialize Git
 			EEGITDIR=/etc/nginx/
@@ -1436,8 +2142,8 @@ then
 			EEGITINIT
 
 			# Initialize Git
-			EEGITDIR=/var/www/shared/pma/
-			EEGITINIT
+			#EEGITDIR=/var/www/22222/htdocs/db/pma/
+			#EEGITINIT
 
 			# Initialize Git
 			EEGITDIR=/etc/postfix/
@@ -1453,6 +2159,9 @@ then
 	# Easy Engine Remove
 	elif [ "$2" = "remove" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 		
 		if [ "$3" = "nginx" ]
 		then
@@ -1531,6 +2240,9 @@ then
 	# Easy Engine Purge
 	elif [ "$2" = "purge" ]
 	then
+
+		# Check Auto Assume Yes Or No To Apt-Get
+		APTASSUMEYES
 		
 		if [ "$3" = "nginx" ]
 		then
@@ -1606,11 +2318,57 @@ then
 
 		fi
 
+	elif [ "$2" = "status" ]
+	then
+		# Call The System Status Function
+		EE_SYSTEM_STATUS
+
+	elif [ "$2" = "stop" ]
+	then
+		# Stop Nginx PHP5-FPM MySQL & Postfix
+		echo -e "\033[34mStopping Nginx Service, Please Wait...\e[0m"
+		service nginx stop &>> $INSTALLLOG || OwnError "Unable To Stop Nginx"
+		echo -e "\033[34mStopping PHP5-FPM Service, Please Wait...\e[0m"
+		service php5-fpm stop &>> $INSTALLLOG || OwnError "Unable To Stop PHP5-FPM"
+		echo -e "\033[34mStopping MySQL Service, Please Wait...\e[0m"
+		service mysql stop &>> $INSTALLLOG || OwnError "Unable To Stop MySQL"
+		echo -e "\033[34mStopping Postfix Service, Please Wait...\e[0m"
+		service postfix stop &>> $INSTALLLOG || OwnError "Unable To Stop Postfix"
+
+	elif [ "$2" = "start" ]
+	then
+		# Start Nginx PHP5-FPM MySQL & Postfix
+		NGINXSTART
+		PHPSTART
+		MYSQLSTART
+		POSTFIXSTART
+
+	elif [ "$2" = "reload" ]
+	then
+		# Restart Nginx PHP5-FPM MySQL & Postfix
+		NGINXRELOAD
+		PHPRELOAD
+		MYSQLRELOAD
+		POSTFIXRELOAD
+
+	elif [ "$2" = "restart" ]
+	then
+		# Restart Nginx PHP5-FPM MySQL & Postfix
+		NGINXRESTART
+		PHPRESTART
+		MYSQLRESTART
+		POSTFIXRESTART
+
 	else
 		echo -e "\033[34mList Of Available Commands:\e[0m"
-		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
-		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
-		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix"
+		echo -e "\tstatus:\t Display The System Status Information"
+		echo -e "\tstop:\t Stop Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\tstart:\t Start Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\treload:\t Reload Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\trestart: Restart Nginx PHP5-FPM MySQL And Postfix Services"
+		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
+		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
+		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
 
 	fi
 
@@ -1892,7 +2650,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -1916,7 +2674,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1947,7 +2705,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1978,7 +2736,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2014,7 +2772,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
@@ -2038,7 +2796,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2069,7 +2827,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2100,7 +2858,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				ln -s /var/www/shared /var/www/$DOMAIN/htdocs/ee
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2212,13 +2970,16 @@ then
 		# Edit The Nginx Configuration For $DOMAIN
 		EESITEEDIT
 		
-		# Reload Nginx Configuration
-		NGINXRELOAD
-		
-		# Take Nginx Configuration In Git Version Control
-		EEGITDIR=/etc/nginx
-		EEGITMESSAGE="Edited Website: $DOMAIN"
-		EEGITCOMMIT
+		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$DOMAIN | wc -l) -ne 0 ]
+		then
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Edited Website: $DOMAIN"
+			EEGITCOMMIT
+
+			# Reload Nginx Configuration
+			NGINXRELOAD
+		fi
 
 
 	else
@@ -2233,6 +2994,243 @@ then
 
 	fi
 
+elif [ "$1" = "debug" ]
+then
+
+	# Default Action = Start Debugging
+	EE_DEBUG="--start"
+
+	# Auto Arrenge Options
+	for ARGS in $@
+	do
+		[ "$ARGS" = "-i" ] && EE_DEBUG_INTERACTIVE=$ARGS && echo EE_DEBUG_INTERACTIVE = $EE_DEBUG_INTERACTIVE &>> $INSTALLLOG
+		[ "$ARGS" = "--stop" ] && EE_DEBUG=$ARGS && echo EE_DEBUG = $EE_DEBUG &>> $INSTALLLOG
+		[ "$ARGS" = "--nginx" ] && EE_DEBUG_NGINX=$ARGS && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+		[ "$ARGS" = "--rewrite" ] && EE_DEBUG_REWRITE=$ARGS && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+		[ "$ARGS" = "--php" ] && EE_DEBUG_PHP=$ARGS && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+		[ "$ARGS" = "--fpm" ] && EE_DEBUG_FPM=$ARGS && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+		[ "$ARGS" = "--mysql" ] && EE_DEBUG_MYSQL=$ARGS && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+		[ "$ARGS" = "--wp" ] && EE_DEBUG_WP=$ARGS && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+		if [ "$ARGS" != "debug" ] && [ "$ARGS" != "-i" ] && [ "$ARGS" != "--start" ] && [ "$ARGS" != "--stop" ] && [ "$ARGS" != "--nginx" ] && [ "$ARGS" != "--rewrite" ] && [ "$ARGS" != "--php" ] && [ "$ARGS" != "--fpm" ] && [ "$ARGS" != "--mysql" ] && [ "$ARGS" != "--wp" ] 
+		then
+			ls /etc/nginx/sites-available/ | grep $ARGS &>> $INSTALLLOG
+			if [ $? -eq 0 ]
+			then
+				EE_DEBUG_SITENAME=$ARGS && echo EE_DEBUG_SITENAME = $EE_DEBUG_SITENAME &>> $INSTALLLOG
+			fi
+		fi
+	done
+
+	if [ "$EE_DEBUG" = "--start" ]
+	then
+
+		
+		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
+		then
+			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+			EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+			EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+			EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+			EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+
+			if [ -n "$EE_DEBUG_SITENAME" ]
+			then
+				EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+			fi
+		fi
+		
+
+		if [ -z "$EE_DEBUG_SITENAME" ]
+		then
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX
+
+				# Log Message
+				LOGMESSAGE="/var/log/nginx/*.error.log"
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/nginx/*.error.log"
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				echo -e "\033[31mThe --wp Option Can Be Enabled For WordPress Site Only\e[0m"
+			fi
+
+		else
+
+			# Get The Domain Name
+			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EESITENAME
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_SITE
+
+				# Log Message
+				LOGMESSAGE="/var/www/$DOMAIN/logs/error.log"				
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_SITE
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/logs/error.log"
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				# Debug WordPress Debug Log
+				DEBUG_WORDPRESS
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/htdocs/wp-content/debug.log"
+			fi
+
+		fi
+
+		if [ "$EE_DEBUG_PHP" = "--php" ]
+		then
+			# Debug PHP
+			DEBUG_PHP
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/php5/slow.log"
+		fi
+
+		if [ "$EE_DEBUG_FPM" = "--fpm" ]
+		then
+			# Debug PHP FPM
+			DEBUG_PHP_FPM
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/php5/fpm.log"
+		fi
+
+		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+		then
+			# Debug MySQL Slow Query
+			DEBUG_MYSQL
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/mysql/slow.log"
+		fi
+
+	elif [ "$EE_DEBUG" = "--stop" ]
+	then
+
+		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
+		then
+			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
+			EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $INSTALLLOG
+			EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
+			EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
+			EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
+			EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+		fi	
+
+		if [ -z "$EE_DEBUG_SITENAME" ]
+		then
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_STOP
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_STOP
+			fi
+
+		else
+
+			# Get The Domain Name
+			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EESITENAME
+
+			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
+			then
+				# Debug Nginx
+				DEBUG_NGINX_SITE_STOP
+			fi
+
+			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+			then
+				# Debug Nginx Rewrite Logs
+				DEBUG_NGINX_REWRITE_SITE_STOP
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				# Debug WordPress Debug Log
+				DEBUG_WORDPRESS_STOP
+			fi
+
+		fi
+
+		if [ "$EE_DEBUG_PHP" = "--php" ]
+		then
+			# Debug PHP
+			DEBUG_PHP_STOP
+		fi
+
+		if [ "$EE_DEBUG_FPM" = "--fpm" ]
+		then
+			# Debug PHP FPM
+			DEBUG_PHP_FPM_STOP
+		fi
+
+		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+		then
+			# Debug MySQL Slow Query
+			DEBUG_MYSQL_STOP
+		fi
+
+	fi
+
+	# Lets Restart Services
+	if [ "$EE_DEBUG_NGINX" = "--nginx" ] || [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
+	then
+		# Reload Nginx
+		NGINXRELOAD
+	fi
+
+	if [ "$EE_DEBUG_PHP" = "--php" ] || [ "$EE_DEBUG_FPM" = "--fpm" ]
+	then
+		# Restart PHP5-FPM
+		PHPRESTART
+	fi
+
+	#if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
+	#then
+		# Restart MySQL
+		#MYSQLRESTART
+	#fi
+
+	if [ "$EE_DEBUG_INTERACTIVE" = "-i" ]
+	then
+		# Lets Start Debug In Interactive Mode
+		DEBUG_INTERACTIVE
+	elif [ "$EE_DEBUG_INTERACTIVE" != "-i" ] && [ "$EE_DEBUG" != "--stop" ]
+	then
+		echo -e "\033[37mtail -f $LOGMESSAGE\e[0m"
+	fi
+
+
 elif [ "$1" = "update" ]
 then
 
@@ -2245,6 +3243,7 @@ else
 	echo -e "\tinfo:\t Display Nginx PHP MySQL Information\t"
 	echo -e "\thelp:\t Display EasyEngine Help\t"
 	echo -e "\tsite:\t Do Various Site Specific Operations\t"
+	echo -e "\tdebug:\t Do Various Debugging Operations\t"
 	echo -e "\tsystem:\t Do Various System Level Operations\t"
 	echo -e "\tupdate:\t Update EasyEngine (ee)\t"
 	echo -e "\tversion: Display EasyEngine (ee) Version\t"

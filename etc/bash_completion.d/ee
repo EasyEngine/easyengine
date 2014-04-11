@@ -18,17 +18,52 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "version info update help system site" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "version info update help system site debug" -- $CURRENT) )
 			return 0
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge status start stop reload restart" -- $CURRENT ) )
 			return 0
 			;;
 
 		install|remove|purge)
 			COMPREPLY=( $( compgen -W "nginx php mysql phpmyadmin postfix all" -- $CURRENT ) )
+			return 0
+			;;
+
+		debug)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--nginx)
+			COMPREPLY=( $(compgen -W "--rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--rewrite)
+			COMPREPLY=( $(compgen -W "--nginx --php --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--php)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--fpm)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--mysql)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--wp)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --stop" -- $CURRENT) )
 			return 0
 			;;
 
@@ -42,7 +77,7 @@ EEAUTO()
 			return 0
 			;;
 
-		show|enable|delete)
+		show|enable|delete|--stop)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;

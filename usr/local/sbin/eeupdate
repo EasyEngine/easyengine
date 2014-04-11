@@ -25,8 +25,7 @@ GITCOMMIT ()
 	fi
 
 	# Check For Untracked Files
-	git status | grep clean &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
 		git add --all && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
@@ -61,14 +60,7 @@ EEUPDATE()
 	if [ ! -L /usr/local/sbin/ee ]
 	then
 		ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
-	fi
-
-	# Adjust FastCGI Cache Size 20% Of /var/run
-	VARRUNSIZE=$(df --block-size=M /var/run | awk '{print $4}' | tail -n1 |cut -d'M' -f1)
-	FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
-
-	# Change Size
-	sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
+	fi	
 
 	# Git Config Settings
 	EEGITNAME=$(git config user.name)
@@ -182,6 +174,256 @@ EE110()
 	sed -i '/allow ;/d' /etc/nginx/common/acl.conf
 }
 
+PHPUSERINFO()
+{
+	# PHP User
+	PHPUSER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2) \
+	|| OwnError "Unable To Find Out PHP Username"
+}
+
+PHP_PACKAGES()
+{
+	# Opcache Settings
+	if [ ! -d /var/www/22222/htdocs/php/opcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
+
+		# Download Opcache Status Files
+		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
+		wget -cqO /var/www/22222/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/22222/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+	fi
+
+	# Memcache Settings
+	if [ ! -d /var/www/22222/htdocs/php/memcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
+
+		# Download phpMemcachedAdmin
+		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
+		wget -cqO /var/www/22222/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+
+		# Extract phpMemcachedAdmin
+		tar -zxf /var/www/22222/htdocs/php/memcache/memcache.tar.gz -C /var/www/22222/htdocs/php/memcache
+
+		# Remove Unwanted Files
+		rm -f /var/www/22222/htdocs/php/memcache/memcache.tar.gz
+	fi
+
+	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]
+	then
+		# Download Opcache Status Files
+		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory"
+		
+		# Download Webgrind
+		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
+		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
+
+		# Install Graphviz
+		dpkg -l | grep graphviz &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
+			apt-get -y install graphviz || OwnError "Unable To Install Graphviz"
+		fi
+	fi
+
+	# Create info.php File To Display The phpinfo Information
+	echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
+
+	# Fake PHP5-FPM Status Pages
+	if [ ! -d /var/www/22222/htdocs/php/status/ ]
+	then
+			mkdir -p /var/www/22222/htdocs/php/status/ || OwnError "Unable To Create webgrind Directory"
+			touch /var/www/22222/htdocs/php/status/{php,debug}
+	fi
+
+	# Anemometer Setup
+	if [ ! -d /var/www/22222/htdocs/db/anemometer/ ]
+	then
+		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
+
+		# Download Anemometer
+		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+		|| OwnError "Unable To Clone Anemometer"
+
+		# Setup Anemometer
+		# Collect MySQL Login Details
+		MYCNFCHECK
+
+		# Setup Anemometer Database
+		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+		|| OwnError "Unable To Import Anemometer Database"
+
+		# Setup Anemometer Database Grants
+		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
+
+		# Put Data In Anemometer Database
+		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \
+                  --review D=slow_query_log,t=global_query_review \
+                  --review-history D=slow_query_log,t=global_query_review_history \
+                  --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
+
+		# Execute On MySQL Logrotation
+		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
+		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+		echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
+		echo -e "}" >> /etc/logrotate.d/mysql-server
+
+		# Copy Anemometer Configuration File
+		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+		|| OwnError "Unable To Copy Anemometer Configuration File"
+
+		# Update Anemoneter Configuration File
+		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+
+	fi
+
+	# Call PHPUSERINFO Function For PHP User Details
+	PHPUSERINFO
+
+	# Change Ownership
+	chown -R $PHPUSER:$PHPUSER /var/www/22222 || OwnError "Unable To Change Ownership For /var/www/22222"
+}
+
+INSTALLPMA()
+{
+	# Install PMA/phpMyAdmin
+	if [ ! -d /var/www/22222/htdocs/db/pma ] || [ ! -d /var/www/22222/htdocs/db/adminer ]
+	then
+		if [ ! -d /var/www/22222/htdocs/db/pma ]
+		then
+			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
+
+			# Setup PMA/phpMyAdmin
+			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
+
+			# Download PMA/phpMyAdmin
+			wget -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			|| OwnError "Unable To Download phpMyAdmin"
+
+			# Extract PMA/phpMyAdmin
+			tar --strip-components=1 -zxf  /var/www/22222/htdocs/db/pma/pma.tar.gz -C /var/www/22222/htdocs/db/pma/ \
+			|| OwnError "Unable To Extract phpMyAdmin"
+
+			# Remove Unwanted Files
+			rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
+
+		fi
+	
+		if [ ! -d /var/www/22222/htdocs/db/adminer ]
+		then
+			echo -e "\033[34mDownloading Adminer, Please Wait...\e[0m"
+			# Setup Adminer
+			mkdir -p /var/www/22222/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/22222/htdocs/db/adminer/"
+
+			# Download Adminer
+			wget -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			|| OwnError "Unable To Download Adminer"
+
+		fi
+
+	else
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/22222/htdocs/db/pma)...\e[0m"
+	fi
+}
+EE122()
+{
+	# Install Packages
+	echo -e "\033[34mInstalling php5-xdebug percona-toolkit graphviz, Please Wait...\e[0m"
+	apt-get -y install php5-xdebug percona-toolkit graphviz
+
+
+	# EasyEngine Config File
+	sed -i "/# WordPress Defaults/i # Comma Separated Whitelist/Debugging IP Address\nip_address = \n"  /etc/easyengine/ee.conf
+
+	# Nginx File Copy
+	cp /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/  || OwnError "Unable To Copy Nginx Upstream File"
+	cp /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common/ || OwnError "Unable To Copy Nginx Common Location File"
+	cp /usr/share/easyengine/nginx/common/wpcommon.conf /etc/nginx/common/  || OwnError "Unable To Copy Nginx Common WordPress File"
+
+	# Nginx Changes
+	sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
+	sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
+	sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
+
+	# EasyEngine Admin Setup
+	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
+	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
+
+	# EasyEngine Admin Logs Setup
+	if [ ! -d /var/www/22222/logs ]
+	then
+		mkdir -p /var/www/22222/logs || OwnError "Unable To Create /var/www/22222/logs"
+	fi
+
+	# Symbolic Links
+	ln -s /var/log/nginx/eeadmin.access.log /var/www/22222/logs/access.log
+	ln -s /var/log/nginx/eeadmin.error.log /var/www/22222/logs/error.log
+
+	# EasyEngine Admin SSL Setup
+	if [ ! -d /var/www/22222/cert ]
+	then
+		mkdir -p /var/www/22222/cert || OwnError "Unable To Create /var/www/22222/cert"
+	fi
+
+	# Generate SSL Key
+	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Private Key"
+
+	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
+
+	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
+	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $INSTALLLOG \
+	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
+
+	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Certificate"
+
+	# Personal Settings For PHP
+	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
+
+	# Needed For Custome PHP5 Logs
+	if [ ! -d /var/log/php5/ ]
+	then
+		mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+	fi
+
+	TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
+	sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
+
+	# Change PHP5-FPM Error Logs Location
+	sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
+
+	# Separate PHP POOL For Slow Logs
+	cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+	sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
+	sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+	sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+	sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
+	sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+	echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+	|| OwnError "Unable To Add Xdebug Settings"
+
+	# Install PHP Packages
+	PHP_PACKAGES
+	INSTALLPMA
+}
+
 HTTPAUTH()
 {
 	# Get The htpasswd Details
@@ -221,7 +463,7 @@ HTTPAUTH()
 RESTARTSERVICE()
 {
 	echo -e "\033[34mRestarting Nginx & PHP5-FPM Configuration, Please Wait...\e[0m"
-	service php5-fpm restart &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM After Update"
+	(php5-fpm -t && service php5-fpm restart) &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM After Update"
 	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx After Update"
 }
 
@@ -265,12 +507,18 @@ then
 			EE101
 			HTTPAUTH
 			MYCNFCHECK
-			EE110
+			EECURRENTVERSION="1.1.0"
 		fi
 
 		if [[ $EECURRENTVERSION = 1.1.0 ]]
 		then
 			EE110
+			EECURRENTVERSION="1.2.2"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.2.2 ]]
+		then
+			EE122
 		fi
 	fi
 
