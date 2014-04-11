@@ -493,7 +493,7 @@ PHP_PACKAGES()
 	# Fake PHP5-FPM Status Pages
 	if [ ! -d /var/www/22222/htdocs/fpm/status/ ]
 	then
-			mkdir -p /var/www/22222/htdocs/fpm/status/ || OwnError "Unable To Create webgrind Directory"
+			mkdir -p /var/www/22222/htdocs/fpm/status/ || OwnError "Unable To Create FPM Status Directory"
 			touch /var/www/22222/htdocs/fpm/status/{php,debug}
 	fi
 
