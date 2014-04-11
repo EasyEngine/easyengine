@@ -186,12 +186,6 @@ then
 	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
 
-# Adjust FastCGI Cache Size 20% Of /var/run
-#VARRUNSIZE=$(df --block-size=M /var/run | awk '{print $4}' | tail -n1 |cut -d'M' -f1)
-#FCSIZE=$(expr $VARRUNSIZE \* 25 / 100)
-
-# Change Size
-#sed -i "s/500m/$FCSIZE\m/" /usr/share/easyengine/nginx/conf.d/fastcgi.conf || OwnError "Unable To Change Fastcgi Cache Size"
 
 # Git Config Settings
 EEGITNAME=$(git config user.name)
