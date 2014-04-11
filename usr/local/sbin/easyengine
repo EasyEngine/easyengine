@@ -3243,6 +3243,7 @@ else
 	echo -e "\tinfo:\t Display Nginx PHP MySQL Information\t"
 	echo -e "\thelp:\t Display EasyEngine Help\t"
 	echo -e "\tsite:\t Do Various Site Specific Operations\t"
+	echo -e "\tdebug:\t Do Various Debugging Operations\t"
 	echo -e "\tsystem:\t Do Various System Level Operations\t"
 	echo -e "\tupdate:\t Update EasyEngine (ee)\t"
 	echo -e "\tversion: Display EasyEngine (ee) Version\t"
