@@ -432,7 +432,10 @@ PHP_PACKAGES()
 	if [ ! -d /var/www/22222/htdocs/cache/nginx ]
 	then
 		mkdir -p /var/www/22222/htdocs/cache/nginx || OwnError "Unable To Create Nginx Fastcgi Cleanup Directory"
-		wget -cqO var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
+
+		# Downloading Nginx FastCGI Cleanup Script
+		echo -e "\033[34mDownloading Nginx FastCGI Cleanup Script, Please Wait...\e[0m"
+		wget -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
 	fi
 
 	# Opcache Settings

@@ -23,9 +23,9 @@ server {
 		try_files $uri $uri/ /index.php?$args;
 	}
 
-	location =  /php/status/ {}
+	location =  /fpm/status/ {}
 
-	location ~ /php/status/(.*) {
+	location ~ /fpm/status/(.*) {
 		include fastcgi_params;
 		fastcgi_param  SCRIPT_NAME  /status;
 		fastcgi_pass $1;
