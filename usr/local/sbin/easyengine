@@ -1695,25 +1695,13 @@ DEBUG_PHP()
 	#  Lets Disable PHP Restart Trigger
 	EE_DEBUG_PHP=""
 
-	# Slowlog Settings
-	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG
-	#if [ $? -ne 0 ]
-	#hen
-		#echo -e "\033[34mSetting Up PHP5-FPM Slow Log, Please Wait...\e[0m"
-		#sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf
-		#sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf
-
-	#else
-		#echo -e "\033[34mPHP5-FPM Slow Log Already Enabled\e[0m"
-	#fi
-
 	if [ -z $EE_DEBUG_SITENAME ]
 	then
-		grep 9001 /etc/nginx/conf.d/upstream.conf &>> $INSTALLLOG
+		grep -B2 9001 /etc/nginx/conf.d/upstream.conf | grep php &>> $INSTALLLOG
 		if [ $? -ne 0 ]
 		then
 			echo -e "\033[34mEnable PHP5-FPM Slow Log, Please Wait...\e[0m"
-			sed -i "s/9000/9001/" /etc/nginx/conf.d/upstream.conf
+			sed -i "4 s/9000/9001/" /etc/nginx/conf.d/upstream.conf
 
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
@@ -1725,27 +1713,13 @@ DEBUG_PHP()
 		if [ $? -ne 0 ]
 		then
 			echo -e "\033[34mEnable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
-			sed -i "s/fastcgi_pass.*/fastcgi_pass 127.0.0.1:9001;/g" /etc/nginx/sites-available/$DOMAIN
+			sed -i "s/fastcgi_pass.*/fastcgi_pass debug;/g" /etc/nginx/sites-available/$DOMAIN
 
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
 		else
 			echo -e "\033[34mPHP5-FPM Slow Log Already Enabled For $DOMAIN\e[0m"
 		fi
-	fi
-
-	# Xdebug Settings
-	grep xdebug.profiler_ /etc/php5/fpm/conf.d/20-xdebug.ini &>> $INSTALLLOG
-	if [ $? -ne 0 ]
-	then
-		echo -e "\033[34mSetting Up Xdebug, Please Wait...\e[0m"
-		echo -e "xdebug.profiler_output_dir=/tmp \nxdebug.profiler_output_name=cachegrind.out.%p-%H-%R \nxdebug.profiler_enable_trigger=1 \nxdebug.profiler_enable=0" >> /etc/php5/fpm/conf.d/20-xdebug.ini
-
-		# Lets Trigger The PHP5-FPM Restart
-		EE_DEBUG_PHP="--php"
-
-	else
-		echo -e "\033[34mXdebug Already Enabled\e[0m"
 	fi
 }
 
@@ -1754,28 +1728,13 @@ DEBUG_PHP_STOP()
 	#  Lets Disable PHP Restart Trigger
 	EE_DEBUG_PHP=""
 
-	# Slowlog Settings
-	#grep "^slowlog = /var/log/php5/slow.log" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
-	#if [ $? -eq 0 ]
-	#then
-		#echo -e "\033[34mStopping Up PHP5-FPM Slow Log, Please Wait...\e[0m"
-		#sed -i "s'slowlog =';slowlog ='" /etc/php5/fpm/pool.d/www.conf
-		#sed -i "s'request_slowlog_timeout';request_slowlog_timeout'" /etc/php5/fpm/pool.d/www.conf
-
-		# Lets Trigger The PHP5-FPM Restart
-		#EE_DEBUG_PHP="--php"
-
-	#else
-		#echo -e "\033[34mPHP5-FPM Slow Log Already Disable\e[0m"
-	#fi
-
 	if [ -z $EE_DEBUG_SITENAME ]
 	then
-		grep 9001 /etc/nginx/conf.d/upstream.conf &>> $INSTALLLOG
+		grep -B2 9001 /etc/nginx/conf.d/upstream.conf | grep php &>> $INSTALLLOG
 		if [ $? -eq 0 ]
 		then
 			echo -e "\033[34mDisable PHP5-FPM Slow Log, Please Wait...\e[0m"
-			sed -i "s/9001/9000/" /etc/nginx/conf.d/upstream.conf
+			sed -i "4 s/9001/9000/" /etc/nginx/conf.d/upstream.conf
 			
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
@@ -1783,7 +1742,7 @@ DEBUG_PHP_STOP()
 			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled\e[0m"
 		fi
 	else
-		grep 9001 /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
+		grep "fastcgi_pass debug;" /etc/nginx/sites-available/$DOMAIN &>> $INSTALLLOG
 		if [ $? -eq 0 ]
 		then
 			echo -e "\033[34mDisable PHP5-FPM Slow Log For $DOMAIN, Please Wait...\e[0m"
@@ -1794,20 +1753,6 @@ DEBUG_PHP_STOP()
 		else
 			echo -e "\033[34mPHP5-FPM Slow Log Already Disabled For $DOMAIN\e[0m"
 		fi
-	fi
-
-	# Xdebug Settings
-	grep xdebug.profiler_ /etc/php5/fpm/conf.d/20-xdebug.ini &>> $INSTALLLOG
-	if [ $? -eq 0 ]
-	then
-		echo -e "\033[34mDisable Xdebug, Please Wait...\e[0m"
-		sed -i "/xdebug.profiler_/d" /etc/php5/fpm/conf.d/20-xdebug.ini
-
-		# Lets Trigger The PHP5-FPM Restart
-		EE_DEBUG_PHP="--php"
-
-	else
-		echo -e "\033[34mXdebug Already Disable\e[0m"
 	fi
 }
 
@@ -3079,6 +3024,7 @@ then
 	if [ "$EE_DEBUG" = "--start" ]
 	then
 
+		
 		if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]
 		then
 			EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $INSTALLLOG
@@ -3086,8 +3032,13 @@ then
 			EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $INSTALLLOG
 			EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $INSTALLLOG
 			EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $INSTALLLOG
-			EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
-		fi	
+
+			if [ -n "$EE_DEBUG_SITENAME" ]
+			then
+				EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $INSTALLLOG
+			fi
+		fi
+		
 
 		if [ -z "$EE_DEBUG_SITENAME" ]
 		then
