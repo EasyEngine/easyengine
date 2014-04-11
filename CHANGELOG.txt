@@ -1,3 +1,14 @@
+v 1.3.0 - Apr 11, 2014
+  - Introduce `ee debug` command
+  - Introduce `ee system [status|stop|start|restart]` command
+
+  - EasyEngine Admin Tools shifted on port `22222` with self signed SSL Certificate #124 
+  - Setup Separate PHP5-FPM Pool on Port 9001 for debugging purpose
+  - Polish `ee site edit` command #157 
+  - Fixed MySQL Username Character Limit #113 
+  - Nginx Settings #100
+
+
 v 1.2.2 - Mar 18, 2014
   - Check/Install bc command
   - Fixed EasyEngine Update Issue #134 #148
