@@ -183,34 +183,41 @@ PHPUSERINFO()
 
 PHP_PACKAGES()
 {
+	# Nginx Fastcgi Cache Cleanup
+	if [ ! -d /var/www/22222/htdocs/cache/nginx ]
+	then
+		mkdir -p /var/www/22222/htdocs/cache/nginx || OwnError "Unable To Create Nginx Fastcgi Cleanup Directory"
+		wget -cqO var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
+	fi
+
 	# Opcache Settings
-	if [ ! -d /var/www/22222/htdocs/php/opcache ]
+	if [ ! -d /var/www/22222/htdocs/cache/opcache ]
 	then
 		# Create Directory
-		mkdir -p /var/www/22222/htdocs/php/opcache || OwnError "Unable To Create Opcache Directory"
+		mkdir -p /var/www/22222/htdocs/cache/opcache || OwnError "Unable To Create Opcache Directory"
 
 		# Download Opcache Status Files
 		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
-		wget -cqO /var/www/22222/htdocs/php/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/22222/htdocs/php/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/22222/htdocs/php/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
-	if [ ! -d /var/www/22222/htdocs/php/memcache ]
+	if [ ! -d /var/www/22222/htdocs/cache/memcache ]
 	then
 		# Create Directory
-		mkdir -p /var/www/22222/htdocs/php/memcache || OwnError "Unable To Create Memcache Directory"
+		mkdir -p /var/www/22222/htdocs/cache/memcache || OwnError "Unable To Create Memcache Directory"
 
 		# Download phpMemcachedAdmin
 		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
-		wget -cqO /var/www/22222/htdocs/php/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
-		tar -zxf /var/www/22222/htdocs/php/memcache/memcache.tar.gz -C /var/www/22222/htdocs/php/memcache
+		tar -zxf /var/www/22222/htdocs/cache/memcache/memcache.tar.gz -C /var/www/22222/htdocs/cache/memcache
 
 		# Remove Unwanted Files
-		rm -f /var/www/22222/htdocs/php/memcache/memcache.tar.gz
+		rm -f /var/www/22222/htdocs/cache/memcache/memcache.tar.gz
 	fi
 
 	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]
