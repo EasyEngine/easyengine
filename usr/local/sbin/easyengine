@@ -491,10 +491,10 @@ PHP_PACKAGES()
 	echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
 
 	# Fake PHP5-FPM Status Pages
-	if [ ! -d /var/www/22222/htdocs/php/status/ ]
+	if [ ! -d /var/www/22222/htdocs/fpm/status/ ]
 	then
-			mkdir -p /var/www/22222/htdocs/php/status/ || OwnError "Unable To Create webgrind Directory"
-			touch /var/www/22222/htdocs/php/status/{php,debug}
+			mkdir -p /var/www/22222/htdocs/fpm/status/ || OwnError "Unable To Create webgrind Directory"
+			touch /var/www/22222/htdocs/fpm/status/{php,debug}
 	fi
 
 	# Anemometer Setup
