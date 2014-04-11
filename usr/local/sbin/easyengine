@@ -1895,23 +1895,36 @@ DEBUG_MYSQL_STOP()
 
 DEBUG_WORDPRESS()
 {
-	grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
-	if [ $? -ne 0 ]
+	if [ -e /var/www/$DOMAIN/wp-config.php ]
 	then
-		# Debug WordPress
-		echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
 
-		# Call PHPUSERINFO Function For PHP User Details
-		PHPUSERINFO
+		grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			# Debug WordPress
+			echo -e "\033[34mStart WordPress Debug Logs For $DOMAIN\e[0m"
 
-		# Create debug.log & Change Permission
-		touch /var/www/$DOMAIN/htdocs/wp-content/debug.log
-		chown $PHPUSER:$PHPUSER /var/www/$DOMAIN/htdocs/wp-content/debug.log
+			# Call PHPUSERINFO Function For PHP User Details
+			PHPUSERINFO
+
+			# Create debug.log & Change Permission
+			touch /var/www/$DOMAIN/htdocs/wp-content/debug.log
+			chown $PHPUSER:$PHPUSER /var/www/$DOMAIN/htdocs/wp-content/debug.log
 		
-		# Turn On Debug
-		sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+			# Turn On Debug
+			sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+
+			# Install Developer Plugin
+			# Installing Nginx Helper
+			cd /var/www/$DOMAIN/htdocs/
+			echo -e "\033[34mInstalling Developer Plugin, Please Wait...\e[0m"
+			wp plugin --allow-root install developer &>> $INSTALLLOG || OwnError "Unable To Install Developer Plugin"
+
+		else
+			echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
+		fi
 	else
-		echo -e "\033[34mWordPress Debug Log Already Started For $DOMAIN\e[0m"
+		echo -e "\033[31mUnable To Find wp-config.php File, Seems Like Not WordPress Site\e[0m"
 	fi
 }
 
@@ -3083,12 +3096,23 @@ then
 			then
 				# Debug Nginx
 				DEBUG_NGINX
+
+				# Log Message
+				LOGMESSAGE="/var/log/nginx/*.error.log"
 			fi
 
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
 				DEBUG_NGINX_REWRITE
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/nginx/*.error.log"
+			fi
+
+			if [ "$EE_DEBUG_WP" = "--wp" ]
+			then
+				echo -e "\033[31mThe --wp Option Can Be Enabled For WordPress Site Only\e[0m"
 			fi
 
 		else
@@ -3101,18 +3125,27 @@ then
 			then
 				# Debug Nginx
 				DEBUG_NGINX_SITE
+
+				# Log Message
+				LOGMESSAGE="/var/www/$DOMAIN/logs/error.log"				
 			fi
 
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
 				DEBUG_NGINX_REWRITE_SITE
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/logs/error.log"
 			fi
 
 			if [ "$EE_DEBUG_WP" = "--wp" ]
 			then
 				# Debug WordPress Debug Log
 				DEBUG_WORDPRESS
+
+				# Log Message
+				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/htdocs/wp-content/debug.log"
 			fi
 
 		fi
@@ -3121,18 +3154,27 @@ then
 		then
 			# Debug PHP
 			DEBUG_PHP
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/php5/slow.log"
 		fi
 
 		if [ "$EE_DEBUG_FPM" = "--fpm" ]
 		then
 			# Debug PHP FPM
 			DEBUG_PHP_FPM
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/php5/fpm.log"
 		fi
 
 		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 		then
 			# Debug MySQL Slow Query
 			DEBUG_MYSQL
+
+			# Log Message
+			LOGMESSAGE="$LOGMESSAGE /var/log/mysql/slow.log"
 		fi
 
 	elif [ "$EE_DEBUG" = "--stop" ]
@@ -3232,8 +3274,10 @@ then
 	then
 		# Lets Start Debug In Interactive Mode
 		DEBUG_INTERACTIVE
+	elif [ "$EE_DEBUG_INTERACTIVE" != "-i" ] && [ "$EE_DEBUG" != "--stop" ]
+	then
+		echo -e "\033[37mtail -f $LOGMESSAGE\e[0m"
 	fi
-
 
 
 elif [ "$1" = "update" ]
