@@ -9,9 +9,8 @@ EEAUTO()
 
 	# Get Previous Word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
-
-	# Use Word Twice In Auto Completion
-	local EECOMMON=${COMP_WORDS[COMP_CWORD-2]}
+	local PREVIOUS2=${COMP_WORDS[COMP_CWORD-2]}
+	local PREVIOUS3=${COMP_WORDS[COMP_CWORD-3]}
 
 	# List Of Suggested Words
 	case "$PREVIOUS" in
@@ -29,6 +28,47 @@ EEAUTO()
 
 		install|remove|purge)
 			COMPREPLY=( $( compgen -W "nginx php mysql phpmyadmin postfix all" -- $CURRENT ) )
+			return 0
+			;;
+
+		site)
+			COMPREPLY=( $( compgen -W "list show info create enable disable delete edit" -- $CURRENT ) )
+			return 0
+			;;
+
+		list)
+			COMPREPLY=( $( compgen -W "enable available" -- $CURRENT ) )
+			return 0
+			;;
+
+		show|delete|--stop)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			return 0
+			;;
+
+		info|enable)
+			if [ "$PREVIOUS2" = "site" ]
+			then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			fi
+			return 0
+			;;
+
+		edit)
+			if [ "$PREVIOUS2" = "site" ]
+			then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			fi
+			return 0
+			;;
+
+		disable)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			return 0
+			;;
+
+		--wpsubdir|--wpsubdomain)
+			COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			return 0
 			;;
 
@@ -63,61 +103,25 @@ EEAUTO()
 			;;
 
 		--wp)
-			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --stop" -- $CURRENT) )
-			return 0
-			;;
-
-		site)
-			COMPREPLY=( $( compgen -W "list show info create enable disable delete edit" -- $CURRENT ) )
-			return 0
-			;;
-
-		list)
-			COMPREPLY=( $( compgen -W "enable available" -- $CURRENT ) )
-			return 0
-			;;
-
-		show|enable|delete|--stop)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			return 0
-			;;
-
-		info)
-			if [ "$EECOMMON" = "site" ]
+			if [ "$PREVIOUS3" = "create" ]
 			then
-				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+				COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
+			else
+				COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --stop" -- $CURRENT) )
 			fi
-			return 0
-			;;
-		edit)
-			if [ "$EECOMMON" = "site" ]
-			then
-				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			fi
-			return 0
-			;;
-
-		disable)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			return 0
-			;;
-
-		--wp|--wpsubdir|--wpsubdomain)
-			COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			return 0
 			;;
 
 		*)
-			if [ "$EECOMMON" = "create" ]
+			if [ "$PREVIOUS2" = "create" ]
 			then
 				COMPREPLY=( $( compgen -W "--html --php --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
-			elif [ "$EECOMMON" = "delete" ]
+			elif [ "$PREVIOUS2" = "delete" ]
 			then
 				COMPREPLY=( $( compgen -W "--db --all --files" -- $CURRENT ) )		
 			fi
 			return 0
 			;;
-
 	esac
 }
 
