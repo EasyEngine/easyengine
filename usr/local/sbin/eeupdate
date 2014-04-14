@@ -547,6 +547,7 @@ then
 	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
 	echo
 	echo -e "\033[34mEasyEngine (ee) Updated Successfully\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $INSTALLLOG
 
 	echo -e "\033[34mKilling The Parent Process\e[0m" &>> $INSTALLLOG
 	ps ax | grep $PPID | grep -v grep &>> $INSTALLLOG
