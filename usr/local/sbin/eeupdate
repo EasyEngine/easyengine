@@ -252,57 +252,62 @@ PHP_PACKAGES()
 			touch /var/www/22222/htdocs/fpm/status/{php,debug}
 	fi
 
-	# Anemometer Setup
-	if [ ! -d /var/www/22222/htdocs/db/anemometer/ ]
-	then
-		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
-
-		# Download Anemometer
-		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
-		|| OwnError "Unable To Clone Anemometer"
-
-		# Setup Anemometer
-		# Collect MySQL Login Details
-		MYCNFCHECK
-
-		# Setup Anemometer Database
-		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
-		|| OwnError "Unable To Import Anemometer Database"
-
-		# Setup Anemometer Database Grants
-		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
-
-		# Put Data In Anemometer Database
-		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \
-                  --review D=slow_query_log,t=global_query_review \
-                  --review-history D=slow_query_log,t=global_query_review_history \
-                  --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
-
-		# Execute On MySQL Logrotation
-		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
-		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
-		echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
-		echo -e "}" >> /etc/logrotate.d/mysql-server
-
-		# Copy Anemometer Configuration File
-		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
-		|| OwnError "Unable To Copy Anemometer Configuration File"
-
-		# Update Anemoneter Configuration File
-		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
-		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
-
-	fi
-
 	# Call PHPUSERINFO Function For PHP User Details
 	PHPUSERINFO
 
 	# Change Ownership
 	chown -R $PHPUSER:$PHPUSER /var/www/22222 || OwnError "Unable To Change Ownership For /var/www/22222"
+}
+
+ANEMOMETER_INSTALL()
+{
+	if [ -d /etc/mysql/ ]
+	then
+
+		# Anemometer Setup
+		if [ ! -d /var/www/22222/htdocs/db/anemometer ]
+		then
+			mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
+
+			# Download Anemometer
+			git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+			|| OwnError "Unable To Clone Anemometer"
+
+			# Setup Anemometer
+			# Collect MySQL Login Details
+			MYCNFCHECK
+
+			# Setup Anemometer Database
+			mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+			|| OwnError "Unable To Import Anemometer Database"
+
+			# Setup Anemometer Database Grants
+			ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+			mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"			
+
+			# Execute On MySQL Logrotation
+			sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
+			echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+			echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
+			echo -e "}" >> /etc/logrotate.d/mysql-server
+
+			# Copy Anemometer Configuration File
+			cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+			|| OwnError "Unable To Copy Anemometer Configuration File"
+
+			# Update Anemoneter Configuration File
+			sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+			sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+
+			# Call PHPUSERINFO Function For PHP User Details
+			PHPUSERINFO
+
+			# Change Ownership
+			chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Change Ownership For Anemometer"
+		fi
 }
 
 INSTALLPMA()
@@ -346,13 +351,9 @@ INSTALLPMA()
 		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/22222/htdocs/db/pma)...\e[0m"
 	fi
 }
+
 EE122()
 {
-	# Install Packages
-	echo -e "\033[34mInstalling php5-xdebug percona-toolkit graphviz, Please Wait...\e[0m"
-	apt-get -y install php5-xdebug percona-toolkit graphviz
-
-
 	# EasyEngine Config File
 	sed -i "/# WordPress Defaults/i # Comma Separated Whitelist/Debugging IP Address\nip_address = \n"  /etc/easyengine/ee.conf
 
@@ -404,33 +405,52 @@ EE122()
 	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
 	|| OwnError "Unable To Generate SSL Certificate"
 
-	# Personal Settings For PHP
-	echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
-
-	# Needed For Custome PHP5 Logs
-	if [ ! -d /var/log/php5/ ]
+	# PHP Setup
+	dpkg -l | grep php5-fpm &>> $INSTALLLOG
+	if [ $? -eq 0 ]
 	then
-		mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+		# Install Packages
+		echo -e "\033[34mInstalling php5-xdebug percona-toolkit graphviz, Please Wait...\e[0m"
+		apt-get -y install php5-xdebug percona-toolkit graphviz
+
+		# Personal Settings For PHP
+		echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
+
+		# Needed For Custome PHP5 Logs
+		if [ ! -d /var/log/php5/ ]
+		then
+			mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+		fi
+
+		TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
+		sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
+
+		# Change PHP5-FPM Error Logs Location
+		sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
+
+		# Separate PHP POOL For Slow Logs
+		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+		sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
+		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+		|| OwnError "Unable To Add Xdebug Settings"
+
+	else
+		# Install Packages
+		echo -e "\033[34mInstalling percona-toolkit graphviz, Please Wait...\e[0m"
+		apt-get -y install percona-toolkit graphviz
 	fi
-
-	TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
-	sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
-
-	# Change PHP5-FPM Error Logs Location
-	sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
-
-	# Separate PHP POOL For Slow Logs
-	cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
-	sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
-	sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
-	sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
-	sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
-	sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
-	echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
-	|| OwnError "Unable To Add Xdebug Settings"
 
 	# Install PHP Packages
 	PHP_PACKAGES
+
+	# Install Anemometer 
+	ANEMOMETER_INSTALL
+
+	# Install phpMyAdmin
 	INSTALLPMA
 }
 
@@ -547,7 +567,7 @@ then
 	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
 	echo
 	echo -e "\033[34mEasyEngine (ee) Updated Successfully\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $INSTALLLOGfwww
 
 	echo -e "\033[34mKilling The Parent Process\e[0m" &>> $INSTALLLOG
 	ps ax | grep $PPID | grep -v grep &>> $INSTALLLOG

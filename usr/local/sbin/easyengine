@@ -497,52 +497,6 @@ PHP_PACKAGES()
 			touch /var/www/22222/htdocs/fpm/status/{php,debug}
 	fi
 
-	# Anemometer Setup
-	if [ ! -d /var/www/22222/htdocs/db/anemometer/ ]
-	then
-		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
-
-		# Download Anemometer
-		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
-		|| OwnError "Unable To Clone Anemometer"
-
-		# Setup Anemometer
-		# Collect MySQL Login Details
-		MYSQLROOT
-
-		# Setup Anemometer Database
-		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
-		|| OwnError "Unable To Import Anemometer Database"
-
-		# Setup Anemometer Database Grants
-		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
-
-		# Put Data In Anemometer Database
-		pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \
-                  --review D=slow_query_log,t=global_query_review \
-                  --review-history D=slow_query_log,t=global_query_review_history \
-                  --no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$HOSTNAME\""  /var/log/mysql/slow.log &>> $INSTALLLOG
-
-		# Execute On MySQL Logrotation
-		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
-		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
-		echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
-		echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
-		echo -e "}" >> /etc/logrotate.d/mysql-server
-
-		# Copy Anemometer Configuration File
-		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
-		|| OwnError "Unable To Copy Anemometer Configuration File"
-
-		# Update Anemoneter Configuration File
-		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
-		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
-
-	fi
-
 	# Call PHPUSERINFO Function For PHP User Details
 	PHPUSERINFO
 
@@ -628,6 +582,52 @@ COMMONMYSQL()
 
 	# Decrease MySQL Wait Timeout
 	sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60" /etc/mysql/my.cnf
+
+	# Anemometer Setup
+	if [ ! -d /var/www/22222/htdocs/db/anemometer ]
+	then
+		mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
+
+		# Download Anemometer
+		git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+		|| OwnError "Unable To Clone Anemometer"
+
+		# Setup Anemometer
+		# Collect MySQL Login Details
+		MYSQLROOT
+
+		# Setup Anemometer Database
+		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+		|| OwnError "Unable To Import Anemometer Database"
+
+		# Setup Anemometer Database Grants
+		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
+
+		# Execute On MySQL Logrotation
+		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
+		echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
+		echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+		echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
+		echo -e "}" >> /etc/logrotate.d/mysql-server
+
+		# Copy Anemometer Configuration File
+		cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+		|| OwnError "Unable To Copy Anemometer Configuration File"
+
+		# Update Anemoneter Configuration File
+		sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+		sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+
+	fi
+
+	# Call PHPUSERINFO Function For PHP User Details
+	PHPUSERINFO
+
+	# Change Ownership
+	chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Change Ownership For Anemometer"
 }
 
 POSTFIXINSTALLTWEAKS()
