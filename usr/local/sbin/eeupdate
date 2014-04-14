@@ -309,6 +309,7 @@ ANEMOMETER_INSTALL()
 			# Change Ownership
 			chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Change Ownership For Anemometer"
 		fi
+	fi
 }
 
 INSTALLPMA()
