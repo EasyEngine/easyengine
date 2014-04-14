@@ -270,6 +270,7 @@ ANEMOMETER_INSTALL()
 			mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
 
 			# Download Anemometer
+			echo -e "\033[34mCloning Anemometer, Please Wait...\e[0m"
 			git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
 			|| OwnError "Unable To Clone Anemometer"
 
