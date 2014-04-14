@@ -1070,6 +1070,7 @@ EEINFO()
 	# Collect Information From www.conf
 	PHPPINGPATH=$(grep ^ping.path /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 	PHPSTATUSPATH=$(grep ^pm.status_path /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
+	PHPFPMPROCESS=$(grep "^pm =" /etc/php5/fpm/pool.d/www.conf | awk '{print $3}')
 	PMMAXREQUEST=$(grep ^pm.max_requests /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 	PMMAXCHILDREN=$(grep ^pm.max_children /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
 	PMSTARTSERVERS=$(grep ^pm.start_servers /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2| cut -d' ' -f2)
@@ -1087,6 +1088,7 @@ EEINFO()
 
 	echo -e "\033[34mPHP ping.path:\t\t\t \033[37m$PHPPINGPATH\e[0m"
 	echo -e "\033[34mPHP pm.status_path:\t\t \033[37m$PHPSTATUSPATH\e[0m"
+	echo -e "\033[34mPHP process manager:\t\t \033[37m$PHPFPMPROCESS\e[0m"
 	echo -e "\033[34mPHP pm.max_requests:\t\t \033[37m$PMMAXREQUEST\e[0m"
 	echo -e "\033[34mPHP pm.max_children:\t\t \033[37m$PMMAXCHILDREN\e[0m"
 	echo -e "\033[34mPHP pm.start_servers:\t\t \033[37m$PMSTARTSERVERS\e[0m"
