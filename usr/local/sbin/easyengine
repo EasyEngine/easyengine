@@ -1514,12 +1514,16 @@ REMOVEDB()
 			# Remove Database
 			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
 			|| OwnError "Unable To Drop $WPDBNAME Database"
-			# Remove Database User
-			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop user '$WPDBUSER'@'$MYSQLHOST'" \
-			|| OwnError "Unable To Drop Database User $WPDBUSER"
-			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges" \
-			|| OwnError "Unable To Flush MySQL Privileges"
 
+			# Never Remove root User
+			if [ "$WPDBUSER" != "root" ]
+			then
+				# Remove Database User
+				mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop user '$WPDBUSER'@'$MYSQLHOST'" \
+				|| OwnError "Unable To Drop Database User $WPDBUSER"
+				mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges" \
+				|| OwnError "Unable To Flush MySQL Privileges"
+			fi
 		else
 			# User Denied Messages
 			echo -e "\033[31mUser Denied To Drop $WPDBNAME Database.\e[0m"
