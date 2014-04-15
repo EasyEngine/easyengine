@@ -3107,7 +3107,7 @@ then
 				DEBUG_WORDPRESS
 
 				# Log Message
-				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/htdocs/wp-content/debug.log"
+				LOGMESSAGE="$LOGMESSAGE /var/www/$DOMAIN/htdocs/wp-content/debug.log"
 			fi
 
 		fi
