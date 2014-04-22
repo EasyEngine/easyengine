@@ -456,6 +456,19 @@ EE122()
 	INSTALLPMA
 }
 
+EE133()
+{
+	# Change PHP5-FPM Process Manager
+	grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/www.conf \
+		|| OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+	else
+		echo -e "\033[34mPHP5-FPM Process Manager Set To Ondemand\e[0m"
+	fi
+}
+
 HTTPAUTH()
 {
 	# Get The htpasswd Details
@@ -551,6 +564,12 @@ then
 		if [[ $EECURRENTVERSION = 1.2.2 ]]
 		then
 			EE122
+			EECURRENTVERSION="1.3.3"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.3.3 ]]
+		then
+			EE133
 		fi
 	fi
 
