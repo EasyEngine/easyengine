@@ -1063,6 +1063,7 @@ EEINFO()
 	# Collect Information From php.ini
 	PHPUSERINFO
 	PHPVER=$(php -v | head -n1 | cut -d' ' -f2 | cut -d'+' -f1)
+	PHPMEM=$(grep ^memory_limit /etc/php5/fpm/php.ini | awk '{print $3}')
 	PHPEXPOSE=$(grep ^expose_php /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
 	PHPPOSTMAXSIZE=$(grep post_max_size /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
 	PHPUPLOADMAXFSIZE=$(grep upload_max_filesize /etc/php5/fpm/php.ini | cut -d'=' -f2 | cut -d' ' -f2)
@@ -1083,6 +1084,7 @@ EEINFO()
 	echo -e "\033[34m\n\nPHP ($PHPVER) Information:\n\e[0m"
 	echo -e "\033[34mPHP User:\t\t\t \033[37m$PHPUSER\e[0m"
 	echo -e "\033[34mPHP expose_php:\t\t\t \033[37m$PHPEXPOSE\e[0m"
+	echo -e "\033[34mPHP memory_limit:\t\t\t \033[37m$PHPMEM\e[0m"
 	echo -e "\033[34mPHP post_max_size:\t\t \033[37m$PHPPOSTMAXSIZE\e[0m"
 	echo -e "\033[34mPHP upload_max_filesize:\t \033[37m$PHPUPLOADMAXFSIZE\e[0m"
 	echo -e "\033[34mPHP max_execution_time:\t\t \033[37m$PHPMAXEXECUTIONTIME\n\e[0m"
