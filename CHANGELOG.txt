@@ -1,3 +1,10 @@
+v 1.3.4 - Apr 22, 2014
+  - Supports Ubuntu 12.04, 12.10, 13.10 & 14.04 ( Fixed Issue #94 #195 )
+  - Change FPM process management from dynamic to ondemand #184
+  - Fixed Issue #188
+  - Fixed Debian 6 wget command issue
+
+
 v 1.3.3 - Apr 16, 2014
   - Fixed issue #186
   - Fixed issue #187
