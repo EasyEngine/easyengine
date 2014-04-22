@@ -47,10 +47,20 @@ APTASSUMEYES ()
 # Install Package Functions
 PYTHONSOFTWARE()
 {
-	# Install Python Software Properties
-	echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
-	$EEAPTGET install python-software-properties software-properties-common \
-	|| OwnError "Unable To Install Python Software Properties"
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
+	then
+
+		# Install Python Software Properties
+		echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
+		$EEAPTGET install python-software-properties software-properties-common \
+		|| OwnError "Unable To Install Python Software Properties"
+	elif [ "$LINUX_DISTRO" == "Debian" ]
+	then
+		# Install Python Software Properties
+		echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
+		$EEAPTGET install python-software-properties \
+		|| OwnError "Unable To Install Python Software Properties"
+	fi
 }
 
 NGINXREPO()
@@ -285,6 +295,12 @@ COMMONNGINX()
 	EEMD5SUM
 
 	# EasyEngine Admin Setup
+	if [ "$LINUX_DISTRO" == "Debian" ]
+	then
+		# DotDeb Repo Does't Support spdy Module
+		sed -i "s/ spdy//;" /usr/share/easyengine/nginx/22222
+	fi
+
 	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
 	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
 
@@ -436,7 +452,7 @@ PHP_PACKAGES()
 
 		# Downloading Nginx FastCGI Cleanup Script
 		echo -e "\033[34mDownloading Nginx FastCGI Cleanup Script, Please Wait...\e[0m"
-		wget -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
 	fi
 
 	# Opcache Settings
@@ -447,9 +463,9 @@ PHP_PACKAGES()
 
 		# Download Opcache Status Files
 		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
-		wget -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
 	fi
 
 	# Memcache Settings
@@ -460,7 +476,7 @@ PHP_PACKAGES()
 
 		# Download phpMemcachedAdmin
 		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
-		wget -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
 
 		# Extract phpMemcachedAdmin
 		tar -zxf /var/www/22222/htdocs/cache/memcache/memcache.tar.gz -C /var/www/22222/htdocs/cache/memcache
@@ -518,7 +534,7 @@ INSTALLPMA()
 			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
 
 			# Download PMA/phpMyAdmin
-			wget -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			wget --no-check-certificate -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
 			|| OwnError "Unable To Download phpMyAdmin"
 
 			# Extract PMA/phpMyAdmin
@@ -537,7 +553,7 @@ INSTALLPMA()
 			mkdir -p /var/www/22222/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/22222/htdocs/db/adminer/"
 
 			# Download Adminer
-			wget -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			wget --no-check-certificate -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
 			|| OwnError "Unable To Download Adminer"
 
 		fi
@@ -1323,7 +1339,7 @@ EEWPSETUP()
 {
 	# Download Latest WordPress
 	echo -e "\033[34mDownloading WordPress, Please Wait...\e[0m"
-	wget -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
+	wget --no-check-certificate -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
 	http://wordpress.org/latest.tar.gz \
 	|| OwnError "Unable To Download WordPress"
 
