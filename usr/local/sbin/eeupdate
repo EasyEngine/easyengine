@@ -3,6 +3,7 @@
 
 # Make Variables Available For Later Use
 INSTALLLOG=/var/log/easyengine/install.log
+LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
 
 # Capture Errors
 OwnError()
@@ -469,6 +470,28 @@ EE133()
 	fi
 }
 
+EE134()
+{
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
+	then
+		# Removing Old Nginx Repository
+		rm /etc/apt/sources.list.d/brianmercer-nginx*
+
+		# Add Nginx Launchpad Repository
+		echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
+		add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
+		|| OwnError "Unable To Add Nginx Launchpad Repository" 
+
+		# Update The APT Cache
+		echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
+		apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
+
+		# Update Nginx
+		apt-get -o Dpkg::Options::="--force-confold" install nginx-custom \
+		|| OwnError "Unable To Update Nginx"
+	fi
+}
+
 HTTPAUTH()
 {
 	# Get The htpasswd Details
@@ -570,6 +593,12 @@ then
 		if [[ $EECURRENTVERSION = 1.3.3 ]]
 		then
 			EE133
+			EECURRENTVERSION="1.3.4"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.3.4 ]]
+		then
+			EE134
 		fi
 	fi
 
