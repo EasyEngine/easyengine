@@ -58,8 +58,8 @@ NGINXREPO()
 	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
 		# Add Nginx Launchpad Repository
-		echo -e "\033[34mAdding Brianmercer Nginx Launchpad Repository, Please Wait...\e[0m"
-		add-apt-repository -y ppa:brianmercer/nginx &>> $INSTALLLOG \
+		echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
+		add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
 		|| OwnError "Unable To Add Nginx Launchpad Repository"
 
 	elif [ "$LINUX_DISTRO" == "Debian" ]
