@@ -80,7 +80,7 @@ NGINXREPO()
 		|| OwnError "Unable To Add Nginx DotDeb Repository"
 
 		# Fetch And Install The GnuPG Key
-		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
+		wget --no-check-certificate -cqO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
 		apt-key add /tmp/dotdeb.gpg &>> $INSTALLLOG || OwnError "Unable To Add DotDeb GnuPG Key"
 	fi
 }
@@ -115,7 +115,7 @@ PHPREPO()
 		fi
 		
 		# Fetch And Install The GnuPG Key
-		wget -qcO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
+		wget --no-check-certificate -cqO /tmp/dotdeb.gpg http://www.dotdeb.org/dotdeb.gpg || OwnError "Unable To Download DotDeb GnuPG Key"
 		apt-key add /tmp/dotdeb.gpg &>> $INSTALLLOG || OwnError "Unable To Add DotDeb GnuPG Key"
 	fi
 }
@@ -452,7 +452,8 @@ PHP_PACKAGES()
 
 		# Downloading Nginx FastCGI Cleanup Script
 		echo -e "\033[34mDownloading Nginx FastCGI Cleanup Script, Please Wait...\e[0m"
-		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php \
+		|| OwnError "Unable To Download Nginx Fastcgi Cleanup Script"	
 	fi
 
 	# Opcache Settings
@@ -463,9 +464,9 @@ PHP_PACKAGES()
 
 		# Download Opcache Status Files
 		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
-		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
-		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
-		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php || OwnError "Unable To Download Opcache Tool opcache.php"
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php || OwnError "Unable To Download Opcache Tool opgui.php"
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php || OwnError "Unable To Download Opcache Toolocp.php"
 	fi
 
 	# Memcache Settings
@@ -476,7 +477,8 @@ PHP_PACKAGES()
 
 		# Download phpMemcachedAdmin
 		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
-		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz \
+		|| OwnError "Unable To Download Memcache Tool"
 
 		# Extract phpMemcachedAdmin
 		tar -zxf /var/www/22222/htdocs/cache/memcache/memcache.tar.gz -C /var/www/22222/htdocs/cache/memcache
