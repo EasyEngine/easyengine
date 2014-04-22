@@ -49,7 +49,7 @@ PYTHONSOFTWARE()
 {
 	# Install Python Software Properties
 	echo -e "\033[34mInstalling Python Software Properties, Please Wait...\e[0m"
-	$EEAPTGET install python-software-properties \
+	$EEAPTGET install python-software-properties software-properties-common \
 	|| OwnError "Unable To Install Python Software Properties"
 }
 
