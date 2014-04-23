@@ -378,7 +378,7 @@ COMMONPHP()
 	if [ $? -ne 0 ]
 	then
 
-		TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
+		TIME_ZONE=$(cat /etc/timezone | head -n1 | sed "s'/'\\\/'")
 
 		# Move PHP’s Session Storage To Memcache
 		sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
