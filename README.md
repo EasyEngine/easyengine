@@ -1,4 +1,4 @@
-![travis](https://travis-ci.org/rtCamp/easyengine.svg "travis")
+[![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
 ![easyengine](http://rtcamp.com/wp-content/uploads/2013/08/easyengine-logo-858x232px.png "easyengine")
 
 ## Introduction
