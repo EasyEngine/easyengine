@@ -3,7 +3,7 @@
 
 
 # Make Variables Available For Later Use
-LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
 # Checking Linux Distro Is Ubuntu
 if [ "$LINUX_DISTRO" != "Ubuntu" ] && [ "$LINUX_DISTRO" != "Debian" ]

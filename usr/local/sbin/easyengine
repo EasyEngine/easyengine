@@ -4,7 +4,7 @@
 LOGDIR=/var/log/easyengine
 ERRORLOG=/var/log/easyengine/error.log
 INSTALLLOG=/var/log/easyengine/install.log
-LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 EE_IP_ADDRESS=$(grep ip_address /etc/easyengine/ee.conf | cut -d'=' -f2 |sed 's/ //g' | tr ',' '\n')
 
 # Main EasyEngine Function To Log All The Outputs

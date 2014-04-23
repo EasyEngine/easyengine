@@ -3,7 +3,7 @@
 
 # Make Variables Available For Later Use
 INSTALLLOG=/var/log/easyengine/install.log
-LINUX_DISTRO=$(lsb_release -i | cut -d':' -f2 | awk '{print $1}')
+LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
 # Capture Errors
 OwnError()
@@ -487,7 +487,7 @@ EE134()
 		apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 
 		# Update Nginx
-		apt-get -o Dpkg::Options::="--force-confold" install nginx-custom \
+		apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
 		|| OwnError "Unable To Update Nginx"
 	fi
 }
