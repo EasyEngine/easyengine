@@ -425,7 +425,7 @@ EE122()
 			mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
 		fi
 
-		TIME_ZONE=$(cat /etc/timezone | sed "s'/'\\\/'")
+		TIME_ZONE=$(cat /etc/timezone | head -n1 | sed "s'/'\\\/'")
 		sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
 
 		# Change PHP5-FPM Error Logs Location
