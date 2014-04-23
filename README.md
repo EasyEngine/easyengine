@@ -1,9 +1,13 @@
-[![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
-![easyengine](http://rtcamp.com/wp-content/uploads/2013/08/easyengine-logo-858x232px.png "easyengine")
+<img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1.png" alt="EasyEngine Logo" align="right" />
 
-## Introduction
+<img src="https://travis-ci.org/rtCamp/easyengine.svg" alt="Travis Build Status" />
 
-easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress-nginx sites on  Ubuntu (12.04, 12.10, 13.10 & 14.04) / Debian (6, 7) server.
+easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
+
+EasyEngine currently supports:
+
+- Ubuntu 12.04, 12.10, 13.10 & 14.04
+- Debian 6, 7
 
 ## Quick Start
 
