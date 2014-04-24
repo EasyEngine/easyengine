@@ -474,21 +474,25 @@ EE134()
 {
 	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
-		# Removing Old Nginx Repository
-		rm /etc/apt/sources.list.d/brianmercer-nginx*
+		nginx -v 2>&1 | grep 1.4.7
+		if [ $? -ne 0 ]
+		then
+			# Removing Old Nginx Repository
+			rm /etc/apt/sources.list.d/brianmercer-nginx*
 
-		# Add rtCamp Nginx Launchpad Repository
-		echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
-		add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
-		|| OwnError "Unable To Add Nginx Launchpad Repository" 
+			# Add rtCamp Nginx Launchpad Repository
+			echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
+			add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
+			|| OwnError "Unable To Add Nginx Launchpad Repository" 
 
-		# Update The APT Cache
-		echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
-		apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
+			# Update The APT Cache
+			echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
+			apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 
-		# Update Nginx
-		apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
-		|| OwnError "Unable To Update Nginx"
+			# Update Nginx
+			apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
+			|| OwnError "Unable To Update Nginx"
+		fi
 	fi
 }
 
@@ -596,7 +600,7 @@ then
 			EECURRENTVERSION="1.3.4"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.3.4 ]]
+		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]]
 		then
 			EE134
 		fi
