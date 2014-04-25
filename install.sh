@@ -16,8 +16,7 @@ fi
 
 
 # Checking Permissions
-Permission=$(id -u)
-if [ $Permission -ne 0 ] 
+if [[ $EUID -ne 0 ]]
 then
 	echo -e "\033[31mSudo Privilege Required...\e[0m"
 	echo -e "\033[31mUses:\e[0m\033[34m curl -sL rt.cx/ee | sudo bash\e[0m"
