@@ -472,9 +472,10 @@ EE133()
 
 EE134()
 {
+	# Nginx Update
 	if [ "$LINUX_DISTRO" == "Ubuntu" ]
 	then
-		nginx -v 2>&1 | grep 1.4.7
+		nginx -v 2>&1 | grep 1.6.0
 		if [ $? -ne 0 ]
 		then
 			# Removing Old Nginx Repository
@@ -494,6 +495,25 @@ EE134()
 			|| OwnError "Unable To Update Nginx"
 		fi
 	fi
+	# WP-CLI Update
+	WP_CLI_VERSION=$(wp --allow-root --info | grep "WP-CLI version" | awk '{print $3}')
+	if [[ $WP_CLI_VERSION != "0.14.1" ]]
+	then
+        echo -e "\033[34mUpdating WP-CLI, Please Wait...\e[0m"
+        #Remove Old WP-CLI
+		rm -rf /usr/share/easyengine/wp-cli  /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
+
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $INSTALLLOG \
+		|| OwnError "Unable To Update WP-CLI"
+
+		# Add WP-CLI Command In PATH Variable
+		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP-CLI Command"
+
+		# Add WP-CLI Auto Completion
+		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		source /etc/bash_completion.d/wp-completion.bash
+	fi
+
 }
 
 HTTPAUTH()
@@ -585,6 +605,11 @@ then
 		if [[ $EECURRENTVERSION = 1.1.0 ]]
 		then
 			EE110
+			EECURRENTVERSION="1.1.1"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.1.1 ]] || [[ $EECURRENTVERSION = 1.1.2 ]] || [[ $EECURRENTVERSION = 1.1.3 ]] || [[ $EECURRENTVERSION = 1.1.4 ]] || [[ $EECURRENTVERSION = 1.1.5 ]] || [[ $EECURRENTVERSION = 1.2.0 ]] || [[ $EECURRENTVERSION = 1.2.1]]
+		then
 			EECURRENTVERSION="1.2.2"
 		fi
 
@@ -600,7 +625,7 @@ then
 			EECURRENTVERSION="1.3.4"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]]
+		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]] || || [[ $EECURRENTVERSION = 1.3.6 ]]
 		then
 			EE134
 		fi
