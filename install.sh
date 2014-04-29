@@ -47,7 +47,7 @@ if [ ! -d $LOG_DIR ]; then
 fi
 
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ]; then
-	echo -e "\033[31mInstalling required packages\e[0m" | tee -ai $INSTALL_LOG
+	echo -e "\033[34mInstalling required packages\e[0m" | tee -ai $INSTALL_LOG
 	apt-get -y install coreutils ed bc wget curl tar git-core || EE_ERROR "Unable to install required packages"
 fi
 
