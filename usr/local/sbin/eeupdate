@@ -625,7 +625,7 @@ then
 			EECURRENTVERSION="1.3.4"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]] || || [[ $EECURRENTVERSION = 1.3.6 ]]
+		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]] || [[ $EECURRENTVERSION = 1.3.6 ]]
 		then
 			EE134
 		fi
