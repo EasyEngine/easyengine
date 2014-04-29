@@ -2,7 +2,20 @@
 
 
 
+# Update The APT Cache
+echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
+apt-get update &>> /dev/null
+
+# Checking lsb_release
+if [ ! -x  /usr/bin/lsb_release ]; then
+	echo -e "\033[31mThe lsb_release Command Not Found\e[0m"
+	echo -e "\033[34mInstalling lsb-release, Please Wait...\e[0m"
+	apt-get -y install lsb-release &>> /dev/null
+fi
+
 # Make Variables Available For Later Use
+LOGDIR=/var/log/easyengine
+INSTALLLOG=/var/log/easyengine/install.log
 LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
 # Checking Linux Distro Is Ubuntu
@@ -13,8 +26,6 @@ then
 	exit 100
 fi
 
-
-
 # Checking Permissions
 if [[ $EUID -ne 0 ]]
 then
@@ -22,12 +33,6 @@ then
 	echo -e "\033[31mUses:\e[0m\033[34m curl -sL rt.cx/ee | sudo bash\e[0m"
 	exit 100 
 fi
-
-
-# Make Variables Available For Later Use
-LOGDIR=/var/log/easyengine
-INSTALLLOG=/var/log/easyengine/install.log
-
 
 # Capture Errors
 OwnError()
@@ -45,10 +50,6 @@ then
 	echo -e "\033[34mCreating EasyEngine (ee) Log Directory, Please Wait...\e[0m"
 	mkdir -p $LOGDIR || OwnError "Unable To Create Log Directory $LOGDIR"
 fi
-
-# Update The APT Cache
-echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
-apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
 
 # Checking Tee
 if [ ! -x  /usr/bin/tee ]
