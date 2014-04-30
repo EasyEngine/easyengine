@@ -1,0 +1,40 @@
+# EasyEngine Admin Configuration
+server {
+
+	listen 22222 default_server ssl spdy;
+
+	access_log   /var/log/nginx/eeadmin.access.log rt_cache;
+	error_log    /var/log/nginx/eeadmin.error.log;
+
+	ssl_certificate /var/www/22222/cert/22222.crt;
+	ssl_certificate_key /var/www/22222/cert/22222.key;
+
+	# Force HTTP To HTTPS
+	error_page 497 =200 https://$host:22222$request_uri;
+
+	root /var/www/22222/htdocs;
+	index index.php index.htm index.html;
+
+	# Turn On Directory List
+	autoindex on;
+
+	location / {
+		include common/acl.conf;
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location =  /fpm/status/ {}
+
+	location ~ /fpm/status/(.*) {
+		include fastcgi_params;
+		fastcgi_param  SCRIPT_NAME  /status;
+		fastcgi_pass $1;
+	}
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		include fastcgi_params;
+		fastcgi_pass php;
+	}
+
+}
