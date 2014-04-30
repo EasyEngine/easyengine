@@ -1,4 +1,4 @@
-# Easy Engine Auto Complete Feature
+# EasyEngine Auto Complete Feature
 
 
 
@@ -9,78 +9,119 @@ EEAUTO()
 
 	# Get Previous Word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
-
-	# Use All Word Twice
-	local EEALL=${COMP_WORDS[COMP_CWORD-2]}
+	local PREVIOUS2=${COMP_WORDS[COMP_CWORD-2]}
+	local PREVIOUS3=${COMP_WORDS[COMP_CWORD-3]}
 
 	# List Of Suggested Words
 	case "$PREVIOUS" in
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "system site help" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W "version info update help system site debug" -- $CURRENT) )
 			return 0
 			;;
 
 		system)
-			COMPREPLY=( $( compgen -W "install remove purge config" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "install remove purge status start stop reload restart" -- $CURRENT ) )
 			return 0
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W "nginx php mysql pma postfix all" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "nginx php mysql phpmyadmin postfix all" -- $CURRENT ) )
 			return 0
 			;;
-
-		config)
-			COMPREPLY=( $( compgen -W "get set" -- $CURRENT ) )
-			return 0
-			;;
-
-		get|set)
-			COMPREPLY=( $( compgen -W "memory timeout" -- $CURRENT ) )
-			return 0
-			;;
-
 
 		site)
-			COMPREPLY=( $( compgen -W "list listall show info create enable disable delete backup restore update" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W "list show info create enable disable delete edit" -- $CURRENT ) )
 			return 0
 			;;
 
-		show|info|enable|db|files)
+		list)
+			COMPREPLY=( $( compgen -W "enable available" -- $CURRENT ) )
+			return 0
+			;;
+
+		show|delete|--stop)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
-		all)
-			if [ "$EEALL" = "delete" ]
+		info|enable)
+			if [ "$PREVIOUS2" = "site" ]
 			then
 				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			fi
 			return 0
-			;;	
+			;;
+
+		edit)
+			if [ "$PREVIOUS2" = "site" ]
+			then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			fi
+			return 0
+			;;
 
 		disable)
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
-		create|update)
-			COMPREPLY=( $( compgen -W "html php wp wpsubdir wpsubdomain" -- $CURRENT ) )
+		--wpsubdir|--wpsubdomain)
+			COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			return 0
 			;;
 
-		wp|wpsubdir|wpsubdomain)
-			COMPREPLY=( $( compgen -W "basic w3tc wpsc wpfc" -- $CURRENT ) )
+		debug)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
 			return 0
 			;;
 
-		delete)
-			COMPREPLY=( $( compgen -W "files db all" -- $CURRENT ) )
+		--nginx)
+			COMPREPLY=( $(compgen -W "--rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
 			return 0
 			;;
 
+		--rewrite)
+			COMPREPLY=( $(compgen -W "--nginx --php --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--php)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --fpm --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--fpm)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --mysql --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--mysql)
+			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --wp --stop" -- $CURRENT) )
+			return 0
+			;;
+
+		--wp)
+			if [ "$PREVIOUS3" = "create" ]
+			then
+				COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
+			else
+				COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --stop" -- $CURRENT) )
+			fi
+			return 0
+			;;
+
+		*)
+			if [ "$PREVIOUS2" = "create" ]
+			then
+				COMPREPLY=( $( compgen -W "--html --php --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
+			elif [ "$PREVIOUS2" = "delete" ]
+			then
+				COMPREPLY=( $( compgen -W "--db --all --files" -- $CURRENT ) )		
+			fi
+			return 0
+			;;
 	esac
 }
 
