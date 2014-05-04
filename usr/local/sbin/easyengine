@@ -813,7 +813,7 @@ EE_SYSTEM_STATUS()
 	if [[ $SWAP_TOTAL > 0 ]]
 	then
 		SWAP_USED=$(free | grep Swap: | awk '{print $3}')
-		SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1 && echo "%")
+		SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1)%
 	else
 		SWAP_USAGE=$(echo "N/A")
 	fi
