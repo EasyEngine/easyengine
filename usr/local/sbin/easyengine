@@ -809,9 +809,14 @@ EE_SYSTEM_STATUS()
 	MEMORY_BUFFERS=$(free | grep Mem: | awk '{print $6}')
 	MEMORY_CACHE=$(free | grep Mem: | awk '{print $7}')
 	SWAP_TOTAL=$(free | grep Swap: | awk '{print $2}')
-	SWAP_USED=$(free | grep Swap: | awk '{print $3}')
 	MEMORY_USAGE=$(echo "($MEMORY_USED-$MEMORY_BUFFERS-$MEMORY_CACHE)*100/$MEMORY_TOTAL" | bc -l | cut -d'.' -f1)
-	SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1)
+	if [[ $SWAP_TOTAL > 0 ]]
+	then
+		SWAP_USED=$(free | grep Swap: | awk '{print $3}')
+		SWAP_USAGE=$(echo "$SWAP_USED*100/$SWAP_TOTAL" | bc -l | cut -d'.' -f1)%
+	else
+		SWAP_USAGE=$(echo "N/A")
+	fi
 	LOGGED_IN_USERS=$(w -h | wc -l)
 	ROOT_PARTITION_USAGE=$(df -h | grep /$ | awk '{print $5}')
 
@@ -826,7 +831,7 @@ EE_SYSTEM_STATUS()
 	echo
 	echo -e "  System load:\t$SYSTEM_LOAD\t\t  Processes:\t\t$PROCESSES"
 	echo -e "  Usage of /:\t$ROOT_PARTITION_USAGE\t\t  Users logged in:\t$LOGGED_IN_USERS"
-	echo -e "  Memory usage:\t$MEMORY_USAGE%\t\t  Swap usage:\t\t$SWAP_USAGE%"
+	echo -e "  Memory usage:\t$MEMORY_USAGE%\t\t  Swap usage:\t\t$SWAP_USAGE"
 	echo
 	echo -e "\033[37m  Service status information\e[0m"
 	echo
