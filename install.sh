@@ -2,14 +2,29 @@
 
 
 
+# Define echo function for each color
+function ECHO_RED ()
+{
+	echo $(tput setaf 1)$@$(tput sgr0)
+}
+
+function ECHO_BLUE ()
+{
+	echo $(tput setaf 4)$@$(tput sgr0)
+}
+
+function ECHO_WHITE ()
+{
+	echo $(tput setaf 7)$@$(tput sgr0)
+}
+
 # Update apt cache
-echo -e "\033[34mUpdating apt cache, please wait...\e[0m"
+ECHO_BLUE "Updating apt cache, please wait..."
 apt-get update &>> /dev/null
 
 # Checking lsb_release
 if [ ! -x  /usr/bin/lsb_release ]; then
-	echo -e "\033[31mThe lsb_release command not found\e[0m"
-	echo -e "\033[34mInstalling lsb-release, please wait...\e[0m"
+	ECHO_BLUE "Installing lsb-release, please wait..."
 	apt-get -y install lsb-release &>> /dev/null
 fi
 
@@ -20,53 +35,52 @@ LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
 # Checking linux distro
 if [ "$LINUX_DISTRO" != "Ubuntu" ] && [ "$LINUX_DISTRO" != "Debian" ]; then
-	echo -e "\033[31mEasyEngine (ee) is made for Ubuntu and Debian only as of now\e[0m"
-	echo -e "\033[31mYou are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork\e[0m"
+	ECHO_RED "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
+	ECHO_RED "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
 	exit 100
 fi
 
 # Checking permissions
 if [[ $EUID -ne 0 ]]; then
-	echo -e "\033[31mSudo privilege required...\e[0m"
-	echo -e "\033[31mUses:\e[0m\033[34m curl -sL rt.cx/ee | sudo bash\e[0m"
+	ECHO_RED "Sudo privilege required..."
+	ECHO_RED "Uses: curl -sL rt.cx/ee | sudo bash"
 	exit 101
 fi
 
 # Capture errors
 function EE_ERROR()
 {
-	echo -e "[ `date` ] \033[31m$@\e[0m" | tee -ai $INSTALL_LOG
+	echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)" | tee -ai $INSTALL_LOG
 	exit 102
 }
 
 # Pre checks to avoid later screw ups
 # Checking EasyEngine (ee) log directory
 if [ ! -d $LOG_DIR ]; then
-	echo -e "\033[34mCreating EasyEngine (ee) log directory, please wait...\e[0m"
+	ECHO_BLUE "Creating EasyEngine (ee) log directory, please wait..."
 	mkdir -p $LOG_DIR || EE_ERROR "Unable to create log directory $LOG_DIR"
 fi
 
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ]; then
-	echo -e "\033[34mInstalling required packages\e[0m" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "Installing required packages" | tee -ai $INSTALL_LOG
 	apt-get -y install coreutils ed bc wget curl tar git-core || EE_ERROR "Unable to install required packages"
 fi
 
 # Checking name servers
 if [[ -z $(cat /etc/resolv.conf 2> /dev/null | awk '/^nameserver/ { print $2 }') ]]; then
-	echo -e "\033[31mUnable to detect name servers\e[0m" && EE_ERROR "Unable to detect name servers"
-	echo -e "\033[31mPlease configure /etc/resolv.conf\e[0m" && EE_ERROR "Please configure /etc/resolv.conf"
+	ECHO_RED "Unable to detect name servers" && EE_ERROR "Unable to detect name servers"
+	ECHO_RED "Please configure /etc/resolv.conf" && EE_ERROR "Please configure /etc/resolv.conf"
 fi
 # Pre checks end
 
 # Decide EasyEngine branch
-if [ -z "$EE_BRANCH" ]; then
-	EE_BRANCH=stable
+if [ -z "$BRANCH_NAME" ]; then
+	BRANCH_NAME=stable
 else
 	# Cross check EasyEngine (ee) branch name
-	git ls-remote --heads https://github.com/rtCamp/easyengine | grep $EE_BRANCH &>> $INSTALL_LOG
+	git ls-remote --heads https://github.com/rtCamp/easyengine | grep $BRANCH_NAME &>> $INSTALL_LOG
 	if [ $? -ne 0 ]; then
-		echo -e "\033[31mThe $EE_BRANCH branch does not exist, please provide the correct branch name\e[0m" \
-		&& EE_ERROR "The $EE_BRANCH branch does not exist, please provide the correct branch name"
+		EE_ERROR "The $BRANCH_NAME branch does not exist, please provide the correct branch name"
 	fi
 fi
 
@@ -74,8 +88,8 @@ fi
 rm -rf /tmp/easyengine &>> /dev/null
 
 # Let's clone EasyEngine (ee)
-echo -e "\033[34mCloning EasyEngine (ee) $EE_BRANCH branch, please wait...\e[0m" | tee -ai $INSTALL_LOG
-git clone -b $EE_BRANCH git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALL_LOG || EE_ERROR "Unable to clone EasyEngine (ee) $EE_BRANCH branch"
+ECHO_BLUE "Cloning EasyEngine (ee) $BRANCH_NAME branch, please wait..." | tee -ai $INSTALL_LOG
+git clone -b $BRANCH_NAME git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALL_LOG || EE_ERROR "Unable to clone EasyEngine (ee) $BRANCH_NAME branch"
 
 
 # Setup EasyEngine (ee)
@@ -93,7 +107,7 @@ then
 fi
 
 # Install EasyEngine (ee)
-echo -e "\033[34mInstalling EasyEngine (ee), please wait...\e[0m" | tee -ai $INSTALL_LOG
+ECHO_BLUE "Installing EasyEngine (ee), please wait..." | tee -ai $INSTALL_LOG
 
 # EasyEngine (ee) auto completion file
 cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALL_LOG \
@@ -129,9 +143,9 @@ GIT_USERNAME=$(git config user.name)
 
 if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_EMAIL" ]; then
 	echo
-	echo -e "\033[34mEasyEngine (ee) required your name & email address to track changes you made under the git version control\e[0m" | tee -ai $INSTALL_LOG
-	echo -e "\033[34mEasyEngine (ee) will be able to send you daily reports & alerts in upcoming version\e[0m" | tee -ai $INSTALL_LOG
-	echo -e "\033[34mEasyEngine (ee) will NEVER send your information across\e[0m" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "EasyEngine (ee) required your name & email address to track changes you made under the git version control" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "EasyEngine (ee) will be able to send you daily reports & alerts in upcoming version" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "EasyEngine (ee) will NEVER send your information across" | tee -ai $INSTALL_LOG
 fi
 
 # 
@@ -157,11 +171,11 @@ fi
 
 # Enable EasyEngine (ee) auto completion
 echo
-echo -e "\033[34mTo enable EasyEngine (ee) auto completion, run the following command\e[0m" | tee -ai $INSTALL_LOG
-echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALL_LOG
+ECHO_BLUE "To enable EasyEngine (ee) auto completion, run the following command" | tee -ai $INSTALL_LOG
+ECHO_WHITE "source /etc/bash_completion.d/ee" | tee -ai $INSTALL_LOG
 echo
 
 # Display success message
-echo -e "\033[34mEasyEngine (ee) installed successfully\e[0m" | tee -ai $INSTALL_LOG
-echo -e "\033[34mEasyEngine (ee) help: http://rtcamp.com/easyengine/docs/\e[0m" | tee -ai $INSTALL_LOG
+ECHO_BLUE "EasyEngine (ee) installed successfully" | tee -ai $INSTALL_LOG
+ECHO_BLUE "EasyEngine (ee) help: http://rtcamp.com/easyengine/docs/" | tee -ai $INSTALL_LOG
 echo
