@@ -138,35 +138,35 @@ if [ ! -L /usr/local/sbin/ee ]; then
 fi
 
 # Git config settings
-GIT_EMAIL=$(git config user.email)
-GIT_USERNAME=$(git config user.name)
+GIT_USER_NAME=$(git config user.name)
+GIT_USER_EMAIL=$(git config user.email)
 
-if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_EMAIL" ]; then
+if [ -z "$GIT_USER_NAME" ] || [ -z "$GIT_USER_EMAIL" ]; then
 	echo
-	ECHO_BLUE "EasyEngine (ee) required your name & email address to track changes you made under the git version control" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "EasyEngine (ee) required your name & email address" | tee -ai $INSTALL_LOG
+	ECHO_BLUE "to track changes you made under the git version control" | tee -ai $INSTALL_LOG
 	ECHO_BLUE "EasyEngine (ee) will be able to send you daily reports & alerts in upcoming version" | tee -ai $INSTALL_LOG
 	ECHO_BLUE "EasyEngine (ee) will NEVER send your information across" | tee -ai $INSTALL_LOG
 fi
 
-# 
-if [ -z "$GIT_USERNAME" ]; then
-	read -p "Enter your name [$(whoami)]: " GIT_USERNAME
+if [ -z "$GIT_USER_NAME" ]; then
+	read -p "Enter your name [$(whoami)]: " GIT_USER_NAME
 	# If enter is pressed
-	if [[ $GIT_USERNAME = "" ]]
+	if [[ $GIT_USER_NAME = "" ]]
 	then
-		GIT_USERNAME=$(whoami)
+		GIT_USER_NAME=$(whoami)
 	fi
-	git config --global user.name "$GIT_USERNAME" &>> $INSTALL_LOG	
+	git config --global user.name "$GIT_USER_NAME" &>> $INSTALL_LOG	
 fi
 
-if [ -z "$GIT_EMAIL" ];then
-	read -p "Enter your email address [$(whoami)@$(hostname -f)]: " GIT_EMAIL
+if [ -z "$GIT_USER_EMAIL" ];then
+	read -p "Enter your email address [$(whoami)@$(hostname -f)]: " GIT_USER_EMAIL
 	# If enter is pressed
-	if [[ $GIT_EMAIL = "" ]]
+	if [[ $GIT_USER_EMAIL = "" ]]
 	then
-		GIT_EMAIL=$(whoami)@$(hostname -f)
+		GIT_USER_EMAIL=$(whoami)@$(hostname -f)
 	fi
-	git config --global user.email $GIT_EMAIL &>> $INSTALL_LOG
+	git config --global user.email $GIT_USER_EMAIL &>> $INSTALL_LOG
 fi
 
 # Enable EasyEngine (ee) auto completion
