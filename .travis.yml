@@ -9,7 +9,6 @@ before_script:
 - sudo apt-get purge mysql*
 
 env:
-  global:
   - BRANCH_NAME=$TRAVIS_BRANCH
 
 
