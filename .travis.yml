@@ -8,14 +8,12 @@ before_install:
 before_script:
 - sudo apt-get purge mysql*
 
-env:
-  - BRANCH_NAME=$TRAVIS_BRANCH
-
 
 script:
 # Specify Git Username/Password So Installation Script Don't Prompt For Input
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH & EasyEngine BRANCH_NAME = $BRANCH_NAME"
+- sudo sed -i "s/stable/$TRAVIS_BRANCH/g" install.sh
 - sudo bash -x install.sh
 
 - sudo sed -i "s/htpasswduser.*/htpasswduser = easyengine/" /etc/easyengine/ee.conf
