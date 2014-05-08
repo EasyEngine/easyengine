@@ -1,14 +1,16 @@
 language: bash
 
-env:
-  global:
-  - BRANCH_NAME=$TRAVIS_BRANCH
+
 
 before_install:
 
 
 before_script:
 - sudo apt-get purge mysql*
+
+env:
+  global:
+  - BRANCH_NAME=$TRAVIS_BRANCH
 
 
 script:
