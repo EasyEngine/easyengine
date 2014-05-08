@@ -10,7 +10,7 @@ before_script:
 script:
 # Specify Git Username/Password So Installation Script Don't Prompt For Input
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
-- sudo bash install.sh
+- sudo bash install.sh BRANCH_NAME=$TRAVIS_BRANCH
 
 - sudo sed -i "s/htpasswduser.*/htpasswduser = easyengine/" /etc/easyengine/ee.conf
 - sudo sed -i "s/htpasswdpass.*/htpasswdpass = easyengine/" /etc/easyengine/ee.conf
