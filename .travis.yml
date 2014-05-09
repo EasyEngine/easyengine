@@ -14,7 +14,7 @@ script:
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
 - sudo sed -i "s/stable/$TRAVIS_BRANCH/g" install.sh
-- sudo bash install.sh
+- sudo bash -x install.sh
 
 - sudo sed -i "s/htpasswduser.*/htpasswduser = easyengine/" /etc/easyengine/ee.conf
 - sudo sed -i "s/htpasswdpass.*/htpasswdpass = easyengine/" /etc/easyengine/ee.conf
