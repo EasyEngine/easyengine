@@ -6,7 +6,8 @@ before_install:
 
 
 before_script:
-- sudo apt-get purge mysql*
+- sudo apt-get purge mysql* graphviz*
+- sudo apt-get autoremove
 
 
 script:
