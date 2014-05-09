@@ -39,7 +39,5 @@ script:
 
 - sudo ee info
 - sudo ee system status
-- sudo swapoff -a
-- sudo ee system status
 - sudo ee system restart
 - sudo mysql -e "show databases";
