@@ -18,6 +18,18 @@ function ECHO_WHITE ()
 	echo $(tput setaf 7)$@$(tput sgr0)
 }
 
+function PACKAGE_CHECK ()
+{
+	# Check the specified package is instlled or not
+	for i in $@;do
+		dpkg --get-selections | grep -v deinstall | grep $i &>> INSTALL_LOG
+		# Generate a list of not installed package
+		if [ $? -ne 0 ]; then
+			PACKAGE_NAME="$PACKAGE_NAME $i"
+		fi
+	done
+}
+
 # Update apt cache
 ECHO_BLUE "Updating apt cache, please wait..."
 apt-get update &>> /dev/null
@@ -61,9 +73,11 @@ if [ ! -d $LOG_DIR ]; then
 	mkdir -p $LOG_DIR || EE_ERROR "Unable to create log directory $LOG_DIR"
 fi
 
-if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ]; then
+# Install required packages
+PACKAGE_CHECK graphviz
+if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n $PACKAGE_NAME ]; then
 	ECHO_BLUE "Installing required packages" | tee -ai $INSTALL_LOG
-	apt-get -y install coreutils ed bc wget curl tar git-core || EE_ERROR "Unable to install required packages"
+	apt-get -y install coreutils ed bc wget curl tar git-core $PACKAGE_NAME || EE_ERROR "Unable to install required packages"
 fi
 
 # Checking name servers

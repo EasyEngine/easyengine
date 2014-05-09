@@ -496,14 +496,6 @@ PHP_PACKAGES()
 		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
 		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
 		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
-
-		# Install Graphviz
-		dpkg -l | grep graphviz &>> $INSTALLLOG
-		if [ $? -ne 0 ]
-		then
-			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
-			apt-get -y install graphviz || OwnError "Unable To Install Graphviz"
-		fi
 	fi
 
 	# Create info.php File To Display The phpinfo Information
