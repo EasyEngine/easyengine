@@ -1297,7 +1297,7 @@ EESITENAME()
 		
 	else
 		#input validation #224
-		if [  $(echo "$SITENAMECHECK" | awk '($SITENAMECHECK ~ /^[a-zA-Z0-9][a-zA-Z0-9\.]*.*$/)') ]
+		if [  $(echo "$SITENAMECHECK" | awk '($SITENAMECHECK ~ /^[a-zA-Z0-9][^\\\=\+\?\>]*\.[a-zA-Z]+$/)') ]
 		then
 			echo "Correct domain name entered"
 			# Remove http://  https:// & www.
