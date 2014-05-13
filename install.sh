@@ -3,24 +3,24 @@
 
 
 # Define echo function for each color
-function ECHO_RED ()
+function ECHO_RED()
 {
 	echo $(tput setaf 1)$@$(tput sgr0)
 }
 
-function ECHO_BLUE ()
+function ECHO_BLUE()
 {
 	echo $(tput setaf 4)$@$(tput sgr0)
 }
 
-function ECHO_WHITE ()
+function ECHO_WHITE()
 {
 	echo $(tput setaf 7)$@$(tput sgr0)
 }
 
-function PACKAGE_CHECK ()
+# Check the specified package is instlled or not
+function PACKAGE_CHECK()
 {
-	# Check the specified package is instlled or not
 	for i in $@;do
 		dpkg --get-selections | grep -v deinstall | grep $i &>> INSTALL_LOG
 		# Generate a list of not installed package
