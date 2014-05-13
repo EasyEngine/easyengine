@@ -1291,18 +1291,21 @@ EESITENAME()
 	then
 		# Ask Users To Enter Domain Name
 		read -p "Enter Domain Name: " SITENAMECHECK
+		EESITENAME
 		# Remove http://  https:// & www.
 		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		
 	else
 		#input validation #224
-		if [  $(echo "$SITENAMECHECK" | sed -n '/[^-+=*~@!#$%&^()`/\]/p')  ] && [   $(echo "$SITENAMECHECK" | sed -n '/[^A-Za-z0-9]/p') ]
+		if [  $(echo "$SITENAMECHECK" | awk '($SITENAMECHECK ~ /^[a-zA-Z0-9][a-zA-Z0-9\.]*.*$/)') ]
 		then
 			echo "Correct domain name entered"
-			SITENAMECHECK=""
-			EESITENAME
-		else
 			# Remove http://  https:// & www.
 			DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		else
+			echo "Incorrect domain name entered please try again"
+			SITENAMECHECK=""
+			EESITENAME
 		fi
 	fi
 	
