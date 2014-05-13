@@ -1291,12 +1291,25 @@ EESITENAME()
 	then
 		# Ask Users To Enter Domain Name
 		read -p "Enter Domain Name: " SITENAMECHECK
+		EESITENAME
 		# Remove http://  https:// & www.
 		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		
 	else
-		# Remove http://  https:// & www.
-		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		#input validation #224
+		if [  $(echo "$SITENAMECHECK" | awk '($SITENAMECHECK ~ /^[a-zA-Z0-9][^\\\=\+\?\>]*\.[a-zA-Z]+$/)') ] 
+		then
+			echo "Correct domain name entered"
+			# Remove http://  https:// & www.
+			DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		else
+			echo "Invalid domain name entered please try again.for example [examole.com]"
+			SITENAMECHECK=""
+			EESITENAME
+		fi
 	fi
+	
+	
 
 	# Remove http://  https:// For WordPress Setup (www.example.com)
 	WWWDOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'/''")
@@ -2476,7 +2489,7 @@ then
 		SITENAMECHECK=$3
 		EESITECREATE=$4
 		WPCACHEOPTION=$5
-
+		EESITENAME
 		# Auto Switch The Options
 		if [ "$EESITECREATE" = "--basic" ] || [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
 		then
