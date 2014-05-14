@@ -3,8 +3,8 @@ server {
 
 	listen 22222 default_server ssl spdy;
 
-	access_log   /var/log/nginx/eeadmin.access.log rt_cache;
-	error_log    /var/log/nginx/eeadmin.error.log;
+	access_log   /var/log/nginx/22222.access.log rt_cache;
+	error_log    /var/log/nginx/22222.error.log;
 
 	ssl_certificate /var/www/22222/cert/22222.crt;
 	ssl_certificate_key /var/www/22222/cert/22222.key;

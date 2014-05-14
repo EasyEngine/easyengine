@@ -21,5 +21,8 @@ function NGINX_REPO()
 
 		# Specify nginx package
 		NGINX_PACKAGE=nginx-full
+
+		# Dotdeb nginx repository doesn't support spdy
+		sed -i "s/ spdy//;" /usr/share/easyengine/nginx/22222
 	fi
 }
