@@ -1533,7 +1533,14 @@ REMOVEDB()
 		# Remove Database
 		# For Proper read Command Output
 		stty echo
-		read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+		if [ "$1" = "no-prompt" ]
+		then
+			# Assume yes
+			ANSWER="y"
+		else
+			# Ask user for confirmation
+			read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+		fi
 
 		if [ "$ANSWER" = "y" ]
 		then
@@ -1564,7 +1571,14 @@ REMOVEFILES()
 	# Remove Webroot
 	# For Proper read Command Output
 	stty echo
-	read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
+	if [ "$1" = "no-prompt" ]
+	then
+		# Assume yes
+		ANSWER="y"
+	else
+		# Ask user for confirmation
+		read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
+	fi
 
 	if [ "$ANSWER" = "y" ]
 	then
@@ -1581,8 +1595,14 @@ REMOVENGINXCONF()
 	# Remove Nginx Configuration
 	# For Proper read Command Output
 	stty echo
-	read -p "Are You Sure To Remove $DOMAIN Nginx Configuration (y/n): " ANSWER
-
+	if [ "$1" = "no-prompt" ]
+	then
+		# Assume yes
+		ANSWER="y"
+	else
+		# Ask user for confirmation
+		read -p "Are You Sure To Remove $DOMAIN Nginx Configuration (y/n): " ANSWER
+	fi
 	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Webroot
@@ -2991,6 +3011,24 @@ then
 
 			# Remove Nginx Configuration
 			REMOVENGINXCONF
+
+			# Reload Nginx
+			NGINXRELOAD
+
+			# Take Nginx Configuration In Git Version Control
+			EEGITDIR=/etc/nginx
+			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
+			EEGITCOMMIT
+
+		elif [ "$SITEDELETEARG" = "--all-no-prompt" ]
+		then
+
+			# Remove All Database And Webroot
+			REMOVEDB "no-prompt"
+			REMOVEFILES "no-prompt"
+
+			# Remove Nginx Configuration
+			REMOVENGINXCONF "no-prompt"
 
 			# Reload Nginx
 			NGINXRELOAD
