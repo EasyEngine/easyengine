@@ -3019,7 +3019,6 @@ then
 			EEGITDIR=/etc/nginx
 			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
 			EEGITCOMMIT
-		fi
 
 		elif [ "$SITEDELETEARG" = "--all-no-prompt" ]
 		then
