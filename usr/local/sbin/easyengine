@@ -1577,7 +1577,7 @@ REMOVEFILES()
 		ANSWER="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+		read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
 	fi
 
 	if [ "$ANSWER" = "y" ]
@@ -1601,7 +1601,7 @@ REMOVENGINXCONF()
 		ANSWER="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+		read -p "Are You Sure To Remove $DOMAIN Nginx Configuration (y/n): " ANSWER
 	fi
 	if [ "$ANSWER" = "y" ]
 	then
