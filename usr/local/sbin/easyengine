@@ -1303,7 +1303,12 @@ EESITENAME()
 			# Remove http://  https:// & www.
 			DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
 		else
-			echo "Invalid domain name entered please try again.for example [examole.com]"
+			echo "Invalid domain name entered please try again."
+			echo "Site  name should not start with special character."
+			echo "Site  name should not contain special character."
+			echo "Site  . and - are allowed"
+			echo " Site name should end with like .com "
+			echo "example [easyengine.com]"
 			SITENAMECHECK=""
 			EESITENAME
 		fi
