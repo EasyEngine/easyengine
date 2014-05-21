@@ -1,7 +1,13 @@
 #!/bin/bash
 
 
-
+##Bug Fix 181
+##This Checks your Ubuntu version 
+. /etc/*-release
+if [[ $DISTRIB_RELEASE != '12.04' ]]; then
+   echo "Your system is not Ubuntu 12.04 Please use Ubuntu 12.04 LTS release. That is only Ubuntu version currently supported by EasyEngine"
+   exit 1
+fi
 # Update The APT Cache
 echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
 apt-get update &>> /dev/null
