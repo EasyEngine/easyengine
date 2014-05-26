@@ -530,21 +530,14 @@ INSTALLPMA()
 	then
 		if [ ! -d /var/www/22222/htdocs/db/pma ]
 		then
-			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
+			echo -e "\033[34mCloning phpMyAdmin, Please Wait...\e[0m"
 
 			# Setup PMA/phpMyAdmin
 			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
 
-			# Download PMA/phpMyAdmin
-			wget --no-check-certificate -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
-			|| OwnError "Unable To Download phpMyAdmin"
-
-			# Extract PMA/phpMyAdmin
-			tar --strip-components=1 -zxf  /var/www/22222/htdocs/db/pma/pma.tar.gz -C /var/www/22222/htdocs/db/pma/ \
-			|| OwnError "Unable To Extract phpMyAdmin"
-
-			# Remove Unwanted Files
-			rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
+			# Clone PMA/phpMyAdmin Stable Branch
+			git clone -b STABLE https://github.com/phpmyadmin/phpmyadmin.git /var/www/22222/htdocs/db/pma/ &>> $INSTALLLOG \
+			|| OwnError "Unable To Clone phpMyAdmin"
 
 		fi
 	
