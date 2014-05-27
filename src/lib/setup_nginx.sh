@@ -1,10 +1,14 @@
 # Setup nginx
-function NGINX_SETUP()
+
+function setup_nginx()
 {
-	ECHO_BLUE "Setting up nginx, please wait..."
+	local whitelist_ip_address
+	
+	echo_blue "Setting up nginx, please wait..."
 
 	grep "EasyEngine" /etc/nginx/nginx.conf &> /dev/null
 	if [ $? -ne 0 ]; then
+
 		# Adjust nginx worker_processes and worker_rlimit_nofile value
 		sed -i "s/worker_processes.*/worker_processes auto;/" /etc/nginx/nginx.conf
 		sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
@@ -14,7 +18,7 @@ function NGINX_SETUP()
 		sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
 
 		# Disable nginx version
-		# Set custome header
+		# Set custom header
 		# SSL Settings
 		sed -i "s/http {/http {\n\t##\n\t# EasyEngine Settings\n\t##\n\n\tserver_tokens off;\n\treset_timedout_connection on;\n\tadd_header X-Powered-By "EasyEngine";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
 
@@ -24,17 +28,17 @@ function NGINX_SETUP()
 		# Adjust nginx log format
 		sed -i "s/error_log.*/error_log \/var\/log\/nginx\/error.log;\n\n\tlog_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '\n\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '\n\t\t'\"\$http_referer\" \"\$http_user_agent\"';/" /etc/nginx/nginx.conf
 
-		# Enable Gunzip
+		# Enable Gun-zip
 		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
 	fi
 
 	# Create directory if not exist
 	if [ ! -d /etc/nginx/conf.d ]; then
-		mkdir /etc/nginx/conf.d || EE_ERROR "Unable to create /etc/nginx/conf.d"
+		mkdir /etc/nginx/conf.d || ee_error "Unable to create /etc/nginx/conf.d, exit status = " $?
 	fi
 
 	if [ ! -d /etc/nginx/common ]; then
-		mkdir /etc/nginx/common || EE_ERROR "Unable to create /etc/nginx/common"
+		mkdir /etc/nginx/common || ee_error "Unable to create /etc/nginx/common, exit status = " $?
 	fi
 
 	# Copy files
@@ -57,28 +61,28 @@ function NGINX_SETUP()
 
 	# Setup SSL
 	# Generate SSL Key
-	ECHO_BLUE "Generating ssl private key, please wait..."
+	echo_blue "Generating SSL private key, please wait..."
 	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_LOG \
-	|| EE_ERROR "Unable to generate ssl private key for port 22222"
+	|| ee_error "Unable to generate SSL private key for port 22222, exit status = " $?
 
-	ECHO_BLUE "Generating a certificate signing request (csr), please wait..."
+	echo_blue "Generating a certificate signing request (CSR), please wait..."
 	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_LOG \
-	|| EE_ERROR "Unable to generate certificate signing request (csr) for port 22222"
+	|| ee_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
 
-	ECHO_BLUE "Removing passphrase from ssl private key, please wait..."
+	echo_blue "Removing pass phrase from SSL private key, please wait..."
 	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
 	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_LOG \
-	|| EE_ERROR "Unable to remove passphrase from ssl for port 22222"
+	|| ee_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
 
-	ECHO_BLUE "Generating ssl certificate, please wait..."
+	echo_blue "Generating SSL certificate, please wait..."
 	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_LOG \
-	|| EE_ERROR "Unable to generate ssl certificate for port 22222"
+	|| ee_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
-	# Whitelist ip address
+	# Whitelist IP address
 	if [ -n "$IP_ADDRESS" ]; then
-		for WHITELIST_IP_ADDRESS in $(echo $IP_ADDRESS)
+		for whitelist_ip_address in $(echo $IP_ADDRESS)
 		do
-        	sed -i "/deny/i $(echo allow $WHITELIST_IP_ADDRESS\;)" /etc/nginx/common/acl.conf
+        	sed -i "/deny/i $(echo allow $whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
 	fi
 

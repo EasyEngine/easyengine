@@ -1,6 +1,7 @@
 # Capture errors
-function EE_ERROR()
+
+function ee_error()
 {
 	echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)" | tee -ai $ERROR_LOG
-	exit 102
+	exit $2
 }
