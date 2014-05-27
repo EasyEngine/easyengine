@@ -6,12 +6,11 @@ before_install:
 
 
 before_script:
-- sudo apt-get purge mysql* graphviz*
-- sudo apt-get autoremove
+- sudo apt-get -qq purge mysql* graphviz*
+- sudo apt-get -qq autoremove
 
 
 script:
-# Specify Git Username/Password So Installation Script Don't Prompt For Input
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
 - sudo sed -i "s/stable/$TRAVIS_BRANCH/g" install.sh
@@ -41,3 +40,4 @@ script:
 - sudo ee system status
 - sudo ee system restart
 - sudo mysql -e "show databases";
+- sudo cat /var/log/easyengine/*
