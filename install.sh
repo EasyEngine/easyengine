@@ -74,7 +74,12 @@ if [ ! -d $LOG_DIR ]; then
 fi
 
 # Install required packages
-PACKAGE_CHECK graphviz
+if [ "$LINUX_DISTRO" == "Ubuntu" ]; then
+	PACKAGE_CHECK graphviz python-software-properties software-properties-common
+elif [ "$LINUX_DISTRO" == "Debian" ]; then
+	PACKAGE_CHECK graphviz python-software-properties
+fi
+
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n $PACKAGE_NAME ]; then
 	ECHO_BLUE "Installing required packages" | tee -ai $INSTALL_LOG
 	apt-get -y install coreutils ed bc wget curl tar git-core $PACKAGE_NAME || EE_ERROR "Unable to install required packages"
