@@ -1,10 +1,10 @@
 # Setup nginx
 
-function setup_nginx()
+function ee_lib_setup_nginx()
 {
-	local whitelist_ip_address
+	local ee_ee_whitelist_ip_address
 	
-	echo_blue "Setting up nginx, please wait..."
+	ee_lib_echo "Setting up nginx, please wait..."
 
 	grep "EasyEngine" /etc/nginx/nginx.conf &> /dev/null
 	if [ $? -ne 0 ]; then
@@ -30,15 +30,16 @@ function setup_nginx()
 
 		# Enable Gun-zip
 		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
+
 	fi
 
 	# Create directory if not exist
 	if [ ! -d /etc/nginx/conf.d ]; then
-		mkdir /etc/nginx/conf.d || ee_error "Unable to create /etc/nginx/conf.d, exit status = " $?
+		mkdir /etc/nginx/conf.d || ee_lib_error "Unable to create /etc/nginx/conf.d, exit status = " $?
 	fi
 
 	if [ ! -d /etc/nginx/common ]; then
-		mkdir /etc/nginx/common || ee_error "Unable to create /etc/nginx/common, exit status = " $?
+		mkdir /etc/nginx/common || ee_lib_error "Unable to create /etc/nginx/common, exit status = " $?
 	fi
 
 	# Copy files
@@ -61,28 +62,28 @@ function setup_nginx()
 
 	# Setup SSL
 	# Generate SSL Key
-	echo_blue "Generating SSL private key, please wait..."
-	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_LOG \
-	|| ee_error "Unable to generate SSL private key for port 22222, exit status = " $?
+	ee_lib_echo "Generating SSL private key, please wait..."
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to generate SSL private key for port 22222, exit status = " $?
 
-	echo_blue "Generating a certificate signing request (CSR), please wait..."
-	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_LOG \
-	|| ee_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
+	ee_lib_echo "Generating a certificate signing request (CSR), please wait..."
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
 
-	echo_blue "Removing pass phrase from SSL private key, please wait..."
+	ee_lib_echo "Removing pass phrase from SSL private key, please wait..."
 	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
-	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_LOG \
-	|| ee_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
 
-	echo_blue "Generating SSL certificate, please wait..."
-	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_LOG \
-	|| ee_error "Unable to generate SSL certificate for port 22222, exit status = " $?
+	ee_lib_echo "Generating SSL certificate, please wait..."
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
 	# Whitelist IP address
-	if [ -n "$IP_ADDRESS" ]; then
-		for whitelist_ip_address in $(echo $IP_ADDRESS)
+	if [ -n "$EE_IP_ADDRESS" ]; then
+		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS)
 		do
-        	sed -i "/deny/i $(echo allow $whitelist_ip_address\;)" /etc/nginx/common/acl.conf
+        	sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
 	fi
 

@@ -1,0 +1,34 @@
+# Setup php5-fpm repository
+
+function ee_lib_repo_php()
+{
+	# Ubuntu
+	if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+
+		# Add ondrej php5 launchpad repository
+		ee_lib_echo "Adding ondrej php5 launchpad repository, please wait..."
+		add-apt-repository -y ppa:ondrej/php5 &>> $EE_COMMAND_LOG \
+		|| ee_lib_error "Unable to add ondrej php5 launchpad repository, exit status = " $?
+
+	# Debian 6
+	elif [ $EE_DEBIAN_VERSION -eq 6 ]; then
+
+		ee_lib_echo "Adding Dotdeb php5.4 repository, please wait..."
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php54.list \
+		|| ee_lib_error "Unable to add Dotdeb php5.4 repository, exit status = " $?
+
+		# Fetch and install Dotdeb GnuPG key
+		ee_lib_dotdeb
+
+	# Debian 7
+	elif [ $EE_DEBIAN_VERSION -eq 7 ]; then
+
+		ee_lib_echo "Adding Dotdeb php5.5 repository, please wait..."
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
+		|| ee_lib_error "Unable to add Dotdeb php5.5 repository, exit status = " $?
+		
+		# Fetch and install dotdeb GnuPG key
+		ee_lib_dotdeb
+
+	fi
+}
