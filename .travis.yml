@@ -16,8 +16,8 @@ script:
 - sudo sed -i "s/stable/$TRAVIS_BRANCH/g" install.sh
 - sudo bash -x install.sh
 
-- sudo bash -c echo "htpasswduser = easyengine" >> /etc/easyengine/ee.conf
-- sudo bash -c echo "htpasswdpass = easyengine" >> /etc/easyengine/ee.conf
+- sudo bash -c "echo 'htpasswduser = easyengine' >> /etc/easyengine/ee.conf"
+- sudo bash -c "echo 'htpasswdpass = easyengine' >> /etc/easyengine/ee.conf"
 - sudo bash ee system install
 
 - sudo bash ee site create html.com
