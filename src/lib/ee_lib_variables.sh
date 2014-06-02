@@ -21,3 +21,21 @@ elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
 	readonly EE_DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
 
 fi
+
+# Find php user-name
+if [ -f /etc/php5/fpm/pool.d/www.conf ]; then
+	readonly EE_PHP_USER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2)
+else
+	# At installation time: ee system install
+	# File /etc/php5/fpm/pool.d/www.conf not present
+	readonly EE_PHP_USER=www-data
+fi
+
+# Findout MySQL login
+if [ -f ~/.my.cnf ];then
+	readonly EE_MYSQL_USER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
+	readonly EE_MYSQL_PASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
+elif [ -f /root/.my.cnf ];then
+	readonly EE_MYSQL_USER=$(cat /root/.my.cnf | grep user | cut -d'=' -f2)
+	readonly EE_MYSQL_PASS=$(cat /root/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
+fi
