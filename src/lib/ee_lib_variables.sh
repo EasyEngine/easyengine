@@ -13,13 +13,11 @@ readonly EE_APT_GET=$($EE_CONFIG_GET system.apt-get-assume-yes | grep -i true &>
 if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
 	#Specify nginx package
 	readonly EE_NGINX_PACKAGE=nginx-custom
-
 elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
 	# Specify nginx package
 	readonly EE_NGINX_PACKAGE=nginx-full
 	# Detect Debian version
 	readonly EE_DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
-
 fi
 
 # Find php user-name

@@ -1,10 +1,12 @@
-# Install mysql package
+# Install MySQL Package
 
 ee_lib_install_mysql()
 {
-	# Mysql password only set if mysql is not installed
-	# if mysql is installed don't set wrong password in ~/.my.cnf
+	# Check mysql-server is installed or not
 	ee_lib_package_check mysql-server
+
+	# If mysql-server is not installed
+	# Then set random mysql password for root user
 	if [ -n $PACKAGE_NAME ]; then
 
 		# setting up mysql password
@@ -13,10 +15,11 @@ ee_lib_install_mysql()
 		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ee_mysql_auto_pass"
 
 		# Generate ~/.my.cnf
-		echo -e "[client]\nuser=root\npassword=$ee_mysql_auto_pass" > ~/.my.cnf
+		echo -e "[client]\nuser=root\npassword=$ee_mysql_auto_pass" > ~/.my.cnf4
+
 	fi
 
-	ee_lib_echo "Installing MySQL, Please Wait..."
+	ee_lib_echo "Installing MySQL, please Wait..."
 	$EE_APT_GET install mysql-server mysqltuner percona-toolkit \
-	|| ee_lib_error "Unable To Install MySQL"
+	|| ee_lib_error "Unable to install MySQL, exit status = " $?
 }
