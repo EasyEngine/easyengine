@@ -1,6 +1,6 @@
 # Setup nginx repository
 
-function ee_lib_repo_nginx()
+function ee_mod_repo_nginx()
 {
 	if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
 

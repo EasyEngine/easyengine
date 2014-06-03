@@ -1,6 +1,6 @@
 # Setup php5-fpm repository
 
-function ee_lib_repo_php()
+function ee_mod_repo_php()
 {
 	# Ubuntu
 	if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then

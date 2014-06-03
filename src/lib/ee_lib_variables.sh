@@ -29,7 +29,7 @@ else
 	readonly EE_PHP_USER=www-data
 fi
 
-# Findout MySQL login
+# Find out MySQL login
 if [ -f ~/.my.cnf ];then
 	readonly EE_MYSQL_USER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
 	readonly EE_MYSQL_PASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')

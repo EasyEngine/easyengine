@@ -1,8 +1,8 @@
 # Setup nginx
 
-function ee_lib_setup_nginx()
+function ee_mod_setup_nginx()
 {
-	local ee_ee_whitelist_ip_address
+	local ee_whitelist_ip_address
 	
 	ee_lib_echo "Setting up nginx, please wait..."
 

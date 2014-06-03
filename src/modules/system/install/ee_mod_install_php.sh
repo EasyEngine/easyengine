@@ -1,6 +1,6 @@
 # Install php5-fpm package
 
-function ee_lib_install_php()
+function ee_mod_install_php()
 {
 	ee_lib_echo "Installing php5, please wait..."
 	$EE_APT_GET install php5-common php5-mysqlnd php5-xmlrpc \

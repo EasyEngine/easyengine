@@ -1,6 +1,6 @@
 # Setup php5-fpm
 
-function ee_lib_setup_php()
+function ee_mod_setup_php()
 {
 	ee_lib_echo "Setting up php5, please wait..."
 
