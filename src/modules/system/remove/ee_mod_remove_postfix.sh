@@ -1,4 +1,4 @@
-# Remove Postfix
+# Remove Postfix package
 
 function ee_mod_remove_postfix()
 {

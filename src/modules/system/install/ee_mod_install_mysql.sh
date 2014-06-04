@@ -1,4 +1,4 @@
-# Install MySQL Package
+# Install MySQL package
 
 ee_mod_install_mysql()
 {

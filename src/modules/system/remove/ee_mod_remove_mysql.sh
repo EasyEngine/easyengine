@@ -1,4 +1,4 @@
-# Remove MySQL Package
+# Remove MySQL package
 
 function ee_mod_remove_mysql()
 {

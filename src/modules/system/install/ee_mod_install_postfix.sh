@@ -1,4 +1,4 @@
-# Install Postfix
+# Install Postfix package
 
 function ee_mod_install_postfix()
 {
