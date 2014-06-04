@@ -837,40 +837,40 @@ EE_SYSTEM_STATUS()
 
 
 # EE GIT Function
-EEGITINIT()
+ee_lib_git_init()
 {
 	# Change Directory
-	cd $EEGITDIR || ee_lib_error "Unable To Change Directory $EEGITDIR"
+	cd $EE_GIT_DIR || ee_lib_error "Unable To Change Directory $EE_GIT_DIR"
 
 	# Check .git
 	if [ ! -d .git ]
 	then
 		# Initialise Git
-		ee_lib_echo "Initialise Git On $EEGITDIR..."
-		git init &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Initialize Git On $EEGITDIR"
+		ee_lib_echo "Initialise Git On $EE_GIT_DIR..."
+		git init &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Initialize Git On $EE_GIT_DIR"
 	fi
 
 	# Check For Untracked Files
 	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
-		git add --all && git commit -am "Initialize Git On $EEGITDIR"  &>> $EE_COMMAND_LOG \
-		|| ee_lib_error "Unable To Git Commit On $EEGITDIR"
+		git add --all && git commit -am "Initialize Git On $EE_GIT_DIR"  &>> $EE_COMMAND_LOG \
+		|| ee_lib_error "Unable To Git Commit On $EE_GIT_DIR"
 	fi
 }
 
-EEGITCOMMIT()
+ee_lib_git_commit()
 {
-	cd $EEGITDIR || ee_lib_error "Unable To Change Directory $EEGITDIR"
+	cd $EE_GIT_DIR || ee_lib_error "Unable To Change Directory $EE_GIT_DIR"
 
 	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Git Commit Functionality
-		ee_lib_echo "Take $EEGITDIR Configuration In Git Version Control..."
+		ee_lib_echo "Take $EE_GIT_DIR Configuration In Git Version Control..."
 
 		# Add Newly Created Files && Commit It
-		git add --all && git commit -am "$EEGITMESSAGE" &>> $EE_COMMAND_LOG \
-		|| ee_lib_error "Unable To Git Commits On $EEGITDIR"
+		git add --all && git commit -am "$EE_GIT_MESSAGE" &>> $EE_COMMAND_LOG \
+		|| ee_lib_error "Unable To Git Commits On $EE_GIT_DIR"
 	fi
 }
 
@@ -1452,9 +1452,9 @@ PERMISSIONANDGIT()
 	EEPERMISSION
 
 	# Take Nginx Configuration In Git Version Control
-	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $DOMAIN"
-	EEGITCOMMIT
+	EE_GIT_DIR=/etc/nginx
+	EE_GIT_MESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $DOMAIN"
+	ee_lib_git_commit
 }
 
 TOTALCACHENGINX()
@@ -2035,8 +2035,8 @@ then
 			NGINXRESTART
 
 			# Initialise Git
-			EEGITDIR=/etc/nginx/
-			EEGITINIT
+			EE_GIT_DIR=/etc/nginx/
+			ee_lib_git_init
 			
 			# Display Success Message
 			ee_lib_echo "Nginx Successfully Installed"
@@ -2070,8 +2070,8 @@ then
 			PHP_PACKAGES
 
 			# Initialise Git
-			EEGITDIR=/etc/php5/
-			EEGITINIT
+			EE_GIT_DIR=/etc/php5/
+			ee_lib_git_init
 
 			# Display Success Message
 			ee_lib_echo "PHP5 & WP-CLI Successfully Installed"
@@ -2083,8 +2083,8 @@ then
 			ee_ven_install_pma
 
 			# Initialise Git
-			#EEGITDIR=/var/www/22222/htdocs/db/pma/
-			#EEGITINIT
+			#EE_GIT_DIR=/var/www/22222/htdocs/db/pma/
+			#ee_lib_git_init
 
 			# Display Success Message
 			ee_lib_echo "phpMyAdmin Successfully Installed"
@@ -2111,8 +2111,8 @@ then
 			MYSQLRESTART
 
 			# Initialize Git
-			EEGITDIR=/etc/mysql/
-			EEGITINIT
+			EE_GIT_DIR=/etc/mysql/
+			ee_lib_git_init
 			
 			# Display Success Message
 			ee_lib_echo "MySQL Successfully Installed"
@@ -2127,8 +2127,8 @@ then
 			ee_mod_install_postfix
 
 			# Initialize Git
-			EEGITDIR=/etc/postfix/
-			EEGITINIT
+			EE_GIT_DIR=/etc/postfix/
+			ee_lib_git_init
 			
 			# Display Success Message
 			ee_lib_echo "Postfix Successfully Installed"
@@ -2183,24 +2183,24 @@ then
 			MYSQLRESTART
 
 			# Initialize Git
-			EEGITDIR=/etc/nginx/
-			EEGITINIT
+			EE_GIT_DIR=/etc/nginx/
+			ee_lib_git_init
 
 			# Initialize Git
-			EEGITDIR=/etc/php5/
-			EEGITINIT
+			EE_GIT_DIR=/etc/php5/
+			ee_lib_git_init
 
 			# Initialize Git
-			EEGITDIR=/etc/mysql/
-			EEGITINIT
+			EE_GIT_DIR=/etc/mysql/
+			ee_lib_git_init
 
 			# Initialize Git
-			#EEGITDIR=/var/www/22222/htdocs/db/pma/
-			#EEGITINIT
+			#EE_GIT_DIR=/var/www/22222/htdocs/db/pma/
+			#ee_lib_git_init
 
 			# Initialize Git
-			EEGITDIR=/etc/postfix/
-			EEGITINIT
+			EE_GIT_DIR=/etc/postfix/
+			ee_lib_git_init
 
 			# Display Success Message
 			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed"
@@ -2944,9 +2944,9 @@ then
 		NGINXRELOAD
 
 		# Take Nginx Configuration In Git Version Control
-		EEGITDIR=/etc/nginx
-		EEGITMESSAGE="Enable Website: $DOMAIN"
-		EEGITCOMMIT
+		EE_GIT_DIR=/etc/nginx
+		EE_GIT_MESSAGE="Enable Website: $DOMAIN"
+		ee_lib_git_commit
 
 	elif [ "$2" = "disable" ]
 	then
@@ -2964,9 +2964,9 @@ then
 		NGINXRELOAD
 
 		# Take Nginx Configuration In Git Version Control
-		EEGITDIR=/etc/nginx
-		EEGITMESSAGE="Disable Website: $DOMAIN"
-		EEGITCOMMIT
+		EE_GIT_DIR=/etc/nginx
+		EE_GIT_MESSAGE="Disable Website: $DOMAIN"
+		ee_lib_git_commit
 
 	elif [ "$2" = "delete" ]
 	then
@@ -3008,9 +3008,9 @@ then
 			NGINXRELOAD
 
 			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
-			EEGITCOMMIT
+			EE_GIT_DIR=/etc/nginx
+			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
+			ee_lib_git_commit
 
 		elif [ "$SITEDELETEARG" = "--all-no-prompt" ]
 		then
@@ -3026,9 +3026,9 @@ then
 			NGINXRELOAD
 
 			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
-			EEGITCOMMIT
+			EE_GIT_DIR=/etc/nginx
+			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
+			ee_lib_git_commit
 		fi
 
 	elif [ "$2" = "edit" ]
@@ -3044,9 +3044,9 @@ then
 		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$DOMAIN | wc -l) -ne 0 ]
 		then
 			# Take Nginx Configuration In Git Version Control
-			EEGITDIR=/etc/nginx
-			EEGITMESSAGE="Edited Website: $DOMAIN"
-			EEGITCOMMIT
+			EE_GIT_DIR=/etc/nginx
+			EE_GIT_MESSAGE="Edited Website: $DOMAIN"
+			ee_lib_git_commit
 
 			# Reload Nginx Configuration
 			NGINXRELOAD
