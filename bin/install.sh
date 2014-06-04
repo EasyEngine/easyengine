@@ -30,7 +30,7 @@ function ee_lib_package_check()
 
 		# Generate a list of not installed package
 		if [ $? -ne 0 ]; then
-			EE_EE_PACKAGE_NAME="$EE_EE_PACKAGE_NAME $ee_package"
+			EE_PACKAGE_NAME="$EE_PACKAGE_NAME $ee_package"
 		fi
 
 	done
@@ -47,7 +47,7 @@ if [ ! -x  /usr/bin/lsb_release ]; then
 fi
 
 # Define variables for later use
-readonly EE_EE_LOG_DIR=/var/log/easyengine
+readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_INSTALL_LOG=/var/log/easyengine/install.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
