@@ -18,6 +18,5 @@ script:
 
 - sudo cat /var/log/easyengine/*
 - sudo find /usr/local/sbin
-- sudo find /usr/local/lib
 - sudo find /usr/share/easyengine
 - sudo find /usr/local/lib/easyengine
