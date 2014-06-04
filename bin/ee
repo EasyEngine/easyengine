@@ -422,24 +422,24 @@ ee_lib_setup_php()
 	fi
 }
 
-WP-CLI()
+ee_ven_install_wp_cli()
 {
 	# Install WP-CLI
-	if [ ! -d /usr/share/easyengine/wp-cli ]
+	if [ ! -d /usr/share/wp-cli ]
 	then
 		ee_lib_echo_fail "WP-CLI Command Not Found"
 		ee_lib_echo "Installing WP-CLI, Please Wait..."
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $EE_COMMAND_LOG \
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/wp-cli' VERSION='0.14.1' bash &>> $EE_COMMAND_LOG \
 		|| ee_lib_error "Unable To Install WP-CLI"
 
 		# Add WP-CLI Command In PATH Variable
-		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || ee_lib_error "Unable To Create Symbolic Link For WP-CLI Command"
+		ln -s /usr/share/wp-cli/bin/wp /usr/bin/wp || ee_lib_error "Unable To Create Symbolic Link For WP-CLI Command"
 
 		# Add WP-CLI Auto Completion
-		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		cp -i /usr/share/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
 		source /etc/bash_completion.d/wp-completion.bash
 	else
-		ee_lib_echo "Already Installed WP-CLI (/usr/share/easyengine/wp-cli)"
+		ee_lib_echo "Already Installed WP-CLI (/usr/share/wp-cli)"
 	fi
 }
 
@@ -515,7 +515,7 @@ PHP_PACKAGES()
 	chown -R $PHPUSER:$PHPUSER /var/www/22222 || ee_lib_error "Unable To Change Ownership For /var/www/22222"
 }
 
-INSTALLPMA()
+ee_ven_install_pma()
 {
 	# Install PMA/phpMyAdmin
 	if [ ! -d /var/www/22222/htdocs/db/pma ] || [ ! -d /var/www/22222/htdocs/db/adminer ]
@@ -575,7 +575,7 @@ MYSQLINSTALLTWEAKS()
 	fi
 }
 
-INSTALLMYSQL()
+ee_mod_install_mysql()
 {
 	# Setting Up MySQL Password
 	MYSQLINSTALLTWEAKS
@@ -586,7 +586,7 @@ INSTALLMYSQL()
 	|| ee_lib_error "Unable To Install MySQL"
 }
 
-COMMONMYSQL()
+ee_mod_setup_mysql()
 {
 	# Personal Settings For MySQL
 	ee_lib_echo "Updating MySQL Configuration Files, Please Wait..."
@@ -649,7 +649,7 @@ POSTFIXINSTALLTWEAKS()
 	debconf-set-selections <<< "postfix postfix/mailname string $(hostname -f)"
 }
 
-INSTALLPOSTFIX()
+ee_mod_install_postfix()
 {
 	# Setting Up Postfix
 	POSTFIXINSTALLTWEAKS
@@ -699,7 +699,7 @@ REMOVEWPCLI()
 {
 	# Remove WP-CLI
 	ee_lib_echo "Removing WP-CLI, Please Wait..."
-	rm -rf /usr/share/easyengine/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || ee_lib_error "Unable To Remove WP-CLI"
+	rm -rf /usr/share/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || ee_lib_error "Unable To Remove WP-CLI"
 }
 
 REMOVEPMA()
@@ -2066,7 +2066,7 @@ then
 			PHPRESTART
 			
 			# Install WP-CLI & PHP Packages
-			WP-CLI
+			ee_ven_install_wp_cli
 			PHP_PACKAGES
 
 			# Initialise Git
@@ -2080,7 +2080,7 @@ then
 		then
 
 			# Install PMA/phpMyAdmin
-			INSTALLPMA
+			ee_ven_install_pma
 
 			# Initialise Git
 			#EEGITDIR=/var/www/22222/htdocs/db/pma/
@@ -2102,10 +2102,10 @@ then
 			ee_lib_apt_get_update
 
 			# Install MySQL
-			INSTALLMYSQL
+			ee_mod_install_mysql
 
 			# Personal Settings For MySQL
-			COMMONMYSQL
+			ee_mod_setup_mysql
 
 			# Restart MySQL
 			MYSQLRESTART
@@ -2124,7 +2124,7 @@ then
 			ee_lib_apt_get_update
 			
 			# Install Postfix
-			INSTALLPOSTFIX
+			ee_mod_install_postfix
 
 			# Initialize Git
 			EEGITDIR=/etc/postfix/
@@ -2170,14 +2170,14 @@ then
 			PHPRESTART
 
 			# Install WP-CLI & PHP Packages
-			WP-CLI
+			ee_ven_install_wp_cli
 			PHP_PACKAGES
 
 			# Install PMA/phpMyAdmin
-			INSTALLPMA
+			ee_ven_install_pma
 
 			# Personal Settings For MySQL
-			COMMONMYSQL
+			ee_mod_setup_mysql
 
 			# Restart MySQL
 			MYSQLRESTART
