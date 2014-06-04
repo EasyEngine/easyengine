@@ -2,8 +2,7 @@
 
 function ee_ven_install_pma()
 {
-	if [ ! -d /var/www/22222/htdocs/db/pma ]
-	then
+	if [ ! -d /var/www/22222/htdocs/db/pma ]; then
 
 		# Setup phpMyAdmin
 		mkdir -p /var/www/22222/htdocs/db/pma/ \

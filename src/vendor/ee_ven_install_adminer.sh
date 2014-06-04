@@ -12,5 +12,6 @@ function ee_ven_install_adminer()
 		ee_lib_echo "Downloading Adminer, please wait..."
 		wget --no-check-certificate -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-${EE_ADMINER_VERSION}.php \
 		|| ee_lib_error "Unable to download Adminer, exit status = " $?
+
 	fi
 }

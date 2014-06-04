@@ -2,10 +2,11 @@
 
 function ee_ven_install_wp_cli()
 {
-	if [ ! -d /usr/share/wp-cli ]
-	then
+	if [ ! -d /usr/share/wp-cli ]; then
+
 		ee_lib_echo "Installing WP-CLI, please wait..."
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/wp-cli' VERSION=$EE_WPCLI_VERSION bash &>> $EE_COMMAND_LOG \
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh \
+		| INSTALL_DIR='/usr/share/wp-cli' VERSION=$EE_WP_CLI_VERSION bash &>> $EE_COMMAND_LOG \
 		|| ee_lib_error "Unable to install WP-CLI, exit status = " $?
 
 		# Add WP-CLI command in $PATH variable

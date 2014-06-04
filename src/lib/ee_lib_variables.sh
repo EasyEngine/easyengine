@@ -1,5 +1,11 @@
 # Define global variables
 
+# WP-CLI version
+readonly EE_WP_CLI_VERSION='0.15.1'
+
+# Adminer version
+readonly EE_ADMINER_VERSION='4.1.0'
+
 readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
@@ -8,8 +14,7 @@ readonly EE_CONFIG_GET=$(echo "git config --file /etc/easyengine/ee.conf")
 readonly EE_CONFIG_SET=$(echo "git config --file /etc/easyengine/ee.conf" --replace-all)
 readonly EE_IP_ADDRESS=$($EE_CONFIG_GET system.ip-address | cut -d'=' -f2 | sed 's/ //g' | tr ',' '\n')
 readonly EE_APT_GET=$($EE_CONFIG_GET system.apt-get-assume-yes | grep -i true &> /dev/null && echo apt-get -y || echo apt-get)
-readonly EE_WPCLI_VERSION='0.15.1'
-readonly EE_ADMINER_VERSION='4.1.0'
+
 
 # Distribution specific variable
 if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then

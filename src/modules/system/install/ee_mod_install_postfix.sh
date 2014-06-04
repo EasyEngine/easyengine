@@ -7,6 +7,6 @@ function ee_mod_install_postfix()
 	debconf-set-selections <<< "postfix postfix/mailname string $(hostname -f)"
 
 	# Install Postfix
-	ee_lib_echo "Installing Postfix, Please Wait..."
-	$EE_APT_GET install postfix || ee_lib_error "Unable to install postfix, exit status = " $?
+	ee_lib_echo "Installing Postfix, please wait..."
+	$EE_APT_GET install postfix || ee_lib_error "Unable to install Postfix, exit status = " $?
 }
