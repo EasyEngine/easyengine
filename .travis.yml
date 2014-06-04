@@ -13,31 +13,7 @@ before_script:
 script:
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-- sudo sed -i "s/stable/$TRAVIS_BRANCH/g" install.sh
-- sudo bash -x install.sh
+- sudo sed -i "s/stable/$TRAVIS_BRANCH/g" bin/install.sh
+- sudo bash -x bin/install.sh
 
-- sudo bash -c "echo 'htpasswduser = easyengine' >> /etc/easyengine/ee.conf"
-- sudo bash -c "echo 'htpasswdpass = easyengine' >> /etc/easyengine/ee.conf"
-- sudo bash ee system install
-
-- sudo bash ee site create html.com
-- sudo bash ee site create php.com --php
-- sudo bash ee site create mysql.com --mysql
-- sudo bash ee site create basic.com --wp
-- sudo bash ee site create w3tc.com --w3tc
-- sudo bash ee site create wpsc.com --wpsc
-- sudo bash ee site create wpfc.com --wpfc
-- sudo bash ee site create wpsubdirbasic.com --wpsubdir
-- sudo bash ee site create wpsubdirw3tc.com --wpsubdir --w3tc
-- sudo bash ee site create wpsubdirwpsc.com --wpsubdir --wpsc
-- sudo bash ee site create wpsubdirwpfc.com --wpsubdir --wpfc
-- sudo bash ee site create wpsubdomainbasic.com --wpsubdomain
-- sudo bash ee site create wpsubdomainw3tc.com --wpsubdomain --w3tc
-- sudo bash ee site create wpsubdomainwpsc.com --wpsubdomain --wpsc
-- sudo bash ee site create wpsubdomainwpfc.com --wpsubdomain --wpfc
-
-- sudo ee info
-- sudo ee system status
-- sudo ee system restart
-- sudo mysql -e "show databases";
 - sudo cat /var/log/easyengine/*
