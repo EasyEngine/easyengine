@@ -1,7 +1,6 @@
 #!/bin/bash
 
-
-
+# Define echo function
 # Blue color
 function ee_lib_echo()
 {
@@ -20,6 +19,44 @@ function ee_lib_echo_fail()
 	echo $(tput setaf 1)$@$(tput sgr0)
 }
 
+
+# Checking permissions
+if [[ $EUID -ne 0 ]]; then
+	ee_lib_echo_fail "Sudo privilege required..."
+	ee_lib_echo_fail "Uses: curl -sL rt.cx/ee | sudo bash"
+	exit 1
+fi
+
+# Execute: apt-get update
+ee_lib_echo "Executing apt-get update, please wait..."
+apt-get update &>> /dev/null
+
+# Checking lsb_release package
+if [ ! -x  /usr/bin/lsb_release ]; then
+	ee_lib_echo "Installing lsb-release, please wait..."
+	apt-get -y install lsb-release &>> /dev/null
+fi
+
+# Define variables for later use
+readonly EE_LOG_DIR=/var/log/easyengine
+readonly EE_INSTALL_LOG=/var/log/easyengine/install.log
+readonly EE_ERROR_LOG=/var/log/easyengine/error.log
+readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
+
+# Checking linux distro
+if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; then
+	ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
+	ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
+	exit 100
+fi
+
+# Capture errors
+function ee_lib_error()
+{
+	echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)" | tee -ai $EE_ERROR_LOG
+	exit $2
+}
+
 # Check the specified package is installed or not
 function ee_lib_package_check()
 {
@@ -36,47 +73,12 @@ function ee_lib_package_check()
 	done
 }
 
-# Update apt cache
-ee_lib_echo "Updating apt cache, please wait..."
-apt-get update &>> /dev/null
-
-# Checking lsb_release
-if [ ! -x  /usr/bin/lsb_release ]; then
-	ee_lib_echo "Installing lsb-release, please wait..."
-	apt-get -y install lsb-release &>> /dev/null
-fi
-
-# Define variables for later use
-readonly EE_LOG_DIR=/var/log/easyengine
-readonly EE_INSTALL_LOG=/var/log/easyengine/install.log
-readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
-
-# Checking linux distro
-if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; then
-	ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
-	ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
-	exit 100
-fi
-
-# Checking permissions
-if [[ $EUID -ne 0 ]]; then
-	ee_lib_echo_fail "Sudo privilege required..."
-	ee_lib_echo_fail "Uses: curl -sL rt.cx/ee | sudo bash"
-	exit 1
-fi
-
-# Capture errors
-function ee_lib_error()
-{
-	echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)" | tee -ai $ee_lib_error_LOG
-	exit $2
-}
 
 # Pre checks to avoid later screw ups
 # Checking EasyEngine (ee) log directory
 if [ ! -d $EE_LOG_DIR ]; then
 	ee_lib_echo "Creating EasyEngine (ee) log directory, please wait..."
-	mkdir -p $EE_LOG_DIR || ee_lib_error "Unable to create log directory $EE_LOG_DIR"
+	mkdir -p $EE_LOG_DIR || ee_lib_error "Unable to create log directory $EE_LOG_DIR, exit status = " $?
 fi
 
 # Install required packages
@@ -88,24 +90,24 @@ fi
 
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n $EE_PACKAGE_NAME ]; then
 	ee_lib_echo "Installing required packages" | tee -ai $EE_INSTALL_LOG
-	apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME || ee_lib_error "Unable to install required packages"
+	apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME || ee_lib_error "Unable to install required packages, exit status = " $?
 fi
 
 # Checking name servers
 if [[ -z $(cat /etc/resolv.conf 2> /dev/null | awk '/^nameserver/ { print $2 }') ]]; then
-	ee_lib_echo_fail "Unable to detect name servers" && ee_lib_error "Unable to detect name servers"
-	ee_lib_echo_fail "Please configure /etc/resolv.conf" && ee_lib_error "Please configure /etc/resolv.conf"
+	ee_lib_echo_fail "Unable to detect name servers" && ee_lib_error "Unable to detect name servers, exit status = " $?
+	ee_lib_echo_fail "Please configure /etc/resolv.conf" && ee_lib_error "Please configure /etc/resolv.conf, exit status = " $?
 fi
 # Pre checks end
 
-# Decide EasyEngine branch
+# Decide EasyEngine (ee) branch
 if [ -z "$BRANCH" ]; then
 	BRANCH=stable
 else
 	# Cross check EasyEngine (ee) branch name
 	git ls-remote --heads https://github.com/rtCamp/easyengine | grep $BRANCH &>> $EE_INSTALL_LOG
 	if [ $? -ne 0 ]; then
-		ee_lib_error "The $BRANCH branch does not exist, please provide the correct branch name"
+		ee_lib_error "The $BRANCH branch does not exist, please provide the correct branch name, exit status = " $?
 	fi
 fi
 
@@ -114,53 +116,63 @@ rm -rf /tmp/easyengine &>> /dev/null
 
 # Let's clone EasyEngine (ee)
 ee_lib_echo "Cloning EasyEngine (ee) $BRANCH branch, please wait..." | tee -ai $EE_INSTALL_LOG
-git clone -b $BRANCH git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_INSTALL_LOG || ee_lib_error "Unable to clone EasyEngine (ee) $BRANCH branch"
+git clone -b $BRANCH git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_INSTALL_LOG || ee_lib_error "Unable to clone EasyEngine (ee) $BRANCH branch, exit status = " $?
 
 
 # Setup EasyEngine (ee)
-# Create EasyEngine (ee) configuration directory
 if [ ! -d /etc/easyengine ]; then
 	mkdir -p /etc/easyengine \
-	|| ee_lib_error "Unable to create /etc/easyengine directory"
+	|| ee_lib_error "Unable to create /etc/easyengine directory, exit status = " $?
 fi
 
-# Templates
 if [ ! -d /usr/share/easyengine/ ]
 then
 	mkdir -p /usr/share/easyengine/ \
-	|| ee_lib_error "Unable to create /usr/share/easyengine/ directory"
+	|| ee_lib_error "Unable to create /usr/share/easyengine/ directory, exit status = " $?
 fi
+
+if [ ! -d /usr/local/lib/easyengine ]
+then
+	mkdir -p /usr/local/lib/easyengine \
+	|| ee_lib_error "Unable to create /usr/local/lib/easyengine directory, exit status = " $?
+fi
+
 
 # Install EasyEngine (ee)
 ee_lib_echo "Installing EasyEngine (ee), please wait..." | tee -ai $EE_INSTALL_LOG
 
 # EasyEngine (ee) auto completion file
 cp -a /tmp/easyengine/config/bash_completion.d/ee /etc/bash_completion.d/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy EasyEngine (ee) auto completion file"
+|| ee_lib_error "Unable to copy EasyEngine (ee) auto completion file, exit status = " $?
 
 # EasyEngine (ee) config file
 cp -a /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy EasyEngine (ee) config file"
+|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
 
-# Nginx sample files
+# Templates
 cp -a /tmp/easyengine/config/nginx /tmp/easyengine/templates/* /usr/share/easyengine/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy nginx sample files"
+|| ee_lib_error "Unable to copy nginx sample files, exit status = " $?
+
+# EasyEngine (ee) library and modules
+cp -a /tmp/easyengine/src/* /usr/local/lib/easyengine \
+|| ee_lib_error "Unable to copy src files, exit status = " $?
 
 # EasyEngine (ee) command
 cp -a /tmp/easyengine/bin/easyengine /usr/local/sbin/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy EasyEngine (ee) command"
-
-# EasyEngine (ee) man page
-cp -a /tmp/easyengine/docs/man/ee.8 /usr/share/man/man8/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy EasyEngine (ee) man page"
+|| ee_lib_error "Unable to copy EasyEngine (ee) command, exit status = " $?
 
 # Change permission of EasyEngine (ee) command
-chmod 750 /usr/local/sbin/easyengine || ee_lib_error "Unable to change permission of EasyEngine (ee) command"
+chmod 750 /usr/local/sbin/easyengine || ee_lib_error "Unable to change permission of EasyEngine (ee) command, exit status = " $?
 
 # Create symbolic link
 if [ ! -L /usr/local/sbin/ee ]; then
 	ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
 fi
+
+# EasyEngine (ee) man page
+cp -a /tmp/easyengine/docs/man/ee.8 /usr/share/man/man8/ &>> $EE_INSTALL_LOG \
+|| ee_lib_error "Unable to copy EasyEngine (ee) man page, exit status = " $?
+
 
 # Git config settings
 GIT_USER_NAME=$(git config user.name)
