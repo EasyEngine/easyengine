@@ -676,7 +676,7 @@ INSTALLALL()
 
 
 # Remove Package Functions
-REMOVENGINX()
+ee_mod_remove_nginx()
 {
 	# Select Nginx Package
 	NGINXINSTALLTWEAKS
@@ -686,7 +686,7 @@ REMOVENGINX()
 	$EE_APT_GET remove $EE_NGINX_PACKAGE nginx-common || ee_lib_error "Unable To Remove Nginx"
 }
 
-REMOVEPHP()
+ee_mod_remove_php()
 {
 	# Remove PHP5
 	ee_lib_echo "Removing PHP5, Please Wait..."
@@ -695,21 +695,21 @@ REMOVEPHP()
 	php5-memcache memcached || ee_lib_error "Unable To Remove PHP5"
 }
 
-REMOVEWPCLI()
+ee_ven_remove_wp_cli()
 {
 	# Remove WP-CLI
 	ee_lib_echo "Removing WP-CLI, Please Wait..."
 	rm -rf /usr/share/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash || ee_lib_error "Unable To Remove WP-CLI"
 }
 
-REMOVEPMA()
+ee_ven_remove_pma()
 {
 	# Remove PMA/phpMyAdmin
 	ee_lib_echo "Removing phpMyAdmin, Please Wait..."
 	rm -rf /var/www/22222/htdocs/db/pma || ee_lib_error "Unable To Remove phpMyAdmin"
 }
 
-REMOVEMYSQL()
+ee_mod_remove_mysql()
 {
 	# Remove MySQL
 	ee_lib_echo "Removing MySQL, Please Wait..."
@@ -717,7 +717,7 @@ REMOVEMYSQL()
 	|| ee_lib_error "Unable To Remove MySQL"
 }
 
-REMOVEPOSTFIX()
+ee_mod_remove_postfix()
 {
 	# Remove Postfix
 	ee_lib_echo "Removing Postfix, Please Wait..."
@@ -1582,7 +1582,7 @@ REMOVEFILES()
 	fi
 }
 
-REMOVENGINXCONF()
+ee_mod_remove_nginxCONF()
 {
 	# Remove Nginx Configuration
 	# For Proper read Command Output
@@ -2220,7 +2220,7 @@ then
 		then
 
 			# Remove Nginx
-			REMOVENGINX
+			ee_mod_remove_nginx
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
@@ -2232,8 +2232,8 @@ then
 		then
 
 			# Remove PHP5
-			REMOVEPHP
-			REMOVEWPCLI
+			ee_mod_remove_php
+			ee_ven_remove_wp_cli
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
@@ -2245,7 +2245,7 @@ then
 		then
 
 			# Remove PMA/phpMyAdmin
-			REMOVEPMA
+			ee_ven_remove_pma
 			
 			# Display Success Message
 			ee_lib_echo "phpMyAdmin Successfully Removed"
@@ -2254,7 +2254,7 @@ then
 		then
 
 			# Remove MySQL
-			REMOVEMYSQL
+			ee_mod_remove_mysql
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
@@ -2266,7 +2266,7 @@ then
 		then
 
 			# Remove Postfix
-			REMOVEPOSTFIX
+			ee_mod_remove_postfix
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
@@ -2282,8 +2282,8 @@ then
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
-			REMOVEWPCLI
-			REMOVEPMA
+			ee_ven_remove_wp_cli
+			ee_ven_remove_pma
 
 			# Display Success Message
 			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Removed"
@@ -2314,7 +2314,7 @@ then
 
 			# Purge PHP5
 			PURGEPHP
-			REMOVEWPCLI
+			ee_ven_remove_wp_cli
 			
 			# Remove Unwanted Packages
 			AUTOREMOVE
@@ -2326,7 +2326,7 @@ then
 		then
 
 			# Purge PMA/phpMyAdmin
-			REMOVEPMA
+			ee_ven_remove_pma
 			
 			# Display Success Message
 			ee_lib_echo "phpMyAdmin Successfully Purged"
@@ -2363,8 +2363,8 @@ then
 
 			# Remove Unwanted Packages
 			AUTOREMOVE
-			REMOVEWPCLI
-			REMOVEPMA
+			ee_ven_remove_wp_cli
+			ee_ven_remove_pma
 
 			# Display Success Message
 			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged"
@@ -3002,7 +3002,7 @@ then
 			REMOVEFILES
 
 			# Remove Nginx Configuration
-			REMOVENGINXCONF
+			ee_mod_remove_nginxCONF
 
 			# Reload Nginx
 			NGINXRELOAD
@@ -3020,7 +3020,7 @@ then
 			REMOVEFILES "no-prompt"
 
 			# Remove Nginx Configuration
-			REMOVENGINXCONF "no-prompt"
+			ee_mod_remove_nginxCONF "no-prompt"
 
 			# Reload Nginx
 			NGINXRELOAD
