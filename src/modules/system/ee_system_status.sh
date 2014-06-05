@@ -1,4 +1,4 @@
-# System status information
+# Execute: ee system status
 
 function ee_system_status()
 {
