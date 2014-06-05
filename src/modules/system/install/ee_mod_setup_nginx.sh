@@ -61,7 +61,12 @@ function ee_mod_setup_nginx()
 	fi
 
 	# Setup SSL
-	# Generate SSL Key
+	# Create SSL certificate directory
+	if [ !-d /var/www/22222/cert ]; then
+		mkdir /var/www/22222/cert
+	fi
+	
+	# Generate SSL key
 	ee_lib_echo "Generating SSL private key, please wait..."
 	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate SSL private key for port 22222, exit status = " $?
@@ -79,7 +84,7 @@ function ee_mod_setup_nginx()
 	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
-	# Whitelist IP address
+	# White list IP address
 	if [ -n "$EE_IP_ADDRESS" ]; then
 		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS)
 		do
