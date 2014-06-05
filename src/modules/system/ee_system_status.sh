@@ -18,7 +18,7 @@ function ee_system_status()
 		local ee_swap_usage=$(echo "N/A")
 	fi
 	local ee_logged_in_users=$(w -h | wc -l)
-	local ee_root_usage=$(df -h | grep /$ | awk '{print $5}')
+	local ee_root_usage=$(df -h | grep /$ | head -1 | awk '{print $5}')
 
 	local ee_nginx_status=$(service nginx status | grep 'nginx is running' \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
