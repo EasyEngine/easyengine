@@ -8,7 +8,7 @@ EE_FOURTH=$4
 EE_FIFTH=$5
 
 # Include library
-for ee_include in $(find /usr/local/lib/easyengine/lib -iname "*.sh"); do
+for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 	source $ee_include
 done
 
