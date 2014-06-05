@@ -1,6 +1,6 @@
 # Install phpMyAdmin
 
-function ee_ven_install_pma()
+function ee_ven_install_phpmyadmin()
 {
 	if [ ! -d /var/www/22222/htdocs/db/pma ]; then
 

@@ -7,9 +7,9 @@ EE_THIRD=$3
 EE_FOURTH=$4
 EE_FIFTH=$5
 
-# Include library, module and vendor
-for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
-	echo $ee_include
+# Include library
+for ee_include in $(find /usr/local/lib/easyengine/lib -iname "*.sh"); do
+	source $ee_include
 done
 
 # Let's capture the EasyEngine arguments
@@ -36,13 +36,13 @@ then
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]
 		then
 
-			if [ "$EE_THIRD" != "mysql" ]; then
-				# Setup nginx repository
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
+				# Setup repository
 				ee_mod_repo_$EE_THIRD
-			fi
 
-			# Fix GnuPG key
-			ee_lib_gpg_key_fix
+				# Fix GnuPG key
+				ee_lib_gpg_key_fix
+			fi	
 
 			# Execute: apt-get update
 			ee_lib_apt_get_update			
@@ -50,335 +50,23 @@ then
 			# Install nginx package
 			ee_mod_install_$EE_THIRD
 
-			# Setup nginx
-			ee_mod_setup_$EE_THIRD
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
+				# Setup nginx
+				ee_mod_setup_$EE_THIRD
+			fi
 
-			# Restart nginx
-			ee_lib_service $EE_THIRD restart
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || || [ "$EE_THIRD" = "postfix" ]; then
+				# Restart nginx
+				ee_lib_service $EE_THIRD restart
 
-			# Initialize Git
-			EE_GIT_DIR=/etc/$EE_THIRD/
-			ee_lib_git_init
-			
-			# Display success message
-			ee_lib_echo "$EE_THIRD successfully installed"
-
-		
-		elif [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "pma" ]
-		then
-
-			# Install phpMyAdmin
-			ee_ven_install_pma
+				# Initialize Git
+				EE_GIT_DIR=/etc/$EE_THIRD/
+				ee_lib_git_init
+			fi
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
 
-		
-		elif [ "$EE_THIRD" = "postfix" ]
-		then
-
-			# Execute: apt-get update
-			ee_lib_apt_get_update
-			
-			# Install Postfix package
-			ee_mod_install_postfix
-
-			# Initialize Git
-			EE_GIT_DIR=/etc/$EE_THIRD/
-			ee_lib_git_init
-			
-			# Display success message
-			ee_lib_echo "$EE_THIRD successfully installed"
-
-		elif [ "$3" = "all" ] || [ "$3" = "" ]
-		then
-			
-			# Install Python Software Properties
-			PYTHONSOFTWARE
-
-            # Add Nginx Launchpad Repository
-			ee_mod_repo_nginx
-			
-			# Add PHP Launchpad Repository
-			ee_mod_repo_php
-
-			# Add Percona Repository
-			#PERCONA_REPO
-
-			# Fix GPG Key Problems
-			ee_lib_gpg_key_fix
-
-			# Update The APT Cache
-			ee_lib_apt_get_update
-
-			# Install Nginx PHP5 MySQL Postfix
-			INSTALLALL
-
-			# Personal Settings For Nginx
-			ee_mod_setup_nginx
-
-			# Reload Nginx To Take Effect Of ee_mod_setup_nginx Functions
-			NGINXRESTART
-
-			# Personal Settings For PHP
-			ee_lib_setup_php
-
-			# Restart PHP To Take Effect Of ee_lib_setup_php Functions
-			PHPRESTART
-
-			# Install WP-CLI & PHP Packages
-			ee_ven_install_wp_cli
-			PHP_PACKAGES
-
-			# Install PMA/phpMyAdmin
-			ee_ven_install_pma
-
-			# Personal Settings For MySQL
-			ee_mod_setup_mysql
-
-			# Restart MySQL
-			MYSQLRESTART
-
-			# Initialize Git
-			EE_GIT_DIR=/etc/nginx/
-			ee_lib_git_init
-
-			# Initialize Git
-			EE_GIT_DIR=/etc/php5/
-			ee_lib_git_init
-
-			# Initialize Git
-			EE_GIT_DIR=/etc/mysql/
-			ee_lib_git_init
-
-			# Initialize Git
-			#EE_GIT_DIR=/var/www/22222/htdocs/db/pma/
-			#ee_lib_git_init
-
-			# Initialize Git
-			EE_GIT_DIR=/etc/postfix/
-			ee_lib_git_init
-
-			# Display Success Message
-			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Installed"
-			ee_lib_echo "You Can Now Create Your First WordPress Site Powered By Nginx Using:"
-			ee_lib_echo_info "ee site create example.com --wp"
-
 		fi
-
-	# Easy Engine Remove
-	elif [ "$2" = "remove" ]
-	then
-
-		# Check Auto Assume Yes Or No To Apt-Get
-		APTASSUMEYES
-		
-		if [ "$3" = "nginx" ]
-		then
-
-			# Remove Nginx
-			ee_mod_remove_nginx
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			
-			# Display Success Message
-			ee_lib_echo "Nginx Successfully Removed"
-
-		elif [ "$3" = "php" ]
-		then
-
-			# Remove PHP5
-			ee_mod_remove_php
-			ee_ven_remove_wp_cli
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-						
-			# Display Success Message
-			ee_lib_echo "PHP5 & WP-CLI Successfully Removed"
-
-		elif [ "$3" = "phpmyadmin" ]  || [ "$3" = "pma" ]
-		then
-
-			# Remove PMA/phpMyAdmin
-			ee_ven_remove_pma
-			
-			# Display Success Message
-			ee_lib_echo "phpMyAdmin Successfully Removed"
-
-		elif [ "$3" = "mysql" ]
-		then
-
-			# Remove MySQL
-			ee_mod_remove_mysql
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			
-			# Display Success Message
-			ee_lib_echo "MySQL Successfully Removed"
-
-		elif [ "$3" = "postfix" ]
-		then
-
-			# Remove Postfix
-			ee_mod_remove_postfix
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			
-			# Display Success Message
-			ee_lib_echo "Postfix Successfully Removed"
-
-		elif [ "$3" = "all" ] || [ "$3" = "" ]
-		then
-
-			# Remove Nginx PHP5 MySQL Postfix
-			REMOVEALL
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			ee_ven_remove_wp_cli
-			ee_ven_remove_pma
-
-			# Display Success Message
-			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Removed"
-
-		fi
-
-	# Easy Engine Purge
-	elif [ "$2" = "purge" ]
-	then
-
-		# Check Auto Assume Yes Or No To Apt-Get
-		APTASSUMEYES
-		
-		if [ "$3" = "nginx" ]
-		then
-
-			# Purge Nginx
-			PURGENGINX
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			
-			# Display Success Message
-			ee_lib_echo "Nginx Successfully Purged"
-
-		elif [ "$3" = "php" ]
-		then
-
-			# Purge PHP5
-			PURGEPHP
-			ee_ven_remove_wp_cli
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-
-			# Display Success Message
-			ee_lib_echo "PHP5 & WP-CLI Successfully Purged"
-
-		elif [ "$3" = "phpmyadmin" ]  || [ "$3" = "pma" ]
-		then
-
-			# Purge PMA/phpMyAdmin
-			ee_ven_remove_pma
-			
-			# Display Success Message
-			ee_lib_echo "phpMyAdmin Successfully Purged"
-
-		elif [ "$3" = "mysql" ]
-		then
-
-			# Purge MySQL
-			PURGEMYSQL
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-
-			# Display Success Message
-			ee_lib_echo "MySQL Successfully Purged"
-
-		elif [ "$3" = "postfix" ]
-		then
-
-			# Purge Postfix
-			PURGEPOSTFIX
-			
-			# Remove Unwanted Packages
-			AUTOREMOVE
-
-			# Display Success Message
-			ee_lib_echo "Postfix Successfully Purged"
-
-		elif [ "$3" = "all" ] || [ "$3" = "" ]
-		then
-
-			# Purge Nginx PHP5 MySQL Postfix
-			PURGEALL
-
-			# Remove Unwanted Packages
-			AUTOREMOVE
-			ee_ven_remove_wp_cli
-			ee_ven_remove_pma
-
-			# Display Success Message
-			ee_lib_echo "Nginx PHP5 WP-CLI MySQL Postfix phpMyAdmin Successfully Purged"
-
-		fi
-
-	elif [ "$2" = "status" ]
-	then
-		# Call The System Status Function
-		EE_SYSTEM_STATUS
-
-	elif [ "$2" = "stop" ]
-	then
-		# Stop Nginx PHP5-FPM MySQL & Postfix
-		ee_lib_echo "Stopping Nginx Service, Please Wait..."
-		service nginx stop &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Stop Nginx"
-		ee_lib_echo "Stopping PHP5-FPM Service, Please Wait..."
-		service php5-fpm stop &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Stop PHP5-FPM"
-		ee_lib_echo "Stopping MySQL Service, Please Wait..."
-		service mysql stop &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Stop MySQL"
-		ee_lib_echo "Stopping Postfix Service, Please Wait..."
-		service postfix stop &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Stop Postfix"
-
-	elif [ "$2" = "start" ]
-	then
-		# Start Nginx PHP5-FPM MySQL & Postfix
-		NGINXSTART
-		PHPSTART
-		MYSQLSTART
-		POSTFIXSTART
-
-	elif [ "$2" = "reload" ]
-	then
-		# Restart Nginx PHP5-FPM MySQL & Postfix
-		NGINXRELOAD
-		PHPRELOAD
-		MYSQLRELOAD
-		POSTFIXRELOAD
-
-	elif [ "$2" = "restart" ]
-	then
-		# Restart Nginx PHP5-FPM MySQL & Postfix
-		NGINXRESTART
-		PHPRESTART
-		MYSQLRESTART
-		POSTFIXRESTART
-
-	else
-		ee_lib_echo "List Of Available Commands:"
-		echo -e "\tstatus:\t Display The System Status Information"
-		echo -e "\tstop:\t Stop Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\tstart:\t Start Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\treload:\t Reload Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\trestart: Restart Nginx PHP5-FPM MySQL And Postfix Services"
-		echo -e "\tpurge:\t Purge Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
-		echo -e "\tremove:\t Remove Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
-		echo -e "\tinstall: Install Nginx PHP5-FPM phpMyAdmin MySQL And Postfix Packages"
-
 	fi
 fi
