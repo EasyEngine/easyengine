@@ -11,7 +11,7 @@ function ee_ven_install_wp_cli()
 
 		# Add WP-CLI command in $PATH variable
 		if [ ! -L /usr/bin/wp ]; then
-			ln -s /usr/share/wp-cli/bin/wp /usr/bin/wp \ 
+			ln -s /usr/share/wp-cli/bin/wp /usr/bin/wp \
 			|| ee_lib_error "Unable to create symbolic link for WP-CLI command, exit status = " $?
 		fi
 

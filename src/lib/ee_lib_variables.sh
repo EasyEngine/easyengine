@@ -1,5 +1,8 @@
 # Define global variables
 
+# EasyEngine version
+readonly EE_VERSION='2.0.0'
+
 # WP-CLI version
 readonly EE_WP_CLI_VERSION='0.15.1'
 
