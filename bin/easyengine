@@ -55,7 +55,7 @@ then
 				ee_mod_setup_$EE_THIRD
 			fi
 
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || || [ "$EE_THIRD" = "postfix" ]; then
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
 				# Restart nginx
 				ee_lib_service $EE_THIRD restart
 
