@@ -2,7 +2,7 @@
 
 [![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
 
-easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
+EasyEngine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
 
 **EasyEngine currently supports:**
 
@@ -19,13 +19,13 @@ ee site create example.com --wp       # create example.com and install wordpress
 
 ## Upgrading 
 
-### From easyengine 1.0 to 1.1 and above
+### From EasyEngine 1.0 to 1.1 and above
 
 ```bash
 /bin/bash <(curl -sL https://raw.github.com/rtCamp/easyengine/stable/usr/local/sbin/eeupdate)
 ```
 
-### From easyengine 1.1 and above
+### From EasyEngine 1.1 and above
 
 ```bash
 ee update
