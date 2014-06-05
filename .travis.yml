@@ -15,6 +15,14 @@ script:
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
 - sudo bash -x bin/install.sh $TRAVIS_BRANCH
 
+- sudo ee system install nginx
+- sudo ee system install php
+- sudo ee system install mysql
+- sudo ee system install postfix
+- sudo ee system install phpmyadmin
+- sudo ee system install adminer
+
+
 - sudo cat /var/log/easyengine/*
 
 - sudo ls -lah /usr/local/sbin

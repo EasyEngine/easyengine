@@ -37,7 +37,7 @@ then
 		then
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
-				# Setup repository
+				# Setup nginx/php repository
 				ee_mod_repo_$EE_THIRD
 
 				# Fix GnuPG key
@@ -47,16 +47,21 @@ then
 			# Execute: apt-get update
 			ee_lib_apt_get_update			
 
-			# Install nginx package
-			ee_mod_install_$EE_THIRD
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
+				# Install nginx/php/mysql/postfix package
+				ee_mod_install_$EE_THIRD
+			elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ]
+				# Install phpmyadmin/adminer
+				ee_ven_install_$EE_THIRD
+			fi
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
-				# Setup nginx
+				# Setup nginx/php/mysql
 				ee_mod_setup_$EE_THIRD
 			fi
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
-				# Restart nginx
+				# Restart nginx/php/mysql/postfix
 				ee_lib_service $EE_THIRD restart
 
 				# Initialize Git
