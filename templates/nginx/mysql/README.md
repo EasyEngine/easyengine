@@ -1,0 +1,1 @@
+1. **basic.conf** - MYSQL NGINX CONFIGURATION
