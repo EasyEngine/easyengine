@@ -1,6 +1,6 @@
 # System status information
 
-fucntion ee_system_status()
+function ee_system_status()
 {
 	local ee_operating_system=$(lsb_release -d | awk '{print $2,$3,$4}')
 	local ee_system_load=$(cat /proc/loadavg | awk '{print $1}')
