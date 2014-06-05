@@ -1,0 +1,1 @@
+1. **basic.conf** - PHP NGINX CONFIGURATION file.
