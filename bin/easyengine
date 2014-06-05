@@ -50,7 +50,7 @@ then
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
 				# Install nginx/php/mysql/postfix package
 				ee_mod_install_$EE_THIRD
-			elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ]
+			elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ];then
 				# Install phpmyadmin/adminer
 				ee_ven_install_$EE_THIRD
 			fi
