@@ -63,7 +63,7 @@ function ee_lib_package_check()
 	local ee_package
 	
 	for ee_package in $@;do
-		dpkg --get-selections | grep -v deinstall | grep $ee_package &>> $EE_COMMAND_LOG
+		dpkg --get-selections | grep -v deinstall | grep $ee_package &>> $EE_INSTALL_LOG
 
 		# Generate a list of not installed package
 		if [ $? -ne 0 ]; then
