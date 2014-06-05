@@ -13,8 +13,7 @@ before_script:
 script:
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-- sudo sed -i "s/stable/$TRAVIS_BRANCH/g" bin/install.sh
-- sudo bash -x bin/install.sh
+- sudo bash -x bin/install.sh $TRAVIS_BRANCH
 
 - sudo cat /var/log/easyengine/*
 

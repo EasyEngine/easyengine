@@ -101,6 +101,7 @@ fi
 # Pre checks end
 
 # Decide EasyEngine (ee) branch
+BRANCH=$1
 if [ -z "$BRANCH" ]; then
 	BRANCH=stable
 else
