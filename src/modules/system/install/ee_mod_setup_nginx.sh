@@ -46,7 +46,7 @@ function ee_mod_setup_nginx()
 	cp -a /usr/share/easyengine/nginx/conf.d /usr/share/easyengine/nginx/common /etc/nginx
 
 	# Setup port 22222
-	cp -v /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/
+	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/
 
 	# Create a symbolic link for 22222
 	if [ ! -L /etc/nginx/sites-enabled/22222 ]; then
