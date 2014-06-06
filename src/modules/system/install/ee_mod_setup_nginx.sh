@@ -43,7 +43,7 @@ function ee_mod_setup_nginx()
 	fi
 
 	# Copy files
-	cp -av /usr/share/easyengine/nginx/conf.d /usr/share/easyengine/nginx/common /etc/nginx
+	cp -a /usr/share/easyengine/nginx/conf.d /usr/share/easyengine/nginx/common /etc/nginx
 
 	# Setup port 22222
 	cp -v /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/
