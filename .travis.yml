@@ -21,6 +21,7 @@ script:
 - sudo ee system install postfix
 - sudo ee system install phpmyadmin
 - sudo ee system install adminer
+- sudo ee system install wpcli
 
 
 - sudo cat /var/log/easyengine/*
