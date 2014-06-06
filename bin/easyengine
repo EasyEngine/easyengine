@@ -8,7 +8,8 @@ EE_FOURTH=$4
 EE_FIFTH=$5
 
 # Include library
-for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
+source /usr/local/lib/easyengine/lib/ee_lib_variable.sh
+for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh" ! -name ee_lib_variables.sh); do
 	source $ee_include
 done
 
@@ -61,12 +62,19 @@ then
 			fi
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
-				# Restart nginx/php/mysql/postfix
-				ee_lib_service $EE_THIRD restart
+
+				# Restart php5-fpm
+				if [ "$EE_THIRD" = "php" ];then
+					ee_lib_service php5-fpm restart
+				else
+					# Restart nginx/mysql/postfix
+					ee_lib_service $EE_THIRD restart
+				fi
 
 				# Initialize Git
 				EE_GIT_DIR=/etc/$EE_THIRD/
 				ee_lib_git_init
+
 			fi
 
 			# Display success message

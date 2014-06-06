@@ -62,7 +62,7 @@ function ee_mod_setup_nginx()
 
 	# Setup SSL
 	# Create SSL certificate directory
-	if [ !-d /var/www/22222/cert ]; then
+	if [ ! -d /var/www/22222/cert ]; then
 		mkdir /var/www/22222/cert
 	fi
 	
