@@ -34,3 +34,5 @@ script:
 
 - sudo ls -lah /usr/local/lib/easyengine
 - sudo find /usr/local/lib/easyengine
+
+- sudo wp --allow-root --info
