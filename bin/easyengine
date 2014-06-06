@@ -24,66 +24,54 @@ if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST"
 then
 	# Display Easy Engine Version
 	echo "EasyEngine (ee) version: $EE_VERSION"
-
 # EasyEngine stack/system
 elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]
 then
-
 	# EasyEngine install
-	if [ "$EE_SECOND" = "install" ]
-	then
+	if [ "$EE_SECOND" = "install" ]; then
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
+			# Setup nginx/php repository
+			ee_mod_repo_$EE_THIRD
 
-		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "adminer" ]; then
+			# Fix GnuPG key
+			ee_lib_gpg_key_fix
+		fi		
 
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
-				# Setup nginx/php repository
-				ee_mod_repo_$EE_THIRD
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
+			# Execute: apt-get update
+			ee_lib_apt_get_update	
 
-				# Fix GnuPG key
-				ee_lib_gpg_key_fix
-			fi		
-
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
-
-				# Execute: apt-get update
-				ee_lib_apt_get_update	
-
-				# Install nginx/php/mysql/postfix package
-				ee_mod_install_$EE_THIRD
-
-			elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ];then
-				# Install phpmyadmin/adminer
-				ee_ven_install_$EE_THIRD
-			fi
-
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
-				# Setup nginx/php/mysql
-				ee_mod_setup_$EE_THIRD
-			fi
-
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
-
-				# Restart php5-fpm
-				if [ "$EE_THIRD" = "php" ];then
-					ee_lib_service php5-fpm restart
-
-					# Initialize Git
-					EE_GIT_DIR=/etc/php5/
-					ee_lib_git_init
-				else
-					# Restart nginx/mysql/postfix
-					ee_lib_service $EE_THIRD restart
-					
-					# Initialize Git
-					EE_GIT_DIR=/etc/$EE_THIRD/
-					ee_lib_git_init
-				fi
-
-			fi
-
-			# Display success message
-			ee_lib_echo "$EE_THIRD successfully installed"
-
+			# Install nginx/php/mysql/postfix package
+			ee_mod_install_$EE_THIRD
+		elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ];then
+			# Install phpmyadmin/adminer
+			ee_ven_install_$EE_THIRD
 		fi
+
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
+			# Setup nginx/php/mysql
+			ee_mod_setup_$EE_THIRD
+		fi
+
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
+			# Restart php5-fpm
+			if [ "$EE_THIRD" = "php" ];then
+				ee_lib_service php5-fpm restart
+
+				# Initialize Git
+				EE_GIT_DIR=/etc/php5/
+				ee_lib_git_init
+			else
+				# Restart nginx/mysql/postfix
+				ee_lib_service $EE_THIRD restart
+					
+				# Initialize Git
+				EE_GIT_DIR=/etc/$EE_THIRD/
+				ee_lib_git_init
+			fi
+		fi
+
+		# Display success message
+		ee_lib_echo "$EE_THIRD successfully installed"
 	fi
 fi
