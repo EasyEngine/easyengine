@@ -1,6 +1,6 @@
-# Install wp-cli
+# Install wpcli
 
-function ee_ven_install_wp_cli()
+function ee_ven_install_wpcli()
 {
 	if [ ! -d /usr/share/wp-cli ]; then
 
