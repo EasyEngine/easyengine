@@ -43,7 +43,7 @@ then
 
 			# Install nginx/php/mysql/postfix package
 			ee_mod_install_$EE_THIRD
-		elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ];then
+		elif [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ];then
 			# Install phpmyadmin/adminer
 			ee_ven_install_$EE_THIRD
 		fi
