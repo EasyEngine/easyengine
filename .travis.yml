@@ -23,6 +23,7 @@ script:
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
 - sudo bash -x bin/install.sh $TRAVIS_BRANCH
 
+- sudo ee stack install
 - sudo ee system install nginx
 - sudo ee system install php
 - sudo ee system install mysql
