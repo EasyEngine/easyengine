@@ -112,10 +112,9 @@ then
 			# Display success message
 			ee_lib_echo "Successfully installed all packages"
 		fi
-	fi
 
 	# EasyEngine remove/purge
-	if [ "$EE_SECOND" = "remove" ] || [ "$EE_SECOND" = "purge" ]; then
+	elif [ "$EE_SECOND" = "remove" ] || [ "$EE_SECOND" = "purge" ]; then
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
 
 			# Remove/Purge nginx/php/mysql/postfix package
@@ -152,7 +151,7 @@ then
 
 			# Execute: apt-get autoremove
 			ee_lib_autoremove
-			
+
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
 				ee_lib_echo "Successfully removed all packages"
@@ -160,5 +159,7 @@ then
 				ee_lib_echo "Successfully purged all packages"
 			fi
 		fi
+	elif [ "$EE_SECOND" = "status" ]; then
+		ee_mod_system_status
 	fi
 fi

@@ -47,3 +47,4 @@ script:
 - sudo find /usr/local/lib/easyengine
 
 - sudo wp --allow-root --info
+- sudo ee system status
