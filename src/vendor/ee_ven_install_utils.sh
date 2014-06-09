@@ -26,7 +26,7 @@ function ee_ven_install_utils()
 		|| ee_lib_error "Unable to create /var/www/22222/htdocs/cache/nginx Directory, exit status = " $?
 
 		# Download nginx FastCGI cleanup
-		ee_lib_echo "Downloading Nginx FastCGI Cleanup Script, Please Wait..."
+		ee_lib_echo "Downloading nginx FastCGI cleanup script, Please Wait..."
 		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php \
 		|| ee_lib_error "Unable to download nginx FastCGI cleanup script, exit status = " $?
 	fi
@@ -37,7 +37,7 @@ function ee_ven_install_utils()
 		|| ee_lib_error "Unable to create /var/www/22222/htdocs/cache/opcache directory, exit status = " $?
 
 		# Download opcache tools
-		ee_lib_echo "Downloading opcache, please wait..."
+		ee_lib_echo "Downloading OPcache, please wait..."
 		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php \
 		|| ee_lib_error "Unable to download opcache.php"
 		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php \
@@ -53,15 +53,15 @@ function ee_ven_install_utils()
 		touch /var/www/22222/htdocs/fpm/status/{php,debug}
 	fi
 
-	# Setup webgrind
+	# Setup Webgrind
 	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]; then
 		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ \
 		||  ee_lib_error "Unable to create /var/www/22222/htdocs/php/webgrind/ directory, exit status = " $?
 
-		# Clone webgrind
-		ee_lib_echo "Cloning webgrind, please wait..."
+		# Clone Webgrind
+		ee_lib_echo "Cloning Webgrind, please wait..."
 		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $EE_COMMAND_LOG \
-		|| ee_lib_error "Unable to clone webgrind, exit status = " $?
+		|| ee_lib_error "Unable to clone Webgrind, exit status = " $?
 		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
 	fi
 
