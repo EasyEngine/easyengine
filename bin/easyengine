@@ -108,6 +108,57 @@ then
 			ee_ven_install_phpmyadmin
 			ee_ven_install_wpcli
 			ee_ven_install_utils
+
+			# Display success message
+			ee_lib_echo "Successfully installed all packages"
+		fi
+	fi
+
+	# EasyEngine remove/purge
+	if [ "$EE_SECOND" = "remove" ] || [ "$EE_SECOND" = "purge" ]; then
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
+
+			# Remove/Purge nginx/php/mysql/postfix package
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
+				ee_mod_remove_$EE_THIRD
+			fi
+
+			# Remove/Purge adminer/phpmyadmin/wpcli/utils
+			if [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ];then
+				ee_ven_remove_$EE_THIRD
+			fi
+
+			# Execute: apt-get autoremove
+			ee_lib_autoremove
+
+			# Display success message
+			if [ "$EE_SECOND" = "remove" ];then
+				ee_lib_echo "$EE_THIRD successfully removed"
+			elif [ "$EE_SECOND" = "purge" ];then
+				ee_lib_echo "$EE_THIRD successfully purged"
+			fi
+		elif [ "$EE_THIRD" = "" ]; then
+			# Remove/Purge nginx/php/mysql/postfix package
+			ee_mod_remove_nginx
+			ee_mod_remove_php
+			ee_mod_remove_mysql
+			ee_mod_remove_postfix
+
+			# Install adminer/phpmyadmin/wpcli/utils
+			ee_ven_remove_adminer
+			ee_ven_remove_phpmyadmin
+			ee_ven_remove_wpcli
+			ee_ven_remove_utils
+
+			# Execute: apt-get autoremove
+			ee_lib_autoremove
+			
+			# Display success message
+			if [ "$EE_SECOND" = "remove" ];then
+				ee_lib_echo "Successfully removed all packages"
+			elif [ "$EE_SECOND" = "purge" ];then
+				ee_lib_echo "Successfully purged all packages"
+			fi
 		fi
 	fi
 fi
