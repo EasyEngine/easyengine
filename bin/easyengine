@@ -72,7 +72,7 @@ then
 				# Install adminer/phpmyadmin/wpcli/utils
 				ee_ven_install_$EE_THIRD
 			fi
-			
+
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
 		elif [ "$EE_THIRD" = "" ]; then
@@ -101,7 +101,7 @@ then
 			ee_lib_service nginx php5-fpm mysql restart
 					
 			# Initialize Git
-			ee_lib_git_init /etc/nginx/ /etc/php5/ /etc/mysql/
+			ee_lib_git_init /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix
 
 			# Install adminer/phpmyadmin/wpcli/utils
 			ee_ven_install_adminer
