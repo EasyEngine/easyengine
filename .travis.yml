@@ -1,4 +1,4 @@
-otifications:
+notifications:
   webhooks:
   	irc:
   		- "chat.freenode.net#EasyEngine"
