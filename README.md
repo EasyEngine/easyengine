@@ -4,6 +4,15 @@
 
 easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
 
+## IMPORTANT UPDATE
+
+A new major release of EasyEngine is worked in `refactor branch` https://github.com/rtCamp/easyengine/tree/refactor
+
+We will publish reasons for the delay in next release soon. 
+
+In any case, you can continue to use current version. It won't break!
+
+
 **EasyEngine currently supports:**
 
 - Ubuntu 12.04, 12.10, 13.10 & 14.04
