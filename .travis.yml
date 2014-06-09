@@ -48,3 +48,7 @@ script:
 
 - sudo wp --allow-root --info
 - sudo ee system status
+- sudo ee stack stop
+- sudo ee stack start
+- sudo ee stack restart
+- sudo ee stack reload
