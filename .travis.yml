@@ -47,8 +47,8 @@ script:
 - sudo find /usr/local/lib/easyengine
 
 - sudo wp --allow-root --info
-- sudo ee system status
-- sudo ee stack stop
-- sudo ee stack start
-- sudo ee stack restart
-- sudo ee stack reload
+- sudo bash -x ee system status
+- sudo bash -x ee stack stop
+- sudo bash -x ee stack start
+- sudo bash -x ee stack restart
+- sudo bash -x ee stack reload
