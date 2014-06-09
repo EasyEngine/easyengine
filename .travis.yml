@@ -24,7 +24,6 @@ script:
 - sudo bash -x bin/install.sh $TRAVIS_BRANCH
 
 - sudo ee stack install
-- sudo ee stack remove
 - sudo ee stack purge
 - sudo ee system install nginx
 - sudo ee system install php
