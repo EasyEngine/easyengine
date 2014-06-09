@@ -1,7 +1,5 @@
 notifications:
   webhooks:
-  	irc:
-  		- "chat.freenode.net#EasyEngine"
     urls:
       - https://webhooks.gitter.im/e/bd77a26eab56de803949
     on_success: always  # options: [always|never|change] default: always
