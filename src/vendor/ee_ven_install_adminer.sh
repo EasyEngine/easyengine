@@ -1,4 +1,4 @@
-# Install Adminer	
+# Install Adminer
 
 function ee_ven_install_adminer()
 {
