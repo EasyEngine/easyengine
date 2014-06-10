@@ -10,7 +10,7 @@ function ee_lib_service()
 		if [ $ee_service_name != ${@: -1} ]; then
 
 			# Display message
-			ee_lib_echo "Executing: service $ee_service_name ${@: -1}, please wait..."
+			ee_lib_echo "Executing service $ee_service_name ${@: -1}, please wait..."
 
 			# Check nginx and php5-fpm test before start/stop/restart/reload 
 			if [ $ee_service_name = "nginx" ]; then
