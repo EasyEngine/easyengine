@@ -12,9 +12,9 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 ## Quick Start
 
 ```bash
-curl -sL rt.cx/ee | sudo bash        # install easyengine
-ee system install                     # install nginx, php, mysql, postfix 
-ee site create example.com --wp       # create example.com and install wordpress on it
+wget -qO ee rt.cx/ee && sudo bash ee        # install easyengine
+ee system install                           # install nginx, php, mysql, postfix 
+ee site create example.com --wp             # create example.com and install wordpress on it
 ```
 
 ## Upgrading 
