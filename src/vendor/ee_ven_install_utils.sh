@@ -26,7 +26,7 @@ function ee_ven_install_utils()
 		|| ee_lib_error "Unable to create /var/www/22222/htdocs/cache/nginx Directory, exit status = " $?
 
 		# Download nginx FastCGI cleanup
-		ee_lib_echo "Downloading nginx FastCGI cleanup script, Please Wait..."
+		ee_lib_echo "Downloading nginx FastCGI cleanup script, please wait..."
 		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php \
 		|| ee_lib_error "Unable to download nginx FastCGI cleanup script, exit status = " $?
 	fi
