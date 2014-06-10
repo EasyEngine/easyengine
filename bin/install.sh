@@ -89,7 +89,7 @@ elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
 fi
 
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ ! -z $EE_PACKAGE_NAME ]; then
-	ee_lib_echo "Installing required packages" | tee -ai $EE_INSTALL_LOG
+	ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_INSTALL_LOG
 	apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME || ee_lib_error "Unable to install required packages, exit status = " $?
 fi
 
@@ -182,7 +182,7 @@ GIT_USER_EMAIL=$(git config user.email)
 if [ -z "$GIT_USER_NAME" ] || [ -z "$GIT_USER_EMAIL" ]; then
 	echo
 	ee_lib_echo "EasyEngine (ee) required your name & email address" | tee -ai $EE_INSTALL_LOG
-	ee_lib_echo "to track changes you made under the git version control" | tee -ai $EE_INSTALL_LOG
+	ee_lib_echo "to track changes you made under the Git version control" | tee -ai $EE_INSTALL_LOG
 	ee_lib_echo "EasyEngine (ee) will be able to send you daily reports & alerts in upcoming version" | tee -ai $EE_INSTALL_LOG
 	ee_lib_echo "EasyEngine (ee) will NEVER send your information across" | tee -ai $EE_INSTALL_LOG
 fi
@@ -209,7 +209,7 @@ fi
 
 # Enable EasyEngine (ee) auto completion
 echo
-ee_lib_echo "To enable EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_INSTALL_LOG
+ee_lib_echo "For EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_INSTALL_LOG
 ee_lib_echo_info "source /etc/bash_completion.d/ee" | tee -ai $EE_INSTALL_LOG
 echo
 
