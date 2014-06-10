@@ -2,7 +2,7 @@
 
 [![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
 
-easyengine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
+EasyEngine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
 
 **EasyEngine currently supports:**
 
@@ -12,11 +12,11 @@ easyengine (ee) is a linux shell-script collection, which makes it easy to manag
 
 ## IMPORTANT UPDATE
 
-A new major release of EasyEngine is worked in `refactor branch` https://github.com/rtCamp/easyengine/tree/refactor
+A new major release of EasyEngine is worked in [`refactor branch`] ( https://github.com/rtCamp/easyengine/tree/refactor)  ([*Read reasons for refactoring is here*] (https://rtcamp.com/easyengine-refueling/))
 
-We will publish reasons for the delay in next release soon. 
+You can continue to use current version. It won't break!
 
-In any case, you can continue to use current version. It won't break!
+We are also available for chatting at https://gitter.im/rtCamp/easyengine
 
 
 ## Quick Start
