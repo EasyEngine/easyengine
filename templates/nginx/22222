@@ -1,4 +1,5 @@
-# EasyEngine Admin Configuration
+# EasyEngine (ee) admin
+
 server {
 
 	listen 22222 default_server ssl spdy;
@@ -9,13 +10,13 @@ server {
 	ssl_certificate /var/www/22222/cert/22222.crt;
 	ssl_certificate_key /var/www/22222/cert/22222.key;
 
-	# Force HTTP To HTTPS
+	# Force HTTP to HTTPS
 	error_page 497 =200 https://$host:22222$request_uri;
 
 	root /var/www/22222/htdocs;
 	index index.php index.htm index.html;
 
-	# Turn On Directory List
+	# Turn on directory listing
 	autoindex on;
 
 	location / {
