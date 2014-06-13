@@ -21,6 +21,5 @@ function ee_lib_echo_fail()
 # Execute: echo -e
 function ee_lib_echo_escape()
 {
-
 	echo -e $(tput sgr0)$@$(tput sgr0)
 }
