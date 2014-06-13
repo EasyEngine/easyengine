@@ -2,11 +2,11 @@
 
 function ee_mod_setup_php()
 {
-	ee_lib_echo "Setting up php5, please wait..."
+	ee_lib_echo "Setting up PHP5, please wait..."
 
 	# Custom php5 log directory
 	if [ ! -d /var/log/php5/ ]; then
-		mkdir -p /var/log/php5/ || ee_lib_error "Unable to create /var/log/php5/, exit status = " $?
+		mkdir -p /var/log/php5/ || ee_lib_error "Unable to create /var/log/PHP5/, exit status = " $?
 	fi
 
 	grep "EasyEngine" /etc/php5/fpm/php.ini &> /dev/null

@@ -4,7 +4,7 @@ function ee_mod_setup_nginx()
 {
 	local ee_whitelist_ip_address
 	
-	ee_lib_echo "Setting up nginx, please wait..."
+	ee_lib_echo "Setting up NGINX, please wait..."
 
 	grep "EasyEngine" /etc/nginx/nginx.conf &> /dev/null
 	if [ $? -ne 0 ]; then

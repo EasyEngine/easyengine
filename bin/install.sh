@@ -152,7 +152,7 @@ cp -a /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ &>> $EE_INSTALL
 
 # Templates
 cp -a /tmp/easyengine/config/nginx /tmp/easyengine/templates/* /usr/share/easyengine/ &>> $EE_INSTALL_LOG \
-|| ee_lib_error "Unable to copy nginx sample files, exit status = " $?
+|| ee_lib_error "Unable to copy NGINX sample files, exit status = " $?
 
 # EasyEngine (ee) library and modules
 cp -a /tmp/easyengine/src/* /usr/local/lib/easyengine \
