@@ -39,20 +39,20 @@ function ee_mod_system_status()
 	local ee_postfix_status=$(service postfix status | grep 'postfix is running' \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
 
-	echo
-	echo
+	ee_lib_echo
+	ee_lib_echo
 	ee_lib_echo_info "  System information as of $(/bin/date)"
-	echo
-	echo -e "  System load:\t$ee_system_load\t\t  Processes:\t\t$ee_system_processes"
-	echo -e "  Usage of /:\t$ee_root_usage\t\t  Users logged in:\t$ee_logged_in_users"
-	echo -e "  Memory usage:\t$ee_memory_usage%\t\t  Swap usage:\t\t$ee_swap_usage"
-	echo
+	ee_lib_echo
+	ee_lib_echo_escape "  System load:\t$ee_system_load\t\t  Processes:\t\t$ee_system_processes"
+	ee_lib_echo_escape "  Usage of /:\t$ee_root_usage\t\t  Users logged in:\t$ee_logged_in_users"
+	ee_lib_echo_escape "  Memory usage:\t$ee_memory_usage%\t\t  Swap usage:\t\t$ee_swap_usage"
+	ee_lib_echo
 	ee_lib_echo_info "  Service status information"
-	echo
-	echo -e "  Nginx:\t$ee_nginx_status"
-	echo -e "  PHP5-FPM:\t$ee_php_status"
-	echo -e "  MySQL:\t$ee_mysql_status"
-	echo -e "  Postfix:\t$ee_postfix_status"
-	echo
-	echo
+	ee_lib_echo
+	ee_lib_echo_escape "  Nginx:\t$ee_nginx_status"
+	ee_lib_echo_escape "  PHP5-FPM:\t$ee_php_status"
+	ee_lib_echo_escape "  MySQL:\t$ee_mysql_status"
+	ee_lib_echo_escape "  Postfix:\t$ee_postfix_status"
+	ee_lib_echo
+	ee_lib_echo
 }
