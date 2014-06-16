@@ -27,7 +27,7 @@ if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST"
 # Display information about NGINX|PHP|MySQL
 elif [ "$EE_FIRST" = "info" ];then
 	if [ "$EE_SECOND" = "nginx" ] || [ "$EE_SECOND" = "php" ] || [ "$EE_SECOND" = "mysql" ]; then
-		ee_lib_$EE_SECOND_info
+		ee_lib_${EE_SECOND}_info
 	else
 		ee_lib_nginx_info
 		ee_lib_php_info
