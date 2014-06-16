@@ -20,19 +20,27 @@ ee_lib_echo "EasyEngine (ee) command: $0 $@" &>> $EE_COMMAND_LOG
 
 
 # EasyEngine version
-if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST" = "-v" ]
-then
+if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST" = "-v" ];then
 	# Display Easy Engine Version
 	echo "EasyEngine (ee) version: $EE_VERSION"
 
+# Display information about NGINX|PHP|MySQL
+elif [ "$EE_FIRST" = "info" ];then
+	if [ "$EE_SECOND" = "nginx" ] || [ "$EE_SECOND" = "php" ] || [ "$EE_SECOND" = "mysql" ]; then
+		ee_lib_$EE_SECOND_info
+	else
+		ee_lib_nginx_info
+		ee_lib_php_info
+		ee_lib_mysql_info
+	fi
+
 # EasyEngine stack/system
-elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]
-then
+elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 	# EasyEngine install
 	if [ "$EE_SECOND" = "install" ]; then
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
-				# Setup nginx/php repository
+				# Setup NGINX/PHP repository
 				ee_mod_repo_$EE_THIRD
 
 				# Fix GnuPG key
@@ -43,12 +51,12 @@ then
 				# Execute: apt-get update
 				ee_lib_apt_get_update	
 
-				# Install nginx/php/mysql/postfix package
+				# Install NGINX/PHP/MySQL/Postfix package
 				ee_mod_install_$EE_THIRD
 			fi
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
-				# Setup nginx/php/mysql
+				# Setup NGINX/PHP/MySQL
 				ee_mod_setup_$EE_THIRD
 			fi
 
@@ -60,7 +68,7 @@ then
 					# Initialize Git
 					ee_lib_git_init /etc/php5/
 				else
-					# Restart nginx/mysql/postfix
+					# Restart  NGINX/MySQL/Postfix
 					ee_lib_service $EE_THIRD restart
 					
 					# Initialize Git
@@ -69,14 +77,14 @@ then
 			fi
 
 			if [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ];then
-				# Install adminer/phpmyadmin/wpcli/utils
+				# Install Adminer/phpMyAdmin/WP-CLI/Utils
 				ee_ven_install_$EE_THIRD
 			fi
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
 		elif [ "$EE_THIRD" = "" ]; then
-			# Setup nginx/php repository
+			# Setup  NGINX/PHP repository
 			ee_mod_repo_nginx
 			ee_mod_repo_php
 
@@ -86,24 +94,24 @@ then
 			# Execute: apt-get update
 			ee_lib_apt_get_update	
 
-			# Install nginx/php/mysql/postfix package
+			# Install NGINX/PHP/MySQL/Postfix package
 			ee_mod_install_nginx
 			ee_mod_install_php
 			ee_mod_install_mysql
 			ee_mod_install_postfix
 
-			# Setup nginx/php/mysql
+			# Setup NGINX/PHP/MySQL
 			ee_mod_setup_nginx
 			ee_mod_setup_php
 			ee_mod_setup_mysql
 
-			# # Restart nginx/mysql/postfix
+			# # Restart  NGINX/MySQL/Postfix
 			ee_lib_service nginx php5-fpm mysql restart
 					
 			# Initialize Git
 			ee_lib_git_init /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix
 
-			# Install adminer/phpmyadmin/wpcli/utils
+			# Install Adminer/phpMyAdmin/WP-CLI/Utils
 			ee_ven_install_adminer
 			ee_ven_install_phpmyadmin
 			ee_ven_install_wpcli
@@ -117,12 +125,12 @@ then
 	elif [ "$EE_SECOND" = "remove" ] || [ "$EE_SECOND" = "purge" ]; then
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
 
-			# Remove/Purge nginx/php/mysql/postfix package
+			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
 				ee_mod_remove_$EE_THIRD
 			fi
 
-			# Remove/Purge adminer/phpmyadmin/wpcli/utils
+			# Remove/Purge Adminer/phpMyAdmin/WP-CLI/Utils
 			if [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ];then
 				ee_ven_remove_$EE_THIRD
 			fi
@@ -137,13 +145,13 @@ then
 				ee_lib_echo "$EE_THIRD successfully purged"
 			fi
 		elif [ "$EE_THIRD" = "" ]; then
-			# Remove/Purge nginx/php/mysql/postfix package
+			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			ee_mod_remove_nginx
 			ee_mod_remove_php
 			ee_mod_remove_mysql
 			ee_mod_remove_postfix
 
-			# Install adminer/phpmyadmin/wpcli/utils
+			# Install Adminer/phpMyAdmin/WP-CLI/Utils
 			ee_ven_remove_adminer
 			ee_ven_remove_phpmyadmin
 			ee_ven_remove_wpcli

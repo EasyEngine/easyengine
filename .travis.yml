@@ -52,3 +52,7 @@ script:
 - sudo bash -x ee stack start
 - sudo bash -x ee stack restart
 - sudo bash -x ee stack reload
+- sudo bash ee info nginx
+- sudo bash ee info php
+- sudo bash ee info mysql
+- sudo bash ee info
