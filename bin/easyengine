@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# Arguments
-EE_FIRST=$1
-EE_SECOND=$2
-EE_THIRD=$3
-EE_FOURTH=$4
-EE_FIFTH=$5
-
 # Include library
 for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 	source $ee_include
@@ -15,6 +8,13 @@ done
 # Main EasyEngine (ee) function to log all the outputs
 EasyEngine()
 {
+
+# Arguments
+EE_FIRST=$1
+EE_SECOND=$2
+EE_THIRD=$3
+EE_FOURTH=$4
+EE_FIFTH=$5
 
 # Let's capture the EasyEngine arguments
 ee_lib_echo "EasyEngine (ee) execution started [$(date)]" &>> $EE_COMMAND_LOG
@@ -178,4 +178,4 @@ fi
 
 }
 
-EasyEngine | tee -ai $EE_COMMAND_LOG
+EasyEngine $@ | tee -ai $EE_COMMAND_LOG
