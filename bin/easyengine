@@ -12,11 +12,13 @@ for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 	source $ee_include
 done
 
+# Main EasyEngine (ee) function to log all the outputs
+EasyEngine()
+{
+
 # Let's capture the EasyEngine arguments
 ee_lib_echo "EasyEngine (ee) execution started [$(date)]" &>> $EE_COMMAND_LOG
 ee_lib_echo "EasyEngine (ee) command: $0 $@" &>> $EE_COMMAND_LOG
-
-
 
 
 # EasyEngine version
@@ -173,3 +175,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_service nginx php5-fpm mysql postfix $EE_SECOND
 	fi
 fi
+
+}
+
+EasyEngine | tee -ai $EE_COMMAND_LOG

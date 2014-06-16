@@ -20,7 +20,7 @@ ee_mod_install_mysql()
 	fi
 
 	ee_lib_echo "Installing MySQL, please Wait..."
-	$EE_APT_GET install mysql-server mysqltuner percona-toolkit | tee -ai $EE_COMMAND_LOG \
+	$EE_APT_GET install mysql-server mysqltuner percona-toolkit \
 	|| ee_lib_error "Unable to install MySQL, exit status = " $?
 
 	# Download tuning-primer.sh
