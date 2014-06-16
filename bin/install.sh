@@ -90,7 +90,8 @@ fi
 
 if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ ! -z $EE_PACKAGE_NAME ]; then
 	ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_INSTALL_LOG
-	apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME || ee_lib_error "Unable to install required packages, exit status = " $?
+	apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_INSTALL_LOG\
+	|| ee_lib_error "Unable to install required packages, exit status = " $?
 fi
 
 # Checking name servers
