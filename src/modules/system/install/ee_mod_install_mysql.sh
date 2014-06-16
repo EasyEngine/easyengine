@@ -7,7 +7,7 @@ ee_mod_install_mysql()
 
 	# If MySQL is not installed
 	# Then set random MySQL password for root user
-	if [ -n $PACKAGE_NAME ]; then
+	if [ -n $EE_PACKAGE_NAME ]; then
 
 		# Setting up MySQL password
 		local ee_mysql_auto_pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
