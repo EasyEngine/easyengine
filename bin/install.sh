@@ -195,7 +195,8 @@ if [ -z "$GIT_USER_NAME" ]; then
 	then
 		GIT_USER_NAME=$(whoami)
 	fi
-	git config --global user.name "$GIT_USER_NAME" &>> $EE_INSTALL_LOG	
+	git config --global user.name "$GIT_USER_NAME"
+	echo "git config user.name = $(git config user.name)" &>> $EE_INSTALL_LOG
 fi
 
 if [ -z "$GIT_USER_EMAIL" ];then
@@ -205,7 +206,8 @@ if [ -z "$GIT_USER_EMAIL" ];then
 	then
 		GIT_USER_EMAIL=$(whoami)@$(hostname -f)
 	fi
-	git config --global user.email $GIT_USER_EMAIL &>> $EE_INSTALL_LOG
+	git config --global user.email $GIT_USER_EMAIL
+	echo "git config user.email = $(git config user.email)" &>> $EE_INSTALL_LOG
 fi
 
 # Enable EasyEngine (ee) auto completion
