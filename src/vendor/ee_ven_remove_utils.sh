@@ -8,6 +8,9 @@ function ee_ven_remove_utils()
 	|| ee_lib_error "Unable to remove EasyEngine (ee) admin utilities"
 
 	# Drop Anemometer database
-	mysql -e "drop database slow_query_log" \
-	|| ee_lib_error "Unable to drop slow_query_log database, exit status = " $?
+	mysql -e "show databases like 'slow_query_log'" &>> $EE_COMMAND_LOG
+	if [ $? -eq 0 ]; then
+		mysql -e "drop database slow_query_log" \
+		|| ee_lib_error "Unable to drop slow_query_log database, exit status = " $?
+	fi
 }
