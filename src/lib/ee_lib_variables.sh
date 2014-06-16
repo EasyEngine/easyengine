@@ -39,6 +39,14 @@ else
 	readonly EE_PHP_USER=www-data
 fi
 
+# Find out MySQL hostname
+
+if [ -z $($EE_CONFIG_GET mysql.host) ]; then
+	readonly EE_MYSQL_HOST=localhost
+else
+	readonly EE_MYSQL_HOST=$($EE_CONFIG_GET mysql.host)
+fi
+
 # Find out MySQL login
 if [ -f ~/.my.cnf ];then
 	readonly EE_MYSQL_USER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
