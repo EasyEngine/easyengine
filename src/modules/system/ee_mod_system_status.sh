@@ -49,9 +49,9 @@ function ee_mod_system_status()
 	ee_lib_echo
 	ee_lib_echo_info "  Service status information"
 	ee_lib_echo
-	ee_lib_echo_escape "  Nginx:\t$ee_nginx_status"
+	ee_lib_echo_escape "  Nginx:\t\t$ee_nginx_status"
 	ee_lib_echo_escape "  PHP5-FPM:\t$ee_php_status"
-	ee_lib_echo_escape "  MySQL:\t$ee_mysql_status"
+	ee_lib_echo_escape "  MySQL:\t\t$ee_mysql_status"
 	ee_lib_echo_escape "  Postfix:\t$ee_postfix_status"
 	ee_lib_echo
 	ee_lib_echo
