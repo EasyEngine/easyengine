@@ -954,21 +954,21 @@ MYSQLINFO()
 EEWPDBPREFIX()
 {
 	# Get The WordPress Database Table Prefix
-	WPDBPREFIX=$(grep wpdbprefix /etc/easyengine/ee.conf | awk '{print($3)}')
+	EE_WP_PREFIX=$(grep wpdbprefix /etc/easyengine/ee.conf | awk '{print($3)}')
 	
-	# Display WPDBPREFIX Valid Characters Warning & Try Again
-	while [ $(echo $WPDBPREFIX | grep  '[^[:alnum:] _]') ]
+	# Display EE_WP_PREFIX Valid Characters Warning & Try Again
+	while [ $(echo $EE_WP_PREFIX | grep  '[^[:alnum:] _]') ]
 	do
 		ee_lib_echo_fail "Warning: \033[34mTable Prefix Can Only Contain Numbers, Letters, And Underscores."
 		# For Proper read Command Output
 		stty echo
-		read -p "Enter The MySQL Database Table Prefix [wp_]: " WPDBPREFIX
+		read -p "Enter The MySQL Database Table Prefix [wp_]: " EE_WP_PREFIX
 	done
 
 	# WordPress Database Table Prefix Default: wp_
-	if [[ $WPDBPREFIX = "" ]]
+	if [[ $EE_WP_PREFIX = "" ]]
 	then
-		WPDBPREFIX=wp_
+		EE_WP_PREFIX=wp_
 	fi
 }
 
@@ -1334,7 +1334,7 @@ ee_mod_domain_setup()
 	fi
 }
 
-EEWPSETUP()
+ee_mod_setup_wordpress()
 {
 	# Download Latest WordPress
 	ee_lib_echo "Downloading WordPress, Please Wait..."
@@ -1371,7 +1371,7 @@ EEWPSETUP()
 	sed -i "s/localhost/$EE_MYSQL_HOST/" \
 	/var/www/$EE_DOMAIN/wp-config.php
 
-	sed -i "s/wp_/$WPDBPREFIX/" \
+	sed -i "s/wp_/$EE_WP_PREFIX/" \
 	/var/www/$EE_DOMAIN/wp-config.php
 
 	printf '%s\n' "g/put your unique phrase here/d" \
@@ -1442,7 +1442,7 @@ SETUPEE_DOMAIN()
 	EEee_mod_domain_setup
 
 	# Setup WordPress Webroot & Database
-	EEWPSETUP
+	ee_mod_setup_wordpress
 	EEWPDBSETUP
 }
 
