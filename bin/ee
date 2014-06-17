@@ -349,7 +349,7 @@ EEWPDBSETUP()
 	|| ee_lib_error "Unable To Update WordPress Permalink For $EE_DOMAIN"
 }
 
-EEPERMISSION()
+ee_lib_permission()
 {
 	# Call PHPUSERINFO Function For PHP User Details
 	PHPUSERINFO
@@ -380,7 +380,7 @@ SETUP_DOMAIN()
 PERMISSIONANDGIT()
 {
 	# Change Webroot Permission
-	EEPERMISSION
+	ee_lib_permission
 
 	# Take Nginx Configuration In Git Version Control
 	EE_GIT_DIR=/etc/nginx
