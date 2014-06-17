@@ -210,22 +210,22 @@ EESITEEDIT()
 ee_lib_check_domain()
 {
 	# Check SITENAME Is Empty Or Not
-	if [ -z "$SITENAMECHECK" ]
+	if [ -z "$EE_DOMAIN_CHECK" ]
 	then
 		# Ask Users To Enter Domain Name
-		read -p "Enter Domain Name: " SITENAMECHECK
+		read -p "Enter Domain Name: " EE_DOMAIN_CHECK
 		# Remove http://  https:// & www.
-		EE_EE_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		EE_DOMAIN=$(echo $EE_DOMAIN_CHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
 	else
 		# Remove http://  https:// & www.
-		EE_EE_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		EE_DOMAIN=$(echo $EE_DOMAIN_CHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
 	fi
 
 	# Remove http://  https:// For WordPress Setup (www.example.com)
-	EE_WWW_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'/''")
+	EE_WWW_DOMAIN=$(echo $EE_DOMAIN_CHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'/''")
 }
 
-NGINXSYMBOLICLINK()
+ee_lib_symbolic_link()
 {
 	# Creating Symbolic Link
 	ee_lib_echo "Creating Symbolic Link For $EE_DOMAIN"
@@ -243,12 +243,12 @@ ee_mod_domain_setup()
 		# Creating Website $EE_DOMAIN
 		ee_lib_echo "Creating $EE_DOMAIN, Please Wait..."
 		sed "s/example.com/$EE_DOMAIN/g" \
-		/usr/share/easyengine/nginx/$NGINXCONF \
+		/usr/share/easyengine/nginx/$EE_NGINX_CONF \
 		> /etc/nginx/sites-available/$EE_DOMAIN \
 		|| ee_lib_error "Unable To Create Nginx Configuration File For $EE_DOMAIN"
 
 		# Creating Symbolic Link
-		NGINXSYMBOLICLINK
+		ee_lib_symbolic_link
 
 		# Creating Htdocs & Logs Directory
 		ee_lib_echo "Creating htdocs & logs Directory"
@@ -946,7 +946,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		ee_lib_check_domain
 		
 		# Check The Website Is Exist
@@ -967,7 +967,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		ee_lib_check_domain
 
 		# Display The Specific Site Configuration
@@ -977,7 +977,7 @@ then
 	then
 
 		# Configure Variables
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		EESITECREATE=$4
 		WPCACHEOPTION=$5
 
@@ -1026,8 +1026,8 @@ then
 		then
 
 			# Configure Variable
-			NGINXCONF=html/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			EE_NGINX_CONF=html/basic.conf
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup HTML Nginx
 			ee_lib_check_domain
@@ -1041,8 +1041,8 @@ then
 		then
 
 			# Configure Variable
-			NGINXCONF=php/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			EE_NGINX_CONF=php/basic.conf
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
 			ee_lib_check_domain
@@ -1056,8 +1056,8 @@ then
 		then
 
 			# Configure Variable
-			NGINXCONF=mysql/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			EE_NGINX_CONF=mysql/basic.conf
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
 			ee_lib_check_domain
@@ -1082,8 +1082,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wp/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wp/basic.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Basic Nginx
 				SETUP_DOMAIN
@@ -1100,8 +1100,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wp/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wp/w3tc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup W3 Total Cache Nginx
 				SETUP_DOMAIN
@@ -1126,8 +1126,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wp/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wp/wpsc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup WP Super Cache Nginx
 				SETUP_DOMAIN
@@ -1152,8 +1152,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wp/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wp/wpfc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Fastcgi Cache Nginx
 				SETUP_DOMAIN
@@ -1184,8 +1184,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdir/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdir/basic.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1207,8 +1207,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdir/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdir/w3tc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1238,8 +1238,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdir/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdir/wpsc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1269,8 +1269,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdir/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdir/wpfc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1306,8 +1306,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdomain/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdomain/basic.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1329,8 +1329,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdomain/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdomain/w3tc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1360,8 +1360,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdomain/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdomain/wpsc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1391,8 +1391,8 @@ then
 			then
 
 				# Configure Variable
-				NGINXCONF=wpsubdomain/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				EE_NGINX_CONF=wpsubdomain/wpfc.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1426,11 +1426,11 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		ee_lib_check_domain
 
 		# Creating Symbolic Link
-		NGINXSYMBOLICLINK
+		ee_lib_symbolic_link
 
 		# Reload Nginx Configuration
 		NGINXRELOAD
@@ -1444,7 +1444,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		ee_lib_check_domain
 
 		# Remove Symbolic Link
@@ -1464,7 +1464,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		SITEDELETEARG=$4
 		ee_lib_check_domain
 
@@ -1527,7 +1527,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		SITENAMECHECK=$3
+		EE_DOMAIN_CHECK=$3
 		ee_lib_check_domain
 			
 		# Edit The Nginx Configuration For $EE_DOMAIN
@@ -1632,7 +1632,7 @@ then
 		else
 
 			# Get The Domain Name
-			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EE_DOMAIN_CHECK=$EE_DEBUG_SITENAME
 			ee_lib_check_domain
 
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
@@ -1722,7 +1722,7 @@ then
 		else
 
 			# Get The Domain Name
-			SITENAMECHECK=$EE_DEBUG_SITENAME
+			EE_DOMAIN_CHECK=$EE_DEBUG_SITENAME
 			ee_lib_check_domain
 
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
