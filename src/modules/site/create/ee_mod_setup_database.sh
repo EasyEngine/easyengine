@@ -1,6 +1,6 @@
 # Database setup
 
-function ee_mod_create_database()
+function ee_mod_setup_database()
 {
 	# Replace dot(.) with underscore(_) in EE_DOMAIN Name
 	ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
