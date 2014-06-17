@@ -609,12 +609,12 @@ ee_mod_setup_mysql()
 		MYSQLROOT
 
 		# Setup Anemometer Database
-		mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS < /var/www/22222/htdocs/db/anemometer/install.sql \
 		|| ee_lib_error "Unable To Import Anemometer Database"
 
 		# Setup Anemometer Database Grants
 		ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"
 
 		# Execute On MySQL Logrotation
 		sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
@@ -874,47 +874,47 @@ ee_lib_git_commit()
 	fi
 }
 
-MYSQLUSERPASS()
+EE_MYSQL_USERPASS()
 {
-	read -p "Enter The MySQL Username [root]: " MYSQLUSER
+	read -p "Enter The MySQL Username [root]: " EE_MYSQL_USER
 	# If Enter Is Pressed, Then Use root as MySQL User
-	if [[ $MYSQLUSER = "" ]]
+	if [[ $EE_MYSQL_USER = "" ]]
 	then
-		MYSQLUSER=root
+		EE_MYSQL_USER=root
 	fi
 
 	# Turn Off Echo For Passwords
 	stty -echo
-	read -p "Enter The MySQL Password: " MYSQLPASS
+	read -p "Enter The MySQL Password: " EE_MYSQL_PASS
 	stty echo
 	echo
 }
 
 
-MYSQLPASSCHECK()
+EE_MYSQL_PASSCHECK()
 {
-	while [ -n $(mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS ping 2> /dev/null | grep alive) &> /dev/null ]
+	while [ -n $(mysqladmin -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS ping 2> /dev/null | grep alive) &> /dev/null ]
 	do
 		# Verify MySQL Credentials
-		MYSQLUSERPASS
+		EE_MYSQL_USERPASS
 	done
 }
 
 MYSQLROOT()
 {
-	MYSQLUSER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
-	MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
+	EE_MYSQL_USER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
+	EE_MYSQL_PASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
 }
 # GET Information Function
 MYSQLINFO()
 {
 	# Get The MySQL Host
-	MYSQLHOST=$(grep mysqlhost /etc/easyengine/ee.conf | awk '{print($3)}')
+	EE_MYSQL_HOST=$(grep mysqlhost /etc/easyengine/ee.conf | awk '{print($3)}')
 
 	# MySQL Default Host: localhost
-	if [[ $MYSQLHOST = "" ]]
+	if [[ $EE_MYSQL_HOST = "" ]]
 	then
-		MYSQLHOST=localhost
+		EE_MYSQL_HOST=localhost
 	fi
 	
 	if [ -f ~/.my.cnf ]
@@ -922,32 +922,32 @@ MYSQLINFO()
 		MYSQLROOT
 	else
 		# Verify MySQL Credentials
-		MYSQLUSERPASS
+		EE_MYSQL_USERPASS
 	fi
 
 	# Verify MySQL Credentials
-	MYSQLPASSCHECK
+	EE_MYSQL_PASSCHECK
 
-	# Replace Dot With Underscore In $DOMAIN Name
-	REPLACEDOT=$(echo $DOMAIN | tr '.' '_')
+	# Replace Dot With Underscore In $EE_DOMAIN Name
+	ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
 
 	# Check Use Default DB Name Or Custom DB Name
 	grep customdbname /etc/easyengine/ee.conf | grep -i true &>> /dev/null
 
 	if [ $? -eq 0 ]
 	then
-		read -p "Enter The MySQL Database Name [$REPLACEDOT]: " WPDBNAME
+		read -p "Enter The MySQL Database Name [$ee_replace_dot]: " EE_DB_NAME
 	fi
 
 	# If customdbname = false 
-	# 		Then It Never Ask For MySQL Database Name In This Case $WPDBNAME Is Empty
+	# 		Then It Never Ask For MySQL Database Name In This Case $EE_DB_NAME Is Empty
 	# If customdbname = true
-	#		User Enter Custom Databse Name Then WPDBNAME Is Not Empty & We Used Provided Database Name
- 	#		If User Pressed Enter Then $WPDBNAME Is Empty
+	#		User Enter Custom Databse Name Then EE_DB_NAME Is Not Empty & We Used Provided Database Name
+ 	#		If User Pressed Enter Then $EE_DB_NAME Is Empty
 
-	if [[ $WPDBNAME = "" ]]
+	if [[ $EE_DB_NAME = "" ]]
 	then
-		WPDBNAME=$REPLACEDOT
+		EE_DB_NAME=$ee_replace_dot
 	fi
 }
 
@@ -972,37 +972,37 @@ EEWPDBPREFIX()
 	fi
 }
 
-FIXMYSQLUSER16()
+FIXEE_MYSQL_USER16()
 {
 	# Fix MySQL USER ERROR 1470 (HY000)
-	MYSQLUSER16=$(echo -n $WPDBUSER | wc -c)
+	EE_MYSQL_USER16=$(echo -n $EE_DB_USER | wc -c)
 
-	if [[ $MYSQLUSER16 -gt 16 ]]
+	if [[ $EE_MYSQL_USER16 -gt 16 ]]
 	then
-		echo MySQL Database Username $WPDBUSER = $MYSQLUSER16 &>> $EE_COMMAND_LOG
+		echo MySQL Database Username $EE_DB_USER = $EE_MYSQL_USER16 &>> $EE_COMMAND_LOG
 		ee_lib_echo "Auto Fix MySQL Username To The 16 Characters"
 		RANDOM_CHARACTER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n1)
-		WPDBUSER=$(echo $REPLACEDOT | cut -c1-16 | sed "s/.\{10\}$/$RANDOM_CHARACTER/")
+		EE_DB_USER=$(echo $ee_replace_dot | cut -c1-16 | sed "s/.\{10\}$/$RANDOM_CHARACTER/")
 
-		#ee_lib_echo_fail "ERROR 1470 (HY000): $WPDBUSER Is Too Long For MySQL Username"
+		#ee_lib_echo_fail "ERROR 1470 (HY000): $EE_DB_USER Is Too Long For MySQL Username"
 		# Turn Off Echo For Passwords
 		#stty echo
-		#read -p "Enter The MySQL Database Username [$REPLACEDOT16]: " WPDBUSER
+		#read -p "Enter The MySQL Database Username [$ee_replace_dot16]: " EE_DB_USER
 
-		#if [[ $WPDBUSER = "" ]]
+		#if [[ $EE_DB_USER = "" ]]
 		#then
-		#	WPDBUSER=$REPLACEDOT16
+		#	EE_DB_USER=$ee_replace_dot16
 		#fi
 
 	fi
 
 }
 
-EECREATEDATABASE()
+ee_mod_create_database()
 {
 	# Create Database
-	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create database \`$WPDBNAME\`" \
-	|| ee_lib_error "Unable To Create $WPDBNAME Database"
+	mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "create database \`$EE_DB_NAME\`" \
+	|| ee_lib_error "Unable To Create $EE_DB_NAME Database"
 
 	# Check Use Default DB User Or Custom DB User
 	WPDBRANDOMPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
@@ -1010,40 +1010,40 @@ EECREATEDATABASE()
 
 	if [ $? -eq 0 ]
 	then
-		read -p "Enter The MySQL Database Username [$REPLACEDOT]: " WPDBUSER
+		read -p "Enter The MySQL Database Username [$ee_replace_dot]: " EE_DB_USER
 
-		if [[ $WPDBUSER = "" ]]
+		if [[ $EE_DB_USER = "" ]]
 		then
-			WPDBUSER=$REPLACEDOT
+			EE_DB_USER=$ee_replace_dot
 		fi
 
 		# Fix MySQL USER ERROR 1470 (HY000)
-		FIXMYSQLUSER16
+		FIXEE_MYSQL_USER16
 		
 		# Turn Off Echo For Passwords
 		stty -echo
-		read -p "Enter The MySQL Database Password [$WPDBRANDOMPASS]: " WPDBPASS
+		read -p "Enter The MySQL Database Password [$WPDBRANDOMPASS]: " EE_DB_PASS
 		stty echo
 		echo
 	fi
 
-	if [[ $WPDBUSER = "" ]]
+	if [[ $EE_DB_USER = "" ]]
 	then
-		WPDBUSER=$REPLACEDOT
+		EE_DB_USER=$ee_replace_dot
 		# Fix MySQL USER ERROR 1470 (HY000)
-		FIXMYSQLUSER16
+		FIXEE_MYSQL_USER16
 	fi
 
-	if [[ $WPDBPASS = "" ]]
+	if [[ $EE_DB_PASS = "" ]]
 	then
-		WPDBPASS=$WPDBRANDOMPASS
+		EE_DB_PASS=$WPDBRANDOMPASS
 	fi
 
 	# Create Separate User & Grant Permission
-	echo -e "WPDBNAME = $WPDBNAME \nWPDBUSER = $WPDBUSER \nWPDBPASS = $WPDBPASS" &>> $EE_COMMAND_LOG
-	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "create user '$WPDBUSER'@'$MYSQLHOST' identified by '$WPDBPASS'"
-	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "grant all privileges on \`$WPDBNAME\`.* to '$WPDBUSER'@'$MYSQLHOST'"
-	mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges"
+	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS" &>> $EE_COMMAND_LOG
+	mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "create user '$EE_DB_USER'@'$EE_MYSQL_HOST' identified by '$EE_DB_PASS'"
+	mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_HOST'"
+	mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "flush privileges"
 }
 
 PHPUSERINFO()
@@ -1117,7 +1117,7 @@ EEINFO()
 
 	# MySQL Information
 	MYSQLVER=$(mysql -V | awk '{print($5)}' | cut -d ',' -f1)
-	MYSQLUSER=$(grep ^user /etc/mysql/my.cnf | awk '{print($3)}')
+	EE_MYSQL_USER=$(grep ^user /etc/mysql/my.cnf | awk '{print($3)}')
 	MYSQLPORT=$(mysql -e "show variables" | grep ^port | awk '{print($2)}')
 	MYSQLSOCKET=$(mysql -e "show variables" | grep "^socket" | awk '{print($2)}')
 	MYSQLDATADIR=$(mysql -e "show variables" | grep datadir | awk '{print($2)}')
@@ -1127,7 +1127,7 @@ EEINFO()
 	MYSQLMAXUSEDCONNECTION=$(mysql -e "show global status" | grep Max_used_connections | awk '{print($2)}')
 
 	ee_lib_echo "\n\nMySQL ($MYSQLVER) Information:\n"
-	ee_lib_echo "MySQL User:\t\t\t \033[37m$MYSQLUSER"
+	ee_lib_echo "MySQL User:\t\t\t \033[37m$EE_MYSQL_USER"
 	ee_lib_echo "MySQL port:\t\t\t \033[37m$MYSQLPORT"
 	ee_lib_echo "MySQL wait_timeout:\t\t \033[37m$MYSQLWAITTIMEOUT"
 	ee_lib_echo "MySQL interactive_timeout:\t \033[37m$MYSQLINTERACTIVE"
@@ -1148,25 +1148,25 @@ EEINFO()
 EESITEINFO()
 {
 	# Display The Specific Site Configuration
-	SITESTATUS=$(ls /etc/nginx/sites-enabled/$DOMAIN &> /dev/null && echo Enable || echo Disable)
-	SITEINFO=$(head -n1 /etc/nginx/sites-available/$DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
-	ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
-	EE_ERROR_LOG=$(grep error_log /etc/nginx/sites-available/$DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
-	WEBROOT=$(grep root /etc/nginx/sites-available/$DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
-	WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/wp-config.php 2> /dev/null | cut -d"'" -f4)
+	SITESTATUS=$(ls /etc/nginx/sites-enabled/$EE_DOMAIN &> /dev/null && echo Enable || echo Disable)
+	SITEINFO=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+	ACCESSLOG=$(grep access_log /etc/nginx/sites-available/$EE_DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+	EE_ERROR_LOG=$(grep error_log /etc/nginx/sites-available/$EE_DOMAIN | grep "/var/log/nginx/" | awk '{print($2)}' | cut -d ';' -f1)
+	WEBROOT=$(grep root /etc/nginx/sites-available/$EE_DOMAIN | grep htdocs | awk '{print($2)}'  | cut -d ';' -f1)
+	EE_DB_NAME=$(grep DB_NAME /var/www/$EE_DOMAIN/wp-config.php 2> /dev/null | cut -d"'" -f4)
 
-	ee_lib_echo "$DOMAIN Information:\n"
+	ee_lib_echo "$EE_DOMAIN Information:\n"
 	ee_lib_echo "Nginx Configuration:\t\t \033[37m$SITEINFO ($SITESTATUS)"
 	ee_lib_echo "Nginx access_log:\t\t \033[37m$ACCESSLOG"
 	ee_lib_echo "Nginx error_log:\t\t \033[37m$EE_ERROR_LOG"
 	ee_lib_echo "Nginx root:\t\t\t \033[37m$WEBROOT"
-	ee_lib_echo "$DOMAIN Database:\t\t \033[37m$WPDBNAME"
+	ee_lib_echo "$EE_DOMAIN Database:\t\t \033[37m$EE_DB_NAME"
 }
 
 EESITEEDIT()
 {
 	# Open Website In Default Editor
-	sensible-editor /etc/nginx/sites-available/$DOMAIN 2> /dev/null
+	sensible-editor /etc/nginx/sites-available/$EE_DOMAIN 2> /dev/null
 }
 
 NGINXBUCKETSIZE()
@@ -1276,7 +1276,7 @@ POSTFIXRESTART()
 
 
 # EE Domain Functions
-EESITENAME()
+ee_lib_check_domain()
 {
 	# Check SITENAME Is Empty Or Not
 	if [ -z "$SITENAMECHECK" ]
@@ -1284,53 +1284,53 @@ EESITENAME()
 		# Ask Users To Enter Domain Name
 		read -p "Enter Domain Name: " SITENAMECHECK
 		# Remove http://  https:// & www.
-		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		EE_EE_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
 	else
 		# Remove http://  https:// & www.
-		DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
+		EE_EE_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'www.''" | sed "s'/''")
 	fi
 
 	# Remove http://  https:// For WordPress Setup (www.example.com)
-	WWWDOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'/''")
+	EE_WWW_DOMAIN=$(echo $SITENAMECHECK | tr 'A-Z' 'a-z' |  sed "s'http://''" | sed "s'https://''" | sed "s'/''")
 }
 
 NGINXSYMBOLICLINK()
 {
 	# Creating Symbolic Link
-	ee_lib_echo "Creating Symbolic Link For $DOMAIN"
-	ln -s /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/ \
-	|| ee_lib_error "Unable To Create Symbolic Link For $DOMAIN"
+	ee_lib_echo "Creating Symbolic Link For $EE_DOMAIN"
+	ln -s /etc/nginx/sites-available/$EE_DOMAIN /etc/nginx/sites-enabled/ \
+	|| ee_lib_error "Unable To Create Symbolic Link For $EE_DOMAIN"
 }
 
-EEDOMAINSETUP()
+ee_mod_domain_setup()
 {
-	#Check The Nginx Configuration Exist For $DOMAIN
-	ls /etc/nginx/sites-available/$DOMAIN &> $EE_ERROR_LOG
+	#Check The Nginx Configuration Exist For $EE_DOMAIN
+	ls /etc/nginx/sites-available/$EE_DOMAIN &> $EE_ERROR_LOG
 
 	if [ $? -ne 0 ]
 	then
-		# Creating Website $DOMAIN
-		ee_lib_echo "Creating $DOMAIN, Please Wait..."
-		sed "s/example.com/$DOMAIN/g" \
+		# Creating Website $EE_DOMAIN
+		ee_lib_echo "Creating $EE_DOMAIN, Please Wait..."
+		sed "s/example.com/$EE_DOMAIN/g" \
 		/usr/share/easyengine/nginx/$NGINXCONF \
-		> /etc/nginx/sites-available/$DOMAIN \
-		|| ee_lib_error "Unable To Create Nginx Configuration File For $DOMAIN"
+		> /etc/nginx/sites-available/$EE_DOMAIN \
+		|| ee_lib_error "Unable To Create Nginx Configuration File For $EE_DOMAIN"
 
 		# Creating Symbolic Link
 		NGINXSYMBOLICLINK
 
 		# Creating Htdocs & Logs Directory
 		ee_lib_echo "Creating htdocs & logs Directory"
-		mkdir -p /var/www/$DOMAIN/htdocs && mkdir -p /var/www/$DOMAIN/logs \
+		mkdir -p /var/www/$EE_DOMAIN/htdocs && mkdir -p /var/www/$EE_DOMAIN/logs \
 		|| ee_lib_error "Unable To Create htdocs & logs Directory"
 
 		# Creating Symbolic Links For Logs
 		ee_lib_echo "Creating Symbolic Link For Logs"
-		ln -s /var/log/nginx/$DOMAIN.access.log /var/www/$DOMAIN/logs/access.log \
-		&& ln -s /var/log/nginx/$DOMAIN.error.log /var/www/$DOMAIN/logs/error.log \
-		|| ee_lib_error "Unable To Create Symbolic Link For $DOMAIN Logs"
+		ln -s /var/log/nginx/$EE_DOMAIN.access.log /var/www/$EE_DOMAIN/logs/access.log \
+		&& ln -s /var/log/nginx/$EE_DOMAIN.error.log /var/www/$EE_DOMAIN/logs/error.log \
+		|| ee_lib_error "Unable To Create Symbolic Link For $EE_DOMAIN Logs"
 	else
-		ee_lib_error "$DOMAIN Already Exist"
+		ee_lib_error "$EE_DOMAIN Already Exist"
 	fi
 }
 
@@ -1338,45 +1338,45 @@ EEWPSETUP()
 {
 	# Download Latest WordPress
 	ee_lib_echo "Downloading WordPress, Please Wait..."
-	wget --no-check-certificate -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
+	wget --no-check-certificate -cqO /var/www/$EE_DOMAIN/htdocs/latest.tar.gz  \
 	http://wordpress.org/latest.tar.gz \
 	|| ee_lib_error "Unable To Download WordPress"
 
 	# Extracting WordPress
-	tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
-	-C /var/www/$DOMAIN/htdocs/ \
+	tar --strip-components=1 -zxf /var/www/$EE_DOMAIN/htdocs/latest.tar.gz \
+	-C /var/www/$EE_DOMAIN/htdocs/ \
 	|| ee_lib_error "Unable To Extract WordPress"
 
 	# Removing WordPress Archive
-	rm /var/www/$DOMAIN/htdocs/latest.tar.gz
+	rm /var/www/$EE_DOMAIN/htdocs/latest.tar.gz
 
 	# Call MYSQLINFO Function For MySQL Values
 	MYSQLINFO
 	EEWPDBPREFIX
-	EECREATEDATABASE
+	ee_mod_create_database
 
 	# Modify wp-config.php & Move Outside The Webroot
-	cp /var/www/$DOMAIN/htdocs/wp-config-sample.php \
-	/var/www/$DOMAIN/wp-config.php
+	cp /var/www/$EE_DOMAIN/htdocs/wp-config-sample.php \
+	/var/www/$EE_DOMAIN/wp-config.php
 
-	sed -i "s/database_name_here/$WPDBNAME/" \
-	/var/www/$DOMAIN/wp-config.php
+	sed -i "s/database_name_here/$EE_DB_NAME/" \
+	/var/www/$EE_DOMAIN/wp-config.php
 
-	sed -i "s/username_here/$WPDBUSER/" \
-	/var/www/$DOMAIN/wp-config.php
+	sed -i "s/username_here/$EE_DB_USER/" \
+	/var/www/$EE_DOMAIN/wp-config.php
 				
-	sed -i "s/password_here/$WPDBPASS/" \
-	/var/www/$DOMAIN/wp-config.php
+	sed -i "s/password_here/$EE_DB_PASS/" \
+	/var/www/$EE_DOMAIN/wp-config.php
 
-	sed -i "s/localhost/$MYSQLHOST/" \
-	/var/www/$DOMAIN/wp-config.php
+	sed -i "s/localhost/$EE_MYSQL_HOST/" \
+	/var/www/$EE_DOMAIN/wp-config.php
 
 	sed -i "s/wp_/$WPDBPREFIX/" \
-	/var/www/$DOMAIN/wp-config.php
+	/var/www/$EE_DOMAIN/wp-config.php
 
 	printf '%s\n' "g/put your unique phrase here/d" \
 	a "$(curl -sL https://api.wordpress.org/secret-key/1.1/salt/)" . w \
-	| ed -s /var/www/$DOMAIN/wp-config.php
+	| ed -s /var/www/$EE_DOMAIN/wp-config.php
 }
 
 EEWPDBSETUP()
@@ -1407,15 +1407,15 @@ EEWPDBSETUP()
 
 	# Create WordPress Tables
 	ee_lib_echo "Setting Up WordPress, Please Wait..."
-	cd /var/www/$DOMAIN/htdocs || ee_lib_error "Unable To Change Directory To Install WordPress"
-	wp core install --allow-root  --url=$WWWDOMAIN --title="$WWWDOMAIN" \
+	cd /var/www/$EE_DOMAIN/htdocs || ee_lib_error "Unable To Change Directory To Install WordPress"
+	wp core install --allow-root  --url=$EE_WWW_DOMAIN --title="$EE_WWW_DOMAIN" \
 	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $EE_COMMAND_LOG \
-	|| ee_lib_error "Unable To Create WordPress Tables For $DOMAIN"
+	|| ee_lib_error "Unable To Create WordPress Tables For $EE_DOMAIN"
 	
 	# Update WordPress Permalink Structure Day and Postname
 	ee_lib_echo "Updating WordPress Permalink, Please Wait..."
 	wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ &>> $EE_COMMAND_LOG \
-	|| ee_lib_error "Unable To Update WordPress Permalink For $DOMAIN"
+	|| ee_lib_error "Unable To Update WordPress Permalink For $EE_DOMAIN"
 }
 
 EEPERMISSION()
@@ -1425,7 +1425,7 @@ EEPERMISSION()
 
 	# Change Ownership
 	ee_lib_echo "Changing Ownership"
-	chown -R $PHPUSER:$PHPUSER /var/www/$DOMAIN/ || ee_lib_error "Unable To Change Ownership For $DOMAIN"
+	chown -R $PHPUSER:$PHPUSER /var/www/$EE_DOMAIN/ || ee_lib_error "Unable To Change Ownership For $EE_DOMAIN"
 
 	# Reload Nginx Configuration
 	NGINXRELOAD
@@ -1433,13 +1433,13 @@ EEPERMISSION()
 
 
 # NGINX Configuration Function
-SETUPDOMAIN()
+SETUPEE_DOMAIN()
 {
 	# Check SITENAME Is Empty Or Not
-	EESITENAME
+	ee_lib_check_domain
 
-	# Creating Website $DOMAIN
-	EEDOMAINSETUP
+	# Creating Website $EE_DOMAIN
+	EEee_mod_domain_setup
 
 	# Setup WordPress Webroot & Database
 	EEWPSETUP
@@ -1453,14 +1453,14 @@ PERMISSIONANDGIT()
 
 	# Take Nginx Configuration In Git Version Control
 	EE_GIT_DIR=/etc/nginx
-	EE_GIT_MESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $DOMAIN"
+	EE_GIT_MESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $EE_DOMAIN"
 	ee_lib_git_commit
 }
 
 TOTALCACHENGINX()
 {
 	# Installing W3 Total Cache
-	cd /var/www/$DOMAIN/htdocs/
+	cd /var/www/$EE_DOMAIN/htdocs/
 	ee_lib_echo "Installing W3 Total Cache Plugin, Please Wait..."
 	wp plugin --allow-root install w3-total-cache &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Install W3 Total Cache Plugin"
 
@@ -1471,7 +1471,7 @@ TOTALCACHENGINX()
 SUPERCACHENGINX()
 {
 	# Installing WP Super Cache
-	cd /var/www/$DOMAIN/htdocs/
+	cd /var/www/$EE_DOMAIN/htdocs/
 	ee_lib_echo "Installing WP Super Cache Plugin, Please Wait..."
 	wp plugin --allow-root install wp-super-cache &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Install WP Super Cache Plugin"
 
@@ -1482,7 +1482,7 @@ SUPERCACHENGINX()
 NGINXHELPER()
 {
 	# Installing Nginx Helper
-	cd /var/www/$DOMAIN/htdocs/
+	cd /var/www/$EE_DOMAIN/htdocs/
 	ee_lib_echo "Installing Nginx Helper Plugin, Please Wait..."
 	wp plugin --allow-root install nginx-helper &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Install Nginx Helper"
 
@@ -1495,11 +1495,11 @@ NGINXHELPER()
 SETUPWPNETWORK()
 {
 	# Prepare wp-config.php File Foe WordPress Multisite With SubDirectory
-	cd /var/www/$DOMAIN/htdocs || ee_lib_error "Unable To Change Directory"
-	wp core install-network --allow-root --title="$WWWDOMAIN" $WPSUBDOMAINS &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Setup WordPress SubDirectory Network"
+	cd /var/www/$EE_DOMAIN/htdocs || ee_lib_error "Unable To Change Directory"
+	wp core install-network --allow-root --title="$EE_WWW_DOMAIN" $WPSUBEE_DOMAINS &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Setup WordPress SubDirectory Network"
 
-	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$DOMAIN/wp-config.php
-	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$DOMAIN/wp-config.php
+	sed -i "/WP_DEBUG/a \define('WP_ALLOW_MULTISITE', true);" /var/www/$EE_DOMAIN/wp-config.php
+	sed -i "/WP_ALLOW_MULTISITE/a \define('WPMU_ACCEL_REDIRECT', true);" /var/www/$EE_DOMAIN/wp-config.php
 	
 	# Remove index.php from permalink
 	# Install Nginx Helper
@@ -1511,16 +1511,16 @@ SETUPWPNETWORK()
 REMOVEDB()
 {
 	# HTML & PHP Website Doesn't Have Database
-	head -n1 /etc/nginx/sites-available/$DOMAIN | egrep -e 'HTML|PHP' &>> $EE_COMMAND_LOG
+	head -n1 /etc/nginx/sites-available/$EE_DOMAIN | egrep -e 'HTML|PHP' &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
 	then
 		# MySQL Information
 		MYSQLROOT
-		WPDBNAME=$(grep DB_NAME /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
-		WPDBUSER=$(grep DB_USER /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
-		WPDBPASS=$(grep DB_PASS /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
-		MYSQLHOST=$(grep DB_HOST /var/www/$DOMAIN/*-config.php | cut -d"'" -f4)
-		echo -e " WPDBNAME = $WPDBNAME \n WPDBUSER = $WPDBUSER \n MYSQLHOST = $MYSQLHOST"
+		EE_DB_NAME=$(grep DB_NAME /var/www/$EE_DOMAIN/*-config.php | cut -d"'" -f4)
+		EE_DB_USER=$(grep DB_USER /var/www/$EE_DOMAIN/*-config.php | cut -d"'" -f4)
+		EE_DB_PASS=$(grep DB_PASS /var/www/$EE_DOMAIN/*-config.php | cut -d"'" -f4)
+		EE_MYSQL_HOST=$(grep DB_HOST /var/www/$EE_DOMAIN/*-config.php | cut -d"'" -f4)
+		echo -e " EE_DB_NAME = $EE_DB_NAME \n EE_DB_USER = $EE_DB_USER \n EE_MYSQL_HOST = $EE_MYSQL_HOST"
 
 		# Remove Database
 		# For Proper read Command Output
@@ -1531,30 +1531,30 @@ REMOVEDB()
 			ANSWER="y"
 		else
 			# Ask user for confirmation
-			read -p "Are You Sure To Drop $WPDBNAME Database (y/n): " ANSWER
+			read -p "Are You Sure To Drop $EE_DB_NAME Database (y/n): " ANSWER
 		fi
 
 		if [ "$ANSWER" = "y" ]
 		then
 			# Remove Database
-			mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop database \`$WPDBNAME\`" \
-			|| ee_lib_error "Unable To Drop $WPDBNAME Database"
+			mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "drop database \`$EE_DB_NAME\`" \
+			|| ee_lib_error "Unable To Drop $EE_DB_NAME Database"
 
 			# Never Remove root User
-			if [ "$WPDBUSER" != "root" ]
+			if [ "$EE_DB_USER" != "root" ]
 			then
 				# Remove Database User
-				mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "drop user '$WPDBUSER'@'$MYSQLHOST'" \
-				|| ee_lib_error "Unable To Drop Database User $WPDBUSER"
-				mysql -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS -e "flush privileges" \
+				mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "drop user '$EE_DB_USER'@'$EE_MYSQL_HOST'" \
+				|| ee_lib_error "Unable To Drop Database User $EE_DB_USER"
+				mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "flush privileges" \
 				|| ee_lib_error "Unable To Flush MySQL Privileges"
 			fi
 		else
 			# User Denied Messages
-			ee_lib_echo_fail "User Denied To Drop $WPDBNAME Database."
+			ee_lib_echo_fail "User Denied To Drop $EE_DB_NAME Database."
 		fi
 	else
-		ee_lib_echo_fail "No Database Found For $DOMAIN"
+		ee_lib_echo_fail "No Database Found For $EE_DOMAIN"
 	fi
 }
 
@@ -1569,16 +1569,16 @@ REMOVEFILES()
 		ANSWER="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Remove $DOMAIN Webroot (y/n): " ANSWER
+		read -p "Are You Sure To Remove $EE_DOMAIN Webroot (y/n): " ANSWER
 	fi
 
 	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Webroot
-		rm -rf /var/www/$DOMAIN	|| ee_lib_error "Unable To Remove $DOMAIN Webroot"
+		rm -rf /var/www/$EE_DOMAIN	|| ee_lib_error "Unable To Remove $EE_DOMAIN Webroot"
 	else
 		# User Denied Messages
-		ee_lib_echo_fail "User Denied To Remove $DOMAIN Webroot."
+		ee_lib_echo_fail "User Denied To Remove $EE_DOMAIN Webroot."
 	fi
 }
 
@@ -1593,16 +1593,16 @@ ee_mod_remove_nginxCONF()
 		ANSWER="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Remove $DOMAIN Nginx Configuration (y/n): " ANSWER
+		read -p "Are You Sure To Remove $EE_DOMAIN Nginx Configuration (y/n): " ANSWER
 	fi
 	if [ "$ANSWER" = "y" ]
 	then
 		# Remove Webroot
-		rm -rf /etc/nginx/sites-available/$DOMAIN /etc/nginx/sites-enabled/$DOMAIN \
-		|| ee_lib_error "Unable To Remove $DOMAIN Nginx Configuration"
+		rm -rf /etc/nginx/sites-available/$EE_DOMAIN /etc/nginx/sites-enabled/$EE_DOMAIN \
+		|| ee_lib_error "Unable To Remove $EE_DOMAIN Nginx Configuration"
 	else
 		# User Denied Messages
-		ee_lib_echo_fail "User Denied To Remove $DOMAIN Nginx Configuration."
+		ee_lib_echo_fail "User Denied To Remove $EE_DOMAIN Nginx Configuration."
 	fi
 }
 
@@ -1685,61 +1685,61 @@ DEBUG_NGINX_REWRITE_STOP()
 
 DEBUG_NGINX_SITE()
 {
-	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+	grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
 	then
 		# Enable Nginx Debug Log
-		ee_lib_echo "Setting Up $DOMAIN Error Logs In Debugging Mode,Please Wait..."
-		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$DOMAIN
+		ee_lib_echo "Setting Up $EE_DOMAIN Error Logs In Debugging Mode,Please Wait..."
+		sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$EE_DOMAIN
 	else
 		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_NGINX=""
-		ee_lib_echo "Already Started $DOMAIN Error Logs In Debugging Mode"
+		ee_lib_echo "Already Started $EE_DOMAIN Error Logs In Debugging Mode"
 	fi
 }
 
 DEBUG_NGINX_SITE_STOP()
 {
-	grep "error.log debug" /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+	grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
 	then
 		# Disable Nginx Debug Log
-		ee_lib_echo "Disable $DOMAIN Error Logs In Debugging Mode,Please Wait..."
-		sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$DOMAIN
+		ee_lib_echo "Disable $EE_DOMAIN Error Logs In Debugging Mode,Please Wait..."
+		sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$EE_DOMAIN
 	else
 		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_NGINX=""
-		ee_lib_echo "Already Stopped $DOMAIN Error Logs In Debugging Mode"
+		ee_lib_echo "Already Stopped $EE_DOMAIN Error Logs In Debugging Mode"
 	fi
 }
 
 DEBUG_NGINX_REWRITE_SITE()
 {
-	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+	grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
 	then
 		# Enable Nginx Rewrite Logs
-		ee_lib_echo "Setting Up Nginx Rewrite Logs For $DOMAIN"
-		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$DOMAIN
+		ee_lib_echo "Setting Up Nginx Rewrite Logs For $EE_DOMAIN"
+		sed -i "/access_log/i \\\trewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN
 	else
 		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
-		ee_lib_echo "Rewrites Logs Already ON For $DOMAIN"
+		ee_lib_echo "Rewrites Logs Already ON For $EE_DOMAIN"
 	fi
 }
 
 DEBUG_NGINX_REWRITE_SITE_STOP()
 {
-	grep "rewrite_log on;" /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+	grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
 	then
 		# Disable Nginx Rewrite Logs
-		ee_lib_echo "Stopping Up Nginx Rewrite Logs For $DOMAIN"
-		sed -i "/rewrite_log.*/d" /etc/nginx/sites-available/$DOMAIN
+		ee_lib_echo "Stopping Up Nginx Rewrite Logs For $EE_DOMAIN"
+		sed -i "/rewrite_log.*/d" /etc/nginx/sites-available/$EE_DOMAIN
 	else
 		# Lets Disable Nginx Reload Trigger
 		EE_DEBUG_REWRITE=""
-		ee_lib_echo "Rewrites Logs Already Stop For $DOMAIN"
+		ee_lib_echo "Rewrites Logs Already Stop For $EE_DOMAIN"
 	fi
 }
 
@@ -1762,16 +1762,16 @@ DEBUG_PHP()
 			ee_lib_echo "PHP5-FPM Slow Log Already Enabled"
 		fi
 	else
-		grep 9001 /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+		grep 9001 /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]
 		then
-			ee_lib_echo "Enable PHP5-FPM Slow Log For $DOMAIN, Please Wait..."
-			sed -i "s/fastcgi_pass.*/fastcgi_pass debug;/g" /etc/nginx/sites-available/$DOMAIN
+			ee_lib_echo "Enable PHP5-FPM Slow Log For $EE_DOMAIN, Please Wait..."
+			sed -i "s/fastcgi_pass.*/fastcgi_pass debug;/g" /etc/nginx/sites-available/$EE_DOMAIN
 
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
 		else
-			ee_lib_echo "PHP5-FPM Slow Log Already Enabled For $DOMAIN"
+			ee_lib_echo "PHP5-FPM Slow Log Already Enabled For $EE_DOMAIN"
 		fi
 	fi
 }
@@ -1795,16 +1795,16 @@ DEBUG_PHP_STOP()
 			ee_lib_echo "PHP5-FPM Slow Log Already Disabled"
 		fi
 	else
-		grep "fastcgi_pass debug;" /etc/nginx/sites-available/$DOMAIN &>> $EE_COMMAND_LOG
+		grep "fastcgi_pass debug;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]
 		then
-			ee_lib_echo "Disable PHP5-FPM Slow Log For $DOMAIN, Please Wait..."
-			sed -i "s/fastcgi_pass.*/fastcgi_pass php;/g" /etc/nginx/sites-available/$DOMAIN
+			ee_lib_echo "Disable PHP5-FPM Slow Log For $EE_DOMAIN, Please Wait..."
+			sed -i "s/fastcgi_pass.*/fastcgi_pass php;/g" /etc/nginx/sites-available/$EE_DOMAIN
 
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
 		else
-			ee_lib_echo "PHP5-FPM Slow Log Already Disabled For $DOMAIN"
+			ee_lib_echo "PHP5-FPM Slow Log Already Disabled For $EE_DOMAIN"
 		fi
 	fi
 }
@@ -1844,16 +1844,16 @@ DEBUG_MYSQL()
 
 	# Check MySql Slow Logs Is ON
 	#grep slow-query-log /etc/mysql/my.cnf &>> $EE_COMMAND_LOG
-	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
+	mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 
 	if [ $? -ne 0 ]
 	then
 		# Enable MySQL Slow Logs
 		ee_lib_echo "Setting Up MySQL Slow Log, Please Wait..."
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'ON';"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=2;"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'ON';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global slow_query_log = 'ON';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global long_query_time=2;"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global log_queries_not_using_indexes = 'ON';"
 		#sed -i "/#long_query_time/i slow-query-log = 1\nslow-query-log-file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
 		#sed -i "s/#long_query_time/long_query_time/" /etc/mysql/my.cnf
 		#sed -i "s/#log-queries-not-using-indexes/log-queries-not-using-indexes/" /etc/mysql/my.cnf
@@ -1871,16 +1871,16 @@ DEBUG_MYSQL_STOP()
 
 	# Check MySql Slow Logs Is OFF
 	#grep slow-query-log /etc/mysql/my.cnf &>> $EE_COMMAND_LOG
-	mysql -u $MYSQLUSER -p$MYSQLPASS -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
+	mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 	
 	if [ $? -eq 0 ]
 	then
 		# Disable MySQL Slow Logs
 		ee_lib_echo "Stopping MySQL Slow Log, Please Wait..."
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log = 'OFF';"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global long_query_time=10;"
-		mysql -u $MYSQLUSER -p$MYSQLPASS -e "set global log_queries_not_using_indexes = 'OFF';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global slow_query_log = 'OFF';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global slow_query_log_file = '/var/log/mysql/slow.log';"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global long_query_time=10;"
+		mysql -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "set global log_queries_not_using_indexes = 'OFF';"
 		#sed -i "/slow-query-log/d" /etc/mysql/my.cnf
 		#sed -i "s/long_query_time/#long_query_time/" /etc/mysql/my.cnf
 		#sed -i "s/log-queries-not-using-indexes/#log-queries-not-using-indexes/" /etc/mysql/my.cnf
@@ -1893,33 +1893,33 @@ DEBUG_MYSQL_STOP()
 
 DEBUG_WORDPRESS()
 {
-	if [ -e /var/www/$DOMAIN/wp-config.php ]
+	if [ -e /var/www/$EE_DOMAIN/wp-config.php ]
 	then
 
-		grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
+		grep "'WP_DEBUG'" /var/www/$EE_DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]
 		then
 			# Debug WordPress
-			ee_lib_echo "Start WordPress Debug Logs For $DOMAIN"
+			ee_lib_echo "Start WordPress Debug Logs For $EE_DOMAIN"
 
 			# Call PHPUSERINFO Function For PHP User Details
 			PHPUSERINFO
 
 			# Create debug.log & Change Permission
-			touch /var/www/$DOMAIN/htdocs/wp-content/debug.log
-			chown $PHPUSER:$PHPUSER /var/www/$DOMAIN/htdocs/wp-content/debug.log
+			touch /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log
+			chown $PHPUSER:$PHPUSER /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log
 		
 			# Turn On Debug
-			sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$DOMAIN/wp-config.php
+			sed -i "s/define('WP_DEBUG'.*/define('WP_DEBUG', true);\ndefine('WP_DEBUG_DISPLAY', false);\ndefine('WP_DEBUG_LOG', true);\ndefine('SAVEQUERIES', true);/" /var/www/$EE_DOMAIN/wp-config.php
 
 			# Install Developer Plugin
 			# Installing Nginx Helper
-			cd /var/www/$DOMAIN/htdocs/
+			cd /var/www/$EE_DOMAIN/htdocs/
 			ee_lib_echo "Installing Developer Plugin, Please Wait..."
 			wp plugin --allow-root install developer &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Install Developer Plugin"
 
 		else
-			ee_lib_echo "WordPress Debug Log Already Started For $DOMAIN"
+			ee_lib_echo "WordPress Debug Log Already Started For $EE_DOMAIN"
 		fi
 	else
 		ee_lib_echo_fail "Unable To Find wp-config.php File, Seems Like Not WordPress Site"
@@ -1928,17 +1928,17 @@ DEBUG_WORDPRESS()
 
 DEBUG_WORDPRESS_STOP()
 {
-	grep "'WP_DEBUG'" /var/www/$DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
+	grep "'WP_DEBUG'" /var/www/$EE_DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
 	then
 		# Stop Debug WordPress
-		ee_lib_echo "Stopping WordPress Debug Logs For $DOMAIN"
-		sed -i "s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/" /var/www/$DOMAIN/wp-config.php
-		sed -i "/define('WP_DEBUG_DISPLAY', false);/d" /var/www/$DOMAIN/wp-config.php
-		sed -i "/define('WP_DEBUG_LOG', true);/d" /var/www/$DOMAIN/wp-config.php
-		sed -i "/define('SAVEQUERIES', true);/d" /var/www/$DOMAIN/wp-config.php
+		ee_lib_echo "Stopping WordPress Debug Logs For $EE_DOMAIN"
+		sed -i "s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/" /var/www/$EE_DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_DISPLAY', false);/d" /var/www/$EE_DOMAIN/wp-config.php
+		sed -i "/define('WP_DEBUG_LOG', true);/d" /var/www/$EE_DOMAIN/wp-config.php
+		sed -i "/define('SAVEQUERIES', true);/d" /var/www/$EE_DOMAIN/wp-config.php
 	else
-		ee_lib_echo "WordPress Debug Log Already Stopped For $DOMAIN"
+		ee_lib_echo "WordPress Debug Log Already Stopped For $EE_DOMAIN"
 	fi
 }
 
@@ -1972,7 +1972,7 @@ DEBUG_INTERACTIVE()
 	then
 		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log
 	else
-		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log /var/www/$DOMAIN/htdocs/wp-content/debug.log
+		tail -f /var/log/nginx/*.error.log /var/log/php5/*.log /var/log/mysql/*.log /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log
 	fi
 }
 
@@ -2455,19 +2455,19 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
-		EESITENAME
+		ee_lib_check_domain
 		
 		# Check The Website Is Exist
-		ls /etc/nginx/sites-available/$DOMAIN &> /dev/null \
-		|| ee_lib_error "The $DOMAIN Is Not Found In Available Websites List"
+		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
+		|| ee_lib_error "The $EE_DOMAIN Is Not Found In Available Websites List"
 
 		if [ $? -eq 0 ]
 		then
 
 			# Display The Specific Site Configuration
-			ee_lib_echo "Display Nginx Configuration For $DOMAIN"
-			cat /etc/nginx/sites-available/$DOMAIN \
-			|| ee_lib_error "Unable To Display Nginx Configuration For $DOMAIN"
+			ee_lib_echo "Display Nginx Configuration For $EE_DOMAIN"
+			cat /etc/nginx/sites-available/$EE_DOMAIN \
+			|| ee_lib_error "Unable To Display Nginx Configuration For $EE_DOMAIN"
 
 		fi
 
@@ -2476,7 +2476,7 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
-		EESITENAME
+		ee_lib_check_domain
 
 		# Display The Specific Site Configuration
 		EESITEINFO
@@ -2512,7 +2512,7 @@ then
 		if [ "$EESITECREATE" = "--wpsubdom" ] || [ "$EESITECREATE" = "--wpsubdomain" ]
 		then
 			NETWORKACTIVATE="--network"
-			WPSUBDOMAINS="--subdomains"
+			WPSUBEE_DOMAINS="--subdomains"
 		fi
 
 		# USE DEFAULT WHEN POSSIBLES
@@ -2535,53 +2535,53 @@ then
 
 			# Configure Variable
 			NGINXCONF=html/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 			# Setup HTML Nginx
-			EESITENAME
-			EEDOMAINSETUP
+			ee_lib_check_domain
+			EEee_mod_domain_setup
 			PERMISSIONANDGIT
 
 			# Display Success Message
-			ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 		elif [ "$EESITECREATE" = "--php" ]
 		then
 
 			# Configure Variable
 			NGINXCONF=php/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
-			EESITENAME
-			EEDOMAINSETUP
+			ee_lib_check_domain
+			EEee_mod_domain_setup
 			PERMISSIONANDGIT
 
 			# Display Success Message
-			ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 		elif [ "$EESITECREATE" = "--mysql" ]
 		then
 
 			# Configure Variable
 			NGINXCONF=mysql/basic.conf
-			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+			echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
-			EESITENAME
-			EEDOMAINSETUP
+			ee_lib_check_domain
+			EEee_mod_domain_setup
 			PERMISSIONANDGIT
 
 			# Call MYSQLINFO Function For MySQL Values
 			MYSQLINFO
-			EECREATEDATABASE
+			ee_mod_create_database
 
 			# Add Database Information On ee-config.php
-			echo -e "define('DB_NAME', '$WPDBNAME'); \ndefine('DB_USER', '$WPDBUSER'); \ndefine('DB_PASSWORD', '$WPDBPASS'); \ndefine('DB_HOST', '$MYSQLHOST');" \
-			&>> /var/www/$DOMAIN/ee-config.php
+			echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
+			&>> /var/www/$EE_DOMAIN/ee-config.php
 
 			# Display Success Message
-			ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 		elif [ "$EESITECREATE" = "--wp" ]
 		then
@@ -2591,10 +2591,10 @@ then
 
 				# Configure Variable
 				NGINXCONF=wp/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Basic Nginx
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				NGINXHELPER
 				PERMISSIONANDGIT
 
@@ -2602,17 +2602,17 @@ then
 				echo
 				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wp/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup W3 Total Cache Nginx
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
 				PERMISSIONANDGIT
@@ -2623,22 +2623,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wp/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup WP Super Cache Nginx
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				NGINXHELPER
 				SUPERCACHENGINX
 				PERMISSIONANDGIT
@@ -2649,22 +2649,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "WP Super Cache: http://$DOMAIN/wp-admin/options-general.php?page=wpsupercache"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "WP Super Cache: http://$EE_DOMAIN/wp-admin/options-general.php?page=wpsupercache"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wp/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Fastcgi Cache Nginx
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
 				PERMISSIONANDGIT
@@ -2675,13 +2675,13 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "Nginx Helper: http://$DOMAIN/wp-admin/options-general.php?page=nginx"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "Nginx Helper: http://$EE_DOMAIN/wp-admin/options-general.php?page=nginx"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			fi
 
@@ -2693,33 +2693,33 @@ then
 
 				# Configure Variable
 				NGINXCONF=wpsubdir/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
 				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdir/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2727,7 +2727,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2735,22 +2735,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdir/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2758,7 +2758,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2766,22 +2766,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "WP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "WP Super Cache: http://$EE_DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdir/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2789,7 +2789,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2797,13 +2797,13 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "Nginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "Nginx Helper: http://$EE_DOMAIN/wp-admin/network/settings.php?page=nginx"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			fi
 
@@ -2815,33 +2815,33 @@ then
 
 				# Configure Variable
 				NGINXCONF=wpsubdomain/basic.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display Success Message
 				echo
 				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdomain/w3tc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2849,7 +2849,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2857,22 +2857,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpsc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdomain/wpsc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2880,7 +2880,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2888,22 +2888,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "WP Super Cache: http://$DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "WP Super Cache: http://$EE_DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--wpfc" ]
 			then
 
 				# Configure Variable
 				NGINXCONF=wpsubdomain/wpfc.conf
-				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBDOMAINS = $WPSUBDOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
+				echo -e "SITENAMECHECK = $SITENAMECHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nNETWORKACTIVATE = $NETWORKACTIVATE \nWPSUBEE_DOMAINS = $WPSUBEE_DOMAINS \nNGINXCONF = $NGINXCONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUPDOMAIN
+				SETUPEE_DOMAIN
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -2911,7 +2911,7 @@ then
 				PERMISSIONANDGIT
 
 				# Setup phpMyAdmin
-				#ln -s /var/www/22222/htdocs/db/pma /var/www/$DOMAIN/htdocs/pma
+				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -2919,13 +2919,13 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
-				#ee_lib_echo "Permalink Settings: http://$DOMAIN/wp-admin/options-permalink.php"
-				ee_lib_echo "Nginx Helper: http://$DOMAIN/wp-admin/network/settings.php?page=nginx"
-				ee_lib_echo "W3 Total Cache: http://$DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
+				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
+				ee_lib_echo "Nginx Helper: http://$EE_DOMAIN/wp-admin/network/settings.php?page=nginx"
+				ee_lib_echo "W3 Total Cache: http://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "Successfully Created New Website: http://$WWWDOMAIN"
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			fi
 		fi
@@ -2935,7 +2935,7 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
-		EESITENAME
+		ee_lib_check_domain
 
 		# Creating Symbolic Link
 		NGINXSYMBOLICLINK
@@ -2945,7 +2945,7 @@ then
 
 		# Take Nginx Configuration In Git Version Control
 		EE_GIT_DIR=/etc/nginx
-		EE_GIT_MESSAGE="Enable Website: $DOMAIN"
+		EE_GIT_MESSAGE="Enable Website: $EE_DOMAIN"
 		ee_lib_git_commit
 
 	elif [ "$2" = "disable" ]
@@ -2953,19 +2953,19 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
-		EESITENAME
+		ee_lib_check_domain
 
 		# Remove Symbolic Link
-		ee_lib_echo "Removing Symbolic Link For $DOMAIN"
-		rm /etc/nginx/sites-enabled/$DOMAIN \
-		|| ee_lib_error "Unable To Remove Symbolic Link For $DOMAIN"
+		ee_lib_echo "Removing Symbolic Link For $EE_DOMAIN"
+		rm /etc/nginx/sites-enabled/$EE_DOMAIN \
+		|| ee_lib_error "Unable To Remove Symbolic Link For $EE_DOMAIN"
 
 		# Reload Nginx Configuration
 		NGINXRELOAD
 
 		# Take Nginx Configuration In Git Version Control
 		EE_GIT_DIR=/etc/nginx
-		EE_GIT_MESSAGE="Disable Website: $DOMAIN"
+		EE_GIT_MESSAGE="Disable Website: $EE_DOMAIN"
 		ee_lib_git_commit
 
 	elif [ "$2" = "delete" ]
@@ -2974,7 +2974,7 @@ then
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
 		SITEDELETEARG=$4
-		EESITENAME
+		ee_lib_check_domain
 
 		# USE DEFAULT WHEN POSSIBLES
 		if [ "$SITEDELETEARG" = "" ]
@@ -3009,7 +3009,7 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EE_GIT_DIR=/etc/nginx
-			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
+			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $EE_DOMAIN"
 			ee_lib_git_commit
 
 		elif [ "$SITEDELETEARG" = "--all-no-prompt" ]
@@ -3027,7 +3027,7 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EE_GIT_DIR=/etc/nginx
-			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $DOMAIN"
+			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $EE_DOMAIN"
 			ee_lib_git_commit
 		fi
 
@@ -3036,16 +3036,16 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		SITENAMECHECK=$3
-		EESITENAME
+		ee_lib_check_domain
 			
-		# Edit The Nginx Configuration For $DOMAIN
+		# Edit The Nginx Configuration For $EE_DOMAIN
 		EESITEEDIT
 		
-		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$DOMAIN | wc -l) -ne 0 ]
+		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$EE_DOMAIN | wc -l) -ne 0 ]
 		then
 			# Take Nginx Configuration In Git Version Control
 			EE_GIT_DIR=/etc/nginx
-			EE_GIT_MESSAGE="Edited Website: $DOMAIN"
+			EE_GIT_MESSAGE="Edited Website: $EE_DOMAIN"
 			ee_lib_git_commit
 
 			# Reload Nginx Configuration
@@ -3141,7 +3141,7 @@ then
 
 			# Get The Domain Name
 			SITENAMECHECK=$EE_DEBUG_SITENAME
-			EESITENAME
+			ee_lib_check_domain
 
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
@@ -3149,7 +3149,7 @@ then
 				DEBUG_NGINX_SITE
 
 				# Log Message
-				LOGMESSAGE="/var/www/$DOMAIN/logs/error.log"				
+				LOGMESSAGE="/var/www/$EE_DOMAIN/logs/error.log"				
 			fi
 
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
@@ -3158,7 +3158,7 @@ then
 				DEBUG_NGINX_REWRITE_SITE
 
 				# Log Message
-				LOGMESSAGE="$LOGMESSAGE /var/log/$DOMAIN/logs/error.log"
+				LOGMESSAGE="$LOGMESSAGE /var/log/$EE_DOMAIN/logs/error.log"
 			fi
 
 			if [ "$EE_DEBUG_WP" = "--wp" ]
@@ -3167,7 +3167,7 @@ then
 				DEBUG_WORDPRESS
 
 				# Log Message
-				LOGMESSAGE="$LOGMESSAGE /var/www/$DOMAIN/htdocs/wp-content/debug.log"
+				LOGMESSAGE="$LOGMESSAGE /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log"
 			fi
 
 		fi
@@ -3231,7 +3231,7 @@ then
 
 			# Get The Domain Name
 			SITENAMECHECK=$EE_DEBUG_SITENAME
-			EESITENAME
+			ee_lib_check_domain
 
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
