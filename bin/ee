@@ -316,31 +316,31 @@ EEWPDBSETUP()
 	#ee_lib_echo "WordPress Information Required..."
 
 	# WordPress Default User: admin
-	WPADMINUSER=$(grep wpadminuser /etc/easyengine/ee.conf | awk '{print($3)}')
-	if [[ $WPADMINUSER = "" ]]
+	EE_WP_USER=$(grep EE_WP_USER /etc/easyengine/ee.conf | awk '{print($3)}')
+	if [[ $EE_WP_USER = "" ]]
 	then
-		WPADMINUSER=admin
+		EE_WP_USER=admin
 	fi
 
 	# WordPress Default Password: Random Password
-	WPADMINPASS=$(grep wpadminpass /etc/easyengine/ee.conf | awk '{print($3)}')
-	if [[ $WPADMINPASS = "" ]]
+	EE_WP_PASS=$(grep wpadminpass /etc/easyengine/ee.conf | awk '{print($3)}')
+	if [[ $EE_WP_PASS = "" ]]
 	then
-		WPADMINPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+		EE_WP_PASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 	fi
 	
 	# WordPress Default Email: `git config user.email`
-	WPADMINEMAIL=$(grep wpadminemail /etc/easyengine/ee.conf | awk '{print($3)}')
-	if [[ $WPADMINEMAIL = "" ]]
+	EE_WP_EMAIL=$(grep wpadminemail /etc/easyengine/ee.conf | awk '{print($3)}')
+	if [[ $EE_WP_EMAIL = "" ]]
 	then
-		WPADMINEMAIL=`git config user.email`
+		EE_WP_EMAIL=`git config user.email`
 	fi
 
 	# Create WordPress Tables
 	ee_lib_echo "Setting Up WordPress, Please Wait..."
 	cd /var/www/$EE_DOMAIN/htdocs || ee_lib_error "Unable To Change Directory To Install WordPress"
 	wp core install --allow-root  --url=$EE_WWW_DOMAIN --title="$EE_WWW_DOMAIN" \
-	--admin_name=$WPADMINUSER --admin_password=$WPADMINPASS --admin_email=$WPADMINEMAIL &>> $EE_COMMAND_LOG \
+	--admin_name=$EE_WP_USER --admin_password=$EE_WP_PASS --admin_email=$EE_WP_EMAIL &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable To Create WordPress Tables For $EE_DOMAIN"
 	
 	# Update WordPress Permalink Structure Day and Postname
@@ -1092,8 +1092,8 @@ then
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
@@ -1111,8 +1111,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1137,8 +1137,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1163,8 +1163,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1199,8 +1199,8 @@ then
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
@@ -1223,8 +1223,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1254,8 +1254,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1285,8 +1285,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1321,8 +1321,8 @@ then
 
 				# Display Success Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
 			elif [ "$WPCACHEOPTION" = "--w3tc" ]
@@ -1345,8 +1345,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1376,8 +1376,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
@@ -1407,8 +1407,8 @@ then
 
 				# Display WordPress Plugin Configuration Message
 				echo
-				ee_lib_echo_info "WordPress Admin Username: $WPADMINUSER"
-				ee_lib_echo_info "WordPress Admin Password: $WPADMINPASS"
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 				ee_lib_echo "Please Configure The Following Settings..."
 				#ee_lib_echo "Permalink Settings: http://$EE_DOMAIN/wp-admin/options-permalink.php"
