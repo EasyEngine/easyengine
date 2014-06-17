@@ -10,12 +10,11 @@ ee_mod_install_mysql()
 	if [ -n "$EE_PACKAGE_NAME" ]; then
 
 		# Setting up MySQL password
-		local ee_mysql_auto_pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-		debconf-set-selections <<< "mysql-server mysql-server/root_password password $ee_mysql_auto_pass"
-		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ee_mysql_auto_pass"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password password $EE_RANDOM"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $EE_RANDOM"
 
 		# Generate ~/.my.cnf
-		echo -e "[client]\nuser=root\npassword=$ee_mysql_auto_pass" > ~/.my.cnf
+		echo -e "[client]\nuser=root\npassword=$EE_RANDOM" > ~/.my.cnf
 
 	fi
 

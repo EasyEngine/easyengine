@@ -1,4 +1,4 @@
-# Create symbolic link for site name
+# Create symbolic link
 
 function ee_lib_symbolic_link()
 {

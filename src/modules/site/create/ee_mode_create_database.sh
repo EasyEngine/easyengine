@@ -1,46 +1,62 @@
-# Create Database for WordPress site
+# Database setup
 
 function ee_mod_create_database()
 {
-	local ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
-	# Check use default database user or custom database user
-	EE_WP_DB_RANDOM_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+	# Replace dot(.) with underscore(_) in EE_DOMAIN Name
+	ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
 
-	# Setup MySQL database
+	# Default database or custom database
 	if [ $($EE_CONFIG_GET mysql.db-name) == "true" ];then
-		read -p "Enter the MySQL database name [$ee_replace_dot]: " ee_database_name
+		read -p "Enter the MySQL database name [$ee_replace_dot]: " EE_DB_NAME
 	fi
 
-	if [ $ee_database_name = "" ]; then
-		ee_database_name=$ee_replace_dot
-	fi
+	# If mysql.db-name = false 
+	# 		Then it never ask for MySQL database name in this case $EE_DB_NAME is empty
+	# If mysql.db-name = true
+	#		User enter custom database name then $EE_DB_NAME is not empty & we used provided database name
+ 	#		If user pressed enter then $EE_DB_NAME is empty
 
-	mysql -e "create database \`${ee_database_name}\`" \
-	|| ee_lib_error "Unable to create $ee_database_name database"
+ 	if [[ $EE_DB_NAME = "" ]]; then
+ 		EE_DB_NAME=$ee_replace_dot
+ 	fi
 
-	# Setup MySQL user
-	if [ $($EE_CONFIG_GET mysql.db-user) == "true" ];then
-		read -p "Enter the MySQL database username [$ee_replace_dot]: " ee_database_user		
-		read -sp "Enter The MySQL Database Password [$EE_WP_DB_RANDOM_PASSWORD]: " EE_WP_DB_PASS
-	fi
-	elif 
-		ee_database_user=$ee_replace_dot
-		# Fix MySQL USER ERROR 1470 (HY000)
-		EE_WP_DB_PASS=$EE_WP_DB_RANDOM_PASSWORD
-	fi
+ 	# Default database user or custom user
+ 	if [ $($EE_CONFIG_GET mysql.db-user) == "true" ]; then
+ 		read -p "Enter the MySQL database username [$ee_replace_dot]: " EE_DB_USER
+ 		read -sp "Enter the MySQL database password [$EE_RANDOM]: " EE_DB_PASS
+ 	fi
 
-	local ee_mysql_user_16=$(echo -n $ee_database_user | wc -c)
+ 	# If mysql.db-user = false 
+	# 		Then it never ask for MySQL database user in this case $EE_DB_USER is empty
+	# If mysql.db-name = true
+	#		User enter custom database user then $EE_DB_USER is not empty & we used provided database user
+ 	#		If user pressed enter then $EE_DB_USER is empty
 
-	if [[ $ee_mysql_user_16 -gt 16 ]]; then
-		echo "MySQL database username $ee_database_user = $ee_mysql_user_16" &>> $EE_COMMAND_LOG
-		ee_lib_echo "Auto fix MySQL username to the 16 characters"
-		local ee_random_character=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n1)
-		ee_database_user=$(echo $ee_mysql_user_16 | cut -c1-16 | sed "s/.\{10\}$/$ee_random_character/")
-	fi
+	if [[ $EE_DB_USER = "" ]]; then
+ 		EE_DB_USER=$ee_replace_dot
+ 	fi
 
-	# create separate user & grant permission
-	echo -e "ee_database_name = $ee_database_name \nWPDBUSER = $ee_database_user \nWPDBPASS = $EE_WP_DB_PASS" &>> $EE_COMMAND_LOG
-	mysql -e "create user '$ee_database_user'@'$MYSQLHOST' identified by '$EE_WP_DB_PASS'"
-	mysql -e "grant all privileges on \`$ee_database_name\`.* to '$ee_database_user'@'$MYSQLHOST'"
-	mysql -e "flush privileges"
+ 	if [[ $EE_DB_PASS = "" ]]; then
+ 		EE_DB_PASS=$EE_RANDOM
+ 	fi
+
+ 	# Fix MySQL username ERROR 1470 (HY000)
+ 	if [[ $(echo -n $EE_DB_USER | wc -c) -gt 16 ]]; then
+ 		ee_lib_echo "Autofix MySQL username (ERROR 1470 (HY000)), please wait..."
+ 		local ee_random10=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n1)
+		EE_DB_USER=$(echo $EE_DB_USER | cut -c1-16 | sed "s/.\{10\}$/$ee_random10/")
+ 	fi
+
+ 	# Create MySQL database
+	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS" &>> $EE_COMMAND_LOG
+	mysql -e "create database \`$EE_DB_NAME\`" \
+	|| ee_lib_error "Unable to create $EE_DB_NAME database, exit status = " $?
+
+	# Create MySQL User
+	mysql -e "create user '$EE_DB_USER'@'$EE_MYSQL_HOST' identified by '$EE_DB_PASS'" \
+	|| ee_lib_error "Unable to create $EE_DB_USER database, exit status = " $?
+
+	# Grant permission
+	mysql -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_HOST'"
+	mysql -e "flush privileges"	
 }

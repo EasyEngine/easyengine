@@ -1,12 +1,11 @@
-#Setup domain
+# Domain setup
 
-function ee_domain_setup()
+function ee_mod_domain_setup()
 {
-	#Check the NGINX configuration exist for $EE_DOMAIN
-	ls /etc/nginx/sites-available/$EE_DOMAIN &> $EE_ERROR_LOG
+	ls /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
+	if [ $? -ne 0 ]; then
 
-	if [ $? -ne 0 ];then
-		# Creating website $EE_DOMAIN
+		# Creating $EE_DOMAIN
 		ee_lib_echo "Creating $EE_DOMAIN, please wait..."
 		sed "s/example.com/$EE_DOMAIN/g" \
 		/usr/share/easyengine/nginx/$EE_NGINX_CONF \
