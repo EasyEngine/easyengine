@@ -1,6 +1,6 @@
 # Domain setup
 
-function ee_mod_domain_setup()
+function ee_mod_setup_domain()
 {
 	ls /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]; then
