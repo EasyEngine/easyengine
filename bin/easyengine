@@ -241,15 +241,24 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CACHE_OPTION=--basic
 		fi
 
-		# Lets create HTML website
-		if [ "$EE_SITE_CREATE_OPTION" = "--html" ]; then
+		# Lets create HTML|PHP|MySQL website
+		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
 			# Configure variable
-			EE_NGINX_CONF=html/basic.conf
+			EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
 			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
-			# Setup HTML website
+			# Setup HTML|PHP|MySQL website
 			ee_lib_check_domain
 			ee_mod_setup_domain
+
+			# Setup MySQL database
+			if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
+				ee_mod_create_database
+
+				# Add Database Information On ee-config.php
+				echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
+				&>> /var/www/$EE_DOMAIN/ee-config.php
+			fi
 
 			# Adjust permission
 			ee_lib_permissions

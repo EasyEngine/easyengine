@@ -63,3 +63,6 @@ script:
 - sudo bash ee site show html.com
 - sudo bash ee site list
 - sudo bash ee site list available
+- sudo bash ee site create php.com --php
+- sudo bash ee site create mysql.com --mysql
+- sudo bash mysql -e "show databases"
