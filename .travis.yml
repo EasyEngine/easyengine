@@ -65,4 +65,4 @@ script:
 - sudo bash ee site list available
 - sudo bash ee site create php.com --php
 - sudo bash ee site create mysql.com --mysql
-- sudo bash mysql -e "show databases"
+- sudo mysql -e "show databases";
