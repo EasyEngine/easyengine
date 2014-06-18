@@ -56,3 +56,10 @@ script:
 - sudo bash ee info php
 - sudo bash ee info mysql
 - sudo bash ee info
+
+- sudo bash ee site create html.com
+- sudo bash ee site create html2.com --html
+- sudo bash ee site info html.com
+- sudo bash ee site show html.com
+- sudo bash ee site list
+- sudo bash ee site list available

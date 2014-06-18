@@ -68,13 +68,13 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 					ee_lib_service php5-fpm restart
 
 					# Initialize Git
-					ee_lib_git_init /etc/php5/
+					ee_lib_git /etc/php5/ "Initialize Git"
 				else
 					# Restart  NGINX/MySQL/Postfix
 					ee_lib_service $EE_THIRD restart
 					
 					# Initialize Git
-					ee_lib_git_init /etc/$EE_THIRD/
+					ee_lib_git /etc/$EE_THIRD/ "Initialize Git"
 				fi
 			fi
 
@@ -111,7 +111,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_service nginx php5-fpm mysql restart
 					
 			# Initialize Git
-			ee_lib_git_init /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix
+			ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
 
 			# Install Adminer/phpMyAdmin/WP-CLI/Utils
 			ee_ven_install_adminer
@@ -173,6 +173,93 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		ee_mod_system_status
 	elif [ "$EE_SECOND" = "start" ] || [ "$EE_SECOND" = "stop" ] || [ "$EE_SECOND" = "reload" ] || [ "$EE_SECOND" = "restart" ]; then
 			ee_lib_service nginx php5-fpm mysql postfix $EE_SECOND
+	fi
+
+# EasyEngine site
+elif [ "$EE_FIRST" = "site" ]; then
+	if [ "$EE_SECOND" = "list" ]; then
+		if [ "$EE_THIRD" = "available" ];then
+			ee_lib_echo "List of sites-available websites:"
+			ls /etc/nginx/sites-available/ \
+			|| ee_lib_error "Unable to display list of sites-available websites, exit status = " $?
+		else
+			e_lib_echo "List of sites-enabled websites:"
+			ls /etc/nginx/sites-available/ \
+			|| ee_lib_error "Unable to display list of sites-enabled websites, exit status = " $?
+		fi
+	elif [ "$EE_SECOND" = "info" ] || [ "$EE_SECOND" = "show" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		if [ "$EE_SECOND" = "info" ]; then
+			# Display information about website
+			ee_mod_site_info
+		elif [ "$EE_SECOND" = "show" ]; then
+			# Check the website exist
+			ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
+			|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
+
+			# Display NGINX configuration for $EE_DOMAIN
+			if [ $? -eq 0 ]; then
+				ee_lib_echo "Display NGINX configuration for $EE_DOMAIN"
+				cat /etc/nginx/sites-available/$EE_DOMAIN \
+				|| ee_lib_error "Unable to display NGINX configuration for $EE_DOMAIN, exit status = " $?
+			fi
+		fi
+	elif [ "$EE_SECOND" = "create" ]; then
+		# Configure variables
+		EE_DOMAIN_CHECK=$EE_THIRD
+		EE_SITE_CREATE_OPTION=$EE_FOURTH
+		EE_SITE_CACHE_OPTION=$EE_FIFTH
+
+		# Auto switch options
+		if [ "$EE_SITE_CREATE_OPTION" = "--basic" ] || [ "$EE_SITE_CREATE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpfc" ]; then
+			if [ "$EE_SITE_CACHE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdirectory" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdomain" ]; then
+				EE_SITE_CREATE_OPTION=$EE_FIFTH
+				EE_SITE_CACHE_OPTION=$EE_FOURTH
+			else
+				EE_SITE_CREATE_OPTION=--wp
+				EE_SITE_CACHE_OPTION=$EE_FOURTH
+			fi
+		fi
+		# WordPresss subdirectory variables
+		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]; then
+			EE_NETWORK_ACTIVATE="--network"
+		fi
+		# WordPress sub-domain variables
+		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			EE_NETWORK_ACTIVATE="--network"
+			EE_WP_SUBDOMAIN="--subdomains"
+		fi
+		# Use default whenever possible
+		if [ "$EE_SITE_CREATE_OPTION" = "" ]; then
+			EE_SITE_CREATE_OPTION=--html
+		fi
+		# For WordPress sites if $EE_SITE_CACHE_OPTION is empty then used --basic as a $EE_SITE_CACHE_OPTION
+		if [ "$EE_SITE_CACHE_OPTION" = "" ] && [ "$EE_SITE_CREATE_OPTION" != "--html" ] && [ "$EE_SITE_CREATE_OPTION" != "--php" ] && [ "$EE_SITE_CREATE_OPTION" != "--mysql" ]; then
+			EE_SITE_CACHE_OPTION=--basic
+		fi
+
+		# Lets create HTML website
+		if [ "$EE_SITE_CREATE_OPTION" = "--html" ]; then
+			# Configure variable
+			EE_NGINX_CONF=html/basic.conf
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+
+			# Setup HTML website
+			ee_lib_check_domain
+			ee_mod_setup_domain
+
+			# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+
+			# Display Success Message
+			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+		fi
 	fi
 fi
 
