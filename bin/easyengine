@@ -253,7 +253,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 			# Setup MySQL database
 			if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
-				ee_mod_create_database
+				ee_mod_setup_database
 
 				# Add Database Information On ee-config.php
 				echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \

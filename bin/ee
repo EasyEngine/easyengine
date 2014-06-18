@@ -125,7 +125,7 @@ FIXEE_MYSQL_USER16()
 
 }
 
-ee_mod_create_database()
+ee_mod_setup_database()
 {
 	# Create Database
 	mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "create database \`$EE_DB_NAME\`" \
@@ -284,7 +284,7 @@ ee_mod_setup_wordpress()
 	# Call MYSQLINFO Function For MySQL Values
 	MYSQLINFO
 	EEWPDBPREFIX
-	ee_mod_create_database
+	ee_mod_setup_database
 
 	# Modify wp-config.php & Move Outside The Webroot
 	cp /var/www/$EE_DOMAIN/htdocs/wp-config-sample.php \
@@ -1082,7 +1082,7 @@ then
 
 			# Call MYSQLINFO Function For MySQL Values
 			MYSQLINFO
-			ee_mod_create_database
+			ee_mod_setup_database
 
 			# Add Database Information On ee-config.php
 			echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
