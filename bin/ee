@@ -181,7 +181,7 @@ PHPUSERINFO()
 }
 
 
-EESITEINFO()
+ee_mod_site_info()
 {
 	# Display The Specific Site Configuration
 	SITESTATUS=$(ls /etc/nginx/sites-enabled/$EE_DOMAIN &> /dev/null && echo Enable || echo Disable)
@@ -233,7 +233,7 @@ ee_lib_symbolic_link()
 	|| ee_lib_error "Unable To Create Symbolic Link For $EE_DOMAIN"
 }
 
-ee_mod_domain_setup()
+ee_mod_setup_domain()
 {
 	#Check The Nginx Configuration Exist For $EE_DOMAIN
 	ls /etc/nginx/sites-available/$EE_DOMAIN &> $EE_ERROR_LOG
@@ -370,21 +370,25 @@ SETUP_DOMAIN()
 	ee_lib_check_domain
 
 	# Creating Website $EE_DOMAIN
-	ee_mod_domain_setup
+	ee_mod_setup_domain
 
 	# Setup WordPress Webroot & Database
 	ee_mod_setup_wordpress
 	EEWPDBSETUP
 }
 
-PERMISSIONANDGIT()
+# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"()
 {
 	# Change Webroot Permission
 	ee_lib_permission
 
 	# Take Nginx Configuration In Git Version Control
 	EE_GIT_DIR=/etc/nginx
-	EE_GIT_MESSAGE="Create Website With $WPNETWORKSITE $WPCACHEOPTION Option: $EE_DOMAIN"
+	EE_GIT_MESSAGE="Create Website With $WPNETWORKSITE $EE_SITE_CACHE_OPTION Option: $EE_DOMAIN"
 	ee_lib_git_commit
 }
 
@@ -946,7 +950,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 		
 		# Check The Website Is Exist
@@ -967,41 +971,41 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
 		# Display The Specific Site Configuration
-		EESITEINFO
+		ee_mod_site_info
 
 	elif [ "$2" = "create" ]
 	then
 
-		# Configure Variables
-		EE_DOMAIN_CHECK=$3
-		EESITECREATE=$4
-		WPCACHEOPTION=$5
+		# Configure variables
+		EE_DOMAIN_CHECK=$EE_THIRD
+		EE_SITE_CREATE_OPTION=$4
+		EE_SITE_CACHE_OPTION=$5
 
 		# Auto Switch The Options
-		if [ "$EESITECREATE" = "--basic" ] || [ "$EESITECREATE" = "--w3tc" ] || [ "$EESITECREATE" = "--wpsc" ] || [ "$EESITECREATE" = "--wpfc" ]
+		if [ "$EE_SITE_CREATE_OPTION" = "--basic" ] || [ "$EE_SITE_CREATE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpfc" ]
 		then
-			if [ "$WPCACHEOPTION" = "--wpsubdir" ] || [ "$WPCACHEOPTION" = "--wpsubdirectory" ] || [ "$WPCACHEOPTION" = "--wpsubdom" ] || [ "$WPCACHEOPTION" = "--wpsubdomain" ]
+			if [ "$EE_SITE_CACHE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdirectory" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsubdomain" ]
 			then
-				EESITECREATE=$5
-				WPCACHEOPTION=$4
+				EE_SITE_CREATE_OPTION=$5
+				EE_SITE_CACHE_OPTION=$4
 			else
-				EESITECREATE=--wp
-				WPCACHEOPTION=$4
+				EE_SITE_CREATE_OPTION=--wp
+				EE_SITE_CACHE_OPTION=$4
 			fi
 		fi
 
 		# WordPress SubDirectory Variables
-		if [ "$EESITECREATE" = "--wpsubdir" ] || [ "$EESITECREATE" = "--wpsubdirectory" ]
+		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]
 		then
 			EE_NETWORK_ACTIVATE="--network"
 		fi
 
 		# WordPress SubDomain Variables
-		if [ "$EESITECREATE" = "--wpsubdom" ] || [ "$EESITECREATE" = "--wpsubdomain" ]
+		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]
 		then
 			EE_NETWORK_ACTIVATE="--network"
 			EE_WP_SUBDOMAIN="--subdomains"
@@ -1009,60 +1013,72 @@ then
 
 		# USE DEFAULT WHEN POSSIBLES
 		# ee site create example.com
-		if [ "$EESITECREATE" = "" ]
+		if [ "$EE_SITE_CREATE_OPTION" = "" ]
 		then
-			EESITECREATE=--html
+			EE_SITE_CREATE_OPTION=--html
 		fi
 
 
 		# If No Cache Specified Use --basic As Default On WordPress Sites
-		if [ "$WPCACHEOPTION" = "" ] && [ "$EESITECREATE" != "--html" ] && [ "$EESITECREATE" != "--php" ] && [ "$EESITECREATE" != "--mysql" ]
+		if [ "$EE_SITE_CACHE_OPTION" = "" ] && [ "$EE_SITE_CREATE_OPTION" != "--html" ] && [ "$EE_SITE_CREATE_OPTION" != "--php" ] && [ "$EE_SITE_CREATE_OPTION" != "--mysql" ]
 		then
-			WPCACHEOPTION=--basic
+			EE_SITE_CACHE_OPTION=--basic
 		fi
 
 
-		if [ "$EESITECREATE" = "--html" ]
+		if [ "$EE_SITE_CREATE_OPTION" = "--html" ]
 		then
 
-			# Configure Variable
+			# Configure variable
 			EE_NGINX_CONF=html/basic.conf
-			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup HTML Nginx
 			ee_lib_check_domain
-			ee_mod_domain_setup
-			PERMISSIONANDGIT
+			ee_mod_setup_domain
+			# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-		elif [ "$EESITECREATE" = "--php" ]
+		elif [ "$EE_SITE_CREATE_OPTION" = "--php" ]
 		then
 
-			# Configure Variable
+			# Configure variable
 			EE_NGINX_CONF=php/basic.conf
-			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
 			ee_lib_check_domain
-			ee_mod_domain_setup
-			PERMISSIONANDGIT
+			ee_mod_setup_domain
+			# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-		elif [ "$EESITECREATE" = "--mysql" ]
+		elif [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]
 		then
 
-			# Configure Variable
+			# Configure variable
 			EE_NGINX_CONF=mysql/basic.conf
-			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 			# Setup PHP Nginx
 			ee_lib_check_domain
-			ee_mod_domain_setup
-			PERMISSIONANDGIT
+			ee_mod_setup_domain
+			# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Call MYSQLINFO Function For MySQL Values
 			MYSQLINFO
@@ -1075,20 +1091,24 @@ then
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-		elif [ "$EESITECREATE" = "--wp" ]
+		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ]
 		then
 
-			if [ "$WPCACHEOPTION" = "--basic" ]
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wp/basic.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Basic Nginx
 				SETUP_DOMAIN
 				NGINXHELPER
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display Success Message
 				echo
@@ -1096,18 +1116,22 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--w3tc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wp/w3tc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup W3 Total Cache Nginx
 				SETUP_DOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1122,18 +1146,22 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpsc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wp/wpsc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup WP Super Cache Nginx
 				SETUP_DOMAIN
 				NGINXHELPER
 				SUPERCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1148,18 +1176,22 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpfc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wp/wpfc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Fastcgi Cache Nginx
 				SETUP_DOMAIN
 				NGINXHELPER
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1177,22 +1209,26 @@ then
 
 			fi
 
-		elif [ "$EESITECREATE" = "--wpsubdir" ] || [ "$EESITECREATE" = "--wpsubdirectory" ]
+		elif [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]
 		then
 
-			if [ "$WPCACHEOPTION" = "--basic" ]
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdir/basic.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1203,12 +1239,12 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--w3tc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdir/w3tc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1216,7 +1252,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1234,12 +1274,12 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpsc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdir/wpsc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1247,7 +1287,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				SUPERCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1265,12 +1309,12 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpfc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdir/wpfc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1278,7 +1322,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1299,22 +1347,26 @@ then
 
 			fi
 
-		elif [ "$EESITECREATE" = "--wpsubdom" ] || [ "$EESITECREATE" = "--wpsubdomain" ]
+		elif [ "$EE_SITE_CREATE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]
 		then
 
-			if [ "$WPCACHEOPTION" = "--basic" ]
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdomain/basic.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1325,12 +1377,12 @@ then
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--w3tc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdomain/w3tc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1338,7 +1390,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1356,12 +1412,12 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpsc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdomain/wpsc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1369,7 +1425,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				SUPERCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1387,12 +1447,12 @@ then
 				echo
 				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 
-			elif [ "$WPCACHEOPTION" = "--wpfc" ]
+			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]
 			then
 
-				# Configure Variable
+				# Configure variable
 				EE_NGINX_CONF=wpsubdomain/wpfc.conf
-				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEESITECREATE = $EESITECREATE \nWPCACHEOPTION = $WPCACHEOPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
 				SETUP_DOMAIN
@@ -1400,7 +1460,11 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				TOTALCACHENGINX
-				PERMISSIONANDGIT
+				# Adjust permission
+			ee_lib_permissions
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1426,7 +1490,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
 		# Creating Symbolic Link
@@ -1444,7 +1508,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
 		# Remove Symbolic Link
@@ -1464,7 +1528,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		SITEDELETEARG=$4
 		ee_lib_check_domain
 
@@ -1527,7 +1591,7 @@ then
 	then
 
 		# Check SITENAME Is Empty Or Not
-		EE_DOMAIN_CHECK=$3
+		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 			
 		# Edit The Nginx Configuration For $EE_DOMAIN
