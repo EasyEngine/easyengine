@@ -439,7 +439,7 @@ SETUPWPNETWORK()
 
 
 # Remove Database
-REMOVEDB()
+ee_mod_delete_database()
 {
 	# HTML & PHP Website Doesn't Have Database
 	head -n1 /etc/nginx/sites-available/$EE_DOMAIN | egrep -e 'HTML|PHP' &>> $EE_COMMAND_LOG
@@ -456,16 +456,16 @@ REMOVEDB()
 		# Remove Database
 		# For Proper read Command Output
 		stty echo
-		if [ "$1" = "no-prompt" ]
+		if [ "$1" = "--no-prompt" ]
 		then
 			# Assume yes
-			ANSWER="y"
+			ee_prompt="y"
 		else
 			# Ask user for confirmation
-			read -p "Are You Sure To Drop $EE_DB_NAME Database (y/n): " ANSWER
+			read -p "Are You Sure To Drop $EE_DB_NAME Database (y/n): " ee_prompt
 		fi
 
-		if [ "$ANSWER" = "y" ]
+		if [ "$ee_prompt" = "y" ]
 		then
 			# Remove Database
 			mysql -h $EE_MYSQL_HOST -u $EE_MYSQL_USER -p$EE_MYSQL_PASS -e "drop database \`$EE_DB_NAME\`" \
@@ -489,21 +489,21 @@ REMOVEDB()
 	fi
 }
 
-REMOVEFILES()
+ee_mod_delete_webroot()
 {
 	# Remove Webroot
 	# For Proper read Command Output
 	stty echo
-	if [ "$1" = "no-prompt" ]
+	if [ "$1" = "--no-prompt" ]
 	then
 		# Assume yes
-		ANSWER="y"
+		ee_prompt="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Remove $EE_DOMAIN Webroot (y/n): " ANSWER
+		read -p "Are You Sure To Remove $EE_DOMAIN Webroot (y/n): " ee_prompt
 	fi
 
-	if [ "$ANSWER" = "y" ]
+	if [ "$ee_prompt" = "y" ]
 	then
 		# Remove Webroot
 		rm -rf /var/www/$EE_DOMAIN	|| ee_lib_error "Unable To Remove $EE_DOMAIN Webroot"
@@ -513,20 +513,20 @@ REMOVEFILES()
 	fi
 }
 
-ee_mod_remove_nginxCONF()
+ee_mod_delete_nginxconf()
 {
 	# Remove Nginx Configuration
 	# For Proper read Command Output
 	stty echo
-	if [ "$1" = "no-prompt" ]
+	if [ "$1" = "--no-prompt" ]
 	then
 		# Assume yes
-		ANSWER="y"
+		ee_prompt="y"
 	else
 		# Ask user for confirmation
-		read -p "Are You Sure To Remove $EE_DOMAIN Nginx Configuration (y/n): " ANSWER
+		read -p "Are You Sure To Remove $EE_DOMAIN Nginx Configuration (y/n): " ee_prompt
 	fi
-	if [ "$ANSWER" = "y" ]
+	if [ "$ee_prompt" = "y" ]
 	then
 		# Remove Webroot
 		rm -rf /etc/nginx/sites-available/$EE_DOMAIN /etc/nginx/sites-enabled/$EE_DOMAIN \
@@ -1478,23 +1478,23 @@ then
 		then
 
 			# Remove Database
-			REMOVEDB
+			ee_mod_delete_database
 
 		elif [ "$SITEDELETEARG" = "--files" ]
 		then
 
 			# Remove Webroot
-			REMOVEFILES
+			ee_mod_delete_webroot
 
 		elif [ "$SITEDELETEARG" = "--all" ]
 		then
 
 			# Remove All Database And Webroot
-			REMOVEDB
-			REMOVEFILES
+			ee_mod_delete_database
+			ee_mod_delete_webroot
 
 			# Remove Nginx Configuration
-			ee_mod_remove_nginxCONF
+			ee_mod_delete_nginxconf
 
 			# Reload Nginx
 			NGINXRELOAD
@@ -1504,15 +1504,15 @@ then
 			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $EE_DOMAIN"
 			ee_lib_git_commit
 
-		elif [ "$SITEDELETEARG" = "--all-no-prompt" ]
+		elif [ "$SITEDELETEARG" = "--all---no-prompt" ]
 		then
 
 			# Remove All Database And Webroot
-			REMOVEDB "no-prompt"
-			REMOVEFILES "no-prompt"
+			ee_mod_delete_database "--no-prompt"
+			ee_mod_delete_webroot "--no-prompt"
 
 			# Remove Nginx Configuration
-			ee_mod_remove_nginxCONF "no-prompt"
+			ee_mod_delete_nginxconf "--no-prompt"
 
 			# Reload Nginx
 			NGINXRELOAD
