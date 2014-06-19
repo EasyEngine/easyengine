@@ -310,7 +310,7 @@ ee_mod_setup_wordpress()
 	| ed -s /var/www/$EE_DOMAIN/wp-config.php
 }
 
-EEWPDBSETUP()
+ee_mod_setup_wordpress()
 {
 	# Get WordPress Site Title
 	#ee_lib_echo "WordPress Information Required..."
@@ -374,7 +374,7 @@ SETUP_DOMAIN()
 
 	# Setup WordPress Webroot & Database
 	ee_mod_setup_wordpress
-	EEWPDBSETUP
+	ee_mod_setup_wordpress
 }
 
 # Adjust permission
@@ -1102,7 +1102,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Basic Nginx
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				NGINXHELPER
 				# Adjust permission
 			ee_lib_permissions
@@ -1124,7 +1126,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup W3 Total Cache Nginx
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				NGINXHELPER
 				TOTALCACHENGINX
 				# Adjust permission
@@ -1154,7 +1158,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup WP Super Cache Nginx
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				NGINXHELPER
 				SUPERCACHENGINX
 				# Adjust permission
@@ -1184,7 +1190,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Fastcgi Cache Nginx
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				NGINXHELPER
 				TOTALCACHENGINX
 				# Adjust permission
@@ -1220,7 +1228,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1247,7 +1257,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1282,7 +1294,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1317,7 +1331,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1358,7 +1374,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 				
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1385,7 +1403,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1420,7 +1440,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
@@ -1455,7 +1477,9 @@ then
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup Domain WordPress & Database
-				SETUP_DOMAIN
+				ee_lib_check_domain
+				ee_mod_setup_domain
+				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
