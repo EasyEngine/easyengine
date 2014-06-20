@@ -2,7 +2,7 @@
 
 function ee_mod_setup_domain()
 {
-	ls /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
+	ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null
 	if [ $? -ne 0 ]; then
 
 		# Creating $EE_DOMAIN

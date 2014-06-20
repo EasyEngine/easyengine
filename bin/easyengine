@@ -304,6 +304,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
+				# Execute: service nginx reload
+				ee_lib_service nginx reload
+
 				# Display WordPress credential
 				echo
 				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
