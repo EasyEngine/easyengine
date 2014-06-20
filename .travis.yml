@@ -34,6 +34,12 @@ script:
 - sudo bash ee site create wpw3tc.com --w3tc
 - sudo bash ee site create wpsubdirw3tc.com --wpsubdirectory --w3tc
 - sudo bash ee site create wpsubdomainw3tc.com --w3tc --wpsubdom
+- sudo bash ee site create wpwpsc.com --wpsc
+- sudo bash ee site create wpsubdirwpsc.com --wpsubdirectory --wpsc
+- sudo bash ee site create wpsubdomainwpsc.com --wpsc --wpsubdom
+- sudo bash ee site create wpwpfc.com --wp --wpfc
+- sudo bash ee site create wpsubdirwpfc.com --wpsubdirectory --wpfc
+- sudo bash ee site create wpsubdomainwpfc.com --wpfc --wpsubdom
 
 - sudo cat /var/log/easyengine/*
 

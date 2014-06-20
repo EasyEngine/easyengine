@@ -419,7 +419,7 @@ ee_mod_plugin_w3tc()
 	wp plugin --allow-root activate w3-total-cache $EE_NETWORK_ACTIVATE &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Activate W3 Total Cache Plugin"
 }
 
-SUPERCACHENGINX()
+ee_mod_plugin_wpsc()
 {
 	# Installing WP Super Cache
 	cd /var/www/$EE_DOMAIN/htdocs/
@@ -1190,9 +1190,9 @@ then
 				# Setup WordPress
 				ee_mod_setup_wordpress
 				ee_mod_plugin_nginx_helper
-				SUPERCACHENGINX
+				ee_mod_plugin_wpsc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
@@ -1228,7 +1228,7 @@ then
 				ee_mod_plugin_nginx_helper
 				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
@@ -1305,7 +1305,7 @@ then
 				SETUPWPNETWORK
 				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
@@ -1344,9 +1344,9 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				SUPERCACHENGINX
+				ee_mod_plugin_wpsc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
@@ -1387,7 +1387,7 @@ then
 				SETUPWPNETWORK
 				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
 				# Git commit
 				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
@@ -1506,7 +1506,7 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				SUPERCACHENGINX
+				ee_mod_plugin_wpsc
 				# Adjust permission
 				ee_lib_permissions
 

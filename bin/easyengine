@@ -271,7 +271,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
+
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				# Configure variable
 				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/$(echo $EE_SITE_CACHE_OPTION | cut -c3-).conf
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
@@ -294,7 +295,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Install WordPress plugins
 				ee_mod_plugin_nginx_helper
 
-				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
+				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+					ee_mod_plugin_wpsc
+				fi
+
+				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 					ee_mod_plugin_w3tc
 				fi
 
@@ -314,12 +319,32 @@ elif [ "$EE_FIRST" = "site" ]; then
 				echo
 
 				# Configure WordPress plugin settings
-				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-					ee_lib_echo_escape "Configure W3TC:\thttp://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
-					ee_lib_echo_escape "Page Cache:\tDisk Enhanced"
-					ee_lib_echo_escape "Database Cache:\tMemcache"
-					ee_lib_echo_escape "Object Cache:\tMemcache"
-					ee_lib_echo_escape "Browser Cache:\tDisable"
+				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+						ee_lib_echo_escape "Configure WPSC:\t\thttp://$EE_DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
+					else
+						ee_lib_echo_escape "Configure WPSC:\t\thttp://$EE_DOMAIN/wp-admin/options-general.php?page=wpsupercache"
+					fi
+				fi
+
+				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+						ee_lib_echo_escape "Configure W3TC:\t\thttp://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
+					else
+						ee_lib_echo_escape "Configure W3TC:\t\thttp://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
+					fi
+					ee_lib_echo_escape "Page Cache:\t\tDisk Enhanced"
+					ee_lib_echo_escape "Database Cache:\t\tMemcache"
+					ee_lib_echo_escape "Object Cache:\t\tMemcache"
+					ee_lib_echo_escape "Browser Cache:\t\tDisable"
+				fi
+
+				if [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+						ee_lib_echo_escape "Configure nginx-helper:\thttp://$EE_DOMAIN/wp-admin/network/settings.php?page=nginx"
+					else
+						ee_lib_echo_escape "Configure nginx-helper:\thttp://$EE_DOMAIN/wp-admin/options-general.php?page=nginx"
+					fi
 				fi
 
 				# Display Success Message
