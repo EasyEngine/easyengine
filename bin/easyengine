@@ -273,7 +273,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
 				# Configure variable
-				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
+				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/$(echo $EE_SITE_CACHE_OPTION | cut -c3-).conf
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
 				# Setup NGINX
