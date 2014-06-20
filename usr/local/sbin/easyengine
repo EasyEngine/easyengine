@@ -822,7 +822,7 @@ EE_SYSTEM_STATUS()
 
 	NGINX_STATUS=$(service nginx status | grep 'nginx is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
 	PHP_STATUS=$(service php5-fpm status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
-	MYSQL_STATUS=$(service mysql status | grep running &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
+	MYSQL_STATUS=$(service mysql status | grep Uptime &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
 	POSTFIX_STATUS=$(service postfix status | grep 'postfix is running' &>> $INSTALLLOG && echo -e "\033[34mRunning\e[0m" || echo -e "\033[31mStopped\e[0m")
 
 	echo
@@ -1344,19 +1344,20 @@ EEDOMAINSETUP()
 
 EEWPSETUP()
 {
-	# Download Latest WordPress
-	echo -e "\033[34mDownloading WordPress, Please Wait...\e[0m"
-	wget --no-check-certificate -cqO /var/www/$DOMAIN/htdocs/latest.tar.gz  \
-	http://wordpress.org/latest.tar.gz \
-	|| OwnError "Unable To Download WordPress"
 
-	# Extracting WordPress
-	tar --strip-components=1 -zxf /var/www/$DOMAIN/htdocs/latest.tar.gz \
-	-C /var/www/$DOMAIN/htdocs/ \
-	|| OwnError "Unable To Extract WordPress"
-
-	# Removing WordPress Archive
-	rm /var/www/$DOMAIN/htdocs/latest.tar.gz
+ 	# Check for WordPress repo
+    if [ ! -d /var/www/22222/htdocs/cache/wordpress ]
+        then
+        echo -e "\033[34mWordPress Repo not found, Cloning...\e[0m"
+		git clone https://github.com/WordPress/WordPress.git /var/www/22222/htdocs/cache/wordpress ||  OwnError "Unable To clone WordPress repository"
+    fi
+	cd /var/www/22222/htdocs/cache/wordpress
+	echo -e "\033[34mUpdating WordPress Repo, Please Wait...\e[0m"
+	git fetch --tags
+	latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+	git checkout $latestTag
+	cp -R /var/www/22222/htdocs/cache/wordpress/* /var/www/$DOMAIN/htdocs/
+	rm -fr /var/www/$DOMAIN/htdocs/.git/
 
 	# Call MYSQLINFO Function For MySQL Values
 	MYSQLINFO
