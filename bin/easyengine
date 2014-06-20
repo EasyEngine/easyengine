@@ -271,7 +271,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
 				# Configure variable
 				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
 				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
@@ -294,6 +294,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Install WordPress plugins
 				ee_mod_plugin_nginx_helper
 
+				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
+					ee_mod_plugin_w3tc
+				fi
+
 				# Adjust permission
 				ee_lib_permissions
 
@@ -306,8 +310,17 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 
+				# Configure WordPress plugin settings
+				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
+					ee_lib_echo_escape "Configure W3TC:\thttp://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
+					ee_lib_echo_escape "Page Cache:\tDisk Enhanced"
+					ee_lib_echo_escape "Database Cache:\tMemcache"
+					ee_lib_echo_escape "Object Cache:\tMemcache"
+					ee_lib_echo_escape "Browser Cache:\tDisable"
+				fi
+
 				# Display Success Message
-				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+				ee_lib_echo_info "Successfully created new website: http://$EE_WWW_DOMAIN"
 			fi
 		fi
 	fi

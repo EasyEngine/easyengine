@@ -24,17 +24,19 @@ script:
 - sudo bash bin/install.sh $TRAVIS_BRANCH
 
 - sudo ee stack install
-- sudo bash ee info
 
 - sudo bash ee site create html.com
 - sudo bash ee site create php.com --php
 - sudo bash ee site create mysql.com --mysql
-- sudo bash ee site create wp-basic.com --wp
-- sudo bash ee site create wpsubdir-basic.com --wpsubdir
-- sudo bash ee site create wpsubdomain-basic.com --wpsubdomain
+- sudo bash ee site create wpbasic.com --wp
+- sudo bash ee site create wpsubdirbasic.com --wpsubdir
+- sudo bash ee site create wpsubdomainbasic.com --wpsubdomain
+- sudo bash ee site create wpw3tc.com --w3tc
+- sudo bash ee site create wpsubdirw3tc.com --wpsubdirectory --w3tc
+- sudo bash ee site create wpsubdomainw3tc.com --w3tc --wpsubdom
 
-- sudo bash ee site create wpsubdir-basic2.com --wpsubdirectory
-- sudo bash ee site create wpsubdomain-basic2.com --wpsubdom
+- sudo cat /var/log/easyengine/*
+
 - sudo mysql -e "show databases";
 - sudo wp --allow-root --info
-- sudo cat /var/log/easyengine/*
+

@@ -396,8 +396,8 @@ SETUP_DOMAIN()
 # Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"()
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"()
 {
 	# Change Webroot Permission
 	ee_lib_permission
@@ -408,7 +408,7 @@ SETUP_DOMAIN()
 	ee_lib_git_commit
 }
 
-TOTALCACHENGINX()
+ee_mod_plugin_w3tc()
 {
 	# Installing W3 Total Cache
 	cd /var/www/$EE_DOMAIN/htdocs/
@@ -1055,8 +1055,8 @@ then
 			# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
@@ -1074,8 +1074,8 @@ then
 			# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
@@ -1093,8 +1093,8 @@ then
 			# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Call MYSQLINFO Function For MySQL Values
 			MYSQLINFO
@@ -1127,10 +1127,10 @@ then
 				ee_mod_setup_wordpress
 				ee_mod_plugin_nginx_helper
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display Success Message
 				echo
@@ -1154,12 +1154,12 @@ then
 				# Setup WordPress
 				ee_mod_setup_wordpress
 				ee_mod_plugin_nginx_helper
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1194,8 +1194,8 @@ then
 				# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1226,12 +1226,12 @@ then
 				# Setup WordPress
 				ee_mod_setup_wordpress
 				ee_mod_plugin_nginx_helper
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Display WordPress Plugin Configuration Message
 				echo
@@ -1271,10 +1271,10 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1303,12 +1303,12 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1348,8 +1348,8 @@ then
 				# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1385,12 +1385,12 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
 			ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1433,10 +1433,10 @@ then
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1465,12 +1465,12 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1508,10 +1508,10 @@ then
 				SETUPWPNETWORK
 				SUPERCACHENGINX
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
@@ -1547,12 +1547,12 @@ then
 
 				# Setup WordPress SubDirectory Network
 				SETUPWPNETWORK
-				TOTALCACHENGINX
+				ee_mod_plugin_w3tc
 				# Adjust permission
-			ee_lib_permissions
+				ee_lib_permissions
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 				# Setup phpMyAdmin
 				#ln -s /var/www/22222/htdocs/db/pma /var/www/$EE_DOMAIN/htdocs/pma
