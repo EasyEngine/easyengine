@@ -225,10 +225,12 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 		# WordPresss subdirectory variables
 		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]; then
+			EE_SITE_CREATE_OPTION="--wpsubdir"
 			EE_NETWORK_ACTIVATE="--network"
 		fi
 		# WordPress sub-domain variables
 		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdom" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			EE_SITE_CREATE_OPTION="--wpsubdomain"
 			EE_NETWORK_ACTIVATE="--network"
 			EE_WP_SUBDOMAIN="--subdomains"
 		fi
@@ -247,7 +249,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
 			echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
 
-			# Setup HTML|PHP|MySQL website
+			# Setup NGINX
 			ee_lib_check_domain
 			ee_mod_setup_domain
 
@@ -268,6 +270,45 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
+				# Configure variable
+				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
+				echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nEE_NGINX_CONF = $EE_NGINX_CONF" &>> $EE_COMMAND_LOG
+
+				# Setup NGINX
+				ee_lib_check_domain
+				ee_mod_setup_domain
+
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
+				ee_mod_setup_wordpress
+
+				# Setup WordPress Network
+				if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+					ee_mod_setup_network
+				fi
+
+				# Install WordPress plugins
+				ee_mod_plugin_nginx_helper
+
+				# Adjust permission
+				ee_lib_permissions
+
+				# Git commit
+				ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+
+				# Display WordPress credential
+				echo
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
+				echo
+
+				# Display Success Message
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+			fi
 		fi
 	fi
 fi

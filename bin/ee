@@ -265,7 +265,11 @@ ee_mod_setup_domain()
 	fi
 }
 
-ee_mod_setup_wordpress()
+# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
+				ee_mod_setup_wordpress()
 {
 	# Download Latest WordPress
 	ee_lib_echo "Downloading WordPress, Please Wait..."
@@ -310,7 +314,11 @@ ee_mod_setup_wordpress()
 	| ed -s /var/www/$EE_DOMAIN/wp-config.php
 }
 
-ee_mod_setup_wordpress()
+# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
+				ee_mod_setup_wordpress()
 {
 	# Get WordPress Site Title
 	#ee_lib_echo "WordPress Information Required..."
@@ -373,8 +381,16 @@ SETUP_DOMAIN()
 	ee_mod_setup_domain
 
 	# Setup WordPress Webroot & Database
-	ee_mod_setup_wordpress
-	ee_mod_setup_wordpress
+	# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
+				ee_mod_setup_wordpress
+	# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
+				ee_mod_setup_wordpress
 }
 
 # Adjust permission
@@ -414,7 +430,7 @@ SUPERCACHENGINX()
 	wp plugin --allow-root activate wp-super-cache $EE_NETWORK_ACTIVATE &>> $EE_COMMAND_LOG || ee_lib_error "Unable To Activate WP Super Cache Plugin"
 }
 
-NGINXHELPER()
+ee_mod_plugin_nginx_helper()
 {
 	# Installing Nginx Helper
 	cd /var/www/$EE_DOMAIN/htdocs/
@@ -438,7 +454,7 @@ SETUPWPNETWORK()
 	
 	# Remove index.php from permalink
 	# Install Nginx Helper
-	NGINXHELPER
+	ee_mod_plugin_nginx_helper
 }
 
 
@@ -1104,8 +1120,12 @@ then
 				# Setup Basic Nginx
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
-				NGINXHELPER
+				ee_mod_plugin_nginx_helper
 				# Adjust permission
 			ee_lib_permissions
 
@@ -1128,8 +1148,12 @@ then
 				# Setup W3 Total Cache Nginx
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
-				NGINXHELPER
+				ee_mod_plugin_nginx_helper
 				TOTALCACHENGINX
 				# Adjust permission
 			ee_lib_permissions
@@ -1160,8 +1184,12 @@ then
 				# Setup WP Super Cache Nginx
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
-				NGINXHELPER
+				ee_mod_plugin_nginx_helper
 				SUPERCACHENGINX
 				# Adjust permission
 			ee_lib_permissions
@@ -1192,8 +1220,12 @@ then
 				# Setup Fastcgi Cache Nginx
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
-				NGINXHELPER
+				ee_mod_plugin_nginx_helper
 				TOTALCACHENGINX
 				# Adjust permission
 			ee_lib_permissions
@@ -1230,6 +1262,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 				
 				# Setup WordPress SubDirectory Network
@@ -1259,6 +1295,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
@@ -1296,6 +1336,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
@@ -1333,6 +1377,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
@@ -1376,6 +1424,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 				
 				# Setup WordPress SubDirectory Network
@@ -1405,6 +1457,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
@@ -1442,6 +1498,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network
@@ -1479,6 +1539,10 @@ then
 				# Setup Domain WordPress & Database
 				ee_lib_check_domain
 				ee_mod_setup_domain
+				# Setup MySQL database
+				ee_mod_setup_database
+
+				# Setup WordPress
 				ee_mod_setup_wordpress
 
 				# Setup WordPress SubDirectory Network

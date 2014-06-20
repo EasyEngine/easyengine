@@ -21,48 +21,20 @@ before_script:
 script:
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost" > ~/.gitconfig
 - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-- sudo bash -x bin/install.sh $TRAVIS_BRANCH
+- sudo bash bin/install.sh $TRAVIS_BRANCH
 
 - sudo ee stack install
-- sudo ee stack purge
-- sudo ee system install nginx
-- sudo ee system install php
-- sudo ee system install mysql
-- sudo ee system install postfix
-- sudo ee system install phpmyadmin
-- sudo ee system install adminer
-- sudo ee system install wpcli
-- sudo ee system install utils
-
-
-- sudo cat /var/log/easyengine/*
-
-- sudo ls -lah /usr/local/sbin
-- sudo find /usr/local/sbin
-
-- sudo ls -lah /usr/share/easyengine
-- sudo find /usr/share/easyengine
-
-- sudo ls -lah /usr/local/lib/easyengine
-- sudo find /usr/local/lib/easyengine
-
-- sudo wp --allow-root --info
-- sudo bash -x ee system status
-- sudo bash -x ee stack stop
-- sudo bash -x ee stack start
-- sudo bash -x ee stack restart
-- sudo bash -x ee stack reload
-- sudo bash ee info nginx
-- sudo bash ee info php
-- sudo bash ee info mysql
 - sudo bash ee info
 
 - sudo bash ee site create html.com
-- sudo bash ee site create html2.com --html
-- sudo bash ee site info html.com
-- sudo bash ee site show html.com
-- sudo bash ee site list
-- sudo bash ee site list available
 - sudo bash ee site create php.com --php
 - sudo bash ee site create mysql.com --mysql
+- sudo bash ee site create wp-basic.com --wp
+- sudo bash ee site create wpsubdir-basic.com --wpsubdir
+- sudo bash ee site create wpsubdomain-basic.com --wpsubdomain
+
+- sudo bash ee site create wpsubdir-basic2.com --wpsubdirectory
+- sudo bash ee site create wpsubdomain-basic2.com --wpsubdom
 - sudo mysql -e "show databases";
+- sudo wp --allow-root --info
+- sudo cat /var/log/easyengine/*
