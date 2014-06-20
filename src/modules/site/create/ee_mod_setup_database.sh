@@ -54,9 +54,10 @@ function ee_mod_setup_database()
 
 	# Create MySQL User
 	mysql -e "create user '$EE_DB_USER'@'$EE_MYSQL_HOST' identified by '$EE_DB_PASS'" \
-	|| ee_lib_error "Unable to create $EE_DB_USER database, exit status = " $?
+	|| ee_lib_error "Unable to create $EE_DB_USER database user, exit status = " $?
 
 	# Grant permission
-	mysql -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_HOST'"
+	mysql -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_HOST'" \
+	|| ee_lib_error "Unable to grant privileges for $EE_DB_USER database user, exit status = " $?
 	mysql -e "flush privileges"	
 }

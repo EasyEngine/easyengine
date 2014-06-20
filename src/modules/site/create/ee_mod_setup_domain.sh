@@ -13,6 +13,7 @@ function ee_mod_setup_domain()
 		|| ee_lib_error "Unable to create NGINX configuration file for $EE_DOMAIN, exit status = " $?
 
 		# Creating symbolic link
+		ee_lib_echo "Creating symbolic link for $EE_DOMAIN"
 		ee_lib_symbolic_link /etc/nginx/sites-available/$EE_DOMAIN /etc/nginx/sites-enabled/
 
 		# Creating htdocs & logs directory
@@ -21,7 +22,6 @@ function ee_mod_setup_domain()
 		|| ee_lib_error "Unable to create htdocs & logs directory, exit status = " $?
 
 		# Creating symbolic links for logs
-		ee_lib_echo "Creating symbolic link for logs"
 		ee_lib_symbolic_link /var/log/nginx/$EE_DOMAIN.access.log /var/www/$EE_DOMAIN/logs/access.log
 		ee_lib_symbolic_link /var/log/nginx/$EE_DOMAIN.error.log /var/www/$EE_DOMAIN/logs/error.log
 	else

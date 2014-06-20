@@ -37,9 +37,6 @@ function ee_mod_setup_wordpress()
 		EE_WP_PREFIX=wp_
 	fi
 
-	# Database setup
-	ee_mod_setup_database
-
 	# Modify wp-config.php & move outside the webroot
 	cp /var/www/$EE_DOMAIN/htdocs/wp-config-sample.php \
 	/var/www/$EE_DOMAIN/wp-config.php
