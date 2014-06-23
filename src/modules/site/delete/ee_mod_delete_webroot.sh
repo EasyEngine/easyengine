@@ -7,6 +7,8 @@ function ee_mod_delete_webroot()
 			# Delete webroot without any prompt
 			local ee_prompt="y"
 		else
+			# Fix read prompt
+			stty echo
 			# Ask user to confirm
 			read -p "Are you sure to remove $EE_DOMAIN webroot (y/n): " ee_prompt
 		fi
