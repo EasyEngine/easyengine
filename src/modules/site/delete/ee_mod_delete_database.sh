@@ -16,6 +16,8 @@ function ee_mod_delete_database()
 			# Delete database without any prompt
 			local ee_prompt="y"
 		else
+			# Fix read prompt
+			stty echo
 			# Ask user to confirm
 			read -p "Are you sure to drop $ee_db_name database (y/n): " ee_prompt
 		fi
