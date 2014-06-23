@@ -15,9 +15,9 @@ function ee_lib_gpg_key_fix()
 		for ee_gpg_key_check in $(grep "NO_PUBKEY" /tmp/gpg_key |sed "s/.*NO_PUBKEY //")
 		do
 			ee_lib_echo "Processing GnuPG key: $ee_gpg_key_check"
-			gpg --keyserver subkeys.pgp.net --recv $ee_gpg_key_check \
+			gpg --keyserver subkeys.pgp.net --recv $ee_gpg_key_check &>> $EE_COMMAND_LOG \
 			&& gpg --export --armor $ee_gpg_key_check \
-			| apt-key add -
+			| apt-key add - &>> $EE_COMMAND_LOG
 		done
 
 	fi
