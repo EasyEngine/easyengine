@@ -242,7 +242,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		ee_lib_check_domain
 
 		# Edit the NGINX configuration for $EE_DOMAIN
-		ee_mod_site_edit "$EE_THIRD"
+		ee_mod_site_edit $EE_FOURTH
 
 		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$EE_DOMAIN | wc -l) -ne 0 ]; then
 			# Git commit
