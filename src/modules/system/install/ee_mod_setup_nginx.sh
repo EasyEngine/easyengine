@@ -67,20 +67,20 @@ function ee_mod_setup_nginx()
 	fi
 	
 	# Generate SSL key
-	ee_lib_echo "Generating SSL private key, please wait..."
+	ee_lib_echo "Generating SSL private key"
 	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate SSL private key for port 22222, exit status = " $?
 
-	ee_lib_echo "Generating a certificate signing request (CSR), please wait..."
+	ee_lib_echo "Generating a certificate signing request (CSR)"
 	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
 
-	ee_lib_echo "Removing pass phrase from SSL private key, please wait..."
+	ee_lib_echo "Removing pass phrase from SSL private key"
 	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
 	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
 
-	ee_lib_echo "Generating SSL certificate, please wait..."
+	ee_lib_echo "Generating SSL certificate"
 	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 

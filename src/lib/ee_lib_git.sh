@@ -8,7 +8,7 @@ function ee_lib_git()
 
 		# Check .git
 		if [ ! -d .git ]; then
-			ee_lib_echo "Initialize Git on ${ee_git_dir}"
+			# ee_lib_echo "Initialize Git on ${ee_git_dir}"
 			git init &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to initialize Git on $ee_git_dir, exit status = " $?
 		fi
