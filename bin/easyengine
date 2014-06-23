@@ -207,6 +207,35 @@ elif [ "$EE_FIRST" = "site" ]; then
 				|| ee_lib_error "Unable to display NGINX configuration for $EE_DOMAIN, exit status = " $?
 			fi
 		fi
+	elif [ "$EE_SECOND" = "enable" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		# Creating symbolic link
+		ee_lib_echo "Creating symbolic link for $EE_DOMAIN"
+		ee_lib_symbolic_link /etc/nginx/sites-available/$EE_DOMAIN /etc/nginx/sites-enabled/
+
+		# Execute: service nginx reload
+		ee_lib_service nginx reload
+
+		# Git commit
+		ee_lib_git /etc/nginx/ "Enable website: $EE_DOMAIN"
+	elif [ "$EE_SECOND" = "disable" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		# Remove symbolic link
+		ee_lib_echo "Removing symbolic link for $EE_DOMAIN"
+		rm  /etc/nginx/sites-enabled/$EE_DOMAIN \
+		|| ee_lib_error "Unable to remove symbolic link for $EE_DOMAIN, exit status = " $?
+
+		# Execute: service nginx reload
+		ee_lib_service nginx reload
+
+		# Git commit
+		ee_lib_git /etc/nginx/ "Enable website: $EE_DOMAIN"
 	elif [ "$EE_SECOND" = "create" ]; then
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
@@ -271,7 +300,6 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				# Configure variable
 				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/$(echo $EE_SITE_CACHE_OPTION | cut -c3-).conf
