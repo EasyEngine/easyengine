@@ -41,8 +41,13 @@ script:
 - sudo bash ee site create wpsubdirwpfc.com --wpsubdirectory --wpfc
 - sudo bash ee site create wpsubdomainwpfc.com --wpfc --wpsubdom
 
-- sudo cat /var/log/easyengine/*
-
 - sudo mysql -e "show databases";
+- sudo bash ee site delete wwpsubdomainwpsc.com --files --no-prompt
+- sudo bash ee site delete wpwpfc.com --db --no-prompt
+- sudo bash ee site delete wpsubdirwpfc.com --all --no-prompt
+- sudo bash ee site delete wpsubdomainwpfc.com --no-prompt
+- sudo mysql -e "show databases";
+
+- sudo cat /var/log/easyengine/*
 - sudo wp --allow-root --info
 

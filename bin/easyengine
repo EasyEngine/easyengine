@@ -235,7 +235,22 @@ elif [ "$EE_FIRST" = "site" ]; then
 		ee_lib_service nginx reload
 
 		# Git commit
-		ee_lib_git /etc/nginx/ "Enable website: $EE_DOMAIN"
+		ee_lib_git /etc/nginx/ "Disable website: $EE_DOMAIN"
+	elif [ "$EE_SECOND" = "edit" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		# Edit the NGINX configuration for $EE_DOMAIN
+		ee_mod_site_edit "$EE_THIRD"
+
+		if [ $(cd /etc/nginx; git status -s /etc/nginx/sites-available/$EE_DOMAIN | wc -l) -ne 0 ]; then
+			# Git commit
+			ee_lib_git /etc/nginx/ "Edit website: $EE_DOMAIN"
+
+			# Execute: service nginx reload
+			ee_lib_service nginx reload			
+		fi
 	elif [ "$EE_SECOND" = "create" ]; then
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
@@ -382,6 +397,44 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Display Success Message
 				ee_lib_echo_info "Successfully created new website: http://$EE_WWW_DOMAIN"
 			fi
+		fi
+	elif [ "$EE_SECOND" = "delete" ]; then
+		# Check the website name is empty or not
+		EE_DELETE_ARGS=$EE_FOURTH
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		# Use default whenever possible
+		# ee site delete example.com
+		# ee site delete example.com --no-prompt
+		if [ "$EE_DELETE_ARGS" = "" ]; then
+			EE_DELETE_ARGS="--all"
+		elif [ "$EE_DELETE_ARGS" = "--no-prompt" ]; then
+			EE_DELETE_ARGS="--all"
+			EE_FIFTH="--no-prompt"
+		fi
+
+		if [ "$EE_DELETE_ARGS" = "--db" ]; then
+			# Delete MySQL database
+			ee_mod_delete_database $EE_FIFTH
+		elif [ "$EE_DELETE_ARGS" = "--files" ]; then
+			# Delete webroot
+			ee_mod_delete_webroot $EE_FIFTH
+		elif [ "$EE_DELETE_ARGS" = "--all" ]; then
+			# Delete MySQL database
+			ee_mod_delete_database $EE_FIFTH
+			
+			# Delete webroot
+			ee_mod_delete_webroot $EE_FIFTH
+			
+			# Delete NGINX configuration file
+			ee_mod_delete_nginxconf $EE_FIFTH
+
+			# Git commit
+			ee_lib_git /etc/nginx/ "Delete website: $EE_DOMAIN"
+
+			# Execute: service nginx reload
+			ee_lib_service nginx reload
 		fi
 	fi
 fi
