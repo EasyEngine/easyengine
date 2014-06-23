@@ -1617,28 +1617,28 @@ then
 
 		# Check SITENAME Is Empty Or Not
 		EE_DOMAIN_CHECK=$EE_THIRD
-		SITEDELETEARG=$4
+		EE_DELETE_ARGS=$4
 		ee_lib_check_domain
 
 		# USE DEFAULT WHEN POSSIBLES
-		if [ "$SITEDELETEARG" = "" ]
+		if [ "$EE_DELETE_ARGS" = "" ]
 		then
-			SITEDELETEARG=--all
+			EE_DELETE_ARGS=--all
 		fi
 
-		if [ "$SITEDELETEARG" = "--db" ]
+		if [ "$EE_DELETE_ARGS" = "--db" ]
 		then
 
 			# Remove Database
 			ee_mod_delete_database
 
-		elif [ "$SITEDELETEARG" = "--files" ]
+		elif [ "$EE_DELETE_ARGS" = "--files" ]
 		then
 
 			# Remove Webroot
 			ee_mod_delete_webroot
 
-		elif [ "$SITEDELETEARG" = "--all" ]
+		elif [ "$EE_DELETE_ARGS" = "--all" ]
 		then
 
 			# Remove All Database And Webroot
@@ -1653,10 +1653,10 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EE_GIT_DIR=/etc/nginx
-			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $EE_DOMAIN"
+			EE_GIT_MESSAGE="Delete Website With $EE_DELETE_ARGS Option: $EE_DOMAIN"
 			ee_lib_git_commit
 
-		elif [ "$SITEDELETEARG" = "--all---no-prompt" ]
+		elif [ "$EE_DELETE_ARGS" = "--all---no-prompt" ]
 		then
 
 			# Remove All Database And Webroot
@@ -1671,7 +1671,7 @@ then
 
 			# Take Nginx Configuration In Git Version Control
 			EE_GIT_DIR=/etc/nginx
-			EE_GIT_MESSAGE="Delete Website With $SITEDELETEARG Option: $EE_DOMAIN"
+			EE_GIT_MESSAGE="Delete Website With $EE_DELETE_ARGS Option: $EE_DOMAIN"
 			ee_lib_git_commit
 		fi
 
