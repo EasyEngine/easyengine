@@ -557,7 +557,7 @@ ee_mod_delete_nginxconf()
 	fi
 }
 
-DEBUG_NGINX()
+ee_mod_debug_nginx_start()
 {
 	# Lets Disable Nginx Reload Trigger
 	EE_DEBUG_NGINX=""
@@ -568,16 +568,16 @@ DEBUG_NGINX()
 		EE_IP_ADDRESS="0.0.0.0/0"
 	fi
 
-	for DEBUG_IP_ADDRESS in $(echo $EE_IP_ADDRESS)
+	for ee_debug_ip_address in $(echo $EE_IP_ADDRESS)
 	do
-		grep "debug_connection $DEBUG_IP_ADDRESS" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
+		grep "debug_connection $ee_debug_ip_address" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]
 		then
 			# Enable Debug Connection
 			ee_lib_echo "Setting Up Nginx Debug Connection, Please Wait..."
 
 			# EasyEngine Found New IP Address Which Is Not Present In nginx.conf
-			sed -i "/events {/a \\\t$(echo debug_connection $DEBUG_IP_ADDRESS\;)" /etc/nginx/nginx.conf
+			sed -i "/events {/a \\\t$(echo debug_connection $ee_debug_ip_address\;)" /etc/nginx/nginx.conf
 
 			# Lets Trigger The Nginx Reload
 			EE_DEBUG_NGINX="--nginx"
@@ -590,7 +590,7 @@ DEBUG_NGINX()
 	fi
 }
 
-DEBUG_NGINX_STOP()
+ee_mod_debug_nginx_stop()
 {
 	grep "debug_connection" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
@@ -604,7 +604,7 @@ DEBUG_NGINX_STOP()
 	fi
 }
 
-DEBUG_NGINX_REWRITE()
+ee_mod_debug_nginx_rewrite_start()
 {
 	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
@@ -619,7 +619,7 @@ DEBUG_NGINX_REWRITE()
 	fi
 }
 
-DEBUG_NGINX_REWRITE_STOP()
+ee_mod_debug_nginx_rewrite_stop()
 {
 	grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
@@ -634,7 +634,7 @@ DEBUG_NGINX_REWRITE_STOP()
 	fi
 }
 
-DEBUG_NGINX_SITE()
+ee_mod_debug_nginx_site_start()
 {
 	grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
@@ -649,7 +649,7 @@ DEBUG_NGINX_SITE()
 	fi
 }
 
-DEBUG_NGINX_SITE_STOP()
+ee_mod_debug_nginx_site_stop()
 {
 	grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
@@ -664,7 +664,7 @@ DEBUG_NGINX_SITE_STOP()
 	fi
 }
 
-DEBUG_NGINX_REWRITE_SITE()
+ee_mod_nginx_rewrite_site_start()
 {
 	grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
@@ -679,7 +679,7 @@ DEBUG_NGINX_REWRITE_SITE()
 	fi
 }
 
-DEBUG_NGINX_REWRITE_SITE_STOP()
+ee_mod_nginx_rewrite_site_stop()
 {
 	grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
@@ -694,7 +694,7 @@ DEBUG_NGINX_REWRITE_SITE_STOP()
 	fi
 }
 
-DEBUG_PHP()
+ee_mod_debug_php_start()
 {
 	#  Lets Disable PHP Restart Trigger
 	EE_DEBUG_PHP=""
@@ -727,7 +727,7 @@ DEBUG_PHP()
 	fi
 }
 
-DEBUG_PHP_STOP()
+ee_mod_debug_php_stop()
 {
 	#  Lets Disable PHP Restart Trigger
 	EE_DEBUG_PHP=""
@@ -760,7 +760,7 @@ DEBUG_PHP_STOP()
 	fi
 }
 
-DEBUG_PHP_FPM()
+ee_mod_debug_php_fpm_start()
 {
 	grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
@@ -774,7 +774,7 @@ DEBUG_PHP_FPM()
 	fi
 }
 
-DEBUG_PHP_FPM_STOP()
+ee_mod_debug_php_fpm_stop()
 {
 	grep "log_level = notice" /etc/php5/fpm/php-fpm.conf &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]
@@ -788,7 +788,7 @@ DEBUG_PHP_FPM_STOP()
 	fi
 }
 
-DEBUG_MYSQL()
+ee_mod_debug_mysql_start()
 {
 	# Collect MySQL Login Details
 	MYSQLROOT
@@ -815,7 +815,7 @@ DEBUG_MYSQL()
 	fi
 }
 
-DEBUG_MYSQL_STOP()
+ee_mod_debug_mysql_stop()
 {
 	# Collect MySQL Login Details
 	MYSQLROOT
@@ -842,7 +842,7 @@ DEBUG_MYSQL_STOP()
 	fi
 }
 
-DEBUG_WORDPRESS()
+ee_mod_debug_wordpress_start()
 {
 	if [ -e /var/www/$EE_DOMAIN/wp-config.php ]
 	then
@@ -877,7 +877,7 @@ DEBUG_WORDPRESS()
 	fi
 }
 
-DEBUG_WORDPRESS_STOP()
+ee_mod_debug_wordpress_stop()
 {
 	grep "'WP_DEBUG'" /var/www/$EE_DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]
@@ -893,7 +893,7 @@ DEBUG_WORDPRESS_STOP()
 	fi
 }
 
-DEBUG_KILL()
+ee_mod_debug_kill()
 {
 	if [ "$EE_DEBUG" = "--start" ]
 	then
@@ -915,9 +915,9 @@ DEBUG_KILL()
 	# Successfull Exit
 	exit 0;
 }
-trap "DEBUG_KILL" EXIT
+trap "ee_mod_debug_kill" EXIT
 
-DEBUG_INTERACTIVE()
+ee_mod_debug_interactive()
 {
 	if [ -z "$EE_DEBUG_SITENAME" ]
 	then
@@ -1761,7 +1761,7 @@ then
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
 				# Debug Nginx
-				DEBUG_NGINX
+				ee_mod_debug_nginx_start
 
 				# Log Message
 				LOGMESSAGE="/var/log/nginx/*.error.log"
@@ -1770,7 +1770,7 @@ then
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
-				DEBUG_NGINX_REWRITE
+				ee_mod_debug_nginx_rewrite_start
 
 				# Log Message
 				LOGMESSAGE="$LOGMESSAGE /var/log/nginx/*.error.log"
@@ -1790,7 +1790,7 @@ then
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
 				# Debug Nginx
-				DEBUG_NGINX_SITE
+				ee_mod_debug_nginx_site_start
 
 				# Log Message
 				LOGMESSAGE="/var/www/$EE_DOMAIN/logs/error.log"				
@@ -1799,7 +1799,7 @@ then
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
-				DEBUG_NGINX_REWRITE_SITE
+				ee_mod_nginx_rewrite_site_start
 
 				# Log Message
 				LOGMESSAGE="$LOGMESSAGE /var/log/$EE_DOMAIN/logs/error.log"
@@ -1808,7 +1808,7 @@ then
 			if [ "$EE_DEBUG_WP" = "--wp" ]
 			then
 				# Debug WordPress Debug Log
-				DEBUG_WORDPRESS
+				ee_mod_debug_wordpress_start
 
 				# Log Message
 				LOGMESSAGE="$LOGMESSAGE /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log"
@@ -1819,7 +1819,7 @@ then
 		if [ "$EE_DEBUG_PHP" = "--php" ]
 		then
 			# Debug PHP
-			DEBUG_PHP
+			ee_mod_debug_php_start
 
 			# Log Message
 			LOGMESSAGE="$LOGMESSAGE /var/log/php5/slow.log"
@@ -1828,7 +1828,7 @@ then
 		if [ "$EE_DEBUG_FPM" = "--fpm" ]
 		then
 			# Debug PHP FPM
-			DEBUG_PHP_FPM
+			ee_mod_debug_php_fpm_start
 
 			# Log Message
 			LOGMESSAGE="$LOGMESSAGE /var/log/php5/fpm.log"
@@ -1837,7 +1837,7 @@ then
 		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 		then
 			# Debug MySQL Slow Query
-			DEBUG_MYSQL
+			ee_mod_debug_mysql_start
 
 			# Log Message
 			LOGMESSAGE="$LOGMESSAGE /var/log/mysql/slow.log"
@@ -1862,13 +1862,13 @@ then
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
 				# Debug Nginx
-				DEBUG_NGINX_STOP
+				ee_mod_debug_nginx_stop
 			fi
 
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
-				DEBUG_NGINX_REWRITE_STOP
+				ee_mod_debug_nginx_rewrite_stop
 			fi
 
 		else
@@ -1880,19 +1880,19 @@ then
 			if [ "$EE_DEBUG_NGINX" = "--nginx" ]
 			then
 				# Debug Nginx
-				DEBUG_NGINX_SITE_STOP
+				ee_mod_debug_nginx_site_stop
 			fi
 
 			if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]
 			then
 				# Debug Nginx Rewrite Logs
-				DEBUG_NGINX_REWRITE_SITE_STOP
+				ee_mod_nginx_rewrite_site_stop
 			fi
 
 			if [ "$EE_DEBUG_WP" = "--wp" ]
 			then
 				# Debug WordPress Debug Log
-				DEBUG_WORDPRESS_STOP
+				ee_mod_debug_wordpress_stop
 			fi
 
 		fi
@@ -1900,19 +1900,19 @@ then
 		if [ "$EE_DEBUG_PHP" = "--php" ]
 		then
 			# Debug PHP
-			DEBUG_PHP_STOP
+			ee_mod_debug_php_stop
 		fi
 
 		if [ "$EE_DEBUG_FPM" = "--fpm" ]
 		then
 			# Debug PHP FPM
-			DEBUG_PHP_FPM_STOP
+			ee_mod_debug_php_fpm_stop
 		fi
 
 		if [ "$EE_DEBUG_MYSQL" = "--mysql" ]
 		then
 			# Debug MySQL Slow Query
-			DEBUG_MYSQL_STOP
+			ee_mod_debug_mysql_stop
 		fi
 
 	fi
@@ -1939,7 +1939,7 @@ then
 	if [ "$EE_DEBUG_INTERACTIVE" = "-i" ]
 	then
 		# Lets Start Debug In Interactive Mode
-		DEBUG_INTERACTIVE
+		ee_mod_debug_interactive
 	elif [ "$EE_DEBUG_INTERACTIVE" != "-i" ] && [ "$EE_DEBUG" != "--stop" ]
 	then
 		ee_lib_echo_info "tail -f $LOGMESSAGE"
