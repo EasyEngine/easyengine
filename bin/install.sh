@@ -191,11 +191,10 @@ fi
 if [ -z "$GIT_USER_NAME" ]; then
 	read -p "Enter your name [$(whoami)]: " GIT_USER_NAME
 	# If enter is pressed
-	if [[ $GIT_USER_NAME = "" ]]
-	then
+	if [[ $GIT_USER_NAME = "" ]]; then
 		GIT_USER_NAME=$(whoami)
 	fi
-	git config --global user.name "$GIT_USER_NAME"
+	git config --global user.name $GIT_USER_NAME
 	echo "git config user.name = $(git config user.name)" &>> $EE_INSTALL_LOG
 fi
 
