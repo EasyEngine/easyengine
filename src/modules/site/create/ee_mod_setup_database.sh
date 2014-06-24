@@ -2,8 +2,11 @@
 
 function ee_mod_setup_database()
 {
+	# Random characters
+	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+
 	# Replace dot(.) with underscore(_) in EE_DOMAIN Name
-	ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
+	local ee_replace_dot=$(echo $EE_DOMAIN | tr '.' '_')
 
 	# Default database or custom database
 	if [ $($EE_CONFIG_GET mysql.db-name) == "true" ];then
@@ -23,7 +26,7 @@ function ee_mod_setup_database()
  	# Default database user or custom user
  	if [ $($EE_CONFIG_GET mysql.db-user) == "true" ]; then
  		read -p "Enter the MySQL database username [$ee_replace_dot]: " EE_DB_USER
- 		read -sp "Enter the MySQL database password [$EE_RANDOM]: " EE_DB_PASS
+ 		read -sp "Enter the MySQL database password [$ee_random]: " EE_DB_PASS
  	fi
 
  	# If mysql.db-user = false 
@@ -37,7 +40,7 @@ function ee_mod_setup_database()
  	fi
 
  	if [[ $EE_DB_PASS = "" ]]; then
- 		EE_DB_PASS=$EE_RANDOM
+ 		EE_DB_PASS=$ee_random
  	fi
 
  	# Fix MySQL username ERROR 1470 (HY000)

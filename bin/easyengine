@@ -17,7 +17,7 @@ EE_FOURTH=$4
 EE_FIFTH=$5
 
 # Let's capture the EasyEngine arguments
-ee_lib_echo "EasyEngine (ee) execution started [$(date)]" &>> $EE_COMMAND_LOG
+ee_lib_echo "EasyEngine (ee) $EE_VERSION execution started [$(date)]" &>> $EE_COMMAND_LOG
 ee_lib_echo "EasyEngine (ee) command: $0 $@" &>> $EE_COMMAND_LOG
 
 

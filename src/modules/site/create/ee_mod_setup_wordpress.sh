@@ -2,6 +2,9 @@
 
 function ee_mod_setup_wordpress()
 {
+	# Random characters
+	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+
 	# Download latest WordPress
 	ee_lib_echo "Downloading WordPress, please wait..."
 	wget --no-check-certificate -cqO /var/www/$EE_DOMAIN/htdocs/latest.tar.gz  \
@@ -69,7 +72,7 @@ function ee_mod_setup_wordpress()
 	# WordPress default user: admin
 	EE_WP_PASS=$($EE_CONFIG_GET wordpress.password)
 	if [[ $EE_WP_PASS = "" ]]; then
-		EE_WP_PASS=$EE_RANDOM
+		EE_WP_PASS=$ee_random
 	fi
 	
 	# WordPress default email: `git config user.email`
