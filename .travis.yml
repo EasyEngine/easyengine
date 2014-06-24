@@ -97,7 +97,7 @@ script:
 - sudo cat /var/log/easyengine/*
 
 
-- sudo bash ls /var/www/*
+- sudo ls /var/www/
 - sudo mysql -e "show databases";
 
 
