@@ -24,7 +24,7 @@ function ee_mod_system_status()
 	local ee_swap_total=$(free | grep Swap: | awk '{print $2}')
 	if [[ $ee_swap_total > 0 ]]; then
 		local ee_swap_used=$(free | grep Swap: | awk '{print $3}')
-		local ee_swap_usage=$(echo "$ee_swap_used*100/$ee_swap_total" | bc -l | cut -d'.' -f1)
+		local ee_swap_usage=$(echo "scale=2; $ee_swap_used*100/$ee_swap_total" | bc -l)%
 	else
 		local ee_swap_usage=$(echo "N/A")
 	fi
