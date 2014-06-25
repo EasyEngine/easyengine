@@ -389,8 +389,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
 						ee_lib_echo_escape "Page Cache:\t\tDisk Enhanced"
 					fi
-					ee_lib_echo_escape "Database Cache:\t\tMemcache"
-					ee_lib_echo_escape "Object Cache:\t\tMemcache"
+					ee_lib_echo_escape "Database Cache:\t\tMemcached"
+					ee_lib_echo_escape "Object Cache:\t\tMemcached"
 					ee_lib_echo_escape "Browser Cache:\t\tDisable"
 				fi
 
