@@ -93,5 +93,7 @@ function ee_mod_setup_nginx()
 	fi
 
 	# Set easyengine:easyengine as default http authentication
-	printf "easyengine:$(openssl passwd -crypt easyengine 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+	if [ ! -f /etc/nginx/htpasswd-ee ]; then
+		printf "easyengine:$(openssl passwd -crypt easyengine 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+	fi
 }
