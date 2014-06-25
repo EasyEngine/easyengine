@@ -14,7 +14,7 @@ function ee_mod_repo_php()
 	elif [ $EE_DEBIAN_VERSION -eq 6 ]; then
 
 		ee_lib_echo "Adding Dotdeb PHP5.4 repository, please wait..."
-		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-PHP54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php54.list \
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php54.list \
 		|| ee_lib_error "Unable to add Dotdeb PHP5.4 repository, exit status = " $?
 
 		# Fetch and install Dotdeb GnuPG key
@@ -24,7 +24,7 @@ function ee_mod_repo_php()
 	elif [ $EE_DEBIAN_VERSION -eq 7 ]; then
 
 		ee_lib_echo "Adding Dotdeb PHP5.5 repository, please wait..."
-		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-PHP55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
+		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
 		|| ee_lib_error "Unable to add Dotdeb PHP5.5 repository, exit status = " $?
 		
 		# Fetch and install dotdeb GnuPG key
