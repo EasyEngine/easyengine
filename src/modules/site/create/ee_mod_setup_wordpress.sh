@@ -29,9 +29,6 @@ function ee_mod_setup_wordpress()
 		done
 	fi
 
-	# Let's log WordPress table prefix
-	echo EE_WP_PREFIX = $EE_WP_PREFIX &>> $EE_COMMAND_LOG
-
 	# If wordpress.prefix = false 
 	# 		Then it never ask for WordPress prefix in this case $EE_WP_PREFIX is empty
 	# If wordpress.prefix = true
@@ -42,6 +39,9 @@ function ee_mod_setup_wordpress()
 	if [[ $EE_WP_PREFIX = "" ]];then
 		EE_WP_PREFIX=wp_
 	fi
+
+	# Let's log WordPress table prefix
+	echo EE_WP_PREFIX = $EE_WP_PREFIX &>> $EE_COMMAND_LOG
 
 	# Modify wp-config.php & move outside the webroot
 	cp /var/www/$EE_DOMAIN/htdocs/wp-config-sample.php \
