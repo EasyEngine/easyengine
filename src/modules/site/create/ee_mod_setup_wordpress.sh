@@ -25,9 +25,12 @@ function ee_mod_setup_wordpress()
 		# Display EE_WP_PREFIX valid characters warning & try again
 		while [[ ! ($EE_WP_PREFIX  =~ ^[A-Za-z0-9_]*$) ]];	do
 			echo "Warning: table prefix can only contain numbers, letters, and underscores"
-			read -p "Enter the MySQL database table prefix [wp_]: " EE_WP_PREFIX
+			read -p "Enter the WordPress table prefix [wp_]: " EE_WP_PREFIX
 		done
 	fi
+
+	# Let's log WordPress table prefix
+	echo EE_WP_PREFIX = $EE_WP_PREFIX &>> $EE_COMMAND_LOG
 
 	# If wordpress.prefix = false 
 	# 		Then it never ask for WordPress prefix in this case $EE_WP_PREFIX is empty
