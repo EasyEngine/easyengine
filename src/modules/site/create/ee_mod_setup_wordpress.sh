@@ -7,18 +7,9 @@ function ee_mod_setup_wordpress()
 
 	# Download latest WordPress
 	ee_lib_echo "Downloading WordPress, please wait..."
-	wget --no-check-certificate -cqO /var/www/$EE_DOMAIN/htdocs/latest.tar.gz  \
-	http://wordpress.org/latest.tar.gz \
+	cd /var/www/$EE_DOMAIN/htdocs && wp --allow-root core download &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to download WordPress, exit status = " $?
-
-	# Extracting WordPress
-	tar --strip-components=1 -zxf /var/www/$EE_DOMAIN/htdocs/latest.tar.gz \
-	-C /var/www/$EE_DOMAIN/htdocs/ \
-	|| ee_lib_error "Unable to extract WordPress, exit status = " $?
-
-	# Removing WordPress archive
-	rm /var/www/$EE_DOMAIN/htdocs/latest.tar.gz
-
+	
 	# Default WordPress prefix or custom prefix
 	if [ $($EE_CONFIG_GET wordpress.prefix) == "true" ];then
 		read -p "Enter the WordPress table prefix [wp_]: " EE_WP_PREFIX
