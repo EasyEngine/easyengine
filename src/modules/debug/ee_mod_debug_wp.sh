@@ -1,6 +1,6 @@
 # WordPress debug
 
-function ee_mod_debug_wp)()
+function ee_mod_debug_wp()
 {
 	if [ "$1" = "start" ]; then
 		if [ -e /var/www/$EE_DOMAIN/wp-config.php ]; then
