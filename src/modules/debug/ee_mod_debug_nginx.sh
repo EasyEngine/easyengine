@@ -4,9 +4,8 @@ function ee_mod_debug_nginx()
 {
 	if [ "$1" = "start" ]; then
 		if [ -z $EE_DOMAIN ]; then
-			# Enable NGINX debug for all IP
 			if [ -z "$EE_IP_ADDRESS" ]; then
-				# Global IP
+				# Enable NGINX debug for all IP
 				EE_IP_ADDRESS="0.0.0.0/0"
 			fi
 
@@ -29,14 +28,15 @@ function ee_mod_debug_nginx()
 		else
 			grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
-				ee_lib_echo "Enable debug for $EE_DOMAIN, please wait..."
+				ee_lib_echo "Setup NGINX debug connection for $EE_DOMAIN, please wait..."
 				sed -i "s/error.log;/error.log debug;/" /etc/nginx/sites-available/$EE_DOMAIN \
-				|| ee_lib_error "Unable to activate debug for $EE_DOMAIN, exit status = " $?
+				|| ee_lib_error "Unable to setup NGINX debug connection for for $EE_DOMAIN, exit status = " $?
+
 				# NGINX reload trigger
 				EE_TRIGGER_NGINX="true"
 			else
 				# Display message
-				ee_lib_echo "Already enabled debug for $EE_DOMAIN"
+				ee_lib_echo "Already enable NGINX debug connection for $EE_DOMAIN"
 			fi
 		fi
 	elif [ "$1" = "stop" ]; then
@@ -55,14 +55,14 @@ function ee_mod_debug_nginx()
 		else
 			grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then
-				ee_lib_echo "Disable debug for $EE_DOMAIN, please wait..."
+				ee_lib_echo "Disable NGINX debug connection for $EE_DOMAIN, please wait..."
 				sed -i "s/error.log debug;/error.log;/" /etc/nginx/sites-available/$EE_DOMAIN \
-				|| ee_lib_error "Unable to deactivate debug for $EE_DOMAIN, exit status = " $?
+				|| ee_lib_error "Unable to disable NGINX debug connection for $EE_DOMAIN, exit status = " $?
 				# NGINX reload trigger
 				EE_TRIGGER_NGINX="true"
 			else
 				# Display message
-				ee_lib_echo "Already enabled debug for $EE_DOMAIN"
+				ee_lib_echo "Already disable NGINX debug connection for $EE_DOMAIN"
 			fi
 		fi
 	fi
