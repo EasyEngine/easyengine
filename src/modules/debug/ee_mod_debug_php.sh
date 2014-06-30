@@ -3,6 +3,7 @@
 function ee_mod_debug_php()
 {
 	if [ "$1" = "start" ]; then
+		# Perform search inside upstream php block
 		sed -n "/upstream php {/,/}/p" /etc/nginx/conf.d/upstream.conf | grep 9001 &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]; then
 			ee_lib_echo "Setup PHP5-FPM slow log, please wait..."
@@ -16,6 +17,7 @@ function ee_mod_debug_php()
 			ee_lib_echo "PHP5-FPM slow log already enabled"
 		fi
 	elif [ "$1" = "stop" ]; then
+		# Perform search inside upstream php block
 		sed -n "/upstream php {/,/}/p" /etc/nginx/conf.d/upstream.conf | grep 9001 &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then
 			ee_lib_echo "Disable PHP5-FPM slow log, please wait..."
