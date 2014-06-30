@@ -2,7 +2,7 @@
 
 function ee_mod_debug_nginx()
 {
-	if [ "$1" = "start" ]; then
+	if [ "$EE_DEBUG" = "--start" ]; then
 		if [ -z $EE_DOMAIN ]; then
 			if [ -z "$EE_IP_ADDRESS" ]; then
 				# Enable NGINX debug for all IP
@@ -39,7 +39,7 @@ function ee_mod_debug_nginx()
 				ee_lib_echo "Already enable NGINX debug connection for $EE_DOMAIN"
 			fi
 		fi
-	elif [ "$1" = "stop" ]; then
+	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -z $EE_DOMAIN ]; then
 			grep "debug_connection" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then

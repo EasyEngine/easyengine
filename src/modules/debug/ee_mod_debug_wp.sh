@@ -2,7 +2,7 @@
 
 function ee_mod_debug_wp()
 {
-	if [ "$1" = "start" ]; then
+	if [ "$EE_DEBUG" = "--start" ]; then
 		if [ -e /var/www/$EE_DOMAIN/wp-config.php ]; then
 			grep "'WP_DEBUG'" /var/www/$EE_DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
@@ -29,7 +29,7 @@ function ee_mod_debug_wp()
 			# Display message
 			ee_lib_echo_fail "Unable to find /var/www/$EE_DOMAIN/wp-config.php"
 		fi
-	elif [ "$1" = "stop" ]; then
+	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -e /var/www/$EE_DOMAIN/wp-config.php ]; then
 			grep "'WP_DEBUG'" /var/www/$EE_DOMAIN/wp-config.php | grep true &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then

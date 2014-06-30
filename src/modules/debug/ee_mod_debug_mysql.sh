@@ -2,7 +2,7 @@
 
 function ee_mod_debug_mysql()
 {
-	if [ "$1" = "start" ]; then
+	if [ "$EE_DEBUG" = "--start" ]; then
 		mysql -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]; then
 			ee_lib_echo "Setup MySQL slow log, please wait..."
@@ -22,7 +22,7 @@ function ee_mod_debug_mysql()
 			# Display message
 			ee_lib_echo "MySQL slow log already enabled"
 		fi
-	elif [ "$1" = "stop" ]; then
+	elif [ "$EE_DEBUG" = "--stop" ]; then
 		mysql -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then
 			ee_lib_echo "Disable MySQL slow log, please wait..."

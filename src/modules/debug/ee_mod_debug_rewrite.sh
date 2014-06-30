@@ -2,7 +2,7 @@
 
 function ee_mod_debug_rewrite()
 {
-	if [ "$1" = "start" ]; then
+	if [ "$EE_DEBUG" = "--start" ]; then
 		if [ -z $EE_DOMAIN ]; then
 			grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
@@ -30,7 +30,7 @@ function ee_mod_debug_rewrite()
 				ee_lib_echo "NGINX rewrite logs for $EE_DOMAIN already enabled"
 			fi
 		fi
-	elif [ "$1" = "stop" ]; then
+	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -z $EE_DOMAIN ]; then
 			grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then

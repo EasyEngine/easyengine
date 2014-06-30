@@ -2,7 +2,7 @@
 
 function ee_mod_debug_fpm()
 {
-	if [ "$1" = "start" ]; then
+	if [ "$EE_DEBUG" = "--start" ]; then
 		grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $EE_COMMAND_LOG
 		if [ $? -ne 0 ]; then
 			ee_lib_echo "Setup PHP5-FPM log_level = debug, please wait..."
@@ -15,7 +15,7 @@ function ee_mod_debug_fpm()
 			# Display message
 			ee_lib_echo "PHP5-FPM log_level = debug already setup"
 		fi
-	elif [ "$1" = "stop" ]; then
+	elif [ "$EE_DEBUG" = "--stop" ]; then
 		grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then
 			ee_lib_echo "Disable PHP5-FPM log_level = debug, please wait..."
