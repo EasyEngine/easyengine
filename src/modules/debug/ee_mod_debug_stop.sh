@@ -1,12 +1,14 @@
+# Execute: ee debug --stop
+# When ee debug module run with -i flag
+# This function is called when user press CTRL+C
 
-
-function ee_mod_debug_kill()
+function ee_mod_debug_stop()
 {
 	if [ "$EE_DEBUG" = "--start" ]; then
-		if [ -z "$EE_DEBUG_SITENAME" ]; then
+		if [ -z "$EE_DOMAIN" ]; then
 			ee debug --stop
 		else
-			ee debug --stop $EE_DEBUG_SITENAME
+			ee debug --stop $EE_DOMAIN
 		fi
 	fi
 
@@ -17,7 +19,7 @@ function ee_mod_debug_kill()
 	# More details: info coreutils 'sync invocation'
 	sync
 
-	# Successfull exit
+	# Successful exit
 	exit 0;
 }
 
