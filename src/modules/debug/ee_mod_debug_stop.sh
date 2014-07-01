@@ -23,4 +23,4 @@ function ee_mod_debug_stop()
 	exit 0;
 }
 
-trap "ee_mod_debug_kill" EXIT
+trap "ee_mod_debug_stop" EXIT
