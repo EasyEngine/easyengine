@@ -4,7 +4,7 @@
 readonly EE_VERSION='2.0.0'
 
 # WP-CLI version
-readonly EE_WP_CLI_VERSION='0.15.1'
+readonly EE_WP_CLI_VERSION='0.16.0'
 
 # Adminer version
 readonly EE_ADMINER_VERSION='4.1.0'
