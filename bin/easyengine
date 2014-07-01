@@ -324,9 +324,6 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_check_domain
 				ee_mod_setup_domain
 
-				# Setup MySQL database
-				ee_mod_setup_database
-
 				# Setup WordPress
 				ee_mod_setup_wordpress
 

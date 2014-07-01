@@ -10,6 +10,9 @@ function ee_mod_setup_wordpress()
 	cd /var/www/$EE_DOMAIN/htdocs && wp --allow-root core download &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to download WordPress, exit status = " $?
 	
+	# Database setup
+	ee_mod_setup_database
+	
 	# Default WordPress prefix or custom prefix
 	if [ $($EE_CONFIG_GET wordpress.prefix) == "true" ];then
 		read -p "Enter the WordPress table prefix [wp_]: " EE_WP_PREFIX
