@@ -6,10 +6,12 @@ function ee_mod_debug_nginx()
 		if [ -z $EE_DOMAIN ]; then
 			if [ -z "$EE_IP_ADDRESS" ]; then
 				# Enable NGINX debug for all IP
-				EE_IP_ADDRESS="0.0.0.0/0"
+				EE_DEBUG_ADDRESS="0.0.0.0/0"
+			else
+				EE_DEBUG_ADDRESS=$EE_IP_ADDRESS
 			fi
 
-			for ee_ip in $EE_IP_ADDRESS; do
+			for ee_ip in $EE_DEBUG_ADDRESS; do
 				grep "debug_connection $ee_ip" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 				if [ $? -ne 0 ]; then
 					ee_lib_echo "Setup NGINX debug connection for $ee_ip, please wait..."
