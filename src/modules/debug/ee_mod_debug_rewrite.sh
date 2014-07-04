@@ -40,7 +40,7 @@ function ee_mod_debug_rewrite()
 		if [ -z $EE_DOMAIN ]; then
 			grep "rewrite_log on;" /etc/nginx/nginx.conf &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then
-				ee_lib_echo "Disable NGINX rewrite logs, please wait..."sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf
+				ee_lib_echo "Disable NGINX rewrite logs, please wait..."
 				sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf \
 				|| ee_lib_error "Unable to disable NGINX rewrite logs, exit status = " $?
 
