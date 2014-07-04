@@ -3,7 +3,7 @@
 ee_mod_install_mysql()
 {
 	# Random characters
-	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+	local ee_password=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 
 	# Check MySQL is installed or not
 	ee_lib_package_check mysql-server
@@ -11,13 +11,19 @@ ee_mod_install_mysql()
 	# If MySQL is not installed
 	# Then set random MySQL password for root user
 	if [ -n "$EE_PACKAGE_NAME" ]; then
-
+		if [ -f ~/.my.cnf ]; then
+			echo "Setting MySQL password from ~/.my.cnf"
+			local ee_user=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
+			if [ "root" == $ee_user ]; then
+				local ee_password=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
+			fi
+		fi
 		# Setting up MySQL password
-		debconf-set-selections <<< "mysql-server mysql-server/root_password password $ee_random"
-		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ee_random"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password password $ee_password"
+		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ee_password"
 
-		# Generate ~/.my.cnf
-		echo -e "[client]\nuser=root\npassword=$ee_random" > ~/.my.cnf
+		# Generate ~/.my.cnf (in case we used random password)
+		echo -e "[client]\nuser=root\npassword=$ee_password" > ~/.my.cnf
 
 	fi
 
