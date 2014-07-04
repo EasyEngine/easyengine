@@ -523,11 +523,11 @@ elif [ "$EE_FIRST" = "debug" ]; then
 		# Debug stop on CTRL+C
 		trap "ee_mod_debug_stop" EXIT
 
-		if [ ! -z $EE_DEBUG_MSG ]; then
+		if [ ! -z "$EE_DEBUG_MSG" ]; then
 			tail -f $EE_DEBUG_MSG
 		fi
 	elif [ "$EE_DEBUG_INTERACTIVE" != "-i" ] && [ "$EE_DEBUG" != "--stop" ]; then
-		if [ ! -z $EE_DEBUG_MSG ]; then
+		if [ ! -z "$EE_DEBUG_MSG" ]; then
 			ee_lib_echo_info "tail -f $EE_DEBUG_MSG"
 		fi
 	fi
