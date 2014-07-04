@@ -39,7 +39,7 @@ function ee_mod_debug_mysql()
 			mysql -e "set global long_query_time = 10;" \
 			|| ee_lib_error "Unable to setup long_query_time, exit status = " $?
 
-			mysql -e "set global log_queries_not_using_indexes = 'OFF';" \
+			mysql -e "set global log_queries_not_using_indexes = 'OFF';"
 		else
 			# Display message
 			ee_lib_echo "MySQL slow log already disable"
