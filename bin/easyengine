@@ -511,11 +511,11 @@ elif [ "$EE_FIRST" = "debug" ]; then
 	fi
 
 	# Execute: service nginx reload
-	if [ "EE_TRIGGER_NGINX" = "true" ]; then
+	if [ "$EE_TRIGGER_NGINX" = "true" ]; then
 		ee_lib_service nginx reload
 	fi
 
-	if [ "EE_TRIGGER_PHP" = "true" ]; then
+	if [ "$EE_TRIGGER_PHP" = "true" ]; then
 		ee_lib_service php5-fpm restart
 	fi
 
