@@ -94,6 +94,38 @@ script:
 - sudo bash ee site create site12.org --wpsubdomain --wpfc
 - sudo bash ee site create site12.in --wpfc --wpsubdomain
 
+- sudo bash ee debug --nginx
+- sudo bash ee debug --nginx stop
+- sudo bash ee debug --nginx site1.com
+- sudo bash ee debug --nginx site1.com --stop
+
+- sudo bash ee debug -rewrite 
+- sudo bash ee debug -rewrite --stop
+- sudo bash ee debug -rewrite site1.com 
+- sudo bash ee debug -rewrite site1.com --stop
+
+- sudo bash ee debug --php
+- sudo bash ee debug --php --stop
+- sudo bash ee debug --php site1.com
+- sudo bash ee debug --php site1.com --stop
+
+- sudo bash ee debug --fpm
+- sudo bash ee debug --fpm --stop
+- sudo bash ee debug --fpm site1.com
+- sudo bash ee debug --fpm site1.com --stop
+
+- sudo bash ee debug --mysql
+- sudo bash ee debug --mysql --stop
+- sudo bash ee debug --mysql site1.com
+- sudo bash ee debug --mysql site1.com --smysql
+
+
+- sudo bash ee debug --wp site1.com
+- sudo bash ee debug --wp site1.com --stop
+
+- sudo bash ee debug
+- sudo bash ee debug --stop
+
 - sudo cat /var/log/easyengine/*
 
 
