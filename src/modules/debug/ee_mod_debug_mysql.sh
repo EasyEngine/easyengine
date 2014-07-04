@@ -22,6 +22,9 @@ function ee_mod_debug_mysql()
 			# Display message
 			ee_lib_echo "MySQL slow log already enabled"
 		fi
+
+		# Debug message
+		EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/mysql/slow.log"
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		mysql -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then

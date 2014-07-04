@@ -16,6 +16,9 @@ function ee_mod_debug_php()
 			# Display message
 			ee_lib_echo "PHP5-FPM slow log already enabled"
 		fi
+
+		# Debug message
+		EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/php5/slow.log"
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		# Perform search inside upstream php block
 		sed -n "/upstream php {/,/}/p" /etc/nginx/conf.d/upstream.conf | grep 9001 &>> $EE_COMMAND_LOG

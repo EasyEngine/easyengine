@@ -15,6 +15,9 @@ function ee_mod_debug_fpm()
 			# Display message
 			ee_lib_echo "PHP5-FPM log_level = debug already setup"
 		fi
+
+		# Debug message
+		EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/php5/fpm.log"
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		grep "log_level = debug" /etc/php5/fpm/php-fpm.conf &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then

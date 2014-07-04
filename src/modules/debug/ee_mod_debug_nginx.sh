@@ -25,6 +25,9 @@ function ee_mod_debug_nginx()
 				# Display message
 				ee_lib_echo "NGINX debug connection already enabled"
 			fi
+
+			# Debug message
+			EE_DEBUG_MSG="/var/log/nginx/*.error.log"
 		else
 			grep "error.log debug" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
@@ -38,6 +41,9 @@ function ee_mod_debug_nginx()
 				# Display message
 				ee_lib_echo "Already enable NGINX debug connection for $EE_DOMAIN"
 			fi
+			
+			# Debug message
+			EE_DEBUG_MSG="/var/www/$EE_DOMAIN/logs/error.log"
 		fi
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -z $EE_DOMAIN ]; then

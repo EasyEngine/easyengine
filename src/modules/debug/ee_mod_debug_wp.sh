@@ -25,6 +25,9 @@ function ee_mod_debug_wp()
 				# Display message
 				ee_lib_echo "WordPress debug log already enabled for $EE_DOMAIN"
 			fi
+
+			# Debug message
+			EE_DEBUG_MSG="$EE_DEBUG_MSG /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log"
 		else
 			# Display message
 			ee_lib_echo_fail "Unable to find /var/www/$EE_DOMAIN/wp-config.php"

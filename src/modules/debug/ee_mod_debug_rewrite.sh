@@ -16,6 +16,9 @@ function ee_mod_debug_rewrite()
 				# Display message
 				ee_lib_echo "NGINX rewrite logs already enabled"
 			fi
+
+			# Debug message
+			EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/nginx/*.error.log"
 		else
 			grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
@@ -29,6 +32,9 @@ function ee_mod_debug_rewrite()
 				# Display message
 				ee_lib_echo "NGINX rewrite logs for $EE_DOMAIN already enabled"
 			fi
+			
+			# Debug message
+			EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/$EE_DOMAIN/logs/error.log"
 		fi
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -z $EE_DOMAIN ]; then

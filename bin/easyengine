@@ -434,6 +434,99 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_service nginx reload
 		fi
 	fi
+
+elif [ "$EE_FIRST" = "debug" ]; then
+	# Default action
+	EE_DEBUG="--start"
+
+	# Auto arrange debug arguments
+	for ee_debug_args in $@; do
+		[ "$ee_debug_args" = "-i" ] && EE_DEBUG_INTERACTIVE=$ee_debug_args && echo EE_DEBUG_INTERACTIVE = $EE_DEBUG_INTERACTIVE &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--stop" ] && EE_DEBUG=$ee_debug_args && echo EE_DEBUG = $EE_DEBUG &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--nginx" ] && EE_DEBUG_NGINX=$ee_debug_args && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--rewrite" ] && EE_DEBUG_REWRITE=$ee_debug_args && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--php" ] && EE_DEBUG_PHP=$ee_debug_args && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--fpm" ] && EE_DEBUG_FPM=$ee_debug_args && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--mysql" ] && EE_DEBUG_MYSQL=$ee_debug_args && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $EE_COMMAND_LOG
+		[ "$ee_debug_args" = "--wp" ] && EE_DEBUG_WP=$ee_debug_args && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $EE_COMMAND_LOG
+		if [ "$ee_debug_args" != "debug" ] && [ "$ee_debug_args" != "-i" ] && [ "$ee_debug_args" != "--start" ] && [ "$ee_debug_args" != "--stop" ] && [ "$ee_debug_args" != "--nginx" ] && [ "$ee_debug_args" != "--rewrite" ] && [ "$ee_debug_args" != "--php" ] && [ "$ee_debug_args" != "--fpm" ] && [ "$ee_debug_args" != "--mysql" ] && [ "$ee_debug_args" != "--wp" ]; then
+			ls /etc/nginx/sites-available/ | grep $ee_debug_args &>> $EE_COMMAND_LOG
+			if [ $? -eq 0 ]; then
+				EE_DOMAIN_CHECK=$ee_debug_args && echo EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK &>> $EE_COMMAND_LOG
+
+				# Domain name find out
+				ee_lib_check_domain
+				echo EE_DOMAIN =  $EE_DOMAIN  &>> $EE_COMMAND_LOG
+			fi
+		fi
+	done
+
+	# The following code execute on
+	# ee debug
+	# ee debug -i
+	# ee debug --start
+	# ee debug --stop
+	# ee debug example.com
+	if [ -z "$EE_DEBUG_NGINX" ] && [ -z "$EE_DEBUG_REWRITE" ] && [ -z "$EE_DEBUG_PHP" ] && [ -z "$EE_DEBUG_FPM" ] && [ -z "$EE_DEBUG_MYSQL" ] && [ -z "$EE_DEBUG_WP" ]; then
+		EE_DEBUG_NGINX="--nginx" && echo EE_DEBUG_NGINX = $EE_DEBUG_NGINX &>> $EE_COMMAND_LOG
+		EE_DEBUG_REWRITE="--rewrite" && echo EE_DEBUG_REWRITE = $EE_DEBUG_REWRITE &>> $EE_COMMAND_LOG
+		EE_DEBUG_PHP="--php" && echo EE_DEBUG_PHP = $EE_DEBUG_PHP &>> $EE_COMMAND_LOG
+		EE_DEBUG_FPM="--fpm" && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $EE_COMMAND_LOG
+		EE_DEBUG_MYSQL="--mysql" && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $EE_COMMAND_LOG
+
+		if [ -n "$EE_DOMAIN" ]; then
+			EE_DEBUG_WP="--wp" && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $EE_COMMAND_LOG
+		fi
+	fi
+
+	# Actual debug function call
+	if [ "$EE_DEBUG_NGINX" = "--nginx" ]; then
+		# Debug NGINX
+		ee_mod_debug_nginx
+	fi
+
+	if [ "$EE_DEBUG_REWRITE" = "--rewrite" ]; then
+		# Debug NGINX rewrite rules
+		ee_mod_debug_rewrite
+	fi
+
+	if [ "$EE_DEBUG_PHP" = "--php" ]; then
+		# Debug PHP slow log and enable xdebug profiling
+		ee_mod_debug_php
+	fi
+
+	if [ "$EE_DEBUG_FPM" = "--fpm" ]; then
+		# Change PHP log_level from notice to debug
+		ee_mod_debug_fpm
+	fi
+
+	if [ "$EE_DEBUG_MYSQL" = "--mysql" ]; then
+		# Enable MySQL slow query
+		ee_mod_debug_mysql
+	fi
+
+	if [ "$EE_DEBUG_WP" = "--wp" ]; then
+		# Enable WordPress debug.log
+		ee_mod_debug_wp
+	fi
+
+	# Execute: service nginx reload
+	if [ "EE_TRIGGER_NGINX" = "true" ];
+		ee_lib_service nginx reload
+	fi
+
+	if [ "EE_TRIGGER_PHP" = "true" ];
+		ee_lib_service php5-fpm restart
+	fi
+
+	if [ "$EE_DEBUG_INTERACTIVE" = "-i" ]; then
+		# Debug stop on CTRL+C
+		trap "ee_mod_debug_stop" EXIT
+
+		tail -f $EE_DEBUG_MSG
+	elif [ "$EE_DEBUG_INTERACTIVE" != "-i" ] && [ "$EE_DEBUG" != "--stop" ]; then
+		ee_lib_echo_info "tail -f $EE_DEBUG_MSG"
+	fi
 fi
 
 }
