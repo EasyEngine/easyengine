@@ -1,4 +1,4 @@
-1. **basic.conf** - WPSUBDOMAIN BASIC NGINX CONFIGURATION file.
-1. **w3tc.conf** - WPSUBDOMAIN W3 TOTAL CACHE NGINX CONFIGURATION file.
-1. **wpfc.conf** - WPSUBDOMAIN FAST CGI NGINX CONFIGURATION file.
-1. **wpsc.conf** - WPSUBDOMAIN WP SUPER CACHE NGINX CONFIGURATION file.
+1. **basic.conf** - WP Subdomains basic NGINX configuration file.
+1. **w3tc.conf** - WP Subdomains W3 Total Cache NGINX configuration file.
+1. **wpfc.conf** - WP Subdomains FastCGI NGINX configuration file.
+1. **wpsc.conf** - WP Subdomains WP Super Cache NGINX configuration file.
