@@ -1,2 +1,2 @@
-1. **common** - configuration files for common settings
-1. **conf.d** - configuration files for access restriction and php upstream settings.
+1. **common** - NGINX common configuration settings
+1. **conf.d** - NGINX default settings for access control, PHP upstream & FastCGI cache settings.

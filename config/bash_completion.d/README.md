@@ -1,1 +1,1 @@
-1. **ee** - EasyEngine Auto Complete Feature script.
+1. **ee** - EasyEngine auto completion script.

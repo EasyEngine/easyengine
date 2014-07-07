@@ -1,1 +1,1 @@
-1. **basic.conf** - HTML NGINX Configuration file.
+1. **basic.conf** - HTML NGINX configuration file.
