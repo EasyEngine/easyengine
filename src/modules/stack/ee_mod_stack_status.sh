@@ -1,6 +1,6 @@
-# Execute: ee system status
+# Execute: ee stack status
 
-function ee_mod_system_status()
+function ee_mod_stack_status()
 {
 	# Detect operating system
 	local ee_operating_system=$(lsb_release -d | awk '{print $2,$3,$4}')

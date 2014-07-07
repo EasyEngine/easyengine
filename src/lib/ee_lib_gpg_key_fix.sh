@@ -5,7 +5,7 @@ function ee_lib_gpg_key_fix()
 	local ee_gpg_key_check
 
 	# GnuPG key check
-	$EE_CONFIG_GET system.gpg-key-fix | grep -i true &>> $EE_COMMAND_LOG
+	$EE_CONFIG_GET stack.gpg-key-fix | grep -i true &>> $EE_COMMAND_LOG
 
 	if [ $? -eq 0 ];then
 

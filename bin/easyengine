@@ -170,7 +170,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			fi
 		fi
 	elif [ "$EE_SECOND" = "status" ]; then
-		ee_mod_system_status
+		ee_mod_stack_status
 	elif [ "$EE_SECOND" = "start" ] || [ "$EE_SECOND" = "stop" ] || [ "$EE_SECOND" = "reload" ] || [ "$EE_SECOND" = "restart" ]; then
 			ee_lib_service nginx php5-fpm mysql postfix $EE_SECOND
 	fi
