@@ -1,1 +1,1 @@
-1. **man** - manual pages for EasyEngine (ee).
+1. **man** - manual pages for EasyEngine (ee).  Actual Linux Path : /usr/share/man/man8/ 
