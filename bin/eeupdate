@@ -1,0 +1,187 @@
+#!/bin/bash
+
+# Define variables
+readonly EE_UPDATE_LOG=/var/log/easyengine/update.log
+
+# Define echo function
+# Blue color
+function ee_lib_echo()
+{
+	echo $(tput setaf 4)$@$(tput sgr0)
+}
+
+# White color
+function ee_lib_echo_info()
+{
+	echo $(tput setaf 7)$@$(tput sgr0)
+}
+
+# Red color
+function ee_lib_echo_fail()
+{
+	echo $(tput setaf 1)$@$(tput sgr0)
+}
+
+# Capture errors
+function ee_lib_error()
+{
+	echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)" | tee -ai $EE_ERROR_LOG
+	exit $2
+}
+
+# Initialize Git
+function ee_lib_git()
+{
+	for ee_git_dir in ${@:1:$(($#-1))}; do
+		# Change directory
+		cd $ee_git_dir || ee_lib_error "Unable to change directory $ee_git_dir, exit status = " $?
+
+		# Check .git
+		if [ ! -d .git ]; then
+			# ee_lib_echo "Initialize Git on ${ee_git_dir}"
+			git init &>> $EE_COMMAND_LOG \
+			|| ee_lib_error "Unable to initialize Git on $ee_git_dir, exit status = " $?
+		fi
+
+		# Check for untracked files
+		if [ $(git status -s | wc -l) -ne 0 ]; then
+			# Add files in Git version control
+			ee_lib_echo "Git commit on $ee_git_dir, please wait..."
+			git add --all && git commit -am "${@: -1}" &>> $EE_COMMAND_LOG \
+			|| ee_lib_error "Unable to Git commit on $ee_git_dir, exit status = " $?
+		fi
+	done
+}
+
+# Update EasyEngine (ee)
+EE_CURRENT_VERSION=$(ee version | awk '{print($3)}')
+EE_LATEST_VERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
+echo EE_CURRENT_VERSION = $EE_CURRENT_VERSION EE_LATEST_VERSION = $EE_LATEST_VERSION &>> $EE_UPDATE_LOG
+
+if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
+	read -p "Update EasyEngine to $EE_LATEST_VERSION (y/n): " EE_ANS
+
+	if [ "$EE_ANS" = "y" ] || [ "$EE_ANS" = "Y" ]; then
+		ee_lib_echo "EasyEngine (ee) update started [$(date)]" | tee -ai $EE_UPDATE_LOG
+
+		# Git backup
+		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix /etc/easyengine "EasyEngine version $EE_CURRENT_VERSION"
+
+		# Remove old version of EasyEngine (ee) 
+		rm -rf /tmp/easyengine &>> /dev/null
+
+		# Let's clone EasyEngine (ee)
+		ee_lib_echo "Cloning EasyEngine (ee) stable branch, please wait..." | tee -ai $EE_UPDATE_LOG
+		git clone -b stable https://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_UPDATE_LOG \
+		|| ee_lib_error "Unable to clone EasyEngine (ee) stable branch, exit status = " $?
+
+		# Setup EasyEngine (ee)
+		if [ ! -d /etc/easyengine ]; then
+			mkdir -p /etc/easyengine \
+			|| ee_lib_error "Unable to create /etc/easyengine directory, exit status = " $?
+		fi
+
+		if [ ! -d /usr/share/easyengine/ ]
+		then
+			mkdir -p /usr/share/easyengine/ \
+			|| ee_lib_error "Unable to create /usr/share/easyengine/ directory, exit status = " $?
+		fi
+
+		if [ ! -d /usr/local/lib/easyengine ]
+		then
+			mkdir -p /usr/local/lib/easyengine \
+			|| ee_lib_error "Unable to create /usr/local/lib/easyengine directory, exit status = " $?
+		fi
+
+		# Setup EasyEngine (ee)
+		# EasyEngine (ee) auto completion file
+		cp -av /tmp/easyengine/config/bash_completion.d/ee /etc/bash_completion.d/ \
+		|| ee_lib_error "Unable to copy EasyEngine (ee) auto completion file, exit status = " $?
+
+		# Templates
+		cp -a /tmp/easyengine/config/nginx /tmp/easyengine/templates/* /usr/share/easyengine/ \
+		|| ee_lib_error "Unable to copy NGINX sample files, exit status = " $?
+
+		# NGINX COMMON
+		rsync -avz --exclude acl.conf /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
+		|| ee_lib_error "Unable to rsync NGINX common files, exit status = " $?
+
+		# EasyEngine (ee) library and modules
+		cp -av /tmp/easyengine/src/* /usr/local/lib/easyengine \
+		|| ee_lib_error "Unable to copy src files, exit status = " $?
+
+		# EasyEngine (ee) command
+		cp -av /tmp/easyengine/bin/easyengine /usr/local/sbin/ \
+		|| ee_lib_error "Unable to copy EasyEngine (ee) command, exit status = " $?
+
+		# Change permission of EasyEngine (ee) command
+		chmod 750 /usr/local/sbin/easyengine || ee_lib_error "Unable to change permission of EasyEngine (ee) command, exit status = " $?
+
+		# Create symbolic link
+		if [ ! -L /usr/local/sbin/ee ]; then
+			ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
+		fi
+
+		# EasyEngine (ee) man page
+		cp -av /tmp/easyengine/docs/man/ee.8 /usr/share/man/man8/ &>> $EE_UPDATE_LOG \
+		|| ee_lib_error "Unable to copy EasyEngine (ee) man page, exit status = " $?
+
+
+
+		if [[ $EE_CURRENT_VERSION < 2.0.0 ]]; then
+
+			# Lets used our code
+			# Include library
+			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
+				source $ee_include
+			done
+
+			# EasyEngine (ee) config file
+			cp /etc/easyengine/ee.conf /etc/easyengine/ee.bak
+			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ \
+			|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
+
+			# Get old value from ee.bak file
+			local ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_auth_user=$(grep htpasswduser /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_auth_pass=$(grep htpasswdpass /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_mysql_host=$(grep mysqlhost /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_wp_user=$(grep wpadminuser /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_wp_pass=$(grep wpadminpass /etc/easyengine/ee.bak | cut -d'=' -f2)
+			local ee_wp_email=$(grep wpadminemail /etc/easyengine/ee.bak | cut -d'=' -f2)
+
+			# Update value in ee.conf file
+			$EE_CONFIG_SET stack.ip-address "$ee_stack_ip" && \
+			$EE_CONFIG_SET auth.user "$ee_auth_user" && \
+			$EE_CONFIG_SET auth.password "$ee_auth_pass" && \
+			$EE_CONFIG_SET mysql.host "$ee_mysql_host" && \
+			$EE_CONFIG_SET wordpress.user "$ee_wp_user" && \
+			$EE_CONFIG_SET wordpress.password "$ee_wp_pass" && \
+			$EE_CONFIG_SET wordpress.email "$ee_wp_email" \
+			|| ee_lib_error "Unable to update ee.conf file, exit status = " $?
+
+			# # NGINX conf.d
+			cp -v /usr/share/easyengine/nginx/conf.d/fastcgi.conf /etc/nginx/conf.d/ \
+			|| ee_lib_error "Unable to copy fastcgi.conf file, exit status = " $?
+
+			grep debug /etc/nginx/conf.d/upstream.conf &>> $EE_UPDATE_LOG
+			if [ $? -ne 0 ]; then
+				cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ \
+				|| ee_lib_error "Unable to copy upstream.conf file, exit status = " $?
+			fi
+			# Install required packages
+			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+				ee_lib_package_check graphviz python-software-properties software-properties-common
+			elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+				ee_lib_package_check graphviz python-software-properties
+			fi
+
+			if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
+				ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_UPDATE_LOG
+				apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_UPDATE_LOG\
+				|| ee_lib_error "Unable to install required packages, exit status = " $?
+			fi
+		fi
+
+	fi
+fi

@@ -118,7 +118,8 @@ rm -rf /tmp/easyengine &>> /dev/null
 
 # Let's clone EasyEngine (ee)
 ee_lib_echo "Cloning EasyEngine (ee) $BRANCH branch, please wait..." | tee -ai $EE_INSTALL_LOG
-git clone -b $BRANCH https://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_INSTALL_LOG || ee_lib_error "Unable to clone EasyEngine (ee) $BRANCH branch, exit status = " $?
+git clone -b $BRANCH https://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_INSTALL_LOG \
+|| ee_lib_error "Unable to clone EasyEngine (ee) $BRANCH branch, exit status = " $?
 
 
 # Setup EasyEngine (ee)

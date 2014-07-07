@@ -2,13 +2,13 @@
 
 
 # Make Variables Available For Later Use
-INSTALLLOG=/var/log/easyengine/install.log
+EE_UPDATE_LOG=/var/log/easyengine/install.log
 LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 
 # Capture Errors
 OwnError()
 {
-	echo -e "[ `date` ] \033[31m$@\e[0m" | tee -ai $INSTALLLOG
+	echo -e "[ `date` ] \033[31m$@\e[0m" | tee -ai $EE_UPDATE_LOG
 	exit 101
 }
 
@@ -22,14 +22,14 @@ GITCOMMIT ()
 	then
 		# Initialise Git
 		echo -e "\033[34mInitialise Git On $EEGITDIR...\e[0m"
-		git init &>> $INSTALLLOG || OwnError "Unable To Initialize Git On $EEGITDIR"
+		git init &>> $EE_UPDATE_LOG || OwnError "Unable To Initialize Git On $EEGITDIR"
 	fi
 
 	# Check For Untracked Files
 	if [ $(git status -s | wc -l) -ne 0 ]
 	then
 		# Add Files In Git Version Control
-		git add --all && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
+		git add --all && git commit -am "$EEGITMESSAGE"  &>> $EE_UPDATE_LOG \
 		|| OwnError "Unable To Git Commit On $EEGITDIR"
 	fi
 }
@@ -38,21 +38,21 @@ EEUPDATE()
 {
 	# Clone EasyEngine (ee) Stable Repository
 	rm -rf /tmp/easyengine
-	echo -e "\033[34mUpdating EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
-	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+	echo -e "\033[34mUpdating EasyEngine (ee), Please Wait...\e[0m" | tee -ai $EE_UPDATE_LOG
+	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_UPDATE_LOG || OwnError "Unable To Clone Easy Engine"
 
 	# EasyEngine (ee) /etc Files
-	cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALLLOG || OwnError "Unable To Copy EE Auto Complete File"
+	cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy EE Auto Complete File"
 
 	# EE /usr/share/easyengine Files
-	cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
-	cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
+	cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy Configuration Files "
+	cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy Configuration Files "
 
 	# EE Command
-	cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
+	cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy EasyEngine Command"
 
 	# EE Man Pages
-	cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Man Pages"
+	cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy EasyEngine Man Pages"
 
 	# Change Permission For EE
 	chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
@@ -70,9 +70,9 @@ EEUPDATE()
 	if [ -z "$EEGITNAME" ] || [ -z "$EEGITEMAIL" ]
 	then
 		echo
-		echo -e "\033[34mEasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git\e[0m" | tee -ai $INSTALLLOG
-		echo -e "\033[34mEasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version\e[0m" | tee -ai $INSTALLLOG
-		echo -e "\033[34mEasyEngine (ee) Will NEVER Send Your Information Across\e[0m" | tee -ai $INSTALLLOG
+		echo -e "\033[34mEasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git\e[0m" | tee -ai $EE_UPDATE_LOG
+		echo -e "\033[34mEasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version\e[0m" | tee -ai $EE_UPDATE_LOG
+		echo -e "\033[34mEasyEngine (ee) Will NEVER Send Your Information Across\e[0m" | tee -ai $EE_UPDATE_LOG
 	fi
 	# Check Git User Is Empty Or Not
 	if [ -z "$EEGITNAME" ]
@@ -83,7 +83,7 @@ EEUPDATE()
 		then
 			EEGITNAME=$(whoami)
 		fi
-		git config --global user.name "$EEGITNAME" &>> $INSTALLLOG	
+		git config --global user.name "$EEGITNAME" &>> $EE_UPDATE_LOG	
 	fi
 
 	# Check Git User Is Empty Or Not
@@ -95,7 +95,7 @@ EEUPDATE()
 		then
 			EEGITEMAIL=$(whoami)@$(hostname -f)
 		fi
-		git config --global user.email $EEGITEMAIL &>> $INSTALLLOG
+		git config --global user.email $EEGITEMAIL &>> $EE_UPDATE_LOG
 	fi
 }
 
@@ -150,7 +150,7 @@ MYCNFCHECK()
 EE101()
 {
 	# EasyEngine (ee) /etc Files
-	cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy ee.conf File"
+	cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $EE_UPDATE_LOG || OwnError "Unable To Copy ee.conf File"
 
 	# Let Copy Some Missing Files & Chnage Nginx As Per Latest EasyEngine
 	(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
@@ -160,7 +160,7 @@ EE101()
 	sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
 
 	# Check SSL Settings
-	grep ssl_ /etc/nginx/nginx.conf &>> $INSTALLLOG
+	grep ssl_ /etc/nginx/nginx.conf &>> $EE_UPDATE_LOG
 	if [ $? -ne 0 ]
 	then
 		sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
@@ -231,11 +231,11 @@ PHP_PACKAGES()
 		
 		# Download Webgrind
 		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
-		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $EE_UPDATE_LOG || OwnError "Unable To Clone Webgrind"
 		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
 
 		# Install Graphviz
-		dpkg -l | grep graphviz &>> $INSTALLLOG
+		dpkg -l | grep graphviz &>> $EE_UPDATE_LOG
 		if [ $? -ne 0 ]
 		then
 			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
@@ -272,7 +272,7 @@ ANEMOMETER_INSTALL()
 
 			# Download Anemometer
 			echo -e "\033[34mCloning Anemometer, Please Wait...\e[0m"
-			git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+			git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $EE_UPDATE_LOG \
 			|| OwnError "Unable To Clone Anemometer"
 
 			# Setup Anemometer
@@ -392,24 +392,24 @@ EE122()
 
 	# Generate SSL Key
 	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
-	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $INSTALLLOG \
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_UPDATE_LOG \
 	|| OwnError "Unable To Generate SSL Private Key"
 
 	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
-	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $INSTALLLOG \
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_UPDATE_LOG \
 	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
 
 	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
 	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
-	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $INSTALLLOG \
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_UPDATE_LOG \
 	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
 
 	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
-	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_UPDATE_LOG \
 	|| OwnError "Unable To Generate SSL Certificate"
 
 	# PHP Setup
-	dpkg -l | grep php5-fpm &>> $INSTALLLOG
+	dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
 	if [ $? -eq 0 ]
 	then
 		# Install Packages
@@ -438,7 +438,7 @@ EE122()
 		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
 		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
 		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
-		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_UPDATE_LOG \
 		|| OwnError "Unable To Add Xdebug Settings"
 
 	else
@@ -460,7 +460,7 @@ EE122()
 EE133()
 {
 	# Change PHP5-FPM Process Manager
-	grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $EE_UPDATE_LOG
 	if [ $? -ne 0 ]
 	then
 		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/www.conf \
@@ -483,12 +483,12 @@ EE134()
 
 			# Add rtCamp Nginx Launchpad Repository
 			echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
-			add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
+			add-apt-repository -y ppa:rtcamp/nginx &>> $EE_UPDATE_LOG \
 			|| OwnError "Unable To Add Nginx Launchpad Repository" 
 
 			# Update The APT Cache
 			echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
-			apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
+			apt-get update &>> $EE_UPDATE_LOG || OwnError "Unable To Update APT Cache"
 
 			# Update Nginx
 			apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
@@ -503,7 +503,7 @@ EE134()
         #Remove Old WP-CLI
 		rm -rf /usr/share/easyengine/wp-cli  /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
 
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $INSTALLLOG \
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $EE_UPDATE_LOG \
 		|| OwnError "Unable To Update WP-CLI"
 
 		# Add WP-CLI Command In PATH Variable
@@ -555,8 +555,8 @@ HTTPAUTH()
 RESTARTSERVICE()
 {
 	echo -e "\033[34mRestarting Nginx & PHP5-FPM Configuration, Please Wait...\e[0m"
-	(php5-fpm -t && service php5-fpm restart) &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM After Update"
-	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx After Update"
+	(php5-fpm -t && service php5-fpm restart) &>> $EE_UPDATE_LOG || OwnError "Unable To Restart PHP5-FPM After Update"
+	(nginx -t && service nginx restart) &>> $EE_UPDATE_LOG || OwnError "Unable To Restart Nginx After Update"
 }
 
 
@@ -564,26 +564,26 @@ RESTARTSERVICE()
 
 
 # Update EasyEngine (ee)
-EECURRENTVERSION=$(ee version | awk '{print($3)}')
-EELATESTVERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
-echo EECURRENTVERSION = $EECURRENTVERSION EELATESTVERSION = $EELATESTVERSION &>> $INSTALLLOG
+EE_CURRENT_VERSION=$(ee version | awk '{print($3)}')
+EE_LATEST_VERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
+echo EE_CURRENT_VERSION = $EE_CURRENT_VERSION EE_LATEST_VERSION = $EE_LATEST_VERSION &>> $EE_UPDATE_LOG
 
-if [[ $EECURRENTVERSION < $EELATESTVERSION ]]
+if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]
 then
 	stty echo
-	read -p "Would You Like To Update EasyEngine To $EELATESTVERSION (y/n): " EEUPDATE
+	read -p "Would You Like To Update EasyEngine To $EE_LATEST_VERSION (y/n): " EEUPDATE
 
 	# Check User Choice
 	if [ "$EEUPDATE" = "y" ] || [ "$EEUPDATE" = "Y" ]
 	then
 		# Lets Start Update 
-		echo &>> $INSTALLLOG
-		echo &>> $INSTALLLOG
-		echo -e "\033[34mEasyEngine (ee) Update Started [$(date)]\e[0m" | tee -ai $INSTALLLOG
+		echo &>> $EE_UPDATE_LOG
+		echo &>> $EE_UPDATE_LOG
+		echo -e "\033[34mEasyEngine (ee) Update Started [$(date)]\e[0m" | tee -ai $EE_UPDATE_LOG
 
 		# Before Update Take Nginx Conf In GIT
 		EEGITDIR=/etc/nginx
-		EEGITMESSAGE="Before Updating EasyEngine To $EELATESTVERSION"
+		EEGITMESSAGE="Before Updating EasyEngine To $EE_LATEST_VERSION"
 		GITCOMMIT
 
 		# Before Update Take PHP Conf In GIT
@@ -594,38 +594,38 @@ then
 		EEUPDATE
 		
 
-		if [[ $EECURRENTVERSION = 1.0.0 ]] || [[ $EECURRENTVERSION = 1.0.1 ]]
+		if [[ $EE_CURRENT_VERSION = 1.0.0 ]] || [[ $EE_CURRENT_VERSION = 1.0.1 ]]
 		then
 			EE101
 			HTTPAUTH
 			MYCNFCHECK
-			EECURRENTVERSION="1.1.0"
+			EE_CURRENT_VERSION="1.1.0"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.1.0 ]]
+		if [[ $EE_CURRENT_VERSION = 1.1.0 ]]
 		then
 			EE110
-			EECURRENTVERSION="1.1.1"
+			EE_CURRENT_VERSION="1.1.1"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.1.1 ]] || [[ $EECURRENTVERSION = 1.1.2 ]] || [[ $EECURRENTVERSION = 1.1.3 ]] || [[ $EECURRENTVERSION = 1.1.4 ]] || [[ $EECURRENTVERSION = 1.1.5 ]] || [[ $EECURRENTVERSION = 1.2.0 ]] || [[ $EECURRENTVERSION = 1.2.1 ]]
+		if [[ $EE_CURRENT_VERSION = 1.1.1 ]] || [[ $EE_CURRENT_VERSION = 1.1.2 ]] || [[ $EE_CURRENT_VERSION = 1.1.3 ]] || [[ $EE_CURRENT_VERSION = 1.1.4 ]] || [[ $EE_CURRENT_VERSION = 1.1.5 ]] || [[ $EE_CURRENT_VERSION = 1.2.0 ]] || [[ $EE_CURRENT_VERSION = 1.2.1 ]]
 		then
-			EECURRENTVERSION="1.2.2"
+			EE_CURRENT_VERSION="1.2.2"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.2.2 ]]
+		if [[ $EE_CURRENT_VERSION = 1.2.2 ]]
 		then
 			EE122
-			EECURRENTVERSION="1.3.0"
+			EE_CURRENT_VERSION="1.3.0"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.3.0 ]] || [[ $EECURRENTVERSION = 1.3.1 ]] || [[ $EECURRENTVERSION = 1.3.2 ]] || [[ $EECURRENTVERSION = 1.3.3 ]]
+		if [[ $EE_CURRENT_VERSION = 1.3.0 ]] || [[ $EE_CURRENT_VERSION = 1.3.1 ]] || [[ $EE_CURRENT_VERSION = 1.3.2 ]] || [[ $EE_CURRENT_VERSION = 1.3.3 ]]
 		then
 			EE133
-			EECURRENTVERSION="1.3.4"
+			EE_CURRENT_VERSION="1.3.4"
 		fi
 
-		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]] || [[ $EECURRENTVERSION = 1.3.6 ]] || [[ $EECURRENTVERSION = 1.3.7 ]]
+		if [[ $EE_CURRENT_VERSION = 1.3.4 ]] || [[ $EE_CURRENT_VERSION = 1.3.5 ]] || [[ $EE_CURRENT_VERSION = 1.3.6 ]] || [[ $EE_CURRENT_VERSION = 1.3.7 ]]
 		then
 			EE134
 		fi
@@ -636,20 +636,20 @@ then
 
 	# Let's Take Conf In Git Version Control
 	EEGITDIR=/etc/nginx
-	EEGITMESSAGE="After Updating EasyEngine To $EELATESTVERSION"
+	EEGITMESSAGE="After Updating EasyEngine To $EE_LATEST_VERSION"
 	GITCOMMIT
 	EEGITDIR=/etc/php5
 	GITCOMMIT
 
 	# Source EasyEngine (ee) Auto Complete To Take Effect
-	echo -e "\033[34mFor EasyEngine (ee) Auto Completion Run Following Command\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mFor EasyEngine (ee) Auto Completion Run Following Command\e[0m" | tee -ai $EE_UPDATE_LOG
+	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $EE_UPDATE_LOG
 	echo
-	echo -e "\033[34mEasyEngine (ee) Updated Successfully\e[0m" | tee -ai $INSTALLLOG
-	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $INSTALLLOGfwww
+	echo -e "\033[34mEasyEngine (ee) Updated Successfully\e[0m" | tee -ai $EE_UPDATE_LOG
+	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $EE_UPDATE_LOGfwww
 
-	echo -e "\033[34mKilling The Parent Process\e[0m" &>> $INSTALLLOG
-	ps ax | grep $PPID | grep -v grep &>> $INSTALLLOG
+	echo -e "\033[34mKilling The Parent Process\e[0m" &>> $EE_UPDATE_LOG
+	ps ax | grep $PPID | grep -v grep &>> $EE_UPDATE_LOG
 	kill -9 $PPID
 
 else
