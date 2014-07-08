@@ -129,8 +129,20 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 
 		if [[ $EE_CURRENT_VERSION < 2.0.0 ]]; then
+			# Install required packages
+			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+				ee_lib_package_check graphviz python-software-properties software-properties-common
+			elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+				ee_lib_package_check graphviz python-software-properties
+			fi
 
-			# Lets used our code
+			if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
+				ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_UPDATE_LOG
+				apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_UPDATE_LOG\
+				|| ee_lib_error "Unable to install required packages, exit status = " $?
+			fi
+
+			# Lets re-used our functions
 			# Include library
 			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 				source $ee_include
@@ -160,7 +172,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			$EE_CONFIG_SET wordpress.email "$ee_wp_email" \
 			|| ee_lib_error "Unable to update ee.conf file, exit status = " $?
 
-			# # NGINX conf.d
+			# NGINX conf.d
 			cp -v /usr/share/easyengine/nginx/conf.d/fastcgi.conf /etc/nginx/conf.d/ \
 			|| ee_lib_error "Unable to copy fastcgi.conf file, exit status = " $?
 
@@ -169,18 +181,35 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ \
 				|| ee_lib_error "Unable to copy upstream.conf file, exit status = " $?
 			fi
-			# Install required packages
-			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
-				ee_lib_package_check graphviz python-software-properties software-properties-common
-			elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
-				ee_lib_package_check graphviz python-software-properties
-			fi
 
-			if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
-				ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_UPDATE_LOG
-				apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_UPDATE_LOG\
-				|| ee_lib_error "Unable to install required packages, exit status = " $?
+			# NGINX common
+			if [[ $EE_CURRENT_VERSION = 1.0.0 ]] || [[ $EE_CURRENT_VERSION = 1.0.1 ]] || [[ $EE_CURRENT_VERSION = 1.1.0 ]]; then
+				# Move allowed_ip.conf to acl.conf 
+				(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
+				sed -i '/allow ;/d' /etc/nginx/common/acl.conf
+
+				# Update nginx.conf
+				# SSL settings
+				grep ssl_ /etc/nginx/nginx.conf &>> $EE_UPDATE_LOG
+				if [ $? -ne 0 ]; then
+					sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
+				fi
+				# Log format
+				sed -i "s/log_format rt_cache.*/log_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '/" /etc/nginx/nginx.conf
+				sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
+
+				# Update PHP session storage to Memcache
+				sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
+
+				# Set easyengine:easyengine as default http authentication
+				if [ ! -f /etc/nginx/htpasswd-ee ]; then
+					printf "easyengine:$(openssl passwd -crypt easyengine 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+				fi
+
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="1.1.1"
 			fi
+			
 		fi
 
 	fi
