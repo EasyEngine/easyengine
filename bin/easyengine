@@ -107,7 +107,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_mod_setup_php
 			ee_mod_setup_mysql
 
-			# # Restart  NGINX/MySQL/Postfix
+			# Restart  NGINX/MySQL/Postfix
 			ee_lib_service nginx php5-fpm mysql restart
 					
 			# Initialize Git

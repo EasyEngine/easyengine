@@ -127,7 +127,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		|| ee_lib_error "Unable to copy EasyEngine (ee) man page, exit status = " $?
 
 
-
 		if [[ $EE_CURRENT_VERSION < 2.0.0 ]]; then
 			# Install required packages
 			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
@@ -147,6 +146,8 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 				source $ee_include
 			done
+
+			
 
 			# EasyEngine (ee) config file
 			cp /etc/easyengine/ee.conf /etc/easyengine/ee.bak
@@ -176,11 +177,9 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			cp -v /usr/share/easyengine/nginx/conf.d/fastcgi.conf /etc/nginx/conf.d/ \
 			|| ee_lib_error "Unable to copy fastcgi.conf file, exit status = " $?
 
-			grep debug /etc/nginx/conf.d/upstream.conf &>> $EE_UPDATE_LOG
-			if [ $? -ne 0 ]; then
-				cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ \
-				|| ee_lib_error "Unable to copy upstream.conf file, exit status = " $?
-			fi
+			cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ \
+			|| ee_lib_error "Unable to copy upstream.conf file, exit status = " $?
+
 
 			# NGINX common
 			if [[ $EE_CURRENT_VERSION = 1.0.0 ]] || [[ $EE_CURRENT_VERSION = 1.0.1 ]] || [[ $EE_CURRENT_VERSION = 1.1.0 ]]; then
@@ -207,10 +206,169 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				fi
 
 				# Update EasyEngine current version
-				EE_CURRENT_VERSION="1.1.1"
+				EE_CURRENT_VERSION="1.2.2"
 			fi
-			
+
+			if [[ $EE_CURRENT_VERSION = 1.2.2 ]]; then
+				# Update NGINX configuration
+				sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
+				sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
+				sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
+				
+				# Setup port 22222
+				cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/
+
+				# Create a symbolic link for 22222
+				if [ ! -L /etc/nginx/sites-enabled/22222 ]; then
+					ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/
+				fi
+
+				# Setup logs for 22222
+				if [ ! -d /var/www/22222/logs ]; then
+					mkdir -p /var/www/22222/logs
+					ln -s /var/log/nginx/22222.access.log /var/www/22222/logs/access.log
+					ln -s /var/log/nginx/22222.error.log /var/www/22222/logs/error.log
+				fi
+
+				# Setup SSL
+				# Create SSL certificate directory
+				if [ ! -d /var/www/22222/cert ]; then
+					mkdir /var/www/22222/cert
+				fi
+	
+				# Generate SSL key
+				ee_lib_echo "Generating SSL private key"
+				openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_COMMAND_LOG \
+				|| ee_lib_error "Unable to generate SSL private key for port 22222, exit status = " $?
+
+				ee_lib_echo "Generating a certificate signing request (CSR)"
+				openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_COMMAND_LOG \
+				|| ee_lib_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
+
+				ee_lib_echo "Removing pass phrase from SSL private key"
+				mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
+				openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_COMMAND_LOG \
+				|| ee_lib_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
+
+				ee_lib_echo "Generating SSL certificate"
+				openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_COMMAND_LOG \
+				|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
+
+				# Update PHP configuration
+				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				if [ $? -eq 0 ]; then
+					ee_lib_echo "Installing php5-xdebug package, please wait..."
+					apt-get -y install php5-xdebug \
+					|| ee_lib_error "Unable to install php5-xdebug package, exit status = " $?
+
+					ee_lib_echo "Setting up PHP5, please wait..."
+
+					# Custom php5 log directory
+					if [ ! -d /var/log/php5/ ]; then
+						mkdir -p /var/log/php5/ \
+						|| ee_lib_error "Unable to create /var/log/PHP5/, exit status = " $?
+					fi
+
+					# Update timezone
+					local ee_time_zone=$(cat /etc/timezone | head -n1 | sed "s'/'\\\/'")
+					sed -i "s/;date.timezone.*/date.timezone = $ee_time_zone/" /etc/php5/fpm/php.ini
+
+					# Change php5-fpm error log location
+					sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
+
+					# Separate php5-fpm for ee debug command
+					cp -v /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+
+					sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf \
+					|| ee_lib_error "Unable to change debug pool name, exit status = " $?
+
+					sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf \
+					|| ee_lib_error "Unable to change listen = 127.0.0.1:9001 for debug pool, exit status = " $?
+	
+					sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf \
+					|| ee_lib_error "Unable to change slowlog settings for debug pool, exit status = " $?
+
+					sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf \
+					|| ee_lib_error "Unable to change request_slowlog_timeout for debug pool, exit status = " $?
+		
+					echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_COMMAND_LOG \
+					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
+				fi
+
+				dpkg -l | grep mysql-server &>> $EE_COMMAND_LOG
+				if [ $? -eq 0 ]; then
+					ee_lib_echo "Installing percona-toolkit package, please wait..."
+					apt-get -y install percona-toolkit \
+					|| ee_lib_error "Unable to install percona-toolkit package, exit status = " $?
+				fi
+
+				# Install 22222 admin tools
+				ee_ven_install_utils
+				ee_ven_install_phpmyadmin
+
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="1.3.0"
+			fi
+
+			if [[ $EE_CURRENT_VERSION = 1.3.0 ]] || [[ $EE_CURRENT_VERSION = 1.3.1 ]] || [[ $EE_CURRENT_VERSION = 1.3.2 ]] || [[ $EE_CURRENT_VERSION = 1.3.3 ]]; then
+				grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $EE_UPDATE_LOG
+				if [ $? -ne 0 ]; then
+					sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/www.conf \
+					|| ee_lib_error "Unable to change process manager from dynamic to ondemand, exit status = " $?
+				fi
+				grep "^pm = ondemand" /etc/php5/fpm/pool.d/debug.conf &>> $EE_UPDATE_LOG
+				if [ $? -ne 0 ]; then
+					sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf \
+					|| ee_lib_error "Unable to change process manager from dynamic to ondemand on debug.conf, exit status = " $?
+				fi
+
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="1.3.4"
+			fi
+			if [[ $EE_CURRENT_VERSION = 1.3.4 ]] || [[ $EE_CURRENT_VERSION = 1.3.5 ]] || [[ $EE_CURRENT_VERSION = 1.3.6 ]] || [[ $EE_CURRENT_VERSION = 1.3.7 ]] || [[ $EE_CURRENT_VERSION = 1.3.8 ]]; then
+				# Update NGINX
+				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
+					nginx -v 2>&1 | grep 1.6.0
+					if [ $? -ne 0 ]
+						rm /etc/apt/sources.list.d/brianmercer-nginx*
+						# Add rtCamp nginx launchpad repository
+						ee_lib_echo "Adding rtCamp NGINX launchpad repository, please wait..."
+						add-apt-repository -y ppa:rtcamp/nginx &>> $EE_COMMAND_LOG \
+						|| ee_lib_error "Unable to add rtCamp NGINX launchpad repository, exit status = " $?
+
+						# Execute: apt-get update
+						ee_lib_apt_get_update
+
+						# Install NGINX
+						apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
+						|| ee_lib_error "Unable to install nginx-custom package, exit status = " $?
+					fi
+				fi
+
+				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				if [ $? -eq 0 ]; then
+					EE_WP_CLI_VERSION_LOCAL=$(wp --allow-root --info | grep "WP-CLI version" | awk '{print $3}')
+					if [[ $EE_WP_CLI_VERSION_LOCAL != "$EE_WP_CLI_VERSION" ]]; then
+						rm -rf /usr/share/easyengine/wp-cli  /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
+
+						# Install WP-CLI
+						ee_ven_install_wpcli
+					fi
+				fi
+			fi
 		fi
 
+		# Restart service
+		ee_lib_service nginx php5-fpm restart
+
+		# Git backup
+		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix /etc/easyengine "EasyEngine version $EE_LATEST_VERSION"
+
+		# Enable EasyEngine (ee) auto completion
+		echo
+		ee_lib_echo "For EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_INSTALL_LOG
+		ee_lib_echo_info "source /etc/bash_completion.d/ee" | tee -ai $EE_UPDATE_LOG
+		echo
+		ee_lib_echo "EasyEngine (ee) updated successfully"
 	fi
 fi
