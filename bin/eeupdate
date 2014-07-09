@@ -71,9 +71,9 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		rm -rf /tmp/easyengine &>> /dev/null
 
 		# Let's clone EasyEngine (ee)
-		ee_lib_echo "Cloning EasyEngine (ee) stable branch, please wait..." | tee -ai $EE_UPDATE_LOG
-		git clone -b stable https://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_UPDATE_LOG \
-		|| ee_lib_error "Unable to clone EasyEngine (ee) stable branch, exit status = " $?
+		ee_lib_echo "Cloning EasyEngine (ee) refactor branch, please wait..." | tee -ai $EE_UPDATE_LOG
+		git clone -b refactor https://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $EE_UPDATE_LOG \
+		|| ee_lib_error "Unable to clone EasyEngine (ee) refactor branch, exit status = " $?
 
 		# Setup EasyEngine (ee)
 		if [ ! -d /etc/easyengine ]; then
