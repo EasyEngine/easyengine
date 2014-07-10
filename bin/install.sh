@@ -218,5 +218,5 @@ echo
 
 # Display success message
 ee_lib_echo "EasyEngine (ee) installed successfully" | tee -ai $EE_INSTALL_LOG
-ee_lib_echo "EasyEngine (ee) help: http://rtcamp.com/easyengine/docs/" | tee -ai $EE_INSTALL_LOG
+ee_lib_echo "EasyEngine (ee) help: https://rtcamp.com/easyengine/docs/" | tee -ai $EE_INSTALL_LOG
 echo
