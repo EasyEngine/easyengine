@@ -175,13 +175,13 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			read -p "Enter email address: " ee_wp_email
 
 			# Update value in ee.conf file
-			$EE_CONFIG_SET stack.ip-address $ee_stack_ip && \
-			$EE_CONFIG_SET auth.user $ee_auth_user && \
-			$EE_CONFIG_SET auth.password $ee_auth_pass && \
-			$EE_CONFIG_SET mysql.host $ee_mysql_host && \
-			$EE_CONFIG_SET wordpress.user $ee_wp_user && \
-			$EE_CONFIG_SET wordpress.password $ee_wp_pass && \
-			$EE_CONFIG_SET wordpress.email $ee_wp_email \
+			$EE_CONFIG_SET stack.ip-address "$(echo -n $ee_stack_ip)" && \
+			$EE_CONFIG_SET auth.user "$(echo -n $ee_auth_user)" && \
+			$EE_CONFIG_SET auth.password "$(echo -n $ee_auth_pass)" && \
+			$EE_CONFIG_SET mysql.host "$(echo -n $ee_mysql_host)" && \
+			$EE_CONFIG_SET wordpress.user "$(echo -n $ee_wp_user)" && \
+			$EE_CONFIG_SET wordpress.password "$(echo -n $ee_wp_pass)" && \
+			$EE_CONFIG_SET wordpress.email "$(echo -n $ee_wp_email)" \
 			|| ee_lib_error "Unable to update ee.conf file, exit status = " $?
 
 			# NGINX conf.d
