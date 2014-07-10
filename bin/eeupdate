@@ -114,7 +114,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		|| ee_lib_error "Unable to copy src files, exit status = " $?
 
 		# EasyEngine (ee) command
-		cp -av /tmp/easyengine/bin/easyengine /usr/local/sbin/ \
+		cp -av /tmp/easyengine/bin/easyengine /usr/local/sbin/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to copy EasyEngine (ee) command, exit status = " $?
 
 		# Change permission of EasyEngine (ee) command
@@ -163,21 +163,25 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			ee_mysql_host=$(grep mysqlhost /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_wp_user=$(grep wpadminuser /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_wp_pass=$(grep wpadminpass /etc/easyengine/ee.bak | cut -d'=' -f2)
-			ee_wp_email=$(grep wpadminemail /etc/easyengine/ee.bak | cut -d'=' -f2)
+			#ee_wp_email=$(grep wpadminemail /etc/easyengine/ee.bak | cut -d'=' -f2)
 
 			# Set localhost when no host found
 			if [ -z $ee_mysql_host ]; then
 				ee_mysql_host=localhost
 			fi
 
+			# Ask email address
+			ee_lib_echo "Update your email address, which is used to setup WordPress"
+			read -p "Enter email address: " ee_wp_email
+
 			# Update value in ee.conf file
-			$EE_CONFIG_SET stack.ip-address "$ee_stack_ip" && \
-			$EE_CONFIG_SET auth.user "$ee_auth_user" && \
-			$EE_CONFIG_SET auth.password "$ee_auth_pass" && \
-			$EE_CONFIG_SET mysql.host "$ee_mysql_host" && \
-			$EE_CONFIG_SET wordpress.user "$ee_wp_user" && \
-			$EE_CONFIG_SET wordpress.password "$ee_wp_pass" && \
-			$EE_CONFIG_SET wordpress.email "$ee_wp_email" \
+			$EE_CONFIG_SET stack.ip-address $ee_stack_ip && \
+			$EE_CONFIG_SET auth.user $ee_auth_user && \
+			$EE_CONFIG_SET auth.password $ee_auth_pass && \
+			$EE_CONFIG_SET mysql.host $ee_mysql_host && \
+			$EE_CONFIG_SET wordpress.user $ee_wp_user && \
+			$EE_CONFIG_SET wordpress.password $ee_wp_pass && \
+			$EE_CONFIG_SET wordpress.email $ee_wp_email \
 			|| ee_lib_error "Unable to update ee.conf file, exit status = " $?
 
 			# NGINX conf.d
@@ -337,7 +341,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
 				# Update NGINX
 				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
-					nginx -v 2>&1 | grep 1.6.0
+					nginx -v 2>&1 | grep 1.6.0 &>> $EE_UPDATE_LOG
 					if [ $? -ne 0 ]; then
 						rm /etc/apt/sources.list.d/brianmercer-nginx*
 						# Add rtCamp nginx launchpad repository
