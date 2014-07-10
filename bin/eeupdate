@@ -98,19 +98,19 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 		# Setup EasyEngine (ee)
 		# EasyEngine (ee) auto completion file
-		cp -av /tmp/easyengine/config/bash_completion.d/ee /etc/bash_completion.d/ \
+		cp -av /tmp/easyengine/config/bash_completion.d/ee /etc/bash_completion.d/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to copy EasyEngine (ee) auto completion file, exit status = " $?
 
 		# Templates
-		cp -a /tmp/easyengine/config/nginx /tmp/easyengine/templates/* /usr/share/easyengine/ \
+		cp -a /tmp/easyengine/config/nginx /tmp/easyengine/templates/* /usr/share/easyengine/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to copy NGINX sample files, exit status = " $?
 
 		# NGINX COMMON
-		rsync -avz --exclude acl.conf /usr/share/easyengine/nginx/common/* /etc/nginx/common/ \
+		rsync -avz --exclude acl.conf /usr/share/easyengine/nginx/common/* /etc/nginx/common/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to rsync NGINX common files, exit status = " $?
 
 		# EasyEngine (ee) library and modules
-		cp -av /tmp/easyengine/src/* /usr/local/lib/easyengine \
+		cp -av /tmp/easyengine/src/* /usr/local/lib/easyengine &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to copy src files, exit status = " $?
 
 		# EasyEngine (ee) command
@@ -145,8 +145,8 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			fi
 
 			# EasyEngine (ee) config file
-			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak
-			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ \
+			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak  &>> $EE_UPDATE_LOG
+			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ &>> $EE_UPDATE_LOG \
 			|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
 
 
@@ -181,10 +181,10 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			|| ee_lib_error "Unable to update ee.conf file, exit status = " $?
 
 			# NGINX conf.d
-			cp -v /usr/share/easyengine/nginx/conf.d/fastcgi.conf /etc/nginx/conf.d/ \
+			cp -v /usr/share/easyengine/nginx/conf.d/fastcgi.conf /etc/nginx/conf.d/ &>> $EE_UPDATE_LOG \
 			|| ee_lib_error "Unable to copy fastcgi.conf file, exit status = " $?
 
-			cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ \
+			cp -v /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/ &>> $EE_UPDATE_LOG \
 			|| ee_lib_error "Unable to copy upstream.conf file, exit status = " $?
 
 
@@ -223,7 +223,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
 				
 				# Setup port 22222
-				cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/
+				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
 
 				# Create a symbolic link for 22222
 				if [ ! -L /etc/nginx/sites-enabled/22222 ]; then
@@ -333,6 +333,8 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				EE_CURRENT_VERSION="1.3.4"
 			fi
 			if [[ $EE_CURRENT_VERSION = 1.3.4 ]] || [[ $EE_CURRENT_VERSION = 1.3.5 ]] || [[ $EE_CURRENT_VERSION = 1.3.6 ]] || [[ $EE_CURRENT_VERSION = 1.3.7 ]] || [[ $EE_CURRENT_VERSION = 1.3.8 ]]; then
+				# Update 22222 for fix #259
+				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
 				# Update NGINX
 				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
 					nginx -v 2>&1 | grep 1.6.0
