@@ -39,7 +39,7 @@ function ee_lib_git()
 		# Check .git
 		if [ ! -d .git ]; then
 			# ee_lib_echo "Initialize Git on ${ee_git_dir}"
-			git init &>> $EE_COMMAND_LOG \
+			git init &>> $EE_UPDATE_LOG \
 			|| ee_lib_error "Unable to initialize Git on $ee_git_dir, exit status = " $?
 		fi
 
@@ -47,7 +47,7 @@ function ee_lib_git()
 		if [ $(git status -s | wc -l) -ne 0 ]; then
 			# Add files in Git version control
 			ee_lib_echo "Git commit on $ee_git_dir, please wait..."
-			git add --all && git commit -am "${@: -1}" &>> $EE_COMMAND_LOG \
+			git add --all && git commit -am "${@: -1}" &>> $EE_UPDATE_LOG \
 			|| ee_lib_error "Unable to Git commit on $ee_git_dir, exit status = " $?
 		fi
 	done
@@ -150,18 +150,23 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			
 
 			# EasyEngine (ee) config file
-			cp /etc/easyengine/ee.conf /etc/easyengine/ee.bak
+			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak
 			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ \
 			|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
 
 			# Get old value from ee.bak file
-			local ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_auth_user=$(grep htpasswduser /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_auth_pass=$(grep htpasswdpass /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_mysql_host=$(grep mysqlhost /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_wp_user=$(grep wpadminuser /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_wp_pass=$(grep wpadminpass /etc/easyengine/ee.bak | cut -d'=' -f2)
-			local ee_wp_email=$(grep wpadminemail /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_auth_user=$(grep htpasswduser /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_auth_pass=$(grep htpasswdpass /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_mysql_host=$(grep mysqlhost /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_wp_user=$(grep wpadminuser /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_wp_pass=$(grep wpadminpass /etc/easyengine/ee.bak | cut -d'=' -f2)
+			ee_wp_email=$(grep wpadminemail /etc/easyengine/ee.bak | cut -d'=' -f2)
+
+			# Set localhost when no host found
+			if [ -z $ee_mysql_host ]; then
+				ee_mysql_host=localhost
+			fi
 
 			# Update value in ee.conf file
 			$EE_CONFIG_SET stack.ip-address "$ee_stack_ip" && \
@@ -238,20 +243,20 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 	
 				# Generate SSL key
 				ee_lib_echo "Generating SSL private key"
-				openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_COMMAND_LOG \
+				openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to generate SSL private key for port 22222, exit status = " $?
 
 				ee_lib_echo "Generating a certificate signing request (CSR)"
-				openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_COMMAND_LOG \
+				openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to generate certificate signing request (CSR) for port 22222, exit status = " $?
 
 				ee_lib_echo "Removing pass phrase from SSL private key"
 				mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
-				openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_COMMAND_LOG \
+				openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to remove pass phrase from SSL for port 22222, exit status = " $?
 
 				ee_lib_echo "Generating SSL certificate"
-				openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_COMMAND_LOG \
+				openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
 				# Update PHP configuration
@@ -291,11 +296,11 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf \
 					|| ee_lib_error "Unable to change request_slowlog_timeout for debug pool, exit status = " $?
 		
-					echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_COMMAND_LOG \
+					echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_UPDATE_LOG \
 					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 				fi
 
-				dpkg -l | grep mysql-server &>> $EE_COMMAND_LOG
+				dpkg -l | grep mysql-server &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing percona-toolkit package, please wait..."
 					apt-get -y install percona-toolkit \
@@ -333,7 +338,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 						rm /etc/apt/sources.list.d/brianmercer-nginx*
 						# Add rtCamp nginx launchpad repository
 						ee_lib_echo "Adding rtCamp NGINX launchpad repository, please wait..."
-						add-apt-repository -y ppa:rtcamp/nginx &>> $EE_COMMAND_LOG \
+						add-apt-repository -y ppa:rtcamp/nginx &>> $EE_UPDATE_LOG \
 						|| ee_lib_error "Unable to add rtCamp NGINX launchpad repository, exit status = " $?
 
 						# Execute: apt-get update
