@@ -329,7 +329,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				# Update NGINX
 				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
 					nginx -v 2>&1 | grep 1.6.0
-					if [ $? -ne 0 ]
+					if [ $? -ne 0 ]; then
 						rm /etc/apt/sources.list.d/brianmercer-nginx*
 						# Add rtCamp nginx launchpad repository
 						ee_lib_echo "Adding rtCamp NGINX launchpad repository, please wait..."
