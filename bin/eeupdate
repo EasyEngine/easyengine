@@ -384,4 +384,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		echo
 		ee_lib_echo "EasyEngine (ee) updated successfully"
 	fi
+else
+	ee_lib_echo "Latest version ($EE_CURRENT_VERSION) already installed"
 fi
