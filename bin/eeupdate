@@ -375,7 +375,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 		# Enable EasyEngine (ee) auto completion
 		echo
-		ee_lib_echo "For EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_INSTALL_LOG
+		ee_lib_echo "For EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_UPDATE_LOG
 		ee_lib_echo_info "source /etc/bash_completion.d/ee" | tee -ai $EE_UPDATE_LOG
 		echo
 		ee_lib_echo "EasyEngine (ee) updated successfully"
