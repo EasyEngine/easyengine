@@ -130,15 +130,15 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
 				ee_mod_remove_$EE_THIRD
+
+				# Execute: apt-get autoremove
+				ee_lib_autoremove
 			fi
 
 			# Remove/Purge Adminer/phpMyAdmin/WP-CLI/Utils
 			if [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ];then
 				ee_ven_remove_$EE_THIRD
 			fi
-
-			# Execute: apt-get autoremove
-			ee_lib_autoremove
 
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
