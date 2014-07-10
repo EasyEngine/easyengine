@@ -17,17 +17,17 @@ EEAUTO()
 
 		# List Of Suggested Words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W "version info update help system site debug" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo version info; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2>/dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
-		system)
-			COMPREPLY=( $( compgen -W "install remove purge status start stop reload restart" -- $CURRENT ) )
+		stack)
+			COMPREPLY=( $( compgen -W '$(echo purge status stop start reload restart; command find /usr/local/lib/easyengine/modules/stack -maxdepth 1 -type d -printf "%P " 2>/dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W "nginx php mysql phpmyadmin postfix all" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/stack/install; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1; cd /usr/local/lib/easyengine/vendor/; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1)' -- $CURRENT ) )
 			return 0
 			;;
 
