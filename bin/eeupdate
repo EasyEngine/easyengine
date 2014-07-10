@@ -54,7 +54,9 @@ function ee_lib_git()
 }
 
 # Update EasyEngine (ee)
-EE_CURRENT_VERSION=$(ee version | awk '{print($3)}')
+# EasyEngine version: 1.0.0
+# EasyEngine (ee) version: 2.0.0
+EE_CURRENT_VERSION=$(ee version | sed 's/(ee) //' | awk '{print $3}')
 EE_LATEST_VERSION=2.0.0
 #EE_LATEST_VERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
 echo EE_CURRENT_VERSION = $EE_CURRENT_VERSION EE_LATEST_VERSION = $EE_LATEST_VERSION &>> $EE_UPDATE_LOG
@@ -66,7 +68,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		ee_lib_echo "EasyEngine (ee) update started [$(date)]" | tee -ai $EE_UPDATE_LOG
 
 		# Git backup
-		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix /etc/easyengine "EasyEngine version $EE_CURRENT_VERSION"
+		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "EasyEngine version $EE_CURRENT_VERSION"
 
 		# Remove old version of EasyEngine (ee) 
 		rm -rf /tmp/easyengine &>> /dev/null
@@ -142,18 +144,17 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				|| ee_lib_error "Unable to install required packages, exit status = " $?
 			fi
 
+			# EasyEngine (ee) config file
+			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak
+			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ \
+			|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
+
+
 			# Lets re-used our functions
 			# Include library
 			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 				source $ee_include
 			done
-
-			
-
-			# EasyEngine (ee) config file
-			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak
-			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ \
-			|| ee_lib_error "Unable to copy EasyEngine (ee) config file, exit status = " $?
 
 			# Get old value from ee.bak file
 			ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
