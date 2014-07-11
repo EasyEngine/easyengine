@@ -35,7 +35,7 @@ function ee_mod_setup_nginx()
 	# Update EasyEngine version
 	# Launchpad PPA already have above settings
 	# On Ubuntu above block never executed
-	sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_LATEST_VERSION\";/" /etc/nginx/nginx.conf 
+	sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_VERSION\";/" /etc/nginx/nginx.conf 
 
 	# Create directory if not exist
 	if [ ! -d /etc/nginx/conf.d ]; then
