@@ -1,4 +1,4 @@
-.TH ee 8 "easyengine version: 2.0.0" "July 11, 2014" "easyengine"
+.TH ee 8 "EasyEngine (ee) version: 2.0.0" "July 11, 2014" "EasyEngine"
 .SH NAME
 .B EasyEngine (ee) 
 \- Manage Nginx Based Websites.
@@ -18,6 +18,8 @@ ee site delete example.com [--db | --files | --all | --no-prompt ]
 ee debug [ -i | --nginx | --rewrite | --php | --fpm | --mysql ] [ --stop ]  
 .TP 
 ee debug example.com [ -i | --nginx | --rewrite | --wp ] [--stop ]
+.TP
+ee secure [ --auth | --port ]
 .SH DESCRIPTION
 EasyEngine aka ee is the opensource project developed with the purpose to automate web-server configuration.
 .br
@@ -143,6 +145,10 @@ Display easyengine (ee) help.
 				services, else debug only service provided with argument. Stop Debugging
 .br
 				if used with  --stop argument.
+.TP
+.B secure [ --auth | --port ]
+.br
+				Update security settings.
 .SH ARGUMENTS
 .TP
 .B -i
@@ -219,7 +225,14 @@ Display easyengine (ee) help.
 .B --no-prompt
 .br
 				Does not prompt for confirmation when delete command used.
-
+.TP
+.B --auth 
+.br
+				used with ee secure command. Update credential of HTTP authentication
+.TP
+.B --port
+.br 
+				used with ee secure command. Change EasyEngine admin port 22222
 .SH WORDPRESS CACHING OPTIONS
 .TP
 .B --basic
