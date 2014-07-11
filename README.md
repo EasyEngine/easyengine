@@ -17,18 +17,14 @@ ee stack install                                      # install nginx, php, mysq
 ee site create example.com --wp                        # create example.com and install wordpress on it
 ```
 
-## Upgrading 
+## Update EasyEngine
 
-### From EasyEngine 1.0 to 1.1 and above
-
+#### Set alias:
 ```bash
-/bin/bash <(curl -sL https://raw.github.com/rtCamp/easyengine/stable/usr/local/sbin/eeupdate)
-```
+alias eeupdate="wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/update && sudo bash /tmp/eeupdate"
 
-### From EasyEngine 1.1 and above
-
-```bash
-ee update
+# Let's update EasyEngine (ee)
+eeupdate
 ```
 
 ## More Site Creation Commands
