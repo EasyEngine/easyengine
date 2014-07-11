@@ -125,6 +125,8 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			ee_lib_echo "Successfully installed all packages"
+			ee_lib_echo "Create your first WordPress site powered by NGINX using:"
+			ee_lib_echo_info "ee site create example.com --wp"
 		fi
 
 	# EasyEngine remove/purge
@@ -177,6 +179,16 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		ee_mod_stack_status
 	elif [ "$EE_SECOND" = "start" ] || [ "$EE_SECOND" = "stop" ] || [ "$EE_SECOND" = "reload" ] || [ "$EE_SECOND" = "restart" ]; then
 			ee_lib_service nginx php5-fpm mysql postfix $EE_SECOND
+	else
+		ee_lib_echo "ee stack commands:"
+		ee_lib_echo_escape "\tinstall\tInstall NGINX, PHP5, MySQL, Postfix, Adminer, phpMyAdmin, WP-CLI and Utils"
+		ee_lib_echo_escape "\tremove\tRemove NGINX, PHP5, MySQL, Postfix, Adminer, phpMyAdmin, WP-CLI and Utils"
+		ee_lib_echo_escape "\tpurge\tPurge NGINX, PHP5, MySQL, Postfix, Adminer, phpMyAdmin, WP-CLI and Utils"
+		ee_lib_echo_escape "\tstatus\tDisplay system status information"
+		ee_lib_echo_escape "\tstart\t Start NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\tstop\t Stop NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\treload\t Reload NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\trestart\t Restart NGINX, PHP5, MySQL and Postfix service"
 	fi
 
 # EasyEngine site
@@ -441,6 +453,16 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Execute: service nginx reload
 			ee_lib_service nginx reload
 		fi
+	else
+		ee_lib_echo "ee site commands:"
+		ee_lib_echo_escape "\tlist\tList NGINX enabled website"
+		ee_lib_echo_escape "\tinfo\tDisplay information about given website"
+		ee_lib_echo_escape "\tshow\tDisplay NGINX configuration for given website"
+		ee_lib_echo_escape "\tenable\tEnable website"
+		ee_lib_echo_escape "\tdisable\tDisable website"
+		ee_lib_echo_escape "\tedit\tEdit NGINX configuration for given website"
+		ee_lib_echo_escape "\tcreate\tCreate new HTML, PHP, MySQL or WordPress website"
+		ee_lib_echo_escape "\tdelete\tDelete existing website"
 	fi
 
 elif [ "$EE_FIRST" = "debug" ]; then
@@ -539,6 +561,14 @@ elif [ "$EE_FIRST" = "debug" ]; then
 			ee_lib_echo_info "tail -f $EE_DEBUG_MSG"
 		fi
 	fi
+else
+	ee_lib_echo "EasyEngine (ee) commands:"
+	ee_lib_echo_escape "\tversion\tDisplay EasyEngine (ee) version"
+	ee_lib_echo_escape "\thelp\tDisplay EasyEngine (ee) man page"
+	ee_lib_echo_escape "\tstack\tInstall/Remove/Purge NGINX, PHP, MySQL, Postfix"
+	ee_lib_echo_escape "\tsite\tPerform various site specific operation"
+	ee_lib_echo_escape "\tdebug\tPerform various debugging operation"
+	ee_lib_echo_escape "\tupdate\tUpdate EasyEngine (ee) to latest version"
 fi
 
 }
