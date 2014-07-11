@@ -568,8 +568,12 @@ elif [ "$EE_FIRST" = "debug" ]; then
 	fi
 elif [ "$EE_FIRST" = "update" ]; then
 	ee_lib_echo "Please set following alias in your .bashrc"
-	echo "alias eeupdate=\"wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/eeupdate && sudo bash /tmp/eeupdate\"" | tee -ai ~/.bashrc
-	alias eeupdate="wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/eeupdate && sudo bash /tmp/eeupdate"
+	alias | grep eeupdate &>> $EE_COMMAND_LOG
+	if [ $? -ne 0 ]; then
+		echo "alias eeupdate=\"wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/eeupdate && sudo bash /tmp/eeupdate\""
+	fi
+	
+	
 else
 	ee_lib_echo "EasyEngine (ee) commands:"
 	ee_lib_echo_escape "\tversion\tDisplay EasyEngine (ee) version"
