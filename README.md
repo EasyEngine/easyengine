@@ -20,7 +20,7 @@ ee site create example.com --wp                        # create example.com and 
 ## Update EasyEngine
 
 ```bash
-alias eeupdate="wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/update && sudo bash /tmp/eeupdate"
+alias eeupdate="wget -qO /tmp/eerc http://rt.cx/eerc && sudo bash /tmp/eerc"
 
 # Let's update EasyEngine (ee)
 eeupdate
