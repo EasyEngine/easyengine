@@ -185,10 +185,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		ee_lib_echo_escape "\tremove\tRemove NGINX, PHP5, MySQL, Postfix, Adminer, phpMyAdmin, WP-CLI and Utils"
 		ee_lib_echo_escape "\tpurge\tPurge NGINX, PHP5, MySQL, Postfix, Adminer, phpMyAdmin, WP-CLI and Utils"
 		ee_lib_echo_escape "\tstatus\tDisplay system status information"
-		ee_lib_echo_escape "\tstart\t Start NGINX, PHP5, MySQL and Postfix service"
-		ee_lib_echo_escape "\tstop\t Stop NGINX, PHP5, MySQL and Postfix service"
-		ee_lib_echo_escape "\treload\t Reload NGINX, PHP5, MySQL and Postfix service"
-		ee_lib_echo_escape "\trestart\t Restart NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\tstart\tStart NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\tstop\tStop NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\treload\tReload NGINX, PHP5, MySQL and Postfix service"
+		ee_lib_echo_escape "\trestart\tRestart NGINX, PHP5, MySQL and Postfix service"
 	fi
 
 # EasyEngine site
@@ -421,6 +421,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
+		# Check the $EE_DOMAIN exist or not
+		if [ ! -f /etc/nginx/sites-available/$EE_DOMAIN ]; then
+			ee_lib_error "$EE_DOMAIN not exist, exit status = " $?
+		fi
+
 		# Use default whenever possible
 		# ee site delete example.com
 		# ee site delete example.com --no-prompt
@@ -565,6 +570,7 @@ else
 	ee_lib_echo "EasyEngine (ee) commands:"
 	ee_lib_echo_escape "\tversion\tDisplay EasyEngine (ee) version"
 	ee_lib_echo_escape "\thelp\tDisplay EasyEngine (ee) man page"
+	ee_lib_echo_escape "\tinfo\tDisplay Information about NGINX, PHP5, MySQL"
 	ee_lib_echo_escape "\tstack\tInstall/Remove/Purge NGINX, PHP, MySQL, Postfix"
 	ee_lib_echo_escape "\tsite\tPerform various site specific operation"
 	ee_lib_echo_escape "\tdebug\tPerform various debugging operation"
