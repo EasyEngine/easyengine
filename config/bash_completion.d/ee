@@ -80,6 +80,11 @@ function EE_AUTO()
 			return 0
 			;;
 
+		secure)
+			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/secure; find  -type f | grep secure | cut -d'_' -f4 | cut -d '.' | sed 's/^/--/g' | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT ) )
+			return 0
+			;;
+
 		*)
 			if [ "$PREVIOUS2" = "create" ]; then
 				COMPREPLY=( $( compgen -W "--html --php --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
