@@ -19,7 +19,7 @@ ee debug [ -i | --nginx | --rewrite | --php | --fpm | --mysql ] [ --stop ]
 .TP 
 ee debug example.com [ -i | --nginx | --rewrite | --wp ] [--stop ]
 .TP
-ee secure [ --auth | --port ]
+ee secure [ --auth | --port | --ip ]
 .SH DESCRIPTION
 EasyEngine aka ee is the opensource project developed with the purpose to automate web-server configuration.
 .br
@@ -232,7 +232,11 @@ Display easyengine (ee) help.
 .TP
 .B --port
 .br 
-				used with ee secure command. Change EasyEngine admin port 22222
+				used with ee secure command. Change EasyEngine admin port 22222.
+.TP
+.B --ip
+.br 
+				used with ee secure command. Update whitelist IP address
 .SH WORDPRESS CACHING OPTIONS
 .TP
 .B --basic
