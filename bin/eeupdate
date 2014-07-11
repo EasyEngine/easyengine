@@ -156,6 +156,10 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				source $ee_include
 			done
 
+			# Lets modify the $EE_COMMAND_LOG value
+			# So all the logs write in $EE_UPDATE_LOG
+			EE_COMMAND_LOG=$EE_UPDATE_LOG
+
 			# Get old value from ee.bak file
 			ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_auth_user=$(grep htpasswduser /etc/easyengine/ee.bak | cut -d'=' -f2)

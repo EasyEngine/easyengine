@@ -9,8 +9,8 @@ readonly EE_WP_CLI_VERSION='0.16.0'
 # Adminer version
 readonly EE_ADMINER_VERSION='4.1.0'
 
+EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_LOG_DIR=/var/log/easyengine
-readonly EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 readonly EE_CONFIG_GET=$(echo "git config --file /etc/easyengine/ee.conf")
