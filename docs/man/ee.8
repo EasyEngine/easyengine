@@ -1,17 +1,31 @@
-.TH ee 8 "easyengine version: 1.1.0" "January 15, 2014" "easyengine"
+.TH ee 8 "EasyEngine (ee) version: 2.0.0" "July 11, 2014" "EasyEngine"
 .SH NAME
 .B EasyEngine (ee) 
 \- Manage Nginx Based Websites.
 .SH SYNOPSIS
-ee [ version | info | help ]
+ee [ version | help | info | stack | site | debug | update ]
 .TP
-ee system [ install | remove | purge ]
+ee stack [ install | remove | purge ] [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .TP
-ee site [ list | show | info | create | enable | disable | delete ]
+ee stack [  status | start | stop | reload | restart ] 
+.TP
+ee site [ list | info | show | enable | disable | edit ] [ example.com ]
+.TP
+ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--basic | --wpsc | --w3tc | --wpfc]]
+.TP
+ee site delete example.com [--db | --files | --all | --no-prompt ]
+.TP
+ee debug [ -i | --nginx | --rewrite | --php | --fpm | --mysql ] [ --stop ]  
+.TP 
+ee debug example.com [ -i | --nginx | --rewrite | --wp ] [--stop ]
+.TP
+ee secure [ --auth | --port ]
 .SH DESCRIPTION
-EasyEngine (ee) is a linux shell-script to manage your WordPress-Nginx websites on an Ubuntu server.
+EasyEngine aka ee is the opensource project developed with the purpose to automate web-server configuration.
 .br
-After ee kindly press tab key to view all arguments.
+EasyEngine is the collection of shell scripts that provides automation for the web-server
+.br
+installation, site creation, services debugging & monitoring.
 .SH OPTIONS
 .TP
 .B version
@@ -28,100 +42,216 @@ ee site info - Diplay given website details like enable, disable. weboot and log
 .br
 Display easyengine (ee) help.
 .TP
-.B install
-.br
-Install Nginx PHP5 MySQL Postfix System Packages.
+.B stack 
 .TP
-.B remove
+.B 		install [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
-Remove Nginx PHP5 MySQL Postfix System Packages.
+				Install Nginx PHP5 MySQL Postfix stack Packages if not used with 
+.br
+				any options.Installs specific package if used with option.
 .TP
-.B purge
+.B 		remove [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
-Purge Nginx PHP5 MySQL Postfix System Packages.
+				Remove Nginx PHP5 MySQL Postfix stack Packages if not used with 
+.br
+				any options. Remove specific package if used with option.
 .TP
-.B list
+.B 		purge [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
-List Nginx Website.
+				Purge Nginx PHP5 MySQL Postfix stack Packages if not used with any
+.br
+				options.Purge specific package if used with option.
 .TP
-.B show
+.B 		status 
 .br
-Show Nginx configuration for website.
+				Display status of NGINX, PHP5-FPM, MySQL, Postfix services.
 .TP
-.B create
+.B 		start
 .br
-Create HTML, PHP, MySQL and Wordpress website.
+				Start services NGINX, PHP5-FPM, MySQL, Postfix.
 .TP
-.B enable
+.B 		stop
 .br
-Enable website.
+				Stop services NGINX, PHP5-FPM, MySQL, Postfix.
 .TP
-.B disable
+.B 		reload
 .br
-Disable website.
+				Reload services NGINX, PHP5-FPM, MySQL, Postfix.
 .TP
-.B delete
+.B 		restart
 .br
-Delete HTML, PHP, MySQL and WordPress website.
+				Restart services NGINX, PHP5-FPM, MySQL, Postfix.
+.TP
+.B site
+.br
+.TP
+.B 		list [ enable | available ]
+.br
+				Lists all available sites from /etc/nginx/sites-enabled/
+.br				 
+				by default & enable argument. Display sites list from 
+.br
+				/etc/nginx/sites-available/ if used with available option.
+
+.TP
+.B 		info [ example.com ]
+.br
+				prints information about site such as access log, error log 
+.br
+				location and type of site.
+.TP
+.B 		show [ example.com ]
+.br
+				Display NGINX configuration of site.
+.TP
+.B 		enable [ example.com ]
+.br
+				Enable site by creating softlink with site file in 
+.br
+				/etc/nginx/sites-available to /etc/nginx/sites-enabled/.
+.TP
+.B 		disable [ example.com ]
+.br
+				Disable site by Destroying softlink with site file in 
+.br
+				/etc/nginx/sites-available to /etc/nginx/sites-enabled/.
+.TP
+.B 		edit [ example.com ]
+.br
+				Edit NGINX configuration of site.
+.TP
+.B 		create [ example.com ] [ --html | --php | --mysql | --wp | --w3tc |--wpfc ]
+.br
+				Create new site according to given options. If no options provided 
+.br
+				create static site with html only.
+.TP
+.B 		delete [ example.com ] [--no-prompt ] [ --db | --files ]
+.br
+				Delete site i.e webroot, database, ad configuration permenantly.
+.TP
+.B debug [ -i | --nginx | --php | --mysql | --rewrite | --fpm ] [ --start | --stop ]
+.br
+				Starts server level debugging. If used without arguments starts debugging
+.br
+				all services, else debug only service provided with argument. Stop 
+.br
+				Debugging if used with  --stop argument.
+.TP
+.B debug example.com [ -i | --nginx | --rewrite | --wp ] [ --start | --stop ]
+.br
+				Starts site level debugging. If used without arguments starts debugging all
+.br
+				services, else debug only service provided with argument. Stop Debugging
+.br
+				if used with  --stop argument.
+.TP
+.B secure [ --auth | --port ]
+.br
+				Update security settings.
 .SH ARGUMENTS
 .TP
-.B --html
+.B -i
 .br
-Create a HTML website. 
+				setup intractive mode while used with debug.
+.TP
+.B --nginx
+.br
+				used with ee debug command. used to start or stop nginx debugging.
 .TP
 .B --php
 .br
-Create a PHP website.
+				used with ee debug command. used to start or stop php debugging.
 .TP
 .B --mysql
 .br
-Create a PHP+MySQL website. 
+				used with ee debug command. used to start or stop mysql debugging.
+.TP
+.B --rewrite
+.br
+				used with ee debug command. used to start or stop nginx rewrite rules debugging.
+.TP
+.B --fpm
+.br
+				used with ee debug command. used to start or stop fpm debugging.
 .TP
 .B --wp
 .br
-Create a WordPress Website. 
+				used with ee debug command. used to start or stop wordpress site debugging.
+.TP
+.B --start
+.br
+				used with ee debug command. used to stop debugging.
+.TP
+.B --stop
+.br
+				used with ee debug command. used to stop debugging.
+.TP
+.B --html
+.br
+				Create a HTML website. 
+.TP
+.B --php
+.br
+				Create a PHP website.
+.TP
+.B --mysql
+.br
+				Create a PHP+MySQL website. 
+.TP
+.B --wp
+.br
+				Create a WordPress Website. 
 .TP
 .B --wpsubdir
 .br
-Create a Wordpress Multisite with Sub Directories Setup. 
+				Create a Wordpress Multisite with Sub Directories Setup. 
 .TP
 .B --wpsubdomain
 .br
-Create a Wordpress Multisite with Sub Domains Setup. 
-.br
-.TP
-.B --all
-.br
-If uses with ee system, its install, remove or purge Nginx PHP5 MySQL Postfix System Packages.
-.br
-If uses with ee site delete, its delete Database, Webroot and Nginx configuration.
+				Create a Wordpress Multisite with Sub Domains Setup. 
 .br
 .TP
 .B --db
 .br
-Delete website database.
+				Delete website database.
 .br
 .TP
 .B --files
 .br
-Delete website webroot.
+				Delete website webroot.
+.br
+.TP
+.B --no-prompt
+.br
+				Does not prompt for confirmation when delete command used.
+.TP
+.B --auth 
+.br
+				used with ee secure command. Update credential of HTTP authentication
+.TP
+.B --port
+.br 
+				used with ee secure command. Change EasyEngine admin port 22222
 .SH WORDPRESS CACHING OPTIONS
 .TP
 .B --basic
 .br
-Create WordPress website without cache.
+				Create WordPress website without cache.
 .TP
 .B --w3tc
 .br
-Install and activate Nginx-helper and W3 Total Cache plugin.
+				Install and activate Nginx-helper and W3 Total Cache plugin.
 .TP
 .B --wpsc
 .br
-Install and activate Nginx-helper and WP Super Cache plugin.
+				Install and activate Nginx-helper and WP Super Cache plugin.
 .TP
 .B --wpfc
 .br
-Install and activate Nginx-helper and W3 Total Cache plugin with Nginx FastCGI cache.
+				Install and activate Nginx-helper and W3 Total Cache plugin with 
+.br
+				Nginx FastCGI cache.
 .SH FILES
 .br
 /etc/easyengine/ee.conf
@@ -137,6 +267,9 @@ Report bugs at <http://github.com/rtCamp/easyengine/issues/>
 .br
 .B Manish 
 .I \<Manish.Songirkar@rtcamp.com\>
+.br
+.B Harshad
+.I \<harshad.yeola@rtcamp.com>
 .SH "SEE ALSO"
 .br
 EE: 
