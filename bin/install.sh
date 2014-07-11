@@ -50,6 +50,14 @@ if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; the
 	exit 100
 fi
 
+# EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
+lsb_release -d | egrep -e "12.04|14.04|squeeze|wheezy" &>> $EE_INSTALL_LOG
+if [ "$?" -ne "0" ]; then
+	ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 6.x/7.x"
+	exit 100
+fi
+
+
 # Capture errors
 function ee_lib_error()
 {
