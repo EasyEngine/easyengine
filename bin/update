@@ -106,7 +106,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		|| ee_lib_error "Unable to copy NGINX sample files, exit status = " $?
 
 		# NGINX Setup
-		sed -i "s/X-Powered-By EasyEngine/X-Powered-By EasyEngine $EE_LATEST_VERSION/" /etc/nginx/nginx.conf 
+		sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_LATEST_VERSION\";/" /etc/nginx/nginx.conf 
 		rsync -avz --exclude acl.conf /usr/share/easyengine/nginx/common/* /etc/nginx/common/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to rsync NGINX common files, exit status = " $?
 
