@@ -6,6 +6,7 @@ function ee_mod_secure_auth()
 	
 	read -p "Provide HTTP authentication user name [easyengine]: " ee_http_auth_user
 	read -sp "Provide HTTP authentication password [easyengine]: " ee_http_auth_pass
+	echo
 
 	# If enter is pressed, set easyengine
 	if [[ $ee_http_auth_user = "" ]]; then
