@@ -90,9 +90,8 @@ function ee_mod_setup_nginx()
 
 	# White list IP address
 	if [ -n "$EE_IP_ADDRESS" ]; then
-		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS)
-		do
-        	sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
+		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS);do
+      sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
 	fi
 

@@ -571,13 +571,14 @@ elif [ "$EE_FIRST" = "debug" ]; then
 
 # EasyEngine secure
 elif [ "$EE_FIRST" = "secure" ]; then
-	if [ "$EE_SECOND" = "--auth" ] || [ "$EE_SECOND" = "--port" ]; then
+	if [ "$EE_SECOND" = "--auth" ] || [ "$EE_SECOND" = "--port" ] || [ "$EE_SECOND" = "--ip" ]; then
 		ee_mod_secure_$(echo $EE_SECOND | sed 's/--//')
 		ee_lib_service nginx reload
 	else
 		ee_lib_echo "ee secure commands:"
 		ee_lib_echo_escape "\t--auth\tUpdate credential of HTTP authentication"
 		ee_lib_echo_escape "\t--port\tChange EasyEngine admin port 22222"
+		ee_lib_echo_escape "\t--ip\tUpdate whitelist IP address"
 	fi
 
 # EasyEngine update
