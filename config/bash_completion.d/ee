@@ -15,7 +15,7 @@ function EE_AUTO()
 
 		# List of suggested words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W '$(echo version help info; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo version help info update; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 

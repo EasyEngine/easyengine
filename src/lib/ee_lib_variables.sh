@@ -15,8 +15,8 @@ readonly EE_ERROR_LOG=/var/log/easyengine/error.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 readonly EE_CONFIG_GET=$(echo "git config --file /etc/easyengine/ee.conf")
 readonly EE_CONFIG_SET=$(echo "git config --file /etc/easyengine/ee.conf" --replace-all)
-readonly EE_IP_ADDRESS=$($EE_CONFIG_GET stack.ip-address | cut -d'=' -f2 | sed 's/ //g' | tr ',' '\n')
 readonly EE_APT_GET=$($EE_CONFIG_GET stack.apt-get-assume-yes | grep -i true &> /dev/null && echo apt-get -y || echo apt-get)
+EE_IP_ADDRESS=$($EE_CONFIG_GET stack.ip-address | cut -d'=' -f2 | sed 's/ //g' | tr ',' '\n')
 
 # Distribution specific variable
 if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then

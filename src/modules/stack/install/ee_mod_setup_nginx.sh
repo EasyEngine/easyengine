@@ -6,7 +6,7 @@ function ee_mod_setup_nginx()
 	
 	ee_lib_echo "Setting up NGINX, please wait..."
 
-	grep "EasyEngine" /etc/nginx/nginx.conf &> /dev/null
+	grep "EasyEngine" /etc/nginx/nginx.conf &>> /dev/null
 	if [ $? -ne 0 ]; then
 
 		# Adjust nginx worker_processes and worker_rlimit_nofile value
@@ -14,13 +14,13 @@ function ee_mod_setup_nginx()
 		sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
 
 		# Adjust nginx worker_connections and multi_accept
-		sed -i "s/worker_connections.*/worker_connections 1024;/" /etc/nginx/nginx.conf
+		sed -i "s/worker_connections.*/worker_connections 4096;/" /etc/nginx/nginx.conf
 		sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
 
 		# Disable nginx version
 		# Set custom header
 		# SSL Settings
-		sed -i "s/http {/http {\n\t##\n\t# EasyEngine Settings\n\t##\n\n\tserver_tokens off;\n\treset_timedout_connection on;\n\tadd_header X-Powered-By "EasyEngine $EE_VERSION";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
+		sed -i "s/http {/http {\n\t##\n\t# EasyEngine Settings\n\t##\n\n\tserver_tokens off;\n\treset_timedout_connection on;\n\tadd_header X-Powered-By \"EasyEngine $EE_VERSION\";\n\tadd_header rt-Fastcgi-Cache \$upstream_cache_status;\n\n\t# Limit Request\n\tlimit_req_status 403;\n\tlimit_req_zone \$binary_remote_addr zone=one:10m rate=1r\/s;\n\n\t# Proxy Settings\n\t# set_real_ip_from\tproxy-server-ip;\n\t# real_ip_header\tX-Forwarded-For;\n\n\tfastcgi_read_timeout 300;\n\tclient_max_body_size 100m;\n\n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n/" /etc/nginx/nginx.conf
 
 		# Adjust nginx keepalive_timeout
 		sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
@@ -30,8 +30,12 @@ function ee_mod_setup_nginx()
 
 		# Enable Gun-zip
 		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
-
 	fi
+
+	# Update EasyEngine version
+	# Launchpad PPA already have above settings
+	# On Ubuntu above block never executed
+	sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_VERSION\";/" /etc/nginx/nginx.conf 
 
 	# Create directory if not exist
 	if [ ! -d /etc/nginx/conf.d ]; then
@@ -86,9 +90,8 @@ function ee_mod_setup_nginx()
 
 	# White list IP address
 	if [ -n "$EE_IP_ADDRESS" ]; then
-		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS)
-		do
-        	sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
+		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS);do
+      sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
 	fi
 
