@@ -1,38 +1,36 @@
-# EasyEngine Auto Complete Feature
+# EasyEngine auto complete
 
-
-
-EEAUTO()
+function EE_AUTO()
 {
-	# Get Current Word
+	# Get current word
 	local CURRENT=${COMP_WORDS[COMP_CWORD]}
 
-	# Get Previous Word
+	# Get previous word
 	local PREVIOUS=${COMP_WORDS[COMP_CWORD-1]}
 	local PREVIOUS2=${COMP_WORDS[COMP_CWORD-2]}
 	local PREVIOUS3=${COMP_WORDS[COMP_CWORD-3]}
 
-	# List Of Suggested Words
+	# List of suggested words
 	case "$PREVIOUS" in
 
-		# List Of Suggested Words
+		# List of suggested words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W '$(echo version info; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2>/dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo version help info; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
 		stack)
-			COMPREPLY=( $( compgen -W '$(echo purge status stop start reload restart; command find /usr/local/lib/easyengine/modules/stack -maxdepth 1 -type d -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(echo purge status stop start reload restart; command find /usr/local/lib/easyengine/modules/stack -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/stack/install; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1; cd /usr/local/lib/easyengine/vendor/; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/stack/install; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null; cd /usr/local/lib/easyengine/vendor/; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W "list show info create enable disable delete edit" -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(echo disable enable list show; command find /usr/local/lib/easyengine/modules/site -maxdepth 1 -type d -printf "%P " 2> /dev/null; cd /usr/local/lib/easyengine/modules/site/; find  -type f | grep site | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
@@ -41,29 +39,15 @@ EEAUTO()
 			return 0
 			;;
 
-		show|delete|--stop)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			return 0
-			;;
-
-		info|enable)
-			if [ "$PREVIOUS2" = "site" ]
-			then
-				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
-			fi
-			return 0
-			;;
-
-		edit)
-			if [ "$PREVIOUS2" = "site" ]
-			then
-				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+		info|enable|edit|show|delete)
+			if [ "$PREVIOUS2" = "site" ]; then
+				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)' -- $CURRENT ) )
 			fi
 			return 0
 			;;
 
 		disable)
-			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2>/dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
@@ -73,56 +57,38 @@ EEAUTO()
 			;;
 
 		debug)
-			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
-		--nginx)
-			COMPREPLY=( $(compgen -W "--rewrite --php --fpm --mysql --wp --stop" -- $CURRENT) )
-			return 0
-			;;
-
-		--rewrite)
-			COMPREPLY=( $(compgen -W "--nginx --php --fpm --mysql --wp --stop" -- $CURRENT) )
-			return 0
-			;;
-
-		--php)
-			COMPREPLY=( $(compgen -W "--nginx --rewrite --fpm --mysql --wp --stop" -- $CURRENT) )
-			return 0
-			;;
-
-		--fpm)
-			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --mysql --wp --stop" -- $CURRENT) )
-			return 0
-			;;
-
-		--mysql)
-			COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --wp --stop" -- $CURRENT) )
+		--nginx|--rewrite|--php|--fpm|--mysql)
+			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
 		--wp)
-			if [ "$PREVIOUS3" = "create" ]
-			then
+			if [ "$PREVIOUS3" = "create" ]; then
 				COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			else
-				COMPREPLY=( $(compgen -W "--nginx --rewrite --php --fpm --mysql --stop" -- $CURRENT) )
+				COMPREPLY=( $(compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null; command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | grep -v wp | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
 			fi
 			return 0
 			;;
 
+		--stop)
+			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)' -- $CURRENT ) )
+			return 0
+			;;
+
 		*)
-			if [ "$PREVIOUS2" = "create" ]
-			then
+			if [ "$PREVIOUS2" = "create" ]; then
 				COMPREPLY=( $( compgen -W "--html --php --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
-			elif [ "$PREVIOUS2" = "delete" ]
-			then
-				COMPREPLY=( $( compgen -W "--db --all --files" -- $CURRENT ) )		
+			elif [ "$PREVIOUS2" = "delete" ]; then
+				COMPREPLY=( $( compgen -W "--db --all --files --no-prompt" -- $CURRENT ) )		
 			fi
 			return 0
 			;;
 	esac
 }
 
-complete -F EEAUTO ee easyengine
+complete -F EE_AUTO ee easyengine
