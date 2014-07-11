@@ -26,6 +26,10 @@ if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST"
 	# Display Easy Engine Version
 	echo "EasyEngine (ee) version: $EE_VERSION"
 
+elif [ "$EE_FIRST" = "help" ] || [ "$EE_FIRST" = "--help" ] || [ "$EE_FIRST" = "-h" ]; then
+	# Display man page
+	man ee
+
 # Display information about NGINX|PHP|MySQL
 elif [ "$EE_FIRST" = "info" ];then
 	if [ "$EE_SECOND" = "nginx" ] || [ "$EE_SECOND" = "php" ] || [ "$EE_SECOND" = "mysql" ]; then
