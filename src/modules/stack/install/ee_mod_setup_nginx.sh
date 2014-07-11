@@ -14,7 +14,7 @@ function ee_mod_setup_nginx()
 		sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
 
 		# Adjust nginx worker_connections and multi_accept
-		sed -i "s/worker_connections.*/worker_connections 1024;/" /etc/nginx/nginx.conf
+		sed -i "s/worker_connections.*/worker_connections 4096;/" /etc/nginx/nginx.conf
 		sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
 
 		# Disable nginx version
@@ -30,8 +30,12 @@ function ee_mod_setup_nginx()
 
 		# Enable Gun-zip
 		sed -i "s/# gzip/gzip/" /etc/nginx/nginx.conf
-
 	fi
+
+	# Update EasyEngine version
+	# Launchpad PPA already have above settings
+	# On Ubuntu above block never executed
+	sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_LATEST_VERSION\";/" /etc/nginx/nginx.conf 
 
 	# Create directory if not exist
 	if [ ! -d /etc/nginx/conf.d ]; then
