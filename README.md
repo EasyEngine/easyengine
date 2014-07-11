@@ -12,9 +12,11 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 
 ## IMPORTANT UPDATE
 
-A new major release of EasyEngine is worked in [`refactor branch`] ( https://github.com/rtCamp/easyengine/tree/refactor)  ([*Read reasons for refactoring is here*] (https://rtcamp.com/easyengine-refueling/))
+A new major release of EasyEngine 2.0.0 is worked in [`refactor branch`] ( https://github.com/rtCamp/easyengine/tree/refactor)  ([*Read reasons for refactoring is here*] (https://rtcamp.com/easyengine-refueling/))
 
 You can continue to use current version. It won't break!
+
+For Beta Testing you can use this link https://github.com/rtCamp/easyengine/wiki/Beta-Testing
 
 We are also available for chatting at https://gitter.im/rtCamp/easyengine
 
