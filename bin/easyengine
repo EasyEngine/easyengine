@@ -26,6 +26,7 @@ if [ "$EE_FIRST" = "version" ] || [ "$EE_FIRST" = "--version" ] || [ "$EE_FIRST"
 	# Display Easy Engine Version
 	echo "EasyEngine (ee) version: $EE_VERSION"
 
+# EasyEngine help
 elif [ "$EE_FIRST" = "help" ] || [ "$EE_FIRST" = "--help" ] || [ "$EE_FIRST" = "-h" ]; then
 	# Display man page
 	man ee
@@ -470,6 +471,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		ee_lib_echo_escape "\tdelete\tDelete existing website"
 	fi
 
+# EasyEngine debug
 elif [ "$EE_FIRST" = "debug" ]; then
 	# Default action
 	EE_DEBUG="--start"
@@ -567,13 +569,14 @@ elif [ "$EE_FIRST" = "debug" ]; then
 		fi
 	fi
 
+# EasyEngine secure
 elif [ "$EE_FIRST" = "secure" ]; then
-	if [ "$EE_SECOND" = "--auth" ]; then
-		ee_mod_secure_auth
-	elif [ "$EE_SECOND" = "--port" ]; then
-		ee_mod_secure_port
+	if [ "$EE_SECOND" = "--auth" ] || [ "$EE_SECOND" = "--port" ]; then
+		ee_mod_secure_$(echo $EE_SECOND | sed 's/--//')
+		ee_lib_service nginx reload
 	fi
 
+# EasyEngine update
 elif [ "$EE_FIRST" = "update" ]; then
 	ee_lib_echo "Please set/use following alias to update EasyEngine (ee)"
 	echo "alias eeupdate=\"wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/update && sudo bash /tmp/eeupdate\""
