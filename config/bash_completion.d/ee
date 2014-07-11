@@ -81,7 +81,7 @@ function EE_AUTO()
 			;;
 
 		secure)
-			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/secure; find  -type f | grep secure | cut -d'_' -f4 2> /dev/null | cut -d '.' | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$( cd /usr/local/lib/easyengine/modules/secure; find  -type f | grep secure | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT ) )
 			return 0
 			;;
 
