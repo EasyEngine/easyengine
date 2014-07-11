@@ -4,7 +4,7 @@ function ee_mod_secure_auth()
 {
 	local ee_http_auth_user ee_http_auth_pass
 	
-	read -sp "Provide HTTP authentication user name [easyengine]: " ee_http_auth_user
+	read -p "Provide HTTP authentication user name [easyengine]: " ee_http_auth_user
 	read -sp "Provide HTTP authentication password [easyengine]: " ee_http_auth_pass
 
 	# If enter is pressed, set easyengine
