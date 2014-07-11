@@ -19,7 +19,6 @@ ee site create example.com --wp                        # create example.com and 
 
 ## Update EasyEngine
 
-#### Set alias:
 ```bash
 alias eeupdate="wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/update && sudo bash /tmp/eeupdate"
 
