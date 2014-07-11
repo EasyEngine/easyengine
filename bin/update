@@ -163,8 +163,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 			# Get old value from ee.bak file
 			ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
-			ee_auth_user=$(grep htpasswduser /etc/easyengine/ee.bak | cut -d'=' -f2)
-			ee_auth_pass=$(grep htpasswdpass /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_mysql_host=$(grep mysqlhost /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_wp_user=$(grep wpadminuser /etc/easyengine/ee.bak | cut -d'=' -f2)
 			ee_wp_pass=$(grep wpadminpass /etc/easyengine/ee.bak | cut -d'=' -f2)
@@ -181,8 +179,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 			# Update value in ee.conf file
 			$EE_CONFIG_SET stack.ip-address "$(echo -n $ee_stack_ip)" && \
-			$EE_CONFIG_SET auth.user "$(echo -n $ee_auth_user)" && \
-			$EE_CONFIG_SET auth.password "$(echo -n $ee_auth_pass)" && \
 			$EE_CONFIG_SET mysql.host "$(echo -n $ee_mysql_host)" && \
 			$EE_CONFIG_SET wordpress.user "$(echo -n $ee_wp_user)" && \
 			$EE_CONFIG_SET wordpress.password "$(echo -n $ee_wp_pass)" && \
