@@ -12,15 +12,15 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 ## Quick Start
 
 ```bash
-wget -qO ee rt.cx/eebeta && sudo bash ee refactor      # install easyengine
-ee stack install                                      # install nginx, php, mysql, postfix 
-ee site create example.com --wp                        # create example.com and install wordpress on it
+wget -qO ee rt.cx/ee && sudo bash ee     # install easyengine
+ee stack install                         # install nginx, php, mysql, postfix 
+ee site create example.com --wp          # create example.com and install wordpress on it
 ```
 
 ## Update EasyEngine
 
 ```bash
-alias eeupdate="wget -qO /tmp/eerc http://rt.cx/eerc && sudo bash /tmp/eerc"
+alias eeupdate="wget -qO eeup http://rt.cx/eeup && sudo bash eeup"
 
 # Let's update EasyEngine (ee)
 eeupdate
