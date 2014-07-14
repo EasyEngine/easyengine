@@ -229,6 +229,10 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				
 				# Setup port 22222
 				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
+				if [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+					# Dotdeb nginx repository doesn't support spdy
+					sed -i "s/ spdy//;" /usr/share/easyengine/nginx/22222
+				fi
 
 				# Create a symbolic link for 22222
 				if [ ! -L /etc/nginx/sites-enabled/22222 ]; then
