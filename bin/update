@@ -145,19 +145,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 
 		if [[ $EE_CURRENT_VERSION < 2.0.0 ]]; then
-			# Install required packages
-			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
-				ee_lib_package_check graphviz python-software-properties software-properties-common
-			elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
-				ee_lib_package_check graphviz python-software-properties
-			fi
-
-			if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
-				ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_UPDATE_LOG
-				apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_UPDATE_LOG\
-				|| ee_lib_error "Unable to install required packages, exit status = " $?
-			fi
-
 			# EasyEngine (ee) config file
 			cp -av /etc/easyengine/ee.conf /etc/easyengine/ee.bak  &>> $EE_UPDATE_LOG
 			cp -av /tmp/easyengine/config/easyengine/ee.conf /etc/easyengine/ &>> $EE_UPDATE_LOG \
@@ -173,6 +160,19 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			# Lets modify the $EE_COMMAND_LOG value
 			# So all the logs write in $EE_UPDATE_LOG
 			EE_COMMAND_LOG=$EE_UPDATE_LOG
+
+			# Install required packages
+			if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+				ee_lib_package_check graphviz python-software-properties software-properties-common
+			elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+				ee_lib_package_check graphviz python-software-properties
+			fi
+
+			if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
+				ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_UPDATE_LOG
+				apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_UPDATE_LOG\
+				|| ee_lib_error "Unable to install required packages, exit status = " $?
+			fi
 
 			# Get old value from ee.bak file
 			ee_stack_ip=$(grep ip_address /etc/easyengine/ee.bak | cut -d'=' -f2)
