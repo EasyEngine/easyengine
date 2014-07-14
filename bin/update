@@ -67,6 +67,19 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 	if [ "$EE_ANS" = "y" ] || [ "$EE_ANS" = "Y" ]; then
 		ee_lib_echo "EasyEngine (ee) update started [$(date)]" | tee -ai $EE_UPDATE_LOG
 
+		# Install required packages
+		if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+			ee_lib_package_check graphviz python-software-properties software-properties-common
+		elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+			ee_lib_package_check graphviz python-software-properties
+		fi
+
+		if [ ! -x  /usr/bin/tee ] || [ ! -x  /bin/ed ] || [ ! -x  /usr/bin/bc ] || [ ! -x  /usr/bin/wget ] || [ ! -x  /usr/bin/curl ] || [ ! -x  /bin/tar ] || [ ! -x  /usr/bin/git ] || [ -n "$EE_PACKAGE_NAME" ]; then
+			ee_lib_echo "Installing required packages, please wait..." | tee -ai $EE_INSTALL_LOG
+			apt-get -y install coreutils ed bc wget curl tar git-core $EE_PACKAGE_NAME | tee -ai $EE_INSTALL_LOG\
+			|| ee_lib_error "Unable to install required packages, exit status = " $?
+		fi
+
 		# Git backup
 		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "EasyEngine version $EE_CURRENT_VERSION"
 
