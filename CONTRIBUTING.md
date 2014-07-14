@@ -6,7 +6,7 @@ This guide details how to use issues and pull requests to improve EasyEngine (ee
 
 Github issue-tracker is used **only** for report bugs and feature request. 
 
-Please attached the output of following command when open a new issue/bug
+Please attach the output of following command when open a new issue/bug
 ```bash
 lsb_release -a
 ee info
@@ -16,10 +16,9 @@ ee info
 Developer & contributor discussion: https://gitter.im/rtCamp/easyengine
 
 
-## EasyEngine support reruest"
+## EasyEngine support request
 For support-request please use - https://rtcamp.com/easyengine/support/
 
 
 ## Pull Requests
-
-When submitting your code please follow the shell script coding standard - https://google-styleguide.googlecode.com/svn/trunk/shell.xml
+When submitting your code please follow this coding standerds - https://google-styleguide.googlecode.com/svn/trunk/shell.xml
