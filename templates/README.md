@@ -1,3 +1,1 @@
-1. **nginx** - includes config file templates.
-
-Actul path: `/usr/share/easyengine/`
+1. **nginx** - includes config file templates. Actul Linux path: `/usr/share/easyengine/`
