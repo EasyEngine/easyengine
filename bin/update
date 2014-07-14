@@ -57,8 +57,7 @@ function ee_lib_git()
 # EasyEngine version: 1.0.0
 # EasyEngine (ee) version: 2.0.0
 EE_CURRENT_VERSION=$(ee version | sed 's/(ee) //' | awk '{print $3}')
-EE_LATEST_VERSION=2.0.0
-#EE_LATEST_VERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
+EE_LATEST_VERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
 echo EE_CURRENT_VERSION = $EE_CURRENT_VERSION EE_LATEST_VERSION = $EE_LATEST_VERSION &>> $EE_UPDATE_LOG
 
 if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
