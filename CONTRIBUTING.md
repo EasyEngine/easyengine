@@ -12,13 +12,13 @@ lsb_release -a
 ee info
 ```
 
-## EasyEngine chat:
+### EasyEngine chat:
 Developer & contributor discussion: https://gitter.im/rtCamp/easyengine
 
 
-## EasyEngine support request
+### EasyEngine support request:
 For support-request please use - https://rtcamp.com/easyengine/support/
 
 
-## Pull Requests
+### Pull Requests:
 When submitting your code please follow this coding standerds - https://google-styleguide.googlecode.com/svn/trunk/shell.xml
