@@ -344,6 +344,10 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			if [[ $EE_CURRENT_VERSION = 1.3.4 ]] || [[ $EE_CURRENT_VERSION = 1.3.5 ]] || [[ $EE_CURRENT_VERSION = 1.3.6 ]] || [[ $EE_CURRENT_VERSION = 1.3.7 ]] || [[ $EE_CURRENT_VERSION = 1.3.8 ]]; then
 				# Update 22222 for fix #259
 				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
+				if [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+					# Dotdeb nginx repository doesn't support spdy
+					sed -i "s/ spdy//;" /usr/share/easyengine/nginx/22222
+				fi
 				# Update NGINX
 				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
 					nginx -v 2>&1 | grep 1.6.0 &>> $EE_UPDATE_LOG
