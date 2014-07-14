@@ -584,7 +584,7 @@ elif [ "$EE_FIRST" = "secure" ]; then
 # EasyEngine update
 elif [ "$EE_FIRST" = "update" ]; then
 	ee_lib_echo "Please set/use following alias to update EasyEngine (ee)"
-	echo "alias eeupdate=\"wget -qO /tmp/eeupdate https://raw.githubusercontent.com/rtCamp/easyengine/refactor/bin/update && sudo bash /tmp/eeupdate\""
+	echo "alias eeupdate=\"wget -qO eeup http://rt.cx/eeup && sudo bash eeup\""
 	
 else
 	ee_lib_echo "EasyEngine (ee) commands:"
