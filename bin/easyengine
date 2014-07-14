@@ -594,7 +594,7 @@ else
 	ee_lib_echo_escape "\tstack\tInstall/Remove/Purge NGINX, PHP, MySQL, Postfix"
 	ee_lib_echo_escape "\tsite\tPerform various site specific operation"
 	ee_lib_echo_escape "\tdebug\tPerform various debugging operation"
-	e_lib_echo_escape "\tsecure\tUpdate HTTP authentication and EasyEngine admin port"
+	ee_lib_echo_escape "\tsecure\tUpdate HTTP authentication and EasyEngine admin port"
 	ee_lib_echo_escape "\tupdate\tUpdate EasyEngine (ee) to latest version"
 fi
 
