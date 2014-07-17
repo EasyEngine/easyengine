@@ -100,7 +100,7 @@ function ee_ven_install_utils()
 			dpkg --compare-versions $(pt-query-digest --version | awk '{print $2 }') ge 2.2
 			if [ $? -eq 0 ]; then
 				sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
-				echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+				echo -e "                  pt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
@@ -108,7 +108,7 @@ function ee_ven_install_utils()
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			else
 				sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
-				echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+				echo -e "                  pt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
