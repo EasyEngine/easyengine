@@ -10,6 +10,7 @@ Please attach the output of following command when open a new issue/bug
 ```bash
 lsb_release -a
 ee info
+wp --allow-root --info
 ```
 
 ### EasyEngine chat:
