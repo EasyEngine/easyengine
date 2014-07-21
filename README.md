@@ -19,10 +19,14 @@ ee site create example.com --wp          # create example.com and install wordpr
 
 ## Update EasyEngine
 
+To update the EasyEngine, please set following alias in your `~/.bashrc`
+
 ```bash
 alias eeupdate="wget -qO eeup http://rt.cx/eeup && sudo bash eeup"
+```
+Now Update EasyEngine using command:
 
-# Let's update EasyEngine (ee)
+```bash
 eeupdate
 ```
 
