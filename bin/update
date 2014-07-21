@@ -383,6 +383,12 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		fi
 
 		if [[ $EE_CURRENT_VERSION < 2.0.1 ]]; then
+			# Lets re-used our functions
+			# Include library
+			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
+				source $ee_include
+			done
+
 			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
 				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
