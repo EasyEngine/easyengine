@@ -1,22 +1,16 @@
-# Install wpcli
+# Install WP-CLI
 
 function ee_ven_install_wpcli()
 {
-	if [ ! -d /usr/share/wp-cli ]; then
+	if [ ! -f /usr/local/bin/wp ]; then
+		ee_lib_echo "Downloading WP-CLI, please wait..."
+		wget -qO /usr/local/bin/wp https://github.com/wp-cli/wp-cli/releases/download/v${EE_WP_CLI_VERSION}/wp-cli.phar \
+		|| ee_lib_error "Unable to download WP-CLI, exit status = " $?
 
-		ee_lib_echo "Installing WP-CLI, please wait..."
-		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh \
-		| INSTALL_DIR='/usr/share/wp-cli' VERSION=$EE_WP_CLI_VERSION bash &>> $EE_COMMAND_LOG \
-		|| ee_lib_error "Unable to install WP-CLI, exit status = " $?
+		# Executable permission
+		chmod a+x /usr/local/bin/wp
 
-		# Add WP-CLI command in $PATH variable
-		if [ ! -L /usr/bin/wp ]; then
-			ln -s /usr/share/wp-cli/bin/wp /usr/bin/wp \
-			|| ee_lib_error "Unable to create symbolic link for WP-CLI command, exit status = " $?
-		fi
-
-		# Auto completion for WP-CLI
-		cp /usr/share/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
-		source /etc/bash_completion.d/wp-completion.bash
+		# Download auto completion
+		wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/v0.16.0/utils/wp-completion.bash
 	fi
 }
