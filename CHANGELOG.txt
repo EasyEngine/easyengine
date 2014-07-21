@@ -1,3 +1,6 @@
+v 2.0.1 - July 21, 2014
+  - Fixed wp-cli installation #289
+
 v 2.0.0 - July 14, 2014
   - Completly rewritten code
   - Updated wp-cli to 0.16.0

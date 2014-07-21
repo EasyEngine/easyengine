@@ -232,7 +232,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				# Update EasyEngine current version
 				EE_CURRENT_VERSION="1.2.2"
 			fi
-
 			if [[ $EE_CURRENT_VERSION = 1.2.2 ]]; then
 				# Update NGINX configuration
 				sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
@@ -337,7 +336,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				# Update EasyEngine current version
 				EE_CURRENT_VERSION="1.3.0"
 			fi
-
 			if [[ $EE_CURRENT_VERSION = 1.3.0 ]] || [[ $EE_CURRENT_VERSION = 1.3.1 ]] || [[ $EE_CURRENT_VERSION = 1.3.2 ]] || [[ $EE_CURRENT_VERSION = 1.3.3 ]]; then
 				grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $EE_UPDATE_LOG
 				if [ $? -ne 0 ]; then
@@ -379,15 +377,21 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					fi
 				fi
 
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="2.0.0"
+			fi
+		fi
+
+		if [[ $EE_CURRENT_VERSION < 2.0.1 ]]; then
+			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
 				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
-					EE_WP_CLI_VERSION_LOCAL=$(wp --allow-root --info | grep "WP-CLI version" | awk '{print $3}')
-					if [[ $EE_WP_CLI_VERSION_LOCAL != "$EE_WP_CLI_VERSION" ]]; then
-						rm -rf /usr/share/easyengine/wp-cli  /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
+					
+					# WP-CLI change the installation method
+					rm -rf /usr/share/easyengine/wp-cli  /usr/share/wp-cli /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
 
-						# Install WP-CLI
-						ee_ven_install_wpcli
-					fi
+					# Install WP-CLI
+					ee_ven_install_wpcli
 				fi
 			fi
 		fi
