@@ -9,6 +9,7 @@ Github issue-tracker is used **only** for report bugs and feature request.
 Please attach the output of following command when open a new issue/bug
 ```bash
 lsb_release -a
+ee version
 ee info
 wp --allow-root --info
 ```
