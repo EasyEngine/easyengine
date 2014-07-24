@@ -12,6 +12,6 @@ function ee_ven_install_wpcli()
 		|| ee_lib_error "Unable to set executable permission for wp-cli, exit status = " $?
 
 		# Download auto completion
-		wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/v0.16.0/utils/wp-completion.bash
+		wget -qO /etc/bash_completion.d/wp-completion.bash https://raw.githubusercontent.com/wp-cli/wp-cli/v${EE_WP_CLI_VERSION}/utils/wp-completion.bash
 	fi
 }
