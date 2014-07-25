@@ -10,7 +10,7 @@ function ee_mod_install_roundcube()
 	|| ee_lib_error "Unable to install pear packages, exit status = " $?
 
 	# Setup Roundcube directory
-	mkdir -p /var/www/roundcubemail/htdocs && mkdir -p /var/www/roundcubemail/logs
+	mkdir -p /var/www/roundcubemail/{htdocs,logs}
 	ee_lib_symbolic_link /var/log/nginx/roundcubemail.access.log /var/www/roundcubemail/logs/access.log
 	ee_lib_symbolic_link /var/log/nginx/roundcubemail.error.log /var/www/roundcubemail/logs/error.log
 
@@ -20,8 +20,8 @@ function ee_mod_install_roundcube()
 	|| ee_lib_error "Unable to download Roundcube, exit status = " $?
 
 	ee_lib_echo "Installing Roundcube, please wait..."
-	tar -zxf /var/www/roundcube.tar.gz
-	mv /var/www/roundcubemail-1.0.1/* /var/www/roundcubemail/htdocs/
+	tar -zxf /var/www/roundcube.tar.gz -C /var/www/roundcubemail/htdocs/ --strip-components=1 \
+	|| ee_lib_error "Unable to extract Roundcube, exit status = " $?
 
 	# Fix permissions
 	chown -R $EE_PHP_USER:$EE_PHP_USER /var/www/roundcubemail \
