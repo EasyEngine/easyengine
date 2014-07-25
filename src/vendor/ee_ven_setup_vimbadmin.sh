@@ -10,8 +10,8 @@ function ee_mod_setup_vimbadmin()
 	|| ee_lib_error "Unable to create ViMbAdmin database, exit status = " $?
 
 	# Create MySQL User
-	mysql -e "create user 'vimbadmin'@'$EE_MYSQL_HOST' identified by '$ee_random'" \
-	|| ee_lib_error "Unable to create ViMbAdmin database user, exit status = " $?
+	mysql -e "grant all privileges on vimbadmin.* to vimbadmin@'$EE_MYSQL_HOST' IDENTIFIED BY '$ee_random'"  \
+	|| ee_lib_error "Unable to grant privileges for ViMbAdmin database user, exit status = " $?
 	mysql -e "flush privileges"	
 
 	# Setup configuration for ViMbAdmin
@@ -26,4 +26,17 @@ function ee_mod_setup_vimbadmin()
 	sed -i "s/resources.doctrine2.connection.options.host     = 'localhost'/resources.doctrine2.connection.options.host     = '$EE_MYSQL_HOST'/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
 	sed -i "s/defaults.mailbox.password_scheme = \"md5.salted\"/defaults.mailbox.password_scheme = \"md5\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
 
-  
+	# Changing hosts and password of ViMbAdmin database in postfix configuration 
+	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_alias_maps.cf
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_alias_maps.cf
+
+	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_domains_maps.cf
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_domains_maps.cf
+
+	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_mailbox_maps.cf
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_mailbox_maps.cf
+
+	sed -i "s/password=password/password=$ee_random" /etc/dovecot/dovecot-sql.conf.ext
+	sed -i "s/hosts=localhost/hosts=$EE_MYSQL_HOST" /etc/dovecot/dovecot-sql.conf.ext
+
+}
