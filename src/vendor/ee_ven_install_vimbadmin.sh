@@ -18,6 +18,10 @@ function ee_mod_install_vimbadmin()
 	php composer.phar install --prefer-dist --no-dev \
 	|| ee_lib_error "Unable to install ViMbAdmin, exit status = " $?
 
+	# Fix permissions
+	chown -R $EE_PHP_USER:$EE_PHP_USER /var/www/22222/htdocs/vimbadmin \
+	|| ee_lib_error "Unable to change ownership for ViMbAdmin, exit status = " $? 
+
 	# Remove unwanted files
 	rm -rf /var/www/22222/htdocs/vimbadmin.tar.gz /var/www/22222/htdocs/vimbadmin/composer.phar
 }

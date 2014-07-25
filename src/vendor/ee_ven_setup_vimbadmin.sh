@@ -2,6 +2,8 @@
 
 function ee_mod_setup_vimbadmin()
 {
+	ee_lib_echo "configuring ViMbAdmin, please wait..."
+
 	# Random characters
 	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 
@@ -15,7 +17,7 @@ function ee_mod_setup_vimbadmin()
 	mysql -e "flush privileges"	
 
 	# Setup configuration for ViMbAdmin
-	cp -v /var/www/22222/htdocs/vimbadmin/application/configs/application.ini.dist /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
+	cp -av /var/www/22222/htdocs/vimbadmin/application/configs/application.ini.dist /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
 
 	sed -i "s/defaults.mailbox.uid = 2000/defaults.mailbox.uid = 5000/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
 	sed -i "s/defaults.mailbox.gid = 2000/defaults.mailbox.gid = 5000/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
