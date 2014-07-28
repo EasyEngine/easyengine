@@ -1,6 +1,6 @@
 # Install ViMbAdmin
 
-function ee_mod_install_vimbadmin()
+function ee_ven_install_vimbadmin()
 {
 	# Install ViMbAdmin
 	ee_lib_echo "Downloading ViMbAdmin, please wait..."
