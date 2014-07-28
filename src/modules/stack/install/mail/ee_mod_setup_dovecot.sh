@@ -23,7 +23,7 @@ function ee_mod_setup_dovecot()
 	|| ee_lib_error "Unable to setup 10-auth.conf file, exit status = " $?
 
 	# Configuring dovecot-sql.conf.ext
-	cp -v /usr/share/easyengine/mail/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext \
+	cp -v /usr/share/easyengine/mail/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to copy dovecot-sql.conf.ext, exit status = " $?
 
 	# Configuring auth-sql.conf.ext
@@ -32,8 +32,8 @@ function ee_mod_setup_dovecot()
 
 
 	# Configuring 10-master.conf
-	cp -v /etc/dovecot/conf.d/10-master.conf /etc/dovecot/conf.d/10-master.conf.bak 
-	cp -v /usr/share/easyengine/mail/10-master.conf /etc/dovecot/conf.d/10-master.conf \
+	cp -v /etc/dovecot/conf.d/10-master.conf /etc/dovecot/conf.d/10-master.conf.bak &>> $EE_COMMAND_LOG
+	cp -v /usr/share/easyengine/mail/10-master.conf /etc/dovecot/conf.d/10-master.conf &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to setup 10-master.conf, exit status = " $?
 
 	# Change Dovecot log location
