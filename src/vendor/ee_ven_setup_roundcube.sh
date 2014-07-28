@@ -1,6 +1,6 @@
 # Setup Roundcube
 
-function ee_mod_setup_roundcube()
+function ee_ven_setup_roundcube()
 {
 	ee_lib_echo "configuring Roundcube, please wait..."
 

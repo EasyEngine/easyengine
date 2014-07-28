@@ -1,6 +1,6 @@
 # Install Roundcube
 
-function ee_mod_install_roundcube()
+function ee_ven_install_roundcube()
 {
 	# Install Roundcube dependencies
 	ee_lib_echo "Installing Roundcube dependencies, please wait..."

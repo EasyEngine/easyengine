@@ -1,6 +1,6 @@
 # Setup ViMbAdmin
 
-function ee_mod_setup_vimbadmin()
+function ee_ven_setup_vimbadmin()
 {
 	ee_lib_echo "configuring ViMbAdmin, please wait..."
 
