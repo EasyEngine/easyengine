@@ -27,7 +27,7 @@ function ee_mod_setup_dovecot()
 	|| ee_lib_error "Unable to copy dovecot-sql.conf.ext, exit status = " $?
 
 	# Configuring auth-sql.conf.ext
-	sed "s/#  driver = prefetch/userdb {\n  driver = prefetch\n}/" /etc/dovecot/conf.d/auth-sql.conf.ext \
+	sed -i "s/#  driver = prefetch/userdb {\n  driver = prefetch\n}/" /etc/dovecot/conf.d/auth-sql.conf.ext \
 	|| ee_lib_error "Unable to setup auth-sql.conf.ext, exit status = " $?
 
 
