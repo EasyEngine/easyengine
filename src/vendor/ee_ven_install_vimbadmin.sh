@@ -8,8 +8,8 @@ function ee_mod_install_vimbadmin()
 	|| ee_lib_error "Unable to download ViMbAdmin, exit status = " $?
 
 	ee_lib_echo "Installing ViMbAdmin, please wait..."
-	tar -zxf /var/www/22222/htdocs/vimbadmin.tar.gz
-	mv /var/www/22222/htdocs/ViMbAdmin-3.0.10 /var/www/22222/htdocs/vimbadmin
+	mkdir -p /var/www/22222/htdocs/vimbadmin
+	tar -zxf /var/www/22222/htdocs/vimbadmin.tar.gz -C /var/www/22222/htdocs/vimbadmin --strip-components=1 
 
 	# Install Composer
 	cd /var/www/22222/htdocs/vimbadmin

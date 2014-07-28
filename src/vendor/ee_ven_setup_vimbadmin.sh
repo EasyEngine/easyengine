@@ -39,7 +39,7 @@ function ee_mod_setup_vimbadmin()
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_domains_maps.cf file, exit status = " $?	
 
 	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_mailbox_maps.cf &&
-	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_mailbox_maps.cf &&
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_mailbox_maps.cf \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_mailbox_maps.cf file, exit status = " $?	
 
 	sed -i "s/password=password/password=$ee_random" /etc/dovecot/dovecot-sql.conf.ext &&
