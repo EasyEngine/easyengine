@@ -22,7 +22,7 @@ function ee_mod_setup_roundcube()
 
 	# Setup configuration for Roundcube
 	cp -av /var/www/roundcubemail/htdocs/config/config.inc.php.sample /var/www/roundcubemail/htdocs/config/config.inc.php
-	sed -i "s'mysql://roundcube:password@localhost/roundcubemail'mysql://roundcube:${ee_random}@${EE_MYSQL_HOST}/roundcubemail'" /var/www/roundcubemail/htdocs/config/config.inc.php \
+	sed -i "s'mysql://roundcube:pass@localhost/roundcubemail'mysql://roundcube:${ee_random}@${EE_MYSQL_HOST}/roundcubemail'" /var/www/roundcubemail/htdocs/config/config.inc.php \
 	|| ee_lib_error "Unable to setup Roundcube database details in config.inc.php file, exit status = " $?	
 
 }
