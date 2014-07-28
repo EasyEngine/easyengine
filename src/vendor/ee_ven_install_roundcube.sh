@@ -6,7 +6,7 @@ function ee_mod_install_roundcube()
 	ee_lib_echo "Installing Roundcube dependencies, please wait..."
 	$EE_APT_GET install php-pear \
 	|| ee_lib_error "Unable to install php-pear, exit status = " $?
-	pear install Mail_Mime Net_SMTP Mail_mimeDecode Net_IDNA2 Auth_SASL Net_Sieve Crypt_GPG \
+	pear install Mail_Mime Net_SMTP Mail_mimeDecode Net_IDNA2-beta Auth_SASL Net_Sieve Crypt_GPG \
 	|| ee_lib_error "Unable to install pear packages, exit status = " $?
 
 	# Setup Roundcube directory
