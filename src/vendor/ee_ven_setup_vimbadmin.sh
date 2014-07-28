@@ -30,20 +30,20 @@ function ee_mod_setup_vimbadmin()
 	|| ee_lib_error "Unable to setup ViMbAdmin configuration file, exit status = " $?
 
 	# Changing hosts and password of ViMbAdmin database in postfix configuration 
-	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_alias_maps.cf &&
-	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_alias_maps.cf \
+	sed -i "s/password = password/password = $ee_random/" /etc/postfix/mysql/virtual_alias_maps.cf &&
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST/" /etc/postfix/mysql/virtual_alias_maps.cf \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_alias_maps.cf file, exit status = " $?
 
-	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_domains_maps.cf &&
-	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_domains_maps.cf \
+	sed -i "s/password = password/password = $ee_random/" /etc/postfix/mysql/virtual_domains_maps.cf &&
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST/" /etc/postfix/mysql/virtual_domains_maps.cf \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_domains_maps.cf file, exit status = " $?	
 
-	sed -i "s/password = password/password = $ee_random" /etc/postfix/mysql/virtual_mailbox_maps.cf &&
-	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST" /etc/postfix/mysql/virtual_mailbox_maps.cf \
+	sed -i "s/password = password/password = $ee_random/" /etc/postfix/mysql/virtual_mailbox_maps.cf &&
+	sed -i "s/hosts = 127.0.0.1/hosts = $EE_MYSQL_HOST/" /etc/postfix/mysql/virtual_mailbox_maps.cf \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_mailbox_maps.cf file, exit status = " $?	
 
-	sed -i "s/password=password/password=$ee_random" /etc/dovecot/dovecot-sql.conf.ext &&
-	sed -i "s/hosts=localhost/hosts=$EE_MYSQL_HOST" /etc/dovecot/dovecot-sql.conf.ext \
-		|| ee_lib_error "Unable to setup ViMbAdmin database details in dovecot-sql.conf.ext file, exit status = " $?	
+	sed -i "s/password=password/password=$ee_random/" /etc/dovecot/dovecot-sql.conf.ext &&
+	sed -i "s/hosts=localhost/hosts=$EE_MYSQL_HOST/" /etc/dovecot/dovecot-sql.conf.ext \
+	|| ee_lib_error "Unable to setup ViMbAdmin database details in dovecot-sql.conf.ext file, exit status = " $?	
 
 }
