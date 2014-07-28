@@ -16,6 +16,7 @@ function ee_mod_setup_dovecot()
 	|| ee_lib_error "Unable to configure Dovecot mail_location, exit status = " $?
 	
 	# Configuring 10-auth.conf
+	sed -i "s/#disable_plaintext_auth = yes/disable_plaintext_auth = no/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/auth_mechanisms = plain/auth_mechanisms = plain login/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/\!include auth-system.conf.ext/#\!include auth-system.conf.ext/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/#\!include auth-sql.conf.ext/\!include auth-sql.conf.ext/" /etc/dovecot/conf.d/10-auth.conf \
