@@ -38,9 +38,9 @@ function ee_mod_setup_postfix()
 
 	# Setting up Postfix MySQL configuration
 	mkdir -p /etc/postfix/mysql
-	cp -av /usr/share/easyengine/mail/virtual_alias_maps.cf /etc/postfix/mysql/virtual_alias_maps.cf &&
-	cp -av /usr/share/easyengine/mail/virtual_domains_maps.cf /etc/postfix/mysql/virtual_domains_maps.cf &&
+	cp -av /usr/share/easyengine/mail/virtual_alias_maps.cf /etc/postfix/mysql/virtual_alias_maps.cf && \
+	cp -av /usr/share/easyengine/mail/virtual_domains_maps.cf /etc/postfix/mysql/virtual_domains_maps.cf && \
 	cp -av /usr/share/easyengine/mail/virtual_mailbox_maps.cf /etc/postfix/mysql/virtual_mailbox_maps.cf \
-	ee_lib_error "Unable to copy Postfix MySQL configuration files, exit status = " $?
+	|| ee_lib_error "Unable to copy Postfix MySQL configuration files, exit status = " $?
 
 }
