@@ -17,7 +17,7 @@ function ee_ven_setup_vimbadmin()
 	mysql -e "flush privileges"	
 
 	# Setup configuration for ViMbAdmin
-	cp -av /var/www/22222/htdocs/vimbadmin/application/configs/application.ini.dist /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
+	cp -av /var/www/22222/htdocs/vimbadmin/application/configs/application.ini.dist /var/www/22222/htdocs/vimbadmin/application/configs/application.ini &>> $EE_COMMAND_LOG
 
 	sed -i "s/defaults.mailbox.uid = 2000/defaults.mailbox.uid = 5000/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini &&
 	sed -i "s/defaults.mailbox.gid = 2000/defaults.mailbox.gid = 5000/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini &&

@@ -13,9 +13,9 @@ function ee_ven_install_vimbadmin()
 
 	# Install Composer
 	cd /var/www/22222/htdocs/vimbadmin
-	curl -sS https://getcomposer.org/installer | php \
+	curl -sS https://getcomposer.org/installer | php &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to install Composer, exit status = " $?
-	php composer.phar install --prefer-dist --no-dev \
+	php composer.phar install --prefer-dist --no-dev &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to install ViMbAdmin, exit status = " $?
 
 	# Fix permissions

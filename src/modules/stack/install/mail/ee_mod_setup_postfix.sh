@@ -2,7 +2,7 @@
 
 function ee_mod_setup_postfix()
 {
-	ee_lib_echo "Configuring Postfix, please wait..."
+	ee_lib_echo "Setting up Postfix, please wait..."
 	#Configure Master.cf
 	sed -i 's/#submission/submission/' /etc/postfix/master.cf &&
 	sed -i 's/#smtps/smtps/' /etc/postfix/master.cf \
@@ -38,9 +38,9 @@ function ee_mod_setup_postfix()
 
 	# Setting up Postfix MySQL configuration
 	mkdir -p /etc/postfix/mysql
-	cp -av /usr/share/easyengine/mail/virtual_alias_maps.cf /etc/postfix/mysql/virtual_alias_maps.cf &&
-	cp -av /usr/share/easyengine/mail/virtual_domains_maps.cf /etc/postfix/mysql/virtual_domains_maps.cf &&
-	cp -av /usr/share/easyengine/mail/virtual_mailbox_maps.cf /etc/postfix/mysql/virtual_mailbox_maps.cf \
-	ee_lib_error "Unable to copy Postfix MySQL configuration files, exit status = " $?
+	cp -av /usr/share/easyengine/mail/virtual_alias_maps.cf /etc/postfix/mysql/virtual_alias_maps.cf &>> $EE_COMMAND_LOG && \
+	cp -av /usr/share/easyengine/mail/virtual_domains_maps.cf /etc/postfix/mysql/virtual_domains_maps.cf &>> $EE_COMMAND_LOG && \
+	cp -av /usr/share/easyengine/mail/virtual_mailbox_maps.cf /etc/postfix/mysql/virtual_mailbox_maps.cf &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to copy Postfix MySQL configuration files, exit status = " $?
 
 }
