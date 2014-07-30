@@ -201,7 +201,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			|| ee_lib_error "Unable to display list of sites-available websites, exit status = " $?
 		else
 			ee_lib_echo "List of sites-enabled websites:"
-			ls /etc/nginx/sites-available/ \
+			ls /etc/nginx/sites-enabled/ \
 			|| ee_lib_error "Unable to display list of sites-enabled websites, exit status = " $?
 		fi
 	elif [ "$EE_SECOND" = "info" ] || [ "$EE_SECOND" = "show" ]; then
