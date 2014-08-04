@@ -46,4 +46,11 @@ function ee_ven_setup_vimbadmin()
 	sed -i "s/hosts=localhost/hosts=$EE_MYSQL_HOST/" /etc/dovecot/dovecot-sql.conf.ext \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in dovecot-sql.conf.ext file, exit status = " $?	
 
+	# Copying HTACCESS
+	cp -av /var/www/22222/htdocs/vimbadmin/public/.htaccess.dist /var/www/22222/htdocs/vimbadmin/public/.htaccess &>> $EE_COMMAND_LOG
+	
+	# Setting default database
+	/var/www/22222/htdocs/vimbadmin/bin/doctrine2-cli.php orm:schema-tool:create \
+	|| ee_lib_error "Unable to setup ViMbAdmin default database , exit status = " $?
+
 }
