@@ -9,7 +9,7 @@ function ee_ven_install_vimbadmin()
 
 	ee_lib_echo "Installing ViMbAdmin, please wait..."
 	mkdir -p /var/www/22222/htdocs/vimbadmin
-	tar -zxf /var/www/22222/htdocs/vimbadmin.tar.gz -C /var/www/22222/htdocs/vimbadmin --strip-components=1 
+	tar --strip-components=1 -zxf /var/www/22222/htdocs/vimbadmin.tar.gz -C /var/www/22222/htdocs/vimbadmin
 
 	# Install Composer
 	cd /var/www/22222/htdocs/vimbadmin
