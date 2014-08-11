@@ -7,7 +7,7 @@
 function ee_lib_service()
 {
 	for ee_service_name in ${@:1:$(($#-1))}; do
-		dpkg --get-selections | grep -v deinstall | grep $ee_service_name &>> $EE_COMMAND_LOG
+		dpkg --get-selections | grep -v deinstall | grep ^$ee_service_name &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ];then
 			# Display message
 			ee_lib_echo "Executing service $ee_service_name ${@: -1}, please wait..."
