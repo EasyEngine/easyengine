@@ -29,7 +29,7 @@ function ee_lib_service()
 			&& service $ee_service_name ${@: -1} &>> $EE_COMMAND_LOG\
 			|| ee_lib_error "Unable to execute service $ee_service_name ${@: -1}, exit status = " $?
 		elif [ $ee_service_name = "dovecot" ]; then
-			# Test and start/stop/restart/reload php5-fpm service
+			# Test and start/stop/restart/reload Dovecot service
 			$ee_service_name -n &>> $EE_COMMAND_LOG \
 			&& service $ee_service_name ${@: -1} &>> $EE_COMMAND_LOG\
 			|| ee_lib_error "Unable to execute service $ee_service_name ${@: -1}, exit status = " $?
