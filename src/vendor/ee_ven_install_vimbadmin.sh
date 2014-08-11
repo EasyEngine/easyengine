@@ -7,11 +7,12 @@ function ee_ven_install_vimbadmin()
 	wget -cqO /var/www/22222/htdocs/vimbadmin.tar.gz https://github.com/opensolutions/ViMbAdmin/archive/3.0.10.tar.gz \
 	|| ee_lib_error "Unable to download ViMbAdmin, exit status = " $?
 
-	ee_lib_echo "Installing ViMbAdmin, please wait..."
 	mkdir -p /var/www/22222/htdocs/vimbadmin
 	tar --strip-components=1 -zxf /var/www/22222/htdocs/vimbadmin.tar.gz -C /var/www/22222/htdocs/vimbadmin
 
 	# Install Composer
+	ee_lib_echo "Installing ViMbAdmin, please wait..."
+	ee_lib_echo "It will take nearly 10-20 minutes, please wait..."
 	cd /var/www/22222/htdocs/vimbadmin
 	curl -sS https://getcomposer.org/installer | php &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to install Composer, exit status = " $?
