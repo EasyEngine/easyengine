@@ -30,13 +30,13 @@ function ee_mod_stack_status()
 	fi
 
 	# Service status
-	local ee_nginx_status=$(service nginx status | grep 'nginx is running' \
+	local ee_nginx_status=$(service nginx status 2> /dev/null 2>> $EE_COMMAND_LOG| grep 'nginx is running' \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
-	local ee_php_status=$(service php5-fpm status | grep running \
+	local ee_php_status=$(service php5-fpm status 2> /dev/null | grep running \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
 	local ee_mysql_status=$(mysqladmin ping \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
-	local ee_postfix_status=$(service postfix status | grep 'postfix is running' \
+	local ee_postfix_status=$(service postfix status 2> /dev/null | grep 'postfix is running' \
 	&>> $EE_COMMAND_LOG && ee_lib_echo "Running" || ee_lib_echo_fail "Stopped")
 
 	ee_lib_echo
