@@ -12,8 +12,7 @@ function ee_lib_mysql_info()
 	local ee_mysql_max_used_connections=$(mysql -e "show global status" | grep Max_used_connections | awk '{print($2)}')
 
 	ee_lib_echo
-	ee_lib_echo "MySQL ($ee_mysql_version):"
-	ee_lib_echo_escape "user\t\t\t\t \033[37m$EE_MYSQL_USER"
+	ee_lib_echo "MySQL ($ee_mysql_version) on $EE_MYSQL_HOST:"
 	ee_lib_echo_escape "port\t\t\t\t \033[37m$ee_mysql_port"
 	ee_lib_echo_escape "wait_timeout\t\t\t \033[37m$ee_mysql_wait_timeout"
 	ee_lib_echo_escape "interactive_timeout\t\t \033[37m$ee_mysql_interactive_timeout"
