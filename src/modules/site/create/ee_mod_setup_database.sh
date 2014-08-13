@@ -51,7 +51,7 @@ function ee_mod_setup_database()
  	fi
 
  	# Create MySQL database
-	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS" &>> $EE_COMMAND_LOG
+	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS \nEE_MYSQL_HOST = $EE_MYSQL_HOST \nEE_MYSQL_CLIENT_HOST = $EE_MYSQL_CLIENT_HOST" &>> $EE_COMMAND_LOG
 	mysql -e "create database \`$EE_DB_NAME\`" \
 	|| ee_lib_error "Unable to create $EE_DB_NAME database, exit status = " $?
 
