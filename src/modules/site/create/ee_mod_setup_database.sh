@@ -51,16 +51,16 @@ function ee_mod_setup_database()
  	fi
 
  	# Create MySQL database
-	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS" &>> $EE_COMMAND_LOG
+	echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS \nEE_MYSQL_HOST = $EE_MYSQL_HOST \nEE_MYSQL_GRANT_HOST = $EE_MYSQL_GRANT_HOST" &>> $EE_COMMAND_LOG
 	mysql -e "create database \`$EE_DB_NAME\`" \
 	|| ee_lib_error "Unable to create $EE_DB_NAME database, exit status = " $?
 
 	# Create MySQL User
-	mysql -e "create user '$EE_DB_USER'@'$EE_MYSQL_HOST' identified by '$EE_DB_PASS'" \
+	mysql -e "create user '$EE_DB_USER'@'$EE_MYSQL_GRANT_HOST' identified by '$EE_DB_PASS'" \
 	|| ee_lib_error "Unable to create $EE_DB_USER database user, exit status = " $?
 
 	# Grant permission
-	mysql -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_HOST'" \
+	mysql -e "grant all privileges on \`$EE_DB_NAME\`.* to '$EE_DB_USER'@'$EE_MYSQL_GRANT_HOST'" \
 	|| ee_lib_error "Unable to grant privileges for $EE_DB_USER database user, exit status = " $?
 	mysql -e "flush privileges"	
 }
