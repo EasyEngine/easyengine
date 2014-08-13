@@ -39,17 +39,15 @@ else
 fi
 
 # Find out MySQL hostname
-if [ -z $($EE_CONFIG_GET mysql.host) ]; then
+if [ -z $(git config --file $HOME/.my.cnf client.host) ]; then
 	readonly EE_MYSQL_HOST=localhost
 else
-	readonly EE_MYSQL_HOST=$($EE_CONFIG_GET mysql.host)
+	readonly EE_MYSQL_HOST=$(git config --file $HOME/.my.cnf client.host)
 fi
 
-# Find out MySQL login
-if [ -f ~/.my.cnf ];then
-	readonly EE_MYSQL_USER=$(cat ~/.my.cnf | grep user | cut -d'=' -f2)
-	readonly EE_MYSQL_PASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
-elif [ -f /root/.my.cnf ];then
-	readonly EE_MYSQL_USER=$(cat /root/.my.cnf | grep user | cut -d'=' -f2)
-	readonly EE_MYSQL_PASS=$(cat /root/.my.cnf | grep pass | cut -d'=' -f2 | sed -e 's/^"//'  -e 's/"$//')
+# Find out MySQL client-host to setup grants
+if [ -z $($EE_CONFIG_GET mysql.client-host) ]; then
+	readonly EE_MYSQL_CLIENT_HOST=localhost
+else
+	readonly EE_MYSQL_CLIENT_HOST=$($EE_CONFIG_GET mysql.client-host)
 fi
