@@ -155,6 +155,9 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 				source $ee_include
 			done
+ 
+			# Avoid re-source and readonly errors
+			ee_source=1
 
 			# Lets modify the $EE_COMMAND_LOG value
 			# So all the logs write in $EE_UPDATE_LOG
@@ -383,11 +386,14 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		fi
 
 		if [[ $EE_CURRENT_VERSION < 2.0.1 ]]; then
+
 			# Lets re-used our functions
 			# Include library
-			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
-				source $ee_include
-			done
+			if [ $ee_source != 1 ]; then
+				for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
+					source $ee_include
+				done
+			fi
 
 			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
 				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
@@ -399,6 +405,11 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					# Install WP-CLI
 					ee_ven_install_wpcli
 				fi
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="2.0.1"
+			fi
+			if [[ $EE_CURRENT_VERSION = 2.0.1 ]]; then
+				sed -i 's/host =.*/grant-host = localhost/' /etc/easyengine/ee.conf
 			fi
 		fi
 
