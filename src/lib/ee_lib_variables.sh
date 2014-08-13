@@ -46,8 +46,8 @@ else
 fi
 
 # Find out MySQL client-host to setup grants
-if [ -z $($EE_CONFIG_GET mysql.client-host) ]; then
-	readonly EE_MYSQL_CLIENT_HOST=localhost
+if [ -z $($EE_CONFIG_GET mysql.grant-host) ]; then
+	readonly EE_MYSQL_GRANT_HOST=localhost
 else
-	readonly EE_MYSQL_CLIENT_HOST=$($EE_CONFIG_GET mysql.client-host)
+	readonly EE_MYSQL_GRANT_HOST=$($EE_CONFIG_GET mysql.grant-host)
 fi
