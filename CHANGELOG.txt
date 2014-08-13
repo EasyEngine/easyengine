@@ -1,4 +1,4 @@
-v 2.0.2 - July 21, 2014
+v 2.0.2 - Aug 13, 2014
   - Remote MySQL Support
 
 v 2.0.1 - July 21, 2014
