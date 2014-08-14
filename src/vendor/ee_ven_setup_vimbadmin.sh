@@ -12,7 +12,7 @@ function ee_ven_setup_vimbadmin()
 	|| ee_lib_error "Unable to create ViMbAdmin database, exit status = " $?
 
 	# Create MySQL User
-	mysql -e "grant all privileges on vimbadmin.* to vimbadmin@'$EE_MYSQL_HOST' IDENTIFIED BY '$ee_random'"  \
+	mysql -e "grant all privileges on vimbadmin.* to vimbadmin@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_random'"  \
 	|| ee_lib_error "Unable to grant privileges for ViMbAdmin database user, exit status = " $?
 	mysql -e "flush privileges"	
 
