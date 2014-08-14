@@ -121,6 +121,10 @@ function ee_ven_install_utils()
 			|| ee_lib_error "Unable to copy download pt-query-advisor, exit status = " $?
 			chmod 0755 /usr/bin/pt-query-advisor
 
+			# Enable pt-query-advisor plugin in Anemometer
+			sed -i "s/#	 'query_advisor'/	 'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+			|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
+
 		fi
 	fi
 	# Change permission
