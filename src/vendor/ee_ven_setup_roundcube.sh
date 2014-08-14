@@ -12,7 +12,7 @@ function ee_ven_setup_roundcube()
 	|| ee_lib_error "Unable to create Roundcube database, exit status = " $?
 
 	# Create MySQL user
-	mysql -e "grant all privileges on roundcubemail.* to roundcube@'$EE_MYSQL_HOST' IDENTIFIED BY '$ee_random'"  \
+	mysql -e "grant all privileges on roundcubemail.* to roundcube@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_random'"  \
 	|| ee_lib_error "Unable to grant privileges for Roundcube database user, exit status = " $?
 	mysql -e "flush privileges"	
 
