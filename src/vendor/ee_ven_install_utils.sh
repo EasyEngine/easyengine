@@ -122,7 +122,7 @@ function ee_ven_install_utils()
 			chmod 0755 /usr/bin/pt-query-advisor
 
 			# Enable pt-query-advisor plugin in Anemometer
-			sed -i "s/#	 'query_advisor'/	 'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+			sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
 			|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
 
 		fi
