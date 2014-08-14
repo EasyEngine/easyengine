@@ -115,6 +115,12 @@ function ee_ven_install_utils()
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			fi
+
+			# Download pt-query-advisor Fixed #189
+			wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
+			|| ee_lib_error "Unable to copy download pt-query-advisor, exit status = " $?
+			chmod 0755 /usr/bin/pt-query-advisor
+
 		fi
 	fi
 	# Change permission
