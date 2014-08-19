@@ -90,7 +90,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
-		elif [ "$EE_THIRD" = "" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "--web" ] || [ "$EE_THIRD" = "--all" ]; then
 			# Setup  NGINX/PHP repository
 			ee_mod_repo_nginx
 			ee_mod_repo_php
@@ -128,6 +128,44 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo "Successfully installed all packages"
 			ee_lib_echo "Create your first WordPress site powered by NGINX using:"
 			ee_lib_echo_info "ee site create example.com --wp"
+
+		# EasyEngine mail server setup
+		elif ["$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
+			# Install Dovecot
+			ee_mod_install_dovecot
+
+			# Install ViMbAdmin
+			ee_ven_install_vimbadmin
+
+			# Install Roundcube
+			ee_ven_install_roundcube
+
+			# Install Amavis
+			ee_ven_install_amavis
+
+			# Install Sieve
+			ee_ven_install_sieve
+
+			# Configure PostFix
+			ee_mod_setup_postfix
+
+			# Configure Dovecot
+			ee_mod_setup_dovecot
+
+			# Setup ViMbAdmin
+			ee_ven_setup_vimbadmin
+
+			# Setup Roundcube
+			ee_ven_setup_roundcube
+
+			# Setup Amavis
+			ee_ven_setup_amavis
+
+			# Setup Sieve
+			ee_ven_setup_sieve
+
+			ee_lib_echo "Successfully installed mail server"
+
 		fi
 
 	# EasyEngine remove/purge
