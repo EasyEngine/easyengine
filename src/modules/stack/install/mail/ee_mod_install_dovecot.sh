@@ -11,7 +11,7 @@ function ee_mod_install_dovecot()
 		ee_lib_error "Failed to find pre dependencies. Please install Nginx, PHP5, MySQL and Postfix using command ee stack install, exit status " 1
 	fi
 
-	dkpg -l | grep dovecot-core > /dev/null
+	dpkg -l | grep dovecot-core > /dev/null
 	if [ $? -eq 0 ];then
 		ee_lib_error "Found installed mail server, Please remove it before installation, exit status=" 1
 	fi
