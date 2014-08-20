@@ -130,7 +130,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo_info "ee site create example.com --wp"
 
 		# EasyEngine mail server setup
-		elif ["$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
+		elif [ "$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
 			# Install Dovecot
 			ee_mod_install_dovecot
 
