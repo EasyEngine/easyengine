@@ -25,4 +25,11 @@ function ee_ven_setup_roundcube()
 	sed -i "s'mysql://roundcube:pass@localhost/roundcubemail'mysql://roundcube:${ee_random}@${EE_MYSQL_HOST}/roundcubemail'" /var/www/roundcubemail/htdocs/config/config.inc.php \
 	|| ee_lib_error "Unable to setup Roundcube database details in config.inc.php file, exit status = " $?	
 
+	# Setup Nginx configuration to access Webmail
+	cp -v /usr/share/easyengine/mail/webmail /etc/nginx/sites-available/ &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to copy Nginx configuration for Roundcube, exit status = " $?
+
+	ln -sf /etc/nginx/sites-available/webmail /etc/nginx/sites-enabled/ \
+	|| ee_lib_error "Unable to create softlink for Webmail, exit status = " $?
+
 }

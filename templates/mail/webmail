@@ -1,0 +1,23 @@
+# Nginx Configuration to access webmail
+# Don't modify this file, EasyEngine replaces it with new version
+
+server {
+	server_name webmail.*;
+
+	access_log   /var/log/nginx/webmail.access.log;
+	error_log    /var/log/nginx/webmail.error.log;
+
+	root /var/www/roundcube/htdocs;
+	index index.php;
+
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	location ~ \.php$ {
+		try_files $uri =404;
+		include fastcgi_params;
+		fastcgi_pass 127.0.0.1:9000;
+	}
+
+}
