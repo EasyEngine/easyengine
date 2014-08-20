@@ -3,7 +3,7 @@
 function ee_mod_install_dovecot()
 {
 	# Install Dovecot
-	dpkg -l | grep nginx > /dev/null \ 
+	dpkg -l | grep nginx > /dev/null \
 	&& dpkg -l | grep php5-fpm > /dev/null \
 	&& dpkg -l | grep mysql > /dev/null \
 	&&  dpkg -l | grep postfix > /dev/null
@@ -12,7 +12,7 @@ function ee_mod_install_dovecot()
 	fi
 
 	dkpg -l | grep dovecot-core > /dev/null
-	if [$? -eq 0 ];then
+	if [ $? -eq 0 ];then
 		ee_lib_error "Found installed mail server, Please remove it before installation, exit status=" 1
 	fi
 
