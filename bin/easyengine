@@ -141,10 +141,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_install_roundcube
 
 			# Install Amavis
-			ee_ven_install_amavis
+			ee_mod_install_amavis
 
 			# Install Sieve
-			ee_ven_install_sieve
+			ee_mod_install_sieve
 
 			# Configure PostFix
 			ee_mod_setup_postfix
@@ -159,10 +159,15 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_setup_roundcube
 
 			# Setup Amavis
-			ee_ven_setup_amavis
+			ee_mod_setup_amavis
 
 			# Setup Sieve
-			ee_ven_setup_sieve
+			ee_mod_setup_sieve
+
+	
+			ee_lib_service nginx postfix dovecot restart
+
+			ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
 
 			ee_lib_echo "Successfully installed mail server"
 
