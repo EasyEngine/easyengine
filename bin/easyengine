@@ -128,9 +128,9 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo "Successfully installed all packages"
 			ee_lib_echo "Create your first WordPress site powered by NGINX using:"
 			ee_lib_echo_info "ee site create example.com --wp"
-
+		fi
 		# EasyEngine mail server setup
-		elif [ "$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
+		if [ "$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
 			# Install Dovecot
 			ee_mod_install_dovecot
 
