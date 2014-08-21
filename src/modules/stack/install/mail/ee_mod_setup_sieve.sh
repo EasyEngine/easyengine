@@ -3,7 +3,7 @@
 function ee_mod_setup_sieve()
 {
 	# Enable sieve plugin support for dovecot-lmtp
-	sed -i "s'  #mail_plugins = \$mail_plugins'  postmaster_address = admin@example.com\n  mns sieve'" /etc/dovecot/conf.d/20-lmtp.conf \
+	sed -i "s'  #mail_plugins = \$mail_plugins'  postmaster_address = admin@example.com\n  mail_plugins = \$mail_plugins sieve'" /etc/dovecot/conf.d/20-lmtp.conf \
 	|| ee_lib_error "Unable to add sieve plugin support for dovecot-lmtp, exit status = " $?
 
 	# Sieve dovecot-pluign configuration
