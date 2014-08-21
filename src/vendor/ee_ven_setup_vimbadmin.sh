@@ -53,4 +53,12 @@ function ee_ven_setup_vimbadmin()
 	/var/www/22222/htdocs/vimbadmin/bin/doctrine2-cli.php orm:schema-tool:create \
 	|| ee_lib_error "Unable to setup ViMbAdmin default database , exit status = " $?
 
+	# Setup Nginx configuration to access ViMbAdmin
+	cp -v /usr/share/easyengine/mail/vma /etc/nginx/sites-available/ &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to copy Nginx configuration for ViMbAdmin, exit status = " $?
+
+	ln -sf /etc/nginx/sites-available/vma /etc/nginx/sites-enabled/ \
+	|| ee_lib_error "Unable to create softlink for ViMbAdmin, exit status = " $?
+
+
 }
