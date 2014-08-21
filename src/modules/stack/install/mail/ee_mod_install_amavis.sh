@@ -1,6 +1,6 @@
 # Install Amavis package
 
-function ee_mod_install_dovecot()
+function ee_mod_install_amavis()
 {
 	# Install Amavis
 	ee_lib_echo "Installing Amavis, please wait..."
