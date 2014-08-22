@@ -57,4 +57,7 @@ function ee_mod_setup_dovecot()
 	sed -i "s'/etc/dovecot/private/dovecot.pem'/etc/ssl/private/dovecot.pem'" /etc/dovecot/conf.d/10-ssl.conf \
 	|| ee_lib_error "Unable to setup Dovecot SSL certificate path, exit status = " $?
 
+	# Setting Dovecot init.d script
+	cp -v /usr/share/easyengine/mail/dovecot /etc/init.d/dovecot &>> $EE_COMMAND_LOG \
+
 }
