@@ -2,6 +2,13 @@
 
 function ee_mod_setup_postfix()
 {
+
+	EE_EMAIL=$($EE_CONFIG_GET wordpress.email)
+	if [[ $EE_EMAIL = "" ]]; then
+		EE_EMAIL=$(git config user.email)
+	fi
+
+	EE_HOSTNAME=$(hostname -f)
 	ee_lib_echo "Setting up Postfix, please wait..."
 	#Configure Master.cf
 	sed -i 's/#submission/submission/' /etc/postfix/master.cf &&
@@ -42,5 +49,11 @@ function ee_mod_setup_postfix()
 	cp -av /usr/share/easyengine/mail/virtual_domains_maps.cf /etc/postfix/mysql/virtual_domains_maps.cf &>> $EE_COMMAND_LOG && \
 	cp -av /usr/share/easyengine/mail/virtual_mailbox_maps.cf /etc/postfix/mysql/virtual_mailbox_maps.cf &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to copy Postfix MySQL configuration files, exit status = " $?
+
+	# Configure self signed SSL for Postfix
+	ee_lib_echo "Generating self signed certificate for Postfix, please wait..."
+	openssl req -new -x509 -days 3650 -nodes -subj /commonName=${EE_HOSTNAME}/emailAddress=${EE_EMAIL} -out /etc/ssl/certs/postfix.pem -keyout /etc/ssl/private/postfix.pem &>> $EE_COMMAND_LOG
+	postconf -e smtpd_tls_cert_file=/etc/ssl/certs/postfix.pem
+	postconf -e smtpd_tls_key_file=/etc/ssl/private/postfix.pem
 
 }
