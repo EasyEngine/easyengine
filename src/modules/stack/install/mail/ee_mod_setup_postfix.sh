@@ -53,6 +53,8 @@ function ee_mod_setup_postfix()
 	# Configure self signed SSL for Postfix
 	ee_lib_echo "Generating self signed certificate for Postfix, please wait..."
 	openssl req -new -x509 -days 3650 -nodes -subj /commonName=${EE_HOSTNAME}/emailAddress=${EE_EMAIL} -out /etc/ssl/certs/postfix.pem -keyout /etc/ssl/private/postfix.pem &>> $EE_COMMAND_LOG
+	chmod 0600 /etc/ssl/private/postfix.pem
+
 	postconf -e smtpd_tls_cert_file=/etc/ssl/certs/postfix.pem
 	postconf -e smtpd_tls_key_file=/etc/ssl/private/postfix.pem
 
