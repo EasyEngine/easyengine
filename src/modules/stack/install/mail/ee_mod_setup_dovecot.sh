@@ -51,10 +51,11 @@ function ee_mod_setup_dovecot()
 	# Configure self signed SSL for Dovecot
 	ee_lib_echo "Generating self signed certificate for Dovecot, please wait..."
 	openssl req -new -x509 -days 3650 -nodes -subj /commonName=${EE_HOSTNAME}/emailAddress=${EE_EMAIL} -out /etc/ssl/certs/dovecot.pem -keyout /etc/ssl/private/dovecot.pem &>> $EE_COMMAND_LOG
+	chmod 0600 /etc/ssl/private/dovecot.pem
 
 	# Setting up certificate in file
 	sed -i "s'/etc/dovecot/dovecot.pem'/etc/ssl/certs/dovecot.pem'" /etc/dovecot/conf.d/10-ssl.conf \
-	sed -i "s'/etc/dovecot/private/dovecot.pem'/etc/ssl/private/dovecot.pem'" /etc/dovecot/conf.d/10-ssl.conf \
+	&& sed -i "s'/etc/dovecot/private/dovecot.pem'/etc/ssl/private/dovecot.pem'" /etc/dovecot/conf.d/10-ssl.conf \
 	|| ee_lib_error "Unable to setup Dovecot SSL certificate path, exit status = " $?
 
 	# Setting Dovecot init.d script
