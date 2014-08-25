@@ -285,7 +285,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
 				# Update PHP configuration
-				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing php5-xdebug package, please wait..."
 					apt-get -y install php5-xdebug \
@@ -325,7 +325,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 				fi
 
-				dpkg -l | grep mysql-server &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep mysql-server &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing percona-toolkit package, please wait..."
 					apt-get -y install percona-toolkit \
@@ -396,7 +396,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			fi
 
 			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
-				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					
 					# WP-CLI change the installation method

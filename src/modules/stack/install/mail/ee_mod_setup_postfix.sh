@@ -9,6 +9,13 @@ function ee_mod_setup_postfix()
 	fi
 
 	EE_HOSTNAME=$(hostname -f)
+
+	#We previously not used this package. So, if some one don't have Postfix-MySQL installed,
+	#Postfix will not work
+	ee_lib_echo "Installing Postfix-MySQL, please wait..."
+	$EE_APT_GET install postfix-mysql \
+	|| ee_lib_error "Unable to install Postfix-MySQL, exit status = " $?
+
 	ee_lib_echo "Setting up Postfix, please wait..."
 	#Configure Master.cf
 	sed -i 's/#submission/submission/' /etc/postfix/master.cf &&
