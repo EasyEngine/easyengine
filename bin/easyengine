@@ -131,6 +131,21 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		fi
 		# EasyEngine mail server setup
 		if [ "$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
+
+			# Check required Packages are installed or not
+			dpkg --get-selections | grep -v deinstall | grep nginx > /dev/null \
+			&& dpkg --get-selections | grep -v deinstall | grep php5-fpm > /dev/null \
+			&& dpkg --get-selections | grep -v deinstall | grep mysql > /dev/null \
+			&& dpkg --get-selections | grep -v deinstall | grep postfix > /dev/null
+			if [ $? -ne 0 ];then
+				ee_lib_error "Failed to find pre dependencies. Please install Nginx, PHP5, MySQL and Postfix using command ee stack install, exit status " 1
+			fi
+
+			dpkg --get-selections | grep -v deinstall | grep dovecot-core > /dev/null
+			if [ $? -eq 0 ];then
+				ee_lib_error "Found installed mail server, Please remove it before installation, exit status=" 1
+			fi
+
 			# Install Dovecot
 			ee_mod_install_dovecot
 
@@ -141,7 +156,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_install_roundcube
 
 			# Install Amavis
-			ee_mod_install_amavis
+			ee_mod_install_mailscan
 
 			# Install Sieve
 			ee_mod_install_sieve
@@ -159,7 +174,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_setup_roundcube
 
 			# Setup Amavis
-			ee_mod_setup_amavis
+			ee_mod_setup_mailscan
 
 			# Setup Sieve
 			ee_mod_setup_sieve

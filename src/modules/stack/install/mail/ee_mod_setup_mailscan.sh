@@ -1,6 +1,6 @@
 # Setup Amavis
 
-function ee_mod_setup_amavis()
+function ee_mod_setup_mailscan()
 {
 	# Confiure Amavis
 
