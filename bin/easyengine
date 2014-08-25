@@ -163,11 +163,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Setup Sieve
 			ee_mod_setup_sieve
-
 	
 			ee_lib_service nginx postfix dovecot restart
 
-			ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
+			ee_lib_git /etc/nginx/ /etc/dovecot /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
 
 			ee_lib_echo "Successfully installed mail server"
 

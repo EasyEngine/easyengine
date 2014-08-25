@@ -3,6 +3,8 @@
 function ee_mod_setup_amavis()
 {
 	# Confiure Amavis
+
+	ee_lib_echo "Setting up Amavis, please wait..."
 	sed -i "s'#@'@'" /etc/amavis/conf.d/15-content_filter_mode && \
 	sed -i "s'#   '   '" /etc/amavis/conf.d/15-content_filter_mode \
 	|| ee_lib_error "Unable to setup Amavis, exit status = " $?
