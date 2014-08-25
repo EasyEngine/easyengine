@@ -1,3 +1,4 @@
+# EasyEngine Dovecot init script
 ### BEGIN INIT INFO
 # Provides:          dovecot
 # Required-Start:    $local_fs $remote_fs $network $syslog $time
