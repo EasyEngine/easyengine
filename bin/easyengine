@@ -170,14 +170,14 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Setup Amavis
 			ee_mod_setup_mailscan
 
-			# Setup Sieve
-			ee_mod_setup_sieve
-
 			# Setup ViMbAdmin
 			ee_ven_setup_vimbadmin
 
 			# Setup Roundcube
 			ee_ven_setup_roundcube
+
+			# Setup Sieve
+			ee_mod_setup_sieve
 	
 			ee_lib_service nginx postfix dovecot amavis restart
 
