@@ -7,7 +7,7 @@ server {
 	access_log   /var/log/nginx/webmail.access.log;
 	error_log    /var/log/nginx/webmail.error.log;
 
-	root /var/www/roundcube/htdocs;
+	root /var/www/roundcubemail/htdocs/;
 	index index.php;
 
 	location / {
