@@ -46,6 +46,11 @@ function ee_ven_setup_vimbadmin()
 	sed -i "s/hosts=localhost/hosts=$EE_MYSQL_HOST/" /etc/dovecot/dovecot-sql.conf.ext \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in dovecot-sql.conf.ext file, exit status = " $?	
 
+	# Changing hosts and password of ViMbAdmin database in Amavis configuration
+	sed -s "s/127.0.0.1/$EE_MYSQL_HOST/" /etc/amavis/conf.d/50-user &&
+	sed -s "s/password/$ee_random/" /etc/amavis/conf.d/50-user \
+	|| ee_lib_error "Unable to setup ViMbAdmin database details in 50-user file, exit status = " $?
+
 	# Copying HTACCESS
 	cp -av /var/www/22222/htdocs/vimbadmin/public/.htaccess.dist /var/www/22222/htdocs/vimbadmin/public/.htaccess &>> $EE_COMMAND_LOG
 	

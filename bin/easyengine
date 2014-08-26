@@ -167,21 +167,21 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Configure Dovecot
 			ee_mod_setup_dovecot
 
-			# Setup ViMbAdmin
-			ee_ven_setup_vimbadmin
-
-			# Setup Roundcube
-			ee_ven_setup_roundcube
-
 			# Setup Amavis
 			ee_mod_setup_mailscan
 
 			# Setup Sieve
 			ee_mod_setup_sieve
-	
-			ee_lib_service nginx postfix dovecot restart
 
-			ee_lib_git /etc/nginx/ /etc/dovecot /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
+			# Setup ViMbAdmin
+			ee_ven_setup_vimbadmin
+
+			# Setup Roundcube
+			ee_ven_setup_roundcube
+	
+			ee_lib_service nginx postfix dovecot amavis restart
+
+			ee_lib_git /etc/nginx/ /etc/dovecot /etc/php5/ /etc/mysql/ /etc/postfix /etc/amavis "Initialize Git"
 
 			ee_lib_echo "Successfully installed mail server"
 
