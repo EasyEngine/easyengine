@@ -25,7 +25,7 @@ function EE_AUTO()
 			;;
 
 		install|remove|purge)
-			COMPREPLY=( $( compgen -W '$(echo --mail --all --web; cd /usr/local/lib/easyengine/modules/stack/install; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null; cd /usr/local/lib/easyengine/vendor/; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null | egrep -v "roundcube|vimbadmin" )' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(echo --mail --all --web; cd /usr/local/lib/easyengine/modules/stack/install; find -maxdepth 1 -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null; cd /usr/local/lib/easyengine/vendor/; find  -type f | grep install | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null | egrep -v "roundcube|vimbadmin" )' -- $CURRENT ) )
 			return 0
 			;;
 
