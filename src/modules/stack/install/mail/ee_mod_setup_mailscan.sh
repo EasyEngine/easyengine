@@ -23,4 +23,8 @@ function ee_mod_setup_mailscan()
 	|| ee_lib_error "Unable to setup Amavis, exit status = " $?
 	cat /usr/share/easyengine/mail/amavis-master.cf >> /etc/postfix/master.cf
 
+	# Configure ClamAv and Amavis to each other files
+	adduser clamav amavis &>> $EE_COMMAND_LOG
+	adduser amavis clamav &>> $EE_COMMAND_LOG
+	chmod -R 775 /var/lib/amavis/tmp &>> $EE_COMMAND_LOG
 }
