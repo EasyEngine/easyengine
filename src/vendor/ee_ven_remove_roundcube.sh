@@ -6,10 +6,6 @@ function ee_ven_remove_roundcube()
 	# Remove packages installed using Pear
 	pear uninstall Mail_Mime Net_SMTP Mail_mimeDecode Net_IDNA2-beta Auth_SASL Net_Sieve Crypt_GPG &>> $EE_COMMAND_LOG
 
-	# Remove Php-Pear
-	$EE_APT_GET $EE_SECOND php-pear \
-	||ee_lib_error "Unable to $EE_SECOND Roundcube PHP dependencies, exit status = " $?
-	
 	# Remove Roundcube
 	ee_lib_echo "Removing Roundcube, please wait..."
 
