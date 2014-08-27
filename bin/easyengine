@@ -210,7 +210,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "$EE_THIRD successfully purged"
 			fi
-		elif [ "$EE_THIRD" = "" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "--web" ] || [ "$EE_THIRD" = "--all" ]; then
 			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			ee_mod_remove_nginx
 			ee_mod_remove_php
@@ -228,11 +228,35 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed all packages"
+				ee_lib_echo "Successfully removed web packages"
 			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged all packages"
+				ee_lib_echo "Successfully purged web packages"
 			fi
 		fi
+		if [ "$EE_THIRD" = "--all" ] || [ "$EE_THIRD" = "--mail"];then
+			# Remove Dovecot
+			ee_mod_remove_dovecot
+
+			# Remove ViMbAdmin
+			ee_ven_remove_vimbadmin
+
+			# Remove Roundcube
+			ee_ven_remove_roundcube
+
+			# Remove Amavis
+			ee_mod_remove_mailscan
+
+			# Remove Sieve
+			ee_mod_remove_sieve
+
+			# Display success message
+			if [ "$EE_SECOND" = "remove" ];then
+				ee_lib_echo "Successfully removed mail server packages"
+			elif [ "$EE_SECOND" = "purge" ];then
+				ee_lib_echo "Successfully purged mail server packages"
+			fi
+		fi
+
 	elif [ "$EE_SECOND" = "status" ]; then
 		ee_mod_stack_status
 	elif [ "$EE_SECOND" = "start" ] || [ "$EE_SECOND" = "stop" ] || [ "$EE_SECOND" = "reload" ] || [ "$EE_SECOND" = "restart" ]; then

@@ -5,7 +5,8 @@ function ee_ven_install_vimbadmin()
 
 	# Install needed PHP5 libraries for ViMbAdmin
 	ee_lib_echo "Installing PHP5 libraries for ViMbAdmin, please wait..."
-	$EE_APT_GET install php5-cgi php5-mcrypt php5-memcache php5-json php5-mysqlnd php-gettext \
+	# ee stack install php installed php5-mcrypt, php5-memcache, php5-mysqlnd 
+	$EE_APT_GET install php5-cgi php5-json php-gettext \
 	|| ee_lib_error "Unable to install php-pear, exit status = " $?
 
 	# Install ViMbAdmin
