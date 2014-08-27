@@ -233,7 +233,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_lib_echo "Successfully purged web packages"
 			fi
 		fi
-		if [ "$EE_THIRD" = "--all" ] || [ "$EE_THIRD" = "--mail"];then
+		if [ "$EE_THIRD" = "--all" ] || [ "$EE_THIRD" = "--mail" ];then
 			# Remove Dovecot
 			ee_mod_remove_dovecot
 
