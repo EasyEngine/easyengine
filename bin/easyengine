@@ -249,6 +249,9 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Remove Sieve
 			ee_mod_remove_sieve
 
+			# Execute: apt-get autoremove
+			ee_lib_autoremove
+
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
 				ee_lib_echo "Successfully removed mail server packages"
