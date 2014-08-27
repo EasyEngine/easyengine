@@ -8,7 +8,7 @@ function ee_ven_remove_vimbadmin()
 	mysql -e "drop user vimbadmin@'$EE_MYSQL_GRANT_HOST'" &>> $EE_COMMAND_LOG
 
 	ee_lib_echo "Removing ViMbAdmin PHP dependencies, please wait..."
-	$EE_APT_GET $EE_SECOND php5-cgi php5-json php-gettext \
+	$EE_APT_GET $EE_SECOND php5-cgi php-gettext \
 	||ee_lib_error "Unable to $EE_SECOND ViMbAdmin PHP dependencies, exit status = " $?
 
 	rm -rf /var/www/22222/htdocs/vimbadmin \
