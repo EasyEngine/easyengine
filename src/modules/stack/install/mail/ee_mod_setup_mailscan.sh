@@ -1,4 +1,4 @@
-# Setup Amavis
+# Install mail scanner packages
 
 function ee_mod_setup_mailscan()
 {
