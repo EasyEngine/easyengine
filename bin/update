@@ -415,11 +415,17 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		fi
 
 		if [[ $EE_CURRENT_VERSION < 2.1.0 ]];then
-			if [ -f /etc/nginx/common/locations.conf ];then
-				cp -av /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common/locations.conf &>> $EE_UPDATE_LOG
-			fi
 			if [ -f /etc/nginx/sites-available/22222 ];then
+				ee_port=$(grep listen /etc/nginx/sites-available/22222 | awk '{ print $2 }')
 				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
+				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
+					sed -i "s/listen.*/listen $ee_port default_server ssl spdy;/" /etc/nginx/sites-available/22222 \
+					|| ee_lib_error "Unable to change EasyEngine admin port, exit status = " $?
+				elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+					# Dotdeb nginx repository doesn't support spdy
+					sed -i "s/listen.*/listen $ee_port default_server ssl;/" /etc/nginx/sites-available/22222 \
+					|| ee_lib_error "Unable to change EasyEngine admin port, exit status = " $?
+				fi
 			fi
 			if [ -d /var/www/22222/htdocs/db/anemometer ];then
 				# Download pt-query-advisor Fixed #189
@@ -431,7 +437,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
 				|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
 			fi
-			
+
 			# Update EasyEngine current version
 			EE_CURRENT_VERSION="2.0.1"
 		fi
