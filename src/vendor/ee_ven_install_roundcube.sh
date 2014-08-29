@@ -16,7 +16,7 @@ function ee_ven_install_roundcube()
 
 	# Install Roundcube
 	ee_lib_echo "Downloading Roundcube, please wait..."
-	wget -cqO /var/www/roundcube.tar.gz https://github.com/roundcube/roundcubemail/releases/download/1.0.2/roundcubemail-1.0.2.tar.gz \
+	wget -cqO /var/www/roundcube.tar.gz https://github.com/roundcube/roundcubemail/releases/download/${EE_ROUNDCUBE_VERSION}/roundcubemail-${EE_ROUNDCUBE_VERSION}.tar.gz \
 	|| ee_lib_error "Unable to download Roundcube, exit status = " $?
 
 	ee_lib_echo "Installing Roundcube, please wait..."
