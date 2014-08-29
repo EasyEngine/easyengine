@@ -34,7 +34,7 @@ function ee_mod_setup_dovecot()
 	cp -v /usr/share/easyengine/mail/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to copy dovecot-sql.conf.ext, exit status = " $?
 
-	cp -v /usr/share/easyengine/mail/auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext
+	cp -v /usr/share/easyengine/mail/auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext \
 	|| ee_lib_error "Unable to setup auth-sql.conf.ext, exit status = " $?
 
 
