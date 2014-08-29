@@ -414,6 +414,28 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			fi
 		fi
 
+		if [[ $EE_CURRENT_VERSION < 2.1.0 ]];then
+			if [ -f /etc/nginx/common/locations.conf ];then
+				cp -av /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common/locations.conf &>> $EE_UPDATE_LOG
+			fi
+			if [ -f /etc/nginx/sites-available/22222 ];then
+				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
+			fi
+			if [ -d /var/www/22222/htdocs/db/anemometer ];then
+				# Download pt-query-advisor Fixed #189
+				wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
+				|| ee_lib_error "Unable to copy download pt-query-advisor, exit status = " $?
+				chmod 0755 /usr/bin/pt-query-advisor
+
+				# Enable pt-query-advisor plugin in Anemometer
+				sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+				|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
+			fi
+			
+			# Update EasyEngine current version
+			EE_CURRENT_VERSION="2.0.1"
+		fi
+
 		# Restart service
 		ee_lib_service nginx php5-fpm restart
 
