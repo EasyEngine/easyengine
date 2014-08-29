@@ -61,7 +61,7 @@ function ee_ven_setup_vimbadmin()
 	cp -av /var/www/22222/htdocs/vimbadmin/public/.htaccess.dist /var/www/22222/htdocs/vimbadmin/public/.htaccess &>> $EE_COMMAND_LOG
 	
 	# Setting default database
-	/var/www/22222/htdocs/vimbadmin/bin/doctrine2-cli.php orm:schema-tool:create \
+	/var/www/22222/htdocs/vimbadmin/bin/doctrine2-cli.php orm:schema-tool:create &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to setup ViMbAdmin default database , exit status = " $?
 
 }
