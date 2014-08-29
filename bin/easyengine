@@ -155,11 +155,8 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Install Roundcube
 			ee_ven_install_roundcube
 
-			# Install Amavis
+			# Install mail scanner packages
 			ee_mod_install_mailscan
-
-			# Install Sieve
-			ee_mod_install_sieve
 
 			# Configure PostFix
 			ee_mod_setup_postfix
@@ -181,7 +178,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 	
 			ee_lib_service nginx postfix dovecot amavis restart
 
-			ee_lib_git /etc/nginx/ /etc/dovecot /etc/php5/ /etc/mysql/ /etc/postfix /etc/amavis "Initialize Git"
+			ee_lib_git /etc/nginx/ /etc/dovecot /etc/postfix /etc/amavis "Initialize Git"
 
 			ee_lib_echo "Successfully installed mail server"
 
@@ -245,9 +242,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Remove Amavis
 			ee_mod_remove_mailscan
-
-			# Remove Sieve
-			ee_mod_remove_sieve
 
 			# Execute: apt-get autoremove
 			ee_lib_autoremove
