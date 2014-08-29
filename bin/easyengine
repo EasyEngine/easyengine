@@ -135,15 +135,15 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Check required Packages are installed or not
 			dpkg --get-selections | grep -v deinstall | grep nginx > /dev/null \
 			&& dpkg --get-selections | grep -v deinstall | grep php5-fpm > /dev/null \
-			&& dpkg --get-selections | grep -v deinstall | grep mysql > /dev/null \
+			&& mysqladmin ping &> /dev/null \
 			&& dpkg --get-selections | grep -v deinstall | grep postfix > /dev/null
 			if [ $? -ne 0 ];then
-				ee_lib_error "Failed to find pre dependencies. Please install Nginx, PHP5, MySQL and Postfix using command ee stack install, exit status " 1
+				ee_lib_error "Failed to find pre dependencies.\nPlease install Nginx, PHP5, MySQL and Postfix using command ee stack install, exit status " 1
 			fi
 
 			dpkg --get-selections | grep -v deinstall | grep dovecot-core > /dev/null
 			if [ $? -eq 0 ];then
-				ee_lib_error "Found installed mail server, Please remove it before installation, exit status=" 1
+				ee_lib_error "Found installed Dovecot Packages server, exit status=" 1
 			fi
 
 			# Install Dovecot
