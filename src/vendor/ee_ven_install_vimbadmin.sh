@@ -11,7 +11,7 @@ function ee_ven_install_vimbadmin()
 
 	# Install ViMbAdmin
 	ee_lib_echo "Downloading ViMbAdmin, please wait..."
-	wget -cqO /var/www/22222/htdocs/vimbadmin.tar.gz https://github.com/opensolutions/ViMbAdmin/archive/3.0.10.tar.gz \
+	wget -cqO /var/www/22222/htdocs/vimbadmin.tar.gz https://github.com/opensolutions/ViMbAdmin/archive/${EE_VIMBADMIN_VERSION}.tar.gz \
 	|| ee_lib_error "Unable to download ViMbAdmin, exit status = " $?
 
 	mkdir -p /var/www/22222/htdocs/vimbadmin
