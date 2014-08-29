@@ -18,7 +18,9 @@ function ee_mod_debug_rewrite()
 			fi
 
 			# Debug message
-			EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/nginx/*.error.log"
+			if [ "$EE_DEBUG_MSG" != "/var/log/nginx/*.error.log" ];then
+				EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/nginx/*.error.log"
+			fi
 		else
 			grep "rewrite_log on;" /etc/nginx/sites-available/$EE_DOMAIN &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
@@ -34,7 +36,9 @@ function ee_mod_debug_rewrite()
 			fi
 			
 			# Debug message
-			EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/$EE_DOMAIN/logs/error.log"
+			if [ "$EE_DEBUG_MSG" != "/var/www/$EE_DOMAIN/logs/error.log" ];then
+				EE_DEBUG_MSG="$EE_DEBUG_MSG /var/www/$EE_DOMAIN/logs/error.log"
+			fi
 		fi
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		if [ -z $EE_DOMAIN ]; then
