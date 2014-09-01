@@ -65,12 +65,14 @@ function ee_ven_setup_vimbadmin()
 	|| ee_lib_error "Unable to setup ViMbAdmin default database , exit status = " $?
 
 	ee_security_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
-	sed -i "s/securitysalt                       = \"\"/securitysalt                       = \"$ee_security_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
-
+	sed -i "s/securitysalt                       = \"\"/securitysalt                       = \"$ee_security_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini \
+	|| ee_lib_error "Unable to setup ViMbAdmin security salt , exit status = " $?
 
 	ee_rememberme_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
-	sed -i "s/resources.auth.oss.rememberme.salt = \"\"/resources.auth.oss.rememberme.salt = \"$ee_rememberme_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
+	sed -i "s/resources.auth.oss.rememberme.salt = \"\"/resources.auth.oss.rememberme.salt = \"$ee_rememberme_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini \
+	|| ee_lib_error "Unable to setup ViMbAdmin remember me salt , exit status = " $?
 
 	ee_password_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
-	sed "s/defaults.mailbox.password_salt     = \"\"/defaults.mailbox.password_salt     = \"$ee_password_salt\"/"
+	sed -i "s/defaults.mailbox.password_salt     = \"\"/defaults.mailbox.password_salt     = \"$ee_password_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini \
+	|| ee_lib_error "Unable to setup ViMbAdmin mailbox password salt , exit status = " $?
 }
