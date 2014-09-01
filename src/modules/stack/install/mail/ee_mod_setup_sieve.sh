@@ -1,4 +1,4 @@
-# Setup Sieve
+# Setup Sieve rules
 
 function ee_mod_setup_sieve()
 {
@@ -7,7 +7,7 @@ function ee_mod_setup_sieve()
 		EE_EMAIL=$(git config user.email)
 	fi
 
-	ee_lib_echo "Setting up Sieve, please wait..."
+	ee_lib_echo "Setting up Sieve rules, please wait..."
 
 	# Enable sieve plugin support for dovecot-lmtp
 	sed -i "s'  #mail_plugins = \$mail_plugins'  postmaster_address =$EE_EMAIL \n  mail_plugins = \$mail_plugins sieve'" /etc/dovecot/conf.d/20-lmtp.conf \

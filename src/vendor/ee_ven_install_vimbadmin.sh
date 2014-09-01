@@ -4,13 +4,13 @@ function ee_ven_install_vimbadmin()
 {
 
 	# Install needed PHP5 libraries for ViMbAdmin
-	ee_lib_echo "Installing PHP5 libraries for ViMbAdmin, please wait..."
 	# ee stack install php installed php5-mcrypt, php5-memcache, php5-mysqlnd 
 	$EE_APT_GET install php5-cgi php5-json php-gettext \
 	|| ee_lib_error "Unable to install php-pear, exit status = " $?
 
 	# Install ViMbAdmin
-	ee_lib_echo "Downloading ViMbAdmin, please wait..."
+	ee_lib_echo "Installing ViMbAdmin, please wait..."
+	ee_lib_echo "It will take nearly 10-20 minutes, please wait..."
 	wget -cqO /var/www/22222/htdocs/vimbadmin.tar.gz https://github.com/opensolutions/ViMbAdmin/archive/${EE_VIMBADMIN_VERSION}.tar.gz \
 	|| ee_lib_error "Unable to download ViMbAdmin, exit status = " $?
 
@@ -18,8 +18,6 @@ function ee_ven_install_vimbadmin()
 	tar --strip-components=1 -zxf /var/www/22222/htdocs/vimbadmin.tar.gz -C /var/www/22222/htdocs/vimbadmin
 
 	# Install Composer
-	ee_lib_echo "Installing ViMbAdmin, please wait..."
-	ee_lib_echo "It will take nearly 10-20 minutes, please wait..."
 	cd /var/www/22222/htdocs/vimbadmin
 	curl -sS https://getcomposer.org/installer | php &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to install Composer, exit status = " $?
