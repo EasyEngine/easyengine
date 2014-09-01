@@ -182,7 +182,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display message for mail server
 			ee_lib_echo "Successfully installed mail server packages"
-			ee_lib_echo "Open https://(hostname -f):22222/vimbadmin in your browser"
+			ee_lib_echo "Open https://$(hostname -f):22222/vimbadmin in your browser"
 			ee_lib_echo "Security Salt=${ee_security_salt}"
 
 		fi
