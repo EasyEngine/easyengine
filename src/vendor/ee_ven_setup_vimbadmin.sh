@@ -8,7 +8,7 @@ function ee_ven_setup_vimbadmin()
 		ee_vimbadmin_host=$EE_MYSQL_HOST
 	fi
 
-	ee_lib_echo "configuring ViMbAdmin, please wait..."
+	ee_lib_echo "Setting up ViMbAdmin, please wait..."
 
 	# Random characters
 	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)

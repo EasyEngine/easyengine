@@ -138,7 +138,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			&& mysqladmin ping &> /dev/null \
 			&& dpkg --get-selections | grep -v deinstall | grep postfix > /dev/null
 			if [ $? -ne 0 ];then
-				ee_lib_error "Failed to find pre dependencies.\nPlease install Nginx, PHP5, MySQL and Postfix using command ee stack install, exit status " 1
+				ee_lib_error "Failed to find NGINX PHP MySQL Postfix, exit status=" 1
 			fi
 
 			dpkg --get-selections | grep -v deinstall | grep dovecot-core > /dev/null
@@ -149,14 +149,14 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Install Dovecot
 			ee_mod_install_dovecot
 
+			# Install mail scanner packages
+			ee_mod_install_mailscan
+
 			# Install ViMbAdmin
 			ee_ven_install_vimbadmin
 
 			# Install Roundcube
 			ee_ven_install_roundcube
-
-			# Install mail scanner packages
-			ee_mod_install_mailscan
 
 			# Configure PostFix
 			ee_mod_setup_postfix
@@ -173,7 +173,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Setup Roundcube
 			ee_ven_setup_roundcube
 
-			# Setup Sieve
+			# Setup Sieve Rules
 			ee_mod_setup_sieve
 	
 			ee_lib_service nginx postfix dovecot amavis restart
@@ -234,14 +234,14 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Remove Dovecot
 			ee_mod_remove_dovecot
 
+			# Remove Amavis
+			ee_mod_remove_mailscan
+
 			# Remove ViMbAdmin
 			ee_ven_remove_vimbadmin
 
 			# Remove Roundcube
 			ee_ven_remove_roundcube
-
-			# Remove Amavis
-			ee_mod_remove_mailscan
 
 			# Execute: apt-get autoremove
 			ee_lib_autoremove

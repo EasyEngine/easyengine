@@ -2,7 +2,7 @@
 
 function ee_ven_setup_roundcube()
 {
-	ee_lib_echo "configuring Roundcube, please wait..."
+	ee_lib_echo "Setting up Roundcube, please wait..."
 
 	# Random characters
 	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
