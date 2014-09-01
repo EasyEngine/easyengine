@@ -395,6 +395,9 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				done
 			fi
 
+			# Make hostname as FQDN
+			ee_lib_check_fqdn $(hostname -f)
+
 			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
 				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
