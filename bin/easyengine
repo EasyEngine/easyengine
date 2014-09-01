@@ -178,7 +178,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 	
 			ee_lib_service nginx postfix dovecot amavis restart
 
-			ee_lib_git /etc/nginx/ /etc/dovecot /etc/postfix /etc/amavis "Initialize Git"
+			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Initialize Git"
 
 			# Display message for mail server
 			ee_lib_echo_escape "Configure ViMbAdmin:\thttps://$(hostname -f):22222/vimbadmin"
