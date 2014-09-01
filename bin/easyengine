@@ -181,10 +181,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_git /etc/nginx/ /etc/dovecot /etc/postfix /etc/amavis "Initialize Git"
 
 			# Display message for mail server
-			ee_lib_echo "Successfully installed mail server packages"
-			ee_lib_echo "Open https://$(hostname -f):22222/vimbadmin in your browser"
-			ee_lib_echo "Security Salt=${ee_security_salt}"
+			ee_lib_echo_escape "Configure ViMbAdmin:\t\thttps://$(hostname -f):22222/vimbadmin"
+			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
 
+			ee_lib_echo "Successfully installed mail server packages"
 		fi
 
 	# EasyEngine remove/purge
