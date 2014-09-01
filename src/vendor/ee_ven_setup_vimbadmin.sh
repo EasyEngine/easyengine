@@ -64,4 +64,13 @@ function ee_ven_setup_vimbadmin()
 	/var/www/22222/htdocs/vimbadmin/bin/doctrine2-cli.php orm:schema-tool:create &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to setup ViMbAdmin default database , exit status = " $?
 
+	ee_security_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
+	sed -i "s/securitysalt                       = \"\"/securitysalt                       = \"$ee_security_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
+
+
+	ee_rememberme_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
+	sed -i "s/resources.auth.oss.rememberme.salt = \"\"/resources.auth.oss.rememberme.salt = \"$ee_rememberme_salt\"/" /var/www/22222/htdocs/vimbadmin/application/configs/application.ini
+
+	ee_password_salt=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 64 | head -n1)
+	sed "s/defaults.mailbox.password_salt     = \"\"/defaults.mailbox.password_salt     = \"$ee_password_salt\"/"
 }
