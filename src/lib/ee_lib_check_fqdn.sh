@@ -4,7 +4,7 @@ function ee_lib_check_fqdn()
 {
 	case $1 in
 		*.*)
-			if [ $EE_FQDN != "" ];then
+			if [ "$EE_FQDN" != "" ];then
 				echo $EE_FQDN > /etc/hostname
 				service hostname restart &>> $EE_COMMAND_LOG
 				hostname -f &>> $EE_COMMAND_LOG
