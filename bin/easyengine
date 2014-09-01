@@ -181,7 +181,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_git /etc/nginx/ /etc/dovecot /etc/postfix /etc/amavis "Initialize Git"
 
 			# Display message for mail server
-			ee_lib_echo_escape "Configure ViMbAdmin:\t\thttps://$(hostname -f):22222/vimbadmin"
+			ee_lib_echo_escape "Configure ViMbAdmin:\thttps://$(hostname -f):22222/vimbadmin"
 			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
 
 			ee_lib_echo "Successfully installed mail server packages"
