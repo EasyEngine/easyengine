@@ -125,9 +125,11 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_install_utils
 
 			# Display success message
-			ee_lib_echo "Successfully installed web server packages"
-			ee_lib_echo "Create your first WordPress site powered by NGINX using:"
-			ee_lib_echo_info "ee site create example.com --wp"
+			if [ "$EE_THIRD" != "all" ];then
+				ee_lib_echo "Successfully installed web server packages"
+				ee_lib_echo "Create your first WordPress site powered by NGINX using:"
+				ee_lib_echo_info "ee site create example.com --wp"
+			fi
 		fi
 		# EasyEngine mail server setup
 		if [ "$EE_THIRD" = "mail" ] || [ "$EE_THIRD" = "all" ];then
