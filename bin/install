@@ -42,6 +42,7 @@ readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_INSTALL_LOG=/var/log/easyengine/install.log
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
+readonly EE_DEBIAN_VERSION=$(lsb_release -sc)
 
 # Checking linux distro
 if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; then
@@ -88,7 +89,11 @@ function ee_lib_check_fqdn()
 		*.*)
 			if [ "$EE_FQDN" != "" ];then
 				echo $EE_FQDN > /etc/hostname
-				service hostname restart &>> $EE_INSTALL_LOG
+				if [ "$EE_DEBIAN_VERSION" == "squeeze" ];then
+					/etc/init.d/hostname.sh start &>> $EE_COMMAND_LOG
+				else
+					service hostname restart &>> $EE_COMMAND_LOG
+				fi
 				hostname -f &>> $EE_INSTALL_LOG
 			fi
 			;;
