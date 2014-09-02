@@ -11,7 +11,7 @@ function ee_lib_check_fqdn()
 			fi
 			;;
 		*)
-			read -p "Enter FQDN to set for Hostname: " EE_FQDN
+			read -p "Enter hostname [FQDN]: " EE_FQDN
 			ee_lib_check_fqdn $EE_FQDN
 			;;
 	esac
