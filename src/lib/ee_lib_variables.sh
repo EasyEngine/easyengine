@@ -32,7 +32,7 @@ elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
 	# Specify nginx package
 	readonly EE_NGINX_PACKAGE=nginx-full
 	# Detect Debian version
-	readonly EE_DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
+	readonly EE_DEBIAN_VERSION=$(lsb_release -sc)
 fi
 
 # Find php user-name
