@@ -29,4 +29,12 @@ function ee_mod_setup_mailscan()
 	adduser clamav amavis &>> $EE_COMMAND_LOG
 	adduser amavis clamav &>> $EE_COMMAND_LOG
 	chmod -R 775 /var/lib/amavis/tmp &>> $EE_COMMAND_LOG
+
+	# Update ClamAV database (freshclam)
+	ee_lib_echo "Updating ClamAV database, please wait..."
+	freshclam &>> $EE_COMMAND_LOG
+
+	service clamav-daemon restart &>> $EE_COMMAND_LOG \
+	|| ee_lib_echo "Unable to start ClamAV deamon"
+
 }
