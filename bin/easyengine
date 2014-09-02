@@ -90,7 +90,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
-		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "--web" ] || [ "$EE_THIRD" = "--all" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 			# Setup  NGINX/PHP repository
 			ee_mod_repo_nginx
 			ee_mod_repo_php
@@ -130,7 +130,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo_info "ee site create example.com --wp"
 		fi
 		# EasyEngine mail server setup
-		if [ "$EE_THIRD" = "--mail" ] || [ "$EE_THIRD" = "--all" ];then
+		if [ "$EE_THIRD" = "mail" ] || [ "$EE_THIRD" = "all" ];then
 
 			# Check required Packages are installed or not
 			dpkg --get-selections | grep -v deinstall | grep nginx > /dev/null \
@@ -210,7 +210,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "$EE_THIRD successfully purged"
 			fi
-		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "--web" ] || [ "$EE_THIRD" = "--all" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			ee_mod_remove_nginx
 			ee_mod_remove_php
@@ -233,7 +233,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_lib_echo "Successfully purged web packages"
 			fi
 		fi
-		if [ "$EE_THIRD" = "--all" ] || [ "$EE_THIRD" = "--mail" ];then
+		if [ "$EE_THIRD" = "all" ] || [ "$EE_THIRD" = "mail" ];then
 			# Remove Dovecot
 			ee_mod_remove_dovecot
 
