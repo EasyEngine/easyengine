@@ -2,6 +2,7 @@ v 2.1.0 - Sept 2, 2014
   - Added Mail Server Package installation #65
   - Fixed incorrect log file path during debug #299
   - Added support for pt-query-advisor #189
+  - Fixed Firefox cross-domain fonts
 
 v 2.0.2 - Aug 13, 2014
   - Remote MySQL Support
