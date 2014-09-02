@@ -7,4 +7,6 @@ function ee_mod_remove_dovecot()
 	|| ee_lib_error "Unable to $EE_SECOND Dovecot, exit status = " $?
 
 	userdel -rf vmail || ee_lib_error "Unable to Remove user vmail, exit status = " $?
+	rm -f /etc/init.d/dovecot
+	
 }
