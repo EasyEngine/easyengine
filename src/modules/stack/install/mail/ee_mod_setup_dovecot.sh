@@ -58,8 +58,9 @@ function ee_mod_setup_dovecot()
 	|| ee_lib_error "Unable to setup Dovecot SSL certificate path, exit status = " $?
 
 	# Setting Dovecot init.d script
-	cp -v /usr/share/easyengine/mail/dovecot /etc/init.d/dovecot &>> $EE_COMMAND_LOG
-
+	if [ ! -f /etc/init.d/dovecot ];then
+		cp -v /usr/share/easyengine/mail/dovecot /etc/init.d/dovecot &>> $EE_COMMAND_LOG
+	fi
 	# Add autocreate plugin
 	sed -i "s'#mail_plugins = \$mail_plugins'mail_plugins = \$mail_plugins autocreate'" /etc/dovecot/conf.d/20-imap.conf \
 	|| ee_lib_error "Unable to setup Dovecot autocreate plugin, exit status = " $?
