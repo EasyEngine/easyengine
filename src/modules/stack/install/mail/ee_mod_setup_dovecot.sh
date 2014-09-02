@@ -12,7 +12,7 @@ function ee_mod_setup_dovecot()
 
 	ee_lib_echo "Setting up Dovecot, please wait..."
 	# Adding mail user with GID 5000 and UID 5000
-	adduser --uid 5000 --home /var/vmail --disabled-password --gecos '' vmail \
+	adduser --uid 5000 --home /var/vmail --disabled-password --gecos '' vmail &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to setup vmail user/group = " $?
 
 	# Configuring dovecot.conf
