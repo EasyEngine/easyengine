@@ -115,6 +115,16 @@ function ee_ven_install_utils()
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			fi
+
+			# Download pt-query-advisor Fixed #189
+			wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
+			|| ee_lib_error "Unable to copy download pt-query-advisor, exit status = " $?
+			chmod 0755 /usr/bin/pt-query-advisor
+
+			# Enable pt-query-advisor plugin in Anemometer
+			sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+			|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
+
 		fi
 	fi
 	# Change permission

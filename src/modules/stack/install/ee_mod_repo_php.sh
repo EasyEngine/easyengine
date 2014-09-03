@@ -11,20 +11,20 @@ function ee_mod_repo_php()
 		|| ee_lib_error "Unable to add ondrej php5 launchpad repository, exit status = " $?
 
 	# Debian 6
-	elif [ $EE_DEBIAN_VERSION -eq 6 ]; then
+	elif [ "$EE_DEBIAN_VERSION" == "squeeze" ]; then
 
 		ee_lib_echo "Adding Dotdeb PHP5.4 repository, please wait..."
-		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php54.list \
+		echo "deb http://packages.dotdeb.org $(lsb_release -sc)-php54 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -sc)-php54.list \
 		|| ee_lib_error "Unable to add Dotdeb PHP5.4 repository, exit status = " $?
 
 		# Fetch and install Dotdeb GnuPG key
 		ee_lib_dotdeb
 
 	# Debian 7
-	elif [ $EE_DEBIAN_VERSION -eq 7 ]; then
+	elif [ "$EE_DEBIAN_VERSION" == "wheezy" ]; then
 
 		ee_lib_echo "Adding Dotdeb PHP5.5 repository, please wait..."
-		echo "deb http://packages.dotdeb.org $(lsb_release -c | awk '{print($2)}')-php55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -c | awk '{print($2)}')-php55.list \
+		echo "deb http://packages.dotdeb.org $(lsb_release -sc)-php55 all" > /etc/apt/sources.list.d/dotdeb-$(lsb_release -sc)-php55.list \
 		|| ee_lib_error "Unable to add Dotdeb PHP5.5 repository, exit status = " $?
 		
 		# Fetch and install dotdeb GnuPG key

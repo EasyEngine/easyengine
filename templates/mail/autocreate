@@ -1,0 +1,10 @@
+plugin {
+autocreate = Trash
+autocreate2 = Junk
+autocreate3 = Drafts
+autocreate4 = Sent
+autosubscribe = Trash
+autosubscribe2 = Junk
+autosubscribe3 = Drafts
+autosubscribe4 = Sent
+}

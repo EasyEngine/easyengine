@@ -1,13 +1,19 @@
 # Define global variables
 
 # EasyEngine version
-readonly EE_VERSION='2.0.2'
+readonly EE_VERSION='2.1.0'
 
 # WP-CLI version
 readonly EE_WP_CLI_VERSION='0.16.0'
 
 # Adminer version
 readonly EE_ADMINER_VERSION='4.1.0'
+
+# Roundcube Version
+readonly EE_ROUNDCUBE_VERSION='1.0.2'
+
+# ViMbAdmin Version
+readonly EE_VIMBADMIN_VERSION='3.0.10'
 
 EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_LOG_DIR=/var/log/easyengine
@@ -26,7 +32,7 @@ elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
 	# Specify nginx package
 	readonly EE_NGINX_PACKAGE=nginx-full
 	# Detect Debian version
-	readonly EE_DEBIAN_VERSION=$(lsb_release -r | awk '{print($2)}' | cut -d'.' -f1)
+	readonly EE_DEBIAN_VERSION=$(lsb_release -sc)
 fi
 
 # Find php user-name

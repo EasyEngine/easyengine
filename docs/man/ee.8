@@ -5,7 +5,7 @@
 .SH SYNOPSIS
 ee [ version | help | info | stack | site | debug | update ]
 .TP
-ee stack [ install | remove | purge ] [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
+ee stack [ install | remove | purge ] [ --web | --mail | --all | nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .TP
 ee stack [  status | start | stop | reload | restart ] 
 .TP
@@ -44,19 +44,19 @@ Display easyengine (ee) help.
 .TP
 .B stack 
 .TP
-.B 		install [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
+.B 		install [ all | web | mail | nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
 				Install Nginx PHP5 MySQL Postfix stack Packages if not used with 
 .br
 				any options.Installs specific package if used with option.
 .TP
-.B 		remove [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
+.B 		remove [ all | web | mail | nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
 				Remove Nginx PHP5 MySQL Postfix stack Packages if not used with 
 .br
 				any options. Remove specific package if used with option.
 .TP
-.B 		purge [ nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
+.B 		purge [ all | web | mail | nginx | php | mysql | postfix | adminer | phpmyadmin | wpcli | utils ]
 .br
 				Purge Nginx PHP5 MySQL Postfix stack Packages if not used with any
 .br
