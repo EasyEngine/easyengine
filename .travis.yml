@@ -126,6 +126,8 @@ script:
 - sudo bash ee debug
 - sudo bash ee debug --stop
 
+- sudo bash ee stack install mail
+
 - sudo cat /var/log/easyengine/*
 
 

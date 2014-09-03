@@ -90,7 +90,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
-		elif [ "$EE_THIRD" = "" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 			# Setup  NGINX/PHP repository
 			ee_mod_repo_nginx
 			ee_mod_repo_php
@@ -125,9 +125,68 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_install_utils
 
 			# Display success message
-			ee_lib_echo "Successfully installed all packages"
-			ee_lib_echo "Create your first WordPress site powered by NGINX using:"
-			ee_lib_echo_info "ee site create example.com --wp"
+			if [ "$EE_THIRD" != "all" ];then
+				ee_lib_echo "Successfully installed web server packages"
+				ee_lib_echo "Create your first WordPress site powered by NGINX using:"
+				ee_lib_echo_info "ee site create example.com --wp"
+			fi
+		fi
+		# EasyEngine mail server setup
+		if [ "$EE_THIRD" = "mail" ] || [ "$EE_THIRD" = "all" ];then
+
+			# Check required Packages are installed or not
+			dpkg --get-selections | grep -v deinstall | grep nginx > /dev/null \
+			&& dpkg --get-selections | grep -v deinstall | grep php5-fpm > /dev/null \
+			&& mysqladmin ping &> /dev/null \
+			&& dpkg --get-selections | grep -v deinstall | grep postfix > /dev/null
+			if [ $? -ne 0 ];then
+				ee_lib_error "Failed to find NGINX PHP MySQL Postfix, exit status=" 1
+			fi
+
+			dpkg --get-selections | grep -v deinstall | grep dovecot-core > /dev/null
+			if [ $? -eq 0 ];then
+				ee_lib_error "Found installed Dovecot Packages server, exit status=" 1
+			fi
+
+			# Install Dovecot
+			ee_mod_install_dovecot
+
+			# Install mail scanner packages
+			ee_mod_install_mailscan
+
+			# Install ViMbAdmin
+			ee_ven_install_vimbadmin
+
+			# Install Roundcube
+			ee_ven_install_roundcube
+
+			# Configure PostFix
+			ee_mod_setup_postfix
+
+			# Configure Dovecot
+			ee_mod_setup_dovecot
+
+			# Setup Amavis
+			ee_mod_setup_mailscan
+
+			# Setup ViMbAdmin
+			ee_ven_setup_vimbadmin
+
+			# Setup Roundcube
+			ee_ven_setup_roundcube
+
+			# Setup Sieve Rules
+			ee_mod_setup_sieve
+	
+			ee_lib_service nginx postfix dovecot amavis restart
+
+			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Initialize Git"
+
+			# Display message for mail server
+			ee_lib_echo_escape "Configure ViMbAdmin:\thttps://$(hostname -f):22222/vimbadmin"
+			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
+
+			ee_lib_echo "Successfully installed mail server packages"
 		fi
 
 	# EasyEngine remove/purge
@@ -153,7 +212,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "$EE_THIRD successfully purged"
 			fi
-		elif [ "$EE_THIRD" = "" ]; then
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
 			ee_mod_remove_nginx
 			ee_mod_remove_php
@@ -171,11 +230,35 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed all packages"
+				ee_lib_echo "Successfully removed web packages"
 			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged all packages"
+				ee_lib_echo "Successfully purged web packages"
 			fi
 		fi
+		if [ "$EE_THIRD" = "all" ] || [ "$EE_THIRD" = "mail" ];then
+			# Remove Dovecot
+			ee_mod_remove_dovecot
+
+			# Remove Amavis
+			ee_mod_remove_mailscan
+
+			# Remove ViMbAdmin
+			ee_ven_remove_vimbadmin
+
+			# Remove Roundcube
+			ee_ven_remove_roundcube
+
+			# Execute: apt-get autoremove
+			ee_lib_autoremove
+
+			# Display success message
+			if [ "$EE_SECOND" = "remove" ];then
+				ee_lib_echo "Successfully removed mail server packages"
+			elif [ "$EE_SECOND" = "purge" ];then
+				ee_lib_echo "Successfully purged mail server packages"
+			fi
+		fi
+
 	elif [ "$EE_SECOND" = "status" ]; then
 		ee_mod_stack_status
 	elif [ "$EE_SECOND" = "start" ] || [ "$EE_SECOND" = "stop" ] || [ "$EE_SECOND" = "reload" ] || [ "$EE_SECOND" = "restart" ]; then
@@ -201,7 +284,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			|| ee_lib_error "Unable to display list of sites-available websites, exit status = " $?
 		else
 			ee_lib_echo "List of sites-enabled websites:"
-			ls /etc/nginx/sites-available/ \
+			ls /etc/nginx/sites-enabled/ \
 			|| ee_lib_error "Unable to display list of sites-enabled websites, exit status = " $?
 		fi
 	elif [ "$EE_SECOND" = "info" ] || [ "$EE_SECOND" = "show" ]; then

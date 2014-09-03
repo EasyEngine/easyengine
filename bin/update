@@ -285,7 +285,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				|| ee_lib_error "Unable to generate SSL certificate for port 22222, exit status = " $?
 
 				# Update PHP configuration
-				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing php5-xdebug package, please wait..."
 					apt-get -y install php5-xdebug \
@@ -325,7 +325,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 				fi
 
-				dpkg -l | grep mysql-server &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep mysql-server &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing percona-toolkit package, please wait..."
 					apt-get -y install percona-toolkit \
@@ -395,8 +395,11 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				done
 			fi
 
+			# Make hostname as FQDN
+			ee_lib_check_fqdn $(hostname -f)
+
 			if [[ $EE_CURRENT_VERSION = 2.0.0 ]]; then
-				dpkg -l | grep php5-fpm &>> $EE_UPDATE_LOG
+				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					
 					# WP-CLI change the installation method
@@ -412,6 +415,34 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			if [[ $EE_CURRENT_VERSION = 2.0.1 ]]; then
 				sed -i 's/host =.*/grant-host = localhost/' /etc/easyengine/ee.conf
 			fi
+		fi
+
+		if [[ $EE_CURRENT_VERSION < 2.1.0 ]];then
+			if [ -f /etc/nginx/sites-available/22222 ];then
+				ee_port=$(grep listen /etc/nginx/sites-available/22222 | awk '{ print $2 }')
+				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
+				if [ "$EE_LINUX_DISTRO" == "Ubuntu" ];	then
+					sed -i "s/listen.*/listen $ee_port default_server ssl spdy;/" /etc/nginx/sites-available/22222 \
+					|| ee_lib_error "Unable to change EasyEngine admin port, exit status = " $?
+				elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+					# Dotdeb nginx repository doesn't support spdy
+					sed -i "s/listen.*/listen $ee_port default_server ssl;/" /etc/nginx/sites-available/22222 \
+					|| ee_lib_error "Unable to change EasyEngine admin port, exit status = " $?
+				fi
+			fi
+			if [ -d /var/www/22222/htdocs/db/anemometer ];then
+				# Download pt-query-advisor Fixed #189
+				wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
+				|| ee_lib_error "Unable to copy download pt-query-advisor, exit status = " $?
+				chmod 0755 /usr/bin/pt-query-advisor
+
+				# Enable pt-query-advisor plugin in Anemometer
+				sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+				|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
+			fi
+
+			# Update EasyEngine current version
+			EE_CURRENT_VERSION="2.1.0"
 		fi
 
 		# Restart service
