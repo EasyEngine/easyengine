@@ -90,9 +90,9 @@ function ee_lib_check_fqdn()
 			if [ "$EE_FQDN" != "" ];then
 				echo $EE_FQDN > /etc/hostname
 				if [ "$EE_DEBIAN_VERSION" == "squeeze" ];then
-					/etc/init.d/hostname.sh start &>> $EE_COMMAND_LOG
+					/etc/init.d/hostname.sh start &>> $EE_INSTALL_LOG
 				else
-					service hostname restart &>> $EE_COMMAND_LOG
+					service hostname restart &>> $EE_INSTALL_LOG
 				fi
 				hostname -f &>> $EE_INSTALL_LOG
 			fi
