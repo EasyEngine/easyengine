@@ -23,8 +23,9 @@ function ee_mod_setup_postfix()
 	|| ee_lib_error "Unable to setup details in master.cf file, exit status = " $?	
 
 	# Handle SMTP authentication using Dovecot"
-	# On Debian6 following command not work
+	# On Debian6 following command not work ( Postfix < 2.8 )
 	# postconf "smtpd_sasl_type = dovecot"
+  # The -e option is no longer needed with Postfix version 2.8 and later.
 
 	postconf -e "smtpd_sasl_type = dovecot"
 	postconf -e "smtpd_sasl_path = private/auth"
