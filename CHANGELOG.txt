@@ -3,6 +3,7 @@ v 2.1.0 - Sept 2, 2014
   - Fixed incorrect log file path during debug #299
   - Added support for pt-query-advisor #189
   - Fixed Firefox cross-domain fonts
+  - Fixed ee site edit command on Nano editor
 
 v 2.0.2 - Aug 13, 2014
   - Remote MySQL Support
