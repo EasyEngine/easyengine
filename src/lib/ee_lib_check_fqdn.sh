@@ -6,7 +6,7 @@ function ee_lib_check_fqdn()
 		*.*)
 			if [ "$EE_FQDN" != "" ];then
 				echo $EE_FQDN > /etc/hostname
-				if [ "$EE_DEBIAN_VERSION" == "squeeze" ];then
+				if [ "$EE_LINUX_DISTRO" == "Debian" ];then
 					/etc/init.d/hostname.sh start &>> $EE_COMMAND_LOG
 				else
 					service hostname restart &>> $EE_COMMAND_LOG
