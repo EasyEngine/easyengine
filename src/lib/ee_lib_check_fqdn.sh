@@ -9,7 +9,7 @@ function ee_lib_check_fqdn()
 				if [ "$EE_LINUX_DISTRO" == "Debian" ];then
 					grep $EE_FQDN /etc/hosts &>> $EE_COMMAND_LOG
 					if [ $? -ne 0 ]; then
-						sed -i '1i\127.0.0.1	$EE_FQDN' /etc/hosts \
+						sed -i "1i\127.0.0.1	$EE_FQDN" /etc/hosts \
 						|| ee_lib_error "Unable setup hostname = " $?
 					fi
 					/etc/init.d/hostname.sh start &>> $EE_COMMAND_LOG
