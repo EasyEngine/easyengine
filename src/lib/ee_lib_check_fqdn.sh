@@ -16,7 +16,7 @@ function ee_lib_check_fqdn()
 				else
 					service hostname restart &>> $EE_COMMAND_LOG
 				fi
-				hostname -f &>> $EE_COMMAND_LOG
+				echo "hostname = $(hostname -f)" &>> $EE_COMMAND_LOG
 			fi
 			;;
 		*)
