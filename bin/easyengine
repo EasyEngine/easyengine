@@ -148,7 +148,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_lib_error "Found installed Dovecot Packages server, exit status=" 1
 			fi
 
-			# Make hostname as FQDN
+			# Check hostname is FQDN or not, if not asks user to set hostname as FQDN
 			ee_lib_check_fqdn $(hostname -f)
 
 			# Install Dovecot
