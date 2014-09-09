@@ -82,32 +82,6 @@ function ee_lib_package_check()
 	done
 }
 
-# Check hostname is FQDN or not. If not set it
-function ee_lib_check_fqdn()
-{
-	case $1 in
-		*.*)
-			if [ "$EE_FQDN" != "" ];then
-				echo $EE_FQDN > /etc/hostname
-				if [ "$EE_LINUX_DISTRO" == "Debian" ];then
-					grep $EE_FQDN /etc/hosts &>> $EE_INSTALL_LOG
-					if [ $? -ne 0 ]; then
-						sed -i "1i\127.0.0.1	$EE_FQDN" /etc/hosts \
-						|| ee_lib_error "Unable setup hostname = " $?
-					fi
-					/etc/init.d/hostname.sh start &>> $EE_INSTALL_LOG
-				else
-					service hostname restart &>> $EE_INSTALL_LOG
-				fi
-				echo "hostname = $(hostname -f)" &>> $EE_INSTALL_LOG
-			fi
-			;;
-		*)
-			read -p "Enter hostname [FQDN]: " EE_FQDN
-			ee_lib_check_fqdn $EE_FQDN
-			;;
-	esac
-}
 
 # Pre checks to avoid later screw ups
 # Checking EasyEngine (ee) log directory
@@ -210,9 +184,6 @@ fi
 # EasyEngine (ee) man page
 cp -a /tmp/easyengine/docs/man/ee.8 /usr/share/man/man8/ &>> $EE_INSTALL_LOG \
 || ee_lib_error "Unable to copy EasyEngine (ee) man page, exit status = " $?
-
-# Make hostname as FQDN
-ee_lib_check_fqdn $(hostname -f)
 
 # Git config settings
 GIT_USER_NAME=$(git config user.name)
