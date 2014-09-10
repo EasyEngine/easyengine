@@ -667,17 +667,17 @@ elif [ "$EE_FIRST" = "secure" ]; then
 #EasyEngine cd
 elif [ "$EE_FIRST" = "cd" ]; then
 	# Check the website name is empty or not
-		EE_DOMAIN_CHECK=$EE_SECOND
-		ee_lib_check_domain
+	EE_DOMAIN_CHECK=$EE_SECOND
+	ee_lib_check_domain
 
-		#Check the website exist
-		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
-		|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
+	#Check the website exist
+	ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
+	|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
 
-		# Change Directory to $EE_DOMAIN webroot
-		if [ $? -eq 0 ]; then
-			ee_site_cd
-		fi
+	# Change Directory to $EE_DOMAIN webroot
+	if [ $? -eq 0 ]; then
+		ee_site_cd
+	fi
 
 # EasyEngine update
 elif [ "$EE_FIRST" = "update" ]; then
