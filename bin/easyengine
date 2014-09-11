@@ -155,7 +155,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_mod_install_dovecot
 
 			# Install mail scanner packages
-			ee_mod_install_mailscan
+			ee_mod_install_mailscaner
 
 			# Install ViMbAdmin
 			ee_ven_install_vimbadmin
@@ -170,7 +170,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_mod_setup_dovecot
 
 			# Setup Amavis
-			ee_mod_setup_mailscan
+			ee_mod_setup_mailscaner
 
 			# Setup ViMbAdmin
 			ee_ven_setup_vimbadmin
@@ -190,6 +190,18 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
 
 			ee_lib_echo "Successfully installed mail server packages"
+		elif [ "$EE_THIRD" = "mailscanner"]; then
+			
+			# Install Mail Scanner
+			ee_mod_install_mailscaner
+
+			# Setup Mail Scanner
+			ee_mod_setup_mailscaner
+
+			ee_lib_service nginx postfix dovecot amavis restart
+
+			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Installed Mail Scanner"
+			ee_lib_echo "Successfully installed mail scanner packages"
 		fi
 
 	# EasyEngine remove/purge
@@ -242,8 +254,8 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Remove Dovecot
 			ee_mod_remove_dovecot
 
-			# Remove Amavis
-			ee_mod_remove_mailscan
+			# Remove Mail Scanner 
+			ee_mod_remove_mailscaner
 
 			# Remove ViMbAdmin
 			ee_ven_remove_vimbadmin
@@ -254,11 +266,33 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Execute: apt-get autoremove
 			ee_lib_autoremove
 
+			# Restart Nginx
+			ee_lib_service nginx
+
+			ee_lib_git /etc/nginx "Removed Mail Server"
+
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
 				ee_lib_echo "Successfully removed mail server packages"
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "Successfully purged mail server packages"
+			fi
+		elif [ "$EE_THIRD" = "mailscanner"]; then
+			# Remove Amavis
+			ee_mod_remove_mailscaner
+
+			# Execute: apt-get autoremove
+			ee_lib_autoremove
+
+			ee_lib_service nginx postfix dovecot restart
+
+			ee_lib_git /etc/postfix "Removed mailscanner"
+			
+			# Display success message
+			if [ "$EE_SECOND" = "remove" ];then
+				ee_lib_echo "Successfully removed Mail Scanner packages"
+			elif [ "$EE_SECOND" = "purge" ];then
+				ee_lib_echo "Successfully purged Mail Scanner packages"
 			fi
 		fi
 

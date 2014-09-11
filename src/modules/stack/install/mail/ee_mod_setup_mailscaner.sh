@@ -1,8 +1,8 @@
 # Install mail scanner packages
 
-function ee_mod_setup_mailscan()
+function ee_mod_setup_mailscaner()
 {
-	# Confiure Amavis
+	# Configure Amavis
 
 	ee_lib_echo "Setting up Amavis, please wait..."
 	sed -i "s'#@'@'" /etc/amavis/conf.d/15-content_filter_mode && \
