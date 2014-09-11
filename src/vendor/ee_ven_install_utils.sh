@@ -87,10 +87,12 @@ function ee_ven_install_utils()
 			|| ee_lib_error "Unable to import Anemometer database, exit status = " $?
 
 			ee_anemometer_pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-			mysql -e "grant all on slow_query_log.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_anemometer_pass';"
 
-			# Grant all privileges for anemometer
-			mysql -e "grant all privileges on *.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST'" ;
+			# Grant select privileges for anemometer
+			mysql -e "grant select on *.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST'" ;
+
+			# Grant all privileges for slow_query_log database.
+			mysql -e "grant all on slow_query_log.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_anemometer_pass';"
 
 			# Anemometer configuration
 			cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
