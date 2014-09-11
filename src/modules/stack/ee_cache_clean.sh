@@ -1,11 +1,16 @@
-#Clean all cache
+# Clean all cache
 
 function ee_cache_clean()
 {
-	#Clean fastcgi cache 
-	rm -rf $(grep fastcgi_cache_path /etc/nginx/conf.d/fastcgi.conf | awk '{ print $2 }' | sed 's/$/\/*/g') \
-	|| ee_lib_error "Unable to clean fastcgi cache, exit status = " $? 
+	# Clean fastcgi cache 
+	if [ -d /var/run/nginx-cache/ ]; then
+		rm -rf /var/run/nginx-cache/* &>> $EE_COMMAND_LOG 
+	fi
 
-	#Clean memcache
-	service memcached restart &>> $EE_COMMAND_LOG || ee_lib_error "Unable to clean memcache, exit status = " $? 
+	# Clean memcache
+	dpkg --get-selections | grep -v deinstall | grep memcached &>> $EE_COMMAND_LOG
+
+	if [ $? -eq 0 ];then
+		service memcached restart &>> $EE_COMMAND_LOG 
+	fi
 }

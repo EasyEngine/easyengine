@@ -275,6 +275,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		ee_lib_echo_escape "\trestart\tRestart NGINX, PHP5, MySQL and Postfix service"
 	fi
 
+
 # EasyEngine site
 elif [ "$EE_FIRST" = "site" ]; then
 	if [ "$EE_SECOND" = "list" ]; then
@@ -542,6 +543,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Execute: service nginx reload
 			ee_lib_service nginx reload
 		fi
+	elif [ "$EE_SECOND" = "log" ]; then
+    	# tail -f log
+    	ee_site_check_logs ${@:3}|| ee_lib_error "Unable to check logs, exit status = " $?
+
 	else
 		ee_lib_echo "ee site commands:"
 		ee_lib_echo_escape "\tlist\tList NGINX enabled website"
