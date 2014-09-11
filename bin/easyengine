@@ -277,7 +277,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "Successfully purged mail server packages"
 			fi
-		elif [ "$EE_THIRD" = "mailscanner"]; then
+		elif [ "$EE_THIRD" = "mailscanner" ]; then
 			# Remove Amavis
 			ee_mod_remove_mailscaner
 
