@@ -87,7 +87,10 @@ function ee_ven_install_utils()
 			|| ee_lib_error "Unable to import Anemometer database, exit status = " $?
 
 			ee_anemometer_pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-			mysql -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ee_anemometer_pass';"
+			mysql -e "grant all on slow_query_log.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_anemometer_pass';"
+
+			# Grant all privileges for anemometer
+			mysql -e "grant all privileges on *.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST'" ;
 
 			# Anemometer configuration
 			cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
@@ -115,9 +118,6 @@ function ee_ven_install_utils()
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			fi
-
-			# Set anemometer privileges to databases
-			mysql -e "grant all privileges on *.* to 'anemometer'@'localhost'" ;
 
 			# Download pt-query-advisor Fixed #189
 			wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
