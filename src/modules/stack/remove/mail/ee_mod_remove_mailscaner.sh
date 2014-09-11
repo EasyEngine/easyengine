@@ -4,6 +4,7 @@ function ee_mod_remove_mailscaner()
 {
 	
 	# Remove Amavis configuration from Postfix configuration
+	# Better approach is: postconf -X "content_filter", But available for Postfix 2.11 (latest)
 	sed -i '/content_filter/d' /etc/postfix/main.cf
 	sed -i '/content_filter/d' /etc/postfix/master.cf
 	sed -i '/receive_override_options/d' /etc/postfix/master.cf
