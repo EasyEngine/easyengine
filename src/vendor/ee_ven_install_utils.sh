@@ -70,7 +70,7 @@ function ee_ven_install_utils()
 		# phpinfo()
 		echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
 	fi
-	dpkg -l | grep mysql-server &>> $EE_COMMAND_LOG
+	mysqladmin ping &> /dev/null
 	if [ $? -eq 0 ]; then
 		# Setup Anemometer
 		if [ ! -d /var/www/22222/htdocs/db/anemometer ]; then
@@ -115,6 +115,9 @@ function ee_ven_install_utils()
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			fi
+
+			# Set anemometer privileges to databases
+			mysql -e "grant all privileges on *.* to 'anemometer'@'localhost'" ;
 
 			# Download pt-query-advisor Fixed #189
 			wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
