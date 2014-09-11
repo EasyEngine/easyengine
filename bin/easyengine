@@ -190,7 +190,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
 
 			ee_lib_echo "Successfully installed mail server packages"
-		elif [ "$EE_THIRD" = "mailscanner"]; then
+		elif [ "$EE_THIRD" = "mailscanner" ]; then
 			
 			# Install Mail Scanner
 			ee_mod_install_mailscaner
