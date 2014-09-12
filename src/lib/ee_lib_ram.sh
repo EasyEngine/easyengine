@@ -1,0 +1,45 @@
+# EasyEngine RAM based settings
+
+function ee_lib_ram()
+{
+	# Detect RAM of System
+	readonly EE_TOTAL_RAM=$(free -m | grep -i Mem | awk '{ print $2 }')
+
+	# RAM < 512MB
+	if [ $EE_TOTAL_RAM -le 512 ]; then
+		EE_OPCACHE_SIZE="64"
+		EE_MEMCACHE_SIZE="64"
+		EE_PHP_MAX_CHILDREN="10"
+		EE_SETUP_MAILSCANNER="no"
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 512 ] && [ $EE_TOTAL_RAM -le 1024 ]; then
+		EE_OPCACHE_SIZE="128"
+		EE_MEMCACHE_SIZE="128"
+		EE_PHP_MAX_CHILDREN="10"
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 1024 ] && [ $EE_TOTAL_RAM -le 2048 ]; then
+		EE_OPCACHE_SIZE="256"
+		EE_MEMCACHE_SIZE="256"
+		EE_PHP_MAX_CHILDREN="20"
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 2048 ] && [ $EE_TOTAL_RAM -le 4096 ]; then
+		EE_OPCACHE_SIZE="512"
+		EE_MEMCACHE_SIZE="512"
+		EE_PHP_MAX_CHILDREN="40"	
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 4096 ] && [ $EE_TOTAL_RAM -le 8192 ]; then
+		EE_OPCACHE_SIZE="512"
+		EE_MEMCACHE_SIZE="1024"
+		EE_PHP_MAX_CHILDREN="80"
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 8192 ] && [ $EE_TOTAL_RAM -le 16384 ]; then
+		EE_OPCACHE_SIZE="512"
+		EE_MEMCACHE_SIZE="2048"
+		EE_PHP_MAX_CHILDREN="100"
+	# RAM > 512MB and RAM < 1024
+	elif [ $EE_TOTAL_RAM -gt 16384 ]; then
+		EE_OPCACHE_SIZE="512"
+		EE_MEMCACHE_SIZE="2048"
+		EE_PHP_MAX_CHILDREN="100"
+	fi
+}
