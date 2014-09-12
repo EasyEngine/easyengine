@@ -185,8 +185,8 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				# Setup Amavis
 				ee_mod_setup_mailscaner
 			else
-				ee_lib_echo "Found RAM less than 512MB, not installing Mail Scanner packages"
-
+				ee_lib_echo_fail "RAM is less then 512MB, EasyEngine skip installing Mail Scanner Packages"
+				
 			fi
 			ee_lib_service nginx postfix dovecot amavis restart
 
