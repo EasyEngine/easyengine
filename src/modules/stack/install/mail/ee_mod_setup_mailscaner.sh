@@ -25,6 +25,15 @@ function ee_mod_setup_mailscaner()
 	|| ee_lib_error "Unable to setup Amavis, exit status = " $?
 	cat /usr/share/easyengine/mail/amavis-master.cf >> /etc/postfix/master.cf
 
+	# Grep ViMbAdmin host and Password from Postfix Configuration
+	ee_vimbadmin_host=$(grep password /etc/postfix/mysql/virtual_alias_maps.cf | awk '{ print $3 }')
+	ee_vimbadmin_password=$(grep hosts /etc/postfix/mysql/virtual_alias_maps.cf | awk '{ print $3 }')
+	
+	# Changing hosts and password of ViMbAdmin database in Amavis configuration
+	sed -i "s/127.0.0.1/$ee_vimbadmin_host/" /etc/amavis/conf.d/50-user &&
+	sed -i "s/password/$ee_vimbadmin_password/" /etc/amavis/conf.d/50-user \
+	|| ee_lib_error "Unable to setup ViMbAdmin database details in Amavis configuration, exit status = " $?
+
 	# Configure ClamAv and Amavis to each other files
 	adduser clamav amavis &>> $EE_COMMAND_LOG
 	adduser amavis clamav &>> $EE_COMMAND_LOG
