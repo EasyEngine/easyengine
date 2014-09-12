@@ -2,7 +2,7 @@
 
 function ee_mod_site_log()
 {
-		# Check if domain name present
+	# Check if domain name passed
         if [ $# -eq 0 ]; then
                 for ee_domain_name in $(ls /etc/nginx/sites-available/*); do
                         ee_log_path="$ee_log_path /var/log/nginx/$(basename $ee_domain_name).*.log"
