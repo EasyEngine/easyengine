@@ -4,11 +4,11 @@ function ee_mod_site_log()
 {
 		# Check if domain name present
         if [ $# -eq 0 ]; then
-                for site in $(ls /etc/nginx/sites-available/*); do
-                        ee_log_path="$ee_log_path /var/log/nginx/$(basename $site).*.log"
+                for ee_domain_name in $(ls /etc/nginx/sites-available/*); do
+                        ee_log_path="$ee_log_path /var/log/nginx/$(basename $ee_domain_name).*.log"
                 done
         else
-                for $ee_domain_name in $@; do
+                for ee_domain_name in $@; do
                         
                         EE_DOMAIN_CHECK=$ee_domain_name
                         ee_lib_check_domain
