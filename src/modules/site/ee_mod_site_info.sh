@@ -14,17 +14,17 @@ function ee_mod_site_info()
 	ee_lib_echo_escape "error_log\t\t \033[37m$ee_error_log"
 	ee_lib_echo_escape "Webroot\t\t\t \033[37m$ee_webroot"
 
-	if [ -f /var/www/$EE_DOMAIN/*-config.php ]; then
-		local ee_db_name=$(grep DB_NAME /var/www/$EE_DOMAIN/*-config.php 2> /dev/null | cut -d"'" -f4)
-		local ee_db_user=$(grep DB_USER /var/www/$EE_DOMAIN/*-config.php 2> /dev/null | cut -d"'" -f4)
-		local ee_db_pass=$(grep DB_PASS /var/www/$EE_DOMAIN/*-config.php 2> /dev/null | cut -d"'" -f4)
+	if [ -f $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/') ]; then
+		local ee_db_name=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
+		local ee_db_user=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
+		local ee_db_pass=$(grep DB_PASS $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
 
 		ee_lib_echo_escape "DB_NAME\t\t\t \033[37m$ee_db_name"
 		ee_lib_echo_escape "DB_USER\t\t\t \033[37m$ee_db_user"
 		ee_lib_echo_escape "DB_PASS\t\t\t \033[37m$ee_db_pass"
 		
-		if [ -f /var/www/$EE_DOMAIN/wp-config.php ]; then
-			local ee_table_prefix=$(grep table_prefix /var/www/$EE_DOMAIN/wp-config.php 2> /dev/null | cut -d"'" -f2)
+		if [ -f $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/wp-config.php/') ]; then
+			local ee_table_prefix=$(grep table_prefix $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/wp-config.php/') | cut -d"'" -f2)
 			ee_lib_echo_escape "table_prefix\t\t \033[37m$ee_table_prefix"
 		fi 
 	fi
