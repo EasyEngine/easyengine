@@ -45,6 +45,8 @@ elif [ "$EE_FIRST" = "info" ];then
 elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 	# EasyEngine install
 	if [ "$EE_SECOND" = "install" ]; then
+		# Detect RAM of system and initialize the variables.
+		ee_lib_ram
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
 				# Setup NGINX/PHP repository
@@ -154,8 +156,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Install Dovecot
 			ee_mod_install_dovecot
 
-			# Install mail scanner packages
-			ee_mod_install_mailscaner
 
 			# Install ViMbAdmin
 			ee_ven_install_vimbadmin
@@ -169,9 +169,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Configure Dovecot
 			ee_mod_setup_dovecot
 
-			# Setup Amavis
-			ee_mod_setup_mailscaner
-
 			# Setup ViMbAdmin
 			ee_ven_setup_vimbadmin
 
@@ -180,7 +177,17 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Setup Sieve Rules
 			ee_mod_setup_sieve
-	
+
+			if [ "$EE_SETUP_MAILSCANNER" != "no" ]; then
+				# Install mail scanner packages
+				ee_mod_install_mailscaner
+
+				# Setup Amavis
+				ee_mod_setup_mailscaner
+			else
+				ee_lib_echo "Found RAM less than 512MB, not installing Mail Scanner packages"
+				
+			fi
 			ee_lib_service nginx postfix dovecot amavis restart
 
 			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Initialize Git"
