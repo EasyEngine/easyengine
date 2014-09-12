@@ -545,7 +545,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 	elif [ "$EE_SECOND" = "log" ]; then
     	# tail -f log
-    	ee_site_check_logs ${@:3}|| ee_lib_error "Unable to check logs, exit status = " $?
+    	ee_mod_site_log ${@:3}|| ee_lib_error "Unable to check logs, exit status = " $?
 
 	else
 		ee_lib_echo "ee site commands:"
