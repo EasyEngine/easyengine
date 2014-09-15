@@ -28,7 +28,14 @@ function ee_mod_setup_sieve()
 	|| ee_lib_error "Unable to compile Sieve rules, exit status = " $?
 
 	# Configure Roundcube 
-	sed -i "s:\$config\['plugins'\] = array(:\$config\['plugins'\] = array(\n    'sieverules',:" /var/www/roundcubemail/htdocs/config/config.inc.php \
+	sed -i "s:\$config\['plugins'\] = array(:\$config\['plugins'\] = array(\n    'managesieve',:" /var/www/roundcubemail/htdocs/config/config.inc.php \
 	|| ee_lib_error "Unable to configure Sieve Roundcube plugin, exit status = " $?
-	echo "\$config['sieverules_port'] = 4190;" >> /var/www/roundcubemail/htdocs/config/config.inc.php
+
+	# Configure ManageSieve Plugin
+	cp -v /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php.dist /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php &>> $EE_COMMAND_LOG \
+	|| ee_lib_error "Unable to configure ManageSieve Roundcube plugin, exit status = " $?
+
+	sed -i "s:\$config\['managesieve_port'\] = null:\$config\['managesieve_port'\] = 4190:" /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php && \
+	sed -i "s:/etc/dovecot/sieve/global:/var/lib/dovecot/sieve/default.sieve:" /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php \
+	|| ee_lib_error "Unable to configure ManageSieve Roundcube plugin, exit status = " $?
 }
