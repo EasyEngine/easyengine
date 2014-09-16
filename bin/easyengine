@@ -547,6 +547,21 @@ elif [ "$EE_FIRST" = "site" ]; then
     	# tail -f log
     	ee_mod_site_log ${@:3}|| ee_lib_error "Unable to check logs, exit status = " $?
 
+    #EasyEngine cd
+	elif [ "$EE_SECOND" = "cd" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
+
+		#Check the website exist
+		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
+		|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
+
+		# Change Directory to $EE_DOMAIN webroot
+		if [ $? -eq 0 ]; then
+			ee_site_cd
+		fi
+	
 	else
 		ee_lib_echo "ee site commands:"
 		ee_lib_echo_escape "\tlist\tList NGINX enabled website"
@@ -667,21 +682,6 @@ elif [ "$EE_FIRST" = "secure" ]; then
 		ee_lib_echo_escape "\t--auth\tUpdate credential of HTTP authentication"
 		ee_lib_echo_escape "\t--port\tChange EasyEngine admin port 22222"
 		ee_lib_echo_escape "\t--ip\tUpdate whitelist IP address"
-	fi
-
-#EasyEngine cd
-elif [ "$EE_FIRST" = "cd" ]; then
-	# Check the website name is empty or not
-	EE_DOMAIN_CHECK=$EE_SECOND
-	ee_lib_check_domain
-
-	#Check the website exist
-	ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
-	|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
-
-	# Change Directory to $EE_DOMAIN webroot
-	if [ $? -eq 0 ]; then
-		ee_site_cd
 	fi
 
 # EasyEngine clean
