@@ -10,6 +10,9 @@ function ee_mod_setup_wordpress()
 	cd /var/www/$EE_DOMAIN/htdocs && wp --allow-root core download &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to download WordPress, exit status = " $?
 	
+	# Symbolic link for debug.log
+	ee_lib_symbolic_link /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log /var/www/$EE_DOMAIN/logs/debug.log
+	
 	# Database setup
 	ee_mod_setup_database
 	
