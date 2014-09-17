@@ -30,5 +30,7 @@ function ee_mod_setup_sieve()
 	# Configure Roundcube 
 	sed -i "s:\$config\['plugins'\] = array(:\$config\['plugins'\] = array(\n    'sieverules',:" /var/www/roundcubemail/htdocs/config/config.inc.php \
 	|| ee_lib_error "Unable to configure Sieve Roundcube plugin, exit status = " $?
+
 	echo "\$config['sieverules_port'] = 4190;" >> /var/www/roundcubemail/htdocs/config/config.inc.php
+
 }

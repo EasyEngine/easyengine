@@ -61,5 +61,10 @@ function ee_mod_setup_php()
 		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_COMMAND_LOG \
 		|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 
-	fi
+		ee_lib_echo "Downloading GeoIP Database, please wait..."
+		mkdir -p /usr/share/GeoIP
+		wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoIPCity.dat http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+		gunzip /usr/share/GeoIP/GeoLiteCity.dat.gz
+		mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+	fi		
 }

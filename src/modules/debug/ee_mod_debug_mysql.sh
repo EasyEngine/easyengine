@@ -10,7 +10,7 @@ function ee_mod_debug_mysql()
 			mysql -e "set global slow_query_log = 'ON';" \
 			|| ee_lib_error "Unable to setup slow_query_log, exit status = " $?
 
-			mysql -e "set global slow_query_log_file = '/var/log/mysql/slow.log';" \
+			mysql -e "set global slow_query_log_file = '/var/log/mysql/mysql-slow.log';" \
 			|| ee_lib_error "Unable to setup slow_query_log_file, exit status = " $?
 
 			mysql -e "set global long_query_time = 2;" \
@@ -24,7 +24,7 @@ function ee_mod_debug_mysql()
 		fi
 
 		# Debug message
-		EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/mysql/slow.log"
+		EE_DEBUG_MSG="$EE_DEBUG_MSG /var/log/mysql/mysql-slow.log"
 	elif [ "$EE_DEBUG" = "--stop" ]; then
 		mysql -e "show variables like 'slow_query_log';" | grep ON &>> $EE_COMMAND_LOG
 		if [ $? -eq 0 ]; then
@@ -33,7 +33,7 @@ function ee_mod_debug_mysql()
 			mysql -e "set global slow_query_log = 'OFF';" \
 			|| ee_lib_error "Unable to setup slow_query_log, exit status = " $?
 
-			mysql -e "set global slow_query_log_file = '/var/log/mysql/slow.log';" \
+			mysql -e "set global slow_query_log_file = '/var/log/mysql/mysql-slow.log';" \
 			|| ee_lib_error "Unable to setup slow_query_log_file, exit status = " $?
 
 			mysql -e "set global long_query_time = 10;" \

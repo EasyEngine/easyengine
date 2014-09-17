@@ -1,6 +1,6 @@
 # Install Amavis package
 
-function ee_mod_install_mailscan()
+function ee_mod_install_mailscaner()
 {
 	# Install Amavis
 	ee_lib_echo "Installing Amavis, SpamAssassin and ClamAV, please wait..."

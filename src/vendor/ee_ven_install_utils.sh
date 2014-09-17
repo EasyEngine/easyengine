@@ -70,7 +70,7 @@ function ee_ven_install_utils()
 		# phpinfo()
 		echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
 	fi
-	dpkg -l | grep mysql-server &>> $EE_COMMAND_LOG
+	mysqladmin ping &> /dev/null
 	if [ $? -eq 0 ]; then
 		# Setup Anemometer
 		if [ ! -d /var/www/22222/htdocs/db/anemometer ]; then
@@ -87,7 +87,12 @@ function ee_ven_install_utils()
 			|| ee_lib_error "Unable to import Anemometer database, exit status = " $?
 
 			ee_anemometer_pass=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
-			mysql -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ee_anemometer_pass';"
+
+			# Grant select privileges for anemometer
+			mysql -e "grant select on *.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST'" ;
+
+			# Grant all privileges for slow_query_log database.
+			mysql -e "grant all on slow_query_log.* to 'anemometer'@'$EE_MYSQL_GRANT_HOST' IDENTIFIED BY '$ee_anemometer_pass';"
 
 			# Anemometer configuration
 			cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
@@ -103,7 +108,7 @@ function ee_ven_install_utils()
 				echo -e "                  pt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
-				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /etc/logrotate.d/mysql-server
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			else
@@ -111,7 +116,7 @@ function ee_ven_install_utils()
 				echo -e "                  pt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
 				echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
-				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+				echo -e "                  --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /etc/logrotate.d/mysql-server
 				echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
 				echo -e "}" >> /etc/logrotate.d/mysql-server
 			fi
