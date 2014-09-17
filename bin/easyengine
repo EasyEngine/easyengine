@@ -46,7 +46,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 	# EasyEngine install
 	if [ "$EE_SECOND" = "install" ]; then
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ] || [ "$EE_THIRD" = "adminer" ] || [ "$EE_THIRD" = "phpmyadmin" ] || [ "$EE_THIRD" = "wpcli" ] || [ "$EE_THIRD" = "utils" ]; then
-			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ]; then
+			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ]; then
 				# Setup NGINX/PHP repository
 				ee_mod_repo_$EE_THIRD
 
@@ -544,16 +544,16 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_service nginx reload
 		fi
 	elif [ "$EE_SECOND" = "log" ]; then
-    	# tail -f log
-    	ee_mod_site_log ${@:3}|| ee_lib_error "Unable to check logs, exit status = " $?
+    	# Display logs for websites
+    	ee_mod_site_log ${@:3}
 
-    #EasyEngine cd
+  #EasyEngine cd
 	elif [ "$EE_SECOND" = "cd" ]; then
 		# Check the website name is empty or not
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
-		#Check the website exist
+		# Check the website exist
 		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
 		|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
 
@@ -684,9 +684,9 @@ elif [ "$EE_FIRST" = "secure" ]; then
 		ee_lib_echo_escape "\t--ip\tUpdate whitelist IP address"
 	fi
 
-# EasyEngine clean
+# Clean cache
 elif [ "$EE_FIRST" = "clean" ]; then
-      ee_mod_cache_clean ${@:2} || ee_lib_error "Unable to clean cache = " $?
+      ee_mod_clean ${@:2}
 
 
 # EasyEngine update
