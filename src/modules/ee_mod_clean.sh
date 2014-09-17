@@ -13,6 +13,8 @@ function ee_mod_clean()
 			ee_clean_fastcgi="fastcgi"
 			ee_clean_memcache="memcache"
 			ee_clean_opcache="opcache"
+		else
+			ee_lib_error "$ee_clean invalid option, exit status = " $?
 		fi
 	done
 
@@ -24,7 +26,7 @@ function ee_mod_clean()
 			|| ee_lib_error "Unable to clean FastCGI cache, exit status = " $?
 		fi
 	fi
-	
+
 	# Clean Memcache
 	if [ "$ee_clean_memcache" = "memcache" ]; then
 		dpkg --get-selections | grep -v deinstall | grep memcached &>> $EE_COMMAND_LOG \
@@ -38,8 +40,8 @@ function ee_mod_clean()
 	fi
 
 	# Clean OPcache
-	if [ "$ee_clean_opcache" = "memcache" ]; then
-		ee_lib_echo "Cleaning Memcached, please wait..."
+	if [ "$ee_clean_opcache" = "opcache" ]; then
+		ee_lib_echo "Cleaning OPcache, please wait..."
 		wget --no-check-certificate --spider -q https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset \
 		|| ee_lib_error "Unable to clean OPcache, exit status = " $?
 	fi
