@@ -13,8 +13,8 @@ ee_mod_install_mysql()
 	if [ -n "$EE_PACKAGE_NAME" ]; then
 
 		# Setting up MySQL password
-		debconf-set-selections <<< "mysql-server mysql-server/root_password password $ee_random"
-		debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $ee_random"
+		debconf-set-selections <<< "percona-server-server-5.6 percona-server-server/root_password password $ee_random"
+		debconf-set-selections <<< "percona-server-server-5.6 percona-server-server/root_password_again password $ee_random"
 
 		# Generate ~/.my.cnf
 		echo -e "[client]\nuser=root\npassword=$ee_random" > ~/.my.cnf
@@ -22,7 +22,7 @@ ee_mod_install_mysql()
 	fi
 
 	ee_lib_echo "Installing MySQL, please Wait..."
-	$EE_APT_GET install mysql-server mysqltuner percona-toolkit \
+	$EE_APT_GET install percona-server-server-5.6 mysqltuner percona-toolkit \
 	|| ee_lib_error "Unable to install MySQL, exit status = " $?
 
 	# Download tuning-primer.sh
