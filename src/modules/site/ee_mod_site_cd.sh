@@ -1,4 +1,4 @@
-#CD to Webroot
+# Change directory to website root
 
 function ee_site_cd()
 {
