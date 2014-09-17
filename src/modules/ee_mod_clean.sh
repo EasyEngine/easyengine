@@ -2,27 +2,31 @@
 
 function ee_mod_clean()
 {
-	if [ "$@" = "" ] || [ "$@" = "fastcgi" ]; then
-		EE_CLEAN_FASTCGI="fastcgi"
-	elif [ "$@" = "memcache" ]; then
-		EE_CLEAN_MEMCACHE="memcache"
-	elif [ "$@" = "opcache" ]; then
-		EE_CLEAN_OPCACHE="opcache"
-	elif [ "$@" = "all" ]; then
-		EE_CLEAN_FASTCGI="fastcgi"
-		EE_CLEAN_MEMCACHE="memcache"
-		EE_CLEAN_OPCACHE="opcache"
-	fi
+	for ee_clean in $@; do
+		if [ "$ee_clean" = "" ] || [ "$ee_clean" = "fastcgi" ]; then
+			ee_clean_fastcgi="fastcgi"
+		elif [ "$ee_clean" = "memcache" ]; then
+			ee_clean_memcache="memcache"
+		elif [ "$ee_clean" = "opcache" ]; then
+			ee_clean_opcache="opcache"
+		elif [ "$ee_clean" = "all" ]; then
+			ee_clean_fastcgi="fastcgi"
+			ee_clean_memcache="memcache"
+			ee_clean_opcache="opcache"
+		fi
+	done
 
-	if [ "$EE_CLEAN_FASTCGI" = "fastcgi" ]; then
-		ee_lib_echo "Cleaning NGINX FastCGI cache, please wait..."
+	# Clean NGINX FastCGI cache 
+	if [ "$ee_clean_fastcgi" = "fastcgi" ]; then
 		if [ -d /var/run/nginx-cache/ ]; then
+			ee_lib_echo "Cleaning NGINX FastCGI cache, please wait..."
 			rm -rf /var/run/nginx-cache/* &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to clean FastCGI cache, exit status = " $?
 		fi
 	fi
-
-	if [ "$EE_CLEAN_MEMCACHE" = "memcache" ]; then
+	
+	# Clean Memcache
+	if [ "$ee_clean_memcache" = "memcache" ]; then
 		dpkg --get-selections | grep -v deinstall | grep memcached &>> $EE_COMMAND_LOG \
 		|| ee_lib_error "Memcache not installed, exit status = " $?
 
@@ -33,7 +37,8 @@ function ee_mod_clean()
 		fi
 	fi
 
-	if [ "$EE_CLEAN_OPCACHE" = "memcache" ]; then
+	# Clean OPcache
+	if [ "$ee_clean_opcache" = "memcache" ]; then
 		ee_lib_echo "Cleaning Memcached, please wait..."
 		wget --no-check-certificate --spider -q https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset \
 		|| ee_lib_error "Unable to clean OPcache, exit status = " $?

@@ -91,9 +91,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
 		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
-			# Setup  NGINX/PHP repository
+			# Setup  NGINX/PHP/MySQL repository
 			ee_mod_repo_nginx
 			ee_mod_repo_php
+			ee_mod_repo_mysql
 
 			# Fix GnuPG key
 			ee_lib_gpg_key_fix
