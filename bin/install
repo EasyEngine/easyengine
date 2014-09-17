@@ -89,7 +89,7 @@ if [ ! -d $EE_LOG_DIR ]; then
 	mkdir -p $EE_LOG_DIR || ee_lib_error "Unable to create log directory $EE_LOG_DIR, exit status = " $?
 	
 	# Create EasyEngine log files
-	touch /var/log/easyengine/ee.log /var/log/easyengine/install.log /var/log/easyengine/update.log /var/log/easyengine/error.log \
+	touch /var/log/easyengine/{ee.log,install.log,update.log,error.log} \
 	|| ee_lib_error "Unable to create EasyEngine log files in $EE_LOG_DIR, exit status = " $?
 
 	# Keep EasyEngine log folder accessible to root only
