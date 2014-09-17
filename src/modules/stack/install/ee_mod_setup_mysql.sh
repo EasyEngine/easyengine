@@ -8,6 +8,5 @@ function ee_mod_setup_mysql()
 	grep "_timeout" /etc/mysql/my.cnf &>> $EE_COMMAND_LOG
 	if [ $? -ne 0 ]; then
 		sed -i "/#max_connections/a wait_timeout = 30 \ninteractive_timeout = 60" /etc/mysql/my.cnf
-		sed -i "/\[mysqldump\]/i slow_query_log_file = /var/log/mysql/slow.log" /etc/mysql/my.cnf
 	fi
 }
