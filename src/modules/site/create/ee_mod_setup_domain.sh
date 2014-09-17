@@ -24,6 +24,7 @@ function ee_mod_setup_domain()
 		# Creating symbolic links for logs
 		ee_lib_symbolic_link /var/log/nginx/$EE_DOMAIN.access.log /var/www/$EE_DOMAIN/logs/access.log
 		ee_lib_symbolic_link /var/log/nginx/$EE_DOMAIN.error.log /var/www/$EE_DOMAIN/logs/error.log
+		ee_lib_symbolic_link /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log /var/www/$EE_DOMAIN/logs/debug.log
 	else
 		ee_lib_error "$EE_DOMAIN already exist, exit status = " $?
 	fi
