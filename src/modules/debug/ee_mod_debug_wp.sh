@@ -21,6 +21,11 @@ function ee_mod_debug_wp()
 				cd /var/www/$EE_DOMAIN/htdocs/ && \
 				wp plugin --allow-root install developer &>> $EE_COMMAND_LOG \
 				|| ee_lib_error "Unable to install developer plugin, exit status = " $?
+				
+				# Fix Developer plugin permissions
+				chown -R $EE_PHP_USER:$EE_PHP_USER /var/www/$EE_DOMAIN/htdocs/wp-content/plugins/developer \
+				|| ee_lib_error "Unable to change ownership for developer plugin, exit status = " $?
+
 			else
 				# Display message
 				ee_lib_echo "WordPress debug log already enabled for $EE_DOMAIN"

@@ -36,6 +36,7 @@ function ee_ven_setup_vimbadmin()
 	|| ee_lib_error "Unable to setup ViMbAdmin configuration file, exit status = " $?
 
 	# Changing hosts and password of ViMbAdmin database in postfix configuration 
+	# Note: As Amavis is optional, Amavis ViMbAdmin settings are present is ee_mod_setup_mailscaner function 
 	sed -i "s/password = password/password = $ee_random/" /etc/postfix/mysql/virtual_alias_maps.cf &&
 	sed -i "s/hosts = 127.0.0.1/hosts = $ee_vimbadmin_host/" /etc/postfix/mysql/virtual_alias_maps.cf \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in virtual_alias_maps.cf file, exit status = " $?
@@ -51,11 +52,6 @@ function ee_ven_setup_vimbadmin()
 	sed -i "s/password=password/password=$ee_random/" /etc/dovecot/dovecot-sql.conf.ext &&
 	sed -i "s/hosts=localhost/hosts=$ee_vimbadmin_host/" /etc/dovecot/dovecot-sql.conf.ext \
 	|| ee_lib_error "Unable to setup ViMbAdmin database details in dovecot-sql.conf.ext file, exit status = " $?	
-
-	# Changing hosts and password of ViMbAdmin database in Amavis configuration
-	sed -i "s/127.0.0.1/$ee_vimbadmin_host/" /etc/amavis/conf.d/50-user &&
-	sed -i "s/password/$ee_random/" /etc/amavis/conf.d/50-user \
-	|| ee_lib_error "Unable to setup ViMbAdmin database details in 50-user file, exit status = " $?
 
 	# Copying HTACCESS
 	cp -av /var/www/22222/htdocs/vimbadmin/public/.htaccess.dist /var/www/22222/htdocs/vimbadmin/public/.htaccess &>> $EE_COMMAND_LOG

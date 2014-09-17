@@ -128,7 +128,7 @@ script:
 
 - sudo bash ee stack install mail
 
-- sudo cat /var/log/easyengine/*
+- sudo bash -c 'cat /var/log/easyengine/*'
 
 
 - sudo ls /var/www/
