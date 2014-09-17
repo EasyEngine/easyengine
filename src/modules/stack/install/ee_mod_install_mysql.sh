@@ -21,7 +21,7 @@ ee_mod_install_mysql()
 
 	fi
 
-	ee_lib_echo "Installing MySQL, please Wait..."
+	ee_lib_echo "Installing Percona MySQL, please Wait..."
 	$EE_APT_GET install percona-server-server-5.6 mysqltuner percona-toolkit \
 	|| ee_lib_error "Unable to install MySQL, exit status = " $?
 
