@@ -444,21 +444,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		if [[ $EE_CURRENT_VERSION < 2.1.1 ]]; then
 					# Install WP-CLI
 					ee_ven_install_wpcli
-
-					# Configure ManageSieve plugin
-					if [ -d /var/www/roundcubemail/htdocs ]; then
-						sed -i "/sieverules_port/d" /var/www/roundcubemail/htdocs/config/config.inc.php
-						sed -i "s/'sieverules'/'managesieve'/" /var/www/roundcubemail/htdocs/config/config.inc.php
-						
-						# Configure ManageSieve Plugin
-						cp -v /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php.dist /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php &>> $EE_COMMAND_LOG \
-						|| ee_lib_error "Unable to configure ManageSieve Roundcube plugin, exit status = " $?
-
-						sed -i "s:\$config\['managesieve_port'\] = null:\$config\['managesieve_port'\] = 4190:" /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php && \
-						sed -i "s:/etc/dovecot/sieve/global:/var/lib/dovecot/sieve/default.sieve:" /var/www/roundcubemail/htdocs/plugins/managesieve/config.inc.php \
-						|| ee_lib_error "Unable to configure ManageSieve Roundcube plugin, exit status = " $?
-
-					fi
 		fi
 
 		# Restart service
