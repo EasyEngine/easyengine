@@ -2,6 +2,10 @@
 
 function ee_mod_clean()
 {
+
+	if [ $# -eq 0 ]; then
+		ee_clean_fastcgi="fastcgi"
+	fi
 	for ee_clean in $@; do
 		if [ "$ee_clean" = "" ] || [ "$ee_clean" = "fastcgi" ]; then
 			ee_clean_fastcgi="fastcgi"
