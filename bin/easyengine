@@ -639,6 +639,7 @@ elif [ "$EE_FIRST" = "debug" ]; then
 		[ "$ee_debug_args" = "--fpm" ] && EE_DEBUG_FPM=$ee_debug_args && echo EE_DEBUG_FPM = $EE_DEBUG_FPM &>> $EE_COMMAND_LOG
 		[ "$ee_debug_args" = "--mysql" ] && EE_DEBUG_MYSQL=$ee_debug_args && echo EE_DEBUG_MYSQL = $EE_DEBUG_MYSQL &>> $EE_COMMAND_LOG
 		[ "$ee_debug_args" = "--wp" ] && EE_DEBUG_WP=$ee_debug_args && echo EE_DEBUG_WP = $EE_DEBUG_WP &>> $EE_COMMAND_LOG
+		[ "${ee_debug_args%=*}" = "--import-slow-log-time" ] && EE_DEBUG_IMPORT_SLOW_LOG=$ee_debug_args && echo EE_DEBUG_IMPORT_SLOW_LOG = $EE_DEBUG_IMPORT_SLOW_LOG &>> $EE_COMMAND_LOG
 		if [ "$ee_debug_args" != "debug" ] && [ "$ee_debug_args" != "-i" ] && [ "$ee_debug_args" != "--start" ] && [ "$ee_debug_args" != "--stop" ] && [ "$ee_debug_args" != "--nginx" ] && [ "$ee_debug_args" != "--rewrite" ] && [ "$ee_debug_args" != "--php" ] && [ "$ee_debug_args" != "--fpm" ] && [ "$ee_debug_args" != "--mysql" ] && [ "$ee_debug_args" != "--wp" ]; then
 			ls /etc/nginx/sites-available/ | grep $ee_debug_args &>> $EE_COMMAND_LOG
 			if [ $? -eq 0 ]; then

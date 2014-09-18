@@ -18,6 +18,16 @@ function ee_mod_debug_mysql()
 
 			mysql -e "set global log_queries_not_using_indexes = 'ON';" \
 			|| ee_lib_error "Unable to setup log_queries_not_using_indexes, exit status = " $?
+
+			# Set a cron for slow query log
+			if [ -z $EE_DEBUG_IMPORT_SLOW_LOG ]; then
+				ee_cron_time=${EE_DEBUG_IMPORT_SLOW_LOG##*=}
+				if [ "$ee_cron_time" = "" ] || [ ! $ee_cron_time =~ "^[0-9]+$" ]
+					ee_cron_time=5
+				fi
+				crontab -l | sed '*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log' | crontab -
+			fi
+
 		else
 			# Display message
 			ee_lib_echo "MySQL slow log already enabled"
