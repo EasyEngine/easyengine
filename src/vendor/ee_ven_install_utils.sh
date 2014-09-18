@@ -101,26 +101,9 @@ function ee_ven_install_utils()
 			sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 			sed -i "/password/ s/''/'$ee_anemometer_pass'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 
-			# Generate ee_lib_import_slow_log function
-			> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-			dpkg --compare-versions $(pt-query-digest --version | awk '{print $2 }') ge 2.2
-			if [ $? -eq 0 ]; then
-				echo -e "# Import MySQL slow log to Anememoter" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "function ee_lib_import_slow_log()\n{" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\tpt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--review D=slow_query_log,t=global_query_review \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--history D=slow_query_log,t=global_query_review_history \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "}" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-			else
-				echo -e "# Import MySQL slow log to Anememoter" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "function ee_lib_import_slow_log()\n{" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\tpt-query-digest --user=anemometer --password=$ee_anemometer_pass \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--review-history D=slow_query_log,t=global_query_review \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--history D=slow_query_log,t=global_query_review_history \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t--no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "}" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-			fi
+			# Change Anemometer password in ee_lib_import_slow_log
+			sed -i "s/--password.*/--password=${ee_anemometer_pass} \\\/" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
+			|| ee_lib_error "Unable to change Anemometer password, exit status = " $?
 
 			# Download pt-query-advisor Fixed #189
 			wget -q http://bazaar.launchpad.net/~percona-toolkit-dev/percona-toolkit/2.1/download/head:/ptquerydigest-20110624220137-or26tn4expb9ul2a-16/pt-query-digest -O /usr/bin/pt-query-advisor \
@@ -129,7 +112,7 @@ function ee_ven_install_utils()
 
 			# Enable pt-query-advisor plugin in Anemometer
 			sed -i "s/#	'query_advisor'/	'query_advisor'/" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
-			|| ee_lib_error "Unable to to activate pt-query-advisor plugin, exit status = " $?
+			|| ee_lib_error "Unable to activate pt-query-advisor plugin, exit status = " $?
 
 		fi
 	fi
