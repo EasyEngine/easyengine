@@ -101,7 +101,8 @@ function ee_ven_install_utils()
 			sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 			sed -i "/password/ s/''/'$ee_anemometer_pass'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 
-			# Execute on MySQL log-rotation
+			# Generate ee_lib_import_slow_log function
+			> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 			dpkg --compare-versions $(pt-query-digest --version | awk '{print $2 }') ge 2.2
 			if [ $? -eq 0 ]; then
 				echo -e "# Import MySQL slow log to Anememoter" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
@@ -110,7 +111,6 @@ function ee_ven_install_utils()
 				echo -e "\t--review D=slow_query_log,t=global_query_review \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "\t--history D=slow_query_log,t=global_query_review_history \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "\t--no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t\tendscript" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "}" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 			else
 				echo -e "# Import MySQL slow log to Anememoter" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
@@ -119,7 +119,6 @@ function ee_ven_install_utils()
 				echo -e "\t--review-history D=slow_query_log,t=global_query_review \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "\t--history D=slow_query_log,t=global_query_review_history \\" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "\t--no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"$EE_MYSQL_GRANT_HOST\\\"\" /var/log/mysql/mysql-slow.log >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
-				echo -e "\t\tendscript" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 				echo -e "}" >> /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh
 			fi
 
