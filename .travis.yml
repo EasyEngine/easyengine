@@ -36,6 +36,7 @@ script:
 - sudo bash ee site create site1.net --basic
 - sudo bash ee site create site1.org --wp --basic
 - sudo bash ee site create site1.in --basic --wp
+- sudo bash ee site create subdomain.site1.in --basic --wp
 
 - sudo bash ee site create site2.com --wpsc
 - sudo bash ee site create site2.net --wp --wpsc
