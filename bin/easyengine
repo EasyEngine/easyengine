@@ -738,7 +738,7 @@ elif [ "$EE_FIRST" = "secure" ]; then
 elif [ "$EE_FIRST" = "clean" ]; then
   ee_mod_clean ${@:2}
 
-elif [ "$EE_FIRST" = "import-slow-log"];then
+elif [ "$EE_FIRST" = "import-slow-log" ];then
 	ee_lib_import_slow_log
 
 # EasyEngine update
