@@ -22,7 +22,7 @@ function ee_mod_debug_mysql()
 			# Set a cron for slow query log
 			if [ -z $EE_DEBUG_IMPORT_SLOW_LOG ]; then
 				ee_cron_time=${EE_DEBUG_IMPORT_SLOW_LOG##*=}
-				if [ "$ee_cron_time" = "" ] || [ ! $ee_cron_time =~ "^[0-9]+$" ]
+				if [ "$ee_cron_time" = "" ] || [ ! $ee_cron_time =~ "^[0-9]+$" ]; then
 					ee_cron_time=5
 				fi
 				crontab -l | sed '*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log' | crontab -
