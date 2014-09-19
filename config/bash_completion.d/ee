@@ -15,7 +15,7 @@ function EE_AUTO()
 
 		# List of suggested words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W '$(echo version help info update; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo version help info update import-slow-log; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
@@ -63,6 +63,10 @@ function EE_AUTO()
 
 		--nginx|--rewrite|--php|--fpm|--mysql)
 			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			return 0
+			;;
+		--mysql)
+			COMPREPLY=( $(compgen -W '$(echo --import-slow-log-time=; cd /usr/local/ib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
