@@ -23,7 +23,7 @@ function ee_mod_debug_mysql()
 			if [ ! -z $EE_DEBUG_IMPORT_SLOW_LOG ]; then
 				ee_cron_time=${EE_DEBUG_IMPORT_SLOW_LOG##*=}
 				[[ $ee_cron_time =~ ^-?[0-9]+$ ]] || ee_cron_time=5
-				crontab -l | { cat; echo "*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log"; } | crontab -
+				crontab -l 2> /dev/null | { cat; echo -e "#EasyEgnine MySQL slow log\n*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log"; } | crontab -
 			fi
 
 		else
