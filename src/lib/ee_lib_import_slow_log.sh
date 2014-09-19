@@ -16,7 +16,7 @@ function ee_lib_import_slow_log()
 			pt-query-digest --user=anemometer --password=anemometer_password \
 			--review D=slow_query_log,t=global_query_review \
 			--${ee_anemometer_history} D=slow_query_log,t=global_query_review_history \
-			--no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"$EE_MYSQL_GRANT_HOST\"" /var/log/mysql/mysql-slow.log
+			--no-report --limit=0% --filter=" \$event->{Bytes} = length(\$event->{arg}) and \$event->{hostname}=\"anemometer-mysql\"" /var/log/mysql/mysql-slow.log
 		else
 			ee_lib_echo_fail "Failed to find MySQL slow log file, enable MySQL slow log"
 		fi
