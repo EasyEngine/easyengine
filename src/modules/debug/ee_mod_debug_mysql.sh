@@ -23,7 +23,7 @@ function ee_mod_debug_mysql()
 			if [ ! -z $EE_DEBUG_IMPORT_SLOW_LOG ]; then
 				ee_cron_time=${EE_DEBUG_IMPORT_SLOW_LOG##*=}
 				[[ $ee_cron_time =~ ^-?[0-9]+$ ]] || ee_cron_time=5
-				crontab -l 2> /dev/null | { cat; echo -e "#EasyEgnine MySQL slow log\n*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log"; } | crontab -
+				crontab -l 2> /dev/null | { cat; echo -e "#EasyEngine start MySQL slow log\n*/$ee_cron_time * * * * /usr/local/sbin/ee import-slow-log\n#EasyEngine end MySQL slow log"; } | crontab -
 			fi
 
 		else
@@ -48,6 +48,9 @@ function ee_mod_debug_mysql()
 			|| ee_lib_error "Unable to setup long_query_time, exit status = " $?
 
 			mysql -e "set global log_queries_not_using_indexes = 'OFF';"
+
+			# Delete EasyEngine crons
+			crontab -l | sed '/#EasyEngine start/,/#EasyEngine end/d' | crontab -
 		else
 			# Display message
 			ee_lib_echo "MySQL slow log already disable"
