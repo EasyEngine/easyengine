@@ -17,7 +17,7 @@ ee_mod_site_update_password()
 		fi
 
 		# Check WordPress user exist or not
-		wp --allow-root user list --fields=user_login | grep $ee_wp_user &>> /dev/null
+		wp --allow-root user list --fields=user_login | grep ${ee_wp_user}$ &>> /dev/null
 		if [ $? -eq 0 ]; then
 			read -sp "Provide password for $ee_wp_user user: " ee_wp_pass
 			echo
