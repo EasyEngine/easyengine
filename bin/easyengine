@@ -593,6 +593,21 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Execute: service nginx reload
 			ee_lib_service nginx reload
 		fi
+	elif [ "$EE_SECOND" = "update" ]; then
+		# Check the website name is empty or not
+		EE_DOMAIN_CHECK=$EE_THIRD
+		EE_SITE_UPDATE_OPTION=$EE_FOURTH
+		ee_lib_check_domain
+
+		# Check the website exist
+		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
+		|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
+
+		EE_SITE_CURRENT_OPTION=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+
+		if [ "$EE_SITE_UPDATE_OPTION" = "--password" ]; then
+			ee_mod_site_update_password
+		fi
 	elif [ "$EE_SECOND" = "log" ]; then
     	# Display logs for websites
     	ee_mod_site_log ${@:3}
