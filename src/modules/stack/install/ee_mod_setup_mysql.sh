@@ -2,7 +2,7 @@
 
 function ee_mod_setup_mysql()
 {
-	ee_lib_echo "Setting up MySQL, please wait..."
+	ee_lib_echo "Setting up Percona MySQL, please wait..."
 
 	# Setting wait_timeout = 30 & interactive_timeout = 60
 	grep "_timeout" /etc/mysql/my.cnf &>> $EE_COMMAND_LOG
