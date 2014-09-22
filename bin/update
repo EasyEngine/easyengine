@@ -325,7 +325,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 				fi
 
-				dpkg --get-selections | grep -v deinstall | grep mysql-server &>> $EE_UPDATE_LOG
+				mysqladmin ping &> /dev/null &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
 					ee_lib_echo "Installing percona-toolkit package, please wait..."
 					apt-get -y install percona-toolkit \
