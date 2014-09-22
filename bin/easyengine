@@ -140,7 +140,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Check required Packages are installed or not
 			dpkg --get-selections | grep -v deinstall | grep nginx > /dev/null \
 			&& dpkg --get-selections | grep -v deinstall | grep php5-fpm > /dev/null \
-			&& mysqladmin ping &> /dev/null \
+			&& mysqladmin ping &>> $EE_COMMAND_LOG \
 			&& dpkg --get-selections | grep -v deinstall | grep postfix > /dev/null
 			if [ $? -ne 0 ];then
 				ee_lib_error "Failed to find NGINX PHP MySQL Postfix, exit status=" 1

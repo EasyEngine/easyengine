@@ -70,7 +70,7 @@ function ee_ven_install_utils()
 		# phpinfo()
 		echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
 	fi
-	mysqladmin ping &> /dev/null
+	mysqladmin ping &>> $EE_COMMAND_LOG
 	if [ $? -eq 0 ]; then
 		# Setup Anemometer
 		if [ ! -d /var/www/22222/htdocs/db/anemometer ]; then

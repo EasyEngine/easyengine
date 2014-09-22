@@ -5,10 +5,10 @@ ee_mod_install_mysql()
 	# Random characters
 	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 
-	# Check MySQL is installed or not
-	ee_lib_package_check mysql-server
+	# Check Percona MySQL is installed or not
+	ee_lib_package_check percona-server-server-5.6
 
-	# If MySQL is not installed
+	# If Percona MySQL is not installed
 	# Then set random MySQL password for root user
 	if [ -n "$EE_PACKAGE_NAME" ]; then
 
