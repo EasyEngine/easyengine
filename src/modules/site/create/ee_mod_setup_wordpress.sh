@@ -10,9 +10,6 @@ function ee_mod_setup_wordpress()
 	cd /var/www/$EE_DOMAIN/htdocs && wp --allow-root core download &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to download WordPress, exit status = " $?
 	
-	# Symbolic link for debug.log
-	ee_lib_symbolic_link /var/www/$EE_DOMAIN/htdocs/wp-content/debug.log /var/www/$EE_DOMAIN/logs/debug.log
-	
 	# Database setup
 	ee_mod_setup_database
 	
@@ -63,22 +60,44 @@ function ee_mod_setup_wordpress()
 	a "$(curl -sL https://api.wordpress.org/secret-key/1.1/salt/)" . w \
 	| ed -s /var/www/$EE_DOMAIN/wp-config.php
 
-	# WordPress default user: admin
+	# Set WordPress username
+	# First get WordPress username from /etc/easyengine/ee.conf file
 	EE_WP_USER=$($EE_CONFIG_GET wordpress.user)
+
 	if [[ $EE_WP_USER = "" ]]; then
-		EE_WP_USER=$(git config user.name)
+		git config user.name &>> $EE_COMMAND_LOG
+		if [ $? -eq 0 ]; then
+			# Set WordPress username from git config user.name
+			EE_WP_USER=$(git config user.name)
+		else
+			while [ -z $EE_WP_USER ]; do
+			# Ask user to provide WordPress username
+			read -p "Enter WordPress username: " EE_WP_USER
+			done
+		fi
 	fi
 
-	# WordPress default user: admin
+	# Set WordPress password
 	EE_WP_PASS=$($EE_CONFIG_GET wordpress.password)
 	if [[ $EE_WP_PASS = "" ]]; then
 		EE_WP_PASS=$ee_random
 	fi
 	
-	# WordPress default email: `git config user.email`
+	# Set WordPress email
+	# First get WordPress email from /etc/easyengine/ee.conf file
 	EE_WP_EMAIL=$($EE_CONFIG_GET wordpress.email)
+
 	if [[ $EE_WP_EMAIL = "" ]]; then
-		EE_WP_EMAIL=$(git config user.email)
+		git config user.email &>> $EE_COMMAND_LOG
+		if [ $? -eq 0 ]; then
+			# Set WordPress email from git config user.email
+			EE_WP_EMAIL=$(git config user.email)
+		else
+			while [ -z $EE_WP_EMAIL ]; do
+			# Ask user to provide WordPress email
+			read -p "Enter WordPress email: " EE_WP_EMAIL
+			done
+		fi
 	fi
 
 	# Create WordPress tables
