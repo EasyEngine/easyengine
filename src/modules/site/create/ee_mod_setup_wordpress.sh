@@ -72,6 +72,7 @@ function ee_mod_setup_wordpress()
 		else
 			while [ -z $EE_WP_USER ]; do
 			# Ask user to provide WordPress username
+			ee_lib_echo "Usernames can have only alphanumeric characters, spaces, underscores, hyphens, periods and the @ symbol."
 			read -p "Enter WordPress username: " EE_WP_USER
 			done
 		fi
