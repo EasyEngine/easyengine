@@ -13,7 +13,7 @@ function ee_mod_secure_auth()
 
 	# If enter is pressed, set git config user.name
 	if [[ $ee_http_auth_user = "" ]]; then
-		ee_http_auth_user=$(git config user.email)
+		ee_http_auth_user=$(git config user.name)
 	fi
 
 	if [[ $ee_http_auth_pass = "" ]]; then
@@ -21,8 +21,9 @@ function ee_mod_secure_auth()
 	fi
 
 	# Add HTTP authentication details
-	ee_lib_echo "HTTP authentication username: $ee_http_auth_user" 
-	ee_lib_echo "HTTP authentication password: $ee_http_auth_pass"
+	echo
+	ee_lib_echo_info "HTTP authentication username: $ee_http_auth_user" 
+	ee_lib_echo_info "HTTP authentication password: $ee_http_auth_pass"
 
 	# Generate htpasswd-ee file
 	printf "$ee_http_auth_user:$(openssl passwd -crypt $ee_http_auth_pass 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
