@@ -94,9 +94,4 @@ function ee_mod_setup_nginx()
       sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
 	fi
-
-	# Set easyengine:easyengine as default http authentication
-	if [ ! -f /etc/nginx/htpasswd-ee ]; then
-		printf "easyengine:$(openssl passwd -crypt easyengine 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
-	fi
 }
