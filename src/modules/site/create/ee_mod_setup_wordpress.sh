@@ -66,7 +66,7 @@ function ee_mod_setup_wordpress()
 	# WordPress default user: admin
 	EE_WP_USER=$($EE_CONFIG_GET wordpress.user)
 	if [[ $EE_WP_USER = "" ]]; then
-		EE_WP_USER=admin
+		EE_WP_USER=$(git config user.name)
 	fi
 
 	# WordPress default user: admin
