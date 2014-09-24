@@ -226,6 +226,9 @@ if [ -z "$GIT_USER_EMAIL" ];then
 	echo "git config user.email = $(git config user.email)" &>> $EE_INSTALL_LOG
 fi
 
+# Add eeupdate command to /etc/bash.bashrc
+echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup http://rt.cx/eeup && sudo bash eeup\"" /etc/bash.bashrc
+
 # Enable EasyEngine (ee) auto completion
 echo
 ee_lib_echo "For EasyEngine (ee) auto completion, run the following command" | tee -ai $EE_INSTALL_LOG
