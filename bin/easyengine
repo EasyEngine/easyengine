@@ -454,7 +454,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			mysqladmin ping &>> $EE_COMMAND_LOG
-			if [ $? -eq 0 ]; then
+			if [ $? -ne 0 ]; then
 				ee stack install mysql
 			fi	
 		fi
