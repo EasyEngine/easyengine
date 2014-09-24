@@ -441,7 +441,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_lib_package_check $EE_NGINX_PACKAGE
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
-				ee stack install nginx || 
+				# The following command creates its own sub-shell
+				# and our ee_lib_error function only exit from that sub-shell
+				# so we need to exit from parent shell also
+				ee stack install nginx || exit $?
 			fi
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -449,13 +452,19 @@ elif [ "$EE_FIRST" = "site" ]; then
 			php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
 			php5-memcache memcached php5-geoip
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
-				ee stack install php
+				# The following command creates its own sub-shell
+				# and our ee_lib_error function only exit from that sub-shell
+				# so we need to exit from parent shell also
+				ee stack install php || exit $?
 			fi
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			mysqladmin ping &>> $EE_COMMAND_LOG
 			if [ $? -ne 0 ]; then
-				ee stack install mysql
+				# The following command creates its own sub-shell
+				# and our ee_lib_error function only exit from that sub-shell
+				# so we need to exit from parent shell also
+				ee stack install mysql || exit $?
 			fi	
 		fi
 
@@ -465,7 +474,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 		ee_lib_package_check postfix
 		if [ "$EE_PACKAGE_NAME" != "" ]; then
-				ee stack install postfix
+				# The following command creates its own sub-shell
+				# and our ee_lib_error function only exit from that sub-shell
+				# so we need to exit from parent shell also
+				ee stack install postfix || exit $?
 		fi
 
 		# Lets create HTML|PHP|MySQL website
@@ -807,4 +819,17 @@ fi
 }
 
 EasyEngine $@ | tee -ai $EE_COMMAND_LOG
+
+
+# If any command fails its return non-zero exit code [EasyEngine $@]
+# But when failed command piped then its [EasyEngine $@] exit status
+# is suppress by next piped command [| tee -ai $EE_COMMAND_LOG]
+
+# Example:
+# (call | tee -ai example.log); echo $?
+#	0
+
+# (call | tee -ai example.log; exit ${PIPESTATUS[0]}); echo $?
+#	127
+
 exit ${PIPESTATUS[0]}
