@@ -438,6 +438,36 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CACHE_OPTION=--basic
 		fi
 
+		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			ee_lib_package_check $EE_NGINX_PACKAGE
+			if [ "$EE_PACKAGE_NAME" != "" ]; then
+				ee stack install nginx
+			fi
+		fi
+		if [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			ee_lib_package_check php5-common php5-mysqlnd php5-xmlrpc \
+			php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
+			php5-memcache memcached php5-geoip
+			if [ "$EE_PACKAGE_NAME" != "" ]; then
+				ee stack install php
+			fi
+		fi
+		if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			mysqladmin ping &>> $EE_COMMAND_LOG
+			if [ $? -eq 0 ]; then
+				ee stack install mysql
+			fi	
+		fi
+
+		if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+			ee_ven_install_wpcli
+		fi
+
+		ee_lib_package_check postfix
+		if [ "$EE_PACKAGE_NAME" != "" ]; then
+				ee stack install postfix
+		fi
+
 		# Lets create HTML|PHP|MySQL website
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
 			# Configure variable
