@@ -2,7 +2,7 @@
 function ee_lib_php_info()
 {
 	ee_lib_package_check php5-fpm
-	if [ "$EE_PACKAGE_NAME" != "" ]; then
+	if [ "$EE_PACKAGE_NAME" = "" ]; then
 		#Collect information from php.ini
 		local ee_php_version=$(php -v | head -n1 | cut -d' ' -f2 | cut -d'+' -f1)
 		local ee_php_memory=$(grep ^memory_limit /etc/php5/fpm/php.ini | awk '{print $3}')
