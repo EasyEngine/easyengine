@@ -31,7 +31,7 @@ function ee_mod_setup_php()
 
 		# Adjust php5-fpm pool
 		sed -i "s/;pm.max_requests/pm.max_requests/" /etc/php5/fpm/pool.d/www.conf
-		sed -i "s/pm.max_children = 5/pm.max_children = 100/" /etc/php5/fpm/pool.d/www.conf
+		sed -i "s/pm.max_children = 5/pm.max_children = ${EE_PHP_MAX_CHILDREN}/" /etc/php5/fpm/pool.d/www.conf
 		sed -i "s/pm.start_servers = 2/pm.start_servers = 20/" /etc/php5/fpm/pool.d/www.conf
 		sed -i "s/pm.min_spare_servers = 1/pm.min_spare_servers = 10/" /etc/php5/fpm/pool.d/www.conf
 		sed -i "s/pm.max_spare_servers = 3/pm.max_spare_servers = 30/" /etc/php5/fpm/pool.d/www.conf
@@ -66,5 +66,16 @@ function ee_mod_setup_php()
 		wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoIPCity.dat http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 		gunzip /usr/share/GeoIP/GeoLiteCity.dat.gz
 		mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
-	fi		
+
+		# Setup Zend OpCache as per RAM
+		grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null 
+		if [ $? -ne 0]; then
+			sed -i "s/zend_extension=opcache.so/zend_extension=opcache.so\nopcache.memory_consumption=${EE_OPCACHE_SIZE}\nopcache.max_accelerated_files=50000/" /etc/php5/fpm/conf.d/05-opcache.ini \
+			|| ee_lib_error "Unable to change opcache.memory_consumption, exit status = " $?
+		fi
+
+		# Setup PHP Memcache as per RAM
+		sed "s/-m.*/-m ${EE_MEMCACHE_SIZE}/" /etc/memcached.conf \
+		|| ee_lib_error "Unable to change Memcache memory value, exit status = " $?	
+	fi
 }
