@@ -3,7 +3,7 @@
 function ee_lib_mysql_info()
 {
 	mysqladmin ping &>> $EE_COMMAND_LOG
-	if [ $? -ne 0 ]; then
+	if [ $? -eq 0 ]; then
 		local ee_mysql_version=$(mysql -V | awk '{print($5)}' | cut -d ',' -f1)
 		local ee_mysql_port=$(mysql -e "show variables" | grep ^port | awk '{print($2)}')
 		local ee_mysql_socket=$(mysql -e "show variables" | grep "^socket" | awk '{print($2)}')
