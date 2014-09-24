@@ -68,10 +68,12 @@ function ee_mod_setup_php()
 		mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
 
 		# Setup Zend OpCache as per RAM
-		grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null 
-		if [ $? -ne 0 ]; then
-			sed -i "s/zend_extension=opcache.so/zend_extension=opcache.so\nopcache.memory_consumption=${EE_OPCACHE_SIZE}\nopcache.max_accelerated_files=50000/" /etc/php5/fpm/conf.d/05-opcache.ini \
-			|| ee_lib_error "Unable to change opcache.memory_consumption, exit status = " $?
+		if [ -f /etc/php5/fpm/conf.d/05-opcache.ini ]; then
+			grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null 
+			if [ $? -ne 0 ]; then
+				sed -i "s/zend_extension=opcache.so/zend_extension=opcache.so\nopcache.memory_consumption=${EE_OPCACHE_SIZE}\nopcache.max_accelerated_files=50000/" /etc/php5/fpm/conf.d/05-opcache.ini \
+				|| ee_lib_error "Unable to change opcache.memory_consumption, exit status = " $?
+			fi
 		fi
 
 		# Setup PHP Memcache as per RAM
