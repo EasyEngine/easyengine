@@ -75,7 +75,7 @@ function ee_mod_setup_php()
 		fi
 
 		# Setup PHP Memcache as per RAM
-		sed "s/-m.*/-m ${EE_MEMCACHE_SIZE}/" /etc/memcached.conf \
+		sed -i "s/-m.*/-m ${EE_MEMCACHE_SIZE}/" /etc/memcached.conf \
 		|| ee_lib_error "Unable to change Memcache memory value, exit status = " $?	
 	fi
 }
