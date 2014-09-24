@@ -110,7 +110,7 @@ function ee_mod_setup_wordpress()
 	|| ee_lib_error "Unable to change directory to install WordPress, exit status = " $?
 	
 	wp core install --allow-root  --url=$EE_WWW_DOMAIN --title="$EE_WWW_DOMAIN" \
-	--admin_name=$EE_WP_USER --admin_password=$EE_WP_PASS --admin_email=$EE_WP_EMAIL &>> $EE_COMMAND_LOG \
+	--admin_name="$EE_WP_USER" --admin_password=$EE_WP_PASS --admin_email=$EE_WP_EMAIL &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to create WordPress tables for $EE_DOMAIN, exit status = " $?
 	
 	# Update WordPress permalink structure day and postname
