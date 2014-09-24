@@ -227,7 +227,7 @@ if [ -z "$GIT_USER_EMAIL" ];then
 fi
 
 # Add eeupdate command to /etc/bash.bashrc
-echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup http://rt.cx/eeup && sudo bash eeup\"" /etc/bash.bashrc
+echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup http://rt.cx/eeup && sudo bash eeup\"" >> /etc/bash.bashrc
 
 # Enable EasyEngine (ee) auto completion
 echo
