@@ -65,7 +65,7 @@ function ee_mod_setup_wordpress()
 	EE_WP_USER=$($EE_CONFIG_GET wordpress.user)
 
 	if [[ $EE_WP_USER = "" ]]; then
-		git config user.name &>> $EE_COMMAND_LOG
+		git config user.name &>> /dev/null
 		if [ $? -eq 0 ]; then
 			# Set WordPress username from git config user.name
 			EE_WP_USER=$(git config user.name)
@@ -89,7 +89,7 @@ function ee_mod_setup_wordpress()
 	EE_WP_EMAIL=$($EE_CONFIG_GET wordpress.email)
 
 	if [[ $EE_WP_EMAIL = "" ]]; then
-		git config user.email &>> $EE_COMMAND_LOG
+		git config user.email &>> /dev/null
 		if [ $? -eq 0 ]; then
 			# Set WordPress email from git config user.email
 			EE_WP_EMAIL=$(git config user.email)
@@ -100,6 +100,9 @@ function ee_mod_setup_wordpress()
 			done
 		fi
 	fi
+
+	# Let's log WordPress username/password/email
+	echo -e "EE_WP_USER = $EE_WP_USER \nEE_WP_PASS = $EE_WP_PASS \nEE_WP_EMAIL = $EE_WP_EMAIL" &>> $EE_COMMAND_LOG
 
 	# Create WordPress tables
 	ee_lib_echo "Setting up WordPress, please wait..."
