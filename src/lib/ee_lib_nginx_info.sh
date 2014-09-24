@@ -3,7 +3,7 @@
 function ee_lib_nginx_info()
 {
 	ee_lib_package_check $EE_NGINX_PACKAGE
-	if [ "$EE_PACKAGE_NAME" != "" ]; then
+	if [ "$EE_PACKAGE_NAME" = "" ]; then
 		local ee_nginx_version=$(nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2 | cut -d'/' -f2)
 		local ee_nginx_user=$(grep ^user /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
 		local ee_nginx_processes=$(grep worker_processes /etc/nginx/nginx.conf | cut -d' ' -f2 | cut -d';' -f1)
