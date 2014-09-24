@@ -441,7 +441,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_lib_package_check $EE_NGINX_PACKAGE
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
-				ee stack install nginx
+				ee stack install nginx || 
 			fi
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -807,3 +807,4 @@ fi
 }
 
 EasyEngine $@ | tee -ai $EE_COMMAND_LOG
+exit ${PIPESTATUS[0]}
