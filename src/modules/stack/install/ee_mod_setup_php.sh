@@ -79,5 +79,11 @@ function ee_mod_setup_php()
 		# Setup PHP Memcache as per RAM
 		sed -i "s/-m.*/-m ${EE_MEMCACHE_SIZE}/" /etc/memcached.conf \
 		|| ee_lib_error "Unable to change Memcache memory value, exit status = " $?	
+
+		# Resolve php session Error Ref: #302
+		chmod a+t+w /var/lib/php5 &&
+		chmod go-r /var/lib/php5 \
+		|| ee_lib_error "Unable to setup PHP session error permissions, exit status = " $?	
+
 	fi
 }
