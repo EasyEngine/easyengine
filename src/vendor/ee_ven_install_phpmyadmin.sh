@@ -23,7 +23,7 @@ function ee_ven_install_phpmyadmin()
 		rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
 
 		# Setup phpMyAdmin
-		cp -v /var/www/22222/htdocs/db/pma/config.sample.inc.php /var/www/22222/htdocs/db/pma/config.inc.php &>> $EE_COMMAND LOG \
+		cp -v /var/www/22222/htdocs/db/pma/config.sample.inc.php /var/www/22222/htdocs/db/pma/config.inc.php &>> $EE_COMMAND_LOG \
 		|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
 
 		sed -i "s/a8b7c6d/$ee_random/" /var/www/22222/htdocs/db/pma/config.inc.php \
