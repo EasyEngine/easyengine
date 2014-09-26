@@ -6,15 +6,15 @@ function ee_lib_create_swap()
 	# Swap Parameters:
 	# Location: /swapfile
 	# Block Size: 1024
-	dd if=/dev/zero of=/swapfile bs=1024 count=1024k \
+	dd if=/dev/zero of=/swapfile bs=1024 count=1024k &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to generate /swapfile, exit status = " $?
 
 	# Create it as a Swap
-	mkswap /swapfile \
+	mkswap /swapfile &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to create swapfile, exit status = " $?
 
 	# On the Swap
-	swapon /swapfile \
+	swapon /swapfile &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to on Swap, exit status = " $?
 
 	# Add entry into /etc/fstab
