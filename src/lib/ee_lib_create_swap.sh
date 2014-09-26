@@ -9,6 +9,7 @@ function ee_lib_create_swap()
 			# Swap Parameters:
 			# Location: /swapfile
 			# Block Size: 1024
+			ee_lib_echo "Adding 1GB swapfile"
 			dd if=/dev/zero of=/swapfile bs=1024 count=1024k &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to generate /swapfile, exit status = " $?
 
