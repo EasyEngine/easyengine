@@ -22,7 +22,7 @@ ee_mod_site_update_password()
 			read -sp "Provide password for $ee_wp_user user: " ee_wp_pass
 			echo
 			if [[ ${#ee_wp_pass} -ge 8 ]]; then
-				wp --allow-root user update $ee_wp_user --user_pass=$ee_wp_pass &>> $EE_COMMAND_LOG
+				wp --allow-root user update "${ee_wp_user}" --user_pass=$ee_wp_pass &>> $EE_COMMAND_LOG
 			else
 				ee_lib_error "Password Unchanged. Hint : Your password must be 8 characters long, exit status = " $?
 			fi
