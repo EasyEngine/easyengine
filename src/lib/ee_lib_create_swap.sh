@@ -19,5 +19,5 @@ function ee_lib_create_swap()
 
 	# Add entry into /etc/fstab
 	echo "/swapfile		none		swap	sw	0	0" >> /etc/fstab \
-	|| ee_lib_error "Unable to add entry into /etc/fstab, exit status = " $?"
+	|| ee_lib_error "Unable to add entry into /etc/fstab, exit status = " $?
 }
