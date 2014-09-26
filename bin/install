@@ -23,7 +23,7 @@ function ee_lib_echo_fail()
 # Checking permissions
 if [[ $EUID -ne 0 ]]; then
 	ee_lib_echo_fail "Sudo privilege required..."
-	ee_lib_echo_fail "Uses: curl -sL rt.cx/ee | sudo bash"
+	ee_lib_echo_fail "Uses: wget -qO ee rt.cx/ee && sudo bash ee"
 	exit 1
 fi
 
@@ -211,7 +211,7 @@ if [ -z "$GIT_USER_NAME" ]; then
 	if [[ $GIT_USER_NAME = "" ]]; then
 		GIT_USER_NAME=$(whoami)
 	fi
-	git config --global user.name $GIT_USER_NAME
+	git config --global user.name "${GIT_USER_NAME}"
 	echo "git config user.name = $(git config user.name)" &>> $EE_INSTALL_LOG
 fi
 
