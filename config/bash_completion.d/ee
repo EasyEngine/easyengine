@@ -1,5 +1,17 @@
 # EasyEngine auto complete
 
+function ee_single()
+{
+	for (( j=0; j<${#COMP_WORDS[@]}; j++ ));  do
+		for (( i=0; i<${#COMPREPLY[@]}; i++ ));  do
+			if [[ ${COMP_WORDS[COMP_CWORD-j]} == ${COMPREPLY[i]} ]]; then
+				rem=( ${COMP_WORDS[COMP_CWORD-j]} );
+				COMPREPLY=( "${COMPREPLY[@]/$rem}" )
+			fi
+		done
+	done
+}
+
 function EE_AUTO()
 {
 	# Get current word
@@ -15,7 +27,7 @@ function EE_AUTO()
 
 		# List of suggested words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W '$(echo version help info update import-slow-log; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo version help info update; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
@@ -61,12 +73,9 @@ function EE_AUTO()
 			return 0
 			;;
 
-		--nginx|--rewrite|--php|--fpm)
+		--nginx|--rewrite|--php|--fpm|--mysql)
 			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
-			return 0
-			;;
-		--mysql)
-			COMPREPLY=( $(compgen -W '$(echo --import-slow-log-interval=; cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			ee_single
 			return 0
 			;;
 
@@ -75,12 +84,15 @@ function EE_AUTO()
 				COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			else
 				COMPREPLY=( $(compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null; command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | grep -v wp | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+				ee_single
 			fi
 			return 0
 			;;
 
 		--stop)
+
 			COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)' -- $CURRENT ) )
+			ee_single
 			return 0
 			;;
 
