@@ -6,7 +6,7 @@ function ee_single()
 		for (( i=0; i<${#COMPREPLY[@]}; i++ ));  do
 			if [[ ${COMP_WORDS[COMP_CWORD-j]} == ${COMPREPLY[i]} ]]; then
 				rem=( ${COMP_WORDS[COMP_CWORD-j]} );
-				COMPREPLY=( "${COMPREPLY[@]/$rem" )
+				COMPREPLY=( "${COMPREPLY[@]/$rem}" )
 			fi
 		done
 	done
