@@ -4,7 +4,7 @@ function ee_lib_ram()
 {
 	# Detect RAM and SWAP of System
 	readonly EE_TOTAL_RAM=$(free -m | grep -i Mem | awk '{ print $2 }')
-	readonly EE_TOTAL_SWAP=$(free -m | grep -i Swap | awk '{ print $2 }')
+	readonly EE_TOTAL_SWAP=$(free -m  --si | grep -i Swap | awk '{ print $2 }')
 
 	# RAM < 512MB
 	if [ $EE_TOTAL_RAM -le 512 ]; then
