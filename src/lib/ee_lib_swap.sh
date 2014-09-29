@@ -1,6 +1,6 @@
 # EasyEngine Swap creation
 
-function ee_lib_create_swap()
+function ee_lib_swap()
 {
 	if [ $EE_TOTAL_RAM -le 512 ]; then
 		if [ $EE_TOTAL_SWAP -le $EE_SWAP ];then
@@ -10,7 +10,7 @@ function ee_lib_create_swap()
 			# Location: /ee-swapfile
 			# Block Size: 1024
 			ee_lib_echo "Adding 1GB swapfile, please wait..."
-			dd if=/dev/zero of=/ee-swapfile bs=1024 count=1024k &>> $EE_COMMAND_LOG \
+			dd if=/dev/zero of=/ee-swapfile bs=1024 count=1048k &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to generate /ee-swapfile, exit status = " $?
 
 			# Create it as a Swap
