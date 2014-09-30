@@ -126,7 +126,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				# Install WP-CLI
 				ee_ven_install_wpcli
 			fi
-			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin-tools" ] || [ "$EE_THIRD" = "all" ]; then
+			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin" ] || [ "$EE_THIRD" = "all" ]; then
 				# Install Adminer/phpMyAdmin/Utils
 				ee_ven_install_adminer
 				ee_ven_install_phpmyadmin
@@ -134,7 +134,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			fi
 			# Display success message
 			if [ "$EE_THIRD" != "all" ];then
-				ee_lib_echo "Successfully installed web server packages"
+				ee_lib_echo "Successfully installed $([ "$EE_THIRD" != "" ] && echo $EE_THIRD || echo "web" ) server packages"
 				ee_lib_echo "Create your first WordPress site powered by NGINX using:"
 				ee_lib_echo_info "ee site create example.com --wp"
 			fi
@@ -245,27 +245,32 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			elif [ "$EE_SECOND" = "purge" ];then
 				ee_lib_echo "$EE_THIRD successfully purged"
 			fi
-		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
-			# Remove/Purge  NGINX/PHP/MySQL/Postfix package
-			ee_mod_remove_nginx
-			ee_mod_remove_php
-			ee_mod_remove_mysql
-			ee_mod_remove_postfix
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin" ] || [ "$EE_THIRD" = "all" ]; then
+			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
+				# Remove/Purge  NGINX/PHP/MySQL/Postfix package
+				ee_mod_remove_nginx
+				ee_mod_remove_php
+				ee_mod_remove_mysql
+				ee_mod_remove_postfix
 
-			# Install Adminer/phpMyAdmin/WP-CLI/Utils
-			ee_ven_remove_adminer
-			ee_ven_remove_phpmyadmin
-			ee_ven_remove_wpcli
-			ee_ven_remove_utils
+				# Remove/Purge WP-CLI
+				ee_ven_remove_wpcli
+			fi
+			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin" ] || [ "$EE_THIRD" = "all" ]; then
+				# Remove/Purge Adminer/phpMyAdmin/Utils
+				ee_ven_remove_adminer
+				ee_ven_remove_phpmyadmin
+				ee_ven_remove_utils
+			fi
 
 			# Execute: apt-get autoremove
 			ee_lib_autoremove
 
 			# Display success message
 			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed web packages"
+				ee_lib_echo "Successfully removed $([ "$EE_THIRD" != "" ] && echo $EE_THIRD || echo "web" ) packages"
 			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged web packages"
+				ee_lib_echo "Successfully purged $EE_THIRD packages"
 			fi
 		fi
 		if [ "$EE_THIRD" = "all" ] || [ "$EE_THIRD" = "mail" ];then
