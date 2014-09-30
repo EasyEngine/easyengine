@@ -10,7 +10,7 @@ readonly EE_WP_CLI_VERSION='0.17.0'
 readonly EE_ADMINER_VERSION='4.1.0'
 
 # Roundcube Version
-readonly EE_ROUNDCUBE_VERSION='1.0.2'
+readonly EE_ROUNDCUBE_VERSION='1.0.3'
 
 # ViMbAdmin Version
 readonly EE_VIMBADMIN_VERSION='3.0.10'
