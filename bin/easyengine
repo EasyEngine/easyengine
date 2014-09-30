@@ -93,41 +93,45 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Display success message
 			ee_lib_echo "$EE_THIRD successfully installed"
-		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
-			# Setup  NGINX/PHP/MySQL repository
-			ee_mod_repo_nginx
-			ee_mod_repo_php
-			ee_mod_repo_mysql
+		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin-tools" ] || [ "$EE_THIRD" = "all" ]; then
+			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
+				# Setup  NGINX/PHP/MySQL repository
+				ee_mod_repo_nginx
+				ee_mod_repo_php
+				ee_mod_repo_mysql
 
-			# Fix GnuPG key
-			ee_lib_gpg_key_fix
+				# Fix GnuPG key
+				ee_lib_gpg_key_fix
 
-			# Execute: apt-get update
-			ee_lib_apt_get_update	
+				# Execute: apt-get update
+				ee_lib_apt_get_update	
 
-			# Install NGINX/PHP/MySQL/Postfix package
-			ee_mod_install_nginx
-			ee_mod_install_php
-			ee_mod_install_mysql
-			ee_mod_install_postfix
+				# Install NGINX/PHP/MySQL/Postfix package
+				ee_mod_install_nginx
+				ee_mod_install_php
+				ee_mod_install_mysql
+				ee_mod_install_postfix
 
-			# Setup NGINX/PHP/MySQL
-			ee_mod_setup_nginx
-			ee_mod_setup_php
-			ee_mod_setup_mysql
+				# Setup NGINX/PHP/MySQL
+				ee_mod_setup_nginx
+				ee_mod_setup_php
+				ee_mod_setup_mysql
 
-			# Restart  NGINX/MySQL/Postfix
-			ee_lib_service nginx php5-fpm mysql restart
+				# Restart  NGINX/MySQL/Postfix
+				ee_lib_service nginx php5-fpm mysql restart
 					
-			# Initialize Git
-			ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
+				# Initialize Git
+				ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
 
-			# Install Adminer/phpMyAdmin/WP-CLI/Utils
-			ee_ven_install_adminer
-			ee_ven_install_phpmyadmin
-			ee_ven_install_wpcli
-			ee_ven_install_utils
-
+				# Install WP-CLI
+				ee_ven_install_wpcli
+			fi
+			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "admin-tools" ] || [ "$EE_THIRD" = "all" ]; then
+				# Install Adminer/phpMyAdmin/Utils
+				ee_ven_install_adminer
+				ee_ven_install_phpmyadmin
+				ee_ven_install_utils
+			fi
 			# Display success message
 			if [ "$EE_THIRD" != "all" ];then
 				ee_lib_echo "Successfully installed web server packages"
