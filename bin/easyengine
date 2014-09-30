@@ -135,8 +135,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Display success message
 			if [ "$EE_THIRD" != "all" ];then
 				ee_lib_echo "Successfully installed $([ "$EE_THIRD" != "" ] && echo $EE_THIRD || echo "web" ) server packages"
-				ee_lib_echo "Create your first WordPress site powered by NGINX using:"
-				ee_lib_echo_info "ee site create example.com --wp"
+				if [ "$EE_THIRD" != "admin" ];then
+					ee_lib_echo "Create your first WordPress site powered by NGINX using:"
+					ee_lib_echo_info "ee site create example.com --wp"
+				fi
 			fi
 		fi
 		# EasyEngine mail server setup
