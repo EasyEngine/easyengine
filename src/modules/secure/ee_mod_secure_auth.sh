@@ -22,8 +22,8 @@ function ee_mod_secure_auth()
 
 	# Add HTTP authentication details
 	echo
-	ee_lib_echo_info "HTTP authentication username: $ee_http_auth_user" 
-	ee_lib_echo_info "HTTP authentication password: $ee_http_auth_pass"
+	ee_lib_echo "HTTP authentication username: $ee_http_auth_user" &>> $EE_COMMAND_LOG
+	ee_lib_echo "HTTP authentication password: $ee_http_auth_pass" &>> $EE_COMMAND_LOG
 
 	# Generate htpasswd-ee file
 	printf "$ee_http_auth_user:$(openssl passwd -crypt $ee_http_auth_pass 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
