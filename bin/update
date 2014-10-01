@@ -427,7 +427,13 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				EE_CURRENT_VERSION="2.1.0"
 			fi
 
-			# if [[ $EE_CURRENT_VERSION = 2.1.0 ]]; then
+			if [[ $EE_CURRENT_VERSION = 2.1.0 ]]; then
+
+				
+				# Update EasyEngine current version
+				EE_CURRENT_VERSION="2.1.0"
+			fi
+			# if [[ $EE_CURRENT_VERSION = 2.2.0 ]]; then
 			# fi
 		fi
 
