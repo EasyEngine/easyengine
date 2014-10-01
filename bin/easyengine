@@ -451,47 +451,21 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			ee_lib_package_check $EE_NGINX_PACKAGE
-			if [ "$EE_PACKAGE_NAME" != "" ]; then
-				# The following command creates its own sub-shell
-				# and our ee_lib_error function only exit from that sub-shell
-				# so we need to exit from parent shell also
-				ee stack install nginx || exit $?
-			fi
+			ee_lib_stack_packages nginx
+			
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			ee_lib_package_check php5-common php5-mysqlnd php5-xmlrpc \
-			php5-curl php5-gd php5-cli php5-fpm php5-imap php5-mcrypt php5-xdebug \
-			php5-memcache memcached php5-geoip
-			if [ "$EE_PACKAGE_NAME" != "" ]; then
-				# The following command creates its own sub-shell
-				# and our ee_lib_error function only exit from that sub-shell
-				# so we need to exit from parent shell also
-				ee stack install php || exit $?
-			fi
+			ee_lib_stack_packages php
 		fi
 		if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			mysqladmin ping &>> $EE_COMMAND_LOG
-			if [ $? -ne 0 ]; then
-				# The following command creates its own sub-shell
-				# and our ee_lib_error function only exit from that sub-shell
-				# so we need to exit from parent shell also
-				ee stack install mysql || exit $?
-			fi	
+			ee_lib_stack_packages mysql
 		fi
 
 		if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_ven_install_wpcli
 		fi
-
-		ee_lib_package_check postfix
-		if [ "$EE_PACKAGE_NAME" != "" ]; then
-				# The following command creates its own sub-shell
-				# and our ee_lib_error function only exit from that sub-shell
-				# so we need to exit from parent shell also
-				ee stack install postfix || exit $?
-		fi
-
+		ee_lib_stack_packages postfix
+		
 		# Lets create HTML|PHP|MySQL website
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
 			# Configure variable
