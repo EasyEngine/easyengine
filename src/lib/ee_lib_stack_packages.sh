@@ -6,7 +6,7 @@ function ee_lib_stack_packages()
 	
 	for ee_stack_package in $@;do
 		# Check NGINX installed & install if not
-		if [ "$ee_stack_package" = "nginx" ]
+		if [ "$ee_stack_package" = "nginx" ]; then
 			ee_lib_package_check $EE_NGINX_PACKAGE
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
 				# The following command creates its own sub-shell
