@@ -3,6 +3,7 @@
 function ee_mod_setup_nginx()
 {
 	local ee_whitelist_ip_address
+	local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
 	
 	ee_lib_echo "Setting up NGINX, please wait..."
 
@@ -93,5 +94,10 @@ function ee_mod_setup_nginx()
 		for ee_whitelist_ip_address in $(echo $EE_IP_ADDRESS);do
       sed -i "/deny/i $(echo allow $ee_whitelist_ip_address\;)" /etc/nginx/common/acl.conf
 		done
+	fi
+
+	# Set easyengine:easyengine as default http authentication
+	if [ ! -f /etc/nginx/htpasswd-ee ]; then
+	printf "easyengine:$(openssl passwd -crypt $ee_random 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
 	fi
 }
