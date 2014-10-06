@@ -674,7 +674,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				fi
 			fi
 
-			# Install required 
+			# Install required packages
 			if [ "$EE_SITE_UPDATE_OPTION" = "--html" ] || [ "$EE_SITE_UPDATE_OPTION" = "--php" ] || [ "$EE_SITE_UPDATE_OPTION" = "--mysql" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wp" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ]; then
 				ee_lib_stack_packages nginx
 			fi
@@ -748,7 +748,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX
 					ee_mod_update_domain
 				fi
-				
+
 				ee_mod_update_cache
 
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ] \
