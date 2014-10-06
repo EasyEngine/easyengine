@@ -712,12 +712,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					ee_mod_plugin_nginx_helper
 				fi
 
-				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					ee_mod_plugin_wpsc
-				fi
-				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-						ee_mod_plugin_w3tc
-				fi
+				ee_mod_update_cache
+
 				# Setup MySQL database
 				if [[ "$EE_SITE_UPDATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]]; then
 					ee_mod_setup_database
@@ -740,13 +736,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 				if [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ]; then
 					ee_mod_setup_network
 				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE WP SUPER CACHE" ]]; then
-					ee_mod_plugin_wpsc
-				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ]]; then
-					ee_mod_plugin_w3tc
-				fi
+
+				ee_mod_update_cache
+
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR WP SUPER CACHE" ] && [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ]; then
 				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR BASIC" ]] \
@@ -756,13 +748,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX
 					ee_mod_update_domain
 				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE WP SUPER CACHE" ]]; then
-					ee_mod_plugin_wpsc
-				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI" ]]; then
-					ee_mod_plugin_w3tc
-				fi
+				
+				ee_mod_update_cache
 
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN WP SUPER CACHE" ] && [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ]; then
@@ -773,13 +760,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX
 					ee_mod_update_domain
 				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ]]; then
-					ee_mod_plugin_wpsc
-				fi
-				if [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ]]; then
-					ee_mod_plugin_w3tc
-				fi
+
+				ee_mod_update_cache
+
 			else
 					ee_lib_error "Invalid update parameters, Use proper parameters, exit status =" $?
 			fi
