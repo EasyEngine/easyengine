@@ -693,7 +693,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Lets update HTML|PHP|MySQL website
 			if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
 				
-				if [[ "$EE_SITE_UPDATE_OPTION" = "--php" && "$EE_SITE_CURRENT_OPTION" != "PHP" ]] || [ "$EE_SITE_UPDATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ] \
+				if [[ "$EE_SITE_UPDATE_OPTION" = "--php" && "$EE_SITE_CURRENT_OPTION" != "PHP" ]] || [[ "$EE_SITE_UPDATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]] \
 					|| [ "$EE_SITE_UPDATE_OPTION" = "--wp" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ]; then
 					# Update NGINX
 					ee_mod_update_domain
