@@ -722,6 +722,15 @@ elif [ "$EE_FIRST" = "site" ]; then
 					echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
 					&>> /var/www/$EE_DOMAIN/ee-config.php
 				fi
+
+				if [ "$EE_SITE_UPDATE_OPTION" = "--wp" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ]; then
+					# Display WordPress credential
+					echo
+					ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+					ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
+					echo
+				fi
+
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ]; then
 				
@@ -768,6 +777,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 			fi
 			# Adjust permission
 			ee_lib_permissions
+			
+			# Execute: service nginx reload
+			ee_lib_service nginx reload
 
 			# Git commit
 			ee_lib_git /etc/nginx/ "$EE_DOMAIN updated with $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION options"
