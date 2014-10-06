@@ -24,7 +24,7 @@ function ee_mod_update_cache()
 
 	if [ "$EE_SITE_CURRENT_OPTION" != "WPSINGLE W3 TOTAL CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR W3 TOTAL CACHE" ] \
 		|| [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN W3 TOTAL CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI" ] \
-		|| [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ]&& [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" || "$EE_SITE_CACHE_OPTION" = "--w3tc" ]]; then
+		|| [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ] && [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" || "$EE_SITE_CACHE_OPTION" = "--w3tc" ]]; then
 		ee_mod_plugin_w3tc
 	fi
 }
