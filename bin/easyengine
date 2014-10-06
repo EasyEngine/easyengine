@@ -741,6 +741,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [  "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ] || [  "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ]; then
 					# Update NGINX
 					ee_mod_update_domain
+				else 
+					ee_lib_error "Site already, $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				fi
 				if [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_UPDATE_OPTION" = "--wpsubdomain" ]; then
 					ee_mod_setup_network
@@ -756,6 +758,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR WP SUPER CACHE" ]]; then
 					# Update NGINX
 					ee_mod_update_domain
+				else 
+					ee_lib_error "Site already, $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				fi
 
 				ee_mod_update_cache
@@ -768,6 +772,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ]]; then
 					# Update NGINX
 					ee_mod_update_domain
+				else 
+					ee_lib_error "Site already, $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				fi
 
 				ee_mod_update_cache
