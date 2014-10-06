@@ -726,10 +726,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 					echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
 					&>> /var/www/$EE_DOMAIN/ee-config.php
 				fi
-			elif [ "$EE_SITE_CURRENT_OPTION" = "WP SINGLE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
+			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ]; then
 				
-				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WP SINGLE" ]] \
+				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE BASIC" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE W3 TOTAL CACHE" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE WP SUPER CACHE" ]] \
