@@ -27,7 +27,7 @@ function EE_AUTO()
 
 		# List of suggested words
 		easyengine|ee)
-			COMPREPLY=( $(compgen -W '$(echo version help info update; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(echo clean version help info update; command find /usr/local/lib/easyengine/modules/ -maxdepth 1 -type d -printf "%P " 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
@@ -42,7 +42,7 @@ function EE_AUTO()
 			;;
 
 		site)
-			COMPREPLY=( $( compgen -W '$(echo disable enable list show; command find /usr/local/lib/easyengine/modules/site -maxdepth 1 -type d -printf "%P " 2> /dev/null; cd /usr/local/lib/easyengine/modules/site/; find  -type f | grep site | cut -d'_' -f4 | cut -d '.' -f1 2> /dev/null)' -- $CURRENT ) )
+			COMPREPLY=( $( compgen -W '$(echo cd create delete disable edit enable info list log show update;)' -- $CURRENT ) )
 			return 0
 			;;
 
@@ -51,7 +51,7 @@ function EE_AUTO()
 			return 0
 			;;
 
-		info|enable|edit|show|delete)
+		info|enable|edit|show|delete|cd|log)
 			if [ "$PREVIOUS2" = "site" ]; then
 				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)' -- $CURRENT ) )
 			fi
@@ -80,7 +80,7 @@ function EE_AUTO()
 			;;
 
 		--wp)
-			if [ "$PREVIOUS3" = "create" ]; then
+			if [ "$PREVIOUS3" = "create" ] || [ "$PREVIOUS3" = "update" ]; then
 				COMPREPLY=( $( compgen -W "--basic --w3tc --wpsc --wpfc" -- $CURRENT ) )
 			else
 				COMPREPLY=( $(compgen -W '$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null; command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | grep -v wp | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
@@ -102,7 +102,7 @@ function EE_AUTO()
 			;;
 
 		*)
-			if [ "$PREVIOUS2" = "create" ]; then
+			if [ "$PREVIOUS2" = "create" ] || [ "$PREVIOUS2" = "update" ]; then
 				COMPREPLY=( $( compgen -W "--html --php --mysql --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
 			elif [ "$PREVIOUS2" = "delete" ]; then
 				COMPREPLY=( $( compgen -W "--db --all --files --no-prompt" -- $CURRENT ) )		
