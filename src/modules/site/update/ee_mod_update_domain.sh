@@ -45,39 +45,39 @@ function ee_mod_update_domain()
 			elif [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN BASIC" ]; then
 				if [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					sed -i 's/include common\/php.conf/include common\/wpfc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/php.conf/include common\/wpfc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					sed -i 's/include common\/php.conf/include common\/wpsc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/php.conf/include common\/wpsc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-					sed -i 's/include common\/php.conf/include common\/w3tc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/php.conf/include common\/w3tc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				fi
 			# Update NGINX conf from W3TC CACHE to BASIC|WPSC|WPFC CACHE  
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
 				if [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					sed -i 's/include common\/w3tc.conf/include common\/wpfc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/w3tc.conf/include common\/wpfc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					sed -i 's/include common\/w3tc.conf/include common\/wpsc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/w3tc.conf/include common\/wpsc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
-					sed -i 's/include common\/w3tc.conf/include common\/php.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/w3tc.conf/include common\/php.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				fi	
 			# Update NGINX conf from WPFC CACHE to BASIC|W3TC|WPSC CACHE 
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN FAST CGI" ]; then
 				if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
-					sed -i 's/include common\/wpfc.conf/include common\/php.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpfc.conf/include common\/php.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					sed -i 's/include common\/wpfc.conf/include common\/wpsc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpfc.conf/include common\/wpsc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-					sed -i 's/include common\/wpfc.conf/include common\/w3tc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpfc.conf/include common\/w3tc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				fi
 			# Update NGINX conf from WPSC CACHE to BASIC|W3TC|WPFC CACHE 
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR WP SUPER CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
 				if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
-					sed -i 's/include common\/wpsc.conf/include common\/php.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpsc.conf/include common\/php.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					sed -i 's/include common\/wpsc.conf/include common\/wpfc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpsc.conf/include common\/wpfc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-					sed -i 's/include common\/wpfc.conf/include common\/w3tc.conf;/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+					sed -i 's/include common\/wpfc.conf/include common\/w3tc.conf/' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				fi
 			fi
 			
