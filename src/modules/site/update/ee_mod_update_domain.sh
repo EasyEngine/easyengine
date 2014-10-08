@@ -20,9 +20,9 @@ function ee_mod_update_domain()
 			# Update Head Line of NGINX conf file
 			if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] \
 				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN BASIC" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR BASIC" ] \
-				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR WP SUPER CACHE"] \
-				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI"] \
-				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN W3 TOTAL CACHE" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR W3 TOTAL CACHE"];then
+				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR WP SUPER CACHE" ] \
+				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI" ] \
+				&& [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN W3 TOTAL CACHE" ] && [ "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR W3 TOTAL CACHE" ];then
 				sed -i "s'server_name $EE_DOMAIN www.$EE_DOMAIN;'server_name $EE_DOMAIN *.$EE_DOMAIN;'" $EE_SITE_NGINX_CONF && \
 				sed -i '/server_name.*;/i \\t# Uncomment the following line for domain mapping;\n\t# listen 80 default_server;\n' $EE_SITE_NGINX_CONF && \
 				sed -i '/server_name.*;/a \\n\t# Uncomment the following line for domain mapping \n\t#server_name_in_redirect off;' $EE_SITE_NGINX_CONF && \
