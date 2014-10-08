@@ -628,6 +628,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
 						EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
 					fi
 					ee_mod_setup_wordpress
 				fi
