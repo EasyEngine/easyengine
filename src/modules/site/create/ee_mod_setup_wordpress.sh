@@ -11,7 +11,11 @@ function ee_mod_setup_wordpress()
 	|| ee_lib_error "Unable to download WordPress, exit status = " $?
 	
 	# Database setup
-	ee_mod_setup_database
+	# if EE_DB_NAME, EE_DB_USER, EE_DB_PASS are empty then setup database for new site
+	# else current mysql site is to be updated
+	if [ "EE_DB_NAME" = "" ] && [ "EE_DB_USER" = "" ] && [ "EE_DB_PASS" = "" ]; then
+		ee_mod_setup_database
+	fi
 	
 	# Default WordPress prefix or custom prefix
 	if [ $($EE_CONFIG_GET wordpress.prefix) == "true" ];then
