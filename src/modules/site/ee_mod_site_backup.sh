@@ -4,13 +4,13 @@ function ee_mod_site_backup()
 {
 		# Backup directory setup
 		local ee_webroot=$(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/\/htdocs//')
-		if [ ! -d $ee_webroot/backup ] || [ ! -d $ee_webroot/backup/htdocs ] || [ ! -d $ee_webroot/backup/nginx ] || [ ! -d $ee_webroot/backup/db ]  ; then
+		if [ ! -d $ee_webroot/backup ] || [ ! -d $ee_webroot/backup/htdocs ] || [ ! -d $ee_webroot/backup/nginx ] || [ ! -d $ee_webroot/backup/db ]; then
 			mkdir -p 	$ee_webroot/backup/{htdocs,nginx,db} || ee_lib_error "Unable to create $ee_webroot/backup directory, exit status =" $?
 		fi
 
 		# Move htdocs
 		if [ "$EE_SITE_CURRENT_OPTION" = "HTML"] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL"] || [ "$EE_SITE_CURRENT_OPTION" = "PHP"]; then
-			mv $ee_webroot/htdocs $ee_webroot/backup/htdocs/htdocs-$(date +"%m-%d-%y") 
+			mv $ee_webroot/htdocs $ee_webroot/backup/htdocs/htdocs-$(date +"%m-%d-%y") || ee_lib_error "Unable to create $ee_webroot/htdocs backup, exit status =" $?
 			mkdir -p $ee_webroot/htdocs
 		fi
 

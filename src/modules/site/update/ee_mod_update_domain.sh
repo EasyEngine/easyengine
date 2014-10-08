@@ -11,11 +11,11 @@ function ee_mod_update_domain()
 		ee_lib_echo "Updating $EE_DOMAIN, please wait..."
 		if [ -f /etc/nginx/sites-available/$EE_DOMAIN ]; then 
 			EE_SITE_CURRENT_CONF=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION")
-			EE_SITE_UPDATE_CONF=$(head -n1 $EE_NGINX_CONF | grep "NGINX CONFIGURATION")
+			EE_SITE_UPDATE_CONF=$(head -n1 /usr/share/easyengine/nginx/$EE_NGINX_CONF | grep "NGINX CONFIGURATION")
 			EE_SITE_CONF="/etc/nginx/sites-available/$EE_DOMAIN"
 
 			# Update Head Line of NGINX conf
-			sed -i 's/$EE_SITE_CURRENT_CONF/$EE_SITE_UPDATE_CONF/' $EE_SITE_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+			sed -i "s'$EE_SITE_CURRENT_CONF'$EE_SITE_UPDATE_CONF'" $EE_SITE_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 
 			# Update Head Line of NGINX conf file
 			if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] \
