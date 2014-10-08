@@ -13,7 +13,7 @@ function ee_mod_setup_wordpress()
 	# Database setup
 	# if EE_DB_NAME, EE_DB_USER, EE_DB_PASS are empty then setup database for new site
 	# else current mysql site is to be updated
-	if [ "EE_DB_NAME" = "" ] && [ "EE_DB_USER" = "" ] && [ "EE_DB_PASS" = "" ]; then
+	if [ "$EE_DB_NAME" = "" ] && [ "$EE_DB_USER" = "" ] && [ "$EE_DB_PASS" = "" ]; then
 		ee_mod_setup_database
 	fi
 	
