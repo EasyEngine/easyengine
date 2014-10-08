@@ -31,7 +31,8 @@ function ee_mod_update_domain()
 			# Update NGINX conf for HTML site
 			if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ]; then
 				sed -i 's/access\.log/access.log rt_cache/' $EE_SITE_NGINX_CONF && \
-				sed -i '/location \/ {/,/}/c \\tindex index.php index.htm index.html' $EE_SITE_NGINX_CONF  || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
+				sed -i '/index index.html index.htm;$/d' $EE_SITE_NGINX_CONF && \
+				sed -i '/location \/ {/,/}/c \\tindex index.php index.htm index.html;' $EE_SITE_NGINX_CONF  || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [[ "$EE_SITE_CREATE_OPTION" = "--php" || "$EE_SITE_CREATE_OPTION" = "--mysql" ]]; then
 					sed -i '/include common\/locations.conf/i \\tinclude common\/php.conf;' $EE_SITE_NGINX_CONF || ee_lib_error "Unable to update nginx configuration to $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 				elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then

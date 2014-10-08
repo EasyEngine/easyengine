@@ -105,7 +105,7 @@ function EE_AUTO()
 			if [ "$PREVIOUS2" = "create" ]; then
 				COMPREPLY=( $( compgen -W "--html --php --mysql --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
 			elif [ "$PREVIOUS2" = "update" ]; then
-				COMPREPLY=( $( compgen -W "--wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
+				COMPREPLY=( $( compgen -W "--php --mysql --wp --wpsubdir --wpsubdomain" -- $CURRENT ) )
 			elif [ "$PREVIOUS2" = "delete" ]; then
 				COMPREPLY=( $( compgen -W "--db --all --files --no-prompt" -- $CURRENT ) )		
 			fi
