@@ -3,7 +3,7 @@
 function ee_mod_update_domain()
 {
 		# Git commit
-		ee_lib_git /etc/nginx/ "Before $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+		ee_lib_git /etc/nginx/ "Before ee site update: $EE_DOMAIN running on $EE_SITE_CURRENT_OPTION"
 		# Backup NGINX configuration & Database & Webroot
 		ee_mod_site_backup
 		
