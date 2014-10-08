@@ -725,7 +725,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_service nginx reload
 
 			# Git commit
-			ee_lib_git /etc/nginx/ "$EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+			ee_lib_git /etc/nginx/ "After ee site update: $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
