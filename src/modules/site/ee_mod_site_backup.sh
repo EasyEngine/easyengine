@@ -9,7 +9,7 @@ function ee_mod_site_backup()
 		fi
 
 		# Move htdocs
-		if [ "$EE_SITE_CURRENT_OPTION" = "HTML"] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL"] || [ "$EE_SITE_CURRENT_OPTION" = "PHP"]; then
+		if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
 			mv $ee_webroot/htdocs $ee_webroot/backup/htdocs/htdocs-$(date +"%m-%d-%y") || ee_lib_error "Unable to create $ee_webroot/htdocs backup, exit status =" $?
 			mkdir -p $ee_webroot/htdocs
 		fi
