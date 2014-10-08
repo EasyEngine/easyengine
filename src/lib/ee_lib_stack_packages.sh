@@ -1,4 +1,4 @@
-# Check the specified package is installed or not
+# Check & Install Packages
 
 function ee_lib_stack_packages()
 {
