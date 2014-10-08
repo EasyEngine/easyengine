@@ -1,7 +1,12 @@
-# Update Domain setup
+# Update NGINX configuration for $EE_DOMAIN
 
 function ee_mod_update_domain()
 {
+		# Git commit
+		ee_lib_git /etc/nginx/ "Before $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+		# Backup NGINX configuration & Database & Webroot
+		ee_mod_site_backup
+		
 		# Creating $EE_DOMAIN
 		ee_lib_echo "Updating $EE_DOMAIN, please wait..."
 		if [ -f /etc/nginx/sites-available/$EE_DOMAIN ]; then 
