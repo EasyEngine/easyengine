@@ -92,8 +92,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_ven_install_$EE_THIRD
 			fi
 
-			# Display success message
-			ee_lib_echo "$EE_THIRD successfully installed"
 		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ] || [ "$EE_THIRD" = "admin" ] ; then
 			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 				# Setup  NGINX/PHP/Percona MySQL repository
@@ -131,16 +129,8 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_ven_install_adminer
 			ee_ven_install_phpmyadmin
 			ee_ven_install_utils
-
-			# Display success message
-			if [ "$EE_THIRD" != "all" ];then
-				ee_lib_echo "Successfully installed $([ "$EE_THIRD" != "" ] && echo $EE_THIRD || echo "web" ) server packages"
-				if [ "$EE_THIRD" != "admin" ];then
-					ee_lib_echo "Create your first WordPress site powered by NGINX using:"
-					ee_lib_echo_info "ee site create example.com --wp"
-				fi
-			fi
 		fi
+
 		# EasyEngine mail server setup
 		if [ "$EE_THIRD" = "mail" ] || [ "$EE_THIRD" = "all" ];then
 
@@ -204,7 +194,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_echo_escape "Configure ViMbAdmin:\thttps://$(hostname -f):22222/vimbadmin"
 			ee_lib_echo_escape "Security Salt:\t\t${ee_security_salt}\n"
 
-			ee_lib_echo "Successfully installed mail server packages"
 		elif [ "$EE_THIRD" = "mailscanner" ]; then
 
 			dpkg --get-selections | grep -v deinstall | grep dovecot-core > /dev/null
@@ -220,9 +209,16 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			ee_lib_service nginx postfix dovecot amavis restart
 
-			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Installed Mail Scanner"
-			ee_lib_echo "Successfully installed mail scanner packages"
+			ee_lib_git /etc/nginx /etc/postfix /etc/dovecot /etc/amavis "Installed Mail Scanner Packages"
 		fi
+
+		# Display HTTP Authentication details
+		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "" ]  || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
+					ee_lib_echo_info "HTTP Authentication username: $EE_HTTP_AUTH_USER"
+					ee_lib_echo_info "HTTP Authentication password: $EE_HTTP_AUTH_PASS"
+		fi
+		# Display success message
+		ee_lib_echo "$EE_THIRD successfully installed"
 
 	# EasyEngine remove/purge
 	elif [ "$EE_SECOND" = "remove" ] || [ "$EE_SECOND" = "purge" ]; then
