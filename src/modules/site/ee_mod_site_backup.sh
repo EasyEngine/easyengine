@@ -27,7 +27,7 @@ function ee_mod_site_backup()
 			mysqldump $ee_db_name > $ee_webroot/backup/db/${ee_db_name}-$EE_DATE.sql.bak &>> $EE_COMMAND_LOG
 
 			# Move ee-config.php and copy wp-config.php to backup
-			if [ -f $ee_webroot/ee-config.php ]
+			if [ -f $ee_webroot/ee-config.php ]; then
 				mv $ee_webroot/ee-config.php $ee_webroot/backup/htdocs/$EE_DATE/ || ee_lib_error "Unable to move $ee_webroot/ee-config.php to backup, exit status =" $?
 			else
 				cp $ee_webroot/wp-config.php $ee_webroot/backup/htdocs/$EE_DATE/ || ee_lib_error "Unable to move $ee_webroot/ee-config.php to backup, exit status =" $?
