@@ -13,6 +13,8 @@ ee site [ list | info | show | enable | disable | edit ] [ example.com ]
 .TP
 ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--basic | --wpsc | --w3tc | --wpfc]]
 .TP
+ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--basic | --wpsc | --w3tc | --wpfc]]
+.TP
 ee site delete example.com [--db | --files | --all | --no-prompt ]
 .TP
 ee debug [ -i | --nginx | --rewrite | --php | --fpm | --mysql ] [ --stop ]  
@@ -85,6 +87,14 @@ Display easyengine (ee) help.
 .B site
 .br
 .TP
+.B 		cd [ example.com ]
+.br
+				Change directory to  webroot of specified site
+.TP
+.B 		log [ example.com ]
+.br
+				monitor access and error logs for site specified
+.TP
 .B 		list [ enable | available ]
 .br
 				Lists all available sites from /etc/nginx/sites-enabled/
@@ -126,6 +136,12 @@ Display easyengine (ee) help.
 .br
 				create static site with html only.
 .TP
+.B 		update [ example.com ] [ --html | --php | --mysql | --wp | --w3tc |--wpfc ]
+.br
+				Update new site according to given options. If no options provided 
+.br
+				update site with html only.
+.TP
 .B 		delete [ example.com ] [--no-prompt ] [ --db | --files ]
 .br
 				Delete site i.e webroot, database, ad configuration permenantly.
@@ -149,6 +165,12 @@ Display easyengine (ee) help.
 .B secure [ --auth | --port ]
 .br
 				Update security settings.
+.TP
+.B clean [ fastcgi | opcache | memcache | all ]
+.br
+				Clean NGINX fastCGI cache, Opcache, Memcache.
+.br
+				Clean NGINX fastCGI cache if no option specified.
 .SH ARGUMENTS
 .TP
 .B -i
