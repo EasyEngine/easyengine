@@ -697,7 +697,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_update_plugins
 
 			else
-					ee_lib_error "$EE_SITE_CURRENT_OPTION Website cannot be updated to $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
+					ee_lib_error "Invalid update option, exit status =" $?
 			fi
 			# Adjust permission
 			ee_lib_permissions
