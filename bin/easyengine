@@ -627,9 +627,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Setup WordPress
 				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
-						EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
-						EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
-						EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/ee-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/ee-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/ee-config.php/' 2> /dev/null) | cut -d"'" -f4)
+						mv $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/\/htdocs//')/{ee-config.php,backup/db/ee-config-$(date +"%m-%d-%y::%T").php.bak} &>> $EE_COMMAND_LOG 
 					fi
 					ee_mod_setup_wordpress
 				fi
@@ -664,9 +665,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 					echo
 				fi
 
-			# Lets update WprdPress Single sites
+			# Lets update WordPress Single sites
+			# WordPress Single sites can only be updated to multisites or with different cache options
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
-				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ]; then
+				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ] \
+				&& [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir"  || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
 				
 				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE BASIC" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ]] \
@@ -686,7 +689,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_update_plugins
 
 			# Lets update WprdPress multi sites with subdirectory
-			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] \
+			# WordPress multi sites with subdirectory can only update cache
+ 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR WP SUPER CACHE" ] && [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR BASIC" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI" ]] \
@@ -700,7 +704,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Update cache plugins
 				ee_mod_update_plugins
 
-			# Lets update WprdPress multi sites with subdomain
+			# Lets update WordPress multi sites with subdomain
+			# WordPress multi sites with subdomain can only update cache
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN WP SUPER CACHE" ] && [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN BASIC" ]] \
@@ -716,7 +721,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_update_plugins
 
 			else
-					ee_lib_error "Invalid update parameters, Use proper parameters, exit status =" $?
+					ee_lib_error "$EE_SITE_CURRENT_OPTION Website cannot be updated to $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 			fi
 			# Adjust permission
 			ee_lib_permissions
