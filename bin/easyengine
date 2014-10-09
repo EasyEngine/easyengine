@@ -237,12 +237,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_ven_remove_$EE_THIRD
 			fi
 
-			# Display success message
-			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "$EE_THIRD successfully removed"
-			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "$EE_THIRD successfully purged"
-			fi
+
 		elif [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]  || [ "$EE_THIRD" = "admin" ] ; then
 			if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
 				# Remove/Purge  NGINX/PHP/MySQL/Postfix package
@@ -261,13 +256,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			# Execute: apt-get autoremove
 			ee_lib_autoremove
-
-			# Display success message
-			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed $([ "$EE_THIRD" != "" ] && echo $EE_THIRD || echo "web" ) packages"
-			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged $EE_THIRD packages"
-			fi
 		fi
 		if [ "$EE_THIRD" = "all" ] || [ "$EE_THIRD" = "mail" ];then
 			# Remove Dovecot
@@ -290,12 +278,6 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 			ee_lib_git /etc/nginx "Removed Mail Server"
 
-			# Display success message
-			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed mail server packages"
-			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged mail server packages"
-			fi
 		elif [ "$EE_THIRD" = "mailscanner" ]; then
 			# Remove Amavis
 			ee_mod_remove_mailscaner
@@ -306,13 +288,13 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			ee_lib_service nginx postfix dovecot restart
 
 			ee_lib_git /etc/postfix "Removed mailscanner"
-			
-			# Display success message
-			if [ "$EE_SECOND" = "remove" ];then
-				ee_lib_echo "Successfully removed Mail Scanner packages"
-			elif [ "$EE_SECOND" = "purge" ];then
-				ee_lib_echo "Successfully purged Mail Scanner packages"
-			fi
+		fi
+
+		# Display success message
+		if [ "$EE_SECOND" = "remove" ];then
+			ee_lib_echo "$EE_THIRD successfully removed"
+		elif [ "$EE_SECOND" = "purge" ];then
+			ee_lib_echo "$EE_THIRD successfully purged"
 		fi
 
 	elif [ "$EE_SECOND" = "status" ]; then
