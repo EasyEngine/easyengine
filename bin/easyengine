@@ -592,14 +592,13 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Lets update HTML|PHP|MySQL website
 			if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
 				
-				# Git commit
-				ee_lib_git /etc/nginx/ "Before $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
-				ee_mod_site_backup
 
 				# Update NGINX configuration for $EE_DOMAIN
 				if [[ "$EE_SITE_CREATE_OPTION" = "--php" && "$EE_SITE_CURRENT_OPTION" != "PHP" ]] || [[ "$EE_SITE_CREATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]] \
 					|| [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					ee_mod_update_domain
+				else 
+					ee_lib_error "Website already with $EE_SITE_CREATE_OPTION, $EE_SITE_CACHE_OPTION, exit status" $?
 				fi
 
 				# Setup WordPress
