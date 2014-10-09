@@ -24,7 +24,8 @@ function ee_mod_site_backup()
 		if [ -f $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/') ]; then
 			ee_lib_echo "Creating Database backup for $EE_DOMAIN before updating ..."
 			local ee_db_name=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
-			mysqldump $ee_db_name > $ee_webroot/backup/db/${ee_db_name}-$EE_DATE.sql.bak &>> $EE_COMMAND_LOG
+			mysqldump $ee_db_name > $ee_webroot/backup/db/${ee_db_name}-$EE_DATE.sql.bak \
+			|| ee_lib_error "Unable to dump ${ee_db_name}, exit status =" $?
 
 			# Move ee-config.php and copy wp-config.php to backup
 			if [ -f $ee_webroot/ee-config.php ]; then
