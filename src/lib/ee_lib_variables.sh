@@ -15,6 +15,9 @@ readonly EE_ROUNDCUBE_VERSION='1.0.3'
 # ViMbAdmin Version
 readonly EE_VIMBADMIN_VERSION='3.0.10'
 
+# EasyEngine Date variable for backup
+readonly EE_DATE=$(date +%d%b%Y%H%M%S)
+
 EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
