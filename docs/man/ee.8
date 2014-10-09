@@ -89,11 +89,11 @@ Display easyengine (ee) help.
 .TP
 .B 		cd [ example.com ]
 .br
-				Change directory to  webroot of specified site
+				Change directory to  webroot of specified site in subshell.
 .TP
 .B 		log [ example.com ]
 .br
-				monitor access and error logs for site specified
+				monitor access and error logs for site specified.
 .TP
 .B 		list [ enable | available ]
 .br
@@ -130,17 +130,15 @@ Display easyengine (ee) help.
 .br
 				Edit NGINX configuration of site.
 .TP
-.B 		create [ example.com ] [ --html | --php | --mysql | --wp | --w3tc |--wpfc ]
+.B 		create [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--basic | --wpsc | --w3tc | --wpfc]]
 .br
 				Create new site according to given options. If no options provided 
 .br
 				create static site with html only.
 .TP
-.B 		update [ example.com ] [ --html | --php | --mysql | --wp | --w3tc |--wpfc ]
+.B 		update [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--basic | --wpsc | --w3tc | --wpfc]]
 .br
-				Update new site according to given options. If no options provided 
-.br
-				update site with html only.
+				Update site configuration according to specified options. 
 .TP
 .B 		delete [ example.com ] [--no-prompt ] [ --db | --files ]
 .br
@@ -293,6 +291,9 @@ Report bugs at <http://github.com/rtCamp/easyengine/issues/>
 .br
 .B Manish 
 .I \<Manish.Songirkar@rtcamp.com\>
+.br
+.B Gaurav 
+.I \<Gaurav.Astikar@rtcamp.com\>
 .br
 .B Harshad
 .I \<harshad.yeola@rtcamp.com>
