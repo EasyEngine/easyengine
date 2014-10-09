@@ -51,7 +51,7 @@ function EE_AUTO()
 			return 0
 			;;
 
-		info|enable|edit|show|delete|cd|log)
+		info|enable|edit|show|delete|cd|log|update)
 			if [ "$PREVIOUS2" = "site" ]; then
 				COMPREPLY=( $( compgen -W '$(command find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)' -- $CURRENT ) )
 			fi
