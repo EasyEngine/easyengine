@@ -598,7 +598,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					ee_mod_update_domain
 				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status" $?
+					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 
 				# Setup WordPress
@@ -655,7 +655,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
 				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status" $?
+					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Setup WordPress Network
 				if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -675,7 +675,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
 				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status" $?
+					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Update cache plugins
 				ee_mod_update_plugins
@@ -691,7 +691,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
 				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status" $?
+					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Update cache plugins
 				ee_mod_update_plugins
