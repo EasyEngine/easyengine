@@ -214,7 +214,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 		# Display HTTP authentication details
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "" ]  || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
-				if [ "$EE_DISPLAY" != "true" ]; then
+				if [ "$EE_DISPLAY" = "true" ]; then
 					ee_lib_echo_info "HTTP authentication username: $EE_HTTP_AUTH_USER"
 					ee_lib_echo_info "HTTP authentication password: $EE_HTTP_AUTH_PASS"
 				fi
@@ -436,7 +436,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
 			# Display Http Auth credentials
-			if [ "$EE_DISPLAY" = "true" ]; then
+			if [ "$EE_DISPLAY" = "false" ]; then
 				ee_lib_echo_info "HTTP authentication username: easyengine"
         ee_lib_echo_info "HTTP authentication password: $(grep "HTTP authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
 			fi
@@ -485,7 +485,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_service nginx reload
 
 				# Display Http Auth credentials
-				if [ "$EE_DISPLAY" = "true" ]; then
+				if [ "$EE_DISPLAY" = "false" ]; then
 					ee_lib_echo_info "HTTP authentication username: easyengine"
         	ee_lib_echo_info "HTTP authentication password: $(grep "HTTP authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
 				fi
