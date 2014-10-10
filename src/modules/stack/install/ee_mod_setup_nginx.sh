@@ -98,6 +98,8 @@ function ee_mod_setup_nginx()
 
 	# Generate htpasswd-ee file
 	if [ ! -f /etc/nginx/htpasswd-ee ]; then
+		# Export EE_DISPLAY variable to Display ee http auth after site creation.
+		export EE_DISPLAY=true
 		# Use same variable name as used in ee_mod_secure_auth function
 		EE_HTTP_AUTH_USER=easyengine
 		EE_HTTP_AUTH_PASS=$ee_random

@@ -220,6 +220,9 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				fi
 		fi
 		# Display success message
+		if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ]; then
+			EE_THIRD="Web packages"
+		fi
 		ee_lib_echo "$EE_THIRD successfully installed"
 
 	# EasyEngine remove/purge
@@ -293,6 +296,9 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 		fi
 
 		# Display success message
+		if [ "$EE_THIRD" = "" ] || [ "$EE_THIRD" = "web" ]; then
+			EE_THIRD="Web packages"
+		fi
 		if [ "$EE_SECOND" = "remove" ];then
 			ee_lib_echo "$EE_THIRD successfully removed"
 		elif [ "$EE_SECOND" = "purge" ];then
