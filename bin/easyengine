@@ -615,6 +615,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Setup WordPress
 				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
+						# Sets EE_DB_NAME, EE_DB_USER, EE_DB_PASS variables, so that same database can be used while updating MYSQL site to any WordPress site
 						EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
 						EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
 						EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
