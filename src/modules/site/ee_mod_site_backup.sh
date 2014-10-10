@@ -6,7 +6,7 @@ function ee_mod_site_backup()
 		# Backup directory setup
 		local ee_webroot=$(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/\/htdocs//')
 		if [ ! -d $ee_webroot/backup ] || [ ! -d $ee_webroot/backup/htdocs/$EE_DATE ] || [ ! -d $ee_webroot/backup/nginx/$EE_DATE ] || [ ! -d $ee_webroot/backup/db/$EE_DATE ]; then
-			mkdir -p 	$ee_webroot/backup/{htdocs/$EE_DATE,nginx,db} || ee_lib_error "Unable to create $ee_webroot/backup directory, exit status =" $?
+			mkdir -p 	$ee_webroot/backup/{htdocs/$EE_DATE,nginx/$EE_DATE,db/$EE_DATE} || ee_lib_error "Unable to create $ee_webroot/backup directory, exit status =" $?
 		fi
 
 		# Move htdocs
