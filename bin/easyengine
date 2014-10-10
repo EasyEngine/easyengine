@@ -427,6 +427,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Git commit
 			ee_lib_git /etc/nginx/ "$EE_DOMAIN created with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
 
+			# Display Http Auth credentials
+			if [ "$EE_DISPLAY" = "true" ]; then
+				ee_lib_echo_info "HTTP Authentication username: easyengine"
+        ee_lib_echo_info "HTTP Authentication password: $(grep "HTTP Authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
+			fi
 			# Display Success Message
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -470,6 +475,12 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 				# Execute: service nginx reload
 				ee_lib_service nginx reload
+
+				# Display Http Auth credentials
+				if [ "$EE_DISPLAY" = "true" ]; then
+					ee_lib_echo_info "HTTP Authentication username: easyengine"
+        	ee_lib_echo_info "HTTP Authentication password: $(grep "HTTP Authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
+				fi
 
 				# Display WordPress credential
 				echo

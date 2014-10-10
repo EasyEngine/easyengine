@@ -9,6 +9,8 @@ function ee_lib_stack_packages()
 		if [ "$ee_stack_package" = "nginx" ]; then
 			ee_lib_package_check $EE_NGINX_PACKAGE
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
+				# Export EE_DISPLAY variable to Display ee http auth after site creation.
+				export EE_DISPLAY=true
 				# The following command creates its own sub-shell
 				# and our ee_lib_error function only exit from that sub-shell
 				# so we need to exit from parent shell also
