@@ -214,8 +214,10 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 		# Display HTTP Authentication details
 		if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "" ]  || [ "$EE_THIRD" = "web" ] || [ "$EE_THIRD" = "all" ]; then
+				if [ "$EE_DISPLAY" != "true" ]; then
 					ee_lib_echo_info "HTTP Authentication username: $EE_HTTP_AUTH_USER"
 					ee_lib_echo_info "HTTP Authentication password: $EE_HTTP_AUTH_PASS"
+				fi
 		fi
 		# Display success message
 		ee_lib_echo "$EE_THIRD successfully installed"
