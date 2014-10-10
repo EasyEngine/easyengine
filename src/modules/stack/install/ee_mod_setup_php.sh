@@ -63,7 +63,7 @@ function ee_mod_setup_php()
 
 		ee_lib_echo "Downloading GeoIP Database, please wait..."
 		mkdir -p /usr/share/GeoIP
-		wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz /usr/share/GeoIP/GeoIPCity.dat http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+		wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 		gunzip /usr/share/GeoIP/GeoLiteCity.dat.gz
 		mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
 
@@ -81,9 +81,8 @@ function ee_mod_setup_php()
 		|| ee_lib_error "Unable to change Memcache memory value, exit status = " $?	
 
 		# Resolve php session Error Ref: #302
-		chmod a+t+w /var/lib/php5 &&
-		chmod go-r /var/lib/php5 \
-		|| ee_lib_error "Unable to setup PHP session error permissions, exit status = " $?	
-
+		#chmod a+t+w /var/lib/php5 &&
+		#chmod go-r /var/lib/php5 \
+		#|| ee_lib_error "Unable to setup PHP session error permissions, exit status = " $?	
 	fi
 }
