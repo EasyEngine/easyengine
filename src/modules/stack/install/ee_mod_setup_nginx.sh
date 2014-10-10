@@ -101,6 +101,10 @@ function ee_mod_setup_nginx()
 		# Use same variable name as used in ee_mod_secure_auth function
 		EE_HTTP_AUTH_USER=easyengine
 		EE_HTTP_AUTH_PASS=$ee_random
+		echo
+		ee_lib_echo "HTTP authentication username: $EE_HTTP_AUTH_USER" &>> $EE_COMMAND_LOG
+		ee_lib_echo "HTTP authentication password: $EE_HTTP_AUTH_PASS" &>> $EE_COMMAND_LOG
+
 		printf "$EE_HTTP_AUTH_USER:$(openssl passwd -crypt $EE_HTTP_AUTH_PASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
 	fi
 }
