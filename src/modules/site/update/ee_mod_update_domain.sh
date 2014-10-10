@@ -8,7 +8,7 @@ function ee_mod_update_domain()
 		ee_mod_site_backup
 		
 		# Creating $EE_DOMAIN
-		ee_lib_echo "Updating $EE_DOMAIN, please wait ..."
+		ee_lib_echo "Updating $EE_DOMAIN, please wait..."
 		if [ -f /etc/nginx/sites-available/$EE_DOMAIN ]; then 
 			EE_SITE_CURRENT_CONF=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION")
 			EE_SITE_UPDATE_CONF=$(head -n1 /usr/share/easyengine/nginx/$EE_NGINX_CONF | grep "NGINX CONFIGURATION")
