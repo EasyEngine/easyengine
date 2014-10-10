@@ -2,6 +2,8 @@
 
 function ee_mod_site_log()
 {
+	# Sets ee_log_path to empty, so that it should not use its previous values
+	local ee_log_path=""
 	# Check if domain name passed
 	if [ $# -eq 0 ]; then
 		for ee_domain_name in $(ls /etc/nginx/sites-available/*); do
