@@ -886,7 +886,7 @@ elif [ "$EE_FIRST" = "import-slow-log" ];then
 
 # EasyEngine update
 elif [ "$EE_FIRST" = "update" ]; then
-	ee_lib_echo "Updating EasyEngine (ee), please wait..."
+	ee_lib_echo "Checking EasyEngine(ee) update, please wait..."
 	wget --no-check-certificate -qO eeup http://rt.cx/eeup && sudo bash eeup
 	
 else
