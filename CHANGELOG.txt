@@ -1,3 +1,18 @@
+v 2.2.0 - Oct 13, 2014
+- Percona Mysql 5.6 support on Fresh installation. #107
+- RAM Based Optimization for PHP5-FPM,OpCache and Memcache
+- Introduced following new commands for 
+  - ee site cd example.com  # Change Directory to example.com Webroot
+  - ee site log example.com  # Real time log monitoring for example.com access and error logs
+  - ee site update example.com <parameters> # update example.com cache and convert site
+  - ee clean # Clean cache NGINX FastCGI, Memcache, OPcache.
+- Change WordPress user password easily ( ee site update example.com --password) #315 
+- Added PHP5-GeoIP Support 
+- Auto Swap creation for low RAM servers. 
+- Fixed Better autocompletion feature. Fixed #311.
+- Fixed phpMyAdmin (blowfish_secret) error #301
+- Simplified way to update EasyEngine. #307
+
 v 2.1.0 - Sept 3, 2014
   - Added Mail Server Package installation #65
   - Fixed incorrect log file path during debug #299
