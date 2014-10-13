@@ -79,10 +79,15 @@ function EE_AUTO()
 			;;
 
 		--nginx|--rewrite|--php|--fpm|--mysql)
-			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			if [ "$PREVIOUS" = "--mysql" ]; then
+				COMPREPLY=( $(compgen -W '$(echo --import-slow-log-interval; command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			else
+				COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			fi
 			ee_single
-			return 0
-			;;
+      return 0
+      ;;
+
 
 		--wp)
 			if [ "$PREVIOUS3" = "create" ] || [ "$PREVIOUS3" = "update" ]; then
