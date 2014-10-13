@@ -102,7 +102,7 @@ function ee_ven_install_utils()
 			sed -i "/password/ s/''/'$ee_anemometer_pass'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 			sed -i "s/'host'	=> 'localhost',/'host'	=> '$EE_MYSQL_HOST',/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
 
-			# Chane Anemometer Hostname in ee_lib_import_slow_log
+			# Change Anemometer Hostname in ee_lib_import_slow_log
 			sed -i "s:hostname.*:hostname}=\\\\\"$EE_MYSQL_HOST\\\\\"\" /var/log/mysql/mysql-slow.log:" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
 			|| ee_lib_error "Unable to change Anemometer hostnameme, exit status = " $?
 

@@ -21,6 +21,6 @@ function ee_lib_import_slow_log()
 			ee_lib_echo_fail "Failed to find MySQL slow log file, enable MySQL slow log"
 		fi
 	else
-		ee_lib_echo_fail "Anememoter is not installed"
+		ee_lib_echo_fail "Anemometer is not installed"
 	fi
 }
