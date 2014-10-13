@@ -497,7 +497,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup --no-check-certificate http://rt.cx/eeup && sudo bash eeup\"" >> /etc/bash.bashrc
 
 				# Update EasyEngine current version
-				EE_CURRENT_VERSION="2.1.0"
+				EE_CURRENT_VERSION="2.2.0"
 			fi
 			# if [[ $EE_CURRENT_VERSION = 2.2.0 ]]; then
 			# fi
