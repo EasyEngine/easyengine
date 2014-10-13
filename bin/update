@@ -492,10 +492,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					sed -i "s/a8b7c6d/$ee_random/" /var/www/22222/htdocs/db/pma/config.inc.php \
 					|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
 				fi
-
-				# Add eeupdate command to bash.bashrc
-				echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup --no-check-certificate http://rt.cx/eeup && sudo bash eeup\"" >> /etc/bash.bashrc
-
+				
 				# Update EasyEngine current version
 				EE_CURRENT_VERSION="2.2.0"
 			fi
