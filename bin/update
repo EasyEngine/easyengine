@@ -469,7 +469,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				# Change Anemometer login details
 				if [ -d /var/www/22222/htdocs/db/anemometer ]; then
 					ee_anemometer_pass=$(grep "password=" /etc/logrotate.d/mysql-server | cut -d"=" -f3 )
-					ee_anemometer_pass=$(echo ${ee_anemometer_pass::-2})
+					ee_anemometer_pass=$(echo $ee_anemometer_pass | rev | cut -c 3- | rev)
 
 					# Change Anemometer Hostname in ee_lib_import_slow_log
 					sed -i "s:hostname.*:hostname}=\\\\\"$EE_MYSQL_HOST\\\\\"\" /var/log/mysql/mysql-slow.log:" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
