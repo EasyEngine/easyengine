@@ -485,7 +485,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 7 | head -n1)
 
 					if [ ! -f /var/www/22222/htdocs/db/pma/config.inc.php ]; then
-						cp -v /var/www/22222/htdocs/db/pma/config.sample.inc.php /var/www/22222/htdocs/db/pma/config.inc.php &>> $EE_COMMAND_LOG
+						cp -v /var/www/22222/htdocs/db/pma/config.sample.inc.php /var/www/22222/htdocs/db/pma/config.inc.php &>> $EE_COMMAND_LOG \
 						|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
 					fi
 
