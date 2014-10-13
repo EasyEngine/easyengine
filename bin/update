@@ -428,8 +428,74 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			fi
 
 			if [[ $EE_CURRENT_VERSION = 2.1.0 ]]; then
-
 				
+				#Change permission of EasyEngine log folder
+				chmod -R 700 /var/log/easyengine \
+				|| ee_lib_error "Unable to change permissions for EasyEngine log folder, exit status = " $?
+
+				#RAM based optimization settings
+				ee_lib_ram
+				
+				if [ -f /etc/php5/fpm/pool.d/www.conf ]; then
+					sed -i "s/pm.max_children = .*/pm.max_children = ${EE_PHP_MAX_CHILDREN}/" /etc/php5/fpm/pool.d/www.conf
+				fi
+
+				# Setup Zend OpCache as per RAM
+				if [ -f /etc/php5/fpm/conf.d/05-opcache.ini ]; then
+					grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null 
+					if [ $? -ne 0 ]; then
+						sed -i "s/zend_extension=opcache.so/zend_extension=opcache.so\nopcache.memory_consumption=${EE_OPCACHE_SIZE}\nopcache.max_accelerated_files=50000/" /etc/php5/fpm/conf.d/05-opcache.ini \
+						|| ee_lib_error "Unable to change opcache.memory_consumption, exit status = " $?
+					fi
+				fi
+
+				# Setup PHP Memcache as per RAM
+				if [ -f /etc/memcached.conf ]; then
+					sed -i "s/-m.*/-m ${EE_MEMCACHE_SIZE}/" /etc/memcached.conf \
+					|| ee_lib_error "Unable to change Memcache memory value, exit status = " $?
+				fi
+
+				# Add PHP GeoIP module
+				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
+				if [ $? -eq 0 ]; then
+					ee_lib_echo "Downloading GeoIP Database, please wait..."
+					mkdir -p /usr/share/GeoIP
+					wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+					gunzip /usr/share/GeoIP/GeoLiteCity.dat.gz
+					mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+					$EE_APT_GET install php5-geoip
+				fi
+
+				# Change Anemometer login details
+				if [ -d /var/www/22222/htdocs/db/anemometer ]; then
+					ee_anemometer_pass=$(grep "password=" /etc/logrotate.d/mysql-server | cut -d"=" -f3 )
+					ee_anemometer_pass=$(echo ${ee_anemometer_pass::-2})
+
+					# Change Anemometer Hostname in ee_lib_import_slow_log
+					sed -i "s:hostname.*:hostname}=\\\\\"$EE_MYSQL_HOST\\\\\"\" /var/log/mysql/mysql-slow.log:" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
+					|| ee_lib_error "Unable to change Anemometer hostnameme, exit status = " $?
+
+					# Change Anemometer password in ee_lib_import_slow_log
+					sed -i "s/--password.*/--password=${ee_anemometer_pass} \\\/" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
+					|| ee_lib_error "Unable to change Anemometer password, exit status = " $?
+				fi
+
+				# Fix PhpMyAdmin config issue
+				if [ -d /var/www/22222/htdocs/db/pma ]; then
+					local ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 7 | head -n1)
+
+					if [ ! -f /var/www/22222/htdocs/db/pma/config.inc.php ]; then
+						cp -v /var/www/22222/htdocs/db/pma/config.sample.inc.php /var/www/22222/htdocs/db/pma/config.inc.php &>> $EE_COMMAND_LOG
+						|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
+					fi
+
+					sed -i "s/a8b7c6d/$ee_random/" /var/www/22222/htdocs/db/pma/config.inc.php \
+					|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
+				fi
+
+				# Add eeupdate command to bash.bashrc
+				echo -e "#EasyEngine Update Command\nalias eeupdate=\"wget -qO eeup --no-check-certificate http://rt.cx/eeup && sudo bash eeup\"" >> /etc/bash.bashrc
+
 				# Update EasyEngine current version
 				EE_CURRENT_VERSION="2.1.0"
 			fi
