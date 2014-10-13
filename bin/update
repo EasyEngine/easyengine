@@ -429,11 +429,11 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 			if [[ $EE_CURRENT_VERSION = 2.1.0 ]]; then
 				
-				#Change permission of EasyEngine log folder
+				# Change permission of EasyEngine log folder
 				chmod -R 700 /var/log/easyengine \
 				|| ee_lib_error "Unable to change permissions for EasyEngine log folder, exit status = " $?
 
-				#RAM based optimization settings
+				# RAM based optimization settings
 				ee_lib_ram
 				
 				if [ -f /etc/php5/fpm/pool.d/www.conf ]; then
@@ -458,12 +458,12 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				# Add PHP GeoIP module
 				dpkg --get-selections | grep -v deinstall | grep php5-fpm &>> $EE_UPDATE_LOG
 				if [ $? -eq 0 ]; then
+					$EE_APT_GET install php5-geoip
 					ee_lib_echo "Downloading GeoIP Database, please wait..."
 					mkdir -p /usr/share/GeoIP
 					wget -qO  /usr/share/GeoIP/GeoLiteCity.dat.gz http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
 					gunzip /usr/share/GeoIP/GeoLiteCity.dat.gz
 					mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
-					$EE_APT_GET install php5-geoip
 				fi
 
 				# Change Anemometer login details
