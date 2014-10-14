@@ -541,7 +541,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 		# Check the $EE_DOMAIN exist or not
 		if [ ! -f /etc/nginx/sites-available/$EE_DOMAIN ]; then
-			ee_lib_error "$EE_DOMAIN not exist, exit status = " $?
+			ee_lib_error "$EE_DOMAIN does not exist, exit status = " $?
 		fi
 
 		# Use default whenever possible
