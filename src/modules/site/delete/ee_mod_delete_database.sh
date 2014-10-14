@@ -12,6 +12,11 @@ function ee_mod_delete_database()
 		local ee_db_host=$(grep DB_HOST /var/www/$EE_DOMAIN/*-config.php | cut -d"'" -f4)
 		ee_lib_echo_escape " DB_NAME = $ee_db_name \n DB_USER = $ee_db_user \n DB_HOST = $ee_db_host"
 
+ 		if [ "$EE_MYSQL_GRANT_HOST" != "localhost" ]; then
+			# If MySQL grant host is set, use that value instead
+ 			ee_db_host=$EE_MYSQL_GRANT_HOST
+        	fi
+
 		if [ "$1" = "--no-prompt" ];then
 			# Delete database without any prompt
 			local ee_prompt="y"
