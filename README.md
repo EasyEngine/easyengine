@@ -16,21 +16,21 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 
 ```bash
 wget -qO ee rt.cx/ee && sudo bash ee     # install easyengine
-ee stack install                         # install nginx, php, mysql, postfix 
-ee site create example.com --wp          # create example.com and install wordpress on it
+ee site create example.com --wp          # Install required packages & setup WordPress on example.com
 ```
 
 ## Update EasyEngine
 
-To update the EasyEngine, please set following alias in your `~/.bashrc`
+Update Procedure for EasyEngine 2.2.0 and next versions:
 
 ```bash
-alias eeupdate="wget -qO eeup http://rt.cx/eeup && sudo bash eeup"
+ee update
 ```
-Now Update EasyEngine using command:
+
+Update Procedure For EasyEngine 2.1.0 and previous versions:
 
 ```bash
-eeupdate
+wget -qO eeup http://rt.cx/eeup && sudo bash eeup
 ```
 
 ## More Site Creation Commands
