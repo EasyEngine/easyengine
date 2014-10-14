@@ -74,7 +74,7 @@ function EE_AUTO()
 			;;
 
 		debug)
-			COMPREPLY=( $(compgen -W '$(echo --import-slow-log-interval; command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
+			COMPREPLY=( $(compgen -W '$(command cd /usr/local/lib/easyengine/modules/debug/; find  -type f | grep debug | cut -d'_' -f4 | cut -d '.' -f1 | sed 's/^/--/g' 2> /dev/null)' -- $CURRENT) )
 			return 0
 			;;
 
