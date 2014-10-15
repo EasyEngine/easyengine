@@ -40,7 +40,7 @@ function ee_lib_git()
 			# Check .git
 			if [ ! -d .git ]; then
 				# ee_lib_echo "Initialize Git on ${ee_git_dir}"
-				git init &>> $EE_COMMAND_LOG \
+				git init &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to initialize Git on $ee_git_dir, exit status = " $?
 			fi
 
@@ -48,7 +48,7 @@ function ee_lib_git()
 			if [ $(git status -s | wc -l) -ne 0 ]; then
 				# Add files in Git version control
 				ee_lib_echo "Git commit on $ee_git_dir, please wait..."
-				git add --all && git commit -am "${@: -1}" &>> $EE_COMMAND_LOG \
+				git add --all && git commit -am "${@: -1}" &>> $EE_UPDATE_LOG \
 				|| ee_lib_error "Unable to Git commit on $ee_git_dir, exit status = " $?
 			fi
 		fi
