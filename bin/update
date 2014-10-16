@@ -81,6 +81,16 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			|| ee_lib_error "Unable to install required packages, exit status = " $?
 		fi
 
+		# Get Anemometer password
+		if [ -d /var/www/22222/htdocs/db/anemometer ]; then
+			if [ -f /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh ]; then
+				ee_anemometer_pass=$(grep "\-\-password" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh | cut -d"=" -f3 )
+			else
+				ee_anemometer_pass=$(grep "password=" /etc/logrotate.d/mysql-server | cut -d"=" -f3 )
+			fi
+			ee_anemometer_pass=$(echo $ee_anemometer_pass | rev | cut -c 3- | rev)
+		fi
+
 		# Git backup
 		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "EasyEngine version $EE_CURRENT_VERSION"
 
@@ -468,20 +478,6 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					mv /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
 				fi
 
-				# Change Anemometer login details
-				if [ -d /var/www/22222/htdocs/db/anemometer ]; then
-					ee_anemometer_pass=$(grep "password=" /etc/logrotate.d/mysql-server | cut -d"=" -f3 )
-					ee_anemometer_pass=$(echo $ee_anemometer_pass | rev | cut -c 3- | rev)
-
-					# Change Anemometer Hostname in ee_lib_import_slow_log
-					sed -i "s:hostname.*:hostname}=\\\\\"$EE_MYSQL_HOST\\\\\"\" /var/log/mysql/mysql-slow.log:" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
-					|| ee_lib_error "Unable to change Anemometer hostnameme, exit status = " $?
-
-					# Change Anemometer password in ee_lib_import_slow_log
-					sed -i "s/--password.*/--password=${ee_anemometer_pass} \\\/" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
-					|| ee_lib_error "Unable to change Anemometer password, exit status = " $?
-				fi
-
 				# Fix PhpMyAdmin config issue
 				if [ -d /var/www/22222/htdocs/db/pma ]; then
 					ee_random=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 7 | head -n1)
@@ -504,7 +500,18 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 		# Update WP-CLI
 		ee_ven_install_wpcli
-		
+
+		# Set Anemometer password
+		if [ -d /var/www/22222/htdocs/db/anemometer ]; then
+			# Change Anemometer Hostname in ee_lib_import_slow_log
+			sed -i "s:hostname.*:hostname}=\\\\\"$EE_MYSQL_HOST\\\\\"\" /var/log/mysql/mysql-slow.log:" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
+			|| ee_lib_error "Unable to change Anemometer hostnameme, exit status = " $?
+
+			# Change Anemometer password in ee_lib_import_slow_log
+			sed -i "s/--password.*/--password=${ee_anemometer_pass} \\\/" /usr/local/lib/easyengine/lib/ee_lib_import_slow_log.sh \
+			|| ee_lib_error "Unable to change Anemometer password, exit status = " $?
+		fi
+
 		# Restart service
 		ee_lib_service nginx php5-fpm restart
 
