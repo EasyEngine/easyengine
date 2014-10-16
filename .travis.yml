@@ -148,6 +148,11 @@ script:
 - sudo bash ee site update site9.com --wpsubdom --w3tc
 - sudo bash ee site update site9.com --wpsubdom --wpsc
 
+
+- sudo ee site delete site12.com --no-prompt
+- sudo ee site delete site12.net --no-prompt
+- sudo ee site delete site12.org --no-prompt
+
 - sudo bash ee stack install mail
 
 - sudo bash -c 'cat /var/log/easyengine/*'
