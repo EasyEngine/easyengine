@@ -1,3 +1,8 @@
+v 2.2.1 - Oct 16,2014
+- Fixed update script issue for remote MySQL #323
+- Fixed remote MySQL delete user issue by @brennentsmith #324
+- Improved auto-completion
+
 v 2.2.0 - Oct 13, 2014
 - Percona Mysql 5.6 support on Fresh installation. #107
 - RAM Based Optimization for PHP5-FPM,OpCache and Memcache
