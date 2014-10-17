@@ -15,6 +15,9 @@ function ee_mod_setup_wordpress()
 	# else current mysql site is to be updated
 	if [ "$EE_DB_NAME" = "" ] && [ "$EE_DB_USER" = "" ] && [ "$EE_DB_PASS" = "" ]; then
 		ee_mod_setup_database
+	else
+		# Display when run ee site update mysql.com --wp
+		echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS \nEE_MYSQL_HOST = $EE_MYSQL_HOST \nEE_MYSQL_GRANT_HOST = $EE_MYSQL_GRANT_HOST" &>> $EE_COMMAND_LOG
 	fi
 	
 	# Default WordPress prefix or custom prefix
