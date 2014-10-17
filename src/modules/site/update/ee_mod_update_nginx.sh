@@ -23,6 +23,9 @@ function ee_mod_update_nginx()
 		fi
 		ee_nginx_update_header=$(head -n1 /usr/share/easyengine/nginx/$ee_nginx_conf | grep "NGINX CONFIGURATION")
 		
+		# Echo values
+		echo -e "EE_DOMAIN_CHECK = $EE_DOMAIN_CHECK \nEE_SITE_UPDATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION \nEE_NETWORK_ACTIVATE = $EE_NETWORK_ACTIVATE \nEE_WP_SUBDOMAIN = $EE_WP_SUBDOMAIN \nee_nginx_conf = $ee_nginx_conf" &>> $EE_COMMAND_LOG
+
 		# Update Head Line of NGINX conf
 		sed -i "s'$ee_nginx_current_header'$ee_nginx_update_header'" /etc/nginx/sites-available/$EE_DOMAIN || ee_lib_error "Unable to update nginx configuration to $EE_SITE_UPDATE_OPTION, $EE_SITE_CACHE_OPTION for $EE_DOMAIN, exit status =" $?
 
