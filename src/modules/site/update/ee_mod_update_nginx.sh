@@ -32,8 +32,8 @@ function ee_mod_update_nginx()
 		# Update NGINX conf for HTML site
 		if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ]; then
 				sed -i 's/access\.log/access.log rt_cache/' /etc/nginx/sites-available/$EE_DOMAIN && \
-				sed -i '/index index.html index.htm;$/c \\tindex index.php index.htm index.html;' $/etc/nginx/sites-available/$EE_DOMAIN && \
-				sed -i '/location \/ {/,/}/d ' $/etc/nginx/sites-available/$EE_DOMAIN \
+				sed -i '/index index.html index.htm;$/c \\tindex index.php index.htm index.html;' /etc/nginx/sites-available/$EE_DOMAIN && \
+				sed -i '/location \/ {/,/}/d ' /etc/nginx/sites-available/$EE_DOMAIN \
 				|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				
 				# Update HTML to PHP MySQL --basic (--wp/--wpsubdir/--wpsubdomain) options
