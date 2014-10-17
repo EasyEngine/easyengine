@@ -456,22 +456,6 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Setup WordPress
 				ee_mod_setup_wordpress
 
-				# Setup WordPress Network
-				if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-					ee_mod_setup_network
-				fi
-
-				# Install WordPress plugins
-				ee_mod_plugin_nginx_helper
-
-				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					ee_mod_plugin_wpsc
-				fi
-
-				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					ee_mod_plugin_w3tc
-				fi
-
 				# Adjust permission
 				ee_lib_permissions
 
@@ -493,38 +477,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
 
-				# Configure WordPress plugin settings
-				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
-					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-						ee_lib_echo_escape "Configure WPSC:\t\thttp://$EE_DOMAIN/wp-admin/network/settings.php?page=wpsupercache"
-					else
-						ee_lib_echo_escape "Configure WPSC:\t\thttp://$EE_DOMAIN/wp-admin/options-general.php?page=wpsupercache"
-					fi
-				fi
-
-				if [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-						ee_lib_echo_escape "Configure nginx-helper:\thttp://$EE_DOMAIN/wp-admin/network/settings.php?page=nginx"
-					else
-						ee_lib_echo_escape "Configure nginx-helper:\thttp://$EE_DOMAIN/wp-admin/options-general.php?page=nginx"
-					fi
-				fi
-
-				if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-						ee_lib_echo_escape "Configure W3TC:\t\thttp://$EE_DOMAIN/wp-admin/network/admin.php?page=w3tc_general"
-					else
-						ee_lib_echo_escape "Configure W3TC:\t\thttp://$EE_DOMAIN/wp-admin/admin.php?page=w3tc_general"
-					fi
-					if [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-						ee_lib_echo_escape "Page Cache:\t\tDisable"
-					elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-						ee_lib_echo_escape "Page Cache:\t\tDisk Enhanced"
-					fi
-					ee_lib_echo_escape "Database Cache:\t\tMemcached"
-					ee_lib_echo_escape "Object Cache:\t\tMemcached"
-					ee_lib_echo_escape "Browser Cache:\t\tDisable"
-				fi
+				# Display WordPress cache plugin settings
+				ee_mod_plugin_settings
 
 				# Display Success Message
 				ee_lib_echo_info "Successfully created new website: http://$EE_WWW_DOMAIN"
@@ -582,155 +536,64 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Check the website name is empty or not
 		ee_lib_check_domain
 
-		# Check the website exist
+		# Auto switch site options
+		ee_mod_site_option
+
+		# Let's use variable name as per action
+		# EE_SITE_CREATE_OPTION=$EE_SITE_CREATE_OPTION
+		
+		# Check the website exist or not
 		ls /etc/nginx/sites-available/$EE_DOMAIN &> /dev/null \
-		|| ee_lib_error "The $EE_DOMAIN is not found in /etc/nginx/sites-available, exit status = " $?
+		|| ee_lib_error "The $EE_DOMAIN does not exist, exit status = " $?
 
-		# Update WordPress user password
-		if [ "$EE_SITE_CREATE_OPTION" = "--password" ]; then
-			ee_mod_site_update_password
-		else
-			# Auto switch site options
-			ee_mod_site_option
-
-			EE_SITE_CURRENT_OPTION=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
-			if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
-				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/basic.conf
-			elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-				if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-					EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/$(echo $EE_SITE_CACHE_OPTION | cut -c3-).conf
-				fi
-			fi
+		# Find out information about current NGINX configuration
+		EE_SITE_CURRENT_OPTION=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+		
+		# Lets update HTML|PHP website
+		#if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
+		if [[ "$EE_SITE_CURRENT_OPTION" = "HTML" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_OPTION" = "PHP" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
+			# Let's take backup first
+			ee_mod_site_backup
 
 			# Install required packages
 			ee_mod_site_packages
 
-			# Lets update HTML|PHP|MySQL website
-			if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
-				
+			# Let's start update
+			ee_mod_update_nginx
 
-				# Update NGINX configuration for $EE_DOMAIN
-				if [[ "$EE_SITE_CREATE_OPTION" = "--php" && "$EE_SITE_CURRENT_OPTION" != "PHP" ]] || [[ "$EE_SITE_CREATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]] \
-					|| [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-					ee_mod_update_domain
-				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
-				fi
+			# Setup MySQL database
+			if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
+				ee_mod_setup_database
 
-				# Setup WordPress
-				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-					if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
-						# Sets EE_DB_NAME, EE_DB_USER, EE_DB_PASS variables, so that same database can be used while updating MYSQL site to any WordPress site
-						EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
-						EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
-						EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/htdocs/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
-					fi
-					ee_mod_setup_wordpress
-				fi
-
-				# Setup WordPress Network
-				if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-					ee_mod_setup_network
-				fi
-
-				# Install WordPress plugins
-				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-					ee_mod_plugin_nginx_helper
-				fi
-
-				# Update cache plugins
-				ee_mod_update_plugins
-
-				# Setup MySQL database
-				if [[ "$EE_SITE_CREATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]]; then
-					ee_mod_setup_database
-
-					# Add Database Information On ee-config.php
-					echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
-					&>> /var/www/$EE_DOMAIN/ee-config.php
-				fi
-
-				if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-					# Display WordPress credential
-					echo
-					ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
-					ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
-					echo
-				fi
-
-			# Lets update WordPress Single sites
-			# WordPress Single sites can only be updated to multisites or with different cache options
-			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
-				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ] \
-				&& [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir"  || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
-				
-				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE BASIC" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE WP SUPER CACHE" ]] \
-					|| [  "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [  "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-					# Update NGINX configuration for $EE_DOMAIN
-					ee_mod_update_domain
-				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
-				fi
-				# Setup WordPress Network
-				if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-					ee_mod_setup_network
-				fi
-				# Update cache plugins
-				ee_mod_update_plugins
-
-			# Lets update WprdPress multi sites with subdirectory
-			# WordPress multi sites with subdirectory can only update cache
- 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] \
-				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR WP SUPER CACHE" ] && [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
-				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR BASIC" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR FAST CGI" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR WP SUPER CACHE" ]]; then
-					# Update NGINX configuration for $EE_DOMAIN
-					ee_mod_update_domain
-				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
-				fi
-				# Update cache plugins
-				ee_mod_update_plugins
-
-			# Lets update WordPress multi sites with subdomain
-			# WordPress multi sites with subdomain can only update cache
-			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ] \
-				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN WP SUPER CACHE" ] && [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN BASIC" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN FAST CGI" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN W3 TOTAL CACHE" ]] \
-					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ]]; then
-					# Update NGINX configuration for $EE_DOMAIN
-					ee_mod_update_domain
-				else 
-					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
-				fi
-				# Update cache plugins
-				ee_mod_update_plugins
-
-			else
-					ee_lib_error "Invalid update option, exit status =" $?
+				# Add Database Information On ee-config.php
+				echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
+				&>> /var/www/$EE_DOMAIN/ee-config.php
 			fi
-			# Adjust permission
-			ee_lib_permissions
-			
-			# Execute: service nginx reload
-			ee_lib_service nginx reload
 
-			# Git commit
-			ee_lib_git /etc/nginx/ "After ee site update: $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+			# Setup WordPress
+			if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+				# Setup WordPress
+				ee_mod_setup_wordpress
 
-			# Display Success Message
-			ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
+				# Display WordPress cache plugin settings
+				ee_mod_plugin_settings
+			fi
 		fi
+			
+		# Adjust permission
+		ee_lib_permissions
+			
+		# Execute: service nginx reload
+		ee_lib_service nginx reload
+
+		# Git commit
+		ee_lib_git /etc/nginx/ "After ee site update: $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+
+		# Display Success Message
+		ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
 	elif [ "$EE_SECOND" = "log" ]; then
-    	# Display logs for websites
-    	ee_mod_site_log ${@:3}
+    # Display logs for websites
+    ee_mod_site_log ${@:3}
 
   # EasyEngine cd
 	elif [ "$EE_SECOND" = "cd" ]; then
