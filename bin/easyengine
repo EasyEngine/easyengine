@@ -444,9 +444,6 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
-				# Cross check WP-CLI installed or not
-				wp --allow-root --info &>> $EE_COMMAND_LOG \
-				|| ee_lib_error "WP-CLI not found, exit status = " $?
 
 				# Configure variable
 				EE_NGINX_CONF=$(echo $EE_SITE_CREATE_OPTION | cut -c3-)/$(echo $EE_SITE_CACHE_OPTION | cut -c3-).conf
