@@ -21,13 +21,8 @@ ee site create example.com --wp          # Install required packages & setup Wor
 
 ## Update EasyEngine
 
-Update Procedure for EasyEngine 2.2.0 and next versions:
 
-```bash
-ee update
-```
-
-Update Procedure For EasyEngine 2.1.0 and previous versions:
+Update Procedure For EasyEngine 
 
 ```bash
 wget -qO eeup http://rt.cx/eeup && sudo bash eeup
