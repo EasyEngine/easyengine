@@ -593,7 +593,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Display WordPress cache plugin settings
 				ee_mod_plugin_settings
 			fi
-		#if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]
+		# if [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]
 		elif [[ "$EE_SITE_CURRENT_OPTION" = "MYSQL" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
 			# Let's take backup first
 			ee_mod_site_backup
