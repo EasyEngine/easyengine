@@ -549,6 +549,13 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Find out information about current NGINX configuration
 		EE_SITE_CURRENT_OPTION=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
 		
+		# Detect current website type and cache
+		if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ]; then
+			EE_SITE_TYPE="--html"
+		elif [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
+			EE_SITE_TYPE="--php"
+		fi
+
 		# Lets update HTML|PHP website
 		#if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
 		if [[ "$EE_SITE_CURRENT_OPTION" = "HTML" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_OPTION" = "PHP" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
@@ -579,18 +586,23 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_plugin_settings
 			fi
 		fi
-			
-		# Adjust permission
-		ee_lib_permissions
-			
-		# Execute: service nginx reload
-		ee_lib_service nginx reload
 
-		# Git commit
-		ee_lib_git /etc/nginx/ "After ee site update: $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+		if [ "$EE_SITE_TYPE" != "$EE_SITE_CREATE_OPTION" ]; then
+			# Adjust permission
+			ee_lib_permissions
+			
+			# Execute: service nginx reload
+			ee_lib_service nginx reload
 
-		# Display Success Message
-		ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
+			# Git commit
+			ee_lib_git /etc/nginx/ "After ee site update: $EE_DOMAIN updated with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options"
+
+			# Display Success Message
+			ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
+		else
+			ee_lib_error "Invalid option, exit status = " $?
+		fi
+
 	elif [ "$EE_SECOND" = "log" ]; then
     # Display logs for websites
     ee_mod_site_log ${@:3}
