@@ -587,7 +587,33 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
 				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
 				echo
-				
+
+				# Display WordPress cache plugin settings
+				ee_mod_plugin_settings
+			elif [[ "$EE_SITE_CURRENT_OPTION" = "MYSQL" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
+				# Let's take backup first
+				ee_mod_site_backup
+
+				# Install required packages
+				ee_mod_site_packages
+
+				# Let's start update
+				ee_mod_update_nginx
+
+				# Use same database for WordPress
+				EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
+				EE_DB_USER=$(grep DB_USER $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
+				EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
+
+				# Setup WordPress
+				ee_mod_setup_wordpress
+
+				# Display WordPress credential
+				echo
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
+				echo
+
 				# Display WordPress cache plugin settings
 				ee_mod_plugin_settings
 			fi
