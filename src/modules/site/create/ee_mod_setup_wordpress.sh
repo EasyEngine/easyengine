@@ -121,4 +121,21 @@ function ee_mod_setup_wordpress()
 	ee_lib_echo "Updating WordPress permalink, please wait..."
 	wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to update WordPress permalink for $EE_DOMAIN, exit status = " $?
+
+	# Setup WordPress Network
+	if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+		ee_mod_setup_network
+	fi
+
+	# Install WordPress plugins
+	ee_mod_plugin_nginx_helper
+
+	if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+		ee_mod_plugin_wpsc
+	fi
+
+	if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+		ee_mod_plugin_w3tc
+	fi
+
 }
