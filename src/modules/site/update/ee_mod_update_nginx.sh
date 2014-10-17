@@ -34,7 +34,7 @@ function ee_mod_update_nginx()
 				|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				
 				# Update HTML to PHP MySQL --basic (--wp/--wpsubdir/--wpsubdomain) options
-				if [ "$EE_SITE_UPDATE_OPTION" = "--php" ] || [ "$EE_SITE_UPDATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || ; then
+				if [ "$EE_SITE_UPDATE_OPTION" = "--php" ] || [ "$EE_SITE_UPDATE_OPTION" = "--mysql" ] || [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
 					sed -i '/include common\/locations.conf/i \\tinclude common\/php.conf;' /etc/nginx/sites-available/$EE_DOMAIN \
 					|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 				# Update HTML to --wpsc (--wp/--wpsubdir/--wpsubdomain) options
