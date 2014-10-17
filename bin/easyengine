@@ -554,6 +554,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_TYPE="--html"
 		elif [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
 			EE_SITE_TYPE="--php"
+		elif [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
+			EE_SITE_TYPE="--mysql"
 		fi
 
 		# Lets update HTML|PHP website
