@@ -582,6 +582,12 @@ elif [ "$EE_FIRST" = "site" ]; then
 				# Setup WordPress
 				ee_mod_setup_wordpress
 
+				# Display WordPress credential
+				echo
+				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
+				echo
+				
 				# Display WordPress cache plugin settings
 				ee_mod_plugin_settings
 			fi
