@@ -75,7 +75,7 @@ function ee_mod_update_nginx()
 			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				sed -i 's/include common\/wpsc.conf/include common\/wpfc.conf/' /etc/nginx/sites-available/$EE_DOMAIN \
 				|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_UPDATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
-
+			fi
 
 		# Update --w3tc (--wp/--wpsubdir/--wpsubdomain) to --basic --wpsc --wpfc options
 		elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDIR W3 TOTAL CACHE" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
