@@ -632,7 +632,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 				ee_mod_setup_network
 			fi
-
+			# Let's Update cache plugins
 			if [[ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" && "$EE_SITE_CACHE_OPTION" != "--basic" ]]; then
 				if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
 					ee_mod_plugin_wpsc
