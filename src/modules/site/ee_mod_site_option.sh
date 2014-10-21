@@ -12,6 +12,11 @@ function ee_mod_site_option()
 		fi
 	fi
 
+	# Kick out for invalid cache option
+	if [ "$EE_SITE_CACHE_OPTION" != "--basic" ] || [ "$EE_SITE_CACHE_OPTION" != "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" != "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" != "--wpfc" ]; then
+		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION, exit status = " $?
+	fi
+
 	# WordPresss subdirectory variables
 	if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]; then
 		EE_SITE_CREATE_OPTION="--wpsubdir"
