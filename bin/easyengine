@@ -624,30 +624,30 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Lets update HTML|PHP website
 		if [[ "$EE_SITE_CURRENT_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
 			# Lets call update function
-			ee_mod_update
+			ee_mod_update_website
 		
 		elif [[ "$EE_SITE_CURRENT_TYPE" = "--mysql" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
 			# Lets call update function
-			ee_mod_update
+			ee_mod_update_website
 		
 		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp --basic" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpfc" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
-			ee_mod_update
+			ee_mod_update_website
 
 		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpfc" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdomain" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
-			ee_mod_update
+			ee_mod_update_website
 
 		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpfc" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdir" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
-			ee_mod_update
+			ee_mod_update_website
 		fi
 
 
-		if [ "$EE_MOD_UPDATE" = "success" ]; then
+		if [ "$EE_UPDATE_WEBSITE" = "success" ]; then
 			# Adjust permission
 			ee_lib_permissions
 			
