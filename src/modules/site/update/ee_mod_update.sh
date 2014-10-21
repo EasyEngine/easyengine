@@ -28,7 +28,7 @@ function ee_mod_update() {
 	fi
 
 	# Setup WordPress
-	if [[ "$EE_SITE_CURRENT_TYPE" != "--wp"  || "$EE_SITE_CURRENT_TYPE" != "--wpsubdir" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain" ]] &&
+	if [[ "$EE_SITE_CURRENT_TYPE" != "--wp --basic" || "$EE_SITE_CURRENT_TYPE" != "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" != "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" != "--wp --wpfc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpfc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpfc" ]] &&
 		 [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir" || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
 		# Setup WordPress
 		ee_mod_setup_wordpress
@@ -41,7 +41,7 @@ function ee_mod_update() {
 
 		# Display WordPress cache plugin settings
 		ee_mod_plugin_settings
-	elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp"  || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain" ]]; then
+	elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp --basic" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpfc" ]]; then
 		# Setup WordPress Network
 		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_mod_setup_network
