@@ -1,6 +1,6 @@
 # Update Websites
 
-function ee_mod_update() {
+function ee_mod_update_website() {
 	# Let's take backup first
 	ee_mod_site_backup
 
@@ -19,7 +19,7 @@ function ee_mod_update() {
 		&>> /var/www/$EE_DOMAIN/ee-config.php
 	fi
 
-	# Use same database when update MySQL website to WordPress
+	# Use same database when update MySQL website updated to WordPress
 	if [ "$EE_SITE_CURRENT_TYPE" = "--mysql" ]; then
 		# Use same database for WordPress
 		EE_DB_NAME=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
@@ -27,7 +27,7 @@ function ee_mod_update() {
 		EE_DB_PASS=$(grep DB_PASSWORD $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed "s'htdocs'backup/$EE_DATE/ee-config.php'" 2> /dev/null) | cut -d"'" -f4)
 	fi
 
-	# Setup WordPress
+	# Setup/Install WordPress for HTML|PHP|MySQL websites
 	if [[ "$EE_SITE_CURRENT_TYPE" != "--wp --basic" && "$EE_SITE_CURRENT_TYPE" != "--wp --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wp --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wp --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpfc" ]] &&
 		 [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir" || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
 		# Setup WordPress
@@ -41,10 +41,14 @@ function ee_mod_update() {
 
 		# Display WordPress cache plugin settings
 		ee_mod_plugin_settings
+
+	# Update WordPress Websites
 	elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp --basic" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpfc" ]]; then
-		# Setup WordPress Network
-		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-			ee_mod_setup_network
+		# Setup WordPress Network for --wp websites
+		if [[ "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpfc" ]]; then
+			if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+				ee_mod_setup_network
+			fi
 		fi
 
 		# Install WordPress plugins
@@ -63,5 +67,5 @@ function ee_mod_update() {
 	fi
 
 	# Use this variable to detect and change ownership, reload nginx, 
-	EE_MOD_UPDATE="success"
+	EE_UPDATE_WEBSITE="success"
 }
