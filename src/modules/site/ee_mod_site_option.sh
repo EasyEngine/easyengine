@@ -12,11 +12,6 @@ function ee_mod_site_option()
 		fi
 	fi
 
-	# Kick out for invalid cache option
-	if [ "$EE_SITE_CACHE_OPTION" != "--basic" ] || [ "$EE_SITE_CACHE_OPTION" != "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" != "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" != "--wpfc" ]; then
-		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION, exit status = " $?
-	fi
-
 	# WordPresss subdirectory variables
 	if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdirectory" ]; then
 		EE_SITE_CREATE_OPTION="--wpsubdir"
@@ -38,5 +33,10 @@ function ee_mod_site_option()
 	# For WordPress sites if $EE_SITE_CACHE_OPTION is empty then used --basic as a $EE_SITE_CACHE_OPTION
 	if [ "$EE_SITE_CACHE_OPTION" = "" ] && [ "$EE_SITE_CREATE_OPTION" != "--html" ] && [ "$EE_SITE_CREATE_OPTION" != "--php" ] && [ "$EE_SITE_CREATE_OPTION" != "--mysql" ]; then
 		EE_SITE_CACHE_OPTION=--basic
+	fi
+
+	# Kick out for invalid cache option
+	if [[ "$EE_SITE_CACHE_OPTION" != "--basic" || "$EE_SITE_CACHE_OPTION" != "--wpsc" || "$EE_SITE_CACHE_OPTION" != "--w3tc" || "$EE_SITE_CACHE_OPTION" != "--wpfc" ]] && [[ "$EE_SITE_CREATE_OPTION" != "--html" || "$EE_SITE_CREATE_OPTION" != "--php" || "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
+		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION, exit status = " $?
 	fi
 }
