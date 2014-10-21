@@ -41,7 +41,7 @@ function ee_mod_update() {
 
 		# Display WordPress cache plugin settings
 		ee_mod_plugin_settings
-	else
+	elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp"  || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain" ]]
 		# Setup WordPress Network
 		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_mod_setup_network
