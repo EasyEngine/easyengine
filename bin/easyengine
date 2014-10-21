@@ -547,30 +547,34 @@ elif [ "$EE_FIRST" = "site" ]; then
 		|| ee_lib_error "The $EE_DOMAIN does not exist, exit status = " $?
 
 		# Find out information about current NGINX configuration
-		EE_SITE_CURRENT_OPTION=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+		EE_SITE_CURRENT_TYPE=$(head -n1 /etc/nginx/sites-available/$EE_DOMAIN | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
 		
 		# Detect current website type and cache
-		if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ]; then
-			EE_SITE_TYPE="--html"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "PHP" ]; then
-			EE_SITE_TYPE="--php"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
-			EE_SITE_TYPE="--mysql"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ]; then
-			EE_SITE_TYPE="--wp --basic"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ]; then
-			EE_SITE_TYPE="--wp --wpsc"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ]; then
-			EE_SITE_TYPE="--wp --w3tc"
-		elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ]; then
-			EE_SITE_TYPE="--wp --wpfc"
+		if [ "$EE_SITE_CURRENT_TYPE" = "HTML" ]; then
+			EE_SITE_CURRENT_TYPE="--html"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "PHP" ]; then
+			EE_SITE_CURRENT_TYPE="--php"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "MYSQL" ]; then
+			EE_SITE_CURRENT_TYPE="--mysql"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE BASIC" ]; then
+			EE_SITE_CURRENT_TYPE="--wp"
+			EE_SITE_CURRENT_CACHE="--basic"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE WP SUPER CACHE" ]; then
+			EE_SITE_CURRENT_TYPE="--wp"
+			EE_SITE_CURRENT_CACHE="--wpsc"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE W3 TOTAL CACHE" ]; then
+			EE_SITE_CURRENT_TYPE="--wp"
+			EE_SITE_CURRENT_CACHE="--w3tc"
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ]; then
+			EE_SITE_CURRENT_TYPE="--wp"
+			EE_SITE_CURRENT_CACHE="--wpfc"
 		fi
 
 		# Let's log site current option
-		ee_lib_echo_escape "EE_SITE_TYPE = $EE_SITE_TYPE \nEE_SITE_UPDATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION" &>> $EE_COMMAND_LOG
+		ee_lib_echo_escape "EE_SITE_CURRENT_TYPE = $EE_SITE_CURRENT_TYPE \nEE_SITE_CURRENT_CACHE = $EE_SITE_CURRENT_CACHE \nEE_SITE_UPDATE_OPTION = $EE_SITE_CREATE_OPTION \nEE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION" &>> $EE_COMMAND_LOG
 
 		# Lets update HTML|PHP website
-		if [[ "$EE_SITE_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
+		if [[ "$EE_SITE_CURRENT_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
 			# Let's take backup first
 			ee_mod_site_backup
 
@@ -604,7 +608,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_plugin_settings
 			fi
 		
-		elif [[ "$EE_SITE_TYPE" = "--mysql" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
+		elif [[ "$EE_SITE_CURRENT_TYPE" = "--mysql" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
 			# Let's take backup first
 			ee_mod_site_backup
 
@@ -631,7 +635,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Display WordPress cache plugin settings
 			ee_mod_plugin_settings
 		
-		elif [[ "$EE_SITE_TYPE" = "--wp --basic" || "$EE_SITE_TYPE" = "--wp --wpsc" || "$EE_SITE_TYPE" = "--wp --w3tc" || "$EE_SITE_TYPE" = "--wp --wpfc" ]] \
+		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp" && "$EE_SITE_CURRENT_CACHE" != "$EE_SITE_CACHE_OPTION" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" ]]; then
 			# Let's take backup first
 			ee_mod_site_backup
@@ -663,7 +667,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 
 
-		if [ "$EE_SITE_TYPE" != "$EE_SITE_CREATE_OPTION" ]; then
+		if [ "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_CREATE_OPTION" ]; then
 			# Adjust permission
 			ee_lib_permissions
 			
@@ -675,8 +679,6 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
-		else
-			ee_lib_error "Invalid option, exit status = " $?
 		fi
 
 	elif [ "$EE_SECOND" = "log" ]; then
