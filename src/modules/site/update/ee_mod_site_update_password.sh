@@ -16,7 +16,7 @@ ee_mod_site_update_password()
 		# If user enter ? mark then show list of WordPress users
 		if [ "$ee_wp_user" = "?" ]; then
 			ee_lib_echo "List of WordPress users:"
-			wp --allow-root user list --fields=user_login
+			wp --allow-root user list --fields=user_login | grep -v user_login
 			read -p "Provide WordPress user name [admin]: " ee_wp_user
 		fi
 
@@ -35,7 +35,7 @@ ee_mod_site_update_password()
 				ee_lib_error "Password Unchanged. Hint : Your password must be 8 characters long, exit status = " $?
 			fi
 		else
-			ee_lib_error "Invalid WordPress  user $ee_wp_user for $EE_DOMAIN, exit status = " $?
+			ee_lib_error "Invalid WordPress user $ee_wp_user for $EE_DOMAIN, exit status = " $?
 		fi
 	fi
 }

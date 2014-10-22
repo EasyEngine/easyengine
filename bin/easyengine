@@ -689,6 +689,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 			# Display Success Message
 			ee_lib_echo_info "Successfully Updated  Website: http://$EE_WWW_DOMAIN"
+		elif [[ "$EE_SECOND" = "update" && "$EE_SITE_CREATE_OPTION" = "--password" ]]; then
+			ee_lib_echo "This option is needed for updating WordPress website password" &> /dev/null
 		else
 			ee_lib_error "Invalid option, exit status = " $?
 		fi
