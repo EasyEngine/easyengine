@@ -558,34 +558,59 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CURRENT_TYPE="--mysql"
 		# Single WordPress
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE BASIC" ]; then
+			EE_SITE_CURRENT_WP="--wp"
+			EE_SITE_CURRENT_CACHE="--basic"
 			EE_SITE_CURRENT_TYPE="--wp --basic"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE WP SUPER CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wp"
+			EE_SITE_CURRENT_CACHE="--wpsc"
 			EE_SITE_CURRENT_TYPE="--wp --wpsc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE W3 TOTAL CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wp"
+			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wp --w3tc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ]; then
+			EE_SITE_CURRENT_WP="--wp"
+			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wp --wpfc"
 		# WordPress subdirectory
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR BASIC" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdir"
+			EE_SITE_CURRENT_CACHE="--basic"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --basic"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR WP SUPER CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdir"
+			EE_SITE_CURRENT_CACHE="--wpsc"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --wpsc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR W3 TOTAL CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdir"
+			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --w3tc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdir"
+			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --wpfc"
 		# WordPress subdomain
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN BASIC" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdomain"
+			EE_SITE_CURRENT_CACHE="--basic"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --basic"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdomain"
+			EE_SITE_CURRENT_CACHE="--wpsc"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --wpsc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdomain"
+			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --w3tc"
 		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ]; then
+			EE_SITE_CURRENT_WP="--wpsubdomain"
+			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --wpfc"
 		fi
 
 		# Detect update website type and cache
+		# Single WordPress
 		if [ "$EE_SITE_CREATE_OPTION" = "--wp" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
 				EE_SITE_UPDATE_TYPE="--wp --basic"
@@ -596,6 +621,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				EE_SITE_UPDATE_TYPE="--wp --wpfc"
 			fi
+		# WordPress subdirectory
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
 				EE_SITE_UPDATE_TYPE="--wpsubdir --basic"
@@ -606,6 +632,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				EE_SITE_UPDATE_TYPE="--wpsubdir --wpfc"
 			fi
+		# WordPress subdomain
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ]; then
 				EE_SITE_UPDATE_TYPE="--wpsubdomain --basic"
@@ -619,7 +646,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 
 		# Let's log site current option
-		ee_lib_echo_escape "EE_SITE_CURRENT_TYPE = $EE_SITE_CURRENT_TYPE \nEE_SITE_UPDATE_TYPE = $EE_SITE_UPDATE_TYPE" &>> $EE_COMMAND_LOG
+		ee_lib_echo_escape "EE_SITE_CURRENT_WP = $EE_SITE_CURRENT_WP \nEE_SITE_CURRENT_CACHE = $EE_SITE_CURRENT_CACHE \nEE_SITE_CURRENT_TYPE = $EE_SITE_CURRENT_TYPE \nEE_SITE_UPDATE_TYPE = $EE_SITE_UPDATE_TYPE" &>> $EE_COMMAND_LOG
 
 		# Lets update HTML|PHP website
 		if [[ "$EE_SITE_CURRENT_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
@@ -630,17 +657,17 @@ elif [ "$EE_FIRST" = "site" ]; then
 			# Lets call update function
 			ee_mod_update_website
 		
-		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp --basic" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpfc" ]] \
+		elif [[ "$EE_SITE_CURRENT_WP" = "--wp" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
 			ee_mod_update_website
 
-		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpfc" ]] \
+		elif [[ "$EE_SITE_CURRENT_WP" = "--wpsubdir" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdomain" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
 			ee_mod_update_website
 
-		elif [[ "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpfc" ]] \
+		elif [[ "$EE_SITE_CURRENT_WP" = "--wpsubdomain" ]] \
 			&& [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdir" && "$EE_SITE_CURRENT_TYPE" != "$EE_SITE_UPDATE_TYPE" ]]; then
 			# Lets call update function
 			ee_mod_update_website
