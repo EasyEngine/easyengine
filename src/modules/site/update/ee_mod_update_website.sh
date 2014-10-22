@@ -28,7 +28,7 @@ function ee_mod_update_website() {
 	fi
 
 	# Setup/Install WordPress for HTML|PHP|MySQL websites
-	if [[ "$EE_SITE_CURRENT_TYPE" != "--wp --basic" && "$EE_SITE_CURRENT_TYPE" != "--wp --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wp --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wp --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpfc" ]] &&
+	if [[ "$EE_SITE_CURRENT_TYPE" = "--html" || "$EE_SITE_CURRENT_TYPE" = "--php" || "$EE_SITE_CURRENT_TYPE" = "--mysql"  ]] &&
 		 [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir" || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
 		# Setup WordPress
 		ee_mod_setup_wordpress
@@ -43,16 +43,33 @@ function ee_mod_update_website() {
 		ee_mod_plugin_settings
 
 	# Update WordPress Websites
-	elif [[ "$EE_SITE_CURRENT_TYPE" = "--wp --basic" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wp --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wp --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdir --wpfc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --basic" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpsc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --w3tc" || "$EE_SITE_CURRENT_TYPE" = "--wpsubdomain --wpfc" ]]; then
+	elif [[ "$EE_SITE_CURRENT_WP" = "--wp" || "$EE_SITE_CURRENT_WP" = "--wpsubdir" || "$EE_SITE_CURRENT_WP" = "--wpsubdomain" ]]; then
 		# Setup WordPress Network for --wp websites
-		if [[ "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdir --wpfc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --basic" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpsc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --w3tc" && "$EE_SITE_CURRENT_TYPE" != "--wpsubdomain --wpfc" ]]; then
+		if [[ "$EE_SITE_CURRENT_WP" = "--wp" ]]; then
 			if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 				ee_mod_setup_network
 			fi
 		fi
 
+		# Uninstall unwanted plugins
+		# Current site type: --wp --wpsc
+		# Update site type: --wpsubdomain --wpsc
+		# Only delete plugin when current cache is --wpsc and update cache is not --wpsc
+		if [[ "$EE_SITE_CURRENT_CACHE" = "--wpsc" && "$EE_SITE_CACHE_OPTION" != "--wpsc" ]]; then
+			ee_lib_echo "Unistalling WP Super Cache plugin, please wait..."
+			wp plugin --allow-root uninstall wp-super-cache &>> $EE_COMMAND_LOG
+		fi
+
+		# Delete plugin when current cache is --w3tc|--wpfc and update cache is not --w3tc|--wpfc
+		if [[ "$EE_SITE_CURRENT_CACHE" = "--w3tc" || "$EE_SITE_CURRENT_CACHE" = "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" != "--w3tc" && "$EE_SITE_CACHE_OPTION" != "--wpfc"  ]]; then
+			ee_lib_echo "Uninstalling W3 Total Cache plugin, please wait..."
+			wp plugin --allow-root uninstall w3-total-cache &>> $EE_COMMAND_LOG 
+		fi
+
 		# Install WordPress plugins
-		ee_mod_plugin_nginx_helper
+		# As nginx-helper is installed all type of WordPress
+		# We don't need to install it again
+		#ee_mod_plugin_nginx_helper
 
 		if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
 			ee_mod_plugin_wpsc
