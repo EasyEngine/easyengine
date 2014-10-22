@@ -38,6 +38,8 @@ function ee_mod_site_option()
 	# Kick out for invalid cache option
 	if [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdir" && "$EE_SITE_CREATE_OPTION" != "--wpsubdomain" ]]; then
 		ee_lib_error "Invalid website type $EE_SITE_CREATE_OPTION, exit status = " $?
+	elif [[ "$EE_SITE_CREATE_OPTION" = "--html" && "$EE_SITE_CREATE_OPTION" = "--php" && "$EE_SITE_CREATE_OPTION" = "--mysql" ]] && [ -n "$EE_SITE_CREATE_OPTION" ]; then
+		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION for $EE_SITE_CREATE_OPTION website, exit status = " $?
 	elif [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir" || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]] && [[ "$EE_SITE_CACHE_OPTION" != "--basic" && "$EE_SITE_CACHE_OPTION" != "--wpsc" && "$EE_SITE_CACHE_OPTION" != "--w3tc" && "$EE_SITE_CACHE_OPTION" != "--wpfc" ]]; then
 		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION, exit status = " $?
 	fi
