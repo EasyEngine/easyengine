@@ -15,7 +15,7 @@ ee_mod_site_update_password()
 		
 		# If user enter ? mark then show list of WordPress users
 		if [ "$ee_wp_user" = "?" ]; then
-			ee_lib_echo "List of WordPress users:"
+			ee_lib_echo "Fetching WordPress user list, please wait..."
 			wp --allow-root user list --fields=user_login | grep -v user_login
 			read -p "Provide WordPress user name [admin]: " ee_wp_user
 		fi
@@ -30,7 +30,8 @@ ee_mod_site_update_password()
 			read -sp "Provide password for $ee_wp_user user: " ee_wp_pass
 			echo
 			if [[ ${#ee_wp_pass} -ge 8 ]]; then
-				wp --allow-root user update "${ee_wp_user}" --user_pass=$ee_wp_pass &>> $EE_COMMAND_LOG
+				wp --allow-root user update "${ee_wp_user}" --user_pass=$ee_wp_pass &>> $EE_COMMAND_LOG && \
+				ee_lib_echo "Password updated successfully"
 			else
 				ee_lib_error "Password Unchanged. Hint : Your password must be 8 characters long, exit status = " $?
 			fi
