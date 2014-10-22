@@ -77,7 +77,7 @@ function ee_mod_update_website() {
 			ee_mod_plugin_wpsc
 		fi
 
-		if [[ "$EE_SITE_CURRENT_CACHE" != "--w3tc" || "$EE_SITE_CURRENT_CACHE" != "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" || "$EE_SITE_CACHE_OPTION" = "--wpfc" ]]; then
+		if [[ "$EE_SITE_CURRENT_CACHE" != "--w3tc" && "$EE_SITE_CURRENT_CACHE" != "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" || "$EE_SITE_CACHE_OPTION" = "--wpfc" ]]; then
 			ee_mod_plugin_w3tc
 		fi
 
