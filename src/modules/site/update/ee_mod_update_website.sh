@@ -73,7 +73,7 @@ function ee_mod_update_website() {
 		# We don't need to install it again
 		#ee_mod_plugin_nginx_helper
 
-		if [ "$EE_SITE_CURRENT_CACHE" != "--wpsc" && "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+		if [[ "$EE_SITE_CURRENT_CACHE" != "--wpsc" && "$EE_SITE_CACHE_OPTION" = "--wpsc" ]]; then
 			ee_mod_plugin_wpsc
 		fi
 
