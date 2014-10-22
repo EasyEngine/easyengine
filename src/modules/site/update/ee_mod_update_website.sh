@@ -56,12 +56,14 @@ function ee_mod_update_website() {
 		# Update site type: --wpsubdomain --wpsc
 		# Only delete plugin when current cache is --wpsc and update cache is not --wpsc
 		if [[ "$EE_SITE_CURRENT_CACHE" = "--wpsc" && "$EE_SITE_CACHE_OPTION" != "--wpsc" ]]; then
+			cd /var/www/$EE_DOMAIN/htdocs/
 			ee_lib_echo "Unistalling WP Super Cache plugin, please wait..."
 			wp plugin --allow-root uninstall wp-super-cache &>> $EE_COMMAND_LOG
 		fi
 
 		# Delete plugin when current cache is --w3tc|--wpfc and update cache is not --w3tc|--wpfc
-		if [[ "$EE_SITE_CURRENT_CACHE" = "--w3tc" || "$EE_SITE_CURRENT_CACHE" = "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" != "--w3tc" && "$EE_SITE_CACHE_OPTION" != "--wpfc"  ]]; then
+		if [[ "$EE_SITE_CURRENT_CACHE" = "--w3tc" || "$EE_SITE_CURRENT_CACHE" = "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" != "--w3tc" && "$EE_SITE_CACHE_OPTION" != "--wpfc" ]]; then
+			cd /var/www/$EE_DOMAIN/htdocs/
 			ee_lib_echo "Uninstalling W3 Total Cache plugin, please wait..."
 			wp plugin --allow-root uninstall w3-total-cache &>> $EE_COMMAND_LOG 
 		fi
@@ -71,11 +73,11 @@ function ee_mod_update_website() {
 		# We don't need to install it again
 		#ee_mod_plugin_nginx_helper
 
-		if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+		if [ "$EE_SITE_CURRENT_CACHE" != "--wpsc" && "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
 			ee_mod_plugin_wpsc
 		fi
 
-		if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+		if [[ "$EE_SITE_CURRENT_CACHE" != "--w3tc" || "$EE_SITE_CURRENT_CACHE" != "--wpfc"  ]] && [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" || "$EE_SITE_CACHE_OPTION" = "--wpfc" ]]; then
 			ee_mod_plugin_w3tc
 		fi
 
