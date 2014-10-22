@@ -36,7 +36,9 @@ function ee_mod_site_option()
 	fi
 
 	# Kick out for invalid cache option
-	if [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdir" && "$EE_SITE_CREATE_OPTION" != "--wpsubdomain" ]]; then
+	if [[ "$EE_SECOND" = "update" && "$EE_SITE_CREATE_OPTION" = "--password" ]]; then
+		ee_lib_echo "This option is needed for updating WordPress website password" &> /dev/null
+	elif [[ "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" && "$EE_SITE_CREATE_OPTION" != "--mysql" && "$EE_SITE_CREATE_OPTION" != "--wp" && "$EE_SITE_CREATE_OPTION" != "--wpsubdir" && "$EE_SITE_CREATE_OPTION" != "--wpsubdomain" ]]; then
 		ee_lib_error "Invalid website type $EE_SITE_CREATE_OPTION, exit status = " $?
 	elif [[ "$EE_SITE_CREATE_OPTION" = "--html" || "$EE_SITE_CREATE_OPTION" = "--php" || "$EE_SITE_CREATE_OPTION" = "--mysql" ]] && [ -n "$EE_SITE_CACHE_OPTION" ]; then
 		ee_lib_error "Invalid cache option $EE_SITE_CACHE_OPTION for $EE_SITE_CREATE_OPTION website, exit status = " $?
