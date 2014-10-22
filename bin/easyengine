@@ -648,8 +648,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Let's log site current option
 		ee_lib_echo_escape "EE_SITE_CURRENT_WP = $EE_SITE_CURRENT_WP \nEE_SITE_CURRENT_CACHE = $EE_SITE_CURRENT_CACHE \nEE_SITE_CURRENT_TYPE = $EE_SITE_CURRENT_TYPE \nEE_SITE_UPDATE_TYPE = $EE_SITE_UPDATE_TYPE" &>> $EE_COMMAND_LOG
 
+		# Update WordPress user password
+		if [ "$EE_SITE_CREATE_OPTION" = "--password" ]; then
+			ee_mod_site_update_password
 		# Lets update HTML|PHP website
-		if [[ "$EE_SITE_CURRENT_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
+		elif [[ "$EE_SITE_CURRENT_TYPE" = "--html" && "$EE_SITE_CREATE_OPTION" != "--html" ]] || [[ "$EE_SITE_CURRENT_TYPE" = "--php" && "$EE_SITE_CREATE_OPTION" != "--html" && "$EE_SITE_CREATE_OPTION" != "--php" ]]; then
 			# Lets call update function
 			ee_mod_update_website
 		

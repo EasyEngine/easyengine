@@ -12,7 +12,15 @@ ee_mod_site_update_password()
 	
 	if [ $? -eq 0 ]; then
 		read -p "Provide WordPress user name [admin]: " ee_wp_user
-		if [[ $ee_wp_user = "" ]]; then
+		
+		# If user enter ? mark then show list of WordPress users
+		if [ "$ee_wp_user" = "?" ]; then
+			ee_lib_echo "List of WordPress users:"
+			wp --allow-root user list --fields=user_login
+			read -p "Provide WordPress user name [admin]: " ee_wp_user
+		fi
+
+		if [ "$ee_wp_user" = "" ]; then
 			ee_wp_user=admin
 		fi
 
