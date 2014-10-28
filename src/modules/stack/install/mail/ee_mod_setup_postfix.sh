@@ -44,6 +44,7 @@ function ee_mod_setup_postfix()
 	postconf -e "virtual_gid_maps = static:5000"
 	postconf -e "virtual_mailbox_domains = mysql:/etc/postfix/mysql/virtual_domains_maps.cf"
 	postconf -e "virtual_mailbox_maps = mysql:/etc/postfix/mysql/virtual_mailbox_maps.cf"
+	postconf -e "virtual_alias_maps = mysql:/etc/postfix/mysql/virtual_alias_maps.cf"
 	#postconf "message_size_limit = 20971520"
 
 
