@@ -30,6 +30,9 @@ function ee_mod_setup_dovecot()
 	sed -i "s/#\!include auth-sql.conf.ext/\!include auth-sql.conf.ext/" /etc/dovecot/conf.d/10-auth.conf \
 	|| ee_lib_error "Unable to setup 10-auth.conf file, exit status = " $?
 
+	# Configuring 10-ssl.conf, Disable SSLv2 and SSLv3, Fixes POODLE Bug
+	sed -i "s/#ssl_protocols =.*/ssl_protocols = \!SSLv2 \!SSLv3/" /etc/dovecot/conf.d/10-ssl.conf
+
 	# Configuring dovecot-sql.conf.ext
 	cp -v /usr/share/easyengine/mail/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to copy dovecot-sql.conf.ext, exit status = " $?
