@@ -18,7 +18,15 @@ readonly EE_VIMBADMIN_VERSION='3.0.10'
 # EasyEngine Date variable for backup
 readonly EE_DATE=$(date +%d%b%Y%H%M%S)
 
-EE_COMMAND_LOG=/var/log/easyengine/ee.log
+# Log only single time
+# ee site create example.com called ee stack install nginx
+# So in log file all logs written twice
+if [ -n "$EE_LOG" ]; then
+        EE_COMMAND_LOG=/dev/null
+else
+        EE_COMMAND_LOG=/var/log/easyengine/ee.log
+fi
+
 readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
