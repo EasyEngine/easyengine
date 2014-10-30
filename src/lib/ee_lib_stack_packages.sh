@@ -3,6 +3,11 @@
 function ee_lib_stack_packages()
 {
 	local ee_stack_package
+	# Log only single time
+	# ee site create example.com called ee stack install nginx
+	# So when ee stack install nginx run in sub-shell the value of EE_COMMAND_LOG=/dev/null
+	# So in log file all logs written single time only
+	export EE_LOG=false
 	
 	for ee_stack_package in $@;do
 		# Check NGINX installed & install if not
@@ -11,12 +16,6 @@ function ee_lib_stack_packages()
 			if [ "$EE_PACKAGE_NAME" != "" ]; then
 				# Export EE_DISPLAY variable to Display ee http auth after site creation.
 				export EE_DISPLAY=false
-
-				# Log only single time
-				# ee site create example.com called ee stack install nginx
-				# So when ee stack install nginx run in sub-shell the value of EE_COMMAND_LOG=/dev/null
-				# So in log file all logs written single time only
-				export EE_LOG=false
 
 				# The following command creates its own sub-shell
 				# and our ee_lib_error function only exit from that sub-shell
