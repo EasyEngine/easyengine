@@ -868,7 +868,7 @@ fi
 
 }
 
-EasyEngine $@ | tee -ai $EE_COMMAND_LOG
+EasyEngine $@ | tee -ai $EE_TEE_LOG
 
 
 # If any command fails its return non-zero exit code [EasyEngine $@]

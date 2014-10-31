@@ -20,14 +20,15 @@ readonly EE_DATE=$(date +%d%b%Y%H%M%S)
 
 # Log only single time
 # ee site create example.com called ee stack install nginx
-# So when ee stack install nginx run in sub-shell the value of EE_COMMAND_LOG=/dev/null
+# So when ee stack install nginx run in sub-shell the value of EE_TEE_LOG=/dev/null
 # So in log file all logs written single time only
 if [ -n "$EE_LOG" ]; then
-        EE_COMMAND_LOG=/dev/null
+        EE_TEE_LOG=/dev/null
 else
-        EE_COMMAND_LOG=/var/log/easyengine/ee.log
+        EE_TEE_LOG=/var/log/easyengine/ee.log
 fi
 
+EE_COMMAND_LOG=/var/log/easyengine/ee.log
 readonly EE_LOG_DIR=/var/log/easyengine
 readonly EE_ERROR_LOG=/var/log/easyengine/error.log
 readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
