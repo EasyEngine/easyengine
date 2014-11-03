@@ -569,7 +569,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CURRENT_WP="--wp"
 			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wp --w3tc"
-		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ]; then
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FASTCGI" ]; then
 			EE_SITE_CURRENT_WP="--wp"
 			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wp --wpfc"
@@ -586,7 +586,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CURRENT_WP="--wpsubdir"
 			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --w3tc"
-		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ]; then
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FASTCGI" ]; then
 			EE_SITE_CURRENT_WP="--wpsubdir"
 			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wpsubdir --wpfc"
@@ -603,7 +603,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_SITE_CURRENT_WP="--wpsubdomain"
 			EE_SITE_CURRENT_CACHE="--w3tc"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --w3tc"
-		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ]; then
+		elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FASTCGI" ]; then
 			EE_SITE_CURRENT_WP="--wpsubdomain"
 			EE_SITE_CURRENT_CACHE="--wpfc"
 			EE_SITE_CURRENT_TYPE="--wpsubdomain --wpfc"
