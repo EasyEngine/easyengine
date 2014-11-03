@@ -70,7 +70,7 @@ function ee_mod_update_nginx()
 				sed -i 's/include common\/wpsc.conf/include common\/php.conf/' /etc/nginx/sites-available/$EE_DOMAIN \
 				|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 			elif [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ]; then
-				sed -i 's/include common\/wpfc.conf/include common\/w3tc.conf/' /etc/nginx/sites-available/$EE_DOMAIN \
+				sed -i 's/include common\/wpsc.conf/include common\/w3tc.conf/' /etc/nginx/sites-available/$EE_DOMAIN \
 				|| ee_lib_error "Unable to update NGINX configuration to $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION, exit status =" $?
 			elif [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 				sed -i 's/include common\/wpsc.conf/include common\/wpfc.conf/' /etc/nginx/sites-available/$EE_DOMAIN \
