@@ -16,7 +16,7 @@ function ee_mod_site_backup()
 		|| ee_lib_error "Failed: Backup NGINX configuration, exit status =" $?
 
 		# Move htdocs
-		if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
+		if [ "$EE_SITE_CURRENT_TYPE" = "--html" ] || [ "$EE_SITE_CURRENT_TYPE" = "--php" ] || [ "$EE_SITE_CURRENT_TYPE" = "--mysql" ]; then
 			ee_lib_echo "Backup webroot, please wait..."
 			mv $ee_webroot/htdocs $ee_webroot/backup/$EE_DATE/ \
 			|| ee_lib_error "Failed: Backup webroot, exit status =" $?
@@ -25,6 +25,7 @@ function ee_mod_site_backup()
 		fi
 
 		# Database backup
+		# Check ee-config.php or wp-config.php present
 		if [ -f $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/') ]; then
 			local ee_db_name=$(grep DB_NAME $(grep root /etc/nginx/sites-available/$EE_DOMAIN | awk '{ print $2 }' | sed 's/;//g' | sed 's/htdocs/*-config.php/' 2> /dev/null) | cut -d"'" -f4)
 			ee_lib_echo "Backup Database, please wait..."
