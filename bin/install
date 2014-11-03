@@ -124,7 +124,7 @@ if [ -z "$BRANCH" ]; then
 	BRANCH=stable
 else
 	# Cross check EasyEngine (ee) branch name
-	git ls-remote --heads https://github.com/rtCamp/easyengine | grep $BRANCH &>> $EE_INSTALL_LOG
+	git ls-remote --heads https://github.com/rtCamp/easyengine | grep ${BRANCH}$ &>> $EE_INSTALL_LOG
 	if [ $? -ne 0 ]; then
 		ee_lib_error "The $BRANCH branch does not exist, please provide the correct branch name, exit status = " $?
 	fi

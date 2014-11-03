@@ -15,6 +15,9 @@ function ee_mod_setup_wordpress()
 	# else current mysql site is to be updated
 	if [ "$EE_DB_NAME" = "" ] && [ "$EE_DB_USER" = "" ] && [ "$EE_DB_PASS" = "" ]; then
 		ee_mod_setup_database
+	else
+		# Display when run ee site update mysql.com --wp
+		echo -e "EE_DB_NAME = $EE_DB_NAME \nEE_DB_USER = $EE_DB_USER \nEE_DB_PASS = $EE_DB_PASS \nEE_MYSQL_HOST = $EE_MYSQL_HOST \nEE_MYSQL_GRANT_HOST = $EE_MYSQL_GRANT_HOST" &>> $EE_COMMAND_LOG
 	fi
 	
 	# Default WordPress prefix or custom prefix
@@ -121,4 +124,21 @@ function ee_mod_setup_wordpress()
 	ee_lib_echo "Updating WordPress permalink, please wait..."
 	wp rewrite structure --allow-root /%year%/%monthnum%/%day%/%postname%/ &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to update WordPress permalink for $EE_DOMAIN, exit status = " $?
+
+	# Setup WordPress Network
+	if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
+		ee_mod_setup_network
+	fi
+
+	# Install WordPress plugins
+	ee_mod_plugin_nginx_helper
+
+	if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+		ee_mod_plugin_wpsc
+	fi
+
+	if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+		ee_mod_plugin_w3tc
+	fi
+
 }

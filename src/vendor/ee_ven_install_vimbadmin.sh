@@ -11,6 +11,9 @@ function ee_ven_install_vimbadmin()
 	# Install ViMbAdmin
 	ee_lib_echo "Installing ViMbAdmin, please wait..."
 	ee_lib_echo "It will take nearly 10-20 minutes, please wait..."
+	mkdir -p /var/www/22222/htdocs/ \
+	|| ee_lib_error "Unable to create ViMbAdmin Directory, exit status = " $?
+
 	wget -cqO /var/www/22222/htdocs/vimbadmin.tar.gz https://github.com/opensolutions/ViMbAdmin/archive/${EE_VIMBADMIN_VERSION}.tar.gz \
 	|| ee_lib_error "Unable to download ViMbAdmin, exit status = " $?
 
@@ -25,7 +28,7 @@ function ee_ven_install_vimbadmin()
 	|| ee_lib_error "Unable to install ViMbAdmin, exit status = " $?
 
 	# Fix permissions
-	chown -R $EE_PHP_USER:$EE_PHP_USER /var/www/22222/htdocs/vimbadmin \
+	chown -R $EE_PHP_USER:$EE_PHP_USER /var/www/22222/ \
 	|| ee_lib_error "Unable to change ownership for ViMbAdmin, exit status = " $? 
 
 	# Remove unwanted files
