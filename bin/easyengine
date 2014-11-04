@@ -425,7 +425,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_setup_database
 
 				# Add Database Information On ee-config.php
-				echo -e "define('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST');" \
+				echo -e "<?php /ndefine('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST'); /n?>" \
 				&>> /var/www/$EE_DOMAIN/ee-config.php
 			fi
 
