@@ -11,6 +11,7 @@ language: bash
 
 
 before_install:
+- ls -al ~/.gnupg/gpg.conf
 - chmod 600 ~/.gnupg/gpg.conf
 - ls -al ~/.gnupg/gpg.conf
 
