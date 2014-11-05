@@ -11,7 +11,7 @@ language: bash
 
 
 before_install:
-- chmod 066 ~/.gnupg/gpg.conf
+- chmod 600 ~/.gnupg/gpg.conf
 
 before_script:
 - sudo apt-get -qq purge mysql* graphviz*
