@@ -16,6 +16,8 @@ before_install:
 - ls -al ~/.gnupg/gpg.conf
 - sudo chown travis:travis ~/.gnupg/gpg.conf
 - ls -al ~/.gnupg/gpg.conf
+- sudo chgrp -R travis ~/.gnupg
+- ls -al ~/.gnupg/gpg.conf
 
 before_script:
 - sudo apt-get -qq purge mysql* graphviz*
