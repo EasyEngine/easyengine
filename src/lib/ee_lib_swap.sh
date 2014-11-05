@@ -24,6 +24,11 @@ function ee_lib_swap()
 			# Add entry into /etc/fstab
 			echo "/ee-swapfile		none		swap	sw	0	0" >> /etc/fstab \
 			|| ee_lib_error "Unable to add entry into /etc/fstab, exit status = " $?
+
+			# Change Permission for swapfile
+			chown root:root /ee-swapfile &&
+			chmod 0600 /ee-swapfile \
+			|| ee_lib_error "Unable to change Swapfile permission, exit status = " $?
 		fi
 	fi
 }
