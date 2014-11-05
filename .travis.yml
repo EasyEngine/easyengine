@@ -11,12 +11,10 @@ language: bash
 
 
 before_install:
-- ls -al ~/.gnupg/gpg.conf
+- sudo chown -R travis ~travis/.gnupg
 - chmod 600 ~/.gnupg/gpg.conf
 - ls -al ~/.gnupg/gpg.conf
-- sudo chown travis:travis ~/.gnupg/gpg.conf
-- ls -al ~/.gnupg/gpg.conf
-- sudo chgrp -R travis ~/.gnupg
+- chmod 700 ~/.gnupg
 - ls -al ~/.gnupg/gpg.conf
 
 before_script:
