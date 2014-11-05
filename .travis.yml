@@ -8,19 +8,12 @@ notifications:
 
 language: bash
 
-
-
 before_install:
-- sudo chown -R travis ~travis/.gnupg
-- chmod 600 ~/.gnupg/gpg.conf
-- ls -al ~/.gnupg/gpg.conf
-- chmod 700 ~/.gnupg
-- ls -al ~/.gnupg/gpg.conf
+- rm -rf ~/.gnupg
 
 before_script:
 - sudo apt-get -qq purge mysql* graphviz*
 - sudo apt-get -qq autoremove
-
 
 script:
 - sudo echo -e "[user]\n\tname = Mitesh Shah\n\temail = root@localhost.com" > ~/.gitconfig
