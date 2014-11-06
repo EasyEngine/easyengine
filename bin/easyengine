@@ -56,11 +56,11 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 				# Fix GnuPG key
 				ee_lib_gpg_key_fix
-			fi		
+			fi
 
 			if [ "$EE_THIRD" = "nginx" ] || [ "$EE_THIRD" = "php" ] || [ "$EE_THIRD" = "mysql" ] || [ "$EE_THIRD" = "postfix" ]; then
 				# Execute: apt-get update
-				ee_lib_apt_get_update	
+				ee_lib_apt_get_update
 
 				# Install NGINX/PHP/MySQL/Postfix package
 				ee_mod_install_$EE_THIRD
@@ -81,7 +81,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				else
 					# Restart  NGINX/MySQL/Postfix
 					ee_lib_service $EE_THIRD restart
-					
+
 					# Initialize Git
 					ee_lib_git /etc/$EE_THIRD/ "Initialize Git"
 				fi
@@ -103,7 +103,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_lib_gpg_key_fix
 
 				# Execute: apt-get update
-				ee_lib_apt_get_update	
+				ee_lib_apt_get_update
 
 				# Install NGINX/PHP/MySQL/Postfix package
 				ee_mod_install_nginx
@@ -118,7 +118,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 
 				# Restart  NGINX/MySQL/Postfix
 				ee_lib_service nginx php5-fpm mysql restart
-					
+
 				# Initialize Git
 				ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "Initialize Git"
 
@@ -184,7 +184,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 				ee_mod_setup_mailscaner
 			else
 				ee_lib_echo_fail "RAM is less then 512MB, EasyEngine skip installing Mail Scanner Packages"
-				
+
 			fi
 			ee_lib_service nginx postfix dovecot amavis restart
 
@@ -200,7 +200,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			if [ $? -ne 0 ];then
 				ee_lib_error "Failed to find Dovecot Packages, exit status = " 1
 			fi
-			
+
 			# Install Mail Scanner
 			ee_mod_install_mailscaner
 
@@ -266,7 +266,7 @@ elif [ "$EE_FIRST" = "stack" ] || [ "$EE_FIRST" = "system" ]; then
 			# Remove Dovecot
 			ee_mod_remove_dovecot
 
-			# Remove Mail Scanner 
+			# Remove Mail Scanner
 			ee_mod_remove_mailscaner
 
 			# Remove ViMbAdmin
@@ -396,7 +396,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_git /etc/nginx/ "Edit website: $EE_DOMAIN"
 
 			# Execute: service nginx reload
-			ee_lib_service nginx reload			
+			ee_lib_service nginx reload
 		fi
 	elif [ "$EE_SECOND" = "create" ]; then
 		# Configure variables
@@ -409,7 +409,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 		# Install required packages
 		ee_mod_site_packages
-		
+
 		# Lets create HTML|PHP|MySQL website
 		if [ "$EE_SITE_CREATE_OPTION" = "--html" ] || [ "$EE_SITE_CREATE_OPTION" = "--php" ] || [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
 			# Configure variable
@@ -425,7 +425,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_mod_setup_database
 
 				# Add Database Information On ee-config.php
-				echo -e "<?php /ndefine('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST'); /n?>" \
+				echo -e "<?php \ndefine('DB_NAME', '$EE_DB_NAME'); \ndefine('DB_USER', '$EE_DB_USER'); \ndefine('DB_PASSWORD', '$EE_DB_PASS'); \ndefine('DB_HOST', '$EE_MYSQL_HOST'); \n?>" \
 				&>> /var/www/$EE_DOMAIN/ee-config.php
 			fi
 
@@ -563,10 +563,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 		elif [ "$EE_DELETE_ARGS" = "--all" ]; then
 			# Delete MySQL database
 			ee_mod_delete_database $EE_FIFTH
-			
+
 			# Delete webroot
 			ee_mod_delete_webroot $EE_FIFTH
-			
+
 			# Delete NGINX configuration file
 			ee_mod_delete_nginxconf $EE_FIFTH
 
@@ -581,7 +581,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		EE_SITE_CREATE_OPTION=$EE_FOURTH
 		EE_SITE_CACHE_OPTION=$EE_FIFTH
-		
+
 		# Check the website name is empty or not
 		ee_lib_check_domain
 
@@ -610,13 +610,13 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 			# Lets update HTML|PHP|MySQL website
 			if [ "$EE_SITE_CURRENT_OPTION" = "HTML" ] || [ "$EE_SITE_CURRENT_OPTION" = "PHP" ] || [ "$EE_SITE_CURRENT_OPTION" = "MYSQL" ]; then
-				
+
 
 				# Update NGINX configuration for $EE_DOMAIN
 				if [[ "$EE_SITE_CREATE_OPTION" = "--php" && "$EE_SITE_CURRENT_OPTION" != "PHP" ]] || [[ "$EE_SITE_CREATE_OPTION" = "--mysql" && "$EE_SITE_CURRENT_OPTION" != "MYSQL" ]] \
 					|| [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					ee_mod_update_domain
-				else 
+				else
 					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 
@@ -666,7 +666,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			elif [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE BASIC" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE W3 TOTAL CACHE" ] \
 				|| [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_OPTION" = "WPSINGLE WP SUPER CACHE" ] \
 				&& [[ "$EE_SITE_CREATE_OPTION" = "--wp" || "$EE_SITE_CREATE_OPTION" = "--wpsubdir"  || "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]]; then
-				
+
 				if [[ "$EE_SITE_CACHE_OPTION" = "--basic" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE BASIC" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpfc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE FAST CGI" ]] \
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--w3tc" && "$EE_SITE_CURRENT_OPTION" != "WPSINGLE W3 TOTAL CACHE" ]] \
@@ -674,7 +674,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [  "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ] || [  "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
-				else 
+				else
 					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Setup WordPress Network
@@ -694,7 +694,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDIR WP SUPER CACHE" ]]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
-				else 
+				else
 					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Update cache plugins
@@ -710,7 +710,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 					|| [[ "$EE_SITE_CACHE_OPTION" = "--wpsc" && "$EE_SITE_CURRENT_OPTION" != "WPSUBDOMAIN WP SUPER CACHE" ]]; then
 					# Update NGINX configuration for $EE_DOMAIN
 					ee_mod_update_domain
-				else 
+				else
 					ee_lib_error "$EE_DOMAIN already with $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION options, exit status" $?
 				fi
 				# Update cache plugins
@@ -721,7 +721,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			fi
 			# Adjust permission
 			ee_lib_permissions
-			
+
 			# Execute: service nginx reload
 			ee_lib_service nginx reload
 
@@ -749,7 +749,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		if [ $? -eq 0 ]; then
 			ee_site_cd
 		fi
-	
+
 	else
 		ee_lib_echo "ee site commands:"
 		ee_lib_echo_escape "\tcd\tSwitch to website root directory"
@@ -888,7 +888,7 @@ elif [ "$EE_FIRST" = "import-slow-log" ];then
 elif [ "$EE_FIRST" = "update" ]; then
 	ee_lib_echo "Checking EasyEngine(ee) update, please wait..."
 	wget --no-check-certificate -qO eeup http://rt.cx/eeup && sudo bash eeup
-	
+
 else
 	ee_lib_echo "EasyEngine (ee) commands:"
 	ee_lib_echo_escape "\tversion\tDisplay EasyEngine (ee) version"
