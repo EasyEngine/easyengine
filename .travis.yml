@@ -131,6 +131,19 @@ script:
 - sudo bash ee site update 1.com --wp
 - sudo bash ee site update 2.com --wpsubdir
 
+- sudo bash ee site update 3.com --wpsubdomain
+- sudo bash ee site update site1.com --wp --wpfc
+- sudo bash ee site update site1.com --wp --w3tc
+- sudo bash ee site update site1.com --wp --wpsc
+
+- sudo bash ee site update site5.com --wpsubdir --wpfc
+- sudo bash ee site update site5.com --wpsubdir --w3tc
+- sudo bash ee site update site5.com --wpsubdir --wpsc
+
+- sudo bash ee site update site9.com --wpsubdom --wpfc
+- sudo bash ee site update site9.com --wpsubdom --w3tc
+- sudo bash ee site update site9.com --wpsubdom --wpsc
+
 - sudo ee site delete site12.com --no-prompt
 - sudo ee site delete site12.net --no-prompt
 - sudo ee site delete site12.org --no-prompt
