@@ -15,6 +15,12 @@ EE_SECOND=$2
 EE_THIRD=$3
 EE_FOURTH=$4
 EE_FIFTH=$5
+EE_SIXTH=$6
+EE_SEVENTH=$7
+EE_EIGTH=$8
+EE_NINTH=$9
+EE_TENTH=${10}
+EE_ELEVENTH=${11}
 
 # Let's capture the EasyEngine arguments
 ee_lib_echo "EasyEngine (ee) $EE_VERSION execution started [$(date)]" &>> $EE_COMMAND_LOG
@@ -713,6 +719,32 @@ elif [ "$EE_FIRST" = "site" ]; then
 		if [ $? -eq 0 ]; then
 			ee_site_cd
 		fi
+
+	elif [ "$EE_SECOND" = "migrate" ]; then
+		# Configure variables
+		EE_DOMAIN_CHECK=$EE_THIRD
+		EE_SITE_CREATE_OPTION=$EE_FOURTH
+
+		if [ "$EE_FIFTH%=*" = "--remote-server" ]; then
+			EE_SITE_CACHE_OPTION=""
+			EE_REMOTE_SERVER=$EE_FIFTH
+			EE_REMOTE_USER=$EE_SIXTH
+			EE_REMOTE_PASSWORD=$EE_SEVENTH
+			EE_REMOTE_METHOD=$EE_EIGTH
+			EE_REMOTE_PATH=$EE_NINTH
+			EE_MYSQL_PATH=$EE_TENTH
+		else
+			EE_SITE_CACHE_OPTION=$EE_FIFTH
+			EE_REMOTE_SERVER=$EE_SIXTH
+			EE_REMOTE_USER=$EE_SEVENTH
+			EE_REMOTE_PASSWORD=$EE_EIGTH
+			EE_REMOTE_METHOD=$EE_NINTH
+			EE_REMOTE_PATH=$EE_TENTH
+			EE_MYSQL_PATH=$EE_ELEVENTH
+		fi
+
+		# Auto switch site options
+		ee_mod_site_option
 
 	else
 		ee_lib_echo "ee site commands:"
