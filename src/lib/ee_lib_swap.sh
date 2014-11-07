@@ -17,6 +17,11 @@ function ee_lib_swap()
 			mkswap /ee-swapfile &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to create swapfile, exit status = " $?
 
+			# Change Permission for swapfile
+			chown root:root /ee-swapfile &&
+			chmod 0600 /ee-swapfile \
+			|| ee_lib_error "Unable to change Swapfile permission, exit status = " $?
+
 			# On the Swap
 			swapon /ee-swapfile &>> $EE_COMMAND_LOG \
 			|| ee_lib_error "Unable to on Swap, exit status = " $?

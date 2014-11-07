@@ -33,6 +33,12 @@ function ee_mod_setup_postfix()
 
 	postconf -e "smtpd_relay_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination"
 
+	# Disable SSL for POODLE
+	postconf -e "smtpd_tls_mandatory_protocols=!SSLv2,!SSLv3"
+	postconf -e "smtp_tls_mandatory_protocols=!SSLv2,!SSLv3"
+	postconf -e "smtpd_tls_protocols=!SSLv2,!SSLv3"
+	postconf -e "smtp_tls_protocols=!SSLv2,!SSLv3"
+
 	# other destination domains should be handled using virtual domains 
 	postconf -e "mydestination = localhost"
 
@@ -44,6 +50,7 @@ function ee_mod_setup_postfix()
 	postconf -e "virtual_gid_maps = static:5000"
 	postconf -e "virtual_mailbox_domains = mysql:/etc/postfix/mysql/virtual_domains_maps.cf"
 	postconf -e "virtual_mailbox_maps = mysql:/etc/postfix/mysql/virtual_mailbox_maps.cf"
+	postconf -e "virtual_alias_maps = mysql:/etc/postfix/mysql/virtual_alias_maps.cf"
 	#postconf "message_size_limit = 20971520"
 
 
