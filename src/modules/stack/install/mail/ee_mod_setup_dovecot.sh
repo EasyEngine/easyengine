@@ -22,13 +22,23 @@ function ee_mod_setup_dovecot()
 	# Configuring 10-mail.conf
 	sed -i "s/mail_location = mbox:~\/mail:INBOX=\/var\/mail\/%u/mail_location = maildir:\/var\/vmail\/%d\/%n/" /etc/dovecot/conf.d/10-mail.conf \
 	|| ee_lib_error "Unable to configure Dovecot mail_location, exit status = " $?
-	
+
 	# Configuring 10-auth.conf
 	sed -i "s/#disable_plaintext_auth = yes/disable_plaintext_auth = no/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/auth_mechanisms = plain/auth_mechanisms = plain login/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/\!include auth-system.conf.ext/#\!include auth-system.conf.ext/" /etc/dovecot/conf.d/10-auth.conf && \
 	sed -i "s/#\!include auth-sql.conf.ext/\!include auth-sql.conf.ext/" /etc/dovecot/conf.d/10-auth.conf \
 	|| ee_lib_error "Unable to setup 10-auth.conf file, exit status = " $?
+
+	# Configuring 10-ssl.conf, Disable SSLv2 and SSLv3, Fixes POODLE Bug
+	grep ssl_protocols /etc/dovecot/conf.d/10-ssl.conf &>> $EE_COMMAND_LOG
+	if [ $? -eq 0 ]; then
+		# For Ubuntu 14.04, Debian 6 and Debian 7 10-ssl.conf file contains commented #ssl_protocol variable
+		sed -i "s/#ssl_protocols =.*/ssl_protocols = \!SSLv2 \!SSLv3/" /etc/dovecot/conf.d/10-ssl.conf
+	else
+		# For Ubuntu 12.04 10-ssl.conf file does not contain commented #ssl-protocols variable
+		echo 'ssl_protocols = !SSLv2 !SSLv3' >> /etc/dovecot/conf.d/10-ssl.conf
+	fi
 
 	# Configuring dovecot-sql.conf.ext
 	cp -v /usr/share/easyengine/mail/dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext &>> $EE_COMMAND_LOG \
