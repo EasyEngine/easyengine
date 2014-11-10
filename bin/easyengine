@@ -772,6 +772,12 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Create site
 		ee site create $EE_DOMAIN $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION
 
+		# Setup migration
+		ee_mod_migrate_Setup
+		
+		# Setup site
+		ee_lib_echo_info "Successfully migrated site $EE_DOMAIN"
+
 	else
 		ee_lib_echo "ee site commands:"
 		ee_lib_echo_escape "\tcd\tSwitch to website root directory"
