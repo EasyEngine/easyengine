@@ -723,6 +723,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 	elif [ "$EE_SECOND" = "migrate" ]; then
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
+		ee_lib_check_domain
 
 		if [ "${EE_FOURTH%=*}" = "--remote-server" ]; then
 			EE_SITE_CREATE_OPTION=""
