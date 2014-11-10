@@ -7,8 +7,7 @@ function ee_mod_migrate_setup()
   cp -av /ee-backup/$EE_DOMAIN/* /var/www/$EE_DOMAIN/htdocs/
 
   # Setup Database
-  if[ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
-
+  if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
     mv /var/www/$EE_DOMAIN/htdocs/wp-config.php /var/www/$EE_DOMAIN/
 
     ee_lib_echo "Setting up Database, please wait..."
