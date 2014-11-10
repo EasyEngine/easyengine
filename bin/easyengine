@@ -447,7 +447,9 @@ elif [ "$EE_FIRST" = "site" ]; then
         ee_lib_echo_info "HTTP authentication password: $(grep "HTTP authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
 			fi
 			# Display Success Message
-			ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+			if [ "$EE_MIGRATE" != "True" ]; then
+				ee_lib_echo_info "Successfully Created New Website: http://$EE_WWW_DOMAIN"
+			fi
 		elif [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			if [ "$EE_SITE_CACHE_OPTION" = "--basic" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ] || [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
 
@@ -459,8 +461,11 @@ elif [ "$EE_FIRST" = "site" ]; then
 				ee_lib_check_domain
 				ee_mod_setup_domain
 
-				# Setup WordPress
-				ee_mod_setup_wordpress
+				# If we are migrating site then Wordpress installation is not required
+				if [ "$EE_MIGRATE" != "True" ]; then
+					# Setup WordPress
+					ee_mod_setup_wordpress
+				fi
 
 				# Adjust permission
 				ee_lib_permissions
@@ -477,17 +482,19 @@ elif [ "$EE_FIRST" = "site" ]; then
         	ee_lib_echo_info "HTTP authentication password: $(grep "HTTP authentication password:" $EE_COMMAND_LOG | tail -n1 | awk '{print $4}')"
 				fi
 
-				# Display WordPress credential
-				echo
-				ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
-				ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
-				echo
+				if [ "$EE_MIGRATE" != "True" ]; then
+					# Display WordPress credential
+					echo
+					ee_lib_echo_info "WordPress Admin Username: $EE_WP_USER"
+					ee_lib_echo_info "WordPress Admin Password: $EE_WP_PASS"
+					echo
 
-				# Display WordPress cache plugin settings
-				ee_mod_plugin_settings
+					# Display WordPress cache plugin settings
+					ee_mod_plugin_settings
 
-				# Display Success Message
-				ee_lib_echo_info "Successfully created new website: http://$EE_WWW_DOMAIN"
+					# Display Success Message
+					ee_lib_echo_info "Successfully created new website: http://$EE_WWW_DOMAIN"
+				fi
 			fi
 		fi
 	elif [ "$EE_SECOND" = "delete" ]; then
@@ -721,6 +728,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 
 	elif [ "$EE_SECOND" = "migrate" ]; then
+		export $EE_MIGRATE="True"
+
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
@@ -759,6 +768,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 		# Migrate Data
 		ee_mod_migrate_data
+
+		# Create site
+		ee site create $EE_DOMAIN $EE_SITE_CREATE_OPTION $EE_SITE_CACHE_OPTION
 
 	else
 		ee_lib_echo "ee site commands:"
