@@ -26,4 +26,8 @@ function ee_mod_migrate_setup()
     || ee_lib_error "Unable to import database, exit status = " $?
   fi
 
+  # Fix webroot permission
+  chown -R www-data:www-data /var/www/$EE_DOMAIN/ \
+  || ee_lib_error "Unable to change webroot permission, exit status = " $?
+
 }
