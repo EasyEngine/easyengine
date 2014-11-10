@@ -7,7 +7,7 @@ function ee_mod_migrate_data()
     # Lets FTP or rsync files
     rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/
     if [ ! -f /ee-backup/$EE_DOMAIN/wp-config.php ]; then
-      rsync -avz --progress $EE_REMOTE_SERVER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/../wp-config.php /ee-backup/$EE_DOMAIN/
+      rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/../wp-config.php /ee-backup/$EE_DOMAIN/
     fi
 
   elif [ "$EE_REMOTE_METHOD" == "ftp" ]; then
