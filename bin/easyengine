@@ -731,7 +731,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			EE_REMOTE_USER=${EE_FIFTH##*=}
 			EE_REMOTE_PASSWORD=${EE_SIXTH##*=}
 			EE_REMOTE_METHOD=${EE_SEVENTH##*=}
-			EE_REMOTE_PATH=${EE_EIGHT##*=}
+			EE_REMOTE_PATH=${EE_EIGTH##*=}
 			EE_MYSQL_PATH=${EE_NINTH##*=}
 		elif [ "${EE_FIFTH%=*}" = "--remote-server" ]; then
 			EE_SITE_CREATE_OPTION=$EE_FOURTH
