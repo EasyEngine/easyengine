@@ -725,7 +725,15 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		EE_SITE_CREATE_OPTION=$EE_FOURTH
 
-		if [ "$EE_FIFTH%=*" = "--remote-server" ]; then
+		if [ "$EE_FOURTH%=*" = "--remote-server" ]; then
+			EE_SITE_CACHE_OPTION=""
+			EE_REMOTE_SERVER=$EE_FOURTH
+			EE_REMOTE_USER=$EE_FIFTH
+			EE_REMOTE_PASSWORD=$EE_SIXTH
+			EE_REMOTE_METHOD=$EE_SEVENTH
+			EE_REMOTE_PATH=$EE_EIGHT
+			EE_MYSQL_PATH=$EE_NINTH
+		elif [ "$EE_FIFTH%=*" = "--remote-server" ]; then
 			EE_SITE_CACHE_OPTION=""
 			EE_REMOTE_SERVER=$EE_FIFTH
 			EE_REMOTE_USER=$EE_SIXTH
