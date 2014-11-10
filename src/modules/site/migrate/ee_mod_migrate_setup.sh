@@ -4,7 +4,8 @@ function ee_mod_migrate_setup()
 {
   # Copy data
   ee_lib_echo "Copying data from /ee-backup to webroot, please wait..."
-  cp -av /ee-backup/$EE_DOMAIN/* /var/www/$EE_DOMAIN/htdocs/
+  cp -a /ee-backup/$EE_DOMAIN/* /var/www/$EE_DOMAIN/htdocs/ \
+  || ee_lib_error "Unable to copy backup data to site webroot, exit status = " $?
 
   # Setup Database
   if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -21,7 +22,8 @@ function ee_mod_migrate_setup()
 
     # Import database
     ee_lib_echo "Importing database, please wait..."
-    pv $EE_MYSQL_PATH | mysql $EE_DB_NAME
+    pv $EE_MYSQL_PATH | mysql $EE_DB_NAME \
+    || ee_lib_error "Unable to import database, exit status = " $?
   fi
 
 }
