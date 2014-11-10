@@ -728,7 +728,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		fi
 
 	elif [ "$EE_SECOND" = "migrate" ]; then
-		export $EE_MIGRATE="True"
+		export EE_MIGRATE="True"
 
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
