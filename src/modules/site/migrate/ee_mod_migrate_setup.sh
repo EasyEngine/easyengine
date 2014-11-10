@@ -17,7 +17,7 @@ function ee_mod_migrate_setup()
     sed -i "s/DB_NAME.*/DB_NAME', '$EE_DB_NAME');/g" /var/www/$EE_DOMAIN/wp-config.php
     sed -i "s/DB_user.*/DB_USER', '$EE_DB_USER');/g" /var/www/$EE_DOMAIN/wp-config.php
     sed -i "s/DB_HOST.*/DB_HOST', '$EE_DB_HOST');/g" /var/www/$EE_DOMAIN/wp-config.php
-    sed -i "s/DB_PASSWORD.*/DB_PASSWORD', '$EE_DB_PASSWORD');/g" /var/www/$EE_DOMAIN/wp-config.php
+    sed -i "s/DB_PASSWORD.*/DB_PASSWORD', '$EE_DB_PASS');/g" /var/www/$EE_DOMAIN/wp-config.php
 
     # Import database
     ee_lib_echo "Importing database, please wait..."
