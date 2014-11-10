@@ -756,6 +756,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Auto switch site options
 		ee_mod_site_option
 
+		# Migrate Data
+		ee_mod_migrate_data
+
 	else
 		ee_lib_echo "ee site commands:"
 		ee_lib_echo_escape "\tcd\tSwitch to website root directory"
