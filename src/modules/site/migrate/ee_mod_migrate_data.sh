@@ -17,7 +17,7 @@ function ee_mod_migrate_data()
     fi
 
   elif [ "$EE_REMOTE_METHOD" == "sftp" ]; then
-    lftp -e "mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN" sftp://$EE_REMOTE_USER@$EE_REMOTE_SERVER
+    lftp -e "mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN ; quit"; sftp://$EE_REMOTE_USER@$EE_REMOTE_SERVER
     if [ ! -f /ee-backup/$EE_DOMAIN/wp-config.php ]; then
       lftp -e "get -c $EE_REMOTE_PATH/../wp-config.php; quit" sftp://$EE_REMOTE_USER@$EE_REMOTE_SERVER
     fi
