@@ -1,3 +1,10 @@
+IMPORTANT
+============================================
+
+#### EasyEngine team is looking for user feedback for some critical technical as well as non-technical decisions that will affect project in long run - https://rtcamp.com/blog/feedback-request-from-easyengine-users/
+
+---
+
 [![Stories in Ready](https://badge.waffle.io/rtcamp/easyengine.png?label=ready&title=Ready)](https://waffle.io/rtcamp/easyengine)
 [![Stories in Progress](https://badge.waffle.io/rtcamp/easyengine.png?label=in%20progress&title=In%20Progress)](https://waffle.io/rtcamp/easyengine)
 
