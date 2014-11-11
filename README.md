@@ -1,7 +1,7 @@
 IMPORTANT
 ============================================
 
-#### EasyEngine team is looking for user feedback for some critical technical as well as non-technical decisions that will affect project in long run - https://rtcamp.com/blog/feedback-request-from-easyengine-users/
+#### EasyEngine team is looking for user feedback for some critical technical as well as non-technical decisions that will affect project in long run. Please share your thoughts - https://rtcamp.com/blog/feedback-request-from-easyengine-users/
 
 ---
 
