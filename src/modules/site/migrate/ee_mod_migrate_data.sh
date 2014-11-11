@@ -9,10 +9,10 @@ function ee_mod_migrate_data()
   # Copy webroot using ssh with the help of rsync
   if [ "$EE_REMOTE_METHOD" == "ssh" ]; then
     # Lets FTP or rsync files
-    rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/ \
+    rsync -avz --progress --rsh='sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER' $EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/ \
     || ee_lib_error "Unable to migrate data using rsync, exit status = " $?
     if [ ! -f /ee-backup/$EE_DOMAIN/wp-config.php ] && [ "$EE_SITE_CREATE_OPTION" != "--html" ] && [ "$EE_SITE_CREATE_OPTION" != "--php" ] && [ "$EE_SITE_CREATE_OPTION" != "--mysql" ]; then
-      rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/../wp-config.php /ee-backup/$EE_DOMAIN/ \
+      rsync -avz --progress --rsh='sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER' $EE_REMOTE_SERVER:$EE_REMOTE_PATH/../wp-config.php /ee-backup/$EE_DOMAIN/ \
       || ee_lib_error "Unable to migrate data using rsync, exit status = " $?
     fi
 
