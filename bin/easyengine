@@ -729,7 +729,8 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 	elif [ "$EE_SECOND" = "migrate" ]; then
 		export EE_MIGRATE="True"
-
+		export EE_TEE_LOG="false"
+		
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
