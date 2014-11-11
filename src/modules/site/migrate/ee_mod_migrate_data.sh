@@ -27,7 +27,7 @@ function ee_mod_migrate_data()
 
   # Copy webroot using sftp with the help of lftp
   elif [ "$EE_REMOTE_METHOD" == "sftp" ]; then
-    lftp -e "mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN ; quit"; -u "$EE_REMOTE_USER,$EE_REMOTE_PASSWORD" sftp://$EE_REMOTE_SERVER \
+    lftp -e "mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN ; quit" -u "$EE_REMOTE_USER,$EE_REMOTE_PASSWORD" sftp://$EE_REMOTE_SERVER \
     || ee_lib_error "Unable to migrate data using sftp, exit status = " $?
     if [ ! -f /ee-backup/$EE_DOMAIN/wp-config.php ] && [ "$EE_SITE_CREATE_OPTION" != "--html" ] && [ "$EE_SITE_CREATE_OPTION" != "--php" ] && [ ]"$EE_SITE_CREATE_OPTION" != "--mysql" ]; then
       lftp -e "get -c $EE_REMOTE_PATH/../wp-config.php; quit" -u "$EE_REMOTE_USER,$EE_REMOTE_PASSWORD" sftp://$EE_REMOTE_SERVER \
