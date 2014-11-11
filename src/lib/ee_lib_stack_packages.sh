@@ -6,7 +6,7 @@ function ee_lib_stack_packages()
 	# Log only single time
 	# ee site create example.com called ee stack install nginx
 	# So when ee stack install nginx run in sub-shell the value of EE_TEE_LOG=/dev/null
-	# So in log file all logs written single time only
+	# So in log file all logs written single time only, to do so set EE_LOG=false
 	export EE_LOG=false
 	
 	for ee_stack_package in $@;do
@@ -48,7 +48,7 @@ function ee_lib_stack_packages()
 				# and our ee_lib_error function only exit from that sub-shell
 				# so we need to exit from parent shell also
 				ee stack install postfix || exit $?
-			fi	
+			fi
 		fi
 	done
 }

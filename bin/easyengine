@@ -729,8 +729,13 @@ elif [ "$EE_FIRST" = "site" ]; then
 
 	elif [ "$EE_SECOND" = "migrate" ]; then
 		export EE_MIGRATE="True"
-		export EE_TEE_LOG="false"
-		
+
+		# Log only single time
+		# ee site create example.com called ee stack install nginx
+		# So when ee stack install nginx run in sub-shell the value of EE_TEE_LOG=/dev/null
+		# So in log file all logs written single time only, to do so set EE_LOG=false
+		export EE_LOG=false
+
 		# Configure variables
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
