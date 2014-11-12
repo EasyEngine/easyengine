@@ -2,7 +2,7 @@
 
 function ee_mod_migrate_setup()
 {
-  # Copy data
+  # Copy data from backup to webroot
   ee_lib_echo "Copying data from /ee-backup to webroot, please wait..."
   cp -a /ee-backup/$EE_DOMAIN/* /var/www/$EE_DOMAIN/htdocs/ \
   || ee_lib_error "Unable to copy backup data to site webroot, exit status = " $?
@@ -34,7 +34,6 @@ function ee_mod_migrate_setup()
       rm /var/www/$EE_DOMAIN/htdocs/ee-config.php
     fi
     if [ "$EE_MYSQL_PATH" != "" ]; then
-
       EE_DB_NAME=$(grep DB_NAME /var/www/$EE_DOMAIN/ee-config.php | cut -d"'" -f4)
       # Import database
       ee_lib_echo "Importing database, please wait..."
