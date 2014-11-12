@@ -3,7 +3,7 @@
 function ee_mod_migrate_data()
 {
   # Remove if any previous directory and create /ee-backup
-  rm -rf /ee-backup/$EE_DOMAIN && mkdir -p /ee-backup/$EE_DOMAIN/ && cd /ee-backup/$EE_DOMAIN/
+  mkdir -p /ee-backup/$EE_DOMAIN/ && cd /ee-backup/$EE_DOMAIN/
 
   ee_lib_echo "Copying webroot from $EE_REMOTE_SERVER, please wait..."
 
