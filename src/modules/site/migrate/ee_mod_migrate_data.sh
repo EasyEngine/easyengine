@@ -18,8 +18,8 @@ function ee_mod_migrate_data()
   # Copy webroot using ssh with the help of rsync
   if [ "$EE_REMOTE_METHOD" == "ssh" ]; then
     if [ "$EE_REMOTE_PASSWORD" != "" ]; then
-      EE_MIGRATE_CMD1="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
-      EE_MIGRATE_CMD2="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/../$EE_SITE_CONFIG /ee-backup/$EE_DOMAIN/"
+      EE_MIGRATE_CMD1="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER -o StrictHostKeyChecking=no\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
+      EE_MIGRATE_CMD2="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER -o StrictHostKeyChecking=no\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/../$EE_SITE_CONFIG /ee-backup/$EE_DOMAIN/"
     else
       EE_MIGRATE_CMD1="rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
       EE_MIGRATE_CMD2="rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/../$EE_SITE_CONFIG /ee-backup/$EE_DOMAIN/"
