@@ -7,7 +7,7 @@ function ee_mod_migrate_setup()
   cp -a /ee-backup/$EE_DOMAIN/* /var/www/$EE_DOMAIN/htdocs/ \
   || ee_lib_error "Unable to copy backup data to site webroot, exit status = " $?
 
-  # Setup Database
+  # Setup Database for WordPress site
   if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
     mv /var/www/$EE_DOMAIN/htdocs/wp-config.php /var/www/$EE_DOMAIN/
 
@@ -21,6 +21,21 @@ function ee_mod_migrate_setup()
       sed -i "s/DB_HOST.*/DB_HOST', '$EE_MYSQL_HOST');/g" /var/www/$EE_DOMAIN/wp-config.php
       sed -i "s/DB_PASSWORD.*/DB_PASSWORD', '$EE_DB_PASS');/g" /var/www/$EE_DOMAIN/wp-config.php
 
+      # Import database
+      ee_lib_echo "Importing database, please wait..."
+      pv $EE_MYSQL_PATH | mysql $EE_DB_NAME \
+      || ee_lib_error "Unable to import database, exit status = " $?
+    fi
+  fi
+
+  # Setup database for MySQL site
+  if [ "$EE_SITE_CREATE_OPTION" = "--mysql" ]; then
+    if [ -f /var/www/$EE_DOMAIN/htdocs/ee-config.php ]; then
+      rm /var/www/$EE_DOMAIN/htdocs/ee-config.php
+    fi
+    if [ "$EE_MYSQL_PATH" != "" ]; then
+
+      EE_DB_NAME=$(grep DB_NAME /var/www/$EE_DOMAIN/ee-config.php | cut -d"'" -f4)
       # Import database
       ee_lib_echo "Importing database, please wait..."
       pv $EE_MYSQL_PATH | mysql $EE_DB_NAME \
