@@ -782,7 +782,10 @@ elif [ "$EE_FIRST" = "site" ]; then
 		# Setup migration
 		ee_mod_migrate_setup
 
-		# Setup site
+		# Display WordPress cache plugin settings
+		ee_mod_plugin_settings
+
+		# Successfully message
 		ee_lib_echo_info "Successfully migrated site $EE_DOMAIN"
 
 	else

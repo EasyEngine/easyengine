@@ -1,6 +1,7 @@
 # Display WordPress cache plugin settings
 
-function ee_mod_plugin_settings() {
+function ee_mod_plugin_settings()
+{
 	if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
 		if [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
 			ee_lib_echo_escape "Configure WPSC:\t\thttp://$EE_DOMAIN/wp-admin/network/settings.php?page=wpsupercache"

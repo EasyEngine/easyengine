@@ -26,6 +26,18 @@ function ee_mod_migrate_setup()
       pv $EE_MYSQL_PATH | mysql $EE_DB_NAME \
       || ee_lib_error "Unable to import database, exit status = " $?
     fi
+
+    # Install WordPress plugins
+    ee_mod_plugin_nginx_helper
+
+    if [ "$EE_SITE_CACHE_OPTION" = "--wpsc" ]; then
+      ee_mod_plugin_wpsc
+    fi
+
+    if [ "$EE_SITE_CACHE_OPTION" = "--w3tc" ] || [ "$EE_SITE_CACHE_OPTION" = "--wpfc" ]; then
+      ee_mod_plugin_w3tc
+    fi
+
   fi
 
   # Setup database for MySQL site
