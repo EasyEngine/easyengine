@@ -8,7 +8,7 @@ function ee_mod_migrate_data()
   ee_lib_echo "Copying webroot from $EE_REMOTE_SERVER, please wait..."
 
   # Paramater for directory exclude
-  if [ "$EE_REMOTE_EXCLUDE" != "" ];
+  if [ "$EE_REMOTE_EXCLUDE" != "" ]; then
     EE_REMOTE_EXCLUDE_CMD=""
     for ee_exclude_opt in $(echo $EE_REMOTE_EXCLUDE | tr ',' ''); do
       EE_REMOTE_EXCLUDE_CMD=${EE_REMOTE_EXCLUDE_CMD}"--exclude $ee_exclude_opt "
