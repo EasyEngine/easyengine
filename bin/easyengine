@@ -759,7 +759,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 			ee_lib_error "Missing arguments --remote-host, exit status = " 1
 		elif [ "$EE_REMOTE_USER" = "" ]; then
 			ee_lib_error "Missing arguments --remote-user, exit status = " 1
-		elif [ "$EE_REMOTE_METHOD" != "ssh" ] || [ "$EE_REMOTE_METHOD" != "sftp" ] || [ "$EE_REMOTE_METHOD" != "sftp" ]; then
+		elif [ "$EE_REMOTE_METHOD" != "ssh" ] || [ "$EE_REMOTE_METHOD" != "sftp" ] || [ "$EE_REMOTE_METHOD" != "ftp" ]; then
 			ee_lib_error "EasyEngine migration supports only ssh, sftp and ftp methods, exit status = " 1
 		elif [ "$EE_REMOTE_PATH" == "" ]; then
 			EE_REMOTE_PATH="/var/www/$EE_DOMAIN/htdocs"
