@@ -741,36 +741,28 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
-		if [ "${EE_FOURTH%=*}" = "--remote-server" ]; then
-			EE_SITE_CREATE_OPTION=""
-			EE_SITE_CACHE_OPTION=""
-			EE_REMOTE_SERVER=${EE_FOURTH##*=}
-			EE_REMOTE_USER=${EE_FIFTH##*=}
-			EE_REMOTE_PASSWORD=${EE_SIXTH##*=}
-			EE_REMOTE_METHOD=${EE_SEVENTH##*=}
-			EE_REMOTE_PATH=${EE_EIGTH##*=}
-			EE_MYSQL_PATH=${EE_NINTH##*=}
-			EE_REMOTE_EXCLUDE=${EE_TENTH##*=}
-		elif [ "${EE_FIFTH%=*}" = "--remote-server" ]; then
-			EE_SITE_CREATE_OPTION=$EE_FOURTH
-			EE_SITE_CACHE_OPTION=""
-			EE_REMOTE_SERVER=${EE_FIFTH##*=}
-			EE_REMOTE_USER=${EE_SIXTH##*=}
-			EE_REMOTE_METHOD=${EE_EIGTH##*=}
-			EE_REMOTE_PASSWORD=${EE_SEVENTH##*=}
-			EE_REMOTE_PATH=${EE_NINTH##*=}
-			EE_MYSQL_PATH=${EE_TENTH##*=}
-			EE_REMOTE_EXCLUDE=${EE_ELEVENTH##*=}
-		else
-			EE_SITE_CREATE_OPTION=$EE_FOURTH
-			EE_SITE_CACHE_OPTION=$EE_FIFTH
-			EE_REMOTE_SERVER=${EE_SIXTH##*=}
-			EE_REMOTE_USER=${EE_SEVENTH##*=}
-			EE_REMOTE_PASSWORD=${EE_EIGTH##*=}
-			EE_REMOTE_METHOD=${EE_NINTH##*=}
-			EE_REMOTE_PATH=${EE_TENTH##*=}
-			EE_MYSQL_PATH=${EE_ELEVENTH##*=}
-			EE_REMOTE_EXCLUDE=${EE_TWELTH##*=}
+		# Auto arrange migrate arguments
+		for ee_migrate_args in $@; do
+			[ "$ee_migrate_args" = "--html" ] || [ "$ee_migrate_args" = "--php" ] || [ "$ee_migrate_args" = "--mysql" ] || [ "$ee_migrate_args" = "--wp" ] || [ "$ee_migrate_args" = "--wpsubdir" ] || [ "$ee_migrate_args" = "--wpsubdomain" ] && EE_SITE_CREATE_OPTION=$ee_migrate_args && echo EE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION &>> $EE_COMMAND_LOG
+			[ "$ee_migrate_args" = "--basic" ] || [ "$ee_migrate_args" = "--w3tc" ] || [ "$ee_migrate_args" = "--wpsc" ] || [ "$ee_migrate_args" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$ee_migrate_args && echo EE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-host" ] && EE_REMOTE_SERVER=${ee_migrate_args##*=} && echo EE_REMOTE_SERVER = $EE_REMOTE_SERVER &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-user" ] && EE_REMOTE_USER=${ee_migrate_args##*=} && echo EE_REMOTE_USER = $EE_REMOTE_USER &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-password" ] && EE_REMOTE_PASSWORD=${ee_migrate_args##*=} && echo EE_REMOTE_PASSWORD = $EE_REMOTE_PASSWORD &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-method" ] && EE_REMOTE_METHOD=${ee_migrate_args##*=} && echo EE_REMOTE_METHOD = $EE_REMOTE_METHOD &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-path" ] && EE_REMOTE_PATH=${ee_migrate_args##*=} && echo EE_REMOTE_PATH = $EE_REMOTE_PATH &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--mysql-path" ] && EE_MYSQL_PATH=${ee_migrate_args##*=} && echo EE_MYSQL_PATH = $EE_MYSQL_PATH &>> $EE_COMMAND_LOG
+			[ "${ee_migrate_args%=*}" = "--remote-exclude" ] && EE_REMOTE_EXCLUDE=${ee_migrate_args##*=} && echo EE_REMOTE_EXCLUDE = $EE_REMOTE_EXCLUDE &>> $EE_COMMAND_LOG
+		done
+
+		# Compulsary arguments for migration
+		if [ "$EE_REMOTE_SERVER" = "" ]; then
+			ee_lib_error "Missing arguments --remote-host, exit status = " 1
+		elif [ "$EE_REMOTE_USER" = "" ]; then
+			ee_lib_error "Missing arguments --remote-user, exit status = " 1
+		elif [ "$EE_REMOTE_METHOD" != "ssh" ] || [ "$EE_REMOTE_METHOD" != "sftp" ] || [ "$EE_REMOTE_METHOD" != "sftp" ]; then
+			ee_lib_error "EasyEngine migration supports only ssh, sftp and ftp methods, exit status = " 1
+		elif [ "$EE_REMOTE_PATH" == "" ]; then
+			EE_REMOTE_PATH="/var/www/$EE_DOMAIN/htdocs"
 		fi
 
 		# Auto switch site options
