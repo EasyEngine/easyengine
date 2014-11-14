@@ -734,9 +734,9 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
-		[ "$EE_SECOND" = "--html" ] || [ "$EE_SECOND" = "--php" ] || [ "$EE_SECOND" = "--mysql" ] || [ "$EE_SECOND" = "--wp" ] || [ "$EE_SECOND" = "--wpsubdir" ] || [ "$EE_SECOND" = "--wpsubdomain" ] \
-		|| [ "$EE_SECOND" = "--basic" ] || [ "$EE_SECOND" = "--w3tc" ] || [ "$EE_SECOND" = "--wpsc" ] || [ "$EE_SECOND" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_SECOND && EE_SITE_CREATE_OPTION=$EE_SECOND && echo EE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION &>> $EE_COMMAND_LOG
-		[ "$EE_THIRD" = "--basic" ] || [ "$EE_THIRD" = "--w3tc" ] || [ "$EE_THIRD" = "--wpsc" ] || [ "$EE_THIRD" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_THIRD && echo EE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION &>> $EE_COMMAND_LOG
+		[ "$EE_FOURTH" = "--html" ] || [ "$EE_FOURTH" = "--php" ] || [ "$EE_FOURTH" = "--mysql" ] || [ "$EE_FOURTH" = "--wp" ] || [ "$EE_FOURTH" = "--wpsubdir" ] || [ "$EE_FOURTH" = "--wpsubdomain" ] \
+		|| [ "$EE_FOURTH" = "--basic" ] || [ "$EE_FOURTH" = "--w3tc" ] || [ "$EE_FOURTH" = "--wpsc" ] || [ "$EE_FOURTH" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_FOURTH && EE_SITE_CREATE_OPTION=$EE_FOURTH && echo EE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION &>> $EE_COMMAND_LOG
+		[ "$EE_FIFTH" = "--basic" ] || [ "$EE_FIFTH" = "--w3tc" ] || [ "$EE_FIFTH" = "--wpsc" ] || [ "$EE_FIFTH" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_FIFTH && echo EE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION &>> $EE_COMMAND_LOG
 
 		# Auto arrange migrate arguments
 		for ee_migrate_args in $@; do
