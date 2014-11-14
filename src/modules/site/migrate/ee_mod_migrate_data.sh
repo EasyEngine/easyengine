@@ -7,6 +7,14 @@ function ee_mod_migrate_data()
 
   ee_lib_echo "Copying webroot from $EE_REMOTE_SERVER, please wait..."
 
+  # Paramater for directory exclude
+  if [ "$EE_REMOTE_EXCLUDE" != "" ];
+    EE_REMOTE_EXCLUDE_CMD=""
+    for ee_exclude_opt in $(echo $EE_REMOTE_EXCLUDE | tr ',' ''); do
+      EE_REMOTE_EXCLUDE_CMD=${EE_REMOTE_EXCLUDE_CMD}"--exclude $ee_exclude_opt "
+    done
+  fi
+
   # For Wordpress site we will migrate wp-config.php from parent folder of webroot
   # For MySQL site we will migrate ee-config.php from parent folder of webroot
   if [ "$EE_SITE_CREATE_OPTION" = "--wp" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdir" ] || [ "$EE_SITE_CREATE_OPTION" = "--wpsubdomain" ]; then
@@ -18,28 +26,28 @@ function ee_mod_migrate_data()
   # Copy webroot using ssh with the help of rsync
   if [ "$EE_REMOTE_METHOD" == "ssh" ]; then
     if [ "$EE_REMOTE_PASSWORD" != "" ]; then
-      EE_MIGRATE_CMD1="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER -o StrictHostKeyChecking=no\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
+      EE_MIGRATE_CMD1="rsync -avz --progress ${EE_REMOTE_EXCLUDE_CMD} --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER -o StrictHostKeyChecking=no\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
       EE_MIGRATE_CMD2="rsync -avz --progress --rsh=\"sshpass -p$EE_REMOTE_PASSWORD ssh -l $EE_REMOTE_USER -o StrictHostKeyChecking=no\" $EE_REMOTE_SERVER:$EE_REMOTE_PATH/../$EE_SITE_CONFIG /ee-backup/$EE_DOMAIN/"
     else
-      EE_MIGRATE_CMD1="rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
+      EE_MIGRATE_CMD1="rsync -avz --progress ${EE_REMOTE_EXCLUDE_CMD} $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/ /ee-backup/$EE_DOMAIN/"
       EE_MIGRATE_CMD2="rsync -avz --progress $EE_REMOTE_USER@$EE_REMOTE_SERVER:$EE_REMOTE_PATH/../$EE_SITE_CONFIG /ee-backup/$EE_DOMAIN/"
     fi
   # Copy webroot using sftp with the help of lftp
   elif [ "$EE_REMOTE_METHOD" == "sftp" ]; then
     if [ "$EE_REMOTE_PASSWORD" != "" ]; then
-      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" sftp://$EE_REMOTE_SERVER"
+      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose ${EE_REMOTE_EXCLUDE_CMD} -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" sftp://$EE_REMOTE_SERVER"
       EE_MIGRATE_CMD2="lftp -e \"get -c $EE_REMOTE_PATH/../$EE_SITE_CONFIG; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" sftp://$EE_REMOTE_SERVER"
     else
-      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER\" sftp://$EE_REMOTE_SERVER"
+      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose ${EE_REMOTE_EXCLUDE_CMD} -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER\" sftp://$EE_REMOTE_SERVER"
       EE_MIGRATE_CMD2="lftp -e \"get -c $EE_REMOTE_PATH/../$EE_SITE_CONFIG; quit\" -u \"$EE_REMOTE_USER\" ftp://$EE_REMOTE_SERVER"
     fi
   # Copy webroot using ftp with the help of lftp
   elif [ "$EE_REMOTE_METHOD" == "ftp" ]; then
     if [ "$EE_REMOTE_PASSWORD" != "" ]; then
-      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" ftp://$EE_REMOTE_SERVER"
+      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose ${EE_REMOTE_EXCLUDE_CMD} -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" ftp://$EE_REMOTE_SERVER"
       EE_MIGRATE_CMD2="lftp -e \"get -c $EE_REMOTE_PATH/../$EE_SITE_CONFIG; quit\" -u \"$EE_REMOTE_USER,$EE_REMOTE_PASSWORD\" ftp://$EE_REMOTE_SERVER"
     else
-      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER\" ftp://$EE_REMOTE_SERVER"
+      EE_MIGRATE_CMD1="lftp -e \"mirror --verbose ${EE_REMOTE_EXCLUDE_CMD} -c $EE_REMOTE_PATH /ee-backup/$EE_DOMAIN; quit\" -u \"$EE_REMOTE_USER\" ftp://$EE_REMOTE_SERVER"
       EE_MIGRATE_CMD2="lftp -e \"get -c $EE_REMOTE_PATH/../$EE_SITE_CONFIG; quit\" -u \"$EE_REMOTE_USER\" ftp://$EE_REMOTE_SERVER"
     fi
   fi
