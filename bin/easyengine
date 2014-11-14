@@ -15,13 +15,6 @@ EE_SECOND=$2
 EE_THIRD=$3
 EE_FOURTH=$4
 EE_FIFTH=$5
-EE_SIXTH=$6
-EE_SEVENTH=$7
-EE_EIGTH=$8
-EE_NINTH=$9
-EE_TENTH=${10}
-EE_ELEVENTH=${11}
-EE_TWELTH=${12}
 
 # Let's capture the EasyEngine arguments
 ee_lib_echo "EasyEngine (ee) $EE_VERSION execution started [$(date)]" &>> $EE_COMMAND_LOG
@@ -741,10 +734,12 @@ elif [ "$EE_FIRST" = "site" ]; then
 		EE_DOMAIN_CHECK=$EE_THIRD
 		ee_lib_check_domain
 
+		[ "$EE_SECOND" = "--html" ] || [ "$EE_SECOND" = "--php" ] || [ "$EE_SECOND" = "--mysql" ] || [ "$EE_SECOND" = "--wp" ] || [ "$EE_SECOND" = "--wpsubdir" ] || [ "$EE_SECOND" = "--wpsubdomain" ] \
+		|| [ "$EE_SECOND" = "--basic" ] || [ "$EE_SECOND" = "--w3tc" ] || [ "$EE_SECOND" = "--wpsc" ] || [ "$EE_SECOND" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_SECOND && EE_SITE_CREATE_OPTION=$EE_SECOND && echo EE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION &>> $EE_COMMAND_LOG
+		[ "$EE_THIRD" = "--basic" ] || [ "$EE_THIRD" = "--w3tc" ] || [ "$EE_THIRD" = "--wpsc" ] || [ "$EE_THIRD" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$EE_THIRD && echo EE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION &>> $EE_COMMAND_LOG
+
 		# Auto arrange migrate arguments
 		for ee_migrate_args in $@; do
-			[ "$ee_migrate_args" = "--html" ] || [ "$ee_migrate_args" = "--php" ] || [ "$ee_migrate_args" = "--mysql" ] || [ "$ee_migrate_args" = "--wp" ] || [ "$ee_migrate_args" = "--wpsubdir" ] || [ "$ee_migrate_args" = "--wpsubdomain" ] && EE_SITE_CREATE_OPTION=$ee_migrate_args && echo EE_SITE_CREATE_OPTION = $EE_SITE_CREATE_OPTION &>> $EE_COMMAND_LOG
-			[ "$ee_migrate_args" = "--basic" ] || [ "$ee_migrate_args" = "--w3tc" ] || [ "$ee_migrate_args" = "--wpsc" ] || [ "$ee_migrate_args" = "--wpfc" ] && EE_SITE_CACHE_OPTION=$ee_migrate_args && echo EE_SITE_CACHE_OPTION = $EE_SITE_CACHE_OPTION &>> $EE_COMMAND_LOG
 			[ "${ee_migrate_args%=*}" = "--remote-host" ] && EE_REMOTE_SERVER=${ee_migrate_args##*=} && echo EE_REMOTE_SERVER = $EE_REMOTE_SERVER &>> $EE_COMMAND_LOG
 			[ "${ee_migrate_args%=*}" = "--remote-user" ] && EE_REMOTE_USER=${ee_migrate_args##*=} && echo EE_REMOTE_USER = $EE_REMOTE_USER &>> $EE_COMMAND_LOG
 			[ "${ee_migrate_args%=*}" = "--remote-password" ] && EE_REMOTE_PASSWORD=${ee_migrate_args##*=} && echo EE_REMOTE_PASSWORD = $EE_REMOTE_PASSWORD &>> $EE_COMMAND_LOG
