@@ -757,7 +757,7 @@ elif [ "$EE_FIRST" = "site" ]; then
 		elif [ "$EE_REMOTE_METHOD" != "ssh" ] && [ "$EE_REMOTE_METHOD" != "sftp" ] && [ "$EE_REMOTE_METHOD" != "ftp" ]; then
 			ee_lib_error "EasyEngine migration supports only ssh, sftp and ftp methods, exit status = " 1
 		elif [ "$EE_REMOTE_PATH" == "" ]; then
-			EE_REMOTE_PATH="/var/www/$EE_DOMAIN/htdocs"
+			EE_REMOTE_PATH="/var/www/$EE_DOMAIN/htdocs" && echo EE_REMOTE_PATH = $EE_REMOTE_PATH &>> $EE_COMMAND_LOG
 		fi
 
 		# Auto switch site options
