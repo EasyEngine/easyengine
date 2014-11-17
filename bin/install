@@ -45,19 +45,21 @@ readonly EE_LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
 readonly EE_DEBIAN_VERSION=$(lsb_release -sc)
 
 # Checking linux distro
-if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; then
-	ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
-	ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
-	exit 100
+ee_lib_echo "Checking for supported distribution and version..."
+if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ] \
+          && [ "$EE_LINUX_DISTRO" != "Raspbian" ] ; then
+        ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
+        ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
+        exit 100
 fi
 
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
-lsb_release -d | egrep -e "12.04|14.04|squeeze|wheezy" &>> /dev/null
+lsb_release -d | egrep -e "12.04|14.04|squeeze|wheezy|Raspbian" &>> /dev/null
 if [ "$?" -ne "0" ]; then
-	ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 6.x/7.x"
-	exit 100
+        ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and \
+          Debian & Raspbian 6.x/7.x"
+        exit 100
 fi
-
 
 # Capture errors
 function ee_lib_error()
