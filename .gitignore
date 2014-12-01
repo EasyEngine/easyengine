@@ -58,8 +58,8 @@ target/
 *.swp
 
 # Folder created for Nose testing
-easyengine/bin/
-easyengine/coverage_report/
-easyengine/include/
-easyengine/local/
-easyengine/man/
+bin/
+coverage_report/
+include/
+local/
+man/
