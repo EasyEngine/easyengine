@@ -5,10 +5,10 @@ from cement.core.controller import CementBaseController, expose
 class EEStackController(CementBaseController):
     class Meta:
         label = 'stack'
-        interface = controller.IController
         stacked_on = 'base'
         stacked_type = 'nested'
         description = 'stack command manages stack operations'
+        arguments = [
             (['-f', '--foo'],
              dict(help='the notorious foo option', dest='foo', action='store',
                   metavar='TEXT') ),
