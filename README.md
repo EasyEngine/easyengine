@@ -1,4 +1,17 @@
 
+How To setup this version on your system??
+
+```bash
+git clone https://github.com/rtCamp/easyengine.git
+cd easyengine
+virtualenv ./env
+source ./env/bin/activate
+python setup.py develop
+ee --help
+```
+
+
+
 EasyEngine 3.x Developement version
 
 
