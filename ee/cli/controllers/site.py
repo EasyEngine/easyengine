@@ -10,9 +10,13 @@ class EESiteController(CementBaseController):
         stacked_type = 'nested'
         description = 'site command manages website configuration with the help of the following subcommands'
         arguments = [
-            (['-f', '--foo'],
-             dict(help='the notorious foo option', dest='foo', action='store',
-                  metavar='TEXT') ),
+            (['site_name'], dict(help='the notorious foo option') ),
+            (['--html'], dict(help="html site", action='store_true')),
+            (['--php'], dict(help="php site", action='store_true')),
+            (['--mysql'], dict(help="mysql site", action='store_true')),
+            (['--wp'], dict(help="wordpress site", action='store_true')),
+            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
+            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
             ]
 
     @expose(hide=True)
