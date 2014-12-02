@@ -17,44 +17,63 @@ class EESiteController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        # Default action for ee site command
+        # TODO Default action for ee site command
         print("Inside EESiteController.default().")
 
+    @expose(hide=True)
     def create(self):
-        # Write code for ee site create command here
+        # TODO Write code for ee site create command here
         print("Inside EESiteController.create().")
 
+    @expose(hide=True)
     def delete(self):
-        # Write code for ee site delete command here
+        # TODO Write code for ee site delete command here
         print("Inside EESiteController.delete().")
 
+    @expose(hide=True)
     def enable(self):
-        # Write code for ee site enable command here
+        # TODO Write code for ee site enable command here
         print("Inside EESiteController.enable().")
 
+    @expose(hide=True)
     def disable(self):
-        # Write code for ee site disable command here
+        # TODO Write code for ee site disable command here
         print("Inside EESiteController.disable().")
 
+    @expose(hide=True)
     def info(self):
-        # Write code for ee site info command here
+        # TODO Write code for ee site info command here
         print("Inside EESiteController.info().")
 
+    @expose(hide=True)
     def log(self):
-        # Write code for ee site log command here
+        # TODO Write code for ee site log command here
         print("Inside EESiteController.log().")
 
+    @expose(hide=True)
     def edit(self):
-        # Write code for ee site edit command here
+        # TODO Write code for ee site edit command here
         print("Inside EESiteController.edit().")
 
+    @expose(hide=True)
     def show(self):
-        # Write code for ee site edit command here
+        # TODO Write code for ee site edit command here
         print("Inside EESiteController.show().")
 
+    @expose(hide=True)
     def list(self):
-        # Write code for ee site list command here
+        # TODO Write code for ee site list command here
         print("Inside EESiteController.list().")
+
+    @expose(hide=True)
+    def cd(self):
+        # TODO Write code for ee site cd here
+        print("Inside EESiteController.cd().")
+
+    @expose(hide=True)
+    def update(self):
+        # TODO Write code for ee site update here
+        print("Inside EESiteController.update().")
 
         # site command Options and subcommand calls and definations to
         # mention here
