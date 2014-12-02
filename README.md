@@ -4,6 +4,7 @@ How To setup this version on your system??
 ```bash
 git clone https://github.com/rtCamp/easyengine.git
 cd easyengine
+git checkout python
 virtualenv ./env
 source ./env/bin/activate
 sudo pip3 install -r requirements.txt
