@@ -6,4 +6,4 @@ class EEDummy():
         pass
 
     def dummy():
-        print("Dummy Funtion")
+        print("Dummy Function")
