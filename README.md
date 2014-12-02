@@ -2,6 +2,7 @@
 How To setup this version on your system??
 
 ```bash
+sudo pip3 install virtualenv
 git clone https://github.com/rtCamp/easyengine.git
 cd easyengine
 git checkout python
