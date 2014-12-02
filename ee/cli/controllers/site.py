@@ -1,6 +1,7 @@
 """EasyEngine site controller."""
 
 from cement.core.controller import CementBaseController, expose
+from ee.core.dummy import EEDummy
 
 class EESiteController(CementBaseController):
     class Meta:
@@ -18,6 +19,7 @@ class EESiteController(CementBaseController):
     def default(self):
         # Default action for ee site command
         print("Inside EESiteController.default().")
+        EEDummy.dummy()
 
         # site command Options and subcommand calls and definations to
         # mention here
