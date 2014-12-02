@@ -19,7 +19,42 @@ class EESiteController(CementBaseController):
     def default(self):
         # Default action for ee site command
         print("Inside EESiteController.default().")
-        EEDummy.dummy()
+
+    def create(self):
+        # Write code for ee site create command here
+        print("Inside EESiteController.create().")
+
+    def delete(self):
+        # Write code for ee site delete command here
+        print("Inside EESiteController.delete().")
+
+    def enable(self):
+        # Write code for ee site enable command here
+        print("Inside EESiteController.enable().")
+
+    def disable(self):
+        # Write code for ee site disable command here
+        print("Inside EESiteController.disable().")
+
+    def info(self):
+        # Write code for ee site info command here
+        print("Inside EESiteController.info().")
+
+    def log(self):
+        # Write code for ee site log command here
+        print("Inside EESiteController.log().")
+
+    def edit(self):
+        # Write code for ee site edit command here
+        print("Inside EESiteController.edit().")
+
+    def show(self):
+        # Write code for ee site edit command here
+        print("Inside EESiteController.show().")
+
+    def list(self):
+        # Write code for ee site list command here
+        print("Inside EESiteController.list().")
 
         # site command Options and subcommand calls and definations to
         # mention here
