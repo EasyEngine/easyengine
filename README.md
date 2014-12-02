@@ -6,7 +6,8 @@ git clone https://github.com/rtCamp/easyengine.git
 cd easyengine
 virtualenv ./env
 source ./env/bin/activate
-python setup.py develop
+pip3 install -r requirements.txt
+python3 setup.py develop
 ee --help
 ```
 
