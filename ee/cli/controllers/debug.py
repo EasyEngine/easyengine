@@ -5,10 +5,10 @@ from cement.core.controller import CementBaseController, expose
 class EEDebugController(CementBaseController):
     class Meta:
         label = 'debug'
-        interface = controller.IController
         stacked_on = 'base'
         stacked_type = 'nested'
         description = 'debug command used for debugging issued with stack or site specific configuration'
+        arguments = [
             (['-f', '--foo'],
              dict(help='the notorious foo option', dest='foo', action='store',
                   metavar='TEXT') ),

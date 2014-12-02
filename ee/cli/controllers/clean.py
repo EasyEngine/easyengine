@@ -5,10 +5,10 @@ from cement.core.controller import CementBaseController, expose
 class EECleanController(CementBaseController):
     class Meta:
         label = 'clean'
-        interface = controller.IController
         stacked_on = 'base'
         stacked_type = 'nested'
         description = 'clean command cleans different cache with following options'
+        arguments = [
             (['-f', '--foo'],
              dict(help='the notorious foo option', dest='foo', action='store',
                   metavar='TEXT') ),
