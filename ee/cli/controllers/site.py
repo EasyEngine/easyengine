@@ -20,57 +20,57 @@ class EESiteController(CementBaseController):
         # TODO Default action for ee site command
         print("Inside EESiteController.default().")
 
-    @expose(hide=True)
+    @expose(help="create site example.com")
     def create(self):
         # TODO Write code for ee site create command here
         print("Inside EESiteController.create().")
 
-    @expose(hide=True)
+    @expose(help="delete site example.com")
     def delete(self):
         # TODO Write code for ee site delete command here
         print("Inside EESiteController.delete().")
 
-    @expose(hide=True)
+    @expose(help="enable site example.com")
     def enable(self):
         # TODO Write code for ee site enable command here
         print("Inside EESiteController.enable().")
 
-    @expose(hide=True)
+    @expose(help="disable site example.com")
     def disable(self):
         # TODO Write code for ee site disable command here
         print("Inside EESiteController.disable().")
 
-    @expose(hide=True)
+    @expose(help="get example.com information")
     def info(self):
         # TODO Write code for ee site info command here
         print("Inside EESiteController.info().")
 
-    @expose(hide=True)
+    @expose(help="Monitor example.com logs")
     def log(self):
         # TODO Write code for ee site log command here
         print("Inside EESiteController.log().")
 
-    @expose(hide=True)
+    @expose(help="Edit example.com's nginx configuration")
     def edit(self):
         # TODO Write code for ee site edit command here
         print("Inside EESiteController.edit().")
 
-    @expose(hide=True)
+    @expose(help="Display example.com's nginx configuration")
     def show(self):
         # TODO Write code for ee site edit command here
         print("Inside EESiteController.show().")
 
-    @expose(hide=True)
+    @expose(help="list sites currently available")
     def list(self):
         # TODO Write code for ee site list command here
         print("Inside EESiteController.list().")
 
-    @expose(hide=True)
+    @expose(help="change to example.com's webroot")
     def cd(self):
         # TODO Write code for ee site cd here
         print("Inside EESiteController.cd().")
 
-    @expose(hide=True)
+    @expose(help="update example.com")
     def update(self):
         # TODO Write code for ee site update here
         print("Inside EESiteController.update().")
