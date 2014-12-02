@@ -2,13 +2,13 @@
 
 from cement.core.controller import CementBaseController, expose
 
-class EESiteController(CementBaseController):
+class EEStackController(CementBaseController):
     class Meta:
-        label = 'site'
+        label = 'stack'
+        interface = controller.IController
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'site command manages website configuration with the help of the following subcommands'
-        arguments = [
+        description = 'stack command manages stack operations'
             (['-f', '--foo'],
              dict(help='the notorious foo option', dest='foo', action='store',
                   metavar='TEXT') ),
@@ -16,10 +16,10 @@ class EESiteController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        # Default action for ee site command
-        print("Inside EESiteController.default().")
+        # Default action for ee stack command
+        print ("Inside EEStackController.default().")
 
-        # site command Options and subcommand calls and definations to
+        # stack command Options and subcommand calls and definations to
         # mention here
 
         # If using an output handler such as 'mustache', you could also
