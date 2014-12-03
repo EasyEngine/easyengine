@@ -10,7 +10,8 @@ class EESiteController(CementBaseController):
         stacked_type = 'nested'
         description = 'site command manages website configuration with the help of the following subcommands'
         arguments = [
-            (['site_name'], dict(help='the notorious foo option') ),
+            (['site_name'],
+            dict(help='website name') ),
             ]
 
     @expose(hide=True)
@@ -64,19 +65,7 @@ class EESiteController(CementBaseController):
         print("Inside EESiteController.cd().")
 
 
-        # site command Options and subcommand calls and definations to
-        # mention here
 
-        # If using an output handler such as 'mustache', you could also
-        # render a data dictionary using a template.  For example:
-        #
-        #   data = dict(foo='bar')
-        #   self.app.render(data, 'default.mustache')
-        #
-        #
-        # The 'default.mustache' file would be loaded from
-        # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
-        #
 
 class EESiteCreateController(CementBaseController):
     class Meta:
@@ -85,13 +74,20 @@ class EESiteCreateController(CementBaseController):
         stacked_type = 'nested'
         description = 'create command manages website configuration with the help of the following subcommands'
         arguments = [
-            (['site_name'], dict(help='the notorious foo option') ),
-            (['--html'], dict(help="html site", action='store_true')),
-            (['--php'], dict(help="php site", action='store_true')),
-            (['--mysql'], dict(help="mysql site", action='store_true')),
-            (['--wp'], dict(help="wordpress site", action='store_true')),
-            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
-            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
+            (['site_name'],
+            dict(help='the notorious foo option') ),
+            (['--html'],
+            dict(help="html site", action='store_true')),
+            (['--php'],
+            dict(help="php site", action='store_true')),
+            (['--mysql'],
+            dict(help="mysql site", action='store_true')),
+            (['--wp'],
+            dict(help="wordpress site", action='store_true')),
+            (['--wpsubdir'],
+            dict(help="wpsubdir site", action='store_true')),
+            (['--wpsubdomain'],
+            dict(help="wpsubdomain site", action='store_true')),
             ]
 
     @expose(hide=True)
@@ -106,15 +102,39 @@ class EESiteUpdateController(CementBaseController):
         stacked_type = 'nested'
         description = 'update command manages website configuration with the help of the following subcommands'
         arguments = [
-            (['site_name'], dict(help='website name', nargs="1") ),
-            (['--html'], dict(help="html site", action='store_true')),
-            (['--php'], dict(help="php site", action='store_true')),
-            (['--mysql'], dict(help="mysql site", action='store_true')),
-            (['--wp'], dict(help="wordpress site", action='store_true')),
-            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
-            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
+            (['site_name'],
+            dict(help='website name', nargs="1") ),
+            (['--html'],
+            dict(help="html site", action='store_true')),
+            (['--php'],
+            dict(help="php site", action='store_true')),
+            (['--mysql'],
+            dict(help="mysql site", action='store_true')),
+            (['--wp'],
+            dict(help="wordpress site", action='store_true')),
+            (['--wpsubdir'],
+            dict(help="wpsubdir site", action='store_true')),
+            (['--wpsubdomain'],
+            dict(help="wpsubdomain site", action='store_true')),
             ]
     @expose(help="update example.com")
     def default(self):
         # TODO Write code for ee site update here
         print("Inside EESiteUpdateController.default().")
+
+
+
+
+        # site command Options and subcommand calls and definations to
+        # mention here
+
+        # If using an output handler such as 'mustache', you could also
+        # render a data dictionary using a template.  For example:
+        #
+        #   data = dict(foo='bar')
+        #   self.app.render(data, 'default.mustache')
+        #
+        #
+        # The 'default.mustache' file would be loaded from
+        # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
+        #

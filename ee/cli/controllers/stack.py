@@ -9,14 +9,17 @@ class EEStackController(CementBaseController):
         stacked_type = 'nested'
         description = 'stack command manages stack operations'
         arguments = [
-            (['-f', '--foo'],
-             dict(help='the notorious foo option', dest='foo', action='store',
-                  metavar='TEXT') ),
+            (['--web'],
+            dict(help='Install web stack', action='store_true') ),
+            (['--admin'],
+            dict(help='Install admin tools stack', action='store_true') ),
+            (['--mail'],
+            dict(help='Install mail server stack', action='store_true') ),
             ]
 
     @expose(hide=True)
     def default(self):
-        # Default action for ee stack command
+        # TODO Default action for ee stack command
         print ("Inside EEStackController.default().")
 
         # stack command Options and subcommand calls and definations to
