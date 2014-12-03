@@ -9,9 +9,8 @@ notifications:
 language: bash
 
 
-
 before_install:
-
+- rm -rf ~/.gnupg
 
 before_script:
 - sudo apt-get -qq purge mysql* graphviz*
@@ -40,7 +39,7 @@ script:
 
 - sudo bash ee site create site2.com --wpsc
 - sudo bash ee site create site2.net --wp --wpsc
-- sudo bash ee site create site2.org --wpsc --wp 
+- sudo bash ee site create site2.org --wpsc --wp
 
 - sudo bash ee site create site3.com --w3tc
 - sudo bash ee site create site3.net --wp --w3tc
@@ -48,7 +47,7 @@ script:
 
 - sudo bash ee site create site4.com --wpfc
 - sudo bash ee site create site4.net --wp --wpfc
-- sudo bash ee site create site4.org --wpfc --wp 
+- sudo bash ee site create site4.org --wpfc --wp
 
 - sudo bash ee site create site5.com --wpsubdir
 - sudo bash ee site create site5.net --wpsubdir --basic
@@ -100,9 +99,9 @@ script:
 - sudo bash ee debug --nginx site1.com
 - sudo bash ee debug --nginx site1.com --stop
 
-- sudo bash ee debug -rewrite 
+- sudo bash ee debug -rewrite
 - sudo bash ee debug -rewrite --stop
-- sudo bash ee debug -rewrite site1.com 
+- sudo bash ee debug -rewrite site1.com
 - sudo bash ee debug -rewrite site1.com --stop
 
 - sudo bash ee debug --php
@@ -163,4 +162,3 @@ script:
 
 
 - sudo wp --allow-root --info
-
