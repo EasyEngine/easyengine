@@ -35,7 +35,7 @@ function ee_lib_git()
 	for ee_git_dir in ${@:1:$(($#-1))}; do
 		if [ -d $ee_git_dir ]; then
 			# Change directory
-	 		cd $ee_git_dir 
+	 		cd $ee_git_dir
 
 			# Check .git
 			if [ ! -d .git ]; then
@@ -94,7 +94,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		# Git backup
 		ee_lib_git /etc/nginx/ /etc/php5/ /etc/mysql/ /etc/postfix "EasyEngine version $EE_CURRENT_VERSION"
 
-		# Remove old version of EasyEngine (ee) 
+		# Remove old version of EasyEngine (ee)
 		rm -rf /tmp/easyengine &>> /dev/null
 
 		# Let's clone EasyEngine (ee)
@@ -130,7 +130,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 		|| ee_lib_error "Unable to copy NGINX sample files, exit status = " $?
 
 		# NGINX Setup
-		sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_LATEST_VERSION\";/" /etc/nginx/nginx.conf 
+		sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $EE_LATEST_VERSION\";/" /etc/nginx/nginx.conf
 		rsync -avz --exclude acl.conf /usr/share/easyengine/nginx/common/* /etc/nginx/common/ &>> $EE_UPDATE_LOG \
 		|| ee_lib_error "Unable to rsync NGINX common files, exit status = " $?
 
@@ -167,7 +167,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			for ee_include in $(find /usr/local/lib/easyengine/ -iname "*.sh"); do
 				source $ee_include
 			done
- 
+
 			# Avoid re-source and readonly errors
 			ee_source=1
 
@@ -222,7 +222,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 			# NGINX common
 			if [[ $EE_CURRENT_VERSION = 1.0.0 ]] || [[ $EE_CURRENT_VERSION = 1.0.1 ]] || [[ $EE_CURRENT_VERSION = 1.1.0 ]]; then
-				# Move allowed_ip.conf to acl.conf 
+				# Move allowed_ip.conf to acl.conf
 				(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
 				sed -i '/allow ;/d' /etc/nginx/common/acl.conf
 
@@ -252,7 +252,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
 				sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
 				sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
-				
+
 				# Setup port 22222
 				cp -av /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ &>> $EE_UPDATE_LOG
 				if [ "$EE_LINUX_DISTRO" == "Debian" ]; then
@@ -277,7 +277,7 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 				if [ ! -d /var/www/22222/cert ]; then
 					mkdir /var/www/22222/cert
 				fi
-	
+
 				# Generate SSL key
 				ee_lib_echo "Generating SSL private key"
 				openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $EE_UPDATE_LOG \
@@ -326,13 +326,13 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 
 					sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf \
 					|| ee_lib_error "Unable to change listen = 127.0.0.1:9001 for debug pool, exit status = " $?
-	
+
 					sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf \
 					|| ee_lib_error "Unable to change slowlog settings for debug pool, exit status = " $?
 
 					sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf \
 					|| ee_lib_error "Unable to change request_slowlog_timeout for debug pool, exit status = " $?
-		
+
 					echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $EE_UPDATE_LOG \
 					|| ee_lib_error "Unable to add xdebug settings for debug pool, exit status = " $?
 				fi
@@ -440,21 +440,21 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 			fi
 
 			if [[ $EE_CURRENT_VERSION = 2.1.0 ]]; then
-				
+
 				# Change permission of EasyEngine log folder
 				chmod -R 700 /var/log/easyengine \
 				|| ee_lib_error "Unable to change permissions for EasyEngine log folder, exit status = " $?
 
 				# RAM based optimization settings
 				ee_lib_ram
-				
+
 				if [ -f /etc/php5/fpm/pool.d/www.conf ]; then
 					sed -i "s/pm.max_children = .*/pm.max_children = ${EE_PHP_MAX_CHILDREN}/" /etc/php5/fpm/pool.d/www.conf
 				fi
 
 				# Setup Zend OpCache as per RAM
 				if [ -f /etc/php5/fpm/conf.d/05-opcache.ini ]; then
-					grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null 
+					grep memory_consumption /etc/php5/fpm/conf.d/05-opcache.ini &> /dev/null
 					if [ $? -ne 0 ]; then
 						sed -i "s/zend_extension=opcache.so/zend_extension=opcache.so\nopcache.memory_consumption=${EE_OPCACHE_SIZE}\nopcache.max_accelerated_files=50000/" /etc/php5/fpm/conf.d/05-opcache.ini \
 						|| ee_lib_error "Unable to change opcache.memory_consumption, exit status = " $?
@@ -490,12 +490,15 @@ if [[ $EE_CURRENT_VERSION < $EE_LATEST_VERSION ]]; then
 					sed -i "s/a8b7c6d/$ee_random/" /var/www/22222/htdocs/db/pma/config.inc.php \
 					|| ee_lib_error "Unable to setup phpMyAdmin, exit status = " $?
 				fi
-				
+
 				# Update EasyEngine current version
 				EE_CURRENT_VERSION="2.2.0"
 			fi
-			# if [[ $EE_CURRENT_VERSION = 2.2.0 ]]; then
-			# fi
+			if [[ $EE_CURRENT_VERSION = 2.2.0 ]] || [[ $EE_CURRENT_VERSION = 2.0.1 ]]; then
+				if [ -d /var/www/22222/htdocs/vimbadmin/ ]; then
+					postconf -e "virtual_alias_maps = mysql:/etc/postfix/mysql/virtual_alias_maps.cf"
+				fi
+			fi
 		fi
 
 		# Update WP-CLI
