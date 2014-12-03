@@ -11,23 +11,12 @@ class EESiteController(CementBaseController):
         description = 'site command manages website configuration with the help of the following subcommands'
         arguments = [
             (['site_name'], dict(help='the notorious foo option') ),
-            (['--html'], dict(help="html site", action='store_true')),
-            (['--php'], dict(help="php site", action='store_true')),
-            (['--mysql'], dict(help="mysql site", action='store_true')),
-            (['--wp'], dict(help="wordpress site", action='store_true')),
-            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
-            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
             ]
 
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee site command
         print("Inside EESiteController.default().")
-
-    @expose(help="create site example.com")
-    def create(self):
-        # TODO Write code for ee site create command here
-        print("Inside EESiteController.create().")
 
     @expose(help="delete site example.com")
     def delete(self):
@@ -74,10 +63,6 @@ class EESiteController(CementBaseController):
         # TODO Write code for ee site cd here
         print("Inside EESiteController.cd().")
 
-    @expose(help="update example.com")
-    def update(self):
-        # TODO Write code for ee site update here
-        print("Inside EESiteController.update().")
 
         # site command Options and subcommand calls and definations to
         # mention here
@@ -92,3 +77,41 @@ class EESiteController(CementBaseController):
         # The 'default.mustache' file would be loaded from
         # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
         #
+class EESiteCreateController(CementBaseController):
+    class Meta:
+        label = 'create'
+        stacked_on = 'site'
+        stacked_type = 'nested'
+        description = 'create command manages website configuration with the help of the following subcommands'
+        arguments = [
+            (['--html'], dict(help="html site", action='store_true')),
+            (['--php'], dict(help="php site", action='store_true')),
+            (['--mysql'], dict(help="mysql site", action='store_true')),
+            (['--wp'], dict(help="wordpress site", action='store_true')),
+            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
+            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
+            ]
+
+    @expose(hide=True)
+    def default(self):
+        # TODO Default action for ee site command
+        print("Inside EESiteCreateController.default().")
+
+class EESiteUpdateController(CementBaseController):
+    class Meta:
+        label = 'update'
+        stacked_on = 'site'
+        stacked_type = 'nested'
+        description = 'update command manages website configuration with the help of the following subcommands'
+        arguments = [
+            (['--html'], dict(help="html site", action='store_true')),
+            (['--php'], dict(help="php site", action='store_true')),
+            (['--mysql'], dict(help="mysql site", action='store_true')),
+            (['--wp'], dict(help="wordpress site", action='store_true')),
+            (['--wpsubdir'], dict(help="wpsubdir site", action='store_true')),
+            (['--wpsubdomain'], dict(help="wpsubdomain site", action='store_true')),
+            ]
+    @expose(help="update example.com")
+    def default(self):
+        # TODO Write code for ee site update here
+        print("Inside EESiteUpdateController.default().")
