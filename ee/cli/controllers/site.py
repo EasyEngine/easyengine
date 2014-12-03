@@ -77,6 +77,7 @@ class EESiteController(CementBaseController):
         # The 'default.mustache' file would be loaded from
         # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
         #
+
 class EESiteCreateController(CementBaseController):
     class Meta:
         label = 'create'
@@ -84,6 +85,7 @@ class EESiteCreateController(CementBaseController):
         stacked_type = 'nested'
         description = 'create command manages website configuration with the help of the following subcommands'
         arguments = [
+            (['site_name'], dict(help='the notorious foo option') ),
             (['--html'], dict(help="html site", action='store_true')),
             (['--php'], dict(help="php site", action='store_true')),
             (['--mysql'], dict(help="mysql site", action='store_true')),
@@ -104,6 +106,7 @@ class EESiteUpdateController(CementBaseController):
         stacked_type = 'nested'
         description = 'update command manages website configuration with the help of the following subcommands'
         arguments = [
+            (['site_name'], dict(help='website name', nargs="1") ),
             (['--html'], dict(help="html site", action='store_true')),
             (['--php'], dict(help="php site", action='store_true')),
             (['--mysql'], dict(help="mysql site", action='store_true')),
