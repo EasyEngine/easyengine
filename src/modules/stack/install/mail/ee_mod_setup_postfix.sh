@@ -20,7 +20,7 @@ function ee_mod_setup_postfix()
 	#Configure Master.cf
 	sed -i 's/#submission/submission/' /etc/postfix/master.cf &&
 	sed -i 's/#smtps/smtps/' /etc/postfix/master.cf \
-	|| ee_lib_error "Unable to setup details in master.cf file, exit status = " $?	
+	|| ee_lib_error "Unable to setup details in master.cf file, exit status = " $?
 
 	# Handle SMTP authentication using Dovecot"
 	# On Debian6 following command not work ( Postfix < 2.8 )
@@ -33,7 +33,7 @@ function ee_mod_setup_postfix()
 
 	postconf -e "smtpd_relay_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination"
 
-	# other destination domains should be handled using virtual domains 
+	# other destination domains should be handled using virtual domains
 	postconf -e "mydestination = localhost"
 
 	# using Dovecot's LMTP for mail delivery and giving it path to store mail
@@ -44,6 +44,7 @@ function ee_mod_setup_postfix()
 	postconf -e "virtual_gid_maps = static:5000"
 	postconf -e "virtual_mailbox_domains = mysql:/etc/postfix/mysql/virtual_domains_maps.cf"
 	postconf -e "virtual_mailbox_maps = mysql:/etc/postfix/mysql/virtual_mailbox_maps.cf"
+	postconf -e "virtual_alias_maps = mysql:/etc/postfix/mysql/virtual_alias_maps.cf"
 	#postconf "message_size_limit = 20971520"
 
 
