@@ -1,7 +1,7 @@
 IMPORTANT
 ============================================
 
-#### EasyEngine team is looking for user feedback for some critical technical as well as non-technical decisions that will affect project in long run. Please share your thoughts - https://rtcamp.com/blog/feedback-request-from-easyengine-users/
+#### We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team. Yep, we offer work form home, so you can join EasyEngine team anywhere! _[Why Python?] (https://rtcamp.com/blog/easyengine-3-roadmap/#whypython)_
 
 ---
 
@@ -88,7 +88,8 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
 
 ## Donations
-- [Using PayPal] (https://rtcamp.com/donate/?project=easyengine)
+
+[![Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
 
 ## License
 
