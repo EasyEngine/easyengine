@@ -3,6 +3,7 @@
 from ee.cli.main import EETestApp
 from cement.utils.test import *
 
+
 class EETestCase(CementTestCase):
     app_class = EETestApp
 
@@ -13,4 +14,3 @@ class EETestCase(CementTestCase):
     def tearDown(self):
         """Override teardown actions (for every test)."""
         super(EETestCase, self).tearDown()
-

@@ -2,6 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 
+
 class EEStackController(CementBaseController):
     class Meta:
         label = 'stack'
@@ -10,17 +11,17 @@ class EEStackController(CementBaseController):
         description = 'stack command manages stack operations'
         arguments = [
             (['--web'],
-            dict(help='Install web stack', action='store_true') ),
+                dict(help='Install web stack', action='store_true')),
             (['--admin'],
-            dict(help='Install admin tools stack', action='store_true') ),
+                dict(help='Install admin tools stack', action='store_true')),
             (['--mail'],
-            dict(help='Install mail server stack', action='store_true') ),
+                dict(help='Install mail server stack', action='store_true')),
             ]
 
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee stack command
-        print ("Inside EEStackController.default().")
+        print("Inside EEStackController.default().")
 
         # stack command Options and subcommand calls and definations to
         # mention here

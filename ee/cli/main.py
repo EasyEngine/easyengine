@@ -48,6 +48,7 @@ class EETestApp(EEApp):
 # to import it as a global (rather than passing it into another class/func)
 app = EEApp()
 
+
 def main():
     try:
         # Default our exit status to 0 (non-error)
