@@ -18,4 +18,4 @@ class EEImportslowlogController(CementBaseController):
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee debug command
-        print ("Inside EEImprtslowlogController.default().")
+        print ("Inside EEImportslowlogController.default().")
