@@ -84,5 +84,10 @@ def main():
         # Close the application
         app.close(code)
 
+
+def get_test_app(**kw):
+    app = EEApp(**kw)
+    return app
+
 if __name__ == '__main__':
     main()

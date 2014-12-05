@@ -1,4 +1,6 @@
 """EasyEngine domain check module."""
+
+
 class EEDomainCheck():
 
     """Intialization domain check"""
