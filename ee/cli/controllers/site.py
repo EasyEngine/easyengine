@@ -94,7 +94,10 @@ class EESiteCreateController(CementBaseController):
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee site command
-        print("Inside EESiteCreateController.default().")
+        data = dict(foo='EESiteCreateController.default().')
+        self.app.render((data), 'default.mustache')
+
+        # print("Inside EESiteCreateController.default().")
 
 
 class EESiteUpdateController(CementBaseController):

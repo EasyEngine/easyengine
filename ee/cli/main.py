@@ -36,6 +36,11 @@ class EEApp(foundation.CementApp):
         # Internal plugins (ship with application code)
         plugin_bootstrap = 'ee.cli.plugins'
 
+        extensions = ['mustache', 'json']
+
+        # default output handler
+        output_handler = 'mustache'
+
 
 class EETestApp(EEApp):
     """A test app that is better suited for testing."""

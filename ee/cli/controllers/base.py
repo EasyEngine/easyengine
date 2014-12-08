@@ -17,7 +17,10 @@ class EEBaseController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        print("Inside EEBaseController.default().")
+        data = dict(foo='EEBaseController.default().')
+        self.app.render((data), 'default.mustache')
+
+        # print("Inside EEBaseController.default().")
 
         # If using an output handler such as 'mustache', you could also
         # render a data dictionary using a template.  For example:
