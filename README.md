@@ -6,7 +6,7 @@ sudo pip3 install virtualenv
 git clone https://github.com/rtCamp/easyengine.git
 cd easyengine
 git checkout python
-virtualenv ./env
+virtualenv ./env  --system-site-packages
 source ./env/bin/activate
 sudo pip3 install -r requirements.txt
 sudo python3 setup.py develop
