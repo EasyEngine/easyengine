@@ -109,7 +109,7 @@ class EESiteUpdateController(CementBaseController):
                         help of the following subcommands'
         arguments = [
             (['site_name'],
-                dict(help='website name', nargs="1")),
+                dict(help='website name')),
             (['--html'],
                 dict(help="html site", action='store_true')),
             (['--php'],
