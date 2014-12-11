@@ -5,7 +5,6 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine core variables
-    ee_version = "3.0.0"
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
@@ -24,3 +23,9 @@ class EEVariables():
     # Postfix repo and packages
     ee_postfix_repo = ""
     ee_postfix = ["postfix"]
+
+    # Repo
+    ee_repo_file = "ee-repo.list"
+
+    def __init__(self):
+        pass

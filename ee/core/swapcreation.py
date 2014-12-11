@@ -1,6 +1,7 @@
 """EasyEngine swap creation module."""
 
-Class EESwapCreation():
+
+class EESwapCreation():
     """Generice swap creation intialisation"""
     def __init__():
         # TODO method for swap creation
