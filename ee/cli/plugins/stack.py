@@ -2,6 +2,9 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.variables import EEVariables
+from ee.core.aptget import EEAptGet
+
 
 def ee_stack_hook(app):
     # do something with the ``app`` object here.
@@ -21,6 +24,14 @@ class EEStackController(CementBaseController):
                 dict(help='Install admin tools stack', action='store_true')),
             (['--mail'],
                 dict(help='Install mail server stack', action='store_true')),
+            (['--nginx'],
+                dict(help='Install Nginx stack', action='store_true')),
+            (['--php'],
+                dict(help='Install PHP stack', action='store_true')),
+            (['--mysql'],
+                dict(help='Install MySQL stack', action='store_true')),
+            (['--postfix'],
+                dict(help='Install Postfix stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -28,19 +39,77 @@ class EEStackController(CementBaseController):
         # TODO Default action for ee stack command
         print("Inside EEStackController.default().")
 
-        # stack command Options and subcommand calls and definations to
-        # mention here
+    @expose()
+    def install(self):
+        pkg = EEAptGet()
+        packages = []
+        if self.app.pargs.web:
+            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
+                        EEVariables.ee_mysql)
+        if self.app.pargs.admin:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.mail:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.nginx:
+            packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.php:
+            packages = packages + EEVariables.ee_php
+        if self.app.pargs.mysql:
+            packages = packages + EEVariables.ee_mysql
+        if self.app.pargs.postfix:
+            packages = packages + EEVariables.ee_postfix
+        print(packages)
+        pkg.install(packages)
 
-        # If using an output handler such as 'mustache', you could also
-        # render a data dictionary using a template.  For example:
-        #
-        #   data = dict(foo='bar')
-        #   self.app.render(data, 'default.mustache')
-        #
-        #
-        # The 'default.mustache' file would be loaded from
-        # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
-        #
+    @expose()
+    def remove(self):
+        pkg = EEAptGet()
+        packages = []
+        if self.app.pargs.web:
+            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
+                        EEVariables.ee_mysql)
+        if self.app.pargs.admin:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.mail:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.nginx:
+            packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.php:
+            packages = packages + EEVariables.ee_php
+        if self.app.pargs.mysql:
+            packages = packages + EEVariables.ee_mysql
+        if self.app.pargs.postfix:
+            packages = packages + EEVariables.ee_postfix
+        print(packages)
+        pkg.remove(packages)
+
+    @expose()
+    def purge(self):
+        pkg = EEAptGet()
+        packages = []
+        if self.app.pargs.web:
+            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
+                        EEVariables.ee_mysql)
+        if self.app.pargs.admin:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.mail:
+            pass
+            #packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.nginx:
+            packages = packages + EEVariables.ee_nginx
+        if self.app.pargs.php:
+            packages = packages + EEVariables.ee_php
+        if self.app.pargs.mysql:
+            packages = packages + EEVariables.ee_mysql
+        if self.app.pargs.postfix:
+            packages = packages + EEVariables.ee_postfix
+        print(packages)
+        pkg.purge(packages)
 
 
 def load(app):
