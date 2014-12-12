@@ -2,10 +2,10 @@
 How To setup this version on your system??
 
 ```bash
+sudo apt-get install python3-pip git
 sudo pip3 install virtualenv
-git clone https://github.com/rtCamp/easyengine.git
+git clone -b python https://github.com/rtCamp/easyengine.git
 cd easyengine
-git checkout python
 virtualenv ./env  --system-site-packages
 source ./env/bin/activate
 sudo pip3 install -r requirements.txt
