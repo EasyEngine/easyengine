@@ -5,10 +5,10 @@ import urllib.error
 
 class EEDownload():
     """Method to download using urllib"""
-    def __init__(self):
+    def __init__():
         pass
 
-    def download(self, url, filename):
+    def download(url, filename):
         try:
             urllib.request.urlretrieve(url, filename)
             return True

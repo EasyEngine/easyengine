@@ -4,6 +4,9 @@ from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
+from ee.core.donwload import EEDownload
+import random
+import string
 
 
 def ee_stack_hook(app):
@@ -39,6 +42,25 @@ class EEStackController(CementBaseController):
         # TODO Default action for ee stack command
         print("Inside EEStackController.default().")
 
+    @expose(hide=True)
+    def preseed_pref(self, packages):
+        if "postfix" in packages:
+            EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type"
+                                 "string \'Internet Site\'\" | "
+                                 "debconf-set-selections")
+            EEShellExec.cmd_exec("echo \"postfix postfix/mailname string"
+                                 "$(hostname -f)\" | debconf-set-selections")
+        if "mysql" in packages:
+            chars = ''.join(random.sample(string.letters, 8))
+            EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
+                                 "percona-server-server/root_password"
+                                 "password {pass}\""
+                                 "| debconf-set-selections".format(pass=chars))
+            EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
+                                 "percona-server-server/root_password_again"
+                                 "password {pass}\""
+                                 "| debconf-set-selections".format(pass=chars))
+
     @expose()
     def install(self):
         pkg = EEAptGet()
@@ -60,7 +82,7 @@ class EEStackController(CementBaseController):
             packages = packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
             packages = packages + EEVariables.ee_postfix
-        print(packages)
+        self.preseed_pref(packages)
         pkg.install(packages)
 
     @expose()
