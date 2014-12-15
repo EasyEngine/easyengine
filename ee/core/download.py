@@ -1,6 +1,7 @@
 """EasyEngine download core classes."""
 import urllib.request
 import urllib.error
+import os
 
 
 class EEDownload():
@@ -10,6 +11,9 @@ class EEDownload():
 
     def download(url, filename):
         try:
+            directory = os.path.dirname(filename)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
             urllib.request.urlretrieve(url, filename)
             return True
         except urllib.error.URLError as e:
