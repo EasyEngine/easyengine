@@ -5,6 +5,7 @@ from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
+from ee.core.shellexec import EEShellExec
 import random
 import string
 
@@ -45,20 +46,20 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def preseed_pref(self, packages):
         if "postfix" in packages:
-            EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type"
-                                 "string \'Internet Site\'\" | "
+            EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type "
+                                 "string 'Internet Site'\" | "
                                  "debconf-set-selections")
-            EEShellExec.cmd_exec("echo \"postfix postfix/mailname string"
+            EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
         if "mysql" in packages:
             chars = ''.join(random.sample(string.letters, 8))
-            EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
-                                 "percona-server-server/root_password"
-                                 "password {chars}\" |"
+            EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
+                                 "percona-server-server/root_password "
+                                 "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
-            EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
-                                 "percona-server-server/root_password_again"
-                                 "password {chars}\" |"
+            EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
+                                 "percona-server-server/root_password_again "
+                                 "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
 
     @expose()

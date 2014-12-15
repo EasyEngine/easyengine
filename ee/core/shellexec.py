@@ -9,4 +9,3 @@ class EEShellExec():
 
     def cmd_exec(command):
         os.system(command)
-        
