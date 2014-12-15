@@ -44,14 +44,14 @@ class EEStackController(CementBaseController):
         print("Inside EEStackController.default().")
 
     @expose(hide=True)
-    def preseed_pref(self, packages):
-        if "postfix" in packages:
+    def pre_pref(self, apt-packages):
+        if "postfix" in apt-packages:
             EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type "
                                  "string 'Internet Site'\" | "
                                  "debconf-set-selections")
             EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
-        if "mysql" in packages:
+        if "mysql" in apt-packages:
             chars = ''.join(random.sample(string.letters, 8))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
@@ -65,74 +65,82 @@ class EEStackController(CementBaseController):
     @expose()
     def install(self):
         pkg = EEAptGet()
-        packages = []
+        apt-packages = []
+
         if self.app.pargs.web:
-            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
-                        EEVariables.ee_mysql)
+            apt-packages = (apt-packages + EEVariables.ee_nginx +
+                            EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
-            packages = packages + EEVariables.ee_nginx
+            apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.php:
-            packages = packages + EEVariables.ee_php
+            apt-packages = apt-packages + EEVariables.ee_php
         if self.app.pargs.mysql:
-            packages = packages + EEVariables.ee_mysql
+            apt-packages = apt-packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
-            packages = packages + EEVariables.ee_postfix
-        self.preseed_pref(packages)
-        pkg.install(packages)
+            apt-packages = apt-packages + EEVariables.ee_postfix
+        if self.app.pargs.wpcli:
+            packages = packages + [['url', 'path']]
+
+        self.pre_pref(apt-packages)
+        if len(apt-packages) not 0:
+            pkg.install(apt-packages)
+        if len(packages) not 0:
+            EEDownload.download(packages)
+        self.post_pref(apt-packages, packages)
 
     @expose()
     def remove(self):
         pkg = EEAptGet()
-        packages = []
+        apt-packages = []
         if self.app.pargs.web:
-            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
-                        EEVariables.ee_mysql)
+            apt-packages = (apt-packages + EEVariables.ee_nginx +
+                            EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
-            packages = packages + EEVariables.ee_nginx
+            apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.php:
-            packages = packages + EEVariables.ee_php
+            apt-packages = apt-packages + EEVariables.ee_php
         if self.app.pargs.mysql:
-            packages = packages + EEVariables.ee_mysql
+            apt-packages = apt-packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
-            packages = packages + EEVariables.ee_postfix
-        print(packages)
-        pkg.remove(packages)
+            apt-packages = apt-packages + EEVariables.ee_postfix
+        if self.app.pargs.wpcli:
+            pass
+        pkg.remove(apt-packages)
 
     @expose()
     def purge(self):
         pkg = EEAptGet()
-        packages = []
+        apt-packages = []
         if self.app.pargs.web:
-            packages = (packages + EEVariables.ee_nginx + EEVariables.ee_php +
-                        EEVariables.ee_mysql)
+            apt-packages = (apt-packages + EEVariables.ee_nginx
+                            + EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #packages = packages + EEVariables.ee_nginx
+            #apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
-            packages = packages + EEVariables.ee_nginx
+            apt-packages = apt-packages + EEVariables.ee_nginx
         if self.app.pargs.php:
-            packages = packages + EEVariables.ee_php
+            apt-packages = apt-packages + EEVariables.ee_php
         if self.app.pargs.mysql:
-            packages = packages + EEVariables.ee_mysql
+            apt-packages = apt-packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
-            packages = packages + EEVariables.ee_postfix
-        print(packages)
-        pkg.purge(packages)
+            apt-packages = apt-packages + EEVariables.ee_postfix
+        pkg.purge(apt-packages)
 
 
 def load(app):
