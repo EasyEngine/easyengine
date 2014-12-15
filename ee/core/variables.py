@@ -1,4 +1,5 @@
 """EasyEngine core variable module"""
+import platform
 
 
 class EEVariables():
@@ -23,6 +24,10 @@ class EEVariables():
     # Postfix repo and packages
     ee_postfix_repo = ""
     ee_postfix = ["postfix"]
+
+    ee_platform_distro = platform.linux_distribution()[0]
+    ee_platform_version = platform.linux_distribution()[1]
+    ee_platform_codename = platform.linux_distribution()[2]
 
     # Repo
     ee_repo_file = "ee-repo.list"
