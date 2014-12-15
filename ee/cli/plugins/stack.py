@@ -4,7 +4,7 @@ from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
-from ee.core.donwload import EEDownload
+from ee.core.download import EEDownload
 import random
 import string
 
@@ -54,12 +54,12 @@ class EEStackController(CementBaseController):
             chars = ''.join(random.sample(string.letters, 8))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
                                  "percona-server-server/root_password"
-                                 "password {pass}\""
-                                 "| debconf-set-selections".format(pass=chars))
+                                 "password {chars}\" |"
+                                 "debconf-set-selections".format(chars=chars))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6"
                                  "percona-server-server/root_password_again"
-                                 "password {pass}\""
-                                 "| debconf-set-selections".format(pass=chars))
+                                 "password {chars}\" |"
+                                 "debconf-set-selections".format(chars=chars))
 
     @expose()
     def install(self):
