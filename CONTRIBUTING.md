@@ -1,13 +1,17 @@
-# Contribute to EasyEngine (ee)
+## How to get support
 
-This guide details how to use issues and pull requests to improve EasyEngine (ee).
+For FREE community support, please use  - http://community.rtcamp.com/category/easyengine/
+
+For premium support, please contact - https://rtcamp.com/contact
+
+Please do NOT create a support request here on github. Github issue tracker is used for development task-tracking only.
 
 ## How to report issue:
 
-Github issue-tracker is used **only** for report bugs and feature request. 
+Please attach the output of following command when requesting support using any chaneel.
 
-Please attach the output of following command when open a new issue/bug
-```bash
+```
+bash
 lsb_release -a
 ee version
 ee info
@@ -18,9 +22,6 @@ wp --allow-root --info
 Developer & contributor discussion: https://gitter.im/rtCamp/easyengine
 
 
-### EasyEngine support request:
-For support-request please use - https://rtcamp.com/easyengine/support/
-
-
 ### Pull Requests:
-When submitting your code please follow this coding standerds - https://google-styleguide.googlecode.com/svn/trunk/shell.xml
+
+We love pull requests. But please make sure to add inline comments so that we can understand your code easily.
