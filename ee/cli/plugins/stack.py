@@ -6,6 +6,7 @@ from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
 from ee.core.shellexec import EEShellExec
+from ee.core.fileutils import EEFileUtils
 import random
 import string
 
@@ -114,6 +115,8 @@ class EEStackController(CementBaseController):
     def remove(self):
         pkg = EEAptGet()
         apt_packages = []
+        packages = []
+
         if self.app.pargs.web:
             apt_packages = (apt_packages + EEVariables.ee_nginx +
                             EEVariables.ee_php + EEVariables.ee_mysql)
@@ -132,13 +135,19 @@ class EEStackController(CementBaseController):
         if self.app.pargs.postfix:
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
-            pass
-        pkg.remove(apt_packages)
+            packages = packages + ['/usr/bin/wp']
+
+        if len(apt_packages):
+            pkg.remove(apt_packages)
+        if len(packages):
+            EEFileUtils.remove(packages)
 
     @expose()
     def purge(self):
         pkg = EEAptGet()
         apt_packages = []
+        packages = []
+
         if self.app.pargs.web:
             apt_packages = (apt_packages + EEVariables.ee_nginx
                             + EEVariables.ee_php + EEVariables.ee_mysql)
@@ -156,7 +165,13 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
             apt_packages = apt_packages + EEVariables.ee_postfix
-        pkg.purge(apt_packages)
+        if self.app.pargs.wpcli:
+            packages = packages + ['/usr/bin/wp']
+
+        if len(apt_packages):
+            pkg.purge(apt_packages)
+        if len(packages):
+            EEFileUtils.remove(packages)
 
 
 def load(app):
