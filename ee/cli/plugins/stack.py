@@ -65,7 +65,14 @@ class EEStackController(CementBaseController):
                                  "debconf-set-selections".format(chars=chars))
 
     @expose(hide=True)
-    def post_pref(self, packages):
+    def post_pref(self, apt_packages, packages):
+        if len(apt_packages):
+            if "postfix" in apt_packages:
+                pass
+            pass
+        if len(packages):
+            if any('/usr/bin/wp' == x[1] for x in packages):
+                EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
         pass
 
     @expose()

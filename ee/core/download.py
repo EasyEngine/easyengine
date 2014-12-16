@@ -17,7 +17,9 @@ class EEDownload():
                 directory = os.path.dirname(filename)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
+                print("Downloading "+os.path.basename(url))
                 urllib.request.urlretrieve(url, filename)
+                print("Done")
                 return True
             except urllib.error.URLError as e:
                 print("Unable to donwload file, [{err}]"
