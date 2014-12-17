@@ -30,7 +30,7 @@ setup(name='ee',
           # Required to function
           'cement>=2.4',
           'pystache',
-          'python3-apt',
+          'python-apt',
           ],
       setup_requires=[],
       entry_points="""
