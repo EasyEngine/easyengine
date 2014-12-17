@@ -7,6 +7,7 @@ from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
+from pynginxconfig import NginxConfig
 import random
 import string
 
@@ -68,9 +69,31 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
         if len(apt_packages):
+            print("In post")
+            print(apt_packages)
             if "postfix" in apt_packages:
                 pass
-            pass
+            if 'nginx-custom' in apt_packages:
+                # Nginx core configuration change using configparser
+                nc = NginxConfig()
+                print('in nginx')
+                nc.loadf('/etc/nginx/nginx.conf')
+                nc.set('worker_processes', 'auto')
+                nc.append(('worker_rlimit_nofile', '100000'), position=2)
+                nc.remove(('events', ''))
+                nc.append({'name': 'events', 'param': '', 'value':
+                           [('worker_connections', '4096'),
+                            ('multi_accept', 'on')]}, position=4)
+                nc.set([('http',), 'keepalive_timeout'], '30')
+                nc.savef('/etc/nginx/nginx.conf')
+
+                # Custom Nginx configuration by EasyEngine
+                data = dict(version='EasyEngine 3.0.1')
+                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf','w')
+                ee_nginx.write(self.app.render((data), 'nginx-core.mustache'))
+                ee_nginx.close()
+
+                pass
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
@@ -87,10 +110,10 @@ class EEStackController(CementBaseController):
                             EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
@@ -122,10 +145,10 @@ class EEStackController(CementBaseController):
                             EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
@@ -153,10 +176,10 @@ class EEStackController(CementBaseController):
                             + EEVariables.ee_php + EEVariables.ee_mysql)
         if self.app.pargs.admin:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             pass
-            #apt_packages = apt_packages + EEVariables.ee_nginx
+            # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
