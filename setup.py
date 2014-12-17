@@ -29,8 +29,8 @@ setup(name='ee',
           # "coverage",
           # Required to function
           'cement>=2.4',
-          'pystache'
-          'python3-apt'
+          'pystache',
+          'python3-apt',
           ],
       setup_requires=[],
       entry_points="""
