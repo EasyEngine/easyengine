@@ -56,6 +56,9 @@ class EEStackController(CementBaseController):
             EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
         if "mysql" in apt_packages:
+            EERepo.add(repo_url="deb http://repo.percona.com/apt "
+                       + EEVariables.ee_platform_codename + " main")
+            EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A ')
             chars = ''.join(random.sample(string.letters, 8))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
@@ -89,7 +92,7 @@ class EEStackController(CementBaseController):
 
                 # Custom Nginx configuration by EasyEngine
                 data = dict(version='EasyEngine 3.0.1')
-                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf','w')
+                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
                 ee_nginx.write(self.app.render((data), 'nginx-core.mustache'))
                 ee_nginx.close()
 

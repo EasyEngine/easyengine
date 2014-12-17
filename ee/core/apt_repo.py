@@ -1,5 +1,6 @@
 
 import os.path
+import gnupg
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 
@@ -28,18 +29,24 @@ class EERepo():
                 print("{error}".format(error=e))
                 return False
         if ppa is not None:
-            if EEVariables.ee_platform_distro is not 'Ubuntu':
-                EEShellExec.cmd_exec("add-apt-repository -y {ppa_name}"
-                                     .format(ppa_name=ppa))
-            else:
+            if EEVariables.ee_platform_distro == 'squeeze':
                 print("Cannot add repo for {distro}"
                       .format(distro=EEVariables.ee_platform_distro))
+            else:
+                EEShellExec.cmd_exec("add-apt-repository -y {ppa_name}"
+                                     .format(ppa_name=ppa))
 
     def remove(repo_url=None):
         # TODO remove repository
         EEShellExec.cmd_exec("add-apt-repository -y"
                              "--remove '{ppa_name}'".format(ppa_name=repo_url))
         pass
+
+    def add_key(keyserver, keyids):
+        EEShellExec.cmd_exec("gpg --keyserver  {0}".format(keyserver)
+                             "--recv-keys {0}".format(keyids))
+        EEShellExec.cmd_exec("gpg -a --export --armor {0}".format(keyids)
+                             "| apt-key add - ")
 
 # if __name__ == '__main__':
 #   EERepo().add(repo_url="http://ds.asf", codename="trusty", repo_type="main")
