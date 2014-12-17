@@ -31,6 +31,7 @@ class EEVariables():
 
     # Repo
     ee_repo_file = "ee-repo.list"
+    ee_repo_file_path = ("/etc/apt/sources.list.d/" + ee_repo_file)
 
     def __init__(self):
         pass
