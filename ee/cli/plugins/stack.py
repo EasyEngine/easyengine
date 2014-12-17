@@ -7,6 +7,7 @@ from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
+from ee.core.apt_repo import EERepo
 from pynginxconfig import NginxConfig
 import random
 import string
@@ -49,16 +50,17 @@ class EEStackController(CementBaseController):
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
-        if "postfix" in apt_packages:
+        if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type "
                                  "string 'Internet Site'\" | "
                                  "debconf-set-selections")
             EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
-        if "mysql" in apt_packages:
-            EERepo.add(repo_url="deb http://repo.percona.com/apt "
+        if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
+            EERepo.add(ppa='deb http://repo.percona.com/apt '
                        + EEVariables.ee_platform_codename + " main")
             EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A ')
+            
             chars = ''.join(random.sample(string.letters, 8))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
@@ -72,11 +74,9 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
         if len(apt_packages):
-            print("In post")
-            print(apt_packages)
-            if "postfix" in apt_packages:
+            if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                 pass
-            if 'nginx-custom' in apt_packages:
+            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 # Nginx core configuration change using configparser
                 nc = NginxConfig()
                 print('in nginx')
