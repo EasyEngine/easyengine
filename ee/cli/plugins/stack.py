@@ -57,10 +57,8 @@ class EEStackController(CementBaseController):
             EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            EERepo.add(ppa='deb http://repo.percona.com/apt '
-                       + EEVariables.ee_platform_codename + " main")
-            EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A ')
-
+            EERepo.add(ppa=EEVariables.ee_mysql_repo)
+            EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
