@@ -11,6 +11,8 @@ from ee.core.apt_repo import EERepo
 from pynginxconfig import NginxConfig
 import random
 import string
+import configparser
+import time
 
 
 def ee_stack_hook(app):
@@ -113,7 +115,8 @@ class EEStackController(CementBaseController):
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Parse etc/php5/fpm/php.ini
-                config.read("/etc/php5/fpm/php.ini")
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
@@ -127,7 +130,7 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/php-fpm.conf')
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
-                    config.write()
+                    config.write(configfile)
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
@@ -143,7 +146,7 @@ class EEStackController(CementBaseController):
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
                 with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
-                    config.write()
+                    config.write(configfile)
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 config = configparser.ConfigParser()
@@ -152,7 +155,7 @@ class EEStackController(CementBaseController):
                 config['mysqld']['interactive_timeout'] = 60
                 config['mysqld']['performance_schema'] = 0
                 with open('/etc/mysql/my.cnf', 'w') as configfile:
-                    config.write()
+                    config.write(configfile)
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
