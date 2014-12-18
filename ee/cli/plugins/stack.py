@@ -78,6 +78,9 @@ class EEStackController(CementBaseController):
             else:
                 EERepo.add(repo_url=EEVariables.ee_mysql_repo)
 
+        if set(EEVariables.ee_php).issubset(set(apt_packages)):
+            print("Adding repository for php ... ")
+
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
         if len(apt_packages):
@@ -181,6 +184,7 @@ class EEStackController(CementBaseController):
 
         self.pre_pref(apt_packages)
         if len(apt_packages):
+            pkg.update()
             pkg.install(apt_packages)
         if len(packages):
             EEDownload.download(packages)
