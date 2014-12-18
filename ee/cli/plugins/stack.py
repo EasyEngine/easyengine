@@ -73,13 +73,18 @@ class EEStackController(CementBaseController):
                                  "debconf-set-selections".format(chars=chars))
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             print("Adding repository for nginx ... ")
-            if EEVariables.ee_platform_codename == 'squeeze':
+            if EEVariables.ee_platform_distro == 'Debian':
                 EERepo.add(repo_url=EEVariables.ee_mysql_repo)
             else:
-                EERepo.add(repo_url=EEVariables.ee_mysql_repo)
+                EERepo.add(ppa=EEVariables.ee_mysql_repo)
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             print("Adding repository for php ... ")
+            if EEVariables.ee_platform_distro == 'Debian':
+                EERepo.add_key('89DF5277')
+                EERepo.add(repo_url=EEVariables.ee_mysql_repo)
+            else:
+                EERepo.add(ppa=EEVariables.ee_mysql_repo)
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
