@@ -100,7 +100,7 @@ class EEStackController(CementBaseController):
                 # Custom Nginx configuration by EasyEngine
                 data = dict(version='EasyEngine 3.0.1')
                 ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
-                ee_nginx.write(self.app.render((data), 'nginx-core.mustache'))
+                self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
                 ee_nginx.close()
 
                 pass
