@@ -103,10 +103,43 @@ class EEStackController(CementBaseController):
                 # Custom Nginx configuration by EasyEngine
                 data = dict(version='EasyEngine 3.0.1')
                 ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
-                ee_nginx.write(self.app.render((data), 'nginx-core.mustache'))
+                self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
                 ee_nginx.close()
 
-                pass
+            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                # Parse etc/php5/fpm/php.ini
+                config.read("/etc/php5/fpm/php.ini")
+                config['PHP']['expose_php'] = 'Off'
+                config['PHP']['post_max_size'] = '100M'
+                config['PHP']['upload_max_filesize'] = '100M'
+                config['PHP']['max_execution_time'] = '300'
+                config['PHP']['date.timezone'] = time.tzname[time.daylight]
+                with open('/etc/php5/fpm/php.ini', 'w') as configfile:
+                    config.write(configfile)
+
+                # Prase /etc/php5/fpm/php-fpm.conf
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/php-fpm.conf')
+                config['global']['error_log'] = '/var/log/php5/fpm.log'
+                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                    config.write()
+
+                # Parse /etc/php5/fpm/pool.d/www.conf
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/pool.d/www.conf')
+                config['www']['ping.path'] = '/ping'
+                config['www']['pm.status_path'] = '/status'
+                config['www']['pm.max_requests'] = '500'
+                config['www']['pm.max_children'] = ''
+                config['www']['pm.start_servers'] = '20'
+                config['www']['pm.min_spare_servers'] = '10'
+                config['www']['pm.max_spare_servers'] = '30'
+                config['www']['request_terminate_timeout'] = '300'
+                config['www']['pm'] = 'ondemand'
+                config['www']['listen'] = '127.0.0.1:9000'
+                with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
+                    config.write()
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
