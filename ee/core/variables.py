@@ -6,10 +6,17 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine core variables
+    ee_platform_distro = platform.linux_distribution()[0]
+    ee_platform_version = platform.linux_distribution()[1]
+    ee_platform_codename = platform.linux_distribution()[2]
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
-    ee_nginx_repo = "ppa:rtcamp/nginx"
+    if ee_platform_distro == 'Ubuntu':
+        ee_nginx_repo = "ppa:rtcamp/nginx"
+    elif ee_platform_distro == 'Debian':
+        ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
+                         .format(codename=ee_platform_codename))
     ee_nginx = ["nginx-custom"]
 
     # PHP repo and packages
@@ -24,10 +31,6 @@ class EEVariables():
     # Postfix repo and packages
     ee_postfix_repo = ""
     ee_postfix = ["postfix"]
-
-    ee_platform_distro = platform.linux_distribution()[0]
-    ee_platform_version = platform.linux_distribution()[1]
-    ee_platform_codename = platform.linux_distribution()[2]
 
     # Repo
     ee_repo_file = "ee-repo.list"

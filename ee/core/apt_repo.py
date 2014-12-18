@@ -40,11 +40,14 @@ class EERepo():
                              "--remove '{ppa_name}'".format(ppa_name=repo_url))
         pass
 
-    def add_key(keyserver, keyids):
-        EEShellExec.cmd_exec("gpg --keyserver {serv}".format(serv=keyserver)
-                             + " --recv-keys {key}".format(key=keyids))
-        EEShellExec.cmd_exec("gpg -a --export --armor {0}".format(keyids)
-                             + " | apt-key add - ")
+    def add_key(keyserver=None, keyids):
+        if keyserver is None:
+            EEShellExec.cmd_exec("gpg --keyserver {serv}"
+                                 .format(serv=(keyserver
+                                         or "hkp://keys.gnupg.net"))
+                                 + " --recv-keys {key}".format(key=keyids))
+            EEShellExec.cmd_exec("gpg -a --export --armor {0}".format(keyids)
+                                 + " | apt-key add - ")
 
 # if __name__ == '__main__':
 #   EERepo().add(repo_url="http://ds.asf", codename="trusty", repo_type="main")

@@ -51,15 +51,18 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def pre_pref(self, apt_packages):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
+            print("Pre-seeding postfix variables ... ")
             EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type "
                                  "string 'Internet Site'\" | "
                                  "debconf-set-selections")
             EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
+            print("Adding repository for mysql ... ")
             EERepo.add(ppa=EEVariables.ee_mysql_repo)
             EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
+            print("Pre-seeding mysql variables ... ")
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
@@ -68,6 +71,12 @@ class EEStackController(CementBaseController):
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
+        if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+            print("Adding repository for nginx ... ")
+            if EEVariables.ee_platform_codename == 'squeeze':
+                EERepo.add(repo_url=EEVariables.ee_mysql_repo)
+            else:
+                EERepo.add(repo_url=EEVariables.ee_mysql_repo)
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
