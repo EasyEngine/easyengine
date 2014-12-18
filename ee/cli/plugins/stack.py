@@ -137,6 +137,15 @@ class EEStackController(CementBaseController):
                 with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
                     config.write()
 
+            if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
+                config = configparser.ConfigParser()
+                config.read('/etc/mysql/my.cnf')
+                config['mysqld']['wait_timeout'] = 30
+                config['mysqld']['interactive_timeout'] = 60
+                config['mysqld']['performance_schema'] = 0
+                with open('/etc/mysql/my.cnf', 'w') as configfile:
+                    config.write()
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
