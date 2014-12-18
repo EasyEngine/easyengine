@@ -20,13 +20,20 @@ class EEVariables():
     ee_nginx = ["nginx-custom"]
 
     # PHP repo and packages
-    ee_php_repo = "ppa:ondrej/php5"
+    if ee_platform_distro == 'Ubuntu':
+        ee_php_repo = "ppa:ondrej/php5"
+    elif ee_platform_codename == 'squeeze':
+        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php54 all"
+                       .format(codename=ee_platform_codename))
+    elif ee_platform_codename == 'wheezy':
+        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
+                       .format(codename=ee_platform_codename))
     ee_php = ["php5-curl", "php5-gd", "php5-cli", "php5-fpm", "php5-imap",
               "php5-mcrypt", "php5-xdebug"]
 
     # MySQL repo and packages
     ee_mysql_repo = ""
-    ee_mysql = ["mysql-server-5.6"]
+    ee_mysql = ["percona-server-server-5.6"]
 
     # Postfix repo and packages
     ee_postfix_repo = ""
