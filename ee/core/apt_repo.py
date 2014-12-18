@@ -40,7 +40,7 @@ class EERepo():
                              "--remove '{ppa_name}'".format(ppa_name=repo_url))
         pass
 
-    def add_key(keyserver=None, keyids):
+    def add_key(keyids, keyserver=None):
         if keyserver is None:
             EEShellExec.cmd_exec("gpg --keyserver {serv}"
                                  .format(serv=(keyserver

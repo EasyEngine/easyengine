@@ -60,7 +60,7 @@ class EEStackController(CementBaseController):
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for mysql ... ")
             EERepo.add(ppa=EEVariables.ee_mysql_repo)
-            EERepo.add_key('hkp://keys.gnupg.net', '1C4CBDCDCD2EFD2A')
+            EERepo.add_key('1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             print("Pre-seeding mysql variables ... ")
             EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
