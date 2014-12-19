@@ -50,6 +50,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install WPCLI stack', action='store_true')),
             (['--phpmyadmin'],
                 dict(help='Install PHPMyAdmin stack', action='store_true')),
+            (['--adminer'],
+                dict(help='Install Adminer stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -210,6 +212,11 @@ class EEStackController(CementBaseController):
                                     "/archive/STABLE.tar.gz",
                                     "/tmp/pma.tar.gz"]]
 
+        if self.app.pargs.adminer:
+            packages = packages + [["http://downloads.sourceforge.net/adminer"
+                                    "/adminer-4.1.0.php", "/var/www/22222/"
+                                    "htdocs/db/adminer/index.php"]]
+
         self.pre_pref(apt_packages)
         if len(apt_packages):
             pkg.update()
@@ -245,6 +252,9 @@ class EEStackController(CementBaseController):
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
             packages = packages + ['/var/www/22222/htdocs/db/pma']
+        if self.app.pargs.adminer:
+            packages = packages + ['/var/www/22222/htdocs/db/adminer'
+                                   '/index.php']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -278,6 +288,9 @@ class EEStackController(CementBaseController):
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
             packages = packages + ['/var/www/22222/htdocs/db/pma']
+        if self.app.pargs.adminer:
+            packages = packages + ['/var/www/22222/htdocs/db/adminer'
+                                   '/index.php']
 
         if len(apt_packages):
             pkg.purge(apt_packages)
