@@ -8,11 +8,16 @@ from ee.core.download import EEDownload
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
 from ee.core.apt_repo import EERepo
+from ee.core.extract import EEExtract
 from pynginxconfig import NginxConfig
 import random
 import string
 import configparser
 import time
+import shutil
+import os
+import pwd
+import grp
 
 
 def ee_stack_hook(app):
@@ -43,6 +48,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Postfix stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Install WPCLI stack', action='store_true')),
+            (['--phpmyadmin'],
+                dict(help='Install PHPMyAdmin stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -160,6 +167,15 @@ class EEStackController(CementBaseController):
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
+            if any('/tmp/pma.tar.gz' == x[1]
+                    for x in packages):
+                EEExtract.extract('/tmp/pma.tar.gz', '/tmp/')
+                if not os.path.exists('/var/www/22222/htdocs/db'):
+                    os.makedirs('/var/www/22222/htdocs/db')
+                shutil.move('/tmp/phpmyadmin-STABLE/',
+                            '/var/www/22222/htdocs/db/pma/')
+                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                                     '/var/www/22222/htdocs/db/pma')
         pass
 
     @expose()
@@ -189,6 +205,10 @@ class EEStackController(CementBaseController):
             packages = packages + [["https://github.com/wp-cli/wp-cli/releases"
                                     "/download/v0.17.1/wp-cli.phar",
                                     "/usr/bin/wp"]]
+        if self.app.pargs.phpmyadmin:
+            packages = packages + [["https://github.com/phpmyadmin/phpmyadmin"
+                                    "/archive/STABLE.tar.gz",
+                                    "/tmp/pma.tar.gz"]]
 
         self.pre_pref(apt_packages)
         if len(apt_packages):

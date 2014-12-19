@@ -1,4 +1,6 @@
 """EasyEngine extarct core classes."""
+import tarfile
+import os
 
 
 class EEExtract():
@@ -9,6 +11,7 @@ class EEExtract():
             tar = tarfile.open(file)
             tar.extractall(path=path)
             tar.close()
+            os.remove(file)
             return True
         except tarfile.TarError as e:
             print("Unable to extract file "+file)
