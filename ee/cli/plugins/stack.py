@@ -301,6 +301,12 @@ class EEStackController(CementBaseController):
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
             packages = packages + ['/var/www/22222/htdocs/db/adminer']
+        if self.app.pargs.utils:
+            packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
+                                   '/var/www/22222/htdocs/cache/opcache',
+                                   '/var/www/22222/htdocs/cache/nginx/'
+                                   'clean.php',
+                                   '/var/www/22222/htdocs/cache/memcache']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -336,6 +342,12 @@ class EEStackController(CementBaseController):
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
             packages = packages + ['/var/www/22222/htdocs/db/adminer']
+        if self.app.pargs.utils:
+            packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
+                                   '/var/www/22222/htdocs/cache/opcache',
+                                   '/var/www/22222/htdocs/cache/nginx/'
+                                   'clean.php',
+                                   '/var/www/22222/htdocs/cache/memcache']
 
         if len(apt_packages):
             pkg.purge(apt_packages)
