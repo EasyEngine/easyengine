@@ -54,6 +54,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
+            (['--anemometer'],
+                dict(help='Install Utils stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -169,7 +171,6 @@ class EEStackController(CementBaseController):
                     config.write(configfile)
 
         if len(packages):
-            print(packages)
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
@@ -195,10 +196,16 @@ class EEStackController(CementBaseController):
                     os.makedirs('/var/www/22222/htdocs/php')
                 shutil.move('/tmp/webgrind-master/',
                             '/var/www/22222/htdocs/php/webgrind')
-
                 EEShellExec.cmd_exec('chown -R www-data:www-data '
                                      '/var/www/22222/htdocs/php/webgrind/')
 
+            if any('/tmp/anemometer.tar.gz' == x[1]
+                    for x in packages):
+                EEExtract.extract('/tmp/anemometer.tar.gz', '/tmp/')
+                if not os.path.exists('/var/www/22222/htdocs/db/'):
+                    os.makedirs('/var/www/22222/htdocs/db/')
+                shutil.move('/tmp/Anemometer-master',
+                            '/var/www/22222/htdocs/db/anemometer')
         pass
 
     @expose()
@@ -263,6 +270,10 @@ class EEStackController(CementBaseController):
                                     "archive/master.tar.gz",
                                     '/tmp/webgrind.tar.gz']
                                    ]
+        if self.app.pargs.anemometer:
+            packages = packages + [["https://github.com/box/Anemometer/archive"
+                                    "/master.tar.gz",
+                                    '/tmp/anemometer.tar.gz']]
 
         self.pre_pref(apt_packages)
         if len(apt_packages):
@@ -307,6 +318,8 @@ class EEStackController(CementBaseController):
                                    '/var/www/22222/htdocs/cache/nginx/'
                                    'clean.php',
                                    '/var/www/22222/htdocs/cache/memcache']
+        if self.app.pargs.anemometer:
+            packages = packages + ['/var/www/22222/htdocs/db/anemometer']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -348,6 +361,8 @@ class EEStackController(CementBaseController):
                                    '/var/www/22222/htdocs/cache/nginx/'
                                    'clean.php',
                                    '/var/www/22222/htdocs/cache/memcache']
+        if self.app.pargs.anemometer:
+            packages = packages + ['/var/www/22222/htdocs/db/anemometer']
 
         if len(apt_packages):
             pkg.purge(apt_packages)
