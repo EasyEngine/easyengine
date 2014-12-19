@@ -52,6 +52,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install PHPMyAdmin stack', action='store_true')),
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
+            (['--utils'],
+                dict(help='Install Utils stack', action='store_true')),
             ]
 
     @expose(hide=True)
@@ -217,6 +219,32 @@ class EEStackController(CementBaseController):
                                     "/adminer-4.1.0.php", "/var/www/22222/"
                                     "htdocs/db/adminer/index.php"]]
 
+        if self.app.pargs.utils:
+            packages = packages + [["http://phpmemcacheadmin.googlecode.com/"
+                                    "files/phpMemcachedAdmin-1.2.2"
+                                    "-r262.tar.gz", "/tmp/memcache.tar.gz"],
+                                   ["https://raw.githubusercontent.com/rtCamp/"
+                                    "eeadmin/master/cache/nginx/clean.php",
+                                    "/var/www/22222/htdocs/cache/"
+                                    "nginx/clean.php"],
+                                   ["https://raw.github.com/rlerdorf/opcache-"
+                                    "status/master/opcache.php",
+                                    "/var/www/22222/htdocs/cache/"
+                                    "opcache/opcache.php"],
+                                   ["https://raw.github.com/amnuts/opcache-gui"
+                                    "/master/index.php",
+                                    "/var/www/22222/htdocs/"
+                                    "cache/opcache/opgui.php"],
+                                   ["https://gist.github.com/ck-on/4959032/raw"
+                                    "/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb"
+                                    "/ocp.php",
+                                    "/var/www/22222/htdocs/cache/"
+                                    "opcache/ocp.php"],
+                                   ["https://github.com/jokkedk/webgrind/"
+                                    "archive/master.tar.gz",
+                                    "/tmp/webgrid.zip"]
+                                   ]
+
         self.pre_pref(apt_packages)
         if len(apt_packages):
             pkg.update()
@@ -253,8 +281,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.phpmyadmin:
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
-            packages = packages + ['/var/www/22222/htdocs/db/adminer'
-                                   '/index.php']
+            packages = packages + ['/var/www/22222/htdocs/db/adminer']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -289,8 +316,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.phpmyadmin:
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
-            packages = packages + ['/var/www/22222/htdocs/db/adminer'
-                                   '/index.php']
+            packages = packages + ['/var/www/22222/htdocs/db/adminer']
 
         if len(apt_packages):
             pkg.purge(apt_packages)
