@@ -10,16 +10,16 @@ class EEFileUtils():
 
     def remove(filelist):
         for file in filelist:
-                if os.path.isfile(file):
+            if os.path.isfile(file):
+                print("Removing "+os.path.basename(file)+" ...")
+                os.remove(file)
+                print("Done")
+            if os.path.isdir(file):
+                try:
                     print("Removing "+os.path.basename(file)+" ...")
-                    os.remove(file)
+                    shutil.rmtree(file)
                     print("Done")
-                if os.path.isdir(file):
-                    try:
-                        print("Removing "+os.path.basename(file)+" ...")
-                        shutil.rmtree(file)
-                        print("Done")
-                    except shutil.Error as e:
-                        print("Unable to remove file, [{err}]"
-                              .format(err=str(e.reason)))
-                        return False
+                except shutil.Error as e:
+                    print("Unable to remove file, [{err}]"
+                          .format(err=str(e.reason)))
+                    return False

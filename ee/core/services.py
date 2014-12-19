@@ -1,4 +1,8 @@
 """EasyEngine service start/stop/restart module."""
+import os
+import sys
+import subprocess
+from subprocess import Popen
 
 
 class EEService():
@@ -6,3 +10,51 @@ class EEService():
     def ___init__():
         # TODO method for services
         pass
+
+    def start_service(service_name):
+            try:
+                retcode = subprocess.getstatusoutput('service {0} start'
+                                                     .format(service_name))
+                if retcode[0] == 0:
+                        print("Started : {0}".format(service_name))
+                else:
+                    print(retcode[1])
+            except OSError as e:
+                print("Execution failed:",  e)
+                return False
+
+    def stop_service(service_name):
+            try:
+                retcode = subprocess.getstatusoutput('service {0} stop'
+                                                     .format(service_name))
+                if retcode[0] == 0:
+                    print("Stopped : {0}".format(service_name))
+                    return True
+                else:
+                    return False
+            except OSError as e:
+                print("Execution failed:", e)
+                return False
+
+    def restart_service(service_name):
+            try:
+                stop_service(service_name)
+                start_service(service_name)
+            except OSError as e:
+                print("Execution failed:",  e)
+
+    def get_service_status(service_name):
+        try:
+            is_exist = subprocess.getstatusoutput('which {0}'
+                                                  .format(service_name))[0]
+            if is_exist == 0:
+                retcode = subprocess.getstatusoutput('service {0} status'
+                                                     .format(service_name))
+                if retcode[0] == 0:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        except OSError as e:
+            return False
