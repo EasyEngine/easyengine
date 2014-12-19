@@ -243,6 +243,8 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             packages = packages + ['/usr/bin/wp']
+        if self.app.pargs.phpmyadmin:
+            packages = packages + ['/var/www/22222/htdocs/db/pma']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -274,6 +276,8 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             packages = packages + ['/usr/bin/wp']
+        if self.app.pargs.phpmyadmin:
+            packages = packages + ['/var/www/22222/htdocs/db/pma']
 
         if len(apt_packages):
             pkg.purge(apt_packages)
