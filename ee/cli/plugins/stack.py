@@ -169,6 +169,7 @@ class EEStackController(CementBaseController):
                     config.write(configfile)
 
         if len(packages):
+            print(packages)
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
@@ -180,6 +181,24 @@ class EEStackController(CementBaseController):
                             '/var/www/22222/htdocs/db/pma/')
                 EEShellExec.cmd_exec('chown -R www-data:www-data '
                                      '/var/www/22222/htdocs/db/pma')
+            if any('/tmp/memcache.tar.gz' == x[1]
+                    for x in packages):
+                EEExtract.extract('/tmp/memcache.tar.gz',
+                                  '/var/www/22222/htdocs/cache/memcache')
+                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                                     '/var/www/22222/htdocs/cache/memcache')
+
+            if any('/tmp/webgrind.tar.gz' == x[1]
+                    for x in packages):
+                EEExtract.extract('/tmp/webgrind.tar.gz', '/tmp/')
+                if not os.path.exists('/var/www/22222/htdocs/php'):
+                    os.makedirs('/var/www/22222/htdocs/php')
+                shutil.move('/tmp/webgrind-master/',
+                            '/var/www/22222/htdocs/php/webgrind')
+
+                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                                     '/var/www/22222/htdocs/php/webgrind/')
+
         pass
 
     @expose()
@@ -222,7 +241,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.utils:
             packages = packages + [["http://phpmemcacheadmin.googlecode.com/"
                                     "files/phpMemcachedAdmin-1.2.2"
-                                    "-r262.tar.gz", "/tmp/memcache.tar.gz"],
+                                    "-r262.tar.gz", '/tmp/memcache.tar.gz'],
                                    ["https://raw.githubusercontent.com/rtCamp/"
                                     "eeadmin/master/cache/nginx/clean.php",
                                     "/var/www/22222/htdocs/cache/"
@@ -242,7 +261,7 @@ class EEStackController(CementBaseController):
                                     "opcache/ocp.php"],
                                    ["https://github.com/jokkedk/webgrind/"
                                     "archive/master.tar.gz",
-                                    "/tmp/webgrid.zip"]
+                                    '/tmp/webgrind.tar.gz']
                                    ]
 
         self.pre_pref(apt_packages)
