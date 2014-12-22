@@ -32,6 +32,7 @@ setup(name='ee',
           'pystache',
           'python-apt',
           'pynginxconfig',
+          'pymysql3',
           ],
       setup_requires=[],
       entry_points="""
