@@ -1,5 +1,6 @@
 """EasyEngine package installation using apt-get module."""
 import apt
+import apt_pkg
 import sys
 
 

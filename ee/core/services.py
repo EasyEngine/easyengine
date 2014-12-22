@@ -38,8 +38,8 @@ class EEService():
 
     def restart_service(service_name):
             try:
-                stop_service(service_name)
-                start_service(service_name)
+                EEService.stop_service(service_name)
+                EEService.start_service(service_name)
             except OSError as e:
                 print("Execution failed:",  e)
 
