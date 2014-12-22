@@ -78,4 +78,21 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="get stack status")
     def status(self):
-        pass
+        services = []
+        if self.app.pargs.nginx:
+            services = services + ['nginx']
+        elif self.app.pargs.php:
+            services = services + ['php5-fpm']
+        elif self.app.pargs.mysql:
+            services = services + ['mysql']
+        elif self.app.pargs.postfix:
+            services = services + ['postfix']
+        elif self.app.pargs.memcache:
+            services = services + ['memcached']
+        elif self.app.pargs.dovecot:
+            services = services + ['dovecot']
+        else:
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
+        for service in services:
+            if EEService.get_service_status(service):
+                print("{0}: Running".format(service))
