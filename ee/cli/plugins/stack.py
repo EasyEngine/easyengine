@@ -343,9 +343,9 @@ class EEStackController(CementBaseController):
                                    '/var/www/22222/htdocs/cache/opcache',
                                    '/var/www/22222/htdocs/cache/nginx/'
                                    'clean.php',
-                                   '/var/www/22222/htdocs/cache/memcache']
-        if self.app.pargs.anemometer:
-            packages = packages + ['/var/www/22222/htdocs/db/anemometer']
+                                   '/var/www/22222/htdocs/cache/memcache',
+                                   '/usr/bin/pt-query-advisor',
+                                   '/var/www/22222/htdocs/db/anemometer']
 
         if len(apt_packages):
             pkg.remove(apt_packages)
@@ -386,9 +386,10 @@ class EEStackController(CementBaseController):
                                    '/var/www/22222/htdocs/cache/opcache',
                                    '/var/www/22222/htdocs/cache/nginx/'
                                    'clean.php',
-                                   '/var/www/22222/htdocs/cache/memcache']
-        if self.app.pargs.anemometer:
-            packages = packages + ['/var/www/22222/htdocs/db/anemometer']
+                                   '/var/www/22222/htdocs/cache/memcache',
+                                   '/usr/bin/pt-query-advisor',
+                                   '/var/www/22222/htdocs/db/anemometer'
+                                   ]
 
         if len(apt_packages):
             pkg.purge(apt_packages)
