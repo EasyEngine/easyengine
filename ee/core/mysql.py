@@ -38,3 +38,8 @@ class EEMysql():
         except Exception as e:
             print("Error occured while executing "+statement)
             return False
+
+    def close(self):
+        self.cur.close()
+        self.conn.close()
+        

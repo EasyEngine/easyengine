@@ -9,6 +9,7 @@ from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
 from ee.core.apt_repo import EERepo
 from ee.core.extract import EEExtract
+from ee.core.mysql import EEMysql
 from pynginxconfig import NginxConfig
 import random
 import string
@@ -54,8 +55,6 @@ class EEStackController(CementBaseController):
             (['--adminer'],
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
-                dict(help='Install Utils stack', action='store_true')),
-            (['--anemometer'],
                 dict(help='Install Utils stack', action='store_true')),
             ]
 
@@ -207,6 +206,28 @@ class EEStackController(CementBaseController):
                     os.makedirs('/var/www/22222/htdocs/db/')
                 shutil.move('/tmp/Anemometer-master',
                             '/var/www/22222/htdocs/db/anemometer')
+                chars = ''.join(random.sample(string.ascii_letters, 8))
+                anemometer_db = EEMysql()
+                EEShellExec.cmd_exec('mysql < /var/www/22222/htdocs/db'
+                                     '/anemometer/install.sql')
+                anemometer_db.execute('grant select on *.* to \'anemometer\''
+                                      '@\'localhost\'')
+                anemometer_db.execute('grant all on slow_query_log.* to'
+                                      '\'anemometer\'@\'localhost\' IDENTIFIED'
+                                      ' BY \''+chars+'\'')
+                anemometer_db.close()
+                # Custom Anemometer configuration
+                data = dict(host='localhost', port='3306', user='anemometer',
+                            password=chars)
+                ee_anemometer = open('/var/www/22222/htdocs/db/anemometer'
+                                     '/conf/config.inc.php', 'w')
+                self.app.render((data), 'anemometer.mustache',
+                                out=ee_anemometer)
+                ee_anemometer.close()
+
+            if any('/usr/bin/pt-query-advisor' == x[1]
+                    for x in packages):
+                EEShellExec.cmd_exec("chmod +x /usr/bin/pt-query-advisor")
         pass
 
     @expose()
@@ -269,12 +290,16 @@ class EEStackController(CementBaseController):
                                     "opcache/ocp.php"],
                                    ["https://github.com/jokkedk/webgrind/"
                                     "archive/master.tar.gz",
-                                    '/tmp/webgrind.tar.gz']
-                                   ]
-        if self.app.pargs.anemometer:
-            packages = packages + [["https://github.com/box/Anemometer/archive"
+                                    '/tmp/webgrind.tar.gz'],
+                                   ["http://bazaar.launchpad.net/~percona-too"
+                                    "lkit-dev/percona-toolkit/2.1/download/he"
+                                    "ad:/ptquerydigest-20110624220137-or26tn4"
+                                    "expb9ul2a-16/pt-query-digest",
+                                    "/usr/bin/pt-query-advisor"],
+                                   ["https://github.com/box/Anemometer/archive"
                                     "/master.tar.gz",
-                                    '/tmp/anemometer.tar.gz']]
+                                    '/tmp/anemometer.tar.gz']
+                                   ]
 
         self.pre_pref(apt_packages)
         if len(apt_packages):
