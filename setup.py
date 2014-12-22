@@ -31,6 +31,7 @@ setup(name='ee',
           'cement>=2.4',
           'pystache',
           'python-apt',
+          'pynxconfig',
           ],
       setup_requires=[],
       entry_points="""
