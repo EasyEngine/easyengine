@@ -74,7 +74,7 @@ class EEStackController(CementBaseController):
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for mysql ... ")
-            EERepo.add(ppa=EEVariables.ee_mysql_repo)
+            EERepo.add(repo_url=EEVariables.ee_mysql_repo)
             EERepo.add_key('1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             print("Pre-seeding mysql variables ... ")
@@ -86,6 +86,16 @@ class EEStackController(CementBaseController):
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
+            mysql_config = """
+            [mysqld]
+            user = root
+            password = {chars}
+            """.format(chars=chars)
+            config = configparser.ConfigParser()
+            config.read_string(mysql_config)
+            with open(os.path.expanduser("~")+'/.my.cnf', 'w') as configfile:
+                config.write(configfile)
+
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             print("Adding repository for nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
