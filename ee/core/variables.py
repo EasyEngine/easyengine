@@ -3,6 +3,7 @@ import platform
 import socket
 import configparser
 import os
+import sys
 
 
 class EEVariables():
@@ -19,8 +20,12 @@ class EEVariables():
     ee_fqdn = socket.getfqdn()
 
     # Get git user name and EMail
-    ee_user = config['user']['name']
-    ee_email = config['user']['email']
+    try:
+        ee_user = config['user']['name']
+        ee_email = config['user']['email']
+    except KeyError as e:
+        print("Unable to find GIT user name and Email")
+        sys.exit(1)
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
@@ -58,7 +63,7 @@ class EEVariables():
 
     ee_dovecot = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                   "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-                  "dovecot-managesieved"]
+                  "dovecot-managesieved", "postfix-mysql"]
 
     # Repo
     ee_repo_file = "ee-repo.list"

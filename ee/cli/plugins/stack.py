@@ -209,6 +209,61 @@ class EEStackController(CementBaseController):
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
 
+                # Custom Postfix configuration needed with Dovecot
+                # Changes in master.cf
+                # TODO: Find alternative for sed in Python
+                EEShellExec.cmd_exec("sed -i 's/#submission/submission/'"
+                                     "/etc/postfix/master.cf")
+                EEShellExec.cmd_exec("sed -i 's/#smtps/smtps/'"
+                                     " /etc/postfix/master.cf")
+
+                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_type = "
+                                     "dovecot\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_path = "
+                                     "private/auth\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_auth_enable = "
+                                     "yes\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_relay_restrictions ="
+                                     " permit_sasl_authenticated, "
+                                     "permit_mynetworks, "
+                                     "reject_unauth_destination\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_mandatory_"
+                                     "protocols = !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec("postconf -e \"smtp_tls_mandatory_"
+                                     "protocols = !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_protocols "
+                                     "= !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec("postconf -e \"smtp_tls_protocols "
+                                     "= !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec("postconf -e \"mydestination "
+                                     "= localhost\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_transport "
+                                     "= lmtp:unix:private/dovecot-lmtp\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_uid_maps "
+                                     "= static:5000\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_gid_maps "
+                                     "= static:500\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_mailbox_domains = "
+                                     "mysql:/etc/postfix/mysql/virtual_"
+                                     "domains_maps.cf\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_mailbox_maps = "
+                                     "mysql:/etc/postfix/mysql/virtual_"
+                                     "mailbox_maps.cf\"")
+                EEShellExec.cmd_exec("postconf -e \"virtual_alias_maps = "
+                                     "mysql:/etc/postfix/mysql/virtual_"
+                                     "alias_maps.cf\"")
+                EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
+                                     " -subj /commonName={HOSTNAME}/emailAddre"
+                                     "ss={EMAIL} -out /etc/ssl/certs/postfix."
+                                     "pem -keyout /etc/ssl/private/postfix.pem"
+                                     .format(HOSTNAME=EEVariables.ee_fqdn,
+                                             EMAIL=EEVariables.ee_email))
+                EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/postfix.pem")
+                EEShellExec.cmd_exec("postconf -e smtpd_tls_cert_file = "
+                                     "/etc/ssl/certs/postfix.pem")
+                EEShellExec.cmd_exec("postconf -e smtpd_tls_key_file = "
+                                     "/etc/ssl/private/postfix.pem")
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
