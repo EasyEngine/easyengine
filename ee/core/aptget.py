@@ -14,13 +14,14 @@ class EEAptGet:
     def update(self):
         """Similar to apt-get update"""
         self.cache.update(self.fprogress)
-        pass
+        self.cache.open()
 
     def upgrade(self, packages):
         """Similar to apt-get update"""
         my_selected_packages = []
         # Cache Initialization
-        self.cache = apt.Cache()
+        if not self.cache:
+            self.cache = apt.Cache()
         # Cache Read
         self.cache.open()
         for package in packages:
@@ -64,11 +65,16 @@ class EEAptGet:
         """Installation of packages"""
         my_selected_packages = []
         # Cache Initialization
-        self.cache = apt.Cache()
+        if not self.cache:
+            self.cache = apt.Cache()
         # Cache Read
         self.cache.open()
+
         for package in packages:
-            pkg = self.cache[package]
+            try:
+                pkg = self.cache[package]
+            except KeyError as e:
+                continue
             # Check Package Installed
             if pkg.is_installed or pkg.marked_install:
                 # Check Package is Upgradeble
@@ -80,7 +86,7 @@ class EEAptGet:
                     if not pkg.marked_install:
                         print("\'{package_name}-{package_ver}\'"
                               "already the newest version"
-                              .format(package_name=pkg.name,
+                              .format(package_name=pkg.shortname,
                                       package_ver=pkg.installed))
             else:
                 with self.cache.actiongroup():
@@ -132,6 +138,11 @@ class EEAptGet:
 
     def remove(self, packages, auto=True, purge=False):
         my_selected_packages = []
+        # Cache Initialization
+        if not self.cache:
+            self.cache = apt.Cache()
+        # Cache Read
+        self.cache.open()
         for package in packages:
             print("processing", package)
             package = self.cache[package]
