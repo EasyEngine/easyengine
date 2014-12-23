@@ -228,9 +228,9 @@ class EEStackController(CementBaseController):
                                      "permit_mynetworks, "
                                      "reject_unauth_destination\"")
                 EEShellExec.cmd_exec("postconf -e \"smtpd_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3"")
+                                     "protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec("postconf -e \"smtp_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3"")
+                                     "protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec("postconf -e \"smtpd_tls_protocols "
                                      "= !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec("postconf -e \"smtp_tls_protocols "
@@ -253,9 +253,9 @@ class EEStackController(CementBaseController):
                                      "mysql:/etc/postfix/mysql/virtual_"
                                      "alias_maps.cf\"")
                 EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
-                                     "-subj /commonName={HOSTNAME}/emailAddres"
-                                     "s={EMAIL} -out /etc/ssl/certs/postfix.pe"
-                                     "m -keyout /etc/ssl/private/postfix.pem"
+                                     " -subj /commonName={HOSTNAME}/emailAddre"
+                                     "ss={EMAIL} -out /etc/ssl/certs/postfix."
+                                     "pem -keyout /etc/ssl/private/postfix.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
                 EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/postfix.pem")
