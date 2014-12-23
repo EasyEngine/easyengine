@@ -210,7 +210,17 @@ class EEStackController(CementBaseController):
                 ee_dovecot.close()
 
                 # Custom Postfix configuration needed with Dovecot
-                
+                # Changes in master.cf
+                # TODO: Find alternative for sed in Python
+                EEShellExec.cmd_exec("sed -i 's/#submission/submission/'"
+                                     "/etc/postfix/master.cf")
+                EEShellExec.cmd_exec("sed -i 's/#smtps/smtps/'"
+                                     " /etc/postfix/master.cf")
+
+                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_type ="
+                                     " dovecot\"")
+                EEShellExec.cmd_
+
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):

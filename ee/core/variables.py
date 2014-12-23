@@ -63,7 +63,7 @@ class EEVariables():
 
     ee_dovecot = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                   "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-                  "dovecot-managesieved"]
+                  "dovecot-managesieved", "postfix-mysql"]
 
     # Repo
     ee_repo_file = "ee-repo.list"
