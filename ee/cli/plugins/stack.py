@@ -74,7 +74,7 @@ class EEStackController(CementBaseController):
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for mysql ... ")
-            EERepo.add(ppa=EEVariables.ee_mysql_repo)
+            EERepo.add(repo_url=EEVariables.ee_mysql_repo)
             EERepo.add_key('1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             print("Pre-seeding mysql variables ... ")
@@ -86,6 +86,16 @@ class EEStackController(CementBaseController):
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
+            mysql_config = """
+            [mysqld]
+            user = root
+            password = {chars}
+            """.format(chars=chars)
+            config = configparser.ConfigParser()
+            config.read_string(mysql_config)
+            with open(os.path.expanduser("~")+'/.my.cnf', 'w') as configfile:
+                config.write(configfile)
+
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             print("Adding repository for nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
@@ -181,6 +191,23 @@ class EEStackController(CementBaseController):
                 config['mysqld']['performance_schema'] = 0
                 with open('/etc/mysql/my.cnf', 'w') as configfile:
                     config.write(configfile)
+
+            if set(EEVariables.ee_dovecot).issubset(set(apt_packages)):
+                EEShellExec.cmd_exec("adduser --uid 5000 --home /var/vmail"
+                                     "--disabled-password --gecos '' vmail")
+                EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
+                                     " -subj /commonName={HOSTNAME}/emailAddre"
+                                     "ss={EMAIL} -out /etc/ssl/certs/dovecot."
+                                     "pem -keyout /etc/ssl/private/dovecot.pem"
+                                     .format(HOSTNAME=EEVariables.ee_fqdn,
+                                             EMAIL=EEVariables.ee_email))
+                EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/dovecot.pem")
+
+                # Custom Dovecot configuration by EasyEngine
+                data = dict()
+                ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
+                self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
+                ee_dovecot.close()
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
