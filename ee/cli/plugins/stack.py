@@ -209,6 +209,9 @@ class EEStackController(CementBaseController):
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
 
+                # Custom Postfix configuration needed with Dovecot
+                
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
