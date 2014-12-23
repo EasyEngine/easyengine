@@ -1,14 +1,26 @@
 """EasyEngine core variable module"""
 import platform
+import socket
+import configparser
+import os
 
 
 class EEVariables():
     """Intialization of core variables"""
+    config = configparser.ConfigParser()
+    config.read(os.path.expanduser("~")+'/.gitconfig')
 
     # EasyEngine core variables
     ee_platform_distro = platform.linux_distribution()[0]
     ee_platform_version = platform.linux_distribution()[1]
     ee_platform_codename = platform.linux_distribution()[2]
+
+    # Get FQDN of system
+    ee_fqdn = socket.getfqdn()
+
+    # Get git user name and EMail
+    ee_user = config['user']['name']
+    ee_email = config['user']['email']
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
@@ -32,7 +44,8 @@ class EEVariables():
               "php5-mcrypt", "php5-xdebug"]
 
     # MySQL repo and packages
-    ee_mysql_repo = ""
+    ee_mysql_repo = ("deb http://repo.percona.com/apt {codename} main"
+                     .format(codename=ee_platform_codename))
     ee_mysql = ["percona-server-server-5.6"]
 
     # Postfix repo and packages
@@ -42,7 +55,7 @@ class EEVariables():
     # Dovecot repo and packages
     ee_dovecot_repo = ("deb http://http.debian.net/debian-backports {codename}"
                        "-backports main".format(codename=ee_platform_codename))
-                       
+
     ee_dovecot = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                   "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                   "dovecot-managesieved"]
