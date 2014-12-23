@@ -314,7 +314,6 @@ class EEStackController(CementBaseController):
 
         self.pre_pref(apt_packages)
         if len(apt_packages):
-            pkg.update()
             pkg.install(apt_packages)
         if len(packages):
             EEDownload.download(packages)

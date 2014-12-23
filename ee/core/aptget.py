@@ -14,13 +14,14 @@ class EEAptGet:
     def update(self):
         """Similar to apt-get update"""
         self.cache.update(self.fprogress)
-        pass
+        self.cache.open()
 
     def upgrade(self, packages):
         """Similar to apt-get update"""
         my_selected_packages = []
         # Cache Initialization
-        self.cache = apt.Cache()
+        if not self.cache:
+            self.cache = apt.Cache()
         # Cache Read
         self.cache.open()
         for package in packages:
@@ -64,9 +65,11 @@ class EEAptGet:
         """Installation of packages"""
         my_selected_packages = []
         # Cache Initialization
-        self.cache = apt.Cache()
+        if not self.cache:
+            self.cache = apt.Cache()
         # Cache Read
         self.cache.open()
+
         for package in packages:
             pkg = self.cache[package]
             # Check Package Installed
@@ -132,6 +135,11 @@ class EEAptGet:
 
     def remove(self, packages, auto=True, purge=False):
         my_selected_packages = []
+        # Cache Initialization
+        if not self.cache:
+            self.cache = apt.Cache()
+        # Cache Read
+        self.cache.open()
         for package in packages:
             print("processing", package)
             package = self.cache[package]
