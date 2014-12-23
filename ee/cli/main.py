@@ -24,8 +24,8 @@ class EEApp(foundation.CementApp):
         label = 'ee'
 
         # Log writing to file
-        # defaults = init_defaults('ee', 'log.logging')
-        # defaults['log.logging']['file'] = '/tmp/my.log'
+        defaults = init_defaults('ee', 'log.logging')
+        defaults['log.logging']['file'] = '/tmp/my.log'
 
         config_defaults = defaults
 

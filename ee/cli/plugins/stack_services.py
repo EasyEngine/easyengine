@@ -34,7 +34,7 @@ class EEStackStatusController(CementBaseController):
         else:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
-            EEService.start_service(service)
+            EEService.start_service(self, service)
 
     @expose(help="stop stack services")
     def stop(self):
@@ -54,7 +54,7 @@ class EEStackStatusController(CementBaseController):
         else:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
-            EEService.stop_service(service)
+            EEService.stop_service(self, service)
 
     @expose(help="restart stack services")
     def restart(self):
@@ -74,7 +74,7 @@ class EEStackStatusController(CementBaseController):
         else:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
-            EEService.restart_service(service)
+            EEService.restart_service(self, service)
 
     @expose(help="get stack status")
     def status(self):
@@ -94,5 +94,5 @@ class EEStackStatusController(CementBaseController):
         else:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
-            if EEService.get_service_status(service):
+            if EEService.get_service_status(self, service):
                 print("{0}: Running".format(service))
