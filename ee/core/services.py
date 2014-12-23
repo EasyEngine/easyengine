@@ -11,19 +11,19 @@ class EEService():
         # TODO method for services
         pass
 
-    def start_service(service_name):
+    def start_service(self, service_name):
             try:
                 retcode = subprocess.getstatusoutput('service {0} start'
                                                      .format(service_name))
                 if retcode[0] == 0:
                         print("Started : {0}".format(service_name))
                 else:
-                    print(retcode[1])
+                    self.app.log.error(retcode[1])
             except OSError as e:
-                print("Execution failed:",  e)
+                self.app.log.error("Execution failed:",  e)
                 return False
 
-    def stop_service(service_name):
+    def stop_service(self, service_name):
             try:
                 retcode = subprocess.getstatusoutput('service {0} stop'
                                                      .format(service_name))
@@ -33,17 +33,17 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-                print("Execution failed:", e)
+                self.app.log.error("Execution failed:", e)
                 return False
 
-    def restart_service(service_name):
+    def restart_service(self, service_name):
             try:
                 EEService.stop_service(service_name)
                 EEService.start_service(service_name)
             except OSError as e:
-                print("Execution failed:",  e)
+                self.app.log.error("Execution failed:",  e)
 
-    def get_service_status(service_name):
+    def get_service_status(self, service_name):
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))[0]
