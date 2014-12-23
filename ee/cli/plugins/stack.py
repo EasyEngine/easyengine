@@ -182,6 +182,17 @@ class EEStackController(CementBaseController):
                 with open('/etc/mysql/my.cnf', 'w') as configfile:
                     config.write(configfile)
 
+            if set(EEVariables.ee_dovecot).issubset(set(apt_packages)):
+                EEShellExec.cmd_exec("adduser --uid 5000 --home /var/vmail"
+                                     "--disabled-password --gecos '' vmail")
+                EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
+                                     "-subj /commonName={HOSTNAME}/emailAddres"
+                                     "s={EMAIL} -out /etc/ssl/certs/dovecot."
+                                     "pem -keyout /etc/ssl/private/dovecot.pem"
+                                     .format(HOSTNAME=EEVariables.ee_fqdn,
+                                             EMAIL=EEVariables.ee_email))
+                EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/dovecot.pem")
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
