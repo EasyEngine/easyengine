@@ -101,6 +101,18 @@ class EEStackController(CementBaseController):
             else:
                 EERepo.add(ppa=EEVariables.ee_php_repo)
 
+        if set(EEVariables.ee_dovecot).issubset(set(apt_packages)):
+            if EEVariables.ee_platform_codename == 'squeeze':
+                print("Adding repository for dovecot ... ")
+                EERepo.add(repo_url=EEVariables.ee_dovecot_repo)
+
+            EEShellExec.cmd_exec("echo \"dovecot-core dovecot-core/"
+                                 "create-ssl-cert boolean yes\" "
+                                 "| debconf-set-selections")
+            EEShellExec.cmd_exec("echo \"dovecot-core dovecot-core/ssl-cert-"
+                                 "name string $(hostname -f)\""
+                                 " | debconf-set-selections")
+
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
         if len(apt_packages):
@@ -243,8 +255,7 @@ class EEStackController(CementBaseController):
             pass
             # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            apt_packages = apt_packages + EEVariables.ee_dovecot
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
