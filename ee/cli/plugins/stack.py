@@ -111,7 +111,7 @@ class EEStackController(CementBaseController):
             else:
                 EERepo.add(ppa=EEVariables.ee_php_repo)
 
-        if set(EEVariables.ee_dovecot).issubset(set(apt_packages)):
+        if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
                 print("Adding repository for dovecot ... ")
                 EERepo.add(repo_url=EEVariables.ee_dovecot_repo)
@@ -192,7 +192,7 @@ class EEStackController(CementBaseController):
                 with open('/etc/mysql/my.cnf', 'w') as configfile:
                     config.write(configfile)
 
-            if set(EEVariables.ee_dovecot).issubset(set(apt_packages)):
+            if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 EEShellExec.cmd_exec("adduser --uid 5000 --home /var/vmail"
                                      "--disabled-password --gecos '' vmail")
                 EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
@@ -322,7 +322,60 @@ class EEStackController(CementBaseController):
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/pt-query-advisor")
-        pass
+
+            if any('/tmp/vimbadmin.tar.gz' == x[1]
+                    for x in packages):
+                # Extract ViMbAdmin
+                EEExtract.extract('/tmp/vimbadmin.tar.gz', '/tmp/')
+                if not os.path.exists('/var/www/22222/htdocs/'):
+                    os.makedirs('/var/www/22222/htdocs/')
+                shutil.move('/tmp/ViMbAdmin-3.0.10/',
+                            '/var/www/22222/htdocs/vimbadmin/')
+
+                # Donwload composer and install ViMbAdmin
+                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin; curl"
+                                     " -sS https://getcomposer.org/installer |"
+                                     " php")
+                EEShellExec.cmd_exec("php composer.phar install --prefer-dist""
+                                     " --no-dev; rm -f /var/www/22222/htdocs"
+                                     "/vimbadmin/composer.phar")
+
+                # Configure ViMbAdmin settings
+                config = configparser.ConfigParser()
+                config.read('/var/www/22222/htdocs/vimbadmin/application/'
+                            'configs/application.ini.dist')
+                config['user']['defaults.mailbox.uid'] = 5000
+                config['user']['defaults.mailbox.gid'] = 5000
+                config['user']['defaults.mailbox.maildir'] = ("maildir:/var/"
+                                                              "vmail/%d/%u")
+                config['user']['defaults.mailbox.homedir'] = "/srv/vmail/%d/%u"
+                config['user']['resources.doctrine2.connection.'
+                               'options.driver'] = 'mysqli'
+                config['user']['resources.doctrine2.connection.'
+                               'options.password'] = 'password'
+                config['user']['resources.doctrine2.connection.'
+                               'options.host'] = 'localhost'
+                config['user']['defaults.mailbox.password_scheme'] = 'md5'
+                config['user']['securitysalt'] = (''
+                                                  .join(random
+                                                        .sample(string.
+                                                                ascii_letters,
+                                                                64)))
+                config['user']['resources.auth.'
+                               'oss.rememberme.salt'] = (''.join(random.sample
+                                                         (string.ascii_letters,
+                                                          64)))
+                config['user']['defaults.mailbox.'
+                               'password_salt'] = (''.join(random.sample
+                                                   (string.ascii_letters,
+                                                    64)))
+                shutil.copyfile("/var/www/22222/htdocs/vimbadmin/public/"
+                                ".htaccess.dist",
+                                "/var/www/22222/htdocs/vimbadmin/public/"
+                                ".htaccess")
+                EEShellExec.cmd_exec("/var/www/22222/htdocs/vimbadmin/bin"
+                                     "/doctrine2-cli.php orm:schema-tool:"
+                                     "create")
 
     @expose()
     def install(self):
@@ -333,11 +386,13 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             apt_packages = (apt_packages + EEVariables.ee_nginx +
                             EEVariables.ee_php + EEVariables.ee_mysql)
+            packages = [["https://github.com/opensolutions/ViMbAdmin/archive/"
+                         "3.0.10.tar.gz", "/tmp/vimbadmin.tar.gz"]]
         if self.app.pargs.admin:
             pass
             # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
-            apt_packages = apt_packages + EEVariables.ee_dovecot
+            apt_packages = apt_packages + EEVariables.ee_mail
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:

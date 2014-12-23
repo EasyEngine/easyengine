@@ -58,12 +58,13 @@ class EEVariables():
     ee_postfix = ["postfix"]
 
     # Dovecot repo and packages
-    ee_dovecot_repo = ("deb http://http.debian.net/debian-backports {codename}"
-                       "-backports main".format(codename=ee_platform_codename))
+    ee_mail_repo = ("deb http://http.debian.net/debian-backports {codename}"
+                    "-backports main".format(codename=ee_platform_codename))
 
-    ee_dovecot = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
-                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-                  "dovecot-managesieved", "postfix-mysql"]
+    ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
+               "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
+               "dovecot-managesieved", "postfix-mysql", "php5-cgi",
+               "php5-json", "php-gettext"]
 
     # Repo
     ee_repo_file = "ee-repo.list"
