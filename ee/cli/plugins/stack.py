@@ -392,7 +392,7 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
-            pkg.purge(apt_packages)
+            pkg.remove(apt_packages, purge=True)
         if len(packages):
             EEFileUtils.remove(packages)
 

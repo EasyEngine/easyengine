@@ -1,6 +1,5 @@
 """EasyEngine package installation using apt-get module."""
 import apt
-import apt_pkg
 import sys
 
 
@@ -110,29 +109,84 @@ class EEAptGet:
                 return(False)
         return(True)
 
-    def remove(self, packages, purge_value=False):
-        """Removal of packages Similar to apt-get remove"""
-        self.__init__()
+    def __dependencies_loop(self, deplist, pkg, onelevel=False):
+        """ Loops through pkg's dependencies.
+        Returns a list with every package found. """
+        if not self.cache:
+            self.cache = apt.Cache()
+        if onelevel:
+            onelevellist = []
+        if not pkg.is_installed:
+            return
+        for depf in pkg.installed.dependencies:
+            for dep in depf:
+                if (dep.name in self.cache and not self.cache[dep.name]
+                   in deplist):
+                    deplist.append(self.cache[dep.name])
+                    self.__dependencies_loop(deplist, self.cache[dep.name])
+                if onelevel:
+                    if dep.name in self.cache:
+                        onelevellist.append(self.cache[dep.name])
+        if onelevel:
+            return onelevellist
+
+    def remove(self, packages, auto=True, purge=False):
         my_selected_packages = []
-        # apt cache Initialization
-        self.cache = apt.Cache()
-        # Read cache i.e package list
-        self.cache.open()
         for package in packages:
-            pkg = self.cache[package]
-            # Check if packages installed
-            if pkg.is_installed and not pkg.marked_delete:
-                with self.cache.actiongroup():
-                    # Mark packages for delete
-                    # Mark to purge package if purge_value is True
-                    pkg.mark_delete(purge=purge_value)
-                my_selected_packages.append(pkg.name)
+            print("processing", package)
+            package = self.cache[package]
+            if not package.is_installed:
+                print("Package '{package_name}' is not installed,"
+                      " so not removed."
+                      .format(package_name=package.name))
+                continue
+            if package.marked_delete:
+                continue
             else:
-                # Check If package not already marked for delete
-                if not pkg.marked_delete:
-                    print("Package '{package_name}' is not installed,"
-                          " so not removed."
-                          .format(package_name=package))
+                my_selected_packages.append(package.name)
+            # How logic works:
+            # 1) We loop trough dependencies's dependencies and add them to
+            # the list.
+            # 2) We sequentially remove every package in list
+            # - via is_auto_installed we check if we can safely remove it
+            deplist = []
+            onelevel = self.__dependencies_loop(deplist, package,
+                                                onelevel=True)
+            # Mark for deletion the first package, to fire up auto_removable
+            # Purge?
+            if purge:
+                package.mark_delete(purge=True)
+            else:
+                package.mark_delete(purge=False)
+            # Also ensure we remove AT LEAST the first level of dependencies
+            # (that is, the actual package's dependencies).
+            if auto:
+                markedauto = []
+                for pkg in onelevel:
+                    if (not pkg.marked_install and pkg.is_installed
+                       and not pkg.is_auto_installed):
+                        pkg.mark_auto()
+                        markedauto.append(pkg)
+
+                for pkg in deplist:
+                    if (not pkg.marked_install and pkg.is_installed and
+                       pkg.is_auto_removable):
+                        # Purge?
+                        if purge:
+                            pkg.mark_delete(purge=True)
+                        else:
+                            pkg.mark_delete(purge=False)
+                # Restore auted items
+                for pkg in markedauto:
+                    if not pkg.marked_delete:
+                        pkg.mark_auto(False)
+            else:
+                # We need to ensure that the onelevel packages are not marked
+                # as automatically installed, otherwise the user may drop
+                # them via autoremove or aptitude.
+                for pkg in onelevel:
+                    if pkg.is_installed and pkg.is_auto_installed:
+                        pkg.mark_auto(auto=False)
 
         # Check if packages available for remove/update.
         if self.cache.delete_count > 0:
@@ -150,7 +204,3 @@ class EEAptGet:
                       .format(err=str(e)))
                 return(False)
         return(True)
-
-    def purge(self, packages):
-        """Purging of packages similar to apt-get purge"""
-        return(self.remove(packages, purge_value=True))
