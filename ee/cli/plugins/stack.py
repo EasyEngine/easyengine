@@ -196,12 +196,18 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("adduser --uid 5000 --home /var/vmail"
                                      "--disabled-password --gecos '' vmail")
                 EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
-                                     "-subj /commonName={HOSTNAME}/emailAddres"
-                                     "s={EMAIL} -out /etc/ssl/certs/dovecot."
+                                     " -subj /commonName={HOSTNAME}/emailAddre"
+                                     "ss={EMAIL} -out /etc/ssl/certs/dovecot."
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
                 EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/dovecot.pem")
+
+                # Custom Dovecot configuration by EasyEngine
+                data = dict()
+                ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
+                self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
+                ee_dovecot.close()
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
