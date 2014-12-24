@@ -336,9 +336,18 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
                                      " php")
-                EEShellExec.cmd_exec("php composer.phar install --prefer-dist""
+                EEShellExec.cmd_exec("php composer.phar install --prefer-dist"
                                      " --no-dev; rm -f /var/www/22222/htdocs"
                                      "/vimbadmin/composer.phar")
+
+                # Configure vimbadmin database
+                vm_passwd = ''.join(random.sample(string.ascii_letters, 64))
+                vm_mysql = EEMysql()
+
+                vm_mysql.execute("create database \`vimbadmin\`")
+                vm_mysql.execute("grant all privileges on vimbadmin.* to"
+                                 " vimbadmin@localhost IDENTIFIED BY"
+                                 " {password}".format(password=vm_passwd))
 
                 # Configure ViMbAdmin settings
                 config = configparser.ConfigParser()
@@ -352,7 +361,7 @@ class EEStackController(CementBaseController):
                 config['user']['resources.doctrine2.connection.'
                                'options.driver'] = 'mysqli'
                 config['user']['resources.doctrine2.connection.'
-                               'options.password'] = 'password'
+                               'options.password'] = vm_passwd
                 config['user']['resources.doctrine2.connection.'
                                'options.host'] = 'localhost'
                 config['user']['defaults.mailbox.password_scheme'] = 'md5'
@@ -369,6 +378,10 @@ class EEStackController(CementBaseController):
                                'password_salt'] = (''.join(random.sample
                                                    (string.ascii_letters,
                                                     64)))
+                with open('var/www/22222/htdocs/vimbadmin/application'
+                          '/configs/application.ini', 'w') as configfile:
+                    config.write(configfile)
+
                 shutil.copyfile("/var/www/22222/htdocs/vimbadmin/public/"
                                 ".htaccess.dist",
                                 "/var/www/22222/htdocs/vimbadmin/public/"
@@ -376,6 +389,34 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("/var/www/22222/htdocs/vimbadmin/bin"
                                      "/doctrine2-cli.php orm:schema-tool:"
                                      "create")
+
+                # Copy Dovecot and Postfix templates which are depednet on
+                # Vimbadmin
+                os.makedirs('/etc/postfix/mysql/')
+                data = dict(password=vm_passwd)
+                vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
+                                 'w')
+                self.app.render((data), 'virtual_alias_maps.mustache',
+                                out=vm_config)
+                vm_config.close()
+
+                vm_config = open('/etc/postfix/mysql/virtual_domains_maps.cf',
+                                 'w')
+                self.app.render((data), 'virtual_domains_maps.mustache',
+                                out=vm_config)
+                vm_config.close()
+
+                vm_config = open('/etc/postfix/mysql/virtual_mailbox_maps.cf',
+                                 'w')
+                self.app.render((data), 'virtual_mailbox_maps.mustache',
+                                out=vm_config)
+                vm_config.close()
+
+                vm_config = open('/etc/dovecot/dovecot-sql.conf.ext',
+                                 'w')
+                self.app.render((data), 'dovecot-sql-conf.mustache',
+                                out=vm_config)
+                vm_config.close()
 
     @expose()
     def install(self):
