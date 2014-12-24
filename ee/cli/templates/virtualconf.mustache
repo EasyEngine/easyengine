@@ -25,7 +25,7 @@ try_files $uri $uri/ /index.html;
 }
 {{/static}}
 
-include {{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}
+{{^static}}include{{/static}} {{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}
 {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}
 {{#wp}}include common/wpcommon.conf;{{/wp}}
 include common/locations.conf;

@@ -1,6 +1,7 @@
 """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+import sys
 
 
 def ee_site_hook(app):
@@ -93,15 +94,72 @@ class EESiteCreateController(CementBaseController):
                 dict(help="wpsubdir site", action='store_true')),
             (['--wpsubdomain'],
                 dict(help="wpsubdomain site", action='store_true')),
+            (['--w3tc'],
+                dict(help="w3tc", action='store_true')),
+            (['--wpfc'],
+                dict(help="wpfc", action='store_true')),
+            (['--wpsc'],
+                dict(help="wpsc", action='store_true')),
             ]
 
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee site command
-        data = dict(foo='EESiteCreateController.default().')
-        self.app.render((data), 'default.mustache')
+        # data = dict(foo='EESiteCreateController.default().')
+        # self.app.render((data), 'default.mustache')
+        if self.app.pargs.html:
+            data = dict(site_name=self.app.pargs.site_name,
+                        static=True,  basic=False, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False)
 
-        # print("Inside EESiteCreateController.default().")
+        if self.app.pargs.php:
+            data = dict(site_name=self.app.pargs.site_name,
+                        static=False,  basic=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False)
+
+        if self.app.pargs.mysql:
+            data = dict(site_name=self.app.pargs.site_name,
+                        static=False,  basic=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False)
+
+        if (self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc
+           or self.app.pargs.wpsc):
+            if self.app.pargs.wp:
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=True, wp=True, w3tc=False,
+                            wpfc=False, wpsc=False, multisite=False,
+                            wpsubdir=False)
+            if self.app.pargs.w3tc:
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=False,
+                            wpsubdir=False)
+            if self.app.pargs.wpfc:
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=False,
+                            wpsubdir=False)
+            if self.app.pargs.wpsc:
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=False,
+                            wpsubdir=False)
+
+        if self.app.pargs.wpsubdir:
+            data = dict(site_name=self.app.pargs.site_name,
+                        static=False,  basic=True, wp=True, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=True,
+                        wpsubdir=True)
+
+        if self.app.pargs.wpsubdomain:
+            data = dict(site_name=self.app.pargs.site_name,
+                        static=False,  basic=True, wp=True, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=True,
+                        wpsubdir=False)
+        self.app.render((data), 'virtualconf.mustache')
 
 
 class EESiteUpdateController(CementBaseController):
@@ -126,6 +184,12 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="wpsubdir site", action='store_true')),
             (['--wpsubdomain'],
                 dict(help="wpsubdomain site", action='store_true')),
+            (['--w3tc'],
+                dict(help="w3tc", action='store_true')),
+            (['--wpfc'],
+                dict(help="wpfc", action='store_true')),
+            (['--wpsc'],
+                dict(help="wpsc", action='store_true')),
             ]
 
     @expose(help="update example.com")
