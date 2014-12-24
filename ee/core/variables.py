@@ -57,7 +57,7 @@ class EEVariables():
     ee_postfix_repo = ""
     ee_postfix = ["postfix"]
 
-    # Dovecot repo and packages
+    # Mail repo and packages
     ee_mail_repo = ("deb http://http.debian.net/debian-backports {codename}"
                     "-backports main".format(codename=ee_platform_codename))
 
@@ -66,7 +66,13 @@ class EEVariables():
                "dovecot-managesieved", "postfix-mysql", "php5-cgi",
                "php5-json", "php-gettext"]
 
-    # Repo
+    # Mailscanner repo and packages
+    ee_mailscanner_repo = ()
+    ee_mailscanner = ["amavisd-new", "spamassassin", "clamav", "clamav-daemon",
+                      "arj", "zoo", "nomarch", "cpio", "lzop",
+                      "cabextract", "p7zip", "rpm", "unrar-free"]
+
+    # Repo path
     ee_repo_file = "ee-repo.list"
     ee_repo_file_path = ("/etc/apt/sources.list.d/" + ee_repo_file)
 

@@ -264,6 +264,22 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("postconf -e \"smtpd_tls_key_file = "
                                      "/etc/ssl/private/postfix.pem\"")
 
+                # Sieve configuration
+                if not os.path.exists('/var/lib/dovecot/sieve/'):
+                    os.makedirs('/var/lib/dovecot/sieve/')
+
+                # Custom sieve configuration by EasyEngine
+                data = dict()
+                ee_sieve = open('/var/lib/dovecot/sieve/default.sieve', 'w')
+                self.app.render((data), 'default-sieve.mustache',
+                                out=ee_sieve)
+                ee_sieve.close()
+
+                # Compile sieve rules
+                EEShellExec.cmd_exec("chown -R vmail:vmail /var/lib/dovecot")
+                EEShellExec.cmd_exec("sievec /var/lib/dovecot/sieve/"
+                                     "default.sieve")
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
@@ -433,7 +449,7 @@ class EEStackController(CementBaseController):
                 EEMysql.execute("create database if not exists roundcubemail")
                 EEMysql.execute("grant all privileges on roundcubemail.* to "
                                 " roundcube@localhost IDENTIFIED BY "
-                                "{password}".format(password=rc_passwd))
+                                "'{password}'".format(password=rc_passwd))
                 EEShellExec.cmd_exec("mysql roundcubemail < /var/www/"
                                      "roundcubemail/htdocs/SQL/mysql"
                                      ".initial.sql")
@@ -444,10 +460,19 @@ class EEStackController(CementBaseController):
                                 "config.inc.php")
                 EEShellExec.cmd_exec("sed -i \"s\'mysql://roundcube:pass@"
                                      "localhost/roundcubemail\'mysql://"
-                                     "roundcube:${password}@localhost/"
+                                     "roundcube:{password}@localhost/"
                                      "roundcubemail\'\" /var/www/roundcubemail"
                                      "/htdocs/config/config."
                                      "inc.php".format(password=rc_passwd))
+
+                # Sieve plugin configuration in roundcube
+                EEShellExec.cmd_exec("sed -i \"s:\$config\['plugins'\] = array"
+                                     "(:\$config\['plugins'\] = array(\n "
+                                     "'sieverules',:\" /var/www/roundcubemail"
+                                     "/htdocs/config/config.inc.php")
+                EEShellExec.cmd_exec("echo \"\$config['sieverules_port'] = "
+                                     "4190;\" >> /var/www/roundcubemail/htdocs"
+                                     "/config/config.inc.php")
 
     @expose()
     def install(self):

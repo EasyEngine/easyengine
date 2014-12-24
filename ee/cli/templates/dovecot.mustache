@@ -46,3 +46,15 @@ plugin {
   autosubscribe3 = Drafts
   autosubscribe4 = Sent
 }
+
+protocol lmtp {
+  postmaster_address = {{email}}
+  mail_plugins = $mail_plugins sieve
+}
+
+plugin {
+  sieve = ~/.dovecot.sieve
+  sieve_global_path = /var/lib/dovecot/sieve/default.sieve
+  sieve_global_dir = /var/lib/dovecot/sieve/
+  sieve_dir = ~/sieve
+}
