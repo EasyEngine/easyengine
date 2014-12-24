@@ -322,8 +322,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/pt-query-advisor")
 
-            if any('/tmp/vimbadmin.tar.gz' == x[1]
-                    for x in packages):
+            if any('/tmp/vimbadmin.tar.gz' == x[1] for x in packages):
                 # Extract ViMbAdmin
                 EEExtract.extract('/tmp/vimbadmin.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/'):
@@ -335,9 +334,9 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
                                      " php")
-                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin;"
+                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin && "
                                      "php composer.phar install --prefer-dist"
-                                     " --no-dev; rm -f /var/www/22222/htdocs"
+                                     " --no-dev && rm -f /var/www/22222/htdocs"
                                      "/vimbadmin/composer.phar")
 
                 # Configure vimbadmin database
@@ -394,7 +393,8 @@ class EEStackController(CementBaseController):
 
                 # Copy Dovecot and Postfix templates which are depednet on
                 # Vimbadmin
-                os.makedirs('/etc/postfix/mysql/')
+                if not os.path.exists('/etc/postfix/mysql/'):
+                    os.makedirs('/etc/postfix/mysql/')
                 data = dict(password=vm_passwd)
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
                                  'w')
@@ -420,6 +420,35 @@ class EEStackController(CementBaseController):
                                 out=vm_config)
                 vm_config.close()
 
+            if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
+                # Extract RoundCubemail
+                EEExtract.extract('/tmp/roundcube.tar.gz', '/tmp/')
+                if not os.path.exists('/var/www/22222/htdocs/'):
+                    os.makedirs('/var/www/22222/htdocs/')
+                shutil.move('/tmp/roundcubemail-1.0.4/',
+                            '/var/www/22222/htdocs/roundcubemail/')
+
+                # Configure roundcube database
+                rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
+                EEMysql.execute("create database if not exists roundcubemail")
+                EEMysql.execute("grant all privileges on roundcubemail.* to "
+                                " roundcube@localhost IDENTIFIED BY "
+                                "{password}".format(password=rc_passwd))
+                EEShellExec.cmd_exec("mysql roundcubemail < /var/www/"
+                                     "roundcubemail/htdocs/SQL/mysql"
+                                     ".initial.sql")
+
+                shutil.copyfile("/var/www/roundcubemail/htdocs/config/"
+                                "config.inc.php.sample",
+                                "/var/www/roundcubemail/htdocs/config/"
+                                "config.inc.php")
+                EEShellExec.cmd_exec("sed -i \"s\'mysql://roundcube:pass@"
+                                     "localhost/roundcubemail\'mysql://"
+                                     "roundcube:${password}@localhost/"
+                                     "roundcubemail\'\" /var/www/roundcubemail"
+                                     "/htdocs/config/config."
+                                     "inc.php".format(password=rc_passwd))
+
     @expose()
     def install(self):
         pkg = EEAptGet()
@@ -437,7 +466,12 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_mail
             packages = packages + [["https://github.com/opensolutions/ViMbAdmi"
                                     "n/archive/3.0.10.tar.gz", "/tmp/vimbadmin"
-                                    ".tar.gz"]]
+                                    ".tar.gz"],
+                                   ["https://github.com/roundcube/"
+                                    "roundcubemail/releases/download/"
+                                    "1.0.4/roundcubemail-1.0.4.tar.gz",
+                                    "/tmp/roundcube.tar.gz"]
+                                   ]
 
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
