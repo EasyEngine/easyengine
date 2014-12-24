@@ -423,10 +423,10 @@ class EEStackController(CementBaseController):
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
                 EEExtract.extract('/tmp/roundcube.tar.gz', '/tmp/')
-                if not os.path.exists('/var/www/22222/htdocs/'):
-                    os.makedirs('/var/www/22222/htdocs/')
+                if not os.path.exists('/var/www/roundcubemail'):
+                    os.makedirs('/var/www/roundcubemail/')
                 shutil.move('/tmp/roundcubemail-1.0.4/',
-                            '/var/www/22222/htdocs/roundcubemail/')
+                            '/var/www/roundcubemail/htdocs')
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
