@@ -212,9 +212,9 @@ class EEStackController(CementBaseController):
                 # Custom Postfix configuration needed with Dovecot
                 # Changes in master.cf
                 # TODO: Find alternative for sed in Python
-                EEShellExec.cmd_exec("sed -i 's/#submission/submission/'"
-                                     "/etc/postfix/master.cf")
-                EEShellExec.cmd_exec("sed -i 's/#smtps/smtps/'"
+                EEShellExec.cmd_exec("sed -i \'s/#submission/submission/\'"
+                                     " /etc/postfix/master.cf")
+                EEShellExec.cmd_exec("sed -i \'s/#smtps/smtps/\'"
                                      " /etc/postfix/master.cf")
 
                 EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_type = "
@@ -242,7 +242,7 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("postconf -e \"virtual_uid_maps "
                                      "= static:5000\"")
                 EEShellExec.cmd_exec("postconf -e \"virtual_gid_maps "
-                                     "= static:500\"")
+                                     "= static:5000\"")
                 EEShellExec.cmd_exec("postconf -e \"virtual_mailbox_domains = "
                                      "mysql:/etc/postfix/mysql/virtual_"
                                      "domains_maps.cf\"")
@@ -259,10 +259,10 @@ class EEStackController(CementBaseController):
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
                 EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/postfix.pem")
-                EEShellExec.cmd_exec("postconf -e smtpd_tls_cert_file = "
-                                     "/etc/ssl/certs/postfix.pem")
-                EEShellExec.cmd_exec("postconf -e smtpd_tls_key_file = "
-                                     "/etc/ssl/private/postfix.pem")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_cert_file = "
+                                     "/etc/ssl/certs/postfix.pem\"")
+                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_key_file = "
+                                     "/etc/ssl/private/postfix.pem\"")
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
@@ -301,15 +301,14 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/Anemometer-master',
                             '/var/www/22222/htdocs/db/anemometer')
                 chars = ''.join(random.sample(string.ascii_letters, 8))
-                anemometer_db = EEMysql()
                 EEShellExec.cmd_exec('mysql < /var/www/22222/htdocs/db'
                                      '/anemometer/install.sql')
-                anemometer_db.execute('grant select on *.* to \'anemometer\''
-                                      '@\'localhost\'')
-                anemometer_db.execute('grant all on slow_query_log.* to'
-                                      '\'anemometer\'@\'localhost\' IDENTIFIED'
-                                      ' BY \''+chars+'\'')
-                anemometer_db.close()
+                EEMysql.execute('grant select on *.* to \'anemometer\''
+                                '@\'localhost\'')
+                EEMysql.execute('grant all on slow_query_log.* to'
+                                '\'anemometer\'@\'localhost\' IDENTIFIED'
+                                ' BY \''+chars+'\'')
+
                 # Custom Anemometer configuration
                 data = dict(host='localhost', port='3306', user='anemometer',
                             password=chars)
@@ -336,28 +335,29 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
                                      " php")
-                EEShellExec.cmd_exec("php composer.phar install --prefer-dist"
+                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin;"
+                                     "php composer.phar install --prefer-dist"
                                      " --no-dev; rm -f /var/www/22222/htdocs"
                                      "/vimbadmin/composer.phar")
 
                 # Configure vimbadmin database
-                vm_passwd = ''.join(random.sample(string.ascii_letters, 64))
-                vm_mysql = EEMysql()
+                vm_passwd = ''.join(random.sample(string.ascii_letters, 8))
 
-                vm_mysql.execute("create database \`vimbadmin\`")
-                vm_mysql.execute("grant all privileges on vimbadmin.* to"
-                                 " vimbadmin@localhost IDENTIFIED BY"
-                                 " {password}".format(password=vm_passwd))
+                EEMysql.execute("create database if not exists vimbadmin")
+                EEMysql.execute("grant all privileges on vimbadmin.* to"
+                                " vimbadmin@localhost IDENTIFIED BY"
+                                " '{password}'".format(password=vm_passwd))
 
                 # Configure ViMbAdmin settings
-                config = configparser.ConfigParser()
+                config = configparser.ConfigParser(strict=False)
                 config.read('/var/www/22222/htdocs/vimbadmin/application/'
                             'configs/application.ini.dist')
-                config['user']['defaults.mailbox.uid'] = 5000
-                config['user']['defaults.mailbox.gid'] = 5000
-                config['user']['defaults.mailbox.maildir'] = ("maildir:/var/"
-                                                              "vmail/%d/%u")
-                config['user']['defaults.mailbox.homedir'] = "/srv/vmail/%d/%u"
+                config['user']['defaults.mailbox.uid'] = '5000'
+                config['user']['defaults.mailbox.gid'] = '5000'
+                config['user']['defaults.mailbox.maildir'] = ("maildir:/var/v"
+                                                              + "mail/%%d/%%u")
+                config['user']['defaults.mailbox.homedir'] = ("/srv/vmail/"
+                                                              + "%%d/%%u")
                 config['user']['resources.doctrine2.connection.'
                                'options.driver'] = 'mysqli'
                 config['user']['resources.doctrine2.connection.'
@@ -365,20 +365,22 @@ class EEStackController(CementBaseController):
                 config['user']['resources.doctrine2.connection.'
                                'options.host'] = 'localhost'
                 config['user']['defaults.mailbox.password_scheme'] = 'md5'
-                config['user']['securitysalt'] = (''
-                                                  .join(random
-                                                        .sample(string.
-                                                                ascii_letters,
-                                                                64)))
+                config['user']['securitysalt'] = (''.join(random.sample
+                                                  (string.ascii_letters
+                                                   + string.ascii_letters,
+                                                   64)))
                 config['user']['resources.auth.'
                                'oss.rememberme.salt'] = (''.join(random.sample
-                                                         (string.ascii_letters,
+                                                         (string.ascii_letters
+                                                          + string.
+                                                             ascii_letters,
                                                           64)))
                 config['user']['defaults.mailbox.'
                                'password_salt'] = (''.join(random.sample
-                                                   (string.ascii_letters,
+                                                   (string.ascii_letters
+                                                    + string.ascii_letters,
                                                     64)))
-                with open('var/www/22222/htdocs/vimbadmin/application'
+                with open('/var/www/22222/htdocs/vimbadmin/application'
                           '/configs/application.ini', 'w') as configfile:
                     config.write(configfile)
 
@@ -427,13 +429,16 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             apt_packages = (apt_packages + EEVariables.ee_nginx +
                             EEVariables.ee_php + EEVariables.ee_mysql)
-            packages = [["https://github.com/opensolutions/ViMbAdmin/archive/"
-                         "3.0.10.tar.gz", "/tmp/vimbadmin.tar.gz"]]
+
         if self.app.pargs.admin:
             pass
             # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
             apt_packages = apt_packages + EEVariables.ee_mail
+            packages = packages + [["https://github.com/opensolutions/ViMbAdmi"
+                                    "n/archive/3.0.10.tar.gz", "/tmp/vimbadmin"
+                                    ".tar.gz"]]
+
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:

@@ -16,6 +16,7 @@ class EEShellExec():
             if retcode[0] == 0:
                 return True
             else:
+                print(retcode[1])
                 return False
         except OSError as e:
             print(e)
