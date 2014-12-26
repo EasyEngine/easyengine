@@ -33,6 +33,7 @@ setup(name='ee',
           'python-apt',
           'pynginxconfig',
           'pymysql3',
+          'psutil',
           ],
       setup_requires=[],
       entry_points="""
