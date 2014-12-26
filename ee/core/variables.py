@@ -4,6 +4,7 @@ import socket
 import configparser
 import os
 import sys
+import psutil
 
 
 class EEVariables():
@@ -26,6 +27,10 @@ class EEVariables():
     except KeyError as e:
         print("Unable to find GIT user name and Email")
         sys.exit(1)
+
+    # Get System RAM and SWAP details
+    ee_ram = psutil.virtual_memory().total / (1024 * 1024)
+    ee_swap = psutil.swap_memory().total / (1024 * 1024)
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages

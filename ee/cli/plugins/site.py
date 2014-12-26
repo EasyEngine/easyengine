@@ -107,59 +107,127 @@ class EESiteCreateController(CementBaseController):
         # TODO Default action for ee site command
         # data = dict(foo='EESiteCreateController.default().')
         # self.app.render((data), 'default.mustache')
-        if self.app.pargs.html:
+        if (self.app.pargs.html and not (self.app.pargs.php or
+            self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
             data = dict(site_name=self.app.pargs.site_name,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
 
-        if self.app.pargs.php:
+        if (self.app.pargs.php and not (self.app.pargs.html or
+            self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
             data = dict(site_name=self.app.pargs.site_name,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
 
-        if self.app.pargs.mysql:
+        if (self.app.pargs.mysql and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
             data = dict(site_name=self.app.pargs.site_name,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
 
-        if (self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc
-           or self.app.pargs.wpsc):
-            if self.app.pargs.wp:
+        if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
+            self.app.pargs.wpsc) and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            if (self.app.pargs.wp and not (self.app.pargs.w3tc
+               or self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=self.app.pargs.site_name,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False)
-            if self.app.pargs.w3tc:
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=self.app.pargs.site_name,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False)
-            if self.app.pargs.wpfc:
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
                 data = dict(site_name=self.app.pargs.site_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=False,
                             wpsubdir=False)
-            if self.app.pargs.wpsc:
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
                 data = dict(site_name=self.app.pargs.site_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=False,
                             wpsubdir=False)
 
-        if self.app.pargs.wpsubdir:
-            data = dict(site_name=self.app.pargs.site_name,
-                        static=False,  basic=True, wp=True, w3tc=False,
-                        wpfc=False, wpsc=False, multisite=True,
-                        wpsubdir=True)
+        if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdomain or self.app.pargs.wp)):
+            if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
+               or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=True, wp=True, w3tc=False,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=True)
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=True)
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=True,
+                            wpsubdir=True)
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+                data = dict(site_name=self.app.pargs.site_name,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=True,
+                            wpsubdir=True)
 
-        if self.app.pargs.wpsubdomain:
-            data = dict(site_name=self.app.pargs.site_name,
-                        static=False,  basic=True, wp=True, w3tc=False,
-                        wpfc=False, wpsc=False, multisite=True,
-                        wpsubdir=False)
-        self.app.render((data), 'virtualconf.mustache')
+            if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
+                self.app.pargs.php or self.app.pargs.mysql or
+               self.app.pargs.wpsubdir or self.app.pargs.wp)):
+                if (self.app.pargs.wpsubdomain and not (self.app.pargs.w3tc
+                   or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                    data = dict(site_name=self.app.pargs.site_name,
+                                static=False,  basic=True, wp=True, w3tc=False,
+                                wpfc=False, wpsc=False, multisite=True,
+                                wpsubdir=False)
+                if (self.app.pargs.w3tc and not
+                   (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                    data = dict(site_name=self.app.pargs.site_name,
+                                static=False,  basic=False, wp=True, w3tc=True,
+                                wpfc=False, wpsc=False, multisite=True,
+                                wpsubdir=False)
+                if (self.app.pargs.wpfc and not
+                   (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+                    data = dict(site_name=self.app.pargs.site_name,
+                                static=False, basic=False, wp=True, w3tc=False,
+                                wpfc=True, wpsc=False, multisite=True,
+                                wpsubdir=False)
+                if (self.app.pargs.wpsc and not
+                   (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+                    data = dict(site_name=self.app.pargs.site_name,
+                                static=False, basic=False, wp=True, w3tc=False,
+                                wpfc=False, wpsc=True, multisite=True,
+                                wpsubdir=False)
+
+        try:
+            ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}.conf'
+                                      .format(self.app.pargs.site_name), 'w')
+
+            self.app.render((data), 'virtualconf.mustache',
+                            out=ee_site_nginx_conf)
+            ee_site_nginx_conf.close()
+        except Exception as e:
+            print("Select proper options for creating site")
 
 
 class EESiteUpdateController(CementBaseController):
