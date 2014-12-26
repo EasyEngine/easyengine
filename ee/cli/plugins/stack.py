@@ -312,6 +312,8 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                 # Set up Custom amavis configuration
                 data = dict()
+                self.app.log.debug("Configuring file /etc/amavis/conf.d"
+                                   "/15-content_filter_mode")
                 ee_amavis = open('/etc/amavis/conf.d/15-content_filter_mode',
                                  'w')
                 self.app.render((data), '15-content_filter_mode.mustache',
@@ -327,17 +329,22 @@ class EEStackController(CementBaseController):
                                      "_checks/\" /etc/postfix/master.cf")
 
                 # Amavis ClamAV configuration
+                self.app.log.debug("Adding new user clamav amavis")
                 EEShellExec.cmd_exec("adduser clamav amavis")
+                self.app.log.debug("Adding new user amavis clamav")
                 EEShellExec.cmd_exec("adduser amavis clamav")
+                self.app.log.debug("Privillages to file /var/lib/amavis/tmp ")
                 EEShellExec.cmd_exec("chmod -R 775 /var/lib/amavis/tmp")
 
                 # Update ClamAV database
+                self.app.log.debug("Updating database")
                 EEShellExec.cmd_exec("freshclam")
+                self.app.log.debug("Restarting service clamav-daemon")
                 EEShellExec.cmd_exec("service clamav-daemon restart")
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
-
+                self.app.log.debug("Privillages to /usr/bin/wp ")
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
