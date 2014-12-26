@@ -280,8 +280,35 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
 
+            if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
+                # Set up Custom amavis configuration
+                data = dict()
+                ee_amavis = open('/etc/amavis/conf.d/15-content_filter_mode',
+                                 'w')
+                self.app.render((data), '15-content_filter_mode.mustache',
+                                out=ee_amavis)
+                ee_amavis.close()
+
+                # Amavis postfix configuration
+                EEShellExec.cmd_exec("postconf -e \"content_filter = "
+                                     "smtp-amavis:[127.0.0.1]:10024\"")
+                EEShellExec.cmd_exec("sed -i \"s/1       pickup/1       pickup"
+                                     "\n        -o content_filter=\n        -o"
+                                     " receive_override_options=no_header_body"
+                                     "_checks/\" /etc/postfix/master.cf")
+
+                # Amavis ClamAV configuration
+                EEShellExec.cmd_exec("adduser clamav amavis")
+                EEShellExec.cmd_exec("adduser amavis clamav")
+                EEShellExec.cmd_exec("chmod -R 775 /var/lib/amavis/tmp")
+
+                # Update ClamAV database
+                EEShellExec.cmd_exec("freshclam")
+                EEShellExec.cmd_exec("service clamav-daemon restart")
+
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
+
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
@@ -436,6 +463,15 @@ class EEStackController(CementBaseController):
                                 out=vm_config)
                 vm_config.close()
 
+                # If Amavis is going to be installed then configure Vimabadmin
+                # Amvis settings
+                if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
+                    vm_config = open('/etc/amavis/conf.d/50-user',
+                                     'w')
+                    self.app.render((data), '50-user.mustache',
+                                    out=vm_config)
+                    vm_config.close()
+
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
                 EEExtract.extract('/tmp/roundcube.tar.gz', '/tmp/')
@@ -497,6 +533,8 @@ class EEStackController(CementBaseController):
                                     "1.0.4/roundcubemail-1.0.4.tar.gz",
                                     "/tmp/roundcube.tar.gz"]
                                    ]
+            if EEVariables.ee_ram > 1024:
+                apt_packages = apt_packages + EEVariables.ee_mailscanner
 
         if self.app.pargs.nginx:
             apt_packages = apt_packages + EEVariables.ee_nginx
