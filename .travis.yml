@@ -26,8 +26,8 @@ script:
   - sudo pip3 install -r requirements.txt
   - sudo python3 setup.py develop
   - mkdir ~/.ee
-  - ln -s /home/travis/build/shitalp/easyengine/config/plugins.d ~/.ee/plugins.d
-  - ln -s /home/travis/build/shitalp/easyengineee/cli/plugins ~/.ee/plugins
+  - ln -s /home/travis/build/rtCamp/easyengine/config/plugins.d ~/.ee/plugins.d
+  - ln -s /home/travis/build/rtCamp/easyengineee/cli/plugins ~/.ee/plugins
   - ee --help
   - sudo pip3 install nose coverage
   - nosetests
