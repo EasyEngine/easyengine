@@ -59,6 +59,11 @@ class EEStackController(CementBaseController):
             ]
 
     @expose(hide=True)
+    def package_check(self, packages=[]):
+        # Function for packages check
+        pass
+
+    @expose(hide=True)
     def default(self):
         # TODO Default action for ee stack command
         print("Inside EEStackController.default().")
