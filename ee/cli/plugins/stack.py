@@ -599,11 +599,8 @@ class EEStackController(CementBaseController):
                                      "/config/config.inc.php")
 
     @expose()
-    def install(self):
+    def install(self, packages=[], apt_packages=[]):
         pkg = EEAptGet()
-        apt_packages = []
-        packages = []
-
         if self.app.pargs.web:
             self.app.log.debug("Setting apt_packages variable for Nginx ,PHP"
                                " ,MySQL ")

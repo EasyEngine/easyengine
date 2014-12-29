@@ -30,4 +30,4 @@ script:
   - ln -s /home/travis/build/rtCamp/easyengineee/cli/plugins ~/.ee/plugins
   - ee --help
   - sudo pip3 install nose coverage
-  - nosetests
+  - sudo nosetests
