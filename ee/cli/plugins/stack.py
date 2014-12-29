@@ -501,7 +501,7 @@ class EEStackController(CementBaseController):
                 self.app.log.debug("Executing command "
                                    "/var/www/22222/htdocs/vimbadmin/bin"
                                    "/doctrine2-cli.php orm:schema-tool:"
-                                   "create" ")
+                                   "create")
                 EEShellExec.cmd_exec("/var/www/22222/htdocs/vimbadmin/bin"
                                      "/doctrine2-cli.php orm:schema-tool:"
                                      "create")
