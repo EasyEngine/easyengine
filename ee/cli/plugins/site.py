@@ -1,6 +1,7 @@
 """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.domainvalidate import validate_domain
 import sys
 
 
@@ -107,6 +108,9 @@ class EESiteCreateController(CementBaseController):
         # TODO Default action for ee site command
         # data = dict(foo='EESiteCreateController.default().')
         # self.app.render((data), 'default.mustache')
+        # Check domain name validation
+        ee_domain_name = validate_domain(self.app.pargs.site_name)
+
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
