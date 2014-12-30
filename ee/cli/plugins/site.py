@@ -2,6 +2,7 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.domainvalidate import validate_domain
+from ee.core.fileutils import EEFileUtils
 import sys
 
 
@@ -111,11 +112,12 @@ class EESiteCreateController(CementBaseController):
         # Check domain name validation
         ee_domain_name = validate_domain(self.app.pargs.site_name)
 
+        # setup nginx configuration for site
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
-           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
-            data = dict(site_name=self.app.pargs.site_name,
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            data = dict(site_name=ee_domain_name,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
@@ -124,7 +126,7 @@ class EESiteCreateController(CementBaseController):
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
-            data = dict(site_name=self.app.pargs.site_name,
+            data = dict(site_name=ee_domain_name,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
@@ -133,7 +135,7 @@ class EESiteCreateController(CementBaseController):
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
-            data = dict(site_name=self.app.pargs.site_name,
+            data = dict(site_name=ee_domain_name,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False)
@@ -144,25 +146,25 @@ class EESiteCreateController(CementBaseController):
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
             if (self.app.pargs.wp and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False)
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False)
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=False,
                             wpsubdir=False)
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=False,
                             wpsubdir=False)
@@ -172,25 +174,25 @@ class EESiteCreateController(CementBaseController):
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
             if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=True,
                             wpsubdir=True)
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=True,
                             wpsubdir=True)
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=True,
                             wpsubdir=True)
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                data = dict(site_name=self.app.pargs.site_name,
+                data = dict(site_name=ee_domain_name,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=True,
                             wpsubdir=True)
@@ -200,38 +202,47 @@ class EESiteCreateController(CementBaseController):
                self.app.pargs.wpsubdir or self.app.pargs.wp)):
                 if (self.app.pargs.wpsubdomain and not (self.app.pargs.w3tc
                    or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                    data = dict(site_name=self.app.pargs.site_name,
+                    data = dict(site_name=ee_domain_name,
                                 static=False,  basic=True, wp=True, w3tc=False,
                                 wpfc=False, wpsc=False, multisite=True,
                                 wpsubdir=False)
                 if (self.app.pargs.w3tc and not
                    (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                    data = dict(site_name=self.app.pargs.site_name,
+                    data = dict(site_name=ee_domain_name,
                                 static=False,  basic=False, wp=True, w3tc=True,
                                 wpfc=False, wpsc=False, multisite=True,
                                 wpsubdir=False)
                 if (self.app.pargs.wpfc and not
                    (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                    data = dict(site_name=self.app.pargs.site_name,
+                    data = dict(site_name=ee_domain_name,
                                 static=False, basic=False, wp=True, w3tc=False,
                                 wpfc=True, wpsc=False, multisite=True,
                                 wpsubdir=False)
                 if (self.app.pargs.wpsc and not
                    (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                    data = dict(site_name=self.app.pargs.site_name,
+                    data = dict(site_name=ee_domain_name,
                                 static=False, basic=False, wp=True, w3tc=False,
                                 wpfc=False, wpsc=True, multisite=True,
                                 wpsubdir=False)
 
         try:
             ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}.conf'
-                                      .format(self.app.pargs.site_name), 'w')
+                                      .format(ee_domain_name), 'w')
 
             self.app.render((data), 'virtualconf.mustache',
                             out=ee_site_nginx_conf)
             ee_site_nginx_conf.close()
+        except IOError as e:
+            print("Unable to create nginx conf for {2} ({0}): {1}"
+                  .format(e.errno, e.strerror))
         except Exception as e:
-            print("Select proper options for creating site")
+            print("{0}".format(e))
+
+        # create symbolic link
+        EEFileUtils.create_symlink(['/etc/nginx/sites-available/{0}.conf'
+                                    .format(ee_domain_name),
+                                    '/etc/nginx/sites-enabled/{0}.conf'
+                                    .format(ee_domain_name)])
 
 
 class EESiteUpdateController(CementBaseController):

@@ -1,32 +1,32 @@
 
 server {
 
-{{#multisite}}
-# Uncomment the following line for domain mapping
-# listen 80 default_server;
-{{/multisite}}
+    {{#multisite}}
+    # Uncomment the following line for domain mapping
+    # listen 80 default_server;
+    {{/multisite}}
 
-server_name {{site_name}} {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}};
+    server_name {{site_name}}   {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}};
 
-{{#multisite}}
-# Uncomment the following line for domain mapping
-#server_name_in_redirect off;
-{{/multisite}}
+    {{#multisite}}
+    # Uncomment the following line for domain mapping
+    #server_name_in_redirect off;
+    {{/multisite}}
 
-access_log /var/log/nginx/{{site_name}}.access.log {{^static}}rt_cache{{/static}};
-error_log /var/log/nginx/{{site_name}}.error.log;
-root /var/www/{{site_name}}/htdocs;
+    access_log /var/log/nginx/{{site_name}}.access.log {{^static}}rt_cache{{/static}};
+    error_log /var/log/nginx/{{site_name}}.error.log;
+    root /var/www/{{site_name}}/htdocs;
 
-index {{^static}}index.php{{/static}} index.html index.htm;
+    index {{^static}}index.php{{/static}} index.html index.htm;
 
-{{#static}}
-location / {
-try_files $uri $uri/ /index.html;
-}
-{{/static}}
+    {{#static}}
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    {{/static}}
 
-{{^static}}include{{/static}} {{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}
-{{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}
-{{#wp}}include common/wpcommon.conf;{{/wp}}
-include common/locations.conf;
+    {{^static}}include{{/static}} {{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}
+    {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}
+    {{#wp}}include common/wpcommon.conf;{{/wp}}
+    include common/locations.conf;
 }

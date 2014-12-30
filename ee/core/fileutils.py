@@ -1,6 +1,7 @@
 """EasyEngine file utils core classes."""
 import shutil
 import os
+import glob
 
 
 class EEFileUtils():
@@ -23,3 +24,11 @@ class EEFileUtils():
                     print("Unable to remove file, [{err}]"
                           .format(err=str(e.reason)))
                     return False
+
+    def create_symlink(paths):
+        src = paths[0]
+        dst = paths[1]
+        try:
+            os.symlink(src, dst)
+        except Exception as e:
+            print("Unable to create sybolic link for {0}".format(e))
