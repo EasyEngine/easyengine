@@ -16,7 +16,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} start'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                        print("Started : {0}".format(service_name))
+                        self.app.log.info("Started : {0}".format(service_name))
                 else:
                     self.app.log.error(retcode[1])
             except OSError as e:
@@ -28,7 +28,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} stop'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    print("Stopped : {0}".format(service_name))
+                    self.app.log.info("Stopped : {0}".format(service_name))
                     return True
                 else:
                     return False

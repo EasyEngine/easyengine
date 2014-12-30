@@ -67,10 +67,10 @@ class EEStackController(CementBaseController):
     def pre_pref(self, apt_packages):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             print("Pre-seeding postfix variables ... ")
-            EEShellExec.cmd_exec("echo \"postfix postfix/main_mailer_type "
-                                 "string 'Internet Site'\" | "
+            EEShellExec.cmd_exec(self, "echo \"postfix postfix "
+                                 "/main_mailer_typestring 'Internet Site'\" | "
                                  "debconf-set-selections")
-            EEShellExec.cmd_exec("echo \"postfix postfix/mailname string "
+            EEShellExec.cmd_exec(self, "echo \"postfix postfix/mailname string"
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for MySQL ... ")
@@ -79,11 +79,11 @@ class EEStackController(CementBaseController):
             EERepo.add_key('1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             print("Pre-seeding MySQL variables ... ")
-            EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
+            EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
-            EEShellExec.cmd_exec("echo \"percona-server-server-5.6 "
+            EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
@@ -101,7 +101,8 @@ class EEStackController(CementBaseController):
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             print("Adding repository for Nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
-                self.app.log.debug('Adding Dotdeb/nginx GPG key')
+                s
+                elf.app.log.debug('Adding Dotdeb/nginx GPG key')
                 EERepo.add(repo_url=EEVariables.ee_nginx_repo)
             else:
                 self.app.log.debug('Adding ppa of Nginx')
@@ -123,11 +124,11 @@ class EEStackController(CementBaseController):
                 print("Adding repository for dovecot ... ")
                 EERepo.add(repo_url=EEVariables.ee_dovecot_repo)
             self.app.log.debug('Executing the command debconf-set-selections.')
-            EEShellExec.cmd_exec("echo \"dovecot-core dovecot-core/"
+            EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
                                  "create-ssl-cert boolean yes\" "
                                  "| debconf-set-selections")
-            EEShellExec.cmd_exec("echo \"dovecot-core dovecot-core/ssl-cert-"
-                                 "name string $(hostname -f)\""
+            EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core"
+                                 "/ssl-cert-name string $(hostname -f)\""
                                  " | debconf-set-selections")
 
     @expose(hide=True)
@@ -213,17 +214,20 @@ class EEStackController(CementBaseController):
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 self.app.log.debug("Executing mail commands")
-                EEShellExec.cmd_exec("adduser --uid 5000 --home /var/vmail"
-                                     "--disabled-password --gecos '' vmail")
-                EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
-                                     " -subj /commonName={HOSTNAME}/emailAddre"
-                                     "ss={EMAIL} -out /etc/ssl/certs/dovecot."
+                EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
+                                     "/vmail--disabled-password --gecos ''"
+                                     " vmail")
+                EEShellExec.cmd_exec(self, "openssl req -new -x509 -days 3650 "
+                                     "-nodes -subj /commonName={HOSTNAME}"
+                                     "/emailAddre  ss={EMAIL} -out /etc/ssl"
+                                     "/certs/dovecot."
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
                 self.app.log.debug("Adding Privillages to file "
                                    "/etc/ssl/private/dovecot.pem ")
-                EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/dovecot.pem")
+                EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
+                                     "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
                 data = dict()
@@ -236,24 +240,28 @@ class EEStackController(CementBaseController):
                 # Custom Postfix configuration needed with Dovecot
                 # Changes in master.cf
                 # TODO: Find alternative for sed in Python
-                EEShellExec.cmd_exec("sed -i \'s/#submission/submission/\'"
+                EEShellExec.cmd_exec(self, "sed -i \'s/#submission/submission"
+                                     "/\'"
                                      " /etc/postfix/master.cf")
-                EEShellExec.cmd_exec("sed -i \'s/#smtps/smtps/\'"
+                EEShellExec.cmd_exec(self, "sed -i \'s/#smtps/smtps/\'"
                                      " /etc/postfix/master.cf")
 
-                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_type = "
+                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_type = "
                                      "dovecot\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_path = "
+                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_path = "
                                      "private/auth\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_sasl_auth_enable = "
+                EEShellExec.cmd_exec(self, "postconf -e \""
+                                     "smtpd_sasl_auth_enable = "
                                      "yes\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_relay_restrictions ="
-                                     " permit_sasl_authenticated, "
-                                     "permit_mynetworks, "
-                                     "reject_unauth_destination\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec("postconf -e \"smtp_tls_mandatory_"
+                EEShellExec.cmd_exec(self, "postconf -e \""
+                                           "smtpd_relay_restrictions ="
+                                           "permit_sasl_authenticated, "
+                                           "permit_mynetworks, "
+                                           "reject_unauth_destination\"")
+                                           "protocols = !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec(self, "postconf -e \""
+                                     "smtpd_tls_mandatory_")
+                EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_mandatory_"
                                      "protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec("postconf -e \"smtpd_tls_protocols "
                                      "= !SSLv2,!SSLv3\"")
@@ -348,7 +356,7 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
-                EEExtract.extract('/tmp/pma.tar.gz', '/tmp/')
+                EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
                 self.app.log.debug('Extracting file /tmp/pma.tar.gz to '
                                    'loaction /tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/db'):
@@ -365,7 +373,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 self.app.log.debug("Extracting memcache.tar.gz to location"
                                    " /var/www/22222/htdocs/cache/memcache ")
-                EEExtract.extract('/tmp/memcache.tar.gz',
+                EEExtract.extract(self, '/tmp/memcache.tar.gz',
                                   '/var/www/22222/htdocs/cache/memcache')
                 self.app.log.debug("Privillages to"
                                    " /var/www/22222/htdocs/cache/memcache")
@@ -376,7 +384,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 self.app.log.debug("Extracting file webgrind.tar.gz to "
                                    "location /tmp/ ")
-                EEExtract.extract('/tmp/webgrind.tar.gz', '/tmp/')
+                EEExtract.extract(self, '/tmp/webgrind.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/php'):
                     self.app.log.debug("Creating directroy "
                                        "/var/www/22222/htdocs/php")
@@ -392,7 +400,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 self.app.log.debug("Extracting file anemometer.tar.gz to "
                                    "location /tmp/ ")
-                EEExtract.extract('/tmp/anemometer.tar.gz', '/tmp/')
+                EEExtract.extract(self, '/tmp/anemometer.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/db/'):
                     self.app.log.debug("Creating directory")
                     os.makedirs('/var/www/22222/htdocs/db/')
@@ -401,9 +409,9 @@ class EEStackController(CementBaseController):
                 chars = ''.join(random.sample(string.ascii_letters, 8))
                 EEShellExec.cmd_exec('mysql < /var/www/22222/htdocs/db'
                                      '/anemometer/install.sql')
-                EEMysql.execute('grant select on *.* to \'anemometer\''
+                EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'localhost\'')
-                EEMysql.execute('grant all on slow_query_log.* to'
+                EEMysql.execute(self, 'grant all on slow_query_log.* to'
                                 '\'anemometer\'@\'localhost\' IDENTIFIED'
                                 ' BY \''+chars+'\'')
 
@@ -425,7 +433,7 @@ class EEStackController(CementBaseController):
                 # Extract ViMbAdmin
                 self.app.log.debug("Extracting ViMbAdmin.tar.gz to "
                                    "location /tmp/")
-                EEExtract.extract('/tmp/vimbadmin.tar.gz', '/tmp/')
+                EEExtract.extract(self, '/tmp/vimbadmin.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/'):
                     self.app.log.debug("Creating directory "
                                        " /var/www/22222/htdocs/")
@@ -448,9 +456,10 @@ class EEStackController(CementBaseController):
                 # Configure vimbadmin database
                 vm_passwd = ''.join(random.sample(string.ascii_letters, 8))
                 self.app.log.debug("Creating vimbadmin database if not exist")
-                EEMysql.execute("create database if not exists vimbadmin")
+                EEMysql.execute(self, "create database if not exists"
+                                      " vimbadmin")
                 self.app.log.debug("Granting all privileges on vimbadmin ")
-                EEMysql.execute("grant all privileges on vimbadmin.* to"
+                EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
                                 " vimbadmin@localhost IDENTIFIED BY"
                                 " '{password}'".format(password=vm_passwd))
 
@@ -502,8 +511,8 @@ class EEStackController(CementBaseController):
                                    "/var/www/22222/htdocs/vimbadmin/bin"
                                    "/doctrine2-cli.php orm:schema-tool:"
                                    "create")
-                EEShellExec.cmd_exec("/var/www/22222/htdocs/vimbadmin/bin"
-                                     "/doctrine2-cli.php orm:schema-tool:"
+                EEShellExec.cmd_exec(self, "/var/www/22222/htdocs/vimbadmin"
+                                     "/bin/doctrine2-cli.php orm:schema-tool:"
                                      "create")
 
                 # Copy Dovecot and Postfix templates which are depednet on
@@ -558,7 +567,7 @@ class EEStackController(CementBaseController):
                 # Extract RoundCubemail
                 self.app.log.debug("Extracting file /tmp/roundcube.tar.gz "
                                    "to location /tmp/ ")
-                EEExtract.extract('/tmp/roundcube.tar.gz', '/tmp/')
+                EEExtract.extract(self, '/tmp/roundcube.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/roundcubemail'):
                     self.app.log.debug("Creating new directory "
                                        " /var/www/roundcubemail/")
@@ -569,12 +578,14 @@ class EEStackController(CementBaseController):
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
                 self.app.log.debug("Creating Database roundcubemail")
-                EEMysql.execute("create database if not exists roundcubemail")
+                EEMysql.execute(self, "create database if not exists "
+                                " roundcubemail")
                 self.app.log.debug("Grant all privileges on roundcubemail")
-                EEMysql.execute("grant all privileges on roundcubemail.* to "
+                EEMysql.execute(self, "grant all privileges"
+                                " on roundcubemail.* to "
                                 " roundcube@localhost IDENTIFIED BY "
                                 "'{password}'".format(password=rc_passwd))
-                EEShellExec.cmd_exec("mysql roundcubemail < /var/www/"
+                EEShellExec.cmd_exec(self, "mysql roundcubemail < /var/www/"
                                      "roundcubemail/htdocs/SQL/mysql"
                                      ".initial.sql")
 
@@ -582,21 +593,22 @@ class EEStackController(CementBaseController):
                                 "config.inc.php.sample",
                                 "/var/www/roundcubemail/htdocs/config/"
                                 "config.inc.php")
-                EEShellExec.cmd_exec("sed -i \"s\'mysql://roundcube:pass@"
-                                     "localhost/roundcubemail\'mysql://"
+                EEShellExec.cmd_exec(self, "sed -i \"s\'mysql://roundcube:"
+                                     "pass@localhost/roundcubemail\'mysql://"
                                      "roundcube:{password}@localhost/"
                                      "roundcubemail\'\" /var/www/roundcubemail"
                                      "/htdocs/config/config."
                                      "inc.php".format(password=rc_passwd))
 
                 # Sieve plugin configuration in roundcube
-                EEShellExec.cmd_exec("sed -i \"s:\$config\['plugins'\] = array"
-                                     "(:\$config\['plugins'\] = array(\n "
-                                     "'sieverules',:\" /var/www/roundcubemail"
+                EEShellExec.cmd_exec(self, "sed -i \"s:\$config\['plugins'\] "
+                                     "= array(:\$config\['plugins'\] =  "
+                                     "array(\n'sieverules',:\" /var/www"
+                                     "/roundcubemail/htdocs/config"
+                                     "/config.inc.php")
+                EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
+                                     "=4190;\" >> /var/www/roundcubemail"
                                      "/htdocs/config/config.inc.php")
-                EEShellExec.cmd_exec("echo \"\$config['sieverules_port'] = "
-                                     "4190;\" >> /var/www/roundcubemail/htdocs"
-                                     "/config/config.inc.php")
 
     @expose()
     def install(self):
@@ -697,7 +709,7 @@ class EEStackController(CementBaseController):
             pkg.install(apt_packages)
         if len(packages):
             self.app.log.debug("Downloading all packages")
-            EEDownload.download(packages)
+            EEDownload.download(self, packages)
         self.app.log.debug("Calling post_pref")
         self.post_pref(apt_packages, packages)
 
@@ -751,9 +763,9 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             self.app.log.debug("Removing apt_packages")
-            pkg.remove(apt_packages)
+            pkg.remove(self, apt_packages)
         if len(packages):
-            EEFileUtils.remove(packages)
+            EEFileUtils.remove(self, packages)
 
     @expose()
     def purge(self):
@@ -804,9 +816,9 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
-            pkg.remove(apt_packages, purge=True)
+            pkg.remove(self, apt_packages, purge=True)
         if len(packages):
-            EEFileUtils.remove(packages)
+            EEFileUtils.remove(self, packages)
 
 
 def load(app):

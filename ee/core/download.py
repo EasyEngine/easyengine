@@ -9,7 +9,7 @@ class EEDownload():
     def __init__():
         pass
 
-    def download(packages):
+    def download(self, packages):
         for package in packages:
             url = package[0]
             filename = package[1]
@@ -17,18 +17,25 @@ class EEDownload():
                 directory = os.path.dirname(filename)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
-                print("Downloading "+os.path.basename(url)+" ...")
+                self.app.log.info("Downloading "+os.path.basename(url)+" ...")
                 urllib.request.urlretrieve(url, filename)
-                print("Done")
+                self.app.log.info("Done")
             except urllib.error.URLError as e:
-                print("Unable to donwload file, [{err}]"
-                      .format(err=str(e.reason)))
+                self.app.log.error("Error is :"
+                                   + os.path.basename(url)+e.reason())
+                self.app.log.info("Unable to donwload file, [{err}]"
+                                  .format(err=str(e.reason)))
                 return False
             except urllib.error.HTTPError as e:
-                print("Package download failed. [{err}]"
-                      .format(err=str(e.reason)))
+                self.app.log.error("Package download failed", e.reason())
+                self.app.log.info("Package download failed. [{err}]"
+                                  .format(err=str(e.reason)))
                 return False
             except urllib.error.ContentTooShortError as e:
-                print("Package download failed. The amount of the"
-                      "downloaded data is less than the expected amount")
+                self.app.log.error("Package download failed. The amount of the"
+                                   " downloaded data is less than "
+                                   "the expected amount"+e.reason())
+                self.app.log.info("Package download failed. The amount of the"
+                                  "downloaded data is less than"
+                                  " the expected amount")
                 return False

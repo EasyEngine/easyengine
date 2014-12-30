@@ -10,14 +10,14 @@ class EEShellExec():
     def __init__():
         pass
 
-    def cmd_exec(command):
+    def cmd_exec(self, command):
         try:
             retcode = subprocess.getstatusoutput(command)
             if retcode[0] == 0:
                 return True
             else:
-                print(retcode[1])
+                self.app.log.info(retcode[1])
                 return False
         except OSError as e:
-            print(e)
+            self.app.log.info(e)
             return False

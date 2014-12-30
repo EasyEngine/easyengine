@@ -7,7 +7,7 @@ from os.path import expanduser
 class EEMysql():
     """Method for MySQL connection"""
 
-    def execute(statement):
+    def execute(self, statement):
         config = configparser.RawConfigParser()
         cnfpath = expanduser("~")+"/.my.cnf"
         if [cnfpath] == config.read(cnfpath):
@@ -28,13 +28,15 @@ class EEMysql():
                                        user=user, passwd=passwd)
                 cur = conn.cursor()
             except Exception as e:
-                print("Unable to connect to database")
+                self.app.log.error('Unable to connect to database', e.reason())
+                self.app.log.info("Unable to connect to database")
                 return False
 
         try:
             cur.execute(statement)
         except Exception as e:
-            print("Error occured while executing "+statement)
+            self.app.log.error('Error occured while executing', e.reason())
+            self.app.log.info("Error occured while executing "+statement)
             cur.close()
             conn.close()
             return False

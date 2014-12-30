@@ -6,7 +6,7 @@ import os
 class EEExtract():
     """Method to extract from tar.gz file"""
 
-    def extract(file, path):
+    def extract(self, file, path):
         try:
             tar = tarfile.open(file)
             tar.extractall(path=path)
@@ -14,5 +14,6 @@ class EEExtract():
             os.remove(file)
             return True
         except tarfile.TarError as e:
-            print("Unable to extract file "+file)
+            self.app.log.error('Unable to extract file', e.reason())
+            self.app.log.info("Unable to extract file "+file)
             return False
