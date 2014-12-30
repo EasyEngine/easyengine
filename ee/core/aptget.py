@@ -219,3 +219,16 @@ class EEAptGet:
                       .format(err=str(e)))
                 return(False)
         return(True)
+
+    def is_installed(self, package):
+        # Cache Initialization
+        if not self.cache:
+            self.cache = apt.Cache()
+        # Cache Read
+        self.cache.open()
+        pkg = self.cache[package]
+        # Check Package Installed
+        if pkg.is_installed:
+            return True
+        else:
+            return False
