@@ -305,7 +305,7 @@ class EEStackController(CementBaseController):
                                      " vmail")
                 EEShellExec.cmd_exec(self, "openssl req -new -x509 -days 3650 "
                                      "-nodes -subj /commonName={HOSTNAME}"
-                                     " /emailAddress={EMAIL} -out /etc/ssl"
+                                     "/emailAddress={EMAIL} -out /etc/ssl"
                                      "/certs/dovecot."
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
