@@ -72,7 +72,7 @@ class EEStackController(CementBaseController):
     def pre_pref(self, apt_packages):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             print("Pre-seeding postfix variables ... ")
-            EEShellExec.cmd_exec(self, "echo \"postfix postfix "
+            EEShellExec.cmd_exec(self, "echo \"postfix postfix"
                                  "/main_mailer_typestring 'Internet Site'\" | "
                                  "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix/mailname string"
@@ -106,8 +106,7 @@ class EEStackController(CementBaseController):
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             print("Adding repository for Nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
-                s
-                elf.app.log.debug('Adding Dotdeb/nginx GPG key')
+                self.app.log.debug('Adding Dotdeb/nginx GPG key')
                 EERepo.add(repo_url=EEVariables.ee_nginx_repo)
             else:
                 self.app.log.debug('Adding ppa of Nginx')
@@ -302,11 +301,11 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 self.app.log.debug("Executing mail commands")
                 EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
-                                     "/vmail--disabled-password --gecos ''"
+                                     "/vmail --disabled-password --gecos ''"
                                      " vmail")
                 EEShellExec.cmd_exec(self, "openssl req -new -x509 -days 3650 "
                                      "-nodes -subj /commonName={HOSTNAME}"
-                                     "/emailAddre  ss={EMAIL} -out /etc/ssl"
+                                     " /emailAddress={EMAIL} -out /etc/ssl"
                                      "/certs/dovecot."
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
@@ -344,12 +343,13 @@ class EEStackController(CementBaseController):
                                            " smtpd_relay_restrictions ="
                                            " permit_sasl_authenticated, "
                                            " permit_mynetworks, "
-                                           " reject_unauth_destination\""
-                                           " protocols = !SSLv2,!SSLv3\"")
+                                           " reject_unauth_destination\"")
+
                 EEShellExec.cmd_exec(self, "postconf -e \""
-                                     "smtpd_tls_mandatory_")
+                                     "smtpd_tls_mandatory_"
+                                     "protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_mandatory_"
-                                     " protocols = !SSLv2,!SSLv3\"")
+                                     "protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_protocols "
                                      " = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_protocols "
