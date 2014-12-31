@@ -38,7 +38,23 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        print("Inside Debug")
+        self.start = True
+        if self.app.pargs.stop:
+            self.start = False
+        if self.app.pargs.nginx:
+            pass
+        if self.app.pargs.php:
+            pass
+        if self.app.pargs.fpm:
+            pass
+        if self.app.pargs.mysql:
+            pass
+        if self.app.pargs.wp:
+            pass
+        if self.app.pargs.rewrite:
+            pass
+        if self.app.pargs.interactive:
+            pass
 
 
 def load(app):
