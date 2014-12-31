@@ -79,9 +79,9 @@ class EEStackController(CementBaseController):
                                  "$(hostname -f)\" | debconf-set-selections")
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for MySQL ... ")
-            EERepo.add(repo_url=EEVariables.ee_mysql_repo)
+            EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             self.app.log.debug('Adding key of MySQL.')
-            EERepo.add_key('1C4CBDCDCD2EFD2A')
+            EERepo.add_key(self, '1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
             print("Pre-seeding MySQL variables ... ")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
@@ -107,26 +107,26 @@ class EEStackController(CementBaseController):
             print("Adding repository for Nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
                 self.app.log.debug('Adding Dotdeb/nginx GPG key')
-                EERepo.add(repo_url=EEVariables.ee_nginx_repo)
+                EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
             else:
                 self.app.log.debug('Adding ppa of Nginx')
-                EERepo.add(ppa=EEVariables.ee_nginx_repo)
+                EERepo.add(self, ppa=EEVariables.ee_nginx_repo)
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             print("Adding repository for PHP ... ")
             if EEVariables.ee_platform_distro == 'Debian':
                 self.app.log.debug('Adding repo_url of php for Debian')
-                EERepo.add(repo_url=EEVariables.ee_php_repo)
+                EERepo.add(self, repo_url=EEVariables.ee_php_repo)
                 self.app.log.debug('Adding  Dotdeb/php GPG key')
-                EERepo.add_key('89DF5277')
+                EERepo.add_key(self, '89DF5277')
             else:
                 self.app.log.debug('Adding ppa for PHP')
-                EERepo.add(ppa=EEVariables.ee_php_repo)
+                EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
                 print("Adding repository for dovecot ... ")
-                EERepo.add(repo_url=EEVariables.ee_dovecot_repo)
+                EERepo.add(self, repo_url=EEVariables.ee_dovecot_repo)
             self.app.log.debug('Executing the command debconf-set-selections.')
             EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
                                  "create-ssl-cert boolean yes\" "

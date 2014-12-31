@@ -10,7 +10,7 @@ class EERepo():
         """Initialize """
         pass
 
-    def add(repo_url=None, ppa=None):
+    def add(self, repo_url=None, ppa=None):
         # TODO add repository code
 
         if repo_url is not None:
@@ -31,13 +31,15 @@ class EERepo():
                 print("Cannot add repo for {distro}"
                       .format(distro=EEVariables.ee_platform_distro))
             else:
-                EEShellExec.cmd_exec("add-apt-repository -y '{ppa_name}'"
+                EEShellExec.cmd_exec(self, "add-apt-repository -y "
+                                           "'{ppa_name}'"
                                      .format(ppa_name=ppa))
 
-    def remove(repo_url=None):
+    def remove(self, repo_url=None):
         # TODO remove repository
-        EEShellExec.cmd_exec("add-apt-repository -y "
-                             "--remove '{ppa_name}'".format(ppa_name=repo_url))
+        EEShellExec.cmd_exec(self, "add-apt-repository -y "
+                             "--remove '{ppa_name}'"
+                             .format(ppa_name=repo_url))
         pass
 
     def add_key(keyids, keyserver=None):

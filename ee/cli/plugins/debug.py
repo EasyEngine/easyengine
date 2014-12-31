@@ -17,23 +17,23 @@ class EEDebugController(CementBaseController):
         stacked_type = 'nested'
         arguments = [
             (['--stop'],
-                dict(help='Install web stack', action='store_true')),
+                dict(help='Stop debug', action='store_true')),
             (['--start'],
-                dict(help='Install admin tools stack', action='store_true')),
+                dict(help='Start debug', action='store_true')),
             (['--nginx'],
-                dict(help='Install mail server stack', action='store_true')),
+                dict(help='Debug Nginx', action='store_true')),
             (['--php'],
-                dict(help='Install Nginx stack', action='store_true')),
+                dict(help='Debug PHP', action='store_true')),
             (['--fpm'],
-                dict(help='Install PHP stack', action='store_true')),
+                dict(help='Debug FastCGI', action='store_true')),
             (['--mysql'],
-                dict(help='Install MySQL stack', action='store_true')),
+                dict(help='Debug MySQL', action='store_true')),
             (['--wp'],
-                dict(help='Install Postfix stack', action='store_true')),
+                dict(help='Debug WordPress sites', action='store_true')),
             (['--rewrite'],
-                dict(help='Install WPCLI stack', action='store_true')),
+                dict(help='Debug Nginx rewrite rules', action='store_true')),
             (['-i', '--interactive'],
-                dict(help='Install WPCLI stack', action='store_true')),
+                dict(help='Interactive debug', action='store_true')),
             ]
 
     @expose(hide=True)

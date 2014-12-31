@@ -13,7 +13,7 @@ class EEAptGet:
 
     def update(self):
         """Similar to apt-get update"""
-        self.app.log.debug("Update cache")
+        # self.app.log.debug("Update cache")
         self.cache.update(self.fprogress)
         self.cache.open()
 
@@ -202,19 +202,19 @@ class EEAptGet:
 
         # Check if packages available for remove/update.
         if self.cache.delete_count > 0:
-            self.app.log.debug('packages will be REMOVED ')
+            # self.app.log.debug('packages will be REMOVED ')
             print("The following packages will be REMOVED:"
                   "\n {pkg_name}"
                   .format(pkg_name=my_selected_packages))
             print("{pkg_remove_count} to remove."
                   .format(pkg_remove_count=self.cache.delete_count))
-            self.app.log.debug('bytes disk space will be freed')
+            # self.app.log.debug('bytes disk space will be freed')
             print("After this operation, {space} bytes disk spac"
                   "e will be freed.".format(space=self.cache.required_space))
             try:
                 self.cache.commit(self.fprogress, self.iprogress)
             except Exception as e:
-                self.app.log.error('Sorry, package installation failed ')
+                # self.app.log.error('Sorry, package installation failed ')
                 print("Sorry, package installation failed [{err}]"
                       .format(err=str(e)))
                 return(False)
