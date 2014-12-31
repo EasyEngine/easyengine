@@ -177,6 +177,7 @@ class EEStackController(CementBaseController):
                 self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                 ee_nginx.close()
 
+                data = dict(php="9000", debug="9001")
                 self.app.log.debug('writting the nginx configration to file'
                                    '/etc/nginx/conf.d/upstream.conf ')
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')

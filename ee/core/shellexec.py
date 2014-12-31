@@ -16,7 +16,7 @@ class EEShellExec():
             if retcode[0] == 0:
                 return True
             else:
-                self.app.log.info(retcode[1])
+                self.app.log.warn(retcode[1])
                 return False
         except OSError as e:
             self.app.log.info(e)
