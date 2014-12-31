@@ -5,7 +5,6 @@
 
 from cement.core import handler
 from ee.cli.controllers.base import EEBaseController
-from ee.cli.controllers.clean import EECleanController
 from ee.cli.controllers.secure import EESecureController
 from ee.cli.controllers.isl import EEImportslowlogController
 from ee.cli.controllers.info import EEInfoController
@@ -13,7 +12,6 @@ from ee.cli.controllers.info import EEInfoController
 
 def load(app):
     handler.register(EEBaseController)
-    handler.register(EECleanController)
     handler.register(EEInfoController)
     handler.register(EEImportslowlogController)
     handler.register(EESecureController)
