@@ -259,47 +259,50 @@ class EEStackController(CementBaseController):
                                      "smtpd_sasl_auth_enable = "
                                      "yes\"")
                 EEShellExec.cmd_exec(self, "postconf -e \""
-                                           "smtpd_relay_restrictions ="
-                                           "permit_sasl_authenticated, "
-                                           "permit_mynetworks, "
-                                           "reject_unauth_destination\"")
-                                           "protocols = !SSLv2,!SSLv3\"")
+                                           " smtpd_relay_restrictions ="
+                                           " permit_sasl_authenticated, "
+                                           " permit_mynetworks, "
+                                           " reject_unauth_destination\""
+                                           " protocols = !SSLv2,!SSLv3\"")
                 EEShellExec.cmd_exec(self, "postconf -e \""
                                      "smtpd_tls_mandatory_")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_protocols "
+                                     " protocols = !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_protocols "
+                                     " = !SSLv2,!SSLv3\"")
+                EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_protocols "
                                      "= !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec("postconf -e \"smtp_tls_protocols "
-                                     "= !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec("postconf -e \"mydestination "
+                EEShellExec.cmd_exec(self, "postconf -e \"mydestination "
                                      "= localhost\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_transport "
+                EEShellExec.cmd_exec(self, "postconf -e \"virtual_transport "
                                      "= lmtp:unix:private/dovecot-lmtp\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_uid_maps "
+                EEShellExec.cmd_exec(self, "postconf -e \"virtual_uid_maps "
                                      "= static:5000\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_gid_maps "
+                EEShellExec.cmd_exec(self, "postconf -e \"virtual_gid_maps "
                                      "= static:5000\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_mailbox_domains = "
-                                     "mysql:/etc/postfix/mysql/virtual_"
-                                     "domains_maps.cf\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_mailbox_maps = "
-                                     "mysql:/etc/postfix/mysql/virtual_"
+                EEShellExec.cmd_exec(self, "postconf -e \""
+                                     " virtual_mailbox_domains = "
+                                     " mysql:/etc/postfix/mysql/virtual_"
+                                     " domains_maps.cf\"")
+                EEShellExec.cmd_exec(self, "postconf -e \"virtual_mailbox_maps"
+                                     " = mysql:/etc/postfix/mysql/virtual_"
                                      "mailbox_maps.cf\"")
-                EEShellExec.cmd_exec("postconf -e \"virtual_alias_maps = "
-                                     "mysql:/etc/postfix/mysql/virtual_"
-                                     "alias_maps.cf\"")
-                EEShellExec.cmd_exec("openssl req -new -x509 -days 3650 -nodes"
-                                     " -subj /commonName={HOSTNAME}/emailAddre"
+                EEShellExec.cmd_exec(self, "postconf -e \"virtual_alias_maps  "
+                                     "= mysql:/etc/postfix/mysql/virtual_"
+                                     " alias_maps.cf\"")
+                EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
+                                     " 3650 -nodes-subj /commonName={HOSTNAME}"
+                                     "/emailAddre"
                                      "ss={EMAIL} -out /etc/ssl/certs/postfix."
                                      "pem -keyout /etc/ssl/private/postfix.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
-                EEShellExec.cmd_exec("chmod 0600 /etc/ssl/private/postfix.pem")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_cert_file = "
-                                     "/etc/ssl/certs/postfix.pem\"")
-                EEShellExec.cmd_exec("postconf -e \"smtpd_tls_key_file = "
-                                     "/etc/ssl/private/postfix.pem\"")
+                EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
+                                     "/postfix.pem")
+                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_cert_file "
+                                     "= /etc/ssl/certs/postfix.pem\"")
+                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_key_file "
+                                     " = /etc/ssl/private/postfix.pem\"")
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
@@ -318,8 +321,9 @@ class EEStackController(CementBaseController):
 
                 # Compile sieve rules
                 self.app.log.debug("Privillages to dovecot ")
-                EEShellExec.cmd_exec("chown -R vmail:vmail /var/lib/dovecot")
-                EEShellExec.cmd_exec("sievec /var/lib/dovecot/sieve/"
+                EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
+                                     "/dovecot")
+                EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
@@ -334,31 +338,32 @@ class EEStackController(CementBaseController):
                 ee_amavis.close()
 
                 # Amavis postfix configuration
-                EEShellExec.cmd_exec("postconf -e \"content_filter = "
+                EEShellExec.cmd_exec(self, "postconf -e \"content_filter = "
                                      "smtp-amavis:[127.0.0.1]:10024\"")
-                EEShellExec.cmd_exec("sed -i \"s/1       pickup/1       pickup"
+                EEShellExec.cmd_exec(self, "sed -i \"s/1       pickup/1       "
+                                     "pickup"
                                      "\n        -o content_filter=\n        -o"
                                      " receive_override_options=no_header_body"
                                      "_checks/\" /etc/postfix/master.cf")
 
                 # Amavis ClamAV configuration
                 self.app.log.debug("Adding new user clamav amavis")
-                EEShellExec.cmd_exec("adduser clamav amavis")
+                EEShellExec.cmd_exec(self, "adduser clamav amavis")
                 self.app.log.debug("Adding new user amavis clamav")
-                EEShellExec.cmd_exec("adduser amavis clamav")
+                EEShellExec.cmd_exec(self, "adduser amavis clamav")
                 self.app.log.debug("Privillages to file /var/lib/amavis/tmp ")
-                EEShellExec.cmd_exec("chmod -R 775 /var/lib/amavis/tmp")
+                EEShellExec.cmd_exec(self, "chmod -R 775 /var/lib/amavis/tmp")
 
                 # Update ClamAV database
                 self.app.log.debug("Updating database")
-                EEShellExec.cmd_exec("freshclam")
+                EEShellExec.cmd_exec(self, "freshclam")
                 self.app.log.debug("Restarting service clamav-daemon")
-                EEShellExec.cmd_exec("service clamav-daemon restart")
+                EEShellExec.cmd_exec(self, "service clamav-daemon restart")
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 self.app.log.debug("Privillages to /usr/bin/wp ")
-                EEShellExec.cmd_exec("chmod +x /usr/bin/wp")
+                EEShellExec.cmd_exec(self, "chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
@@ -372,7 +377,7 @@ class EEStackController(CementBaseController):
                             '/var/www/22222/htdocs/db/pma/')
                 self.app.log.debug('Privillages to www-data:www-data '
                                    '/var/www/22222/htdocs/db/pma ')
-                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                                      '/var/www/22222/htdocs/db/pma')
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
@@ -382,7 +387,7 @@ class EEStackController(CementBaseController):
                                   '/var/www/22222/htdocs/cache/memcache')
                 self.app.log.debug("Privillages to"
                                    " /var/www/22222/htdocs/cache/memcache")
-                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                                      '/var/www/22222/htdocs/cache/memcache')
 
             if any('/tmp/webgrind.tar.gz' == x[1]
@@ -398,7 +403,7 @@ class EEStackController(CementBaseController):
                             '/var/www/22222/htdocs/php/webgrind')
                 self.app.log.debug("Privillages www-data:www-data "
                                    "/var/www/22222/htdocs/php/webgrind/ ")
-                EEShellExec.cmd_exec('chown -R www-data:www-data '
+                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                                      '/var/www/22222/htdocs/php/webgrind/')
 
             if any('/tmp/anemometer.tar.gz' == x[1]
@@ -412,7 +417,7 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/Anemometer-master',
                             '/var/www/22222/htdocs/db/anemometer')
                 chars = ''.join(random.sample(string.ascii_letters, 8))
-                EEShellExec.cmd_exec('mysql < /var/www/22222/htdocs/db'
+                EEShellExec.cmd_exec(self, 'mysql < /var/www/22222/htdocs/db'
                                      '/anemometer/install.sql')
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'localhost\'')
@@ -432,7 +437,8 @@ class EEStackController(CementBaseController):
 
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
-                EEShellExec.cmd_exec("chmod +x /usr/bin/pt-query-advisor")
+                EEShellExec.cmd_exec(self, "chmod +x /usr/bin/pt-query"
+                                     "-advisor")
 
             if any('/tmp/vimbadmin.tar.gz' == x[1] for x in packages):
                 # Extract ViMbAdmin
@@ -449,11 +455,13 @@ class EEStackController(CementBaseController):
                 # Donwload composer and install ViMbAdmin
                 self.app.log.debug("Downloading composer "
                                    "https://getcomposer.org/installer | php ")
-                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin; curl"
+                EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
+                                     "/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
                                      " php")
                 self.app.log.debug("installation of composer")
-                EEShellExec.cmd_exec("cd /var/www/22222/htdocs/vimbadmin && "
+                EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
+                                     "/vimbadmin && "
                                      "php composer.phar install --prefer-dist"
                                      " --no-dev && rm -f /var/www/22222/htdocs"
                                      "/vimbadmin/composer.phar")

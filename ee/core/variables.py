@@ -25,7 +25,6 @@ class EEVariables():
         ee_user = config['user']['name']
         ee_email = config['user']['email']
     except KeyError as e:
-        self.app.log.error('Unable to find GIT user name and Email', e)
         print("Unable to find GIT user name and Email")
         sys.exit(1)
 
