@@ -2,6 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.shellexec import EEShellExec
 
 
 def debug_plugin_hook(app):
@@ -38,13 +39,36 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_nginx(self):
+        self.trigger_nginx = False
         if self.start:
-            print("Start Nginx debug")
-            debug_address = (self.app.config.get('stack', 'ip-address')
-                             .split())
-            print(debug_address)
+            try:
+                debug_address = (self.app.config.get('stack', 'ip-address')
+                                 .split())
+            except Exception as e:
+                debug_address = ['0.0.0.0/0']
+            for ip_addr in debug_address:
+                if not ("debug_connection "+ip_addr in open('/etc/nginx/'
+                   'nginx.conf').read()):
+                    print("Setting up NGINX debug connection for "+ip_addr)
+                    EEShellExec.cmd_exec(self, "sed -i \"/events {{/a\\ \\ \\ "
+                                               "\\ $(echo debug_connection "
+                                               "{ip}\;)\" /etc/nginx/"
+                                               "nginx.conf".format(ip=ip_addr))
+                    self.trigger_nginx = True
+
+            if not self.trigger_nginx:
+                print("NGINX debug connection already enabled")
+
+            self.msg = self.msg + " /var/log/nginx/*.error.log"
+
         else:
-            print("Stop Nginx debug")
+            if "debug_connection " in open('/etc/nginx/nginx.conf').read():
+                print("Disabling Nginx debug connections")
+                EEShellExec.cmd_exec(self, "sed -i \"/debug_connection.*/d\""
+                                     " /etc/nginx/nginx.conf")
+                self.trigger_nginx = True
+            else:
+                print("Nginx debug connection already disbaled")
 
     @expose(hide=True)
     def debug_php(self):
@@ -85,6 +109,7 @@ class EEDebugController(CementBaseController):
     def default(self):
         self.start = True
         self.interactive = False
+        self.msg = ""
 
         if self.app.pargs.stop:
             self.start = False
