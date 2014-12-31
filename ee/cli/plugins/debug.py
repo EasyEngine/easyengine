@@ -84,7 +84,7 @@ class EEDebugController(CementBaseController):
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
-
+                self.trigger_php = True
             else:
                 print("PHP debug is allready enabled")
         else:
@@ -98,15 +98,32 @@ class EEDebugController(CementBaseController):
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
+                self.trigger_php = True
             else:
                 print("PHP debug is allready disbaled")
 
     @expose(hide=True)
     def debug_fpm(self):
         if self.start:
-            print("Start FPM debug")
+            if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
+                                              "/etc/php5/fpm/php-fpm.conf"):
+                print("Setting up PHP5-FPM log_level = debug")
+                EEShellExec.cmd_exec(self, "sed -i \"s\';log_level.*\'log_"
+                                           "level = debug\'\" /etc/php5/fpm"
+                                           "/php-fpm.conf")
+                self.trigger_php = True
+            else:
+                print("PHP5-FPM log_level = debug already setup")
         else:
-            print("Stop FPM debug")
+            if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
+                                          "/etc/php5/fpm/php-fpm.conf"):
+                print("Disabling PHP5-FPM log_level = debug")
+                EEShellExec.cmd_exec(self, "sed -i \"s\'log_level.*\';log_"
+                                           "level = notice\'\" /etc/php5/fpm"
+                                           "/php-fpm.conf")
+                self.trigger_php = True
+            else:
+                print("PHP5-FPM log_level = debug already disabled")
 
     @expose(hide=True)
     def debug_mysql(self):
