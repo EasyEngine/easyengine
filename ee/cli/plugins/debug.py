@@ -37,24 +37,83 @@ class EEDebugController(CementBaseController):
             ]
 
     @expose(hide=True)
+    def debug_nginx(self):
+        if self.start:
+            print("Start Nginx debug")
+            debug_address = (self.app.config.get('stack', 'ip-address')
+                             .split())
+            print(debug_address)
+        else:
+            print("Stop Nginx debug")
+
+    @expose(hide=True)
+    def debug_php(self):
+        if self.start:
+            print("Start PHP debug")
+        else:
+            print("Stop PHP debug")
+
+    @expose(hide=True)
+    def debug_fpm(self):
+        if self.start:
+            print("Start FPM debug")
+        else:
+            print("Stop FPM debug")
+
+    @expose(hide=True)
+    def debug_mysql(self):
+        if self.start:
+            print("Start MySQL debug")
+        else:
+            print("Stop MySQL debug")
+
+    @expose(hide=True)
+    def debug_wp(self):
+        if self.start:
+            print("Start WP debug")
+        else:
+            print("Stop WP debug")
+
+    @expose(hide=True)
+    def debug_rewrite(self):
+        if self.start:
+            print("Start WP-Rewrite debug")
+        else:
+            print("Stop WP-Rewrite debug")
+
+    @expose(hide=True)
     def default(self):
         self.start = True
+        self.interactive = False
+
         if self.app.pargs.stop:
             self.start = False
+
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
+           and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
+           and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)):
+            self.debug_nginx()
+            self.debug_php()
+            self.debug_fpm()
+            self.debug_mysql()
+            self.debug_wp()
+            self.debug_rewrite()
+
         if self.app.pargs.nginx:
-            pass
+            self.debug_nginx()
         if self.app.pargs.php:
-            pass
+            self.debug_php()
         if self.app.pargs.fpm:
-            pass
+            self.debug_fpm()
         if self.app.pargs.mysql:
-            pass
+            self.debug_mysql()
         if self.app.pargs.wp:
-            pass
+            self.debug_wp()
         if self.app.pargs.rewrite:
-            pass
+            self.debug_rewrite()
+
         if self.app.pargs.interactive:
-            pass
+            self.interactive = True
 
 
 def load(app):

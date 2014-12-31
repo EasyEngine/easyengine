@@ -143,7 +143,6 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 # Nginx core configuration change using configparser
                 nc = NginxConfig()
-                print('in nginx')
                 self.app.log.debug('Loading file /etc/nginx/nginx.conf ')
                 nc.loadf('/etc/nginx/nginx.conf')
                 nc.set('worker_processes', 'auto')
