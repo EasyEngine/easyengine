@@ -20,6 +20,8 @@ class EEVariables():
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
 
+    ee_webroot = '/var/www/'
+
     # Get git user name and EMail
     try:
         ee_user = config['user']['name']

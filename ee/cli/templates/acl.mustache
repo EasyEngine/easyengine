@@ -1,0 +1,8 @@
+# EasyEngine (ee) protect locations using
+# HTTP authentication || IP address
+satisfy any;
+auth_basic "Restricted Area";
+auth_basic_user_file htpasswd-ee;
+# Allowed IP Address List
+allow 127.0.0.1;
+deny all;

@@ -36,4 +36,12 @@ class EEFileUtils():
         try:
             os.symlink(src, dst)
         except Exception as e:
-            print("Unable to create sybolic link for {0}".format(e))
+            print("Unable to create symbolic link ...\n {0} "
+                  .format(e.reason))
+
+    def remove_symlink(filepath):
+        try:
+            os.unlink(path)
+        except Exception as e:
+            print("Unable to reomove symbolic link ...\n {0} "
+                  .format(e.reason))
