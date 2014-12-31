@@ -373,10 +373,10 @@ class EEStackController(CementBaseController):
                                      "= mysql:/etc/postfix/mysql/virtual_"
                                      " alias_maps.cf\"")
                 EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
-                                     " 3650 -nodes-subj /commonName={HOSTNAME}"
-                                     "/emailAddre"
-                                     "ss={EMAIL} -out /etc/ssl/certs/postfix."
-                                     "pem -keyout /etc/ssl/private/postfix.pem"
+                                     " 3650 -nodes -subj /commonName="
+                                     "{HOSTNAME}/emailAddress={EMAIL}"
+                                     " -out /etc/ssl/certs/postfix.pem"
+                                     " -keyout /etc/ssl/private/postfix.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
                 EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
