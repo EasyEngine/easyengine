@@ -4,7 +4,7 @@ from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.domainvalidate import validate_domain
 from ee.core.fileutils import EEFileUtils
-from ee.cli.plugins.site_functions import setup_domain
+from ee.cli.plugins.site_functions import setup_domain, setup_database
 import sys
 import os
 
@@ -237,6 +237,7 @@ class EESiteCreateController(CementBaseController):
                                 wpsubdir=False, webroot=ee_site_webroot)
 
         setup_domain(self, data)
+        setup_database(self, data)
 
 
 class EESiteUpdateController(CementBaseController):

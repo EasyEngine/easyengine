@@ -1,6 +1,7 @@
 """EasyEngine file utils core classes."""
 import shutil
 import os
+import sys
 import glob
 
 
@@ -24,24 +25,24 @@ class EEFileUtils():
                     shutil.rmtree(file)
                     self.app.log.info("Done")
                 except shutil.Error as e:
-                    self.app.log.error('Unable to Remove file'
-                                       + os.path.basename(file)+e.reason())
-                    self.app.log.info("Unable to remove file, [{err}]"
-                                      .format(err=str(e.reason)))
-                    return False
+                    self.app.log.error('Unable to Remove file {err}'
+                                       .format(err=str(e.reason)))
+                    sys.exit(1)
 
-    def create_symlink(paths):
+    def create_symlink(self, paths):
         src = paths[0]
         dst = paths[1]
         try:
             os.symlink(src, dst)
         except Exception as e:
-            print("Unable to create symbolic link ...\n {0} "
-                  .format(e.reason))
+            self.app.log.error("Unable to create symbolic link ...\n {0} {1}"
+                               .format(e.errno, e.strerror))
+            sys.exit(1)
 
-    def remove_symlink(filepath):
+    def remove_symlink(self, filepath):
         try:
-            os.unlink(path)
+            os.unlink(filepath)
         except Exception as e:
-            print("Unable to reomove symbolic link ...\n {0} "
-                  .format(e.reason))
+            self.app.log.error("Unable to reomove symbolic link ...\n {0} {1}"
+                               .format(e.errno, e.strerror))
+            sys.exit(1)
