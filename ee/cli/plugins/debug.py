@@ -39,12 +39,14 @@ class EEDebugController(CementBaseController):
             (['--import-slow-log-interval'],
                 dict(help='Import MySQL slow log to Anemometer',
                      action='store', dest='interval')),
+            (['site_name'],
+                dict(help='Website Name', nargs='?', default=None))
             ]
 
     @expose(hide=True)
     def debug_nginx(self):
         self.trigger_nginx = False
-        if self.start:
+        if self.start and not self.app.pargs.site_name:
             try:
                 debug_address = (self.app.config.get('stack', 'ip-address')
                                  .split())
@@ -65,7 +67,7 @@ class EEDebugController(CementBaseController):
 
             self.msg = self.msg + " /var/log/nginx/*.error.log"
 
-        else:
+        elif not self.start and not self.app.pargs.site_name:
             if "debug_connection " in open('/etc/nginx/nginx.conf').read():
                 print("Disabling Nginx debug connections")
                 EEShellExec.cmd_exec(self, "sed -i \"/debug_connection.*/d\""
@@ -73,6 +75,12 @@ class EEDebugController(CementBaseController):
                 self.trigger_nginx = True
             else:
                 print("Nginx debug connection already disbaled")
+
+        elif self.start and self.app.pargs.site_name:
+            print("Enabling debug for "+self.app.pargs.site_name)
+
+        elif not self.start and self.app.pargs.site_name:
+            print("Disabling debug for "+self.app.pargs.site_name)
 
     @expose(hide=True)
     def debug_php(self):
@@ -174,23 +182,30 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_wp(self):
-        if self.start:
-            print("Start WP debug")
+        if self.start and self.app.pargs.site_name:
+            print("Start WP debug for site")
+        elif not self.start and not self.app.pargs.site_name:
+            print("Stop WP debug for site")
         else:
-            print("Stop WP debug")
+            print("Missing argument site_name")
 
     @expose(hide=True)
     def debug_rewrite(self):
-        if self.start:
-            print("Start WP-Rewrite debug")
-        else:
-            print("Stop WP-Rewrite debug")
+        if self.start and not self.app.pargs.site_name:
+            print("Start WP-Rewrite debug globally")
+        elif self.start and not self.app.pargs.site_name:
+            print("Stop WP-Rewrite debug globally")
+        elif self.start and self.app.pargs.site_name:
+            print("Start WP-Rewrite for site")
+        elif not self.start and not self.app.pargs.site_name:
+            print("Stop WP-Rewrite for site")
 
     @expose(hide=True)
     def default(self):
         self.start = True
         self.interactive = False
         self.msg = ""
+        print(self.app.pargs.site_name)
 
         if self.app.pargs.stop:
             self.start = False
