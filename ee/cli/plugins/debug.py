@@ -3,6 +3,7 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.shellexec import EEShellExec
+from ee.core.mysql import EEMysql
 
 
 def debug_plugin_hook(app):
@@ -35,6 +36,9 @@ class EEDebugController(CementBaseController):
                 dict(help='Debug Nginx rewrite rules', action='store_true')),
             (['-i', '--interactive'],
                 dict(help='Interactive debug', action='store_true')),
+            (['--import-slow-log-interval'],
+                dict(help='Import MySQL slow log to Anemometer',
+                     action='store', dest='interval')),
             ]
 
     @expose(hide=True)
@@ -128,9 +132,45 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def debug_mysql(self):
         if self.start:
-            print("Start MySQL debug")
+            if not EEShellExec.cmd_exec(self, "mysql -e \"show variables like"
+                                              " \'slow_query_log\';\" | "
+                                              "grep ON"):
+                print("Setting up MySQL slow log")
+                EEMysql.execute(self, "set global slow_query_log = "
+                                      "\'ON\';")
+                EEMysql.execute(self, "set global slow_query_log_file = "
+                                      "\'/var/log/mysql/mysql-slow.log\';")
+                EEMysql.execute(self, "set global long_query_time = 2;")
+                EEMysql.execute(self, "set global log_queries_not_using"
+                                      "_indexes = \'ON\';")
+                if self.app.pargs.interval:
+                    try:
+                        cron_time = int(self.app.pargs.interval)
+                    except Exception as e:
+                        cron_time = 5
+                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l 2> "
+                                         "/dev/null | {{ cat; echo -e"
+                                         " \\\"#EasyEngine start MySQL slow"
+                                         " log \\n*/{0} * * * * "
+                                         "/usr/local/sbin/ee import-slow-log\\"
+                                         "n#EasyEngine end MySQL slow log\\\";"
+                                         " }} | crontab -\"".format(cron_time))
+            else:
+                print("MySQL slow log is allready enabled")
         else:
-            print("Stop MySQL debug")
+            if EEShellExec.cmd_exec(self, "mysql -e \"show variables like \'"
+                                    "slow_query_log\';\" | grep ON"):
+                print("Disabling MySQL slow log")
+                EEMysql.execute(self, "set global slow_query_log = \'OFF\';")
+                EEMysql.execute(self, "set global slow_query_log_file = \'"
+                                "/var/log/mysql/mysql-slow.log\';")
+                EEMysql.execute(self, "set global long_query_time = 10;")
+                EEMysql.execute(self, "set global log_queries_not_using_index"
+                                "es = \'OFF\';")
+                EEShellExec.cmd_exec(self, "crontab -l | sed \'/#EasyEngine "
+                                     "start/,/#EasyEngine end/d\' | crontab -")
+            else:
+                print("MySQL slow log already disabled")
 
     @expose(hide=True)
     def debug_wp(self):
