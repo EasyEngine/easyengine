@@ -63,6 +63,7 @@ def setup_database(self, data):
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
     ee_mysql_host = self.app.config.get('mysql', 'grant-host')
+    ee_db_name = ''
 
     if prompt_dbname == 'True':
         try:
@@ -72,8 +73,8 @@ def setup_database(self, data):
             print("{0} {1}".format(e.errorno, e.strerror))
             sys.exit(0)
 
-        if not ee_db_name:
-            ee_db_name = ee_replace_dot
+    if not ee_db_name:
+        ee_db_name = ee_replace_dot
 
     if prompt_dbuser:
         try:
@@ -85,35 +86,34 @@ def setup_database(self, data):
             print("{0} {1}".format(e.errorno, e.strerror))
             sys.exit(1)
 
-        if not ee_db_username:
-            ee_db_username = ee_replace_dot
-        if not ee_db_password:
-            ee_db_password = ee_random
+    if not ee_db_username:
+        ee_db_username = ee_replace_dot
+    if not ee_db_password:
+        ee_db_password = ee_random
 
-        if len(ee_db_name) > 16:
-            print('Autofix MySQL username (ERROR 1470 (HY000)), please wait...'
-                  )
-            ee_random10 = (''.join(random.sample(string.ascii_uppercase +
-                           string.ascii_lowercase + string.digits, 10)))
-            ee_db_name = (ee_db_name[0:6] + ee_random10)
+    if len(ee_db_username) > 16:
+        print('Autofix MySQL username (ERROR 1470 (HY000)), please wait...')
+        ee_random10 = (''.join(random.sample(string.ascii_uppercase +
+                       string.ascii_lowercase + string.digits, 10)))
+        ee_db_name = (ee_db_name[0:6] + ee_random10)
 
-        # create MySQL database
-        EEMysql.execute(self, "create database \'{0}\'"
-                        .format(ee_db_name))
+    # create MySQL database
+    EEMysql.execute(self, "create database \'{0}\'"
+                    .format(ee_db_name))
 
-        # Create MySQL User
-        EEMysql.execute(self,
-                        "create user \'{0}\'@\'{1}\' identified by \'{2}\'"
-                        .format(ee_db_username, ee_mysql_host, ee_db_password))
+    # Create MySQL User
+    EEMysql.execute(self,
+                    "create user \'{0}\'@\'{1}\' identified by \'{2}\'"
+                    .format(ee_db_username, ee_mysql_host, ee_db_password))
 
-        # Grant permission
-        EEMysql.execute(self,
-                        "grant all privileges on \'{0}\'.* to \'{1}\'@\'{2}\'"
-                        .format(ee_db_name, ee_db_username, ee_db_password))
-        data['ee_db_name'] = ee_db_name
-        data['ee_db_user'] = ee_db_username
-        data['ee_db_pass'] = ee_db_password
-        return data
+    # Grant permission
+    EEMysql.execute(self,
+                    "grant all privileges on \'{0}\'.* to \'{1}\'@\'{2}\'"
+                    .format(ee_db_name, ee_db_username, ee_db_password))
+    data['ee_db_name'] = ee_db_name
+    data['ee_db_user'] = ee_db_username
+    data['ee_db_pass'] = ee_db_password
+    return data
 
 
 def setup_wordpress(self, data):
