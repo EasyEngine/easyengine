@@ -32,7 +32,6 @@ class EEsecureController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        # TODO Default action for ee clean command here
             if self.app.pargs.auth:
                 self.secure_auth()
             if self.app.pargs.port:
@@ -42,7 +41,6 @@ class EEsecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_auth(self):
-        print("Securing auth.....")
         passwd = ''.join([random.choice
                  (string.ascii_letters + string.digits)
                  for n in range(6)])
@@ -50,12 +48,14 @@ class EEsecureController(CementBaseController):
                          "name [{0}] :".format(EEVariables.ee_user))
         password = input("Provide HTTP authentication "
                          "password [{0}]".format(passwd))
-        if password == "":
-            password = passwd
-            print(password)
         if username == "":
             username = EEVariables.ee_user
-            print(username)
+            self.app.log.info("HTTP authentication username:{username}"
+                              .format(username=username))
+        if password == "":
+            password = passwd
+            self.app.log.info("HTTP authentication password:{password}"
+                              .format(password=password))
         EEShellExec.cmd_exec(self, "printf \"{username}:"
                              "$(openssl passwd -crypt "
                              "{password} 2> /dev/null)\n\""
@@ -65,7 +65,6 @@ class EEsecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_port(self):
-        #TODO:remaining with ee.conf updation in file
         port = input("EasyEngine admin port [22222]:")
         if port == "":
             port = 22222
@@ -82,10 +81,10 @@ class EEsecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_ip(self):
+        #TODO:remaining with ee.conf updation in file
         newlist = []
         ip = input("Enter the comma separated IP addresses "
                    "to white list [127.0.0.1]:")
-        ip_found = False
         try:
             user_list_ip = ip.split(',')
         except Exception as e:
@@ -96,8 +95,6 @@ class EEsecureController(CementBaseController):
         for check_ip in user_list_ip:
             if check_ip not in exist_ip_list:
                 newlist.extend(exist_ip_list)
-            else:
-                print("IP found")
         # changes in acl.conf file
             if len(newlist) != 0:
                 EEShellExec.cmd_exec(self, "sed -i \"/allow.*/d\" /etc/nginx"
