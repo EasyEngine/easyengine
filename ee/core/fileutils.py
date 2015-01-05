@@ -71,3 +71,11 @@ class EEFileUtils():
             self.app.log.error('Unable to move file {err}'
                                .format(err=str(e.reason)))
             sys.exit(1)
+
+    def chdir(self, path):
+        try:
+            os.chdir(path)
+        except OSError as e:
+            self.app.log.error('Unable to Change Directory {err}'
+                               .format(err=e.strerror))
+            sys.exit(1)

@@ -4,7 +4,7 @@ from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.domainvalidate import validate_domain
 from ee.core.fileutils import EEFileUtils
-from ee.cli.plugins.site_functions import setup_domain, setup_database
+from ee.cli.plugins.site_functions import *
 import sys
 import os
 
@@ -131,8 +131,7 @@ class EESiteCreateController(CementBaseController):
             data = dict(site_name=ee_domain_name,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
-                        wpsubdir=False, webroot=ee_site_webroot,
-                        ee_db_name='', ee_db_user='', ee_db_pass='')
+                        wpsubdir=False, webroot=ee_site_webroot)
 
         if (self.app.pargs.php and not (self.app.pargs.html or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
@@ -141,8 +140,7 @@ class EESiteCreateController(CementBaseController):
             data = dict(site_name=ee_domain_name,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
-                        wpsubdir=False, webroot=ee_site_webroot,
-                        ee_db_name='', ee_db_user='', ee_db_pass='')
+                        wpsubdir=False, webroot=ee_site_webroot)
 
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
@@ -252,7 +250,10 @@ class EESiteCreateController(CementBaseController):
                                 ee_db_name='', ee_db_user='', ee_db_pass='')
 
         setup_domain(self, data)
-        setup_database(self, data)
+        if 'ee_db_name' in data.keys():
+            data = setup_database(self, data)
+        if data['wp']:
+            setup_wordpress(self, data)
 
 
 class EESiteUpdateController(CementBaseController):

@@ -63,7 +63,6 @@ def setup_database(self, data):
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
     ee_mysql_host = self.app.config.get('mysql', 'grant-host')
-    print(ee_random)
 
     if prompt_dbname == 'True':
         try:
@@ -111,9 +110,13 @@ def setup_database(self, data):
         EEMysql.execute(self,
                         "grant all privileges on \'{0}\'.* to \'{1}\'@\'{2}\'"
                         .format(ee_db_name, ee_db_username, ee_db_password))
+        data['ee_db_name'] = ee_db_name
+        data['ee_db_user'] = ee_db_username
+        data['ee_db_pass'] = ee_db_password
+        return data
 
 
-def setup_wordpress(data):
+def setup_wordpress(self, data):
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
     prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
@@ -156,11 +159,22 @@ def setup_wordpress(data):
     EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
                               'wp_', '')'''
 
-    EEShellExec.cmd_exec(self, "wp --allow-root core config"
-                         "--dbname={0} --dbprefix={1}"
-                         .format(ee_db_name, ee_wp_prefix)
-                         "--dbuser={2} --dbprefix={3}"
-                         .format(ee_db_user, ee_db_password))
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    if not data['multisite']:
+        EEShellExec.cmd_exec(self, "wp --allow-root core config"
+                             "--dbname={0} --dbprefix={1} --dbuser={2}"
+                             .format(ee_db_name, ee_wp_prefix, ee_db_user)
+                             + "--dbpass={0}".format(ee_db_password))
+
+    else:
+        EEShellExec.cmd_exec(self, "wp --allow-root core config"
+                             "--dbname={0} --dbprefix={1}"
+                             .format(ee_db_name, ee_wp_prefix)
+                             + "--dbuser={0} --dbpass={1} --extra-php<<PHP"
+                             + "define('WP_ALLOW_MULTISITE', true);"
+                             + "define('WPMU_ACCEL_REDIRECT', true);"
+                             + "PHP"
+                             .format(ee_db_user, ee_db_password))
 
     EEFileUtils.mvfile('./wp-config.php', '../')
 
@@ -182,12 +196,51 @@ def setup_wordpress(data):
             ee_wp_email = input('Enter WordPress email: ')
 
     print("Setting up WordPress, please wait...")
-    EEShellExec.cmd_exec(self, "wp --allow-root core install"
-                         "--url=www.{0} --title=www.{0} --admin_name={1}"
-                         .format(ee_domain_name, ee_wp_user)
-                         "--admin_password={0} --admin_email={1}"
-                         .format(ee_wp_pass, ee_wp_email))
+
+    if not data['multisite']:
+        EEShellExec.cmd_exec(self, "wp --allow-root core install"
+                             "--url=www.{0} --title=www.{0} --admin_name={1}"
+                             .format(ee_domain_name, ee_wp_user)
+                             + "--admin_password={0} --admin_email={1}"
+                             .format(ee_wp_pass, ee_wp_email))
+    else:
+        EEShellExec.cmd_exec(self, "wp --allow-root core multisite-install"
+                             "--url=www.{0} --title=www.{0} --admin_name={1}"
+                             .format(ee_domain_name, ee_wp_user)
+                             + "--admin_password={0} --admin_email={1} "
+                             "{subdomains}"
+                             .format(ee_wp_pass, ee_wp_email,
+                                     subdomains='--subdomains'
+                                     if not data['wpsubdir'] else ''))
 
     print("Updating WordPress permalink, please wait...")
     EEShellExec.cmd_exec("wp rewrite structure --allow-root"
                          "/%year%/%monthnum%/%day%/%postname%/")
+
+    """Install nginx-helper plugin """
+    install_wp_plugin(self, 'nginx-helper', data)
+
+    """Install Wp Super Cache"""
+    if data['wpsc']:
+        install_wp_plugin(self, 'wp-super-cache', data)
+
+    """Install W3 Total Cache"""
+    if data['w3tc'] or data['wpfc']:
+        install_wp_plugin(self, 'w3-total-cache', data)
+
+
+def setup_wordpress_network(self, ee_www_domain, ee_site_webroot,
+                            subdomain=False):
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
+                         '--title={0}')
+
+
+def install_wp_plugin(self, plugin_name, data):
+    ee_site_webroot = ee_site_webroot = data['webroot']
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    EEShellExec.cmd_exec(self, "wp plugin --allow-root install {0}"
+                         .format(plugin_name))
+
+    EEShellExec.cmd_exec(self, "wp plugin --allow-root activate {0} {na}"
+                         .format(na='--network' if data['multisite'] else ''))
