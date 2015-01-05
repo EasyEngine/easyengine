@@ -28,8 +28,8 @@ class EEMysql():
                                        user=user, passwd=passwd)
                 cur = conn.cursor()
             except Exception as e:
-                self.app.log.error('Unable to connect to database', e.reason())
-                self.app.log.info("Unable to connect to database")
+                self.app.log.error('Unable to connect to database\{0} {1}'
+                                   .format(e.errno, e.strerror))
                 return False
 
         try:

@@ -21,21 +21,16 @@ class EEDownload():
                 urllib.request.urlretrieve(url, filename)
                 self.app.log.info("Done")
             except urllib.error.URLError as e:
-                self.app.log.error("Error is :"
-                                   + os.path.basename(url)+e.reason())
                 self.app.log.info("Unable to donwload file, [{err}]"
                                   .format(err=str(e.reason)))
                 return False
             except urllib.error.HTTPError as e:
-                self.app.log.error("Package download failed", e.reason())
-                self.app.log.info("Package download failed. [{err}]"
-                                  .format(err=str(e.reason)))
+                self.app.log.error("Package download failed. [{err}]"
+                                   .format(err=str(e.reason)))
                 return False
             except urllib.error.ContentTooShortError as e:
                 self.app.log.error("Package download failed. The amount of the"
                                    " downloaded data is less than "
-                                   "the expected amount"+e.reason())
-                self.app.log.info("Package download failed. The amount of the"
-                                  "downloaded data is less than"
-                                  " the expected amount")
+                                   "the expected amount \{0} {1}"
+                                   .format(e.errno, e.strerror))
                 return False

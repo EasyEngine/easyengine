@@ -20,7 +20,8 @@ class EEService():
                 else:
                     self.app.log.error(retcode[1])
             except OSError as e:
-                self.app.log.error("Execution failed:",  e)
+                self.app.log.error("Unable to start service \ {0} {1}"
+                                   .format(e.errno, e.strerror))
                 return False
 
     def stop_service(self, service_name):
@@ -33,7 +34,8 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-                self.app.log.error("Execution failed:", e)
+                self.app.log.error("Unable to stop services \ {0}{1}"
+                                   .format(e.errno, e.strerror))
                 return False
 
     def restart_service(self, service_name):
@@ -41,7 +43,8 @@ class EEService():
                 EEService.stop_service(self, service_name)
                 EEService.start_service(self, service_name)
             except OSError as e:
-                self.app.log.error("Execution failed:",  e)
+                self.app.log.error("Unable to restart services \{0} {1}"
+                                   .format(e.errno, e.strerror))
 
     def get_service_status(self, service_name):
         try:
@@ -57,4 +60,6 @@ class EEService():
             else:
                 return False
         except OSError as e:
+            self.app.log.error("Unable to get services status \ {0}{1}"
+                               .format(e.errno, e.strerror))
             return False

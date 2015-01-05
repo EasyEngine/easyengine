@@ -19,5 +19,6 @@ class EEShellExec():
                 self.app.log.warn(retcode[1])
                 return False
         except OSError as e:
-            self.app.log.info(e)
+            self.app.log.error("Unable to execute command \ {0}{1}"
+                               .format(e.errno, e.strerror))
             return False
