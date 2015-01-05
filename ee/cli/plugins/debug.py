@@ -4,6 +4,7 @@ from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.shellexec import EEShellExec
 from ee.core.mysql import EEMysql
+import os
 
 
 def debug_plugin_hook(app):
@@ -46,6 +47,7 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def debug_nginx(self):
         self.trigger_nginx = False
+        # start global debug
         if self.start and not self.app.pargs.site_name:
             try:
                 debug_address = (self.app.config.get('stack', 'ip-address')
@@ -67,6 +69,7 @@ class EEDebugController(CementBaseController):
 
             self.msg = self.msg + " /var/log/nginx/*.error.log"
 
+        # stop global debug
         elif not self.start and not self.app.pargs.site_name:
             if "debug_connection " in open('/etc/nginx/nginx.conf').read():
                 print("Disabling Nginx debug connections")
@@ -76,14 +79,48 @@ class EEDebugController(CementBaseController):
             else:
                 print("Nginx debug connection already disbaled")
 
+        # start site specific debug
         elif self.start and self.app.pargs.site_name:
-            print("Enabling debug for "+self.app.pargs.site_name)
+            config_path = ("/etc/nginx/sites-available/{0}"
+                           .format(self.app.pargs.site_name))
+            if os.path.isfile(config_path):
+                if not EEShellExec.cmd_exec("grep \"error.log debug\" {0}"
+                                            .format(config_path)):
+                    print("Starting NGINX debug connection for {0}"
+                          .format(self.app.pargs.site_name))
+                    EEShellExec.cmd_exec("sed -i \"s/error.log;/error.log "
+                                         "debug;/\" {0}".format(config_path))
+                    self.trigger_nginx = True
 
+                else:
+                    print("Debug for site allready enabled")
+
+            else:
+                print("{0} domain not valid".format(self.app.pargs.site_name))
+
+        # stop site specific debug
         elif not self.start and self.app.pargs.site_name:
-            print("Disabling debug for "+self.app.pargs.site_name)
+            config_path = ("/etc/nginx/sites-available/{0}"
+                           .format(self.app.pargs.site_name))
+            if os.path.isfile(config_path):
+                if EEShellExec.cmd_exec("grep \"error.log debug\" {0}"
+                                        .format(config_path)):
+                    print("Stoping NGINX debug connection for {0}"
+                          .format(self.app.pargs.site_name))
+                    EEShellExec.cmd_exec("sed -i \"s/error.log debug;/"
+                                         "error.log;/\" {0}"
+                                         .format(config_path))
+                    self.trigger_nginx = True
+
+                else:
+                    print("Debug for site allready disbaled")
+
+            else:
+                print("{0} domain not valid".format(self.app.pargs.site_name))
 
     @expose(hide=True)
     def debug_php(self):
+        # PHP global debug start
         if self.start:
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php"
                                                "{/,/}/p \" /etc/nginx/"
@@ -99,6 +136,8 @@ class EEDebugController(CementBaseController):
                 self.trigger_php = True
             else:
                 print("PHP debug is allready enabled")
+
+        # PHP global debug stop
         else:
             if EEShellExec.cmd_exec(self, "sed -n \"/upstream php {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
@@ -116,6 +155,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_fpm(self):
+        # PHP5-FPM start global debug
         if self.start:
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                               "/etc/php5/fpm/php-fpm.conf"):
@@ -126,6 +166,7 @@ class EEDebugController(CementBaseController):
                 self.trigger_php = True
             else:
                 print("PHP5-FPM log_level = debug already setup")
+        # PHP5-FPM stop global debug
         else:
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php5/fpm/php-fpm.conf"):
@@ -139,6 +180,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_mysql(self):
+        # MySQL start global debug
         if self.start:
             if not EEShellExec.cmd_exec(self, "mysql -e \"show variables like"
                                               " \'slow_query_log\';\" | "
@@ -165,6 +207,7 @@ class EEDebugController(CementBaseController):
                                          " }} | crontab -\"".format(cron_time))
             else:
                 print("MySQL slow log is allready enabled")
+        # MySQL stop global debug
         else:
             if EEShellExec.cmd_exec(self, "mysql -e \"show variables like \'"
                                     "slow_query_log\';\" | grep ON"):
@@ -183,9 +226,58 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def debug_wp(self):
         if self.start and self.app.pargs.site_name:
-            print("Start WP debug for site")
-        elif not self.start and not self.app.pargs.site_name:
-            print("Stop WP debug for site")
+            wp_config = ("/var/www/{0}/wp-config.php"
+                         .format(self.app.pargs.site_name))
+            webroot = "/var/www/{0}".format(self.app.pargs.site_name)
+            if os.path.isfile(wp_config):
+                if not EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} |"
+                                            " grep true".format(wp_config)):
+                    print("Starting WordPress debug")
+                    open("{0}/htdocs/wp-content/debug.log".format(webroot),
+                         'a').close()
+                    EEShellExec.cmd_exec(self, "chown www-data: {0}/htdocs/wp-"
+                                         "content/debug.log".format(webroot))
+                    EEShellExec.cmd_exec(self, "sed -i \"s/define(\'WP_DEBUG\'"
+                                         ".*/define(\'WP_DEBUG\', true);\\n"
+                                         "define(\'WP_DEBUG_DISPLAY\', false);"
+                                         "\\ndefine(\'WP_DEBUG_LOG\', true);"
+                                         "\\ndefine(\'SAVEQUERIES\', true);/\""
+                                         " {0}".format(wp_config))
+                    EEShellExec.cmd_exec(self, "cd {0}/htdocs/ && wp"
+                                         " plugin --allow-root install "
+                                         "developer".format(webroot))
+                    EEShellExec.cmd_exec(self, "chown -R www-data: {0}/htdocs/"
+                                         "wp-content/plugins"
+                                         .format(webroot))
+                else:
+                    print("WordPress debug log already enabled")
+            else:
+                print("{0} domain not valid".format(self.app.pargs.site_name))
+
+        elif not self.start and self.app.pargs.site_name:
+            wp_config = ("/var/www/{0}/wp-config.php"
+                         .format(self.app.pargs.site_name))
+            webroot = "/var/www/{0}".format(self.app.pargs.site_name)
+            if os.path.isfile(wp_config):
+                if EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} | "
+                                        "grep true".format(wp_config)):
+                    print("Disabling WordPress debug")
+                    EEShellExec.cmd_exec(self, "sed -i \"s/define(\'WP_DEBUG\'"
+                                         ", true);/define(\'WP_DEBUG\', "
+                                         "false);/\" {0}".format(wp_config))
+                    EEShellExec.cmd_exec(self, "sed -i \"/define(\'"
+                                         "WP_DEBUG_DISPLAY\', false);/d\" {0}"
+                                         .format(wp_config))
+                    EEShellExec.cmd_exec(self, "sed -i \"/define(\'"
+                                         "WP_DEBUG_LOG\', true);/d\" {0}"
+                                         .format(wp_config))
+                    EEShellExec.cmd_exec("sed -i \"/define(\'"
+                                         "SAVEQUERIES\', "
+                                         "true);/d\" {0}".format(wp_config))
+                else:
+                    print("WordPress debug all already disbaled")
+            else:
+                print("{0} domain not valid".format(self.app.pargs.site_name))
         else:
             print("Missing argument site_name")
 
@@ -205,7 +297,6 @@ class EEDebugController(CementBaseController):
         self.start = True
         self.interactive = False
         self.msg = ""
-        print(self.app.pargs.site_name)
 
         if self.app.pargs.stop:
             self.start = False
