@@ -2,6 +2,7 @@
 import pymysql
 import configparser
 from os.path import expanduser
+import sys
 
 
 class EEMysql():
@@ -29,18 +30,17 @@ class EEMysql():
                 cur = conn.cursor()
             except Exception as e:
                 self.app.log.error('Unable to connect to database: {0}'
-                                   .format(e.strerror))
-                return False
+                                   .format(e))
+                sys.exit(1)
 
         try:
             cur.execute(statement)
         except Exception as e:
             self.app.log.error('Error occured while executing: {0}'
-                               .format(e.strerror))
-            self.app.log.info("Error occured while executing "+statement)
+                               .format(e))
             cur.close()
             conn.close()
-            return False
+            sys.exit(1)
 
         cur.close()
         conn.close()

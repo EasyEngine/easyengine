@@ -250,7 +250,7 @@ class EESiteCreateController(CementBaseController):
                                 ee_db_name='', ee_db_user='', ee_db_pass='')
 
         setup_domain(self, data)
-        if 'ee_db_name' in data.keys():
+        if 'ee_db_name' in data.keys() and not data['wp']:
             data = setup_database(self, data)
         if data['wp']:
             setup_wordpress(self, data)
