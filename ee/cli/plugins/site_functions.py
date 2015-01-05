@@ -127,8 +127,8 @@ def setup_wordpress(self, data):
     ee_random = (''.join(random.sample(string.ascii_uppercase +
                  string.ascii_lowercase + string.digits, 15)))
     print("Downloading Wordpress, please wait...")
-    EEShellExec.cmd_exec(self, "wp --allow-root core download"
-                         "--path={0}/htdocs/".format(ee_site_webroot))
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    EEShellExec.cmd_exec(self, "wp --allow-root core download")
 
     setup_database(self, data)
     if prompt_wpprefix == 'True':
