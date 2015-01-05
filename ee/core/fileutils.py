@@ -3,6 +3,8 @@ import shutil
 import os
 import sys
 import glob
+import shutil
+import fileinput
 
 
 class EEFileUtils():
@@ -45,4 +47,35 @@ class EEFileUtils():
         except Exception as e:
             self.app.log.error("Unable to reomove symbolic link ...\n {0} {1}"
                                .format(e.errno, e.strerror))
+            sys.exit(1)
+
+    def copyfile(self, src, dst):
+        try:
+            shutil.copy2(src, dest)
+        except shutil.Error as e:
+            print('Error: {0}'.format(e))
+        except IOError as e:
+            print('Error: {e}'.format(e.strerror))
+
+    def searchreplace(self, fnm, sstr, rstr):
+        try:
+            for line in fileinput.input(fnm, inplace=True):
+                print(line.replace(textToSearch, textToReplace), end='')
+        except Exception as e:
+            print('Error : {0}'.format(e))
+
+    def mvfile(self, src, dst):
+        try:
+            shutil.move(src, dst)
+        except shutil.Error as e:
+            self.app.log.error('Unable to move file {err}'
+                               .format(err=str(e.reason)))
+            sys.exit(1)
+
+    def chdir(self, path):
+        try:
+            os.chdir(path)
+        except OSError as e:
+            self.app.log.error('Unable to Change Directory {err}'
+                               .format(err=e.strerror))
             sys.exit(1)

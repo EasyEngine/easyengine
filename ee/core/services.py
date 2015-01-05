@@ -46,6 +46,19 @@ class EEService():
                 self.app.log.error("Unable to restart services \{0} {1}"
                                    .format(e.errno, e.strerror))
 
+    def reload_service(self, service_name):
+            try:
+                retcode = subprocess.getstatusoutput('service {0} reload'
+                                                     .format(service_name))
+                if retcode[0] == 0:
+                    self.app.log.info("reload : {0}".format(service_name))
+                    return True
+                else:
+                    return False
+            except OSError as e:
+                self.app.log.error("Execution failed:", e)
+                return False
+
     def get_service_status(self, service_name):
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
