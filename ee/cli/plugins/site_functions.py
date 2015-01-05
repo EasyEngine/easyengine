@@ -5,6 +5,7 @@ import sys
 import getpass
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
+from ee.core.shellexec import EEShellExec
 
 
 def setup_domain(self, data):
@@ -110,3 +111,83 @@ def setup_database(self, data):
         EEMysql.execute(self,
                         "grant all privileges on \'{0}\'.* to \'{1}\'@\'{2}\'"
                         .format(ee_db_name, ee_db_username, ee_db_password))
+
+
+def setup_wordpress(data):
+    ee_domain_name = data['site_name']
+    ee_site_webroot = data['webroot']
+    prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
+    ee_wp_user = self.app.config.get('wordpress', 'user')
+    ee_wp_pass = self.app.config.get('wordpress', 'password')
+    ee_wp_email = self.app.config.get('wordpress', 'email')
+    # Random characters
+    ee_random = (''.join(random.sample(string.ascii_uppercase +
+                 string.ascii_lowercase + string.digits, 15)))
+    print("Downloading Wordpress, please wait...")
+    EEShellExec.cmd_exec(self, "wp --allow-root core download"
+                         "--path={0}/htdocs/".format(ee_site_webroot))
+
+    setup_database(self, data)
+    if prompt_wpprefix == 'True':
+        ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
+                             .format(ee_replace_dot))
+        while re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
+            print("Warning: table prefix can only contain numbers, letters,"
+                  "and underscores")
+            ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: ')
+    if not ee_wp_prefix:
+        ee_wp_prefix = 'wp_'
+
+    # Modify wp-config.php & move outside the webroot
+    '''EEFileUtils.copyfile(self,
+                         '{0}/htdocs/wp-config-sample.php'
+                         .format(ee_site_webroot),
+                         '{0}/wp-config.php'.format(ee_site_webroot))
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'database_name_here', '')
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'database_name_here', '')
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'username_here', '')
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'password_here', '')
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'localhost', '')
+    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
+                              'wp_', '')'''
+
+    EEShellExec.cmd_exec(self, "wp --allow-root core config"
+                         "--dbname={0} --dbprefix={1}"
+                         .format(ee_db_name, ee_wp_prefix)
+                         "--dbuser={2} --dbprefix={3}"
+                         .format(ee_db_user, ee_db_password))
+
+    EEFileUtils.mvfile('./wp-config.php', '../')
+
+    # TODO code for salts here
+    if not ee_wp_user:
+        ee_wp_user = EEVariables.ee_user
+        while not ee_wp_user:
+            print("Warning: Usernames can have only alphanumeric"
+                  "characters, spaces, underscores, hyphens,"
+                  "periods and the @ symbol.")
+            ee_wp_user = input('Enter WordPress username: ')
+
+    if not ee_wp_pass:
+        ee_wp_pass = ee_random
+
+    if not ee_wp_email:
+        ee_wp_email = EEVariables.ee_email
+        while not ee_wp_email:
+            ee_wp_email = input('Enter WordPress email: ')
+
+    print("Setting up WordPress, please wait...")
+    EEShellExec.cmd_exec(self, "wp --allow-root core install"
+                         "--url=www.{0} --title=www.{0} --admin_name={1}"
+                         .format(ee_domain_name, ee_wp_user)
+                         "--admin_password={0} --admin_email={1}"
+                         .format(ee_wp_pass, ee_wp_email))
+
+    print("Updating WordPress permalink, please wait...")
+    EEShellExec.cmd_exec("wp rewrite structure --allow-root"
+                         "/%year%/%monthnum%/%day%/%postname%/")
