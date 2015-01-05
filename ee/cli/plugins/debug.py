@@ -4,6 +4,7 @@ from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.shellexec import EEShellExec
 from ee.core.mysql import EEMysql
+from ee.core.services import EEService
 import os
 
 
@@ -46,7 +47,6 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_nginx(self):
-        self.trigger_nginx = False
         # start global debug
         if self.start and not self.app.pargs.site_name:
             try:
@@ -67,7 +67,7 @@ class EEDebugController(CementBaseController):
             if not self.trigger_nginx:
                 print("NGINX debug connection already enabled")
 
-            self.msg = self.msg + " /var/log/nginx/*.error.log"
+            self.msg = self.msg + [" /var/log/nginx/*.error.log"]
 
         # stop global debug
         elif not self.start and not self.app.pargs.site_name:
@@ -94,6 +94,9 @@ class EEDebugController(CementBaseController):
 
                 else:
                     print("Debug for site allready enabled")
+
+                self.msg = self.msg + ['/var/www//logs/error.log'
+                                       .format(self.app.pargs.site_name)]
 
             else:
                 print("{0} domain not valid".format(self.app.pargs.site_name))
@@ -137,6 +140,8 @@ class EEDebugController(CementBaseController):
             else:
                 print("PHP debug is allready enabled")
 
+            self.msg = self.msg + ['/var/log/php5/slow.log']
+
         # PHP global debug stop
         else:
             if EEShellExec.cmd_exec(self, "sed -n \"/upstream php {/,/}/p\" "
@@ -166,6 +171,8 @@ class EEDebugController(CementBaseController):
                 self.trigger_php = True
             else:
                 print("PHP5-FPM log_level = debug already setup")
+
+            self.msg = self.msg + ['/var/log/php5/fpm.log']
         # PHP5-FPM stop global debug
         else:
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
@@ -207,6 +214,9 @@ class EEDebugController(CementBaseController):
                                          " }} | crontab -\"".format(cron_time))
             else:
                 print("MySQL slow log is allready enabled")
+
+            self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+
         # MySQL stop global debug
         else:
             if EEShellExec.cmd_exec(self, "mysql -e \"show variables like \'"
@@ -283,20 +293,73 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_rewrite(self):
+        # Start Nginx rewrite debug globally
         if self.start and not self.app.pargs.site_name:
-            print("Start WP-Rewrite debug globally")
-        elif self.start and not self.app.pargs.site_name:
-            print("Stop WP-Rewrite debug globally")
-        elif self.start and self.app.pargs.site_name:
-            print("Start WP-Rewrite for site")
+            if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
+                                        "/etc/nginx/nginx.conf"):
+                print("Setting up Nginx rewrite logs")
+                EEShellExec.cmd_exec(self, "sed -i \'/http {/a \\\\t"
+                                     "rewrite_log on;\' /etc/nginx/nginx.conf")
+                self.trigger_nginx = True
+            else:
+                print("NGINX rewrite logs already enabled")
+
+            if '/var/log/nginx/*.error.log' not in self.msg:
+                self.msg = self.msg + ['/var/log/nginx/*.error.log']
+
+        # Stop Nginx rewrite debug globally
         elif not self.start and not self.app.pargs.site_name:
-            print("Stop WP-Rewrite for site")
+            if EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
+                                    "/etc/nginx/nginx.conf"):
+                print("Disabling Nginx rewrite logs")
+                EEShellExec.cmd_exec(self, "sed -i \"/rewrite_log.*/d\""
+                                     " /etc/nginx/nginx.conf")
+                self.trigger_nginx = True
+            else:
+                print("NGINX rewrite logs already disbaled")
+        # Start Nginx rewrite for site
+        elif self.start and self.app.pargs.site_name:
+            config_path = ("/etc/nginx/sites-available/{0}.conf"
+                           .format(self.app.pargs.site_name))
+            if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
+                                        .format(config_path)):
+                print("Setting up NGINX rewrite logs for {0}"
+                      .format(self.app.pargs.site_name))
+                EEShellExec.cmd_exec(self, "sed -i \"/access_log/i \\\\\\t"
+                                     "rewrite_log on;\" {0}"
+                                     .format(config_path))
+                self.trigger_nginx = True
+            else:
+                print("Nginx rewrite logs for {0} allready setup"
+                      .format(self.app.pargs.site_name))
+
+            if ('/var/www/{0}/logs/error.log'.format(self.app.pargs.site_name)
+               not in self.msg):
+                self.msg = self.msg + ['/var/www/{0}/logs/error.log'
+                                       .format(self.app.pargs.site_name)]
+
+        # Stop Nginx rewrite for site
+        elif not self.start and self.app.pargs.site_name:
+            config_path = ("/etc/nginx/sites-available/{0}.conf"
+                           .format(self.app.pargs.site_name))
+            if EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
+                                    .format(config_path)):
+                print("Disabling NGINX rewrite logs for {0}"
+                      .format(self.app.pargs.site_name))
+                EEShellExec.cmd_exec(self, "sed -i \"/rewrite_log.*/d\" {0}"
+                                     .format(config_path))
+                self.trigger_nginx = True
+            else:
+                print("Nginx rewrite logs for {0} allready disbaled"
+                      .format(self.app.pargs.site_name))
 
     @expose(hide=True)
     def default(self):
         self.start = True
         self.interactive = False
-        self.msg = ""
+        self.msg = []
+        self.trigger_nginx = False
+        self.trigger_php = False
 
         if self.app.pargs.stop:
             self.start = False
@@ -326,6 +389,17 @@ class EEDebugController(CementBaseController):
 
         if self.app.pargs.interactive:
             self.interactive = True
+
+        # Reload Nginx
+        if self.trigger_nginx:
+            EEService.reload_service(self, ['nginx'])
+        # Reload PHP
+        if self.trigger_php:
+            EEService.reload_service(self, ['php5-fpm'])
+
+        if len(self.msg) > 0:
+            print("Use following command to check debug logs:\n{0}"
+                  .format(self.msg.join()))
 
 
 def load(app):
