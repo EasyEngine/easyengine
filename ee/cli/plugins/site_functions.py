@@ -6,6 +6,7 @@ import getpass
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
 from ee.core.shellexec import EEShellExec
+from ee.core.variables import EEVariables
 
 
 def setup_domain(self, data):
@@ -64,8 +65,10 @@ def setup_database(self, data):
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
     ee_mysql_host = self.app.config.get('mysql', 'grant-host')
     ee_db_name = ''
+    ee_db_username = ''
+    ee_db_password = ''
 
-    if prompt_dbname == 'True':
+    if prompt_dbname == 'True' or prompt_dbname == 'true':
         try:
             ee_db_name = input('Enter the MySQL database name [{0}]:'
                                .format(ee_replace_dot))
@@ -76,7 +79,7 @@ def setup_database(self, data):
     if not ee_db_name:
         ee_db_name = ee_replace_dot
 
-    if prompt_dbuser:
+    if prompt_dbuser == 'True' or prompt_dbuser == 'true':
         try:
             ee_db_username = input('Enter the MySQL database user name [{0}]: '
                                    .format(ee_replace_dot))
@@ -98,17 +101,19 @@ def setup_database(self, data):
         ee_db_name = (ee_db_name[0:6] + ee_random10)
 
     # create MySQL database
-    EEMysql.execute(self, "create database \'{0}\'"
+    EEMysql.execute(self, "create database {0}"
                     .format(ee_db_name))
 
+    print("create user {0}@{1} identified by '{2}'"
+          .format(ee_db_username, ee_mysql_host, ee_db_password))
     # Create MySQL User
     EEMysql.execute(self,
-                    "create user \'{0}\'@\'{1}\' identified by \'{2}\'"
+                    "create user {0}@{1} identified by '{2}'"
                     .format(ee_db_username, ee_mysql_host, ee_db_password))
 
     # Grant permission
     EEMysql.execute(self,
-                    "grant all privileges on \'{0}\'.* to \'{1}\'@\'{2}\'"
+                    "grant all privileges on {0}.* to {1}@{2}"
                     .format(ee_db_name, ee_db_username, ee_db_password))
     data['ee_db_name'] = ee_db_name
     data['ee_db_user'] = ee_db_username
@@ -126,59 +131,55 @@ def setup_wordpress(self, data):
     # Random characters
     ee_random = (''.join(random.sample(string.ascii_uppercase +
                  string.ascii_lowercase + string.digits, 15)))
+    ee_wp_prefix = ''
+    ee_wp_user = ''
+    ee_wp_pass = ''
+
     print("Downloading Wordpress, please wait...")
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
 
-    setup_database(self, data)
-    if prompt_wpprefix == 'True':
-        ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
-                             .format(ee_replace_dot))
-        while re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
-            print("Warning: table prefix can only contain numbers, letters,"
-                  "and underscores")
-            ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: ')
+    data = setup_database(self, data)
+    if prompt_wpprefix == 'True' or prompt_wpprefix == 'true':
+        try:
+            ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
+                                 .format(ee_replace_dot))
+            while re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
+                print("Warning: table prefix can only contain numbers, "
+                      "letters, and underscores")
+                ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
+                                     )
+        except EOFError as e:
+            print("{0} {1}".format(e.errorno, e.strerror))
+            sys.exit(1)
+
     if not ee_wp_prefix:
         ee_wp_prefix = 'wp_'
 
     # Modify wp-config.php & move outside the webroot
-    '''EEFileUtils.copyfile(self,
-                         '{0}/htdocs/wp-config-sample.php'
-                         .format(ee_site_webroot),
-                         '{0}/wp-config.php'.format(ee_site_webroot))
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'database_name_here', '')
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'database_name_here', '')
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'username_here', '')
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'password_here', '')
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'localhost', '')
-    EEFileUtils.searchreplace('{0}/wp-config.php'.format(ee_site_webroot),
-                              'wp_', '')'''
 
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     if not data['multisite']:
-        EEShellExec.cmd_exec(self, "wp --allow-root core config"
-                             "--dbname={0} --dbprefix={1} --dbuser={2}"
-                             .format(ee_db_name, ee_wp_prefix, ee_db_user)
-                             + "--dbpass={0}".format(ee_db_password))
+        print("Generating wp-config")
+
+        EEShellExec.cmd_exec(self, "wp --allow-root core config "
+                             + "--dbname={0} --dbprefix={1} --dbuser={2} "
+                             .format(data['ee_db_name'], ee_wp_prefix,
+                                     data['ee_db_user'])
+                             + "--dbpass={0}".format(data['ee_db_pass']))
 
     else:
-        EEShellExec.cmd_exec(self, "wp --allow-root core config"
-                             "--dbname={0} --dbprefix={1}"
-                             .format(ee_db_name, ee_wp_prefix)
+        EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core config "
+                             + "--dbname={0} --dbprefix={1} "
+                             .format(data['ee_db_name'], ee_wp_prefix)
                              + "--dbuser={0} --dbpass={1} --extra-php<<PHP"
-                             + "define('WP_ALLOW_MULTISITE', true);"
-                             + "define('WPMU_ACCEL_REDIRECT', true);"
-                             + "PHP"
-                             .format(ee_db_user, ee_db_password))
+                             + "\n define('WP_ALLOW_MULTISITE', true);"
+                             + "\n define('WPMU_ACCEL_REDIRECT', true);"
+                             + "\n PHP"
+                             .format(data['ee_db_user'], data['ee_db_pass']))
 
-    EEFileUtils.mvfile('./wp-config.php', '../')
+    EEFileUtils.mvfile(self, './wp-config.php', '../')
 
-    # TODO code for salts here
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
         while not ee_wp_user:
@@ -214,7 +215,7 @@ def setup_wordpress(self, data):
                                      if not data['wpsubdir'] else ''))
 
     print("Updating WordPress permalink, please wait...")
-    EEShellExec.cmd_exec("wp rewrite structure --allow-root"
+    EEShellExec.cmd_exec(self, "wp --allow-root rewrite structure "
                          "/%year%/%monthnum%/%day%/%postname%/")
 
     """Install nginx-helper plugin """
@@ -229,18 +230,20 @@ def setup_wordpress(self, data):
         install_wp_plugin(self, 'w3-total-cache', data)
 
 
-def setup_wordpress_network(self, ee_www_domain, ee_site_webroot,
-                            subdomain=False):
+def setup_wordpress_network(self, data):
+    ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
-                         '--title={0}')
+                         '--title=')
 
 
 def install_wp_plugin(self, plugin_name, data):
-    ee_site_webroot = ee_site_webroot = data['webroot']
+    ee_site_webroot = data['webroot']
+    print("Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp plugin --allow-root install {0}"
                          .format(plugin_name))
 
     EEShellExec.cmd_exec(self, "wp plugin --allow-root activate {0} {na}"
-                         .format(na='--network' if data['multisite'] else ''))
+                         .format(plugin_name,
+                                 na='--network' if data['multisite'] else ''))
