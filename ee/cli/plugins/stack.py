@@ -141,111 +141,113 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                 pass
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                # Nginx core configuration change using configparser
-                nc = NginxConfig()
-                self.app.log.debug('Loading file /etc/nginx/nginx.conf ')
-                nc.loadf('/etc/nginx/nginx.conf')
-                nc.set('worker_processes', 'auto')
-                nc.append(('worker_rlimit_nofile', '100000'), position=2)
-                nc.remove(('events', ''))
-                nc.append({'name': 'events', 'param': '', 'value':
-                           [('worker_connections', '4096'),
-                            ('multi_accept', 'on')]}, position=4)
-                nc.set([('http',), 'keepalive_timeout'], '30')
-                self.app.log.debug("Writting nginx configration to "
-                                   "file /etc/nginx/nginx.conf ")
-                nc.savef('/etc/nginx/nginx.conf')
+                if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
+                   os.path.isfile('/etc/nginx/nginx.conf')):
+                    nc = NginxConfig()
+                    self.app.log.debug('Loading file /etc/nginx/nginx.conf ')
+                    nc.loadf('/etc/nginx/nginx.conf')
+                    nc.set('worker_processes', 'auto')
+                    nc.append(('worker_rlimit_nofile', '100000'), position=2)
+                    nc.remove(('events', ''))
+                    nc.append({'name': 'events', 'param': '', 'value':
+                              [('worker_connections', '4096'),
+                               ('multi_accept', 'on')]}, position=4)
+                    nc.set([('http',), 'keepalive_timeout'], '30')
+                    self.app.log.debug("Writting nginx configration to "
+                                       "file /etc/nginx/nginx.conf ")
+                    nc.savef('/etc/nginx/nginx.conf')
 
-                # Custom Nginx configuration by EasyEngine
-                data = dict(version='EasyEngine 3.0.1')
-                self.app.log.debug('writting the nginx configration to file'
-                                   '/etc/nginx/conf.d/ee-nginx.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
-                self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
-                ee_nginx.close()
+                    # Custom Nginx configuration by EasyEngine
+                    data = dict(version='EasyEngine 3.0.1')
+                    self.app.log.debug('writting the nginx configration to '
+                                       'file /etc/nginx/conf.d/ee-nginx.conf ')
+                    ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
+                    self.app.render((data), 'nginx-core.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                data = dict()
-                self.app.log.debug('writting the nginx configration to file'
-                                   '/etc/nginx/conf.d/blockips.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/blockips.conf', 'w')
-                self.app.render((data), 'blockips.mustache', out=ee_nginx)
-                ee_nginx.close()
+                    data = dict()
+                    self.app.log.debug('writting the nginx configration to'
+                                       'file /etc/nginx/conf.d/blockips.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/blockips.conf', 'w')
+                    self.app.render((data), 'blockips.mustache', out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('writting the nginx configration to file'
-                                   '/etc/nginx/conf.d/fastcgi.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf', 'w')
-                self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('writting the nginx configration to'
+                                       ' file /etc/nginx/conf.d/fastcgi.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf', 'w')
+                    self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
+                    ee_nginx.close()
 
-                data = dict(php="9000", debug="9001")
-                self.app.log.debug('writting the nginx configration to file'
-                                   '/etc/nginx/conf.d/upstream.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
-                self.app.render((data), 'upstream.mustache', out=ee_nginx)
-                ee_nginx.close()
+                    data = dict(php="9000", debug="9001")
+                    self.app.log.debug('writting the nginx configration to'
+                                       'file /etc/nginx/conf.d/upstream.conf ')
+                    ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
+                    self.app.render((data), 'upstream.mustache', out=ee_nginx)
+                    ee_nginx.close()
 
-                # Setup Nginx common directory
-                if not os.path.exists('/etc/nginx/common'):
-                    self.app.log.debug('Creating directory'
-                                       '/etc/nginx/common')
-                    os.makedirs('/etc/nginx/common')
+                    # Setup Nginx common directory
+                    if not os.path.exists('/etc/nginx/common'):
+                        self.app.log.debug('Creating directory'
+                                           '/etc/nginx/common')
+                        os.makedirs('/etc/nginx/common')
 
-                data = dict()
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/acl.conf')
-                ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
-                self.app.render((data), 'acl.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    data = dict()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/acl.conf')
+                    ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
+                    self.app.render((data), 'acl.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/locations.conf')
-                ee_nginx = open('/etc/nginx/common/locations.conf', 'w')
-                self.app.render((data), 'locations.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/locations.conf')
+                    ee_nginx = open('/etc/nginx/common/locations.conf', 'w')
+                    self.app.render((data), 'locations.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/ php.conf')
-                ee_nginx = open('/etc/nginx/common/php.conf', 'w')
-                self.app.render((data), 'php.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/ php.conf')
+                    ee_nginx = open('/etc/nginx/common/php.conf', 'w')
+                    self.app.render((data), 'php.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/w3tc.conf')
-                ee_nginx = open('/etc/nginx/common/w3tc.conf', 'w')
-                self.app.render((data), 'w3tc.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/w3tc.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc.conf', 'w')
+                    self.app.render((data), 'w3tc.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/wpcommon.conf')
-                ee_nginx = open('/etc/nginx/common/wpcommon.conf', 'w')
-                self.app.render((data), 'wpcommon.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/wpcommon.conf')
+                    ee_nginx = open('/etc/nginx/common/wpcommon.conf', 'w')
+                    self.app.render((data), 'wpcommon.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/wpfc.conf')
-                ee_nginx = open('/etc/nginx/common/wpfc.conf', 'w')
-                self.app.render((data), 'wpfc.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/wpfc.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc.conf', 'w')
+                    self.app.render((data), 'wpfc.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/wpsc.conf')
-                ee_nginx = open('/etc/nginx/common/wpsc.conf', 'w')
-                self.app.render((data), 'wpsc.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/wpsc.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc.conf', 'w')
+                    self.app.render((data), 'wpsc.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
-                self.app.log.debug('Writting the nginx configration to'
-                                   'file /etc/nginx/common/wpsubdir.conf')
-                ee_nginx = open('/etc/nginx/common/wpsubdir.conf', 'w')
-                self.app.render((data), 'wpsubdir.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/wpsubdir.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsubdir.conf', 'w')
+                    self.app.render((data), 'wpsubdir.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Parse etc/php5/fpm/php.ini

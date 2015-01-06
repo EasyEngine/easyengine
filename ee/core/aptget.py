@@ -126,7 +126,6 @@ class EEAptGet():
         def __dependencies_loop(cache, deplist, pkg, onelevel=True):
             """ Loops through pkg's dependencies.
             Returns a list with every package found. """
-            print("Inside")
             if onelevel:
                 onelevellist = []
             if not pkg.is_installed:
