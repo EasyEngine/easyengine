@@ -49,8 +49,7 @@ class EECleanController(CementBaseController):
     @expose(hide=True)
     def clean_memcache(self):
         print("in memcache..")
-        pkg = EEAptGet()
-        if(pkg.is_installed("memcached")):
+        if(EEAptGet.is_installed("memcached")):
             print("memcache is installed...")
             EEService.restart_service(self, "memcached")
             print("Cleaning memcache..")

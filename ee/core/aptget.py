@@ -3,35 +3,36 @@ import apt
 import sys
 
 
-class EEAptGet:
+class EEAptGet():
     """Generic apt-get intialisation"""
 
-    def __init__(self):
-        self.cache = apt.Cache()
-        self.fprogress = apt.progress.text.AcquireProgress()
-        self.iprogress = apt.progress.base.InstallProgress()
-
-    def update(self):
+    def update():
         """Similar to apt-get update"""
-        # self.app.log.debug("Update cache")
-        self.cache.update(self.fprogress)
-        self.cache.open()
+        # app.log.debug("Update cache")
+        cache = apt.Cache()
+        fprogress = apt.progress.text.AcquireProgress()
+        iprogress = apt.progress.base.InstallProgress()
+        cache.update(fprogress)
+        cache.close()
 
-    def upgrade(self, packages):
+    def upgrade(packages):
         """Similar to apt-get update"""
+        cache = apt.Cache()
+        fprogress = apt.progress.text.AcquireProgress()
+        iprogress = apt.progress.base.InstallProgress()
         my_selected_packages = []
         # Cache Initialization
-        if not self.cache:
-            self.cache = apt.Cache()
+        if not cache:
+            cache = apt.Cache()
         # Cache Read
-        self.cache.open()
+        cache.open()
         for package in packages:
-            pkg = self.cache[package]
+            pkg = cache[package]
             # Check Package Installed
             if pkg.is_installed:
                 # Check Package is Upgradeble
                 if pkg.is_upgradable:
-                    with self.cache.actiongroup():
+                    with cache.actiongroup():
                         # Mark Package for Upgrade
                         pkg.mark_upgrade()
                     my_selected_packages.append(pkg.installed)
@@ -49,31 +50,34 @@ class EEAptGet:
             print("{pkg_install_count} newly installed."
                   .format(pkg_upgrade_count=len(my_selected_packages)))
             print("Need to get {req_download} bytes of archives"
-                  .format(req_download=self.cache.required_download))
+                  .format(req_download=cache.required_download))
             print("After this operation, {space} bytes of"
                   "additional disk space will be used."
-                  .format(space=self.cache.required_space))
+                  .format(space=cache.required_space))
             try:
                 # Commit changes in cache (actually install)
-                self.cache.commit(self.fprogress, self.iprogress)
+                cache.commit(fprogress, iprogress)
             except Exception as e:
                 print("package installation failed. [{err}]"
                       .format(err=str(e)))
                 return(False)
         return(True)
 
-    def install(self, packages):
+    def install(packages):
         """Installation of packages"""
+        cache = apt.Cache()
+        fprogress = apt.progress.text.AcquireProgress()
+        iprogress = apt.progress.base.InstallProgress()
         my_selected_packages = []
         # Cache Initialization
-        if not self.cache:
-            self.cache = apt.Cache()
+        if not cache:
+            cache = apt.Cache()
         # Cache Read
-        self.cache.open()
+        cache.open()
 
         for package in packages:
             try:
-                pkg = self.cache[package]
+                pkg = cache[package]
             except KeyError as e:
                 continue
             # Check Package Installed
@@ -90,63 +94,68 @@ class EEAptGet:
                               .format(package_name=pkg.shortname,
                                       package_ver=pkg.installed))
             else:
-                with self.cache.actiongroup():
+                with cache.actiongroup():
                     # Mark Package for Installation
                     pkg.mark_install()
                 my_selected_packages.append(pkg.name)
 
         # Check if packages available for install.
-        if self.cache.install_count > 0:
+        if cache.install_count > 0:
             print("The following NEW packages will be installed:"
                   "\n {pkg_name}"
                   .format(pkg_name=my_selected_packages))
             print("{pkg_install_count} newly installed."
-                  .format(pkg_install_count=self.cache.install_count))
+                  .format(pkg_install_count=cache.install_count))
             print("Need to get {req_download} bytes of archives"
-                  .format(req_download=self.cache.required_download))
+                  .format(req_download=cache.required_download))
             print("After this operation, {space} bytes of"
                   "additional disk space will be used."
-                  .format(space=self.cache.required_space))
+                  .format(space=cache.required_space))
             try:
                 # Commit changes in cache (actually install)
-                self.cache.commit(self.fprogress, self.iprogress)
+                cache.commit(fprogress, iprogress)
             except Exception as e:
                 print("package installation failed. [{err}]"
                       .format(err=str(e)))
                 return(False)
+                cache.close()
+        cache.close()
         return(True)
 
-    def __dependencies_loop(self, deplist, pkg, onelevel=False):
-        """ Loops through pkg's dependencies.
-        Returns a list with every package found. """
-        if not self.cache:
-            self.cache = apt.Cache()
-        if onelevel:
-            onelevellist = []
-        if not pkg.is_installed:
-            return
-        for depf in pkg.installed.dependencies:
-            for dep in depf:
-                if (dep.name in self.cache and not self.cache[dep.name]
-                   in deplist):
-                    deplist.append(self.cache[dep.name])
-                    self.__dependencies_loop(deplist, self.cache[dep.name])
-                if onelevel:
-                    if dep.name in self.cache:
-                        onelevellist.append(self.cache[dep.name])
-        if onelevel:
-            return onelevellist
+    def remove(packages, auto=True, purge=False):
+        def __dependencies_loop(cache, deplist, pkg, onelevel=True):
+            """ Loops through pkg's dependencies.
+            Returns a list with every package found. """
+            print("Inside")
+            if onelevel:
+                onelevellist = []
+            if not pkg.is_installed:
+                return
+            for depf in pkg.installed.dependencies:
+                for dep in depf:
+                    if (dep.name in cache and not cache[dep.name]
+                       in deplist):
+                        deplist.append(cache[dep.name])
+                        __dependencies_loop(cache, deplist, cache[dep.name])
+                    if onelevel:
+                        if dep.name in cache:
+                            onelevellist.append(cache[dep.name])
+            if onelevel:
+                return onelevellist
 
-    def remove(self, packages, auto=True, purge=False):
+        cache = apt.Cache()
+        fprogress = apt.progress.text.AcquireProgress()
+        iprogress = apt.progress.base.InstallProgress()
+
         my_selected_packages = []
         # Cache Initialization
-        if not self.cache:
-            self.cache = apt.Cache()
+        if not cache:
+            cache = apt.Cache()
         # Cache Read
-        self.cache.open()
+        cache.open()
         for package in packages:
             print("processing", package)
-            package = self.cache[package]
+            package = cache[package]
             if not package.is_installed:
                 print("Package '{package_name}' is not installed,"
                       " so not removed."
@@ -162,8 +171,8 @@ class EEAptGet:
             # 2) We sequentially remove every package in list
             # - via is_auto_installed we check if we can safely remove it
             deplist = []
-            onelevel = self.__dependencies_loop(deplist, package,
-                                                onelevel=True)
+            onelevel = __dependencies_loop(cache, deplist, package,
+                                           onelevel=True)
             # Mark for deletion the first package, to fire up auto_removable
             # Purge?
             if purge:
@@ -201,34 +210,42 @@ class EEAptGet:
                         pkg.mark_auto(auto=False)
 
         # Check if packages available for remove/update.
-        if self.cache.delete_count > 0:
-            # self.app.log.debug('packages will be REMOVED ')
+        if cache.delete_count > 0:
+            # app.log.debug('packages will be REMOVED ')
             print("The following packages will be REMOVED:"
                   "\n {pkg_name}"
                   .format(pkg_name=my_selected_packages))
             print("{pkg_remove_count} to remove."
-                  .format(pkg_remove_count=self.cache.delete_count))
-            # self.app.log.debug('bytes disk space will be freed')
+                  .format(pkg_remove_count=cache.delete_count))
+            # app.log.debug('bytes disk space will be freed')
             print("After this operation, {space} bytes disk spac"
-                  "e will be freed.".format(space=self.cache.required_space))
+                  "e will be freed.".format(space=cache.required_space))
             try:
-                self.cache.commit(self.fprogress, self.iprogress)
+                cache.commit(fprogress, iprogress)
             except Exception as e:
-                # self.app.log.error('Sorry, package installation failed ')
+                # app.log.error('Sorry, package installation failed ')
                 print("Sorry, package installation failed [{err}]"
                       .format(err=str(e)))
+                cache.close()
                 return(False)
+        cache.close()
         return(True)
 
-    def is_installed(self, package):
+    def is_installed(package):
+        cache = apt.Cache()
+        fprogress = apt.progress.text.AcquireProgress()
+        iprogress = apt.progress.base.InstallProgress()
+
         # Cache Initialization
-        if not self.cache:
-            self.cache = apt.Cache()
+        if not cache:
+            cache = apt.Cache()
         # Cache Read
-        self.cache.open()
-        pkg = self.cache[package]
+        cache.open()
+        pkg = cache[package]
         # Check Package Installed
         if pkg.is_installed:
+            cache.close()
             return True
         else:
+            cache.close()
             return False
