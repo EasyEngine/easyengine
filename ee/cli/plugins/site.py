@@ -249,11 +249,16 @@ class EESiteCreateController(CementBaseController):
                                 wpsubdir=False, webroot=ee_site_webroot,
                                 ee_db_name='', ee_db_user='', ee_db_pass='')
 
-        setup_domain(self, data)
+        # setup NGINX configuration, and webroot
+        SetupDomain(self, data)
+        # Setup database for MySQL site
         if 'ee_db_name' in data.keys() and not data['wp']:
-            data = setup_database(self, data)
+            data = SetupDatabase(self, data)
+        # Setup WordPress if Wordpress site
         if data['wp']:
-            setup_wordpress(self, data)
+            ee_wp_creds = SetupWordpress(self, data)
+
+        # TODO setup Perissions for webroot
 
 
 class EESiteUpdateController(CementBaseController):

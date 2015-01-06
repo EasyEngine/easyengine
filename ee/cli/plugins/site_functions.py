@@ -9,7 +9,7 @@ from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 
 
-def setup_domain(self, data):
+def SetupDomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
@@ -56,7 +56,7 @@ def setup_domain(self, data):
                                       .format(ee_site_webroot)])
 
 
-def setup_database(self, data):
+def SetupDatabase(self, data):
     ee_domain_name = data['site_name']
     ee_random = (''.join(random.sample(string.ascii_uppercase +
                  string.ascii_lowercase + string.digits, 15)))
@@ -121,7 +121,7 @@ def setup_database(self, data):
     return data
 
 
-def setup_wordpress(self, data):
+def SetupWordpress(self, data):
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
     prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
@@ -139,7 +139,7 @@ def setup_wordpress(self, data):
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
 
-    data = setup_database(self, data)
+    data = SetupDatabase(self, data)
     if prompt_wpprefix == 'True' or prompt_wpprefix == 'true':
         try:
             ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
@@ -219,25 +219,29 @@ def setup_wordpress(self, data):
                          "/%year%/%monthnum%/%day%/%postname%/")
 
     """Install nginx-helper plugin """
-    install_wp_plugin(self, 'nginx-helper', data)
+    InstallWP_Plugin(self, 'nginx-helper', data)
 
     """Install Wp Super Cache"""
     if data['wpsc']:
-        install_wp_plugin(self, 'wp-super-cache', data)
+        InstallWP_Plugin(self, 'wp-super-cache', data)
 
     """Install W3 Total Cache"""
     if data['w3tc'] or data['wpfc']:
-        install_wp_plugin(self, 'w3-total-cache', data)
+        InstallWP_Plugin(self, 'w3-total-cache', data)
+
+    wp_creds = dict(wp_user=ee_wp_user, wp_pass=ee_wp_pass,
+                    wp_email=ee_wp_email)
+    return wp_creds
 
 
-def setup_wordpress_network(self, data):
+def SetupWordpressNetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                          '--title=')
 
 
-def install_wp_plugin(self, plugin_name, data):
+def InstallWP_Plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
     print("Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))

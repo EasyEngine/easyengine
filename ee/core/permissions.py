@@ -6,3 +6,6 @@ class EESetPermission():
     def ___init__():
         # TODO method for set permission
         pass
+
+    def setPermissions(self, user, group, path, recursive=False):
+        pass

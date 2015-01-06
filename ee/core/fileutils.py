@@ -79,3 +79,33 @@ class EEFileUtils():
             self.app.log.error('Unable to Change Directory {err}'
                                .format(err=e.strerror))
             sys.exit(1)
+
+    def chown(self, path, user, group, recursive=False):
+        try:
+            if recursive:
+                for root, dirs, files in os.walk(path):
+                    for d in dirs:
+                        shutil.chown(os.path.join(root, d), user=user,
+                                     group=group)
+                    for f in files:
+                        shutil.chown(os.path.join(root, f), user=user,
+                                     group=group)
+            else:
+                shutil.chown(path, user=user, group=group)
+        except shutil.Error as e:
+            self.log.error("Unable to change owner {0}".format(e.strerror))
+            sys.exit(1)
+
+    def chmod(self, path, perm, recursive=False):
+        try:
+            if recursive:
+                for root, dirs, files in os.walk(path):
+                    for d in dirs:
+                        os.chmod(os.path.join(root, d), perm)
+                    for f in files:
+                        os.chmod(os.path.join(root, f), perm)
+            else:
+                os.chmod(path, perm)
+        except OSError as e:
+            self.log.error("Unable to change owner {0}".format(e.strerror))
+            sys.exit(1)
