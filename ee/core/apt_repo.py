@@ -17,9 +17,10 @@ class EERepo():
             repo_file_path = ("/etc/apt/sources.list.d/"
                               + EEVariables().ee_repo_file)
             try:
-                with open(repo_file_path, "a") as repofile:
-                    repofile.write(repo_url)
-                    repofile.close()
+                if repo_url not in open(repo_file_path).read():
+                    with open(repo_file_path, "a") as repofile:
+                        repofile.write(repo_url)
+                        repofile.close()
                 return True
             except IOError as e:
                 print("File I/O error({0}): {1}".format(e.errno, e.strerror))
