@@ -707,7 +707,6 @@ class EEStackController(CementBaseController):
 
     @expose()
     def install(self, packages=[], apt_packages=[]):
-        pkg = EEAptGet()
         if self.app.pargs.web:
             self.app.log.debug("Setting apt_packages variable for Nginx ,PHP"
                                " ,MySQL ")
@@ -798,9 +797,9 @@ class EEStackController(CementBaseController):
         self.pre_pref(apt_packages)
         if len(apt_packages):
             self.app.log.debug("Updating apt-cache")
-            pkg.update()
+            EEAptGet.update()
             self.app.log.debug("Installing all apt_packages")
-            pkg.install(apt_packages)
+            EEAptGet.install(apt_packages)
         if len(packages):
             self.app.log.debug("Downloading all packages")
             EEDownload.download(self, packages)
@@ -809,7 +808,6 @@ class EEStackController(CementBaseController):
 
     @expose()
     def remove(self):
-        pkg = EEAptGet()
         apt_packages = []
         packages = []
 
@@ -857,13 +855,12 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             self.app.log.debug("Removing apt_packages")
-            pkg.remove(self, apt_packages)
+            EEAptGet.remove(apt_packages)
         if len(packages):
             EEFileUtils.remove(self, packages)
 
     @expose()
     def purge(self):
-        pkg = EEAptGet()
         apt_packages = []
         packages = []
 
@@ -910,7 +907,7 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
-            pkg.remove(apt_packages, purge=True)
+            EEAptGet.remove(apt_packages, purge=True)
         if len(packages):
             EEFileUtils.remove(self, packages)
 
