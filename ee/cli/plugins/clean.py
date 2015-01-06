@@ -4,6 +4,7 @@ from ee.core.services import EEService
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 import os
+import urllib.request
 
 
 def clean_plugin_hook(app):
@@ -51,29 +52,30 @@ class EECleanController(CementBaseController):
         print("in memcache..")
         pkg = EEAptGet()
         if(pkg.is_installed("memcached")):
-            print("memcache is installed...")
+            self.app.log.info("memcache is installed...")
             EEService.restart_service(self, "memcached")
-            print("Cleaning memcache..")
+            self.app.log.info("Cleaning memcache..")
         else:
-            print("memcache is not installed..")
+            self.app.log.info("memcache is not installed..")
 
     @expose(hide=True)
     def clean_fastcgi(self):
         if(os.path.isdir("/var/run/nginx-cache")):
-            print("Cleaning fastcgi...")
+            self.app.log.info("Cleaning fastcgi...")
             EEShellExec.cmd_exec(self, "rm -rf /var/run/nginx-cache/*")
         else:
-            print("Error occur while Cleaning fastcgi..")
+            self.app.log.info("Error occur while Cleaning fastcgi..")
 
     @expose(hide=True)
     def clean_opcache(self):
+        #try:
         try:
-            print("Cleaning opcache.... ")
-            EEShellExec.cmd_exec(self, "wget --no-check-certificate --spider"
-                                 " -q https://127.0.0.1:22222/cache/opcache"
-                                 "/opgui.php?page=reset")
-        except OSError:
-            print("Unable to clean opache..")
+            self.app.log.info("Cleaning opcache.... ")
+            wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"
+                                        "/opcache/opgui.php?page=reset").read()
+        except Exception as e:
+            self.app.log.info("Unable to clean opacache\n {0}{1}"
+                              .format(e.errno, e.strerror))
 
 
 def load(app):
