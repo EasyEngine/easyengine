@@ -93,7 +93,7 @@ class EEStackController(CementBaseController):
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars))
             mysql_config = """
-            [mysqld]
+            [client]
             user = root
             password = {chars}
             """.format(chars=chars)
