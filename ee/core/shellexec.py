@@ -10,7 +10,7 @@ class EEShellExec():
     def __init__():
         pass
 
-    def cmd_exec(self, command):
+    def cmd_exec(self, command, errormsg=''):
         try:
             retcode = subprocess.getstatusoutput(command)
             if retcode[0] == 0:
@@ -19,6 +19,11 @@ class EEShellExec():
                 self.app.log.warn(retcode[1])
                 return False
         except OSError as e:
-            self.app.log.error("Unable to execute command \ {0}{1}"
+            if errormsg:
+                self.app.log.error("{0}", errormsg)
+            else:
+                self.app.log.error("Unable to execute command \ {0}{1}"
+                                   .format(e.errno, e.strerror))
+            self.app.log.debug("Unable to execute command \ {0}{1}"
                                .format(e.errno, e.strerror))
-            return False
+            sys.exit(1)

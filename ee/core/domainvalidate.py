@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 
-def validate_domain(url):
+def ValidateDomain(url):
 
     # Check if http:// or https://  present remove it if present
     domain_name = url.split('/')
@@ -9,7 +9,6 @@ def validate_domain(url):
         domain_name = domain_name[2]
     else:
         domain_name = domain_name[0]
-
     www_domain_name = domain_name.split('.')
     final_domain = ''
     if www_domain_name[0] == 'www':
@@ -17,4 +16,4 @@ def validate_domain(url):
         return final_domain
     else:
         final_domain = domain_name
-        return final_domain
+        return (final_domain, domain_name)

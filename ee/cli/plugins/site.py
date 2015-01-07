@@ -2,9 +2,10 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.variables import EEVariables
-from ee.core.domainvalidate import validate_domain
+from ee.core.domainvalidate import ValidateDomain
 from ee.core.fileutils import EEFileUtils
 from ee.cli.plugins.site_functions import *
+from ee.core.services import EEService
 import sys
 import os
 
@@ -113,152 +114,184 @@ class EESiteCreateController(CementBaseController):
         # data = dict(foo='EESiteCreateController.default().')
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
-        ee_domain_name = validate_domain(self.app.pargs.site_name)
-        ee_site_webroot = EEVariables.ee_webroot + ee_domain_name
+        (ee_domain,
+         ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         # Check if doain previously exists or not
         if os.path.isfile('/etc/nginx/sites-available/{0}.conf'
-                          .format(ee_domain_name)):
+                          .format(ee_domain)):
             self.app.log.error("site {0} already exists"
-                               .format(ee_domain_name))
-            return False
+                               .format(ee_domain))
+            sys.exit(1)
 
         # setup nginx configuration for site
+        # HTmL
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
-            data = dict(site_name=ee_domain_name,
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
 
+        #PHP
         if (self.app.pargs.php and not (self.app.pargs.html or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
-           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
-            data = dict(site_name=ee_domain_name,
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
-
+        #ySQL
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
-           self.app.pargs.wsubdir or self.app.pargs.wsubdomain)):
-            data = dict(site_name=ee_domain_name,
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
-                        ee_db_name='', ee_db_user='', ee_db_pass='')
-
+                        ee_db_name='', ee_db_user='', ee_db_pass='',
+                        ee_db_host='')
+        #WP
         if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
             self.app.pargs.wpsc) and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
             if (self.app.pargs.wp and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=False,
                             wpsubdir=False, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=False,
                             wpsubdir=False, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=False,
                             wpsubdir=False, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
-
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
+        #WPSUBDIR
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
+            print("Inside wpsubdir")
             if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=True,
                             wpsubdir=True, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=True,
                             wpsubdir=True, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=True,
                             wpsubdir=True, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                data = dict(site_name=ee_domain_name,
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=True,
                             wpsubdir=True, webroot=ee_site_webroot,
-                            ee_db_name='', ee_db_user='', ee_db_pass='')
-
-            if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
-                self.app.pargs.php or self.app.pargs.mysql or
-               self.app.pargs.wpsubdir or self.app.pargs.wp)):
-                if (self.app.pargs.wpsubdomain and not (self.app.pargs.w3tc
-                   or self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                    data = dict(site_name=ee_domain_name,
-                                static=False,  basic=True, wp=True, w3tc=False,
-                                wpfc=False, wpsc=False, multisite=True,
-                                wpsubdir=False, webroot=ee_site_webroot,
-                                ee_db_name='', ee_db_user='', ee_db_pass='')
-                if (self.app.pargs.w3tc and not
-                   (self.app.pargs.wpfc or self.app.pargs.wpsc)):
-                    data = dict(site_name=ee_domain_name,
-                                static=False,  basic=False, wp=True, w3tc=True,
-                                wpfc=False, wpsc=False, multisite=True,
-                                wpsubdir=False, webroot=ee_site_webroot,
-                                ee_db_name='', ee_db_user='', ee_db_pass='')
-                if (self.app.pargs.wpfc and not
-                   (self.app.pargs.wpsc or self.app.pargs.w3tc)):
-                    data = dict(site_name=ee_domain_name,
-                                static=False, basic=False, wp=True, w3tc=False,
-                                wpfc=True, wpsc=False, multisite=True,
-                                wpsubdir=False, webroot=ee_site_webroot,
-                                ee_db_name='', ee_db_user='', ee_db_pass='')
-                if (self.app.pargs.wpsc and not
-                   (self.app.pargs.w3tc or self.app.pargs.wpfc)):
-                    data = dict(site_name=ee_domain_name,
-                                static=False, basic=False, wp=True, w3tc=False,
-                                wpfc=False, wpsc=True, multisite=True,
-                                wpsubdir=False, webroot=ee_site_webroot,
-                                ee_db_name='', ee_db_user='', ee_db_pass='')
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
+        #WPSUBDOAIN
+        if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdir or self.app.pargs.wp)):
+            if (self.app.pargs.wpsubdomain and not (self.app.pargs.w3tc
+               or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=True, wp=True, w3tc=False,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False, basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False, basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='')
 
         # setup NGINX configuration, and webroot
         SetupDomain(self, data)
         # Setup database for MySQL site
         if 'ee_db_name' in data.keys() and not data['wp']:
             data = SetupDatabase(self, data)
+            eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot), 'w')
+            eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
+                             "\ndefine('DB_USER', '{1}'); "
+                             "\ndefine('DB_PASSWORD', '{2}');"
+                             "\ndefine('DB_HOST', '{3}');\n?>"
+                             .format(data['ee_db_name'], data['ee_db_user'],
+                                     data['ee_db_pass'], data['ee_db_host']))
+            eedbconfig.close()
         # Setup WordPress if Wordpress site
         if data['wp']:
             ee_wp_creds = SetupWordpress(self, data)
-
-        # TODO setup Perissions for webroot
+        # Service Nginx Reload
+        EEService.reload_service(self, 'nginx')
+        # Setup Permissions for webroot
+        SetWebrootPermissions(self, data['webroot'])
+        if data['wp']:
+            print("WordPress Admin User : {0}".format(ee_wp_creds['wp_user']))
+            print("WordPress Admin User Password : {0}"
+                  .format(ee_wp_creds['wp_pass']))
+        print("Successfully created site http://{0}".format(ee_www_domain))
 
 
 class EESiteUpdateController(CementBaseController):

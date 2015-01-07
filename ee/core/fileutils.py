@@ -92,7 +92,10 @@ class EEFileUtils():
             else:
                 shutil.chown(path, user=user, group=group)
         except shutil.Error as e:
-            self.log.error("Unable to change owner {0}".format(e.strerror))
+            self.app.log.error("Unable to change owner : {0} ".format(e))
+            sys.exit(1)
+        except Exception as e:
+            self.app.log.error("Unable to change owner {0}".format(e))
             sys.exit(1)
 
     def chmod(self, path, perm, recursive=False):

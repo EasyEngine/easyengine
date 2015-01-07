@@ -22,6 +22,8 @@ class EEVariables():
 
     ee_webroot = '/var/www/'
 
+    ee_php_user = 'www-data'
+
     # Get git user name and EMail
     try:
         ee_user = config['user']['name']

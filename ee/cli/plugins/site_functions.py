@@ -101,11 +101,10 @@ def SetupDatabase(self, data):
         ee_db_name = (ee_db_name[0:6] + ee_random10)
 
     # create MySQL database
+    print("Setting Up Database for {0}...".format(ee_domain_name))
     EEMysql.execute(self, "create database {0}"
                     .format(ee_db_name))
 
-    print("create user {0}@{1} identified by '{2}'"
-          .format(ee_db_username, ee_mysql_host, ee_db_password))
     # Create MySQL User
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
@@ -114,11 +113,12 @@ def SetupDatabase(self, data):
     # Grant permission
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
-                    .format(ee_db_name, ee_db_username, ee_db_password))
+                    .format(ee_db_name, ee_db_username, ee_mysql_host))
     data['ee_db_name'] = ee_db_name
     data['ee_db_user'] = ee_db_username
     data['ee_db_pass'] = ee_db_password
-    return data
+    data['ee_db_host'] = ee_mysql_host
+    return(data)
 
 
 def SetupWordpress(self, data):
@@ -159,24 +159,25 @@ def SetupWordpress(self, data):
     # Modify wp-config.php & move outside the webroot
 
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    print("Setting up WordPress Configuration...")
     if not data['multisite']:
-        print("Generating wp-config")
-
         EEShellExec.cmd_exec(self, "wp --allow-root core config "
                              + "--dbname={0} --dbprefix={1} --dbuser={2} "
                              .format(data['ee_db_name'], ee_wp_prefix,
                                      data['ee_db_user'])
                              + "--dbpass={0}".format(data['ee_db_pass']))
-
     else:
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core config "
                              + "--dbname={0} --dbprefix={1} "
                              .format(data['ee_db_name'], ee_wp_prefix)
-                             + "--dbuser={0} --dbpass={1} --extra-php<<PHP"
-                             + "\n define('WP_ALLOW_MULTISITE', true);"
-                             + "\n define('WPMU_ACCEL_REDIRECT', true);"
-                             + "\n PHP"
-                             .format(data['ee_db_user'], data['ee_db_pass']))
+                             + "--dbuser={0} --dbpass={1} "
+                               "--extra-php<<PHP \n {var1} {var2} \nPHP"
+                             .format(data['ee_db_user'], data['ee_db_pass'],
+                                     var1=
+                                     "\n define('WP_ALLOW_MULTISITE', true);",
+                                     var2=
+                                     "\n define('WPMU_ACCEL_REDIRECT', true);")
+                             )
 
     EEFileUtils.mvfile(self, './wp-config.php', '../')
 
@@ -199,24 +200,29 @@ def SetupWordpress(self, data):
     print("Setting up WordPress, please wait...")
 
     if not data['multisite']:
-        EEShellExec.cmd_exec(self, "wp --allow-root core install"
-                             "--url=www.{0} --title=www.{0} --admin_name={1}"
-                             .format(ee_domain_name, ee_wp_user)
+        EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core install "
+                             "--url={0} --title={0} --admin_name={1} "
+                             .format(data['www_domain'], ee_wp_user)
                              + "--admin_password={0} --admin_email={1}"
-                             .format(ee_wp_pass, ee_wp_email))
+                             .format(ee_wp_pass, ee_wp_email),
+                             errormsg="Unable to setup WordPress Tables")
     else:
-        EEShellExec.cmd_exec(self, "wp --allow-root core multisite-install"
-                             "--url=www.{0} --title=www.{0} --admin_name={1}"
-                             .format(ee_domain_name, ee_wp_user)
+        EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
+                             "core multisite-install "
+                             "--url={0} --title={0} --admin_name={1} "
+                             .format(data['www_domain'], ee_wp_user)
                              + "--admin_password={0} --admin_email={1} "
                              "{subdomains}"
                              .format(ee_wp_pass, ee_wp_email,
                                      subdomains='--subdomains'
-                                     if not data['wpsubdir'] else ''))
+                                     if not data['wpsubdir'] else ''),
+                             errormsg="Unable to setup WordPress Tables")
 
     print("Updating WordPress permalink, please wait...")
-    EEShellExec.cmd_exec(self, "wp --allow-root rewrite structure "
-                         "/%year%/%monthnum%/%day%/%postname%/")
+    EEShellExec.cmd_exec(self, " php /usr/bin/wp --allow-root "
+                         "rewrite structure "
+                         "/%year%/%monthnum%/%day%/%postname%/",
+                         errormsg="Unable to Update WordPress permalink")
 
     """Install nginx-helper plugin """
     InstallWP_Plugin(self, 'nginx-helper', data)
@@ -231,7 +237,8 @@ def SetupWordpress(self, data):
 
     wp_creds = dict(wp_user=ee_wp_user, wp_pass=ee_wp_pass,
                     wp_email=ee_wp_email)
-    return wp_creds
+
+    return(wp_creds)
 
 
 def SetupWordpressNetwork(self, data):
@@ -245,9 +252,20 @@ def InstallWP_Plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
     print("Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
-    EEShellExec.cmd_exec(self, "wp plugin --allow-root install {0}"
+    EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin --allow-root install "
+                         "{0}".format(plugin_name),
+                         errormsg="Unable to Install plugin {0}"
                          .format(plugin_name))
 
-    EEShellExec.cmd_exec(self, "wp plugin --allow-root activate {0} {na}"
+    EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin --allow-root activate "
+                         "{0} {na}"
                          .format(plugin_name,
-                                 na='--network' if data['multisite'] else ''))
+                                 na='--network' if data['multisite'] else ''),
+                         errormsg="Unable to Activate plugin {0}"
+                         .format(plugin_name))
+
+
+def SetWebrootPermissions(self, webroot):
+    print("Setting up Webroot Permissions...")
+    EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
+                      EEVariables.ee_php_user, recursive=True)
