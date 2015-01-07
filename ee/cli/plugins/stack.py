@@ -251,6 +251,11 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                # Create log directories
+                if not os.path.exists('/var/log/php5/'):
+                    self.app.log.debug('Creating directory /var/log/php5/')
+                    os.makedirs('/var/log/php5/')
+
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
                 self.app.log.debug("configring php file /etc/php5/fpm/php.ini")
@@ -280,7 +285,7 @@ class EEStackController(CementBaseController):
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
                 config['www']['pm.max_requests'] = '500'
-                config['www']['pm.max_children'] = ''
+                config['www']['pm.max_children'] = '100'
                 config['www']['pm.start_servers'] = '20'
                 config['www']['pm.min_spare_servers'] = '10'
                 config['www']['pm.max_spare_servers'] = '30'
