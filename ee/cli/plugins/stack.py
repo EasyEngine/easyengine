@@ -10,6 +10,7 @@ from ee.core.fileutils import EEFileUtils
 from ee.core.apt_repo import EERepo
 from ee.core.extract import EEExtract
 from ee.core.mysql import EEMysql
+from ee.core.addswap import EESwap
 from pynginxconfig import NginxConfig
 import random
 import string
@@ -798,6 +799,7 @@ class EEStackController(CementBaseController):
         self.app.log.debug("Calling pre_pref ")
         self.pre_pref(apt_packages)
         if len(apt_packages):
+            EESwap.add(self)
             self.app.log.debug("Updating apt-cache")
             EEAptGet.update()
             self.app.log.debug("Installing all apt_packages")
