@@ -161,52 +161,61 @@ class EEAptGet():
                       .format(package_name=package.name))
                 continue
             if package.marked_delete:
+                my_selected_packages.append(package.name)
+                # Mark for deletion the first package, to fire up
+                # auto_removable Purge?
+                if purge:
+                    package.mark_delete(purge=True)
+                else:
+                    package.mark_delete(purge=False)
                 continue
             else:
                 my_selected_packages.append(package.name)
-            # How logic works:
-            # 1) We loop trough dependencies's dependencies and add them to
-            # the list.
-            # 2) We sequentially remove every package in list
-            # - via is_auto_installed we check if we can safely remove it
-            deplist = []
-            onelevel = __dependencies_loop(cache, deplist, package,
-                                           onelevel=True)
-            # Mark for deletion the first package, to fire up auto_removable
-            # Purge?
-            if purge:
-                package.mark_delete(purge=True)
-            else:
-                package.mark_delete(purge=False)
-            # Also ensure we remove AT LEAST the first level of dependencies
-            # (that is, the actual package's dependencies).
-            if auto:
-                markedauto = []
-                for pkg in onelevel:
-                    if (not pkg.marked_install and pkg.is_installed
-                       and not pkg.is_auto_installed):
-                        pkg.mark_auto()
-                        markedauto.append(pkg)
+                print(my_selected_packages)
+                # How logic works:
+                # 1) We loop trough dependencies's dependencies and add them to
+                # the list.
+                # 2) We sequentially remove every package in list
+                # - via is_auto_installed we check if we can safely remove it
+                deplist = []
+                onelevel = __dependencies_loop(cache, deplist, package,
+                                               onelevel=True)
+                # Mark for deletion the first package, to fire up
+                # auto_removable Purge?
+                if purge:
+                    package.mark_delete(purge=True)
+                else:
+                    package.mark_delete(purge=False)
 
-                for pkg in deplist:
-                    if (not pkg.marked_install and pkg.is_installed and
-                       pkg.is_auto_removable):
-                        # Purge?
-                        if purge:
-                            pkg.mark_delete(purge=True)
-                        else:
-                            pkg.mark_delete(purge=False)
-                # Restore auted items
-                for pkg in markedauto:
-                    if not pkg.marked_delete:
-                        pkg.mark_auto(False)
-            else:
-                # We need to ensure that the onelevel packages are not marked
-                # as automatically installed, otherwise the user may drop
-                # them via autoremove or aptitude.
-                for pkg in onelevel:
-                    if pkg.is_installed and pkg.is_auto_installed:
-                        pkg.mark_auto(auto=False)
+                # Also ensure we remove AT LEAST the first level of
+                # dependencies (that is, the actual package's dependencies).
+                if auto:
+                    markedauto = []
+                    for pkg in onelevel:
+                        if (not pkg.marked_install and pkg.is_installed
+                           and not pkg.is_auto_installed):
+                            pkg.mark_auto()
+                            markedauto.append(pkg)
+
+                    for pkg in deplist:
+                        if (not pkg.marked_install and pkg.is_installed and
+                           pkg.is_auto_removable):
+                            # Purge?
+                            if purge:
+                                pkg.mark_delete(purge=True)
+                            else:
+                                pkg.mark_delete(purge=False)
+                    # Restore auted items
+                    for pkg in markedauto:
+                        if not pkg.marked_delete:
+                            pkg.mark_auto(False)
+                else:
+                    # We need to ensure that the onelevel packages are not
+                    # marked as automatically installed, otherwise the user may
+                    # drop them via autoremove or aptitude.
+                    for pkg in onelevel:
+                        if pkg.is_installed and pkg.is_auto_installed:
+                            pkg.mark_auto(auto=False)
 
         # Check if packages available for remove/update.
         if cache.delete_count > 0:

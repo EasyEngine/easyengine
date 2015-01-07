@@ -21,4 +21,4 @@ class EESwap():
                 EEFileUtils.chmod(self, "/ee-swapfile", 0o600)
                 EEShellExec.cmd_exec(self, "swapon /ee-swapfile")
                 with open("/etc/fstab", "a") as swap_file:
-                    myfile.write("/ee-swapfile\tnone\tswap\tsw\t0 0")
+                    swap_file.write("/ee-swapfile\tnone\tswap\tsw\t0 0")

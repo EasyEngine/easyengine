@@ -297,6 +297,19 @@ class EEStackController(CementBaseController):
                                        " /etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
 
+                # Generate /etc/php5/fpm/pool.d/debug.conf
+                EEFileUtils.copyfile(self, "/etc/php5/fpm/pool.d/www.conf",
+                                     "/etc/php5/fpm/pool.d/debug.conf")
+                EEFileUtils.searchreplace(self, "/etc/php5/fpm/pool.d/"
+                                          "debug.conf", "[www]", "[debug]")
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/pool.d/debug.conf')
+                config['debug']['listen'] = '127.0.0.1:9001'
+                with open('/etc/php5/fpm/pool.d/debug.conf', 'w') as confifile:
+                    self.app.log.debug("writting PHP5 configartion into "
+                                       " /etc/php5/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 config = configparser.ConfigParser()
                 config.read('/etc/mysql/my.cnf')

@@ -47,7 +47,7 @@ class EEFileUtils():
                                .format(e.errno, e.strerror))
             sys.exit(1)
 
-    def copyfile(self, src, dst):
+    def copyfile(self, src, dest):
         try:
             shutil.copy2(src, dest)
         except shutil.Error as e:
@@ -58,7 +58,8 @@ class EEFileUtils():
     def searchreplace(self, fnm, sstr, rstr):
         try:
             for line in fileinput.input(fnm, inplace=True):
-                print(line.replace(textToSearch, textToReplace), end='')
+                print(line.replace(sstr, rstr), end='')
+            fileinput.close()
         except Exception as e:
             print('Error : {0}'.format(e))
 
