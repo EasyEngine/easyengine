@@ -249,11 +249,16 @@ class EEAptGet():
             cache = apt.Cache()
         # Cache Read
         cache.open()
-        pkg = cache[package]
-        # Check Package Installed
-        if pkg.is_installed:
-            cache.close()
-            return True
-        else:
+        try:
+            pkg = cache[package]
+            # Check Package Installed
+            if pkg.is_installed:
+                cache.close()
+                return True
+            else:
+                cache.close()
+                return False
+        except Exception as e:
             cache.close()
             return False
+            

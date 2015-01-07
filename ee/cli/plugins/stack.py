@@ -74,10 +74,11 @@ class EEStackController(CementBaseController):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             print("Pre-seeding postfix variables ... ")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
-                                 "/main_mailer_typestring 'Internet Site'\" | "
-                                 "debconf-set-selections")
+                                 "/main_mailer_type string \'Internet Site\'\""
+                                 " | debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix/mailname string"
-                                 "$(hostname -f)\" | debconf-set-selections")
+                                 " $(hostname -f)\" | debconf-set-selections")
+
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             print("Adding repository for MySQL ... ")
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
@@ -731,43 +732,64 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             self.app.log.debug("Setting apt_packages variable for Nginx ,PHP"
                                " ,MySQL ")
-            apt_packages = (apt_packages + EEVariables.ee_nginx +
-                            EEVariables.ee_php + EEVariables.ee_mysql)
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
+            self.app.pargs.mysql = True
+            self.app.pargs.wpcli = True
+            self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
             pass
             # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
-            apt_packages = apt_packages + EEVariables.ee_mail
-            self.app.log.debug("Setting apt_packages variable for mail")
-            packages = packages + [["https://github.com/opensolutions/ViMbAdmi"
-                                    "n/archive/3.0.10.tar.gz", "/tmp/vimbadmin"
-                                    ".tar.gz"],
-                                   ["https://github.com/roundcube/"
-                                    "roundcubemail/releases/download/"
-                                    "1.0.4/roundcubemail-1.0.4.tar.gz",
-                                    "/tmp/roundcube.tar.gz"]
-                                   ]
-            if EEVariables.ee_ram > 1024:
-                apt_packages = apt_packages + EEVariables.ee_mailscanner
+            if not EEAptGet.is_installed('dovecot'):
+                self.app.log.debug("Setting apt_packages variable for mail")
+                apt_packages = apt_packages + EEVariables.ee_mail
+                packages = packages + [["https://github.com/opensolutions/"
+                                        "ViMbAdmin/archive/3.0.10.tar.gz",
+                                        "/tmp/vimbadmin.tar.gz"],
+                                       ["https://github.com/roundcube/"
+                                        "roundcubemail/releases/download/"
+                                        "1.0.4/roundcubemail-1.0.4.tar.gz",
+                                        "/tmp/roundcube.tar.gz"]]
+
+                if EEVariables.ee_ram > 1024:
+                    apt_packages = apt_packages + EEVariables.ee_mailscanner
+            else:
+                self.app.log.info("Mail server is allready installed")
 
         if self.app.pargs.nginx:
             self.app.log.debug("Setting apt_packages variable for Nginx")
-            apt_packages = apt_packages + EEVariables.ee_nginx
+            if not EEAptGet.is_installed('nginx-common'):
+                apt_packages = apt_packages + EEVariables.ee_nginx
+            else:
+                self.app.log.info("Nginx allready installed")
         if self.app.pargs.php:
             self.app.log.debug("Setting apt_packages variable for PHP")
-            apt_packages = apt_packages + EEVariables.ee_php
+            if not EEAptGet.is_installed('php5-common'):
+                apt_packages = apt_packages + EEVariables.ee_php
+            else:
+                self.app.log.info("PHP allready installed")
         if self.app.pargs.mysql:
             self.app.log.debug("Setting apt_packages variable for MySQL")
-            apt_packages = apt_packages + EEVariables.ee_mysql
+            if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
+                apt_packages = apt_packages + EEVariables.ee_mysql
+            else:
+                self.app.log.info("MySQL connection is allready alive")
         if self.app.pargs.postfix:
             self.app.log.debug("Setting apt_packages variable for PostFix")
-            apt_packages = apt_packages + EEVariables.ee_postfix
+            if not EEAptGet.is_installed('postfix'):
+                apt_packages = apt_packages + EEVariables.ee_postfix
+            else:
+                self.app.log.info("Postfix is allready installed")
         if self.app.pargs.wpcli:
             self.app.log.debug("Setting packages variable for WPCLI")
-            packages = packages + [["https://github.com/wp-cli/wp-cli/releases"
-                                    "/download/v0.17.1/wp-cli.phar",
-                                    "/usr/bin/wp"]]
+            if not EEShellExec.cmd_exec(self, "which wp"):
+                packages = packages + [["https://github.com/wp-cli/wp-cli/"
+                                        "releases/download/v0.17.1/"
+                                        "wp-cli.phar", "/usr/bin/wp"]]
+            else:
+                self.app.log.info("WP-CLI is allready installed")
         if self.app.pargs.phpmyadmin:
             self.app.log.debug("Setting packages varible for phpMyAdmin ")
             packages = packages + [["https://github.com/phpmyadmin/phpmyadmin"
