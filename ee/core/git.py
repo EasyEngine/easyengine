@@ -2,29 +2,35 @@ from sh import git, ErrorReturnCode
 import os
 
 
-class EEGit():
+class EEGit:
     """Intialization of core variables"""
     def ___init__():
         # TODO method for core variables
         pass
 
-    def add(paths, msg="Intializating"):
+    def add(self, paths, msg="Intializating"):
         for path in paths:
-            agit = git.bake("--git-dir={0}/.git".format(path),
-                            "--work-tree={0}".format(path))
+            global git
+            git = git.bake("--git-dir={0}/.git".format(path),
+                           "--work-tree={0}".format(path))
             if os.path.isdir(path):
                 if not os.path.isdir(path+"/.git"):
                     try:
+                        self.app.log.debug("EEGit: git init at {0}"
+                                           .format(path))
                         git.init(path)
                     except ErrorReturnCode as e:
-                        print(e)
+                        self.app.log.error(e)
                         sys.exit(1)
                 status = git.status("-s")
                 if len(status.splitlines()) > 0:
                     try:
+                        self.app.log.debug("EEGit: git commit at {0}"
+                                           .format(path))
                         git.add("--all")
                         git.commit("-am {0}".format(msg))
                     except ErrorReturnCode as e:
-                        print(e)
+                        self.app.log.error(e)
                         sys.exit(1)
-        pass
+            else:
+                self.app.log.debug("EEGit: Path {0} not present".format(path))
