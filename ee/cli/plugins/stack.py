@@ -11,6 +11,7 @@ from ee.core.apt_repo import EERepo
 from ee.core.extract import EEExtract
 from ee.core.mysql import EEMysql
 from ee.core.addswap import EESwap
+from ee.core.git import EEGit
 from pynginxconfig import NginxConfig
 import random
 import string
@@ -141,6 +142,8 @@ class EEStackController(CementBaseController):
     def post_pref(self, apt_packages, packages):
         if len(apt_packages):
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
+                EEGit.add(self, ["/etc/postfix"],
+                          msg="Adding Postfix into Git")
                 pass
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
@@ -250,6 +253,8 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
+                    EEGit.add(self,
+                              ["/etc/nginx"], msg="Adding Nginx into Git")
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -310,6 +315,7 @@ class EEStackController(CementBaseController):
                     self.app.log.debug("writting PHP5 configartion into "
                                        " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
+                EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 config = configparser.ConfigParser()
@@ -319,6 +325,7 @@ class EEStackController(CementBaseController):
                 config['mysqld']['performance_schema'] = 0
                 with open('/etc/mysql/my.cnf', 'w') as configfile:
                     config.write(configfile)
+                EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 self.app.log.debug("Executing mail commands")
@@ -429,6 +436,8 @@ class EEStackController(CementBaseController):
                                      "/dovecot")
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
+                EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
+                          msg="Installed mail server")
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                 # Set up Custom amavis configuration
@@ -463,6 +472,7 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "freshclam")
                 self.app.log.debug("Restarting service clamav-daemon")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
+                EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
@@ -742,6 +752,11 @@ class EEStackController(CementBaseController):
             pass
             # apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.mail:
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
+            self.app.pargs.mysql = True
+            self.app.pargs.postfix = True
+
             if not EEAptGet.is_installed('dovecot'):
                 self.app.log.debug("Setting apt_packages variable for mail")
                 apt_packages = apt_packages + EEVariables.ee_mail
