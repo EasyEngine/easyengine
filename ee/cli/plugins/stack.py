@@ -969,9 +969,9 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_mailscanner
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
                                    "/var/www/roundcubemail"]
-            if EEShellExec.cmd_exec("mysqladmin ping"):
-                EEMysql.execute("drop database vimbadmin")
-                EEMysql.execute("drop database roundcubemail")
+            if EEShellExec.cmd_exec(self, "mysqladmin ping"):
+                EEMysql.execute(self, "drop database vimbadmin")
+                EEMysql.execute(self, "drop database roundcubemail")
 
         if self.app.pargs.nginx:
             self.app.log.debug("Purge apt_packages variable of Nginx")
