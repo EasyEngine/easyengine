@@ -6,7 +6,7 @@ server {
     # listen 80 default_server;
     {{/multisite}}
 
-    server_name {{site_name}}   {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}};
+    server_name {{^vma}}{{^rc}}{{site_name}}{{/rc}}{{/vma}} {{#vma}}vma.*{{/vma}} {{#rc}}webmail.*{{/rc}} {{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{^vma}}{{^rc}}{{site_name}}{{/rc}}{{/vma}};
 
     {{#multisite}}
     # Uncomment the following line for domain mapping
@@ -15,7 +15,9 @@ server {
 
     access_log /var/log/nginx/{{site_name}}.access.log {{^static}}rt_cache{{/static}};
     error_log /var/log/nginx/{{site_name}}.error.log;
-    root {{webroot}}/htdocs;
+    {{^vma}}{{^rc}}root {{webroot}}/htdocs;{{/rc}}{{/vma}}
+    {{#vma}}root /var/www/22222/htdocs/vimbadmin/public;{{/vma}}
+    {{#rc}}root /var/www/roundcubemail/htdocs/;{{/rc}}
 
     index {{^static}}index.php{{/static}} index.html index.htm;
 

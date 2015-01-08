@@ -6,6 +6,7 @@ from ee.core.domainvalidate import ValidateDomain
 from ee.core.fileutils import EEFileUtils
 from ee.cli.plugins.site_functions import *
 from ee.core.services import EEService
+from ee.cli.plugins.sitedb import *
 import sys
 import os
 
@@ -115,7 +116,7 @@ class EESiteCreateController(CementBaseController):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         (ee_domain,
-         ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+         ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         # Check if doain previously exists or not
@@ -135,6 +136,8 @@ class EESiteCreateController(CementBaseController):
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
+            stype = 'html'
+            cache = 'basic'
 
         #PHP
         if (self.app.pargs.php and not (self.app.pargs.html or
@@ -145,6 +148,8 @@ class EESiteCreateController(CementBaseController):
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
+            stype = 'php'
+            cache = 'basic'
         #ySQL
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
@@ -156,6 +161,8 @@ class EESiteCreateController(CementBaseController):
                         wpsubdir=False, webroot=ee_site_webroot,
                         ee_db_name='', ee_db_user='', ee_db_pass='',
                         ee_db_host='')
+            stype = 'mysql'
+            cache = 'basic'
         #WP
         if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
             self.app.pargs.wpsc) and not (self.app.pargs.html or
@@ -169,6 +176,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wp'
+                cache = 'basic'
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -177,6 +186,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wp'
+                cache = 'w3tc'
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -185,6 +196,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wp'
+                cache = 'wpfc'
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -193,6 +206,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wp'
+                cache = 'wpsc'
         #WPSUBDIR
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
@@ -205,6 +220,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=True, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdir'
+                cache = 'basic'
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -213,6 +230,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=True, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdir'
+                cache = 'w3tc'
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -221,6 +240,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=True, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdir'
+                cache = 'wpfc'
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -229,6 +250,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=True, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdir'
+                cache = 'wpsc'
         #WPSUBDOAIN
         if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
@@ -241,6 +264,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdomain'
+                cache = 'basic'
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -249,6 +274,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdomain'
+                cache = 'w3tc'
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -257,6 +284,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdomain'
+                cache = 'wpfc'
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -265,6 +294,8 @@ class EESiteCreateController(CementBaseController):
                             wpsubdir=False, webroot=ee_site_webroot,
                             ee_db_name='', ee_db_user='', ee_db_pass='',
                             ee_db_host='')
+                stype = 'wpsubdomain'
+                cache = 'wpsc'
 
         # setup NGINX configuration, and webroot
         SetupDomain(self, data)
@@ -283,6 +314,7 @@ class EESiteCreateController(CementBaseController):
                                          data['ee_db_pass'],
                                          data['ee_db_host']))
                 eedbconfig.close()
+                stype = mysql
             except IOError as e:
                 self.app.log.error("Unable to create ee-config.php for "
                                    "{2} ({0}): {1}"
@@ -300,6 +332,7 @@ class EESiteCreateController(CementBaseController):
                      " {0}".format(ee_wp_creds['wp_user'])+'\033[0m')
             Log.info(self, "WordPress Admin User Password : {0}"
                      .format(ee_wp_creds['wp_pass']))
+        addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
                  " http://{0}".format(ee_www_domain))
 
