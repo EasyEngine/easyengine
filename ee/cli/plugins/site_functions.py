@@ -7,13 +7,14 @@ from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+from ee.core.logging import Log
 
 
 def SetupDomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
-    print("Creating {0}, please wait...".format(ee_domain_name))
+    self.app.log.info("Creating {0} ...".format(ee_domain_name))
     # write nginx config for file
     try:
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}.conf'
@@ -23,11 +24,11 @@ def SetupDomain(self, data):
                         out=ee_site_nginx_conf)
         ee_site_nginx_conf.close()
     except IOError as e:
-        print("Unable to create nginx conf for {2} ({0}): {1}"
-              .format(e.errno, e.strerror, ee_domain_name))
+        Log.error(self, "Unable to create nginx conf for {2} ({0}): {1}"
+                  .format(e.errno, e.strerror, ee_domain_name))
         sys.exit(1)
     except Exception as e:
-        print("{0}".format(e))
+        Log.error(self, "{0}".format(e))
         sys.exit(1)
 
     # create symbolic link for
@@ -43,7 +44,7 @@ def SetupDomain(self, data):
         if not os.path.exists('{0}/logs'.format(ee_site_webroot)):
             os.makedirs('{0}/logs'.format(ee_site_webroot))
     except Exception as e:
-        print("{0}".format(e))
+        Log.error(self, "{0}".format(e))
         sys.exit(1)
 
     EEFileUtils.create_symlink(self, ['/var/log/nginx/{0}.access.log'
@@ -73,7 +74,7 @@ def SetupDatabase(self, data):
             ee_db_name = input('Enter the MySQL database name [{0}]:'
                                .format(ee_replace_dot))
         except EOFError as e:
-            print("{0} {1}".format(e.errorno, e.strerror))
+            Log.error(self, "{0} {1}".format(e.errorno, e.strerror))
             sys.exit(0)
 
     if not ee_db_name:
@@ -86,7 +87,7 @@ def SetupDatabase(self, data):
             ee_db_password = input('Enter the MySQL database password [{0}]: '
                                    .format(ee_random))
         except EOFError as e:
-            print("{0} {1}".format(e.errorno, e.strerror))
+            Log.error(self, "{0} {1}".format(e.errorno, e.strerror))
             sys.exit(1)
 
     if not ee_db_username:
@@ -95,13 +96,14 @@ def SetupDatabase(self, data):
         ee_db_password = ee_random
 
     if len(ee_db_username) > 16:
-        print('Autofix MySQL username (ERROR 1470 (HY000)), please wait...')
+        self.app.log.info('Autofix MySQL username (ERROR 1470 (HY000)),'
+                          ' please wait...')
         ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                        string.ascii_lowercase + string.digits, 10)))
         ee_db_name = (ee_db_name[0:6] + ee_random10)
 
     # create MySQL database
-    print("Setting Up Database for {0}...".format(ee_domain_name))
+    self.app.log.info("Setting Up Database ...")
     EEMysql.execute(self, "create database {0}"
                     .format(ee_db_name))
 
@@ -135,7 +137,7 @@ def SetupWordpress(self, data):
     ee_wp_user = ''
     ee_wp_pass = ''
 
-    print("Downloading Wordpress, please wait...")
+    self.app.log.info("Downloading Wordpress...")
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
 
@@ -145,12 +147,12 @@ def SetupWordpress(self, data):
             ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
                                  .format(ee_replace_dot))
             while re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
-                print("Warning: table prefix can only contain numbers, "
-                      "letters, and underscores")
+                self.app.log.warn("table prefix can only "
+                                  "contain numbers, letters, and underscores")
                 ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
                                      )
         except EOFError as e:
-            print("{0} {1}".format(e.errorno, e.strerror))
+            Log.error(self, "{0} {1}".format(e.errorno, e.strerror))
             sys.exit(1)
 
     if not ee_wp_prefix:
@@ -159,7 +161,7 @@ def SetupWordpress(self, data):
     # Modify wp-config.php & move outside the webroot
 
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
-    print("Setting up WordPress Configuration...")
+    self.app.log.debug("Setting Up WordPress Configuration...")
     if not data['multisite']:
         EEShellExec.cmd_exec(self, "wp --allow-root core config "
                              + "--dbname={0} --dbprefix={1} --dbuser={2} "
@@ -184,9 +186,9 @@ def SetupWordpress(self, data):
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
         while not ee_wp_user:
-            print("Warning: Usernames can have only alphanumeric"
-                  "characters, spaces, underscores, hyphens,"
-                  "periods and the @ symbol.")
+            self.app.log.warn("Usernames can have only alphanumeric"
+                              "characters, spaces, underscores, hyphens,"
+                              "periods and the @ symbol.")
             ee_wp_user = input('Enter WordPress username: ')
 
     if not ee_wp_pass:
@@ -197,7 +199,7 @@ def SetupWordpress(self, data):
         while not ee_wp_email:
             ee_wp_email = input('Enter WordPress email: ')
 
-    print("Setting up WordPress, please wait...")
+    self.app.log.debug("Setting up WordPress Tables, please wait...")
 
     if not data['multisite']:
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core install "
@@ -218,7 +220,7 @@ def SetupWordpress(self, data):
                                      if not data['wpsubdir'] else ''),
                              errormsg="Unable to setup WordPress Tables")
 
-    print("Updating WordPress permalink, please wait...")
+    self.app.log.debug("Updating WordPress permalink, please wait...")
     EEShellExec.cmd_exec(self, " php /usr/bin/wp --allow-root "
                          "rewrite structure "
                          "/%year%/%monthnum%/%day%/%postname%/",
@@ -250,7 +252,7 @@ def SetupWordpressNetwork(self, data):
 
 def InstallWP_Plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    print("Installing plugin {0}".format(plugin_name))
+    self.app.log.debug("Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin --allow-root install "
                          "{0}".format(plugin_name),
@@ -266,6 +268,6 @@ def InstallWP_Plugin(self, plugin_name, data):
 
 
 def SetWebrootPermissions(self, webroot):
-    print("Setting up Webroot Permissions...")
+    self.app.log.debug("Setting Up Permissions...")
     EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
                       EEVariables.ee_php_user, recursive=True)

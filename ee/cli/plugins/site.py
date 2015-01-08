@@ -197,7 +197,6 @@ class EESiteCreateController(CementBaseController):
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
-            print("Inside wpsubdir")
             if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -272,14 +271,23 @@ class EESiteCreateController(CementBaseController):
         # Setup database for MySQL site
         if 'ee_db_name' in data.keys() and not data['wp']:
             data = SetupDatabase(self, data)
-            eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot), 'w')
-            eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
-                             "\ndefine('DB_USER', '{1}'); "
-                             "\ndefine('DB_PASSWORD', '{2}');"
-                             "\ndefine('DB_HOST', '{3}');\n?>"
-                             .format(data['ee_db_name'], data['ee_db_user'],
-                                     data['ee_db_pass'], data['ee_db_host']))
-            eedbconfig.close()
+            try:
+                eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
+                                  'w')
+                eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
+                                 "\ndefine('DB_USER', '{1}'); "
+                                 "\ndefine('DB_PASSWORD', '{2}');"
+                                 "\ndefine('DB_HOST', '{3}');\n?>"
+                                 .format(data['ee_db_name'],
+                                         data['ee_db_user'],
+                                         data['ee_db_pass'],
+                                         data['ee_db_host']))
+                eedbconfig.close()
+            except IOError as e:
+                self.app.log.error("Unable to create ee-config.php for "
+                                   "{2} ({0}): {1}"
+                                   .format(e.errno, e.strerror, ee_domain))
+                sys.exit(1)
         # Setup WordPress if Wordpress site
         if data['wp']:
             ee_wp_creds = SetupWordpress(self, data)
@@ -288,10 +296,12 @@ class EESiteCreateController(CementBaseController):
         # Setup Permissions for webroot
         SetWebrootPermissions(self, data['webroot'])
         if data['wp']:
-            print("WordPress Admin User : {0}".format(ee_wp_creds['wp_user']))
-            print("WordPress Admin User Password : {0}"
-                  .format(ee_wp_creds['wp_pass']))
-        print("Successfully created site http://{0}".format(ee_www_domain))
+            Log.info(self, '\033[94m'+"WordPress Admin User :"
+                     " {0}".format(ee_wp_creds['wp_user'])+'\033[0m')
+            Log.info(self, "WordPress Admin User Password : {0}"
+                     .format(ee_wp_creds['wp_pass']))
+        Log.info(self, "Successfully created site"
+                 " http://{0}".format(ee_www_domain))
 
 
 class EESiteUpdateController(CementBaseController):
