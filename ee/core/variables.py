@@ -79,8 +79,8 @@ class EEVariables():
     # Mailscanner repo and packages
     ee_mailscanner_repo = ()
     ee_mailscanner = ["amavisd-new", "spamassassin", "clamav", "clamav-daemon",
-                      "arj", "zoo", "nomarch", "cpio", "lzop",
-                      "cabextract", "p7zip", "rpm", "unrar-free"]
+                      "arj", "zoo", "nomarch", "lzop", "cabextract", "p7zip",
+                      "rpm", "unrar-free"]
 
     # Repo path
     ee_repo_file = "ee-repo.list"

@@ -763,15 +763,17 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            self.app.parge.adminer = True
+            self.app.parge.phpmyadmin = True
+            self.app.parge.utils = True
+
         if self.app.pargs.mail:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
 
-            if not EEAptGet.is_installed('dovecot'):
+            if not EEAptGet.is_installed('dovecot-core'):
                 self.app.log.debug("Setting apt_packages variable for mail")
                 apt_packages = apt_packages + EEVariables.ee_mail
                 packages = packages + [["https://github.com/opensolutions/"
@@ -885,16 +887,27 @@ class EEStackController(CementBaseController):
         packages = []
 
         if self.app.pargs.web:
-            self.app.log.debug("Removing apt_packages variable of Nginx "
-                               ",PHP,MySQL")
-            apt_packages = (apt_packages + EEVariables.ee_nginx +
-                            EEVariables.ee_php + EEVariables.ee_mysql)
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
+            self.app.pargs.mysql = True
+            self.app.pargs.wpcli = True
+            self.app.pargs.postfix = True
+
         if self.app.pargs.admin:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            self.app.parge.adminer = True
+            self.app.parge.phpmyadmin = True
+            self.app.parge.utils = True
+
         if self.app.pargs.mail:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            self.app.log.debug("Removing mail server packages")
+            apt_packages = apt_packages + EEVariables.ee_mail
+            apt_packages = apt_packages + EEVariables.ee_mailscanner
+            packages = packages + ["/var/www/22222/htdocs/vimbadmin",
+                                   "/var/www/roundcubemail"]
+            if EEShellExec.cmd_exec("mysqladmin ping"):
+                EEMysql.execute("drop database vimbadmin")
+                EEMysql.execute("drop database roundcubemail")
+
         if self.app.pargs.nginx:
             self.app.log.debug("Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
@@ -938,15 +951,27 @@ class EEStackController(CementBaseController):
         packages = []
 
         if self.app.pargs.web:
-            self.app.log.debug("Purge Nginx,PHP,MySQL")
-            apt_packages = (apt_packages + EEVariables.ee_nginx
-                            + EEVariables.ee_php + EEVariables.ee_mysql)
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
+            self.app.pargs.mysql = True
+            self.app.pargs.wpcli = True
+            self.app.pargs.postfix = True
+
         if self.app.pargs.admin:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            self.app.parge.adminer = True
+            self.app.parge.phpmyadmin = True
+            self.app.parge.utils = True
+
         if self.app.pargs.mail:
-            pass
-            # apt_packages = apt_packages + EEVariables.ee_nginx
+            self.app.log.debug("Removing mail server packages")
+            apt_packages = apt_packages + EEVariables.ee_mail
+            apt_packages = apt_packages + EEVariables.ee_mailscanner
+            packages = packages + ["/var/www/22222/htdocs/vimbadmin",
+                                   "/var/www/roundcubemail"]
+            if EEShellExec.cmd_exec("mysqladmin ping"):
+                EEMysql.execute("drop database vimbadmin")
+                EEMysql.execute("drop database roundcubemail")
+
         if self.app.pargs.nginx:
             self.app.log.debug("Purge apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
