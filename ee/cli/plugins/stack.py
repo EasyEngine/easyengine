@@ -764,9 +764,9 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
-            self.app.parge.adminer = True
-            self.app.parge.phpmyadmin = True
-            self.app.parge.utils = True
+            self.app.pargs.adminer = True
+            self.app.pargs.phpmyadmin = True
+            self.app.pargs.utils = True
 
         if self.app.pargs.mail:
             self.app.pargs.nginx = True
@@ -895,9 +895,9 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
-            self.app.parge.adminer = True
-            self.app.parge.phpmyadmin = True
-            self.app.parge.utils = True
+            self.app.pargs.adminer = True
+            self.app.pargs.phpmyadmin = True
+            self.app.pargs.utils = True
 
         if self.app.pargs.mail:
             self.app.log.debug("Removing mail server packages")
@@ -959,9 +959,9 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
-            self.app.parge.adminer = True
-            self.app.parge.phpmyadmin = True
-            self.app.parge.utils = True
+            self.app.pargs.adminer = True
+            self.app.pargs.phpmyadmin = True
+            self.app.pargs.utils = True
 
         if self.app.pargs.mail:
             self.app.log.debug("Removing mail server packages")
