@@ -1,4 +1,4 @@
-import os.path
+import os
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 
@@ -17,7 +17,11 @@ class EERepo():
             repo_file_path = ("/etc/apt/sources.list.d/"
                               + EEVariables().ee_repo_file)
             try:
-                if repo_url not in open(repo_file_path).read():
+                if not os.path.isfile(repo_file_path):
+                    with open(repo_file_path, "a") as repofile:
+                        repofile.write(repo_url)
+                        repofile.close()
+                elif repo_url not in open(repo_file_path).read():
                     with open(repo_file_path, "a") as repofile:
                         repofile.write(repo_url)
                         repofile.close()
@@ -41,7 +45,6 @@ class EERepo():
         EEShellExec.cmd_exec(self, "add-apt-repository -y "
                              "--remove '{ppa_name}'"
                              .format(ppa_name=repo_url))
-        pass
 
     def add_key(keyids, keyserver=None):
         if keyserver is None:
@@ -51,6 +54,3 @@ class EERepo():
                                  + " --recv-keys {key}".format(key=keyids))
             EEShellExec.cmd_exec("gpg -a --export --armor {0}".format(keyids)
                                  + " | apt-key add - ")
-
-# if __name__ == '__main__':
-#   EERepo().add(repo_url="http://ds.asf", codename="trusty", repo_type="main")
