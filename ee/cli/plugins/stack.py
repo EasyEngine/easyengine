@@ -742,11 +742,12 @@ class EEStackController(CementBaseController):
                                      "inc.php".format(password=rc_passwd))
 
                 # Sieve plugin configuration in roundcube
-                EEShellExec.cmd_exec(self, "sed -i \"s:\$config\['plugins'\] "
+                EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["
+                                     "\'plugins\'\] "
                                      "= array(:\$config\['plugins'\] =  "
-                                     "array(\n'sieverules',:\" /var/www"
+                                     "array(\n\'sieverules\',:\\\" /var/www"
                                      "/roundcubemail/htdocs/config"
-                                     "/config.inc.php")
+                                     "/config.inc.php\"")
                 EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
                                      "=4190;\" >> /var/www/roundcubemail"
                                      "/htdocs/config/config.inc.php")
