@@ -318,13 +318,27 @@ class EEStackController(CementBaseController):
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-                config = configparser.ConfigParser()
-                config.read('/etc/mysql/my.cnf')
-                config['mysqld']['wait_timeout'] = 30
-                config['mysqld']['interactive_timeout'] = 60
-                config['mysqld']['performance_schema'] = 0
-                with open('/etc/mysql/my.cnf', 'w') as configfile:
-                    config.write(configfile)
+                # TODO: Currently we are using, we need to remove it in future
+                # config = configparser.ConfigParser()
+                # config.read('/etc/mysql/my.cnf')
+                # config['mysqld']['wait_timeout'] = 30
+                # config['mysqld']['interactive_timeout'] = 60
+                # config['mysqld']['performance_schema'] = 0
+                # with open('/etc/mysql/my.cnf', 'w') as configfile:
+                #     config.write(configfile)
+                if not os.path.isfile("/etc/mysql/my.cnf"):
+                    config = ("[mysqld]\nwait_timeout = 30\n"
+                              "interactive_timeout=60\nperformance_schema = 0")
+                    config_file = open("/etc/mysql/my.cnf", "w")
+                    config_file.write(config)
+                    config_file.close()
+                else:
+                    EEShellExec.cmd_exec(self, "sed -i \"/#max_connections/a "
+                                         "wait_timeout = 30 \\n"
+                                         "interactive_timeout = 60 \\n"
+                                         "performance_schema = 0\" "
+                                         "/etc/mysql/my.cnf")
+
                 EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
