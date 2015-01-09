@@ -145,7 +145,7 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                 EEGit.add(self, ["/etc/postfix"],
                           msg="Adding Postfix into Git")
-                EEService.reload_service(self, ['postfix'])
+                EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
@@ -324,7 +324,7 @@ class EEStackController(CementBaseController):
                     # Nginx Configation into GIT
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
-                    EEService.reload_service(self, ['nginx'])
+                    EEService.reload_service(self, 'nginx')
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -386,7 +386,7 @@ class EEStackController(CementBaseController):
                                        " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
-                EEService.reload_service(self, ['php5-fpm'])
+                EEService.reload_service(self, 'php5-fpm')
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -411,7 +411,7 @@ class EEStackController(CementBaseController):
                                          "/etc/mysql/my.cnf")
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
-                EEService.reload_service(self, ['mysql'])
+                EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 self.app.log.debug("Executing mail commands")
@@ -524,7 +524,8 @@ class EEStackController(CementBaseController):
                                      "default.sieve")
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
                           msg="Installed mail server")
-                EEService.reload_service(self, ['dovecot', 'postfix'])
+                EEService.reload_service(self, 'dovecot')
+                EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                 # Set up Custom amavis configuration
@@ -560,8 +561,9 @@ class EEStackController(CementBaseController):
                 self.app.log.debug("Restarting service clamav-daemon")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
-                EEService.reload_service(self, ['dovecot', 'amavis',
-                                                'postfix'])
+                EEService.reload_service(self, 'dovecot')
+                EEService.reload_service(self, 'postfix')
+                EEService.reload_service(self, 'amavis')
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
@@ -778,8 +780,9 @@ class EEStackController(CementBaseController):
                     self.app.render((data), '50-user.mustache',
                                     out=vm_config)
                     vm_config.close()
-                EEService.reload_service(self, ['nginx', 'php5-fpm',
-                                                'dovecot'])
+                EEService.reload_service(self, 'dovecot')
+                EEService.reload_service(self, 'nginx')
+                EEService.reload_service(self, 'php5-fpm')
 
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
@@ -862,7 +865,7 @@ class EEStackController(CementBaseController):
                                                   'webmail.error.log',
                                                   '/var/www/roundcubemail/'
                                                   'logs/error.log'])
-                EEService.reload_service(self, ['nginx'])
+                EEService.reload_service(self, 'nginx')
 
     @expose()
     def install(self, packages=[], apt_packages=[]):
