@@ -258,8 +258,10 @@ class EEStackController(CementBaseController):
 
                     # 22222 port settings
                     self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/22222.conf')
-                    ee_nginx = open('/etc/nginx/common/22222.conf', 'w')
+                                       'file /etc/nginx/sites-available/'
+                                       '22222.conf')
+                    ee_nginx = open('/etc/nginx/sites-available/22222.conf',
+                                    'w')
                     self.app.render((data), '22222.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
