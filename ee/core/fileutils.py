@@ -32,12 +32,15 @@ class EEFileUtils():
     def create_symlink(self, paths):
         src = paths[0]
         dst = paths[1]
-        try:
-            os.symlink(src, dst)
-        except Exception as e:
-            self.app.log.error("Unable to create symbolic link ...\n {0} {1}"
-                               .format(e.errno, e.strerror))
-            sys.exit(1)
+        if not os.path.islink(dst):
+            try:
+                os.symlink(src, dst)
+            except Exception as e:
+                self.app.log.error("Unable to create symbolic link ...\n {0}"
+                                   " {1}".format(e.errno, e.strerror))
+                sys.exit(1)
+        else:
+            self.app.log.debug("Destination: {0} exists".format(dst))
 
     def remove_symlink(self, filepath):
         try:

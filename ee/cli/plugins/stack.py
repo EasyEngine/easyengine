@@ -13,6 +13,7 @@ from ee.core.mysql import EEMysql
 from ee.core.addswap import EESwap
 from ee.core.git import EEGit
 from pynginxconfig import NginxConfig
+from ee.core.services import EEService
 import random
 import string
 import configparser
@@ -144,7 +145,8 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                 EEGit.add(self, ["/etc/postfix"],
                           msg="Adding Postfix into Git")
-                pass
+                EEService.reload_service(self, ['postfix'])
+
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
                    os.path.isfile('/etc/nginx/nginx.conf')):
@@ -253,8 +255,74 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
+
+                    # 22222 port settings
+                    self.app.log.debug('Writting the nginx configration to'
+                                       'file /etc/nginx/common/22222.conf')
+                    ee_nginx = open('/etc/nginx/common/22222.conf', 'w')
+                    self.app.render((data), '22222.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    passwd = ''.join([random.choice
+                                     (string.ascii_letters + string.digits)
+                                     for n in range(6)])
+                    EEShellExec.cmd_exec(self, "printf \"easyengine:"
+                                         "$(openssl passwd -crypt "
+                                         "{password} 2> /dev/null)\n\""
+                                         "> /etc/nginx/htpasswd-ee 2>/dev/null"
+                                         .format(password=passwd))
+
+                    # Create Symbolic link for 22222
+                    EEFileUtils.create_symlink(self, ['/etc/nginx/'
+                                                      'sites-available/'
+                                                      '22222.conf',
+                                                      '/etc/nginx/'
+                                                      'sites-enabled/'
+                                                      '22222.conf'])
+                    # Create log and cert folder and softlinks
+                    if not os.path.exists('/var/www/22222/logs'):
+                        os.makedirs('/var/www/22222/logs')
+
+                    if not os.path.exists('/var/www/22222/cert'):
+                        os.makedirs('/var/www/22222/cert')
+
+                    EEFileUtils.create_symlink(self, ['/var/log/nginx/'
+                                                      '22222.access.log',
+                                                      '/var/www/22222/'
+                                                      'logs/access.log'])
+
+                    EEFileUtils.create_symlink(self, ['/var/log/nginx/'
+                                                      '22222.error.log',
+                                                      '/var/www/22222/'
+                                                      'logs/error.log'])
+
+                    EEShellExec.cmd_exec(self, "openssl genrsa -out "
+                                         "/var/www/22222/cert/22222.key 2048")
+                    EEShellExec.cmd_exec(self, "openssl req -new -batch -subj "
+                                               "/commonName=127.0.0.1/ -key "
+                                               "/var/www/22222/cert/22222.key "
+                                               "-out /var/www/22222/cert/"
+                                               "22222.csr")
+
+                    EEFileUtils.mvfile(self, "/var/www/22222/cert/22222.key",
+                                             "/var/www/22222/cert/"
+                                             "22222.key.org")
+
+                    EEShellExec.cmd_exec(self, "openssl rsa -in "
+                                               "/var/www/22222/cert/"
+                                               "22222.key.org -out "
+                                               "/var/www/22222/cert/22222.key")
+
+                    EEShellExec.cmd_exec(self, "openssl x509 -req -days 3652 "
+                                               "-in /var/www/22222/cert/"
+                                               "22222.csr -signkey /var/www/"
+                                               "22222/cert/22222.key -out "
+                                               "/var/www/22222/cert/22222.crt")
+                    # Nginx Configation into GIT
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
+                    EEService.reload_service(self, ['nginx'])
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -316,6 +384,7 @@ class EEStackController(CementBaseController):
                                        " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
+                EEService.reload_service(self, ['php5-fpm'])
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -340,6 +409,7 @@ class EEStackController(CementBaseController):
                                          "/etc/mysql/my.cnf")
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
+                EEService.reload_service(self, ['mysql'])
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 self.app.log.debug("Executing mail commands")
@@ -452,6 +522,7 @@ class EEStackController(CementBaseController):
                                      "default.sieve")
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
                           msg="Installed mail server")
+                EEService.reload_service(self, ['dovecot', 'postfix'])
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                 # Set up Custom amavis configuration
@@ -487,6 +558,8 @@ class EEStackController(CementBaseController):
                 self.app.log.debug("Restarting service clamav-daemon")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
+                EEService.reload_service(self, ['dovecot', 'amavis',
+                                                'postfix'])
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
@@ -703,6 +776,8 @@ class EEStackController(CementBaseController):
                     self.app.render((data), '50-user.mustache',
                                     out=vm_config)
                     vm_config.close()
+                EEService.reload_service(self, ['nginx', 'php5-fpm',
+                                                'dovecot'])
 
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
@@ -751,6 +826,41 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
                                      "=4190;\" >> /var/www/roundcubemail"
                                      "/htdocs/config/config.inc.php")
+
+                data = dict(site_name='webmail', www_domain='webmail',
+                            static=False,
+                            basic=True, wp=False, w3tc=False, wpfc=False,
+                            wpsc=False, multisite=False, wpsubdir=False,
+                            webroot='/var/www', ee_db_name='',
+                            ee_db_user='', ee_db_pass='', ee_db_host='',
+                            rc=True)
+
+                self.app.log.debug('Writting the nginx configration for'
+                                   ' RoundCubemail')
+                ee_rc = open('/etc/nginx/sites-available/webmail.conf', 'w')
+                self.app.render((data), 'virtualconf.mustache',
+                                out=ee_rc)
+                ee_rc.close()
+
+                # Create Symbolic link for webmail.conf
+                EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available'
+                                                  '/webmail.conf',
+                                                  '/etc/nginx/sites-enabled/'
+                                                  'webmail.conf'])
+                # Create log folder and softlinks
+                if not os.path.exists('/var/www/roundcubemail/logs'):
+                    os.makedirs('/var/www/roundcubemail/logs')
+
+                EEFileUtils.create_symlink(self, ['/var/log/nginx/'
+                                                  'webmail.access.log',
+                                                  '/var/www/roundcubemail/'
+                                                  'logs/access.log'])
+
+                EEFileUtils.create_symlink(self, ['/var/log/nginx/'
+                                                  'webmail.error.log',
+                                                  '/var/www/roundcubemail/'
+                                                  'logs/error.log'])
+                EEService.reload_service(self, ['nginx'])
 
     @expose()
     def install(self, packages=[], apt_packages=[]):
