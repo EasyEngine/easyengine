@@ -520,7 +520,7 @@ class EEStackController(CementBaseController):
                 self.app.log.debug("Privillages to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail"
+                EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail",
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
@@ -881,12 +881,12 @@ class EEStackController(CementBaseController):
                                                   '/var/www/roundcubemail/'
                                                   'logs/error.log'])
                 # Remove roundcube installer
-                EEFileUtils.remove(self, ["/var/www/roundcubemail/installer"])
+                EEService.reload_service(self, 'nginx')
+                EEFileUtils.remove(self, ["/var/www/roundcubemail"
+                                   "/htdocs/installer"])
                 EEFileUtils.chown(self, '/var/www/roundcubemail',
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user, recursive=True)
-
-                EEService.reload_service(self, 'nginx')
 
     @expose()
     def install(self, packages=[], apt_packages=[]):
