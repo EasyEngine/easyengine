@@ -900,6 +900,8 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.admin:
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
@@ -1041,9 +1043,9 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_mailscanner
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
                                    "/var/www/roundcubemail"]
-            if EEShellExec.cmd_exec("mysqladmin ping"):
-                EEMysql.execute("drop database IF EXISTS vimbadmin")
-                EEMysql.execute("drop database IF EXISTS roundcubemail")
+            if EEShellExec.cmd_exec(self, "mysqladmin ping"):
+                EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
+                EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
         if self.app.pargs.nginx:
             self.app.log.debug("Removing apt_packages variable of Nginx")
@@ -1106,8 +1108,8 @@ class EEStackController(CementBaseController):
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
                                    "/var/www/roundcubemail"]
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
-                EEMysql.execute(self, "drop database vimbadmin")
-                EEMysql.execute(self, "drop database roundcubemail")
+                EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
+                EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
         if self.app.pargs.nginx:
             self.app.log.debug("Purge apt_packages variable of Nginx")
