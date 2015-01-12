@@ -865,8 +865,8 @@ class EEStackController(CementBaseController):
                                                   'webmail.error.log',
                                                   '/var/www/roundcubemail/'
                                                   'logs/error.log'])
-                # Remove roundcube installer
-                EEFileUtils.remove()
+                # Remove roundcube installe[r
+                EEFileUtils.remove(self, ["/var/www/roundcubemail/installer"])
                 EEService.reload_service(self, 'nginx')
 
     @expose()
