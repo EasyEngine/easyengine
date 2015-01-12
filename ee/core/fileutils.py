@@ -5,6 +5,7 @@ import sys
 import glob
 import shutil
 import fileinput
+from ee.core.logging import Log
 
 
 class EEFileUtils():
@@ -25,26 +26,29 @@ class EEFileUtils():
                     shutil.rmtree(file)
                     self.app.log.info("Done")
                 except shutil.Error as e:
-                    self.app.log.error('Unable to Remove file {err}'
-                                       .format(err=str(e.reason)))
+                    Log.error(self, 'Unable to Remove file {err}'
+                              .format(err=str(e.reason)))
                     sys.exit(1)
 
-    def create_symlink(self, paths):
+    def create_symlink(self, paths, errormsg=''):
         src = paths[0]
         dst = paths[1]
         try:
             os.symlink(src, dst)
         except Exception as e:
-            self.app.log.error("Unable to create symbolic link ...\n {0} {1}"
-                               .format(e.errno, e.strerror))
+            if errormsg:
+                Log.error(self, errormsg + 'n {0} {1}'.
+                          format(e.errno, e.strerror))
+            Log.debug(self, "Unable to create symbolic link ...\n {0} {1}"
+                      .format(e.errno, e.strerror))
             sys.exit(1)
 
     def remove_symlink(self, filepath):
         try:
             os.unlink(filepath)
         except Exception as e:
-            self.app.log.error("Unable to reomove symbolic link ...\n {0} {1}"
-                               .format(e.errno, e.strerror))
+            Log.error(self, "Unable to reomove symbolic link ...\n {0} {1}"
+                      .format(e.errno, e.strerror))
             sys.exit(1)
 
     def copyfile(self, src, dest):
@@ -67,16 +71,16 @@ class EEFileUtils():
         try:
             shutil.move(src, dst)
         except shutil.Error as e:
-            self.app.log.error('Unable to move file {err}'
-                               .format(err=str(e.reason)))
+            Log.error(self, 'Unable to move file {err}'
+                      .format(err=str(e.reason)))
             sys.exit(1)
 
     def chdir(self, path):
         try:
             os.chdir(path)
         except OSError as e:
-            self.app.log.error('Unable to Change Directory {err}'
-                               .format(err=e.strerror))
+            Log.error(self, 'Unable to Change Directory {err}'
+                      .format(err=e.strerror))
             sys.exit(1)
 
     def chown(self, path, user, group, recursive=False):
@@ -92,10 +96,10 @@ class EEFileUtils():
             else:
                 shutil.chown(path, user=user, group=group)
         except shutil.Error as e:
-            self.app.log.error("Unable to change owner : {0} ".format(e))
+            Log.error(self, "Unable to change owner : {0} ".format(e))
             sys.exit(1)
         except Exception as e:
-            self.app.log.error("Unable to change owner {0}".format(e))
+            Log.error(self, "Unable to change owner {0}".format(e))
             sys.exit(1)
 
     def chmod(self, path, perm, recursive=False):
@@ -109,5 +113,34 @@ class EEFileUtils():
             else:
                 os.chmod(path, perm)
         except OSError as e:
-            self.log.error("Unable to change owner {0}".format(e.strerror))
+            Log.error(self, "Unable to change owner {0}".format(e.strerror))
+            sys.exit(1)
+
+    def mkdir(self, path):
+        try:
+            os.makedirs(path)
+        except OSError as e:
+            Log.error(self, "Unable to create directory {0}"
+                      .format(e.strerror))
+            sys.exit(1)
+
+    def isexist(self, path):
+        try:
+            if os.path.exists(path):
+                return (True)
+            else:
+                return (False)
+        except OSError as e:
+            Log.error(self, "Unable to check path {0}"
+                      .format(e.strerror))
+            sys.exit(1)
+
+    def grep(self, fnm, sstr):
+        try:
+            for line in open(fnm):
+                if sstr in line:
+                    return line
+        except OSError as e:
+            Log.error(self, "Unable to Search string {0}"
+                      .format(e.strerror))
             sys.exit(1)
