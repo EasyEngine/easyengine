@@ -902,6 +902,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.admin:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
+            self.app.pargs.mysql = True
             self.app.pargs.adminer = True
             self.app.pargs.phpmyadmin = True
             self.app.pargs.utils = True
