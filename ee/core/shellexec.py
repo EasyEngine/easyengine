@@ -3,6 +3,7 @@ import os
 import sys
 import subprocess
 from subprocess import Popen
+from ee.core.logging import Log
 
 
 class EEShellExec():
@@ -21,10 +22,10 @@ class EEShellExec():
                 return False
         except OSError as e:
             if errormsg:
-                self.app.log.error("{0}", errormsg)
+                Log.error(self, errormsg)
             else:
-                self.app.log.error("Unable to execute command \ {0}{1}"
-                                   .format(e.errno, e.strerror))
-            self.app.log.debug("Unable to execute command \ {0}{1}"
-                               .format(e.errno, e.strerror))
+                Log.error(self, "Unable to execute command \ {0}{1}"
+                          .format(e.errno, e.strerror))
+            Log.debug(self, "Unable to execute command \ {0}{1}"
+                      .format(e.errno, e.strerror))
             sys.exit(1)
