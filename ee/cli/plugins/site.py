@@ -7,6 +7,7 @@ from ee.core.fileutils import EEFileUtils
 from ee.cli.plugins.site_functions import *
 from ee.core.services import EEService
 from ee.cli.plugins.sitedb import *
+from ee.core.git import EEGit
 import sys
 import os
 
@@ -127,11 +128,12 @@ class EESiteCreateController(CementBaseController):
             sys.exit(1)
 
         # setup nginx configuration for site
-        # HTmL
+        # HTML
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
@@ -144,17 +146,19 @@ class EESiteCreateController(CementBaseController):
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
             stype = 'php'
             cache = 'basic'
-        #ySQL
+        #MySQL
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
@@ -168,8 +172,10 @@ class EESiteCreateController(CementBaseController):
             self.app.pargs.wpsc) and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
             if (self.app.pargs.wp and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=False,
@@ -178,8 +184,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wp'
                 cache = 'basic'
+
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=False,
@@ -188,8 +196,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wp'
                 cache = 'w3tc'
+
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=False,
@@ -198,8 +208,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wp'
                 cache = 'wpfc'
+
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=False,
@@ -208,10 +220,12 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wp'
                 cache = 'wpsc'
+
         #WPSUBDIR
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
+
             if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -222,8 +236,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdir'
                 cache = 'basic'
+
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=True,
@@ -232,8 +248,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdir'
                 cache = 'w3tc'
+
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=True,
@@ -242,8 +260,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdir'
                 cache = 'wpfc'
+
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=True,
@@ -252,12 +272,15 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdir'
                 cache = 'wpsc'
+
         #WPSUBDOAIN
         if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdir or self.app.pargs.wp)):
+
             if (self.app.pargs.wpsubdomain and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=True, wp=True, w3tc=False,
                             wpfc=False, wpsc=False, multisite=True,
@@ -266,8 +289,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdomain'
                 cache = 'basic'
+
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False,  basic=False, wp=True, w3tc=True,
                             wpfc=False, wpsc=False, multisite=True,
@@ -276,8 +301,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdomain'
                 cache = 'w3tc'
+
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False, basic=False, wp=True, w3tc=False,
                             wpfc=True, wpsc=False, multisite=True,
@@ -286,8 +313,10 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdomain'
                 cache = 'wpfc'
+
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             static=False, basic=False, wp=True, w3tc=False,
                             wpfc=False, wpsc=True, multisite=True,
@@ -325,6 +354,10 @@ class EESiteCreateController(CementBaseController):
             ee_wp_creds = SetupWordpress(self, data)
         # Service Nginx Reload
         EEService.reload_service(self, 'nginx')
+
+        EEGit.add(self, ["/etc/nginx"],
+                  msg="{0} created with {1} {2}"
+                  .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
         SetWebrootPermissions(self, data['webroot'])
         if data['wp']:
@@ -334,7 +367,7 @@ class EESiteCreateController(CementBaseController):
                      .format(ee_wp_creds['wp_pass']))
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
-                 " http://{0}".format(ee_www_domain))
+                 " http://{0}".format(ee_domain))
 
 
 class EESiteUpdateController(CementBaseController):
@@ -370,21 +403,335 @@ class EESiteUpdateController(CementBaseController):
     @expose(help="update example.com")
     def default(self):
         # TODO Write code for ee site update here
-        print("Inside EESiteUpdateController.default().")
+        (ee_domain,
+         ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
+        ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
-        # site command Options and subcommand calls and definations to
-        # mention here
+        check_site = getSiteInfo(self, ee_domain)
 
-        # If using an output handler such as 'mustache', you could also
-        # render a data dictionary using a template.  For example:
-        #
-        #   data = dict(foo='bar')
-        #   self.app.render(data, 'default.mustache')
-        #
-        #
-        # The 'default.mustache' file would be loaded from
-        # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
-        #
+        if check_site is None:
+            Log.error(self, "Site {0} does not exist.".format(ee_domain))
+        else:
+            oldsitetype = check_site.site_type
+            oldcachetype = check_site.cache_type
+
+        if (self.app.pargs.html and not (self.app.pargs.php or
+            self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            pass
+
+        #PHP
+        if (self.app.pargs.php and not (self.app.pargs.html or
+            self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
+            if oldsitetype != 'html':
+                Log.error("Cannot update {0} to php".format(ee_domain))
+                sys.exit(1)
+
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                        static=False,  basic=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=ee_site_webroot,
+                        currsitetype=oldsitetype, currcachetype=oldcachetype)
+
+        #MySQL
+        if (self.app.pargs.mysql and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
+            or self.app.pargs.wpfc or self.app.pargs.wpsc or
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
+            if oldsitetype != 'html' or oldsitetype != 'php':
+                Log.error("Cannot update {0} to mysql".format(ee_domain))
+                sys.exit(1)
+
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                        static=False,  basic=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=ee_site_webroot,
+                        ee_db_name='', ee_db_user='', ee_db_pass='',
+                        ee_db_host='', currsitetype=oldsitetype,
+                        currcachetype=oldcachetype)
+
+        #WP
+        if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
+            self.app.pargs.wpsc) and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+            if (self.app.pargs.wp and not (self.app.pargs.w3tc
+               or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp']
+                   and oldsitetype not in ['w3tc', 'wpfc', 'wpsc']):
+                    Log.error("Cannot update {0} to wp basic"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=True, wp=True, w3tc=False,
+                            wpfc=False, wpsc=False, multisite=False,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp']
+                   and oldsitetype not in ['basic', 'wpfc', 'wpsc']):
+                    Log.error("Cannot update {0} to wp w3tc".format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=False,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpsc']):
+                    Log.error("Cannot update {0} to wp wpfc".format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=False,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpfc']):
+                    Log.error("Cannot update {0} to wp wpsc".format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=False,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+        #WPSUBDIR
+        if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdomain or self.app.pargs.wp)):
+            if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
+               or self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdir']
+                   and oldsitetype not in ['w3tc', 'wpfc', 'wpsc']):
+                    Log.error("Cannot update {0} to wpsubdir basic"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=True, wp=True, w3tc=False,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=True, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdir']
+                   and oldsitetype not in ['basic', 'wpfc', 'wpsc']):
+                    Log.error("Cannot update {0} to wpsubdir w3tc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=True, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdir']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpsc']):
+                    Log.error("Cannot update {0} to wpsubdir wpfc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=True,
+                            wpsubdir=True, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdir']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpfc']):
+                    Log.error("Cannot update {0} to wpsubdir wpsc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=True,
+                            wpsubdir=True, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+        if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or
+           self.app.pargs.wpsubdir or self.app.pargs.wp)):
+
+            if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdomain']
+               and oldsitetype not in ['w3tc', 'wpfc', 'wpsc']):
+                Log.error("Cannot update {0} to wpsubdomain basic"
+                          .format(ee_domain))
+                sys.exit(1)
+
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                        static=False,  basic=True, wp=True, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=True,
+                        wpsubdir=False, webroot=ee_site_webroot,
+                        ee_db_name='', ee_db_user='', ee_db_pass='',
+                        ee_db_host='', currsitetype=oldsitetype,
+                        currcachetype=oldcachetype)
+
+            if (self.app.pargs.w3tc and not
+               (self.app.pargs.wpfc or self.app.pargs.wpsc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdomain']
+                   and oldsitetype not in ['basic', 'wpfc', 'wpsc']):
+                    Log.error("Cannot update {0} to wpsubdomain w3tc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False,  basic=False, wp=True, w3tc=True,
+                            wpfc=False, wpsc=False, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpfc and not
+               (self.app.pargs.wpsc or self.app.pargs.w3tc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdomain']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpsc']):
+                    Log.error("Cannot update {0} to wpsubdomain wpfc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False, basic=False, wp=True, w3tc=False,
+                            wpfc=True, wpsc=False, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+            if (self.app.pargs.wpsc and not
+               (self.app.pargs.w3tc or self.app.pargs.wpfc)):
+
+                if (oldsitetype not in ['html', 'php', 'wp', 'wpsubdomain']
+                   and oldsitetype not in ['basic', 'w3tc', 'wpfc']):
+                    Log.error("Cannot update {0} to wpsubdomain wpsc"
+                              .format(ee_domain))
+                    sys.exit(1)
+
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            static=False, basic=False, wp=True, w3tc=False,
+                            wpfc=False, wpsc=True, multisite=True,
+                            wpsubdir=False, webroot=ee_site_webroot,
+                            ee_db_name='', ee_db_user='', ee_db_pass='',
+                            ee_db_host='', currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+
+        # TODO take site backup before site update
+        siteBackup(self, data)
+        # TODO Check for required packages before update
+
+        # setup NGINX configuration, and webroot
+        SetupDomain(self, data)
+
+        if 'ee_db_name' in data.keys() and not data['wp']:
+            data = SetupDatabase(self, data)
+            try:
+                eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
+                                  'w')
+                eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
+                                 "\ndefine('DB_USER', '{1}'); "
+                                 "\ndefine('DB_PASSWORD', '{2}');"
+                                 "\ndefine('DB_HOST', '{3}');\n?>"
+                                 .format(data['ee_db_name'],
+                                         data['ee_db_user'],
+                                         data['ee_db_pass'],
+                                         data['ee_db_host']))
+                eedbconfig.close()
+                stype = mysql
+            except IOError as e:
+                self.app.log.error("Unable to create ee-config.php for "
+                                   "{2} ({0}): {1}"
+                                   .format(e.errno, e.strerror, ee_domain))
+                sys.exit(1)
+
+        if oldsitetype == 'mysql':
+            config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
+                           .format(EEVariables.ee_date))
+            data['ee_db_name'] = EEFileUtils.grep(EEFileUtils
+                                                  .grep(self, config_file,
+                                                        'DB_NAME')
+                                                  .split(',')[1]
+                                                  .split(')')[0].strip())
+            data['ee_db_user'] = EEFileUtils.grep(EEFileUtils
+                                                  .grep(self, config_file,
+                                                        'DB_USER')
+                                                  .split(',')[1]
+                                                  .split(')')[0].strip())
+            data['ee_db_pass'] = EEFileUtils.grep(EEFileUtils
+                                                  .grep(self, config_file,
+                                                        'DB_PASSWORD')
+                                                  .split(',')[1]
+                                                  .split(')')[0].strip())
+
+        # Setup WordPress if Wordpress site
+        if data['wp']:
+            ee_wp_creds = SetupWordpress(self, data)
+        # Service Nginx Reload
+        EEService.reload_service(self, 'nginx')
+
+        EEGit.add(self, ["/etc/nginx"],
+                  msg="{0} created with {1} {2}"
+                  .format(ee_www_domain, stype, cache))
+        # Setup Permissions for webroot
+        SetWebrootPermissions(self, data['webroot'])
+        if data['wp']:
+            Log.info(self, '\033[94m'+"WordPress Admin User :"
+                     " {0}".format(ee_wp_creds['wp_user'])+'\033[0m')
+            Log.info(self, "WordPress Admin User Password : {0}"
+                     .format(ee_wp_creds['wp_pass']))
+        addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
+        Log.info(self, "Successfully created site"
+                 " http://{0}".format(ee_domain))
 
 
 def load(app):

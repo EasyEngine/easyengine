@@ -27,9 +27,18 @@ class SiteDB(Base):
     storage_fs = Column(String)
     storage_db = Column(String)
 
-    # def __init__(self):
+    def __init__(self):
     #     from sqlalchemy import create_engine
     #     self.engine = create_engine('sqlite:///orm_in_detail.sqlite')
+        self.sitename = sitename
+        self.site_type = site_type
+        self.cache_type = cache_type
+        self.site_path = site_path
+        self.created_on = created_on
+        self.site_enabled = site_enabled
+        self.is_ssl = is_ssl
+        self.storage_fs = storage_fs
+        self.storage_db = storage_db
 
 # if __name__ == "__main__":
 #
@@ -65,6 +74,25 @@ def addNewSite(self, site, stype, cache, path,
         s.add(newRec)
         s.commit()
         s.flush()
+    except Exception as e:
+        Log.error(self, "Unable to add site to database : {0}"
+                  .format(e))
+        sys.exit(1)
+
+
+def getSiteInfo(self, site):
+    db_path = self.app.config.get('site', 'db_path')
+    try:
+        from sqlalchemy import create_engine
+        engine = create_engine(db_path)
+        from sqlalchemy.orm import sessionmaker
+        session = sessionmaker()
+        session.configure(bind=engine)
+        Base.metadata.create_all(engine)
+        s = session()
+        q = s.query(SiteDB).filter_by(sitename=site).first()
+        s.flush()
+        return q
     except Exception as e:
         Log.error(self, "Unable to add site to database : {0}"
                   .format(e))

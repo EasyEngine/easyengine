@@ -8,6 +8,7 @@ from ee.core.mysql import EEMysql
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.logging import Log
+import glob
 
 
 def SetupDomain(self, data):
@@ -141,7 +142,8 @@ def SetupWordpress(self, data):
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
 
-    data = SetupDatabase(self, data)
+    if not (data['ee_db_name'] and data['ee_db_user'] and data['ee_db_pass']):
+        data = SetupDatabase(self, data)
     if prompt_wpprefix == 'True' or prompt_wpprefix == 'true':
         try:
             ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
@@ -247,7 +249,9 @@ def SetupWordpressNetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
-                         '--title=')
+                         '--title={0} {subdomains}'
+                         .format(data['www_domain'], subdomains='--subdomains'
+                                 if not data['wpsubdir'] else ''))
 
 
 def InstallWP_Plugin(self, plugin_name, data):
@@ -271,3 +275,30 @@ def SetWebrootPermissions(self, webroot):
     self.app.log.debug("Setting Up Permissions...")
     EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
                       EEVariables.ee_php_user, recursive=True)
+
+
+def siteBackup(self, data):
+    ee_site_webroot = data['webroot']
+    backup_path = ee_site_webroot + '/backup/{0}'.format(EEVariables.ee_date)
+    if not EEFileUtils.isexist(self, backup_path):
+        EEFileUtils.mkdir(self, backup_path)
+    Log.info(self, "Backup Location : {0}".format(backup_path))
+    EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}.conf'
+                         .format(data['ee_domain']), backup_path)
+
+    if data['currsitetype'] in ['html', 'php', 'mysql']:
+        Log.info(self, "Backup Webroot ...")
+        EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
+
+    configfiles = glob(ee_site_webroot + '/htdocs/*-config.php')
+
+    for file in configfiles:
+        if EEFileUtils.isexist(self, file):
+            ee_db_name = (EEFileUtils.grep(self, file, 'DB_NAME').split(',')[1]
+                          .split(')')[0].strip())
+            Log.info(self, 'Backup Database, please wait')
+            EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
+                                 .format(ee_db_name, backup_path),
+                                 "Failed: Backup Database")
+            # move wp-config.php/ee-config.php to backup
+            EEFileUtils.mvfile(self, file, backup_path)

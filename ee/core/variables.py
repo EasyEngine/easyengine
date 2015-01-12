@@ -5,12 +5,15 @@ import configparser
 import os
 import sys
 import psutil
+import datetime
 
 
 class EEVariables():
     """Intialization of core variables"""
     config = configparser.ConfigParser()
     config.read(os.path.expanduser("~")+'/.gitconfig')
+
+    ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # EasyEngine core variables
     ee_platform_distro = platform.linux_distribution()[0]
