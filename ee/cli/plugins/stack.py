@@ -518,8 +518,10 @@ class EEStackController(CementBaseController):
 
                 # Compile sieve rules
                 self.app.log.debug("Privillages to dovecot ")
-                EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
-                                     "/dovecot")
+                # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
+                #                     "/dovecot")
+                EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail"
+                                  recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
@@ -582,8 +584,11 @@ class EEStackController(CementBaseController):
                             '/var/www/22222/htdocs/db/pma/')
                 self.app.log.debug('Privillages to www-data:www-data '
                                    '/var/www/22222/htdocs/db/pma ')
-                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                                     '/var/www/22222/htdocs/db/pma')
+                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
+                #                     '/var/www/22222/htdocs/db/pma')
+                EEFileUtils.chown(self, '/var/www/22222',
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
                 self.app.log.debug("Extracting memcache.tar.gz to location"
@@ -592,8 +597,11 @@ class EEStackController(CementBaseController):
                                   '/var/www/22222/htdocs/cache/memcache')
                 self.app.log.debug("Privillages to"
                                    " /var/www/22222/htdocs/cache/memcache")
-                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                                     '/var/www/22222/htdocs/cache/memcache')
+                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
+                #                     '/var/www/22222/htdocs/cache/memcache')
+                EEFileUtils.chown(self, '/var/www/22222',
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
 
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
@@ -608,8 +616,11 @@ class EEStackController(CementBaseController):
                             '/var/www/22222/htdocs/php/webgrind')
                 self.app.log.debug("Privillages www-data:www-data "
                                    "/var/www/22222/htdocs/php/webgrind/ ")
-                EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                                     '/var/www/22222/htdocs/php/webgrind/')
+                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
+                #                     '/var/www/22222/htdocs/php/webgrind/')
+                EEFileUtils.chown(self, '/var/www/22222',
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
 
             if any('/tmp/anemometer.tar.gz' == x[1]
                     for x in packages):
@@ -732,6 +743,10 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "/var/www/22222/htdocs/vimbadmin"
                                      "/bin/doctrine2-cli.php orm:schema-tool:"
                                      "create")
+
+                EEFileUtils.chown(self, '/var/www/22222',
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
 
                 # Copy Dovecot and Postfix templates which are depednet on
                 # Vimbadmin
@@ -865,8 +880,12 @@ class EEStackController(CementBaseController):
                                                   'webmail.error.log',
                                                   '/var/www/roundcubemail/'
                                                   'logs/error.log'])
-                # Remove roundcube installe[r
+                # Remove roundcube installer
                 EEFileUtils.remove(self, ["/var/www/roundcubemail/installer"])
+                EEFileUtils.chown(self, '/var/www/roundcubemail',
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
+
                 EEService.reload_service(self, 'nginx')
 
     @expose()
@@ -1023,8 +1042,8 @@ class EEStackController(CementBaseController):
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
                                    "/var/www/roundcubemail"]
             if EEShellExec.cmd_exec("mysqladmin ping"):
-                EEMysql.execute("drop database vimbadmin")
-                EEMysql.execute("drop database roundcubemail")
+                EEMysql.execute("drop database IF EXISTS vimbadmin")
+                EEMysql.execute("drop database IF EXISTS roundcubemail")
 
         if self.app.pargs.nginx:
             self.app.log.debug("Removing apt_packages variable of Nginx")
