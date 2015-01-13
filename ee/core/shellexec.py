@@ -29,3 +29,16 @@ class EEShellExec():
             Log.debug(self, "Unable to execute command \ {0}{1}"
                       .format(e.errno, e.strerror))
             sys.exit(1)
+
+    def invoke_editor(self, filepath, errormsg=''):
+        try:
+            subprocess.call(['sensible-editor', filepath])
+        except OSError as e:
+            if errormsg:
+                Log.error(self, errormsg)
+            else:
+                Log.error(self, "Unable to edit file \ {0}{1}"
+                          .format(e.errno, e.strerror))
+            Log.debug(self, "Unable to edit file \ {0}{1}"
+                      .format(e.errno, e.strerror))
+            sys.exit(1)

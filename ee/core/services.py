@@ -48,6 +48,22 @@ class EEService():
 
     def reload_service(self, service_name):
             try:
+                if service_name in ['nginx', 'php5-fpm']:
+                    retcode = subprocess.getstatusoutput('{0} -t'
+                                                         .format(service_name))
+                    if retcode[0] == 0:
+                        subprocess.getstatusoutput('service {0} reload'
+                                                   .format(service_name))
+                        self.app.log.info("reload : {0}    [OK]"
+                                          .format(service_name))
+                        return True
+                    else:
+                        self.app.log.error("reload : {0}   [FAIL]"
+                                           .format(service_name))
+                        self.app.log.debug("{0}"
+                                           .format(retcode[1]))
+                        return False
+
                 retcode = subprocess.getstatusoutput('service {0} reload'
                                                      .format(service_name))
                 if retcode[0] == 0:
@@ -56,7 +72,8 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-                self.app.log.error("Failed to reload NGINX:", e)
+                self.app.log.error("Failed to reload {0} {1}"
+                                   .format(service_name, e))
                 return False
 
     def get_service_status(self, service_name):

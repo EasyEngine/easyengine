@@ -34,3 +34,13 @@ class EEGit:
                         sys.exit(1)
             else:
                 self.app.log.debug("EEGit: Path {0} not present".format(path))
+
+    def checkfilestatus(self, repo, filepath):
+        global git
+        git = git.bake("--git-dir={0}/.git".format(repo),
+                       "--work-tree={0}".format(repo))
+        status = git.status("-s", "{0}".format(filepath))
+        if len(status.splitlines()) > 0:
+            return True
+        else:
+            return False

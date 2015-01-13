@@ -10,6 +10,7 @@ from ee.cli.plugins.sitedb import *
 from ee.core.git import EEGit
 import sys
 import os
+import glob
 
 
 def ee_site_hook(app):
@@ -41,33 +42,108 @@ class EESiteController(CementBaseController):
 
     @expose(help="enable site example.com")
     def enable(self):
-        # TODO Write code for ee site enable command here
-        print("Inside EESiteController.enable().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            EEFileUtils.create_symlink(self,
+                                       ['/etc/nginx/sites-available/{0}.conf'
+                                        .format(ee_domain_name),
+                                        '/etc/nginx/sites-enabled/{0}.conf'
+                                        .format(ee_domain_name)])
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="disable site example.com")
     def disable(self):
-        # TODO Write code for ee site disable command here
-        print("Inside EESiteController.disable().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            EEFileUtils.remove_symlink(self,
+                                       ['/etc/nginx/sites-available/{0}.conf'
+                                        .format(ee_domain_name),
+                                        '/etc/nginx/sites-enabled/{0}.conf'
+                                        .format(ee_domain_name)])
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="get example.com information")
     def info(self):
-        # TODO Write code for ee site info command here
-        print("Inside EESiteController.info().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        ee_db_name = ''
+        ee_db_user = ''
+        ee_db_pass = ''
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            ee_site_webroot = EEVariables.ee_webroot + ee_domain
+            access_log = (ee_site_webroot + '/logs/access.log')
+            error_log = (ee_site_webroot + '/logs/error.log')
+            configfiles = glob.glob(ee_site_webroot + '/*-config.php')
+            if configfiles:
+                if EEFileUtils.isexist(self, configfiles[0]):
+                    ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+                                  'DB_NAME').split(',')[1]
+                                  .split(')')[0].strip().replace('\'', ''))
+                    ee_db_user = (EEFileUtils.grep(self, configfiles[0],
+                                  'DB_USER').split(',')[1]
+                                  .split(')')[0].strip().replace('\'', ''))
+                    ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
+                                  'DB_PASSWORD').split(',')[1]
+                                  .split(')')[0].strip().replace('\'', ''))
+
+            data = dict(domain=ee_domain, webroot=ee_site_webroot,
+                        accesslog=access_log, errorlog=error_log,
+                        dbname=ee_db_name, dbuser=ee_db_user,
+                        dbpass=ee_db_pass)
+            self.app.render((data), 'siteinfo.mustache')
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="Monitor example.com logs")
     def log(self):
-        # TODO Write code for ee site log command here
-        print("Inside EESiteController.log().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            EEShellExec.cmd_exec(self, 'tail -f /var/log/nginx/{0}.*.log'
+                                 .format(ee_domain))
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="Edit example.com's nginx configuration")
     def edit(self):
-        # TODO Write code for ee site edit command here
-        print("Inside EESiteController.edit().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            EEShellExec.invoke_editor(self, '/etc/nginx/sites-available/{0}'
+                                      .format(ee_domain))
+            if (EEGit.checkfilestatus(self, "/etc/nginx",
+               '/etc/nginx/sites-available/{0}'.format(ee_domain))):
+                EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
+                          .format(ee_domain))
+                # Reload NGINX
+                EEService.reload_service(self, 'nginx')
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="Display example.com's nginx configuration")
     def show(self):
         # TODO Write code for ee site edit command here
-        print("Inside EESiteController.show().")
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            Log.info(self, "Display NGINX configuration for {0}"
+                     .format(ee_domain))
+            f = open('/etc/nginx/sites-available/{0}'.format(ee_domain), "r")
+            text = f.read()
+            print(text)
+            f.close()
+        else:
+            Log.error(self, "site {0} does not exists".format(ee_domain))
+            sys.exit(1)
 
     @expose(help="list sites currently available")
     def list(self):
@@ -116,14 +192,13 @@ class EESiteCreateController(CementBaseController):
         # data = dict(foo='EESiteCreateController.default().')
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
-        (ee_domain,
-         ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         # Check if doain previously exists or not
-        if os.path.isfile('/etc/nginx/sites-available/{0}.conf'
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            self.app.log.error("site {0} already exists"
+            self.app.log.error(self, "site {0} already exists"
                                .format(ee_domain))
             sys.exit(1)
 

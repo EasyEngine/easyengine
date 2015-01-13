@@ -18,7 +18,7 @@ def SetupDomain(self, data):
     self.app.log.info("Creating {0} ...".format(ee_domain_name))
     # write nginx config for file
     try:
-        ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}.conf'
+        ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(ee_domain_name), 'w')
 
         self.app.render((data), 'virtualconf.mustache',
@@ -33,9 +33,9 @@ def SetupDomain(self, data):
         sys.exit(1)
 
     # create symbolic link for
-    EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}.conf'
+    EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
                                       .format(ee_domain_name),
-                                      '/etc/nginx/sites-enabled/{0}.conf'
+                                      '/etc/nginx/sites-enabled/{0}'
                                       .format(ee_domain_name)])
 
     # Creating htdocs & logs directory
@@ -283,22 +283,21 @@ def siteBackup(self, data):
     if not EEFileUtils.isexist(self, backup_path):
         EEFileUtils.mkdir(self, backup_path)
     Log.info(self, "Backup Location : {0}".format(backup_path))
-    EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}.conf'
+    EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['ee_domain']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'mysql']:
         Log.info(self, "Backup Webroot ...")
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
 
-    configfiles = glob(ee_site_webroot + '/htdocs/*-config.php')
+    configfiles = glob(ee_site_webroot + '/*-config.php')
 
-    for file in configfiles:
-        if EEFileUtils.isexist(self, file):
-            ee_db_name = (EEFileUtils.grep(self, file, 'DB_NAME').split(',')[1]
-                          .split(')')[0].strip())
-            Log.info(self, 'Backup Database, please wait')
-            EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
-                                 .format(ee_db_name, backup_path),
-                                 "Failed: Backup Database")
-            # move wp-config.php/ee-config.php to backup
-            EEFileUtils.mvfile(self, file, backup_path)
+    if EEFileUtils.isexist(self, configfiles[0]):
+        ee_db_name = (EEFileUtils.grep(self, file, 'DB_NAME').split(',')[1]
+                      .split(')')[0].strip().replace('\'', ''))
+        Log.info(self, 'Backup Database, please wait')
+        EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
+                             .format(ee_db_name, backup_path),
+                             "Failed: Backup Database")
+        # move wp-config.php/ee-config.php to backup
+        EEFileUtils.mvfile(self, file, backup_path)
