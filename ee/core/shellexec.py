@@ -13,12 +13,12 @@ class EEShellExec():
 
     def cmd_exec(self, command, errormsg=''):
         try:
-            self.app.log.debug("Running command: {0}".format(command))
+            Log.debug(self, "Running command: {0}".format(command))
             retcode = subprocess.getstatusoutput(command)
             if retcode[0] == 0:
                 return True
             else:
-                self.app.log.debug(retcode[1])
+                Log.debug(self, retcode[1])
                 return False
         except OSError as e:
             if errormsg:

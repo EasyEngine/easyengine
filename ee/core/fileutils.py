@@ -16,15 +16,13 @@ class EEFileUtils():
     def remove(self, filelist):
         for file in filelist:
             if os.path.isfile(file):
-                self.app.log.info("Removing "+os.path.basename(file)+" ...")
+                Log.info(self, "Removing "+os.path.basename(file)+" ...")
                 os.remove(file)
-                self.app.log.debug('file Removed')
-                self.app.log.info("Done")
+                Log.debug(self, 'file Removed')
             if os.path.isdir(file):
                 try:
-                    print("Removing "+os.path.basename(file)+"...")
+                    Log.info(self, "Removing "+os.path.basename(file)+"...")
                     shutil.rmtree(file)
-                    self.app.log.info("Done")
                 except shutil.Error as e:
                     Log.error(self, 'Unable to Remove file {err}'
                               .format(err=str(e.reason)))
@@ -37,11 +35,11 @@ class EEFileUtils():
             try:
                 os.symlink(src, dst)
             except Exception as e:
-                self.app.log.error("Unable to create symbolic link ...\n {0}"
-                                   " {1}".format(e.errno, e.strerror))
+                Log.error(self, "Unable to create symbolic link ...\n {0}"
+                          " {1}".format(e.errno, e.strerror))
                 sys.exit(1)
         else:
-            self.app.log.debug("Destination: {0} exists".format(dst))
+            Log.debug(self, "Destination: {0} exists".format(dst))
 
     def remove_symlink(self, filepath):
         try:
@@ -55,17 +53,17 @@ class EEFileUtils():
         try:
             shutil.copy2(src, dest)
         except shutil.Error as e:
-            print('Error: {0}'.format(e))
+            Log.info(self, 'Error: {0}'.format(e))
         except IOError as e:
-            print('Error: {e}'.format(e.strerror))
+            Log.info(self, 'Error: {e}'.format(e.strerror))
 
     def searchreplace(self, fnm, sstr, rstr):
         try:
             for line in fileinput.input(fnm, inplace=True):
-                print(line.replace(sstr, rstr), end='')
+                Log.info(line.replace(sstr, rstr), end='')
             fileinput.close()
         except Exception as e:
-            print('Error : {0}'.format(e))
+            Log.info(self, 'Error : {0}'.format(e))
 
     def mvfile(self, src, dst):
         try:
