@@ -270,7 +270,7 @@ class EEStackController(CementBaseController):
                     passwd = ''.join([random.choice
                                      (string.ascii_letters + string.digits)
                                      for n in range(6)])
-                    EEShellExec.cmd_exec(self, "Log.infof \"easyengine:"
+                    EEShellExec.cmd_exec(self, "printf \"easyengine:"
                                          "$(openssl passwd -crypt "
                                          "{password} 2> /dev/null)\n\""
                                          "> /etc/nginx/htpasswd-ee 2>/dev/null"
@@ -326,6 +326,8 @@ class EEStackController(CementBaseController):
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
+                    self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
+                                + ["HTTP Auth Password: {0}".format(passwd)])
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -721,11 +723,10 @@ class EEStackController(CementBaseController):
                                                           + string.
                                                              ascii_letters,
                                                           64)))
+                vm_salt = (''.join(random.sample(string.ascii_letters +
+                                                 string.ascii_letters, 64)))
                 config['user']['defaults.mailbox.'
-                               'password_salt'] = (''.join(random.sample
-                                                   (string.ascii_letters
-                                                    + string.ascii_letters,
-                                                    64)))
+                               'password_salt'] = vm_salt
                 Log.debug(self, "Writting configration to file "
                           "/var/www/22222/htdocs/vimbadmin"
                           "/application/configs/application.ini ")
@@ -799,6 +800,9 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
                 EEService.reload_service(self, 'php5-fpm')
+                self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
+                            "22222/vimbadmin".format(EEVariables.ee_fqdn)]
+                            + ["Security Salt: {0}".format(vm_salt)])
 
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
@@ -891,6 +895,7 @@ class EEStackController(CementBaseController):
 
     @expose()
     def install(self, packages=[], apt_packages=[]):
+        self.msg = []
         if self.app.pargs.web:
             Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
                       " ,MySQL ")
@@ -1025,6 +1030,10 @@ class EEStackController(CementBaseController):
             EEDownload.download(self, packages)
         Log.debug(self, "Calling post_pref")
         self.post_pref(apt_packages, packages)
+        if len(self.msg):
+            for msg in self.msg:
+                Log.info(self, msg)
+            Log.info(self, "Successfully installed packages")
 
     @expose()
     def remove(self):
@@ -1089,6 +1098,7 @@ class EEStackController(CementBaseController):
             EEAptGet.remove(apt_packages)
         if len(packages):
             EEFileUtils.remove(self, packages)
+        Log.info(self, "Successfully removed packages")
 
     @expose()
     def purge(self):
@@ -1153,6 +1163,7 @@ class EEStackController(CementBaseController):
             EEAptGet.remove(apt_packages, purge=True)
         if len(packages):
             EEFileUtils.remove(self, packages)
+        Log.info(self, "Successfully purged packages")
 
 
 def load(app):
