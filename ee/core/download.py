@@ -2,6 +2,7 @@
 import urllib.request
 import urllib.error
 import os
+from ee.core.logging import Log
 
 
 class EEDownload():
@@ -13,24 +14,24 @@ class EEDownload():
         for package in packages:
             url = package[0]
             filename = package[1]
+            pkg_name = package[2]
             try:
                 directory = os.path.dirname(filename)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
-                self.app.log.info("Downloading "+os.path.basename(url)+" ...")
+                Log.info(self, "Downloading "+pkg_name+" ...")
                 urllib.request.urlretrieve(url, filename)
-                self.app.log.info("Done")
             except urllib.error.URLError as e:
-                self.app.log.info("Unable to donwload file, [{err}]"
-                                  .format(err=str(e.reason)))
+                Log.info(self, "Unable to donwload file, [{err}]"
+                         .format(err=str(e.reason)))
                 return False
             except urllib.error.HTTPError as e:
-                self.app.log.error("Package download failed. [{err}]"
-                                   .format(err=str(e.reason)))
+                Log.error(self, "Package download failed. [{err}]"
+                          .format(err=str(e.reason)))
                 return False
             except urllib.error.ContentTooShortError as e:
-                self.app.log.error("Package download failed. The amount of the"
-                                   " downloaded data is less than "
-                                   "the expected amount \{0} {1}"
-                                   .format(e.errno, e.strerror))
+                Log.error(self, "Package download failed. The amount of the"
+                          " downloaded data is less than "
+                          "the expected amount \{0} {1}"
+                          .format(e.errno, e.strerror))
                 return False

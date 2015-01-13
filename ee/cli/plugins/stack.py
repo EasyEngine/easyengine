@@ -23,6 +23,7 @@ import os
 import pwd
 import grp
 from ee.cli.plugins.stack_services import EEStackStatusController
+from ee.core.logging import Log
 
 
 def ee_stack_hook(app):
@@ -69,12 +70,12 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def default(self):
         # TODO Default action for ee stack command
-        print("Inside EEStackController.default().")
+        Log.info(self, "Inside EEStackController.default().")
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
-            print("Pre-seeding postfix variables ... ")
+            Log.info(self, "Pre-seeding postfix variables ... ")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
                                  "/main_mailer_type string \'Internet Site\'\""
                                  " | debconf-set-selections")
@@ -82,12 +83,12 @@ class EEStackController(CementBaseController):
                                  " $(hostname -f)\" | debconf-set-selections")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            print("Adding repository for MySQL ... ")
+            Log.info(self, "Adding repository for MySQL ... ")
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
-            self.app.log.debug('Adding key of MySQL.')
+            Log.debug(self, 'Adding key of MySQL.')
             EERepo.add_key(self, '1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
-            print("Pre-seeding MySQL variables ... ")
+            Log.info(self, "Pre-seeding MySQL variables ... ")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
@@ -103,35 +104,35 @@ class EEStackController(CementBaseController):
             """.format(chars=chars)
             config = configparser.ConfigParser()
             config.read_string(mysql_config)
-            self.app.log.debug('writting configartion into MySQL file.')
+            Log.debug(self, 'writting configartion into MySQL file.')
             with open(os.path.expanduser("~")+'/.my.cnf', 'w') as configfile:
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-            print("Adding repository for Nginx ... ")
+            Log.info(self, "Adding repository for Nginx ... ")
             if EEVariables.ee_platform_distro == 'Debian':
-                self.app.log.debug('Adding Dotdeb/nginx GPG key')
+                Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
             else:
-                self.app.log.debug('Adding ppa of Nginx')
+                Log.debug(self, 'Adding ppa of Nginx')
                 EERepo.add(self, ppa=EEVariables.ee_nginx_repo)
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            print("Adding repository for PHP ... ")
+            Log.info(self, "Adding repository for PHP ... ")
             if EEVariables.ee_platform_distro == 'Debian':
-                self.app.log.debug('Adding repo_url of php for Debian')
+                Log.debug(self, 'Adding repo_url of php for Debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
-                self.app.log.debug('Adding  Dotdeb/php GPG key')
+                Log.debug(self, 'Adding  Dotdeb/php GPG key')
                 EERepo.add_key(self, '89DF5277')
             else:
-                self.app.log.debug('Adding ppa for PHP')
+                Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
-                print("Adding repository for dovecot ... ")
+                Log.info(self, "Adding repository for dovecot ... ")
                 EERepo.add(self, repo_url=EEVariables.ee_dovecot_repo)
-            self.app.log.debug('Executing the command debconf-set-selections.')
+            Log.debug(self, 'Executing the command debconf-set-selections.')
             EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
                                  "create-ssl-cert boolean yes\" "
                                  "| debconf-set-selections")
@@ -151,7 +152,7 @@ class EEStackController(CementBaseController):
                 if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
                    os.path.isfile('/etc/nginx/nginx.conf')):
                     nc = NginxConfig()
-                    self.app.log.debug('Loading file /etc/nginx/nginx.conf ')
+                    Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
                     nc.loadf('/etc/nginx/nginx.conf')
                     nc.set('worker_processes', 'auto')
                     nc.append(('worker_rlimit_nofile', '100000'), position=2)
@@ -160,106 +161,106 @@ class EEStackController(CementBaseController):
                               [('worker_connections', '4096'),
                                ('multi_accept', 'on')]}, position=4)
                     nc.set([('http',), 'keepalive_timeout'], '30')
-                    self.app.log.debug("Writting nginx configration to "
-                                       "file /etc/nginx/nginx.conf ")
+                    Log.debug(self, "Writting nginx configration to "
+                              "file /etc/nginx/nginx.conf ")
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
                     data = dict(version='EasyEngine 3.0.1')
-                    self.app.log.debug('writting the nginx configration to '
-                                       'file /etc/nginx/conf.d/ee-nginx.conf ')
+                    Log.debug(self, 'writting the nginx configration to '
+                              'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
                     self.app.render((data), 'nginx-core.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     data = dict()
-                    self.app.log.debug('writting the nginx configration to'
-                                       'file /etc/nginx/conf.d/blockips.conf')
+                    Log.debug(self, 'writting the nginx configration to'
+                              'file /etc/nginx/conf.d/blockips.conf')
                     ee_nginx = open('/etc/nginx/conf.d/blockips.conf', 'w')
                     self.app.render((data), 'blockips.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('writting the nginx configration to'
-                                       ' file /etc/nginx/conf.d/fastcgi.conf')
+                    Log.debug(self, 'writting the nginx configration to'
+                              ' file /etc/nginx/conf.d/fastcgi.conf')
                     ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf', 'w')
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
                     data = dict(php="9000", debug="9001")
-                    self.app.log.debug('writting the nginx configration to'
-                                       'file /etc/nginx/conf.d/upstream.conf ')
+                    Log.debug(self, 'writting the nginx configration to'
+                              'file /etc/nginx/conf.d/upstream.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
                     self.app.render((data), 'upstream.mustache', out=ee_nginx)
                     ee_nginx.close()
 
                     # Setup Nginx common directory
                     if not os.path.exists('/etc/nginx/common'):
-                        self.app.log.debug('Creating directory'
-                                           '/etc/nginx/common')
+                        Log.debug(self, 'Creating directory'
+                                  '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
                     data = dict()
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/acl.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
                     self.app.render((data), 'acl.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/locations.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/locations.conf')
                     ee_nginx = open('/etc/nginx/common/locations.conf', 'w')
                     self.app.render((data), 'locations.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/ php.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/ php.conf')
                     ee_nginx = open('/etc/nginx/common/php.conf', 'w')
                     self.app.render((data), 'php.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/w3tc.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/w3tc.conf')
                     ee_nginx = open('/etc/nginx/common/w3tc.conf', 'w')
                     self.app.render((data), 'w3tc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/wpcommon.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/wpcommon.conf')
                     ee_nginx = open('/etc/nginx/common/wpcommon.conf', 'w')
                     self.app.render((data), 'wpcommon.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/wpfc.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/wpfc.conf')
                     ee_nginx = open('/etc/nginx/common/wpfc.conf', 'w')
                     self.app.render((data), 'wpfc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/wpsc.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/wpsc.conf')
                     ee_nginx = open('/etc/nginx/common/wpsc.conf', 'w')
                     self.app.render((data), 'wpsc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/common/wpsubdir.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/common/wpsubdir.conf')
                     ee_nginx = open('/etc/nginx/common/wpsubdir.conf', 'w')
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     # 22222 port settings
-                    self.app.log.debug('Writting the nginx configration to'
-                                       'file /etc/nginx/sites-available/'
-                                       '22222.conf')
+                    Log.debug(self, 'Writting the nginx configration to'
+                              'file /etc/nginx/sites-available/'
+                              '22222.conf')
                     ee_nginx = open('/etc/nginx/sites-available/22222.conf',
                                     'w')
                     self.app.render((data), '22222.mustache',
@@ -269,7 +270,7 @@ class EEStackController(CementBaseController):
                     passwd = ''.join([random.choice
                                      (string.ascii_letters + string.digits)
                                      for n in range(6)])
-                    EEShellExec.cmd_exec(self, "printf \"easyengine:"
+                    EEShellExec.cmd_exec(self, "Log.infof \"easyengine:"
                                          "$(openssl passwd -crypt "
                                          "{password} 2> /dev/null)\n\""
                                          "> /etc/nginx/htpasswd-ee 2>/dev/null"
@@ -329,12 +330,12 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
-                    self.app.log.debug('Creating directory /var/log/php5/')
+                    Log.debug(self, 'Creating directory /var/log/php5/')
                     os.makedirs('/var/log/php5/')
 
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
-                self.app.log.debug("configring php file /etc/php5/fpm/php.ini")
+                Log.debug(self, "configring php file /etc/php5/fpm/php.ini")
                 config.read('/etc/php5/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
@@ -342,8 +343,8 @@ class EEStackController(CementBaseController):
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = time.tzname[time.daylight]
                 with open('/etc/php5/fpm/php.ini', 'w') as configfile:
-                    self.app.log.debug("writting configration of php in to"
-                                       "file /etc/php5/fpm/php.ini")
+                    Log.debug(self, "writting configration of php in to"
+                              "file /etc/php5/fpm/php.ini")
                     config.write(configfile)
 
                 # Prase /etc/php5/fpm/php-fpm.conf
@@ -351,8 +352,8 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/php-fpm.conf')
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
-                    self.app.log.debug("writting php5 configartion into "
-                                       " /etc/php5/fpm/php-fpm.conf")
+                    Log.debug(self, "writting php5 configartion into "
+                              " /etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
@@ -369,8 +370,8 @@ class EEStackController(CementBaseController):
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
                 with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
-                    self.app.log.debug("writting PHP5 configartion into "
-                                       " /etc/php5/fpm/pool.d/www.conf")
+                    Log.debug(self, "writting PHP5 configartion into "
+                              " /etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
 
                 # Generate /etc/php5/fpm/pool.d/debug.conf
@@ -382,8 +383,8 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
                 with open('/etc/php5/fpm/pool.d/debug.conf', 'w') as confifile:
-                    self.app.log.debug("writting PHP5 configartion into "
-                                       " /etc/php5/fpm/pool.d/debug.conf")
+                    Log.debug(self, "writting PHP5 configartion into "
+                              " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
@@ -414,7 +415,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
-                self.app.log.debug("Executing mail commands")
+                Log.debug(self, "Executing mail commands")
                 EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
                                      "/vmail --disabled-password --gecos ''"
                                      " vmail")
@@ -425,15 +426,15 @@ class EEStackController(CementBaseController):
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
-                self.app.log.debug("Adding Privillages to file "
-                                   "/etc/ssl/private/dovecot.pem ")
+                Log.debug(self, "Adding Privillages to file "
+                          "/etc/ssl/private/dovecot.pem ")
                 EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
                                      "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
                 data = dict()
-                self.app.log.debug("Writting configration into file"
-                                   "/etc/dovecot/conf.d/99-ee.conf ")
+                Log.debug(self, "Writting configration into file"
+                          "/etc/dovecot/conf.d/99-ee.conf ")
                 ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
@@ -503,21 +504,21 @@ class EEStackController(CementBaseController):
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
-                    self.app.log.debug('Creating directory'
-                                       '/var/lib/dovecot/sieve/ ')
+                    Log.debug(self, 'Creating directory'
+                              '/var/lib/dovecot/sieve/ ')
                     os.makedirs('/var/lib/dovecot/sieve/')
 
                 # Custom sieve configuration by EasyEngine
                 data = dict()
-                self.app.log.debug("Writting configaration of EasyEngine into"
-                                   "file /var/lib/dovecot/sieve/default.sieve")
+                Log.debug(self, "Writting configaration of EasyEngine into"
+                          "file /var/lib/dovecot/sieve/default.sieve")
                 ee_sieve = open('/var/lib/dovecot/sieve/default.sieve', 'w')
                 self.app.render((data), 'default-sieve.mustache',
                                 out=ee_sieve)
                 ee_sieve.close()
 
                 # Compile sieve rules
-                self.app.log.debug("Privillages to dovecot ")
+                Log.debug(self, "Privillages to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
                 EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail",
@@ -532,8 +533,8 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                 # Set up Custom amavis configuration
                 data = dict()
-                self.app.log.debug("Configuring file /etc/amavis/conf.d"
-                                   "/15-content_filter_mode")
+                Log.debug(self, "Configuring file /etc/amavis/conf.d"
+                          "/15-content_filter_mode")
                 ee_amavis = open('/etc/amavis/conf.d/15-content_filter_mode',
                                  'w')
                 self.app.render((data), '15-content_filter_mode.mustache',
@@ -550,17 +551,17 @@ class EEStackController(CementBaseController):
                                      "_checks/\" /etc/postfix/master.cf")
 
                 # Amavis ClamAV configuration
-                self.app.log.debug("Adding new user clamav amavis")
+                Log.debug(self, "Adding new user clamav amavis")
                 EEShellExec.cmd_exec(self, "adduser clamav amavis")
-                self.app.log.debug("Adding new user amavis clamav")
+                Log.debug(self, "Adding new user amavis clamav")
                 EEShellExec.cmd_exec(self, "adduser amavis clamav")
-                self.app.log.debug("Privillages to file /var/lib/amavis/tmp ")
+                Log.debug(self, "Privillages to file /var/lib/amavis/tmp ")
                 EEShellExec.cmd_exec(self, "chmod -R 775 /var/lib/amavis/tmp")
 
                 # Update ClamAV database
-                self.app.log.debug("Updating database")
+                Log.debug(self, "Updating database")
                 EEShellExec.cmd_exec(self, "freshclam")
-                self.app.log.debug("Restarting service clamav-daemon")
+                Log.debug(self, "Restarting service clamav-daemon")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
                 EEService.reload_service(self, 'dovecot')
@@ -569,21 +570,21 @@ class EEStackController(CementBaseController):
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
-                self.app.log.debug("Privillages to /usr/bin/wp ")
+                Log.debug(self, "Privillages to /usr/bin/wp ")
                 EEShellExec.cmd_exec(self, "chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
-                self.app.log.debug('Extracting file /tmp/pma.tar.gz to '
-                                   'loaction /tmp/')
+                Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
+                          'loaction /tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/db'):
-                    self.app.log.debug("Creating new  directory "
-                                       "/var/www/22222/htdocs/db")
+                    Log.debug(self, "Creating new  directory "
+                              "/var/www/22222/htdocs/db")
                     os.makedirs('/var/www/22222/htdocs/db')
                 shutil.move('/tmp/phpmyadmin-STABLE/',
                             '/var/www/22222/htdocs/db/pma/')
-                self.app.log.debug('Privillages to www-data:www-data '
-                                   '/var/www/22222/htdocs/db/pma ')
+                Log.debug(self, 'Privillages to www-data:www-data '
+                          '/var/www/22222/htdocs/db/pma ')
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -591,12 +592,12 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user, recursive=True)
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
-                self.app.log.debug("Extracting memcache.tar.gz to location"
-                                   " /var/www/22222/htdocs/cache/memcache ")
+                Log.debug(self, "Extracting memcache.tar.gz to location"
+                          " /var/www/22222/htdocs/cache/memcache ")
                 EEExtract.extract(self, '/tmp/memcache.tar.gz',
                                   '/var/www/22222/htdocs/cache/memcache')
-                self.app.log.debug("Privillages to"
-                                   " /var/www/22222/htdocs/cache/memcache")
+                Log.debug(self, "Privillages to"
+                          " /var/www/22222/htdocs/cache/memcache")
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -605,17 +606,17 @@ class EEStackController(CementBaseController):
 
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
-                self.app.log.debug("Extracting file webgrind.tar.gz to "
-                                   "location /tmp/ ")
+                Log.debug(self, "Extracting file webgrind.tar.gz to "
+                          "location /tmp/ ")
                 EEExtract.extract(self, '/tmp/webgrind.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/php'):
-                    self.app.log.debug("Creating directroy "
-                                       "/var/www/22222/htdocs/php")
+                    Log.debug(self, "Creating directroy "
+                              "/var/www/22222/htdocs/php")
                     os.makedirs('/var/www/22222/htdocs/php')
                 shutil.move('/tmp/webgrind-master/',
                             '/var/www/22222/htdocs/php/webgrind')
-                self.app.log.debug("Privillages www-data:www-data "
-                                   "/var/www/22222/htdocs/php/webgrind/ ")
+                Log.debug(self, "Privillages www-data:www-data "
+                          "/var/www/22222/htdocs/php/webgrind/ ")
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -624,11 +625,11 @@ class EEStackController(CementBaseController):
 
             if any('/tmp/anemometer.tar.gz' == x[1]
                     for x in packages):
-                self.app.log.debug("Extracting file anemometer.tar.gz to "
-                                   "location /tmp/ ")
+                Log.debug(self, "Extracting file anemometer.tar.gz to "
+                          "location /tmp/ ")
                 EEExtract.extract(self, '/tmp/anemometer.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/db/'):
-                    self.app.log.debug("Creating directory")
+                    Log.debug(self, "Creating directory")
                     os.makedirs('/var/www/22222/htdocs/db/')
                 shutil.move('/tmp/Anemometer-master',
                             '/var/www/22222/htdocs/db/anemometer')
@@ -642,7 +643,7 @@ class EEStackController(CementBaseController):
                                 ' BY \''+chars+'\'')
 
                 # Custom Anemometer configuration
-                self.app.log.debug("configration Anemometer")
+                Log.debug(self, "configration Anemometer")
                 data = dict(host='localhost', port='3306', user='anemometer',
                             password=chars)
                 ee_anemometer = open('/var/www/22222/htdocs/db/anemometer'
@@ -658,24 +659,24 @@ class EEStackController(CementBaseController):
 
             if any('/tmp/vimbadmin.tar.gz' == x[1] for x in packages):
                 # Extract ViMbAdmin
-                self.app.log.debug("Extracting ViMbAdmin.tar.gz to "
-                                   "location /tmp/")
+                Log.debug(self, "Extracting ViMbAdmin.tar.gz to "
+                          "location /tmp/")
                 EEExtract.extract(self, '/tmp/vimbadmin.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/'):
-                    self.app.log.debug("Creating directory "
-                                       " /var/www/22222/htdocs/")
+                    Log.debug(self, "Creating directory "
+                              " /var/www/22222/htdocs/")
                     os.makedirs('/var/www/22222/htdocs/')
                 shutil.move('/tmp/ViMbAdmin-3.0.10/',
                             '/var/www/22222/htdocs/vimbadmin/')
 
                 # Donwload composer and install ViMbAdmin
-                self.app.log.debug("Downloading composer "
-                                   "https://getcomposer.org/installer | php ")
+                Log.debug(self, "Downloading composer "
+                          "https://getcomposer.org/installer | php ")
                 EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
                                      "/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
                                      " php")
-                self.app.log.debug("installation of composer")
+                Log.debug(self, "installation of composer")
                 EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
                                      "/vimbadmin && "
                                      "php composer.phar install --prefer-dist"
@@ -684,17 +685,17 @@ class EEStackController(CementBaseController):
 
                 # Configure vimbadmin database
                 vm_passwd = ''.join(random.sample(string.ascii_letters, 8))
-                self.app.log.debug("Creating vimbadmin database if not exist")
+                Log.debug(self, "Creating vimbadmin database if not exist")
                 EEMysql.execute(self, "create database if not exists"
                                       " vimbadmin")
-                self.app.log.debug("Granting all privileges on vimbadmin ")
+                Log.debug(self, "Granting all privileges on vimbadmin ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
                                 " vimbadmin@localhost IDENTIFIED BY"
                                 " '{password}'".format(password=vm_passwd))
 
                 # Configure ViMbAdmin settings
                 config = configparser.ConfigParser(strict=False)
-                self.app.log.debug("configuring ViMbAdmin ")
+                Log.debug(self, "configuring ViMbAdmin ")
                 config.read('/var/www/22222/htdocs/vimbadmin/application/'
                             'configs/application.ini.dist')
                 config['user']['defaults.mailbox.uid'] = '5000'
@@ -725,9 +726,9 @@ class EEStackController(CementBaseController):
                                                    (string.ascii_letters
                                                     + string.ascii_letters,
                                                     64)))
-                self.app.log.debug("Writting configration to file "
-                                   "/var/www/22222/htdocs/vimbadmin"
-                                   "/application/configs/application.ini ")
+                Log.debug(self, "Writting configration to file "
+                          "/var/www/22222/htdocs/vimbadmin"
+                          "/application/configs/application.ini ")
                 with open('/var/www/22222/htdocs/vimbadmin/application'
                           '/configs/application.ini', 'w') as configfile:
                     config.write(configfile)
@@ -736,10 +737,10 @@ class EEStackController(CementBaseController):
                                 ".htaccess.dist",
                                 "/var/www/22222/htdocs/vimbadmin/public/"
                                 ".htaccess")
-                self.app.log.debug("Executing command "
-                                   "/var/www/22222/htdocs/vimbadmin/bin"
-                                   "/doctrine2-cli.php orm:schema-tool:"
-                                   "create")
+                Log.debug(self, "Executing command "
+                          "/var/www/22222/htdocs/vimbadmin/bin"
+                          "/doctrine2-cli.php orm:schema-tool:"
+                          "create")
                 EEShellExec.cmd_exec(self, "/var/www/22222/htdocs/vimbadmin"
                                      "/bin/doctrine2-cli.php orm:schema-tool:"
                                      "create")
@@ -752,8 +753,8 @@ class EEStackController(CementBaseController):
                 # Vimbadmin
 
                 if not os.path.exists('/etc/postfix/mysql/'):
-                    self.app.log.debug("Creating directory "
-                                       "/etc/postfix/mysql/")
+                    Log.debug(self, "Creating directory "
+                              "/etc/postfix/mysql/")
                     os.makedirs('/etc/postfix/mysql/')
                 data = dict(password=vm_passwd)
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
@@ -762,25 +763,25 @@ class EEStackController(CementBaseController):
                                 out=vm_config)
                 vm_config.close()
 
-                self.app.log.debug("Configration of file "
-                                   "/etc/postfix/mysql"
-                                   "/virtual_domains_maps.cf")
+                Log.debug(self, "Configration of file "
+                          "/etc/postfix/mysql"
+                          "/virtual_domains_maps.cf")
                 vm_config = open('/etc/postfix/mysql/virtual_domains_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_domains_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
 
-                self.app.log.debug("Configation of file "
-                                   "/etc/postfix/mysql"
-                                   "/virtual_mailbox_maps.cf ")
+                Log.debug(self, "Configation of file "
+                          "/etc/postfix/mysql"
+                          "/virtual_mailbox_maps.cf ")
                 vm_config = open('/etc/postfix/mysql/virtual_mailbox_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_mailbox_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
 
-                self.app.log.debug("Configration of file ")
+                Log.debug(self, "Configration of file ")
                 vm_config = open('/etc/dovecot/dovecot-sql.conf.ext',
                                  'w')
                 self.app.render((data), 'dovecot-sql-conf.mustache',
@@ -801,22 +802,22 @@ class EEStackController(CementBaseController):
 
             if any('/tmp/roundcube.tar.gz' == x[1] for x in packages):
                 # Extract RoundCubemail
-                self.app.log.debug("Extracting file /tmp/roundcube.tar.gz "
-                                   "to location /tmp/ ")
+                Log.debug(self, "Extracting file /tmp/roundcube.tar.gz "
+                          "to location /tmp/ ")
                 EEExtract.extract(self, '/tmp/roundcube.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/roundcubemail'):
-                    self.app.log.debug("Creating new directory "
-                                       " /var/www/roundcubemail/")
+                    Log.debug(self, "Creating new directory "
+                              " /var/www/roundcubemail/")
                     os.makedirs('/var/www/roundcubemail/')
                 shutil.move('/tmp/roundcubemail-1.0.4/',
                             '/var/www/roundcubemail/htdocs')
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
-                self.app.log.debug("Creating Database roundcubemail")
+                Log.debug(self, "Creating Database roundcubemail")
                 EEMysql.execute(self, "create database if not exists "
                                 " roundcubemail")
-                self.app.log.debug("Grant all privileges on roundcubemail")
+                Log.debug(self, "Grant all privileges on roundcubemail")
                 EEMysql.execute(self, "grant all privileges"
                                 " on roundcubemail.* to "
                                 " roundcube@localhost IDENTIFIED BY "
@@ -855,8 +856,8 @@ class EEStackController(CementBaseController):
                             ee_db_user='', ee_db_pass='', ee_db_host='',
                             rc=True)
 
-                self.app.log.debug('Writting the nginx configration for'
-                                   ' RoundCubemail')
+                Log.debug(self, 'Writting the nginx configration for'
+                          ' RoundCubemail')
                 ee_rc = open('/etc/nginx/sites-available/webmail.conf', 'w')
                 self.app.render((data), 'virtualconf.mustache',
                                 out=ee_rc)
@@ -891,8 +892,8 @@ class EEStackController(CementBaseController):
     @expose()
     def install(self, packages=[], apt_packages=[]):
         if self.app.pargs.web:
-            self.app.log.debug("Setting apt_packages variable for Nginx ,PHP"
-                               " ,MySQL ")
+            Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
+                      " ,MySQL ")
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -914,111 +915,115 @@ class EEStackController(CementBaseController):
             self.app.pargs.postfix = True
 
             if not EEAptGet.is_installed('dovecot-core'):
-                self.app.log.debug("Setting apt_packages variable for mail")
+                Log.debug(self, "Setting apt_packages variable for mail")
                 apt_packages = apt_packages + EEVariables.ee_mail
                 packages = packages + [["https://github.com/opensolutions/"
                                         "ViMbAdmin/archive/3.0.10.tar.gz",
-                                        "/tmp/vimbadmin.tar.gz"],
+                                        "/tmp/vimbadmin.tar.gz", "ViMbAdmin"],
                                        ["https://github.com/roundcube/"
                                         "roundcubemail/releases/download/"
                                         "1.0.4/roundcubemail-1.0.4.tar.gz",
-                                        "/tmp/roundcube.tar.gz"]]
+                                        "/tmp/roundcube.tar.gz",
+                                        "roundcubemail"]]
 
                 if EEVariables.ee_ram > 1024:
                     apt_packages = apt_packages + EEVariables.ee_mailscanner
             else:
-                self.app.log.info("Mail server is allready installed")
+                Log.info(self, "Mail server is allready installed")
 
         if self.app.pargs.nginx:
-            self.app.log.debug("Setting apt_packages variable for Nginx")
+            Log.debug(self, "Setting apt_packages variable for Nginx")
             if not EEAptGet.is_installed('nginx-common'):
                 apt_packages = apt_packages + EEVariables.ee_nginx
             else:
-                self.app.log.info("Nginx allready installed")
+                Log.info(self, "Nginx allready installed")
         if self.app.pargs.php:
-            self.app.log.debug("Setting apt_packages variable for PHP")
+            Log.debug(self, "Setting apt_packages variable for PHP")
             if not EEAptGet.is_installed('php5-common'):
                 apt_packages = apt_packages + EEVariables.ee_php
             else:
-                self.app.log.info("PHP allready installed")
+                Log.info(self, "PHP allready installed")
         if self.app.pargs.mysql:
-            self.app.log.debug("Setting apt_packages variable for MySQL")
+            Log.debug(self, "Setting apt_packages variable for MySQL")
             if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 apt_packages = apt_packages + EEVariables.ee_mysql
             else:
-                self.app.log.info("MySQL connection is allready alive")
+                Log.info(self, "MySQL connection is allready alive")
         if self.app.pargs.postfix:
-            self.app.log.debug("Setting apt_packages variable for PostFix")
+            Log.debug(self, "Setting apt_packages variable for PostFix")
             if not EEAptGet.is_installed('postfix'):
                 apt_packages = apt_packages + EEVariables.ee_postfix
             else:
-                self.app.log.info("Postfix is allready installed")
+                Log.info(self, "Postfix is allready installed")
         if self.app.pargs.wpcli:
-            self.app.log.debug("Setting packages variable for WPCLI")
+            Log.debug(self, "Setting packages variable for WPCLI")
             if not EEShellExec.cmd_exec(self, "which wp"):
                 packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                         "releases/download/v0.17.1/"
-                                        "wp-cli.phar", "/usr/bin/wp"]]
+                                        "wp-cli.phar", "/usr/bin/wp",
+                                        "wp-cli"]]
             else:
-                self.app.log.info("WP-CLI is allready installed")
+                Log.info(self, "WP-CLI is allready installed")
         if self.app.pargs.phpmyadmin:
-            self.app.log.debug("Setting packages varible for phpMyAdmin ")
+            Log.debug(self, "Setting packages varible for phpMyAdmin ")
             packages = packages + [["https://github.com/phpmyadmin/phpmyadmin"
                                     "/archive/STABLE.tar.gz",
-                                    "/tmp/pma.tar.gz"]]
+                                    "/tmp/pma.tar.gz", "phpMyAdmin"]]
 
         if self.app.pargs.adminer:
-            self.app.log.debug("Setting packages variable for Adminer ")
+            Log.debug(self, "Setting packages variable for Adminer ")
             packages = packages + [["http://downloads.sourceforge.net/adminer"
                                     "/adminer-4.1.0.php", "/var/www/22222/"
-                                    "htdocs/db/adminer/index.php"]]
+                                    "htdocs/db/adminer/index.php", "adminer"]]
 
         if self.app.pargs.utils:
-            self.app.log.debug("Setting packages variable for utils")
+            Log.debug(self, "Setting packages variable for utils")
             packages = packages + [["http://phpmemcacheadmin.googlecode.com/"
                                     "files/phpMemcachedAdmin-1.2.2"
-                                    "-r262.tar.gz", '/tmp/memcache.tar.gz'],
+                                    "-r262.tar.gz", '/tmp/memcache.tar.gz',
+                                    'phpMemcachedAdmin'],
                                    ["https://raw.githubusercontent.com/rtCamp/"
                                     "eeadmin/master/cache/nginx/clean.php",
                                     "/var/www/22222/htdocs/cache/"
-                                    "nginx/clean.php"],
+                                    "nginx/clean.php", "clean.php"],
                                    ["https://raw.github.com/rlerdorf/opcache-"
                                     "status/master/opcache.php",
                                     "/var/www/22222/htdocs/cache/"
-                                    "opcache/opcache.php"],
+                                    "opcache/opcache.php", "opcache.php"],
                                    ["https://raw.github.com/amnuts/opcache-gui"
                                     "/master/index.php",
                                     "/var/www/22222/htdocs/"
-                                    "cache/opcache/opgui.php"],
+                                    "cache/opcache/opgui.php", "index.php"],
                                    ["https://gist.github.com/ck-on/4959032/raw"
                                     "/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb"
                                     "/ocp.php",
                                     "/var/www/22222/htdocs/cache/"
-                                    "opcache/ocp.php"],
+                                    "opcache/ocp.php", "ocp.php"],
                                    ["https://github.com/jokkedk/webgrind/"
                                     "archive/master.tar.gz",
-                                    '/tmp/webgrind.tar.gz'],
+                                    '/tmp/webgrind.tar.gz', 'webgrind.tar.gz'],
                                    ["http://bazaar.launchpad.net/~percona-too"
                                     "lkit-dev/percona-toolkit/2.1/download/he"
                                     "ad:/ptquerydigest-20110624220137-or26tn4"
                                     "expb9ul2a-16/pt-query-digest",
-                                    "/usr/bin/pt-query-advisor"],
+                                    "/usr/bin/pt-query-advisor",
+                                    "pt-query-digest"],
                                    ["https://github.com/box/Anemometer/archive"
                                     "/master.tar.gz",
-                                    '/tmp/anemometer.tar.gz']
+                                    '/tmp/anemometer.tar.gz', 'Anemometer']
                                    ]
-        self.app.log.debug("Calling pre_pref ")
+        Log.debug(self, "Calling pre_pref ")
         self.pre_pref(apt_packages)
         if len(apt_packages):
             EESwap.add(self)
-            self.app.log.debug("Updating apt-cache")
+            Log.debug(self, "Updating apt-cache")
             EEAptGet.update()
-            self.app.log.debug("Installing all apt_packages")
+            Log.debug(self, "Installing all apt_packages")
             EEAptGet.install(apt_packages)
         if len(packages):
-            self.app.log.debug("Downloading all packages")
+            Log.debug(self, "Downloading all packages")
             EEDownload.download(self, packages)
-        self.app.log.debug("Calling post_pref")
+        Log.debug(self, "Calling post_pref")
         self.post_pref(apt_packages, packages)
 
     @expose()
@@ -1039,7 +1044,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.utils = True
 
         if self.app.pargs.mail:
-            self.app.log.debug("Removing mail server packages")
+            Log.debug(self, "Removing mail server packages")
             apt_packages = apt_packages + EEVariables.ee_mail
             apt_packages = apt_packages + EEVariables.ee_mailscanner
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
@@ -1049,28 +1054,28 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
         if self.app.pargs.nginx:
-            self.app.log.debug("Removing apt_packages variable of Nginx")
+            Log.debug(self, "Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
-            self.app.log.debug("Removing apt_packages variable of PHP")
+            Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.mysql:
-            self.app.log.debug("Removing apt_packages variable of MySQL")
+            Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
-            self.app.log.debug("Removing apt_packages variable of Postfix")
+            Log.debug(self, "Removing apt_packages variable of Postfix")
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
-            self.app.log.debug("Removing package variable of WPCLI ")
+            Log.debug(self, "Removing package variable of WPCLI ")
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
-            self.app.log.debug("Removing package variable of phpMyAdmin ")
+            Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
-            self.app.log.debug("Removing package variable of Adminer ")
+            Log.debug(self, "Removing package variable of Adminer ")
             packages = packages + ['/var/www/22222/htdocs/db/adminer']
         if self.app.pargs.utils:
-            self.app.log.debug("Removing package variable of utils ")
+            Log.debug(self, "Removing package variable of utils ")
             packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
                                    '/var/www/22222/htdocs/cache/opcache',
                                    '/var/www/22222/htdocs/cache/nginx/'
@@ -1080,7 +1085,7 @@ class EEStackController(CementBaseController):
                                    '/var/www/22222/htdocs/db/anemometer']
 
         if len(apt_packages):
-            self.app.log.debug("Removing apt_packages")
+            Log.debug(self, "Removing apt_packages")
             EEAptGet.remove(apt_packages)
         if len(packages):
             EEFileUtils.remove(self, packages)
@@ -1103,7 +1108,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.utils = True
 
         if self.app.pargs.mail:
-            self.app.log.debug("Removing mail server packages")
+            Log.debug(self, "Removing mail server packages")
             apt_packages = apt_packages + EEVariables.ee_mail
             apt_packages = apt_packages + EEVariables.ee_mailscanner
             packages = packages + ["/var/www/22222/htdocs/vimbadmin",
@@ -1113,28 +1118,28 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
         if self.app.pargs.nginx:
-            self.app.log.debug("Purge apt_packages variable of Nginx")
+            Log.debug(self, "Purge apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.php:
-            self.app.log.debug("Purge apt_packages variable PHP")
+            Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.mysql:
-            self.app.log.debug("Purge apt_packages variable MySQL")
+            Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
         if self.app.pargs.postfix:
-            self.app.log.debug("Purge apt_packages variable PostFix")
+            Log.debug(self, "Purge apt_packages variable PostFix")
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
-            self.app.log.debug("Purge package variable WPCLI")
+            Log.debug(self, "Purge package variable WPCLI")
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
             packages = packages + ['/var/www/22222/htdocs/db/pma']
-            self.app.log.debug("Purge package variable phpMyAdmin")
+            Log.debug(self, "Purge package variable phpMyAdmin")
         if self.app.pargs.adminer:
-            self.app.log.debug("Purge  package variable Adminer")
+            Log.debug(self, "Purge  package variable Adminer")
             packages = packages + ['/var/www/22222/htdocs/db/adminer']
         if self.app.pargs.utils:
-            self.app.log.debug("Purge package variable utils")
+            Log.debug(self, "Purge package variable utils")
             packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
                                    '/var/www/22222/htdocs/cache/opcache',
                                    '/var/www/22222/htdocs/cache/nginx/'

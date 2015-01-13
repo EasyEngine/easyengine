@@ -3,6 +3,7 @@ import pymysql
 import configparser
 from os.path import expanduser
 import sys
+from ee.core.logging import Log
 
 
 class EEMysql():
@@ -29,15 +30,15 @@ class EEMysql():
                                        user=user, passwd=passwd)
                 cur = conn.cursor()
             except Exception as e:
-                self.app.log.error('Unable to connect to database: {0}'
-                                   .format(e))
+                Log.error(self, 'Unable to connect to database: {0}'
+                          .format(e))
                 sys.exit(1)
 
         try:
             cur.execute(statement)
         except Exception as e:
-            self.app.log.error('Error occured while executing: {0}'
-                               .format(e))
+            Log.error(self, 'Error occured while executing: {0}'
+                      .format(e))
             cur.close()
             conn.close()
             sys.exit(1)

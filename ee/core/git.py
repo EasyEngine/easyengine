@@ -1,5 +1,6 @@
 from sh import git, ErrorReturnCode
 import os
+from ee.core.logging import Log
 
 
 class EEGit:
@@ -16,21 +17,21 @@ class EEGit:
             if os.path.isdir(path):
                 if not os.path.isdir(path+"/.git"):
                     try:
-                        self.app.log.debug("EEGit: git init at {0}"
-                                           .format(path))
+                        Log.debug(self, "EEGit: git init at {0}"
+                                  .format(path))
                         git.init(path)
                     except ErrorReturnCode as e:
-                        self.app.log.error(e)
+                        Log.error(e)
                         sys.exit(1)
                 status = git.status("-s")
                 if len(status.splitlines()) > 0:
                     try:
-                        self.app.log.debug("EEGit: git commit at {0}"
-                                           .format(path))
+                        Log.debug(self, "EEGit: git commit at {0}"
+                                  .format(path))
                         git.add("--all")
                         git.commit("-am {0}".format(msg))
                     except ErrorReturnCode as e:
-                        self.app.log.error(e)
+                        Log.error(e)
                         sys.exit(1)
             else:
-                self.app.log.debug("EEGit: Path {0} not present".format(path))
+                Log.debug(self, "EEGit: Path {0} not present".format(path))

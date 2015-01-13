@@ -7,6 +7,7 @@ import random
 import sys
 import hashlib
 import getpass
+from ee.core.logging import Log
 
 
 def secure_plugin_hook(app):
@@ -50,12 +51,12 @@ class EEsecureController(CementBaseController):
                          "password [{0}]".format(passwd))
         if username == "":
             username = EEVariables.ee_user
-            self.app.log.info("HTTP authentication username:{username}"
-                              .format(username=username))
+            Log.info(self, "HTTP authentication username:{username}"
+                     .format(username=username))
         if password == "":
             password = passwd
-            self.app.log.info("HTTP authentication password:{password}"
-                              .format(password=password))
+            Log.info(self, "HTTP authentication password:{password}"
+                     .format(password=password))
         EEShellExec.cmd_exec(self, "printf \"{username}:"
                              "$(openssl passwd -crypt "
                              "{password} 2> /dev/null)\n\""
@@ -73,11 +74,15 @@ class EEsecureController(CementBaseController):
                                  "{port} default_server ssl spdy;/\" "
                                  "/etc/nginx/sites-available/22222"
                                  .format(port=port))
-        elif EEVariables.ee_platform_distro == 'Debian':
+        else:
+            Log.info(self, "Unable to change EasyEngine admin port")
+        if EEVariables.ee_platform_distro == 'Debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl;/\" "
                                  "/etc/nginx/sites-available/22222"
                                  .format(port=port))
+        else:
+            Log.info(self, "Unable to change EasyEngine admin port")
 
     @expose(hide=True)
     def secure_ip(self):
