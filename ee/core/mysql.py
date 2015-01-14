@@ -30,15 +30,15 @@ class EEMysql():
                                        user=user, passwd=passwd)
                 cur = conn.cursor()
             except Exception as e:
-                Log.error(self, 'Unable to connect to database: {0}'
-                          .format(e))
+                Log.error(self, 'Unable to connect to database: {0} {1}'
+                          .format(e, "[FAIL]"))
                 sys.exit(1)
 
         try:
             cur.execute(statement)
         except Exception as e:
-            Log.error(self, 'Error occured while executing: {0}'
-                      .format(e))
+            Log.error(self, 'Unable to execute statement: {0} {1}'
+                      .format(e, "[FAIL]"))
             cur.close()
             conn.close()
             sys.exit(1)
