@@ -60,7 +60,7 @@ class EEFileUtils():
     def searchreplace(self, fnm, sstr, rstr):
         try:
             for line in fileinput.input(fnm, inplace=True):
-                Log.info(line.replace(sstr, rstr), end='')
+                Log.info(line.replace(sstr, rstr))
             fileinput.close()
         except Exception as e:
             Log.info(self, 'Error : {0}'.format(e))

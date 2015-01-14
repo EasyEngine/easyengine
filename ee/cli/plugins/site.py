@@ -23,8 +23,8 @@ class EESiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('site command manages website configuration'
-                       'with the help of the following subcommands')
+        description = ('''site command manages website configuration
+    with the help of the following subcommands''')
         arguments = [
             (['site_name'],
                 dict(help='website name')),
@@ -34,11 +34,6 @@ class EESiteController(CementBaseController):
     def default(self):
         # TODO Default action for ee site command
         print("Inside EESiteController.default().")
-
-    @expose(help="delete site example.com")
-    def delete(self):
-        # TODO Write code for ee site delete command here
-        print("Inside EESiteController.delete().")
 
     @expose(help="enable site example.com")
     def enable(self):
@@ -152,8 +147,18 @@ class EESiteController(CementBaseController):
 
     @expose(help="change to example.com's webroot")
     def cd(self):
-        # TODO Write code for ee site cd here
-        print("Inside EESiteController.cd().")
+
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            ee_site_webroot = EEVariables.ee_webroot + ee_domain
+            EEFileutils.chdir(self, ee_site_webroot)
+            try:
+                subprocess.call(['bash'])
+            except OSError as e:
+                Log.error(self, "Unable to edit file \ {0}{1}"
+                          .format(e.errno, e.strerror))
+                sys.exit(1)
 
 
 class EESiteCreateController(CementBaseController):
@@ -809,11 +814,115 @@ class EESiteUpdateController(CementBaseController):
                  " http://{0}".format(ee_domain))
 
 
+class EESiteDeleteController(CementBaseController):
+    class Meta:
+        label = 'delete'
+        stacked_on = 'site'
+        stacked_type = 'nested'
+        description = 'delete command deletes website'
+        arguments = [
+            (['site_name'],
+                dict(help='domain name to be deleted')),
+            (['--no-prompt'],
+                dict(help="dont ask for permission for delete",
+                     action='store_true')),
+            (['--all'],
+                dict(help="delete all", action='store_true')),
+            (['--db'],
+                dict(help="delete db only", action='store_true')),
+            (['--files'],
+                dict(help="delete webroot only", action='store_true')),
+            ]
+
+    @expose(help="update example.com")
+    def default(self):
+        # TODO Write code for ee site update here
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        ee_db_name = ''
+        ee_prompt = ''
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(ee_domain)):
+            ee_site_webroot = EEVariables.ee_webroot + ee_domain
+
+            if self.app.pargs.no_prompt:
+                ee_prompt = 'Y'
+
+            if self.app.pargs.db:
+                if not ee_prompt:
+                    ee_db_prompt = input('Do you want to delete database:[Y/N]'
+                                         )
+                else:
+                    ee_db_prompt = 'Y'
+                if ee_db_prompt == 'Y':
+                    deleteDB(ee_site_webroot)
+
+            if self.app.pargs.files:
+                if not ee_prompt:
+                    ee_web_prompt = input('Do you want to delete webroot:[Y/N]'
+                                          )
+                else:
+                    ee_web_prompt = 'Y'
+                if ee_web_prompt == 'Y':
+                    deleteWebRoot(ee_site_webroot)
+
+            if self.app.pargs.all:
+                if not ee_prompt:
+                    ee_db_prompt = input('Do you want to delete database:[Y/N]'
+                                         )
+                    ee_web_prompt = input('Do you want to delete webroot:[Y/N]'
+                                          )
+                    ee_nginx_prompt = input('Do you want to delete NGINX'
+                                            ' configuration:[Y/N]')
+                else:
+                    ee_db_prompt = 'Y'
+                    ee_web_prompt = 'Y'
+                    ee_nginx_prompt = 'Y'
+
+                if ee_db_prompt:
+                    deleteDB(self, ee_site_webroot)
+                if ee_web_prompt:
+                    deleteWebRoot(ee_site_webroot)
+                if ee_nginx_prompt:
+                    EEFileutils.delete(self, '/etc/nginx/sites-available/{0}'
+                                       .format(ee_domain))
+
+    def deleteDB(self, webroot):
+        configfiles = glob.glob(webroot + '/*-config.php')
+        if configfiles:
+            if EEFileUtils.isexist(self, configfiles[0]):
+                ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+                              'DB_NAME').split(',')[1]
+                              .split(')')[0].strip().replace('\'', ''))
+                ee_db_user = (EEFileUtils.grep(self, configfiles[0],
+                              'DB_USER').split(',')[1]
+                              .split(')')[0].strip().replace('\'', ''))
+                ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
+                              'DB_PASSWORD').split(',')[1]
+                              .split(')')[0].strip().replace('\'', ''))
+                ee_db_host = (EEFileUtils.grep(self, configfiles[0],
+                              'DB_HOST').split(',')[1]
+                              .split(')')[0].strip().replace('\'', ''))
+
+            EEMysql.execute(self,
+                            "drop database {0}"
+                            .format(ee_db_name))
+            if ee_db_user != 'root':
+                EEMysql.execute(self,
+                                "drop user {0}@{1}"
+                                .format(ee_db_user, ee_db_host))
+                EEMysql.execute(self,
+                                "flush privileges")
+
+    def deleteWebRoot(webroot):
+        EEFileutils.delete(self, webroot)
+
+
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EESiteController)
     handler.register(EESiteCreateController)
     handler.register(EESiteUpdateController)
+    handler.register(EESiteDeleteController)
 
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_site_hook)
