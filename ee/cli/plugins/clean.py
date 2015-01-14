@@ -18,8 +18,8 @@ class EECleanController(CementBaseController):
         label = 'clean'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'clean command cleans different cache with following \
-                        options'
+        description = ('clean command cleans different cache with following '
+                       'options')
         arguments = [
             (['--all'],
                 dict(help='clean all cache', action='store_true')),
