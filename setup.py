@@ -16,11 +16,11 @@ for name in glob.glob('ee/cli/templates/*.mustache'):
 
 setup(name='ee',
       version='3.0',
-      description="EasyEngine is the commandline tool to manage your Websites"
-                  " based on WordPress and NGINX with easy to use commands.",
-      long_description="EasyEngine is the commandline tool to manage your "
-                       "Websites based on WordPress and NGINX with easy"
-                       " to use commands.",
+      description=('EasyEngine is the commandline tool to manage your Websites'
+                   'based on WordPress and NGINX with easy to use commands.'),
+      long_description=('EasyEngine is the commandline tool to manage your '
+                        'Websites based on WordPress and NGINX with easy'
+                        'to use commands.'),
       classifiers=[],
       keywords='',
       author='rtCamp Soultions Pvt. LTD',
