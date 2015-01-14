@@ -11,6 +11,8 @@ from ee.core.git import EEGit
 import sys
 import os
 import glob
+import subprocess
+from subprocess import Popen
 
 
 def ee_site_hook(app):
@@ -23,13 +25,8 @@ class EESiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-<<<<<<< HEAD
-        description = ('''site command manages website configuration
-    with the help of the following subcommands''')
-=======
         description = ('site command manages website configuration'
                        ' with the help of the following subcommands')
->>>>>>> 78782f7a7595c1e9d9c8e041c9f081e331f156f8
         arguments = [
             (['site_name'],
                 dict(help='website name')),
@@ -157,7 +154,7 @@ class EESiteController(CementBaseController):
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             ee_site_webroot = EEVariables.ee_webroot + ee_domain
-            EEFileutils.chdir(self, ee_site_webroot)
+            EEFileUtils.chdir(self, ee_site_webroot)
             try:
                 subprocess.call(['bash'])
             except OSError as e:
