@@ -23,8 +23,9 @@ class EEService():
                 else:
                     Log.error(self, retcode[1])
             except OSError as e:
-                Log.error(self, "Failed to start service  {0} {1} {2}"
-                          .format(e.errno, e.strerror, "[FAIL]"))
+                Log.error(self, "Failed to start service   {0}"
+                          .format(service_name))
+                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 return False
 
     def stop_service(self, service_name):
@@ -38,8 +39,9 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-                Log.error(self, "Failed to stop service : {0}{1}{2}"
-                          .format(e.errno, e.strerror, "[FAIL]"))
+                Log.error(self, "Failed to stop service : {0}"
+                          .format(service_name))
+                Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
                 return False
 
     def restart_service(self, service_name):
@@ -49,8 +51,9 @@ class EEService():
                 Log.info(self, "restart : {0:10}{1}"
                          .format(service_name, "[OK]"))
             except OSError as e:
-                Log.error(self, "Failed to restart services \{0} {1} {2}"
-                          .format(e.errno, e.strerror, "[FAIL]"))
+                Log.error(self, "Failed to restart services \{0}"
+                          .format(service_name))
+                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
 
     def reload_service(self, service_name):
             try:
@@ -64,8 +67,7 @@ class EEService():
                                  .format(service_name, "[OK]"))
                         return True
                     else:
-                        Log.error(self, "reload : {0}{1}"
-                                  .format(service_name, "[FAIL]"))
+                        Log.error(self, "reload : {0}".format(service_name))
                         Log.debug("{0}".format(retcode[1]))
                         return False
 
@@ -78,8 +80,9 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-                    Log.error(self, "Failed to reload {0} {1} {2}"
-                              .format(service_name, e, "[FAIL]"))
+                    Log.error(self, "Failed to reload service {0}"
+                              .format(service_name))
+                    Log.debug(self, "{0}".format(e))
                     sys.exit(1)
 
     def get_service_status(self, service_name):
@@ -96,6 +99,7 @@ class EEService():
             else:
                 return False
         except OSError as e:
-            Log.error(self, "Unable to get services status \ {0}{1}{2}"
-                      .format(e.errno, e.strerror, "[FAIL]"))
+            Log.error(self, "Unable to get services status of {0}"
+                      .format(service_name))
+            Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
             return False

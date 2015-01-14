@@ -21,7 +21,9 @@ class EEGit:
                                   .format(path))
                         git.init(path)
                     except ErrorReturnCode as e:
-                        Log.error(e)
+                        Log.error(self, "Unable to git init at {0}"
+                                  .format(path))
+                        Log.error(self, "{0}".format(e))
                         sys.exit(1)
                 status = git.status("-s")
                 if len(status.splitlines()) > 0:
@@ -31,7 +33,9 @@ class EEGit:
                         git.add("--all")
                         git.commit("-am {0}".format(msg))
                     except ErrorReturnCode as e:
-                        Log.error(e)
+                        Log.error(self, "Unable to git commit at {0} "
+                                  .format(path))
+                        Log.debug(self, "{0}".format(e))
                         sys.exit(1)
             else:
                 Log.debug(self, "EEGit: Path {0} not present".format(path))

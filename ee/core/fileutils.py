@@ -24,8 +24,8 @@ class EEFileUtils():
                     Log.info(self, "Removing "+os.path.basename(file)+"...")
                     shutil.rmtree(file)
                 except shutil.Error as e:
-                    Log.error(self, 'Unable to Remove file {err}'
-                              .format(err=str(e.reason)))
+                    Log.error(self, 'Unable to Remove file ')
+                    Log.debug(self, "{err}".format(err=str(e.reason)))
                     sys.exit(1)
 
     def create_symlink(self, paths, errormsg=''):
@@ -35,8 +35,8 @@ class EEFileUtils():
             try:
                 os.symlink(src, dst)
             except Exception as e:
-                Log.error(self, "Unable to create symbolic link ...\n {0} "
-                          " {1} {2}".format(e.errno, e.strerror, "[FAIL]"))
+                Log.error(self, "Unable to create symbolic link ...\n ")
+                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 sys.exit(1)
         else:
             Log.debug(self, "Destination: {0} exists".format(dst))
@@ -45,40 +45,47 @@ class EEFileUtils():
         try:
             os.unlink(filepath)
         except Exception as e:
-            Log.error(self, "Unable to reomove symbolic link ...\n {0} {1} {2}"
-                      .format(e.errno, e.strerror, "[FAIL]"))
+            Log.error(self, "Unable to reomove symbolic link ...\n")
+            Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
             sys.exit(1)
 
     def copyfile(self, src, dest):
         try:
             shutil.copy2(src, dest)
         except shutil.Error as e:
-            Log.error(self, '{0}'.format(e))
+            Log.error(self, 'Unable to copy file from {0} to {1}'
+                      .format(src, dest))
+            Log.debug(self, "{0}".format(e))
         except IOError as e:
-            Log.error(self, '{e}'.format(e.strerror))
+            Log.error(self, "Unable to copy file from {0} to {1}"
+                      .fromat(src, dest))
+            Log.debug(self, "{e}".format(e.strerror))
 
     def searchreplace(self, fnm, sstr, rstr):
         try:
             for line in fileinput.input(fnm, inplace=True):
-                Log.info(line.replace(sstr, rstr))
+                print(line.replace(sstr, rstr), end='')
             fileinput.close()
         except Exception as e:
-            Log.error(self, '{0}'.format(e))
+            Log.error(self, "Unable to search {0} and replace {1} {2}"
+                      .format(fnm, sstr, rstr))
+            Log.debug(self, "{0}".format(e))
 
     def mvfile(self, src, dst):
         try:
             shutil.move(src, dst)
         except shutil.Error as e:
-            Log.error(self, 'Unable to move file {err}{1}'
-                      .format("[FAIL]", err=str(e.reason)))
+            Log.error(self, 'Unable to move file from {0} to {1}'
+                      .format(src, dst))
+            Log.debug(self, "{err}".format(err=str(e.reason)))
             sys.exit(1)
 
     def chdir(self, path):
         try:
             os.chdir(path)
         except OSError as e:
-            Log.error(self, 'Unable to Change Directory {1}{err}'
-                      .format("[FAIL]", err=e.strerror))
+            Log.error(self, 'Unable to Change Directory {0}'.format(path))
+            Log.debug(self, "{err}".format(err=e.strerror))
             sys.exit(1)
 
     def chown(self, path, user, group, recursive=False):
@@ -94,12 +101,12 @@ class EEFileUtils():
             else:
                 shutil.chown(path, user=user, group=group)
         except shutil.Error as e:
-            Log.error(self, "Unable to change owner : {0}{1}"
-                      .format(e, "[FAIL]"))
+            Log.error(self, "Unable to change owner : {0}".format(path))
+            Log.debug(self, "{0}".format(e))
             sys.exit(1)
         except Exception as e:
-            Log.error(self, "Unable to change owner {0}{1}"
-                      .format(e, "[FAIL]"))
+            Log.error(self, "Unable to change owner : {0} ".format(path))
+            Log.debug(self, "{0}".format(e))
             sys.exit(1)
 
     def chmod(self, path, perm, recursive=False):
@@ -113,16 +120,16 @@ class EEFileUtils():
             else:
                 os.chmod(path, perm)
         except OSError as e:
-            Log.error(self, "Unable to change owner {0}{1}"
-                      .format(e.strerror, "[FAIL]"))
+            Log.error(self, "Unable to change owner : {0}".format(path))
+            Log.debug(self, "{0}".format(e.strerror))
             sys.exit(1)
 
     def mkdir(self, path):
         try:
             os.makedirs(path)
         except OSError as e:
-            Log.error(self, "Unable to create directory {0}{1} "
-                      .format(e.strerror, "[FAIL]"))
+            Log.error(self, "Unable to create directory {0} ".format(path))
+            Log.debug(self, "{0}".format(e.strerror))
             sys.exit(1)
 
     def isexist(self, path):
@@ -132,8 +139,8 @@ class EEFileUtils():
             else:
                 return (False)
         except OSError as e:
-            Log.error(self, "Unable to check path {0}{1}"
-                      .format(e.strerror, "[FAIL]"))
+            Log.error(self, "Unable to check path {0}".format(path))
+            Log.debug(self, "{0}".format(e.strerror))
             sys.exit(1)
 
     def grep(self, fnm, sstr):
