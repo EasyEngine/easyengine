@@ -22,12 +22,12 @@ class EEDownload():
                 Log.info(self, "Downloading "+pkg_name+" ...")
                 urllib.request.urlretrieve(url, filename)
             except urllib.error.URLError as e:
-                Log.error(self, "Unable to donwload file, [{err}]    [FAIL]"
-                          .format(err=str(e.reason)))
+                Log.error(self, "Unable to donwload file, [{err}]{1}"
+                          .format("[FAIL]", err=str(e.reason)))
                 return False
             except urllib.error.HTTPError as e:
-                Log.error(self, "Package download failed. [{err}]    [FAIL]"
-                          .format(err=str(e.reason)))
+                Log.error(self, "Package download failed. [{err}] {1}"
+                          .format("[FAIL]", err=str(e.reason)))
                 return False
             except urllib.error.ContentTooShortError as e:
                 Log.error(self, "Package download failed. The amount of the"
