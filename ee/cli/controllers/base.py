@@ -31,17 +31,3 @@ class EEBaseController(CementBaseController):
         #
         # The 'default.mustache' file would be loaded from
         # ``ee.cli.templates``, or ``/var/lib/ee/templates/``.
-        #
-        # ViMbAdmin Nginx configuration
-        data = dict(site_name='webmail', www_domain='webmail', static=False,
-                    basic=True, wp=False, w3tc=False, wpfc=False,
-                    wpsc=False, multisite=False, wpsubdir=False,
-                    webroot='/var/www', ee_db_name='',
-                    ee_db_user='', ee_db_pass='', ee_db_host='',
-                    rc=True)
-        self.app.log.debug('Writting the nginx configration for'
-                           ' ViMbAdmin')
-        ee_rc = open('/etc/nginx/sites-available/webmail.conf', 'w')
-        self.app.render((data), 'virtualconf.mustache',
-                        out=ee_rc)
-        ee_rc.close()
