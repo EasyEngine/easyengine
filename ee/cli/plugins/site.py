@@ -24,7 +24,7 @@ class EESiteController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         description = ('site command manages website configuration'
-                       'with the help of the following subcommands')
+                       ' with the help of the following subcommands')
         arguments = [
             (['site_name'],
                 dict(help='website name')),

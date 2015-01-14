@@ -924,7 +924,7 @@ class EEStackController(CementBaseController):
                                         "roundcubemail/releases/download/"
                                         "1.0.4/roundcubemail-1.0.4.tar.gz",
                                         "/tmp/roundcube.tar.gz",
-                                        "roundcubemail"]]
+                                        "Roundcube"]]
 
                 if EEVariables.ee_ram > 1024:
                     apt_packages = apt_packages + EEVariables.ee_mailscanner
@@ -961,7 +961,7 @@ class EEStackController(CementBaseController):
                 packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                         "releases/download/v0.17.1/"
                                         "wp-cli.phar", "/usr/bin/wp",
-                                        "wp-cli"]]
+                                        "WP_CLI"]]
             else:
                 Log.info(self, "WP-CLI is allready installed")
         if self.app.pargs.phpmyadmin:
@@ -974,7 +974,7 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Setting packages variable for Adminer ")
             packages = packages + [["http://downloads.sourceforge.net/adminer"
                                     "/adminer-4.1.0.php", "/var/www/22222/"
-                                    "htdocs/db/adminer/index.php", "adminer"]]
+                                    "htdocs/db/adminer/index.php", "Adminer"]]
 
         if self.app.pargs.utils:
             Log.debug(self, "Setting packages variable for utils")
@@ -1001,7 +1001,7 @@ class EEStackController(CementBaseController):
                                     "opcache/ocp.php", "ocp.php"],
                                    ["https://github.com/jokkedk/webgrind/"
                                     "archive/master.tar.gz",
-                                    '/tmp/webgrind.tar.gz', 'webgrind.tar.gz'],
+                                    '/tmp/webgrind.tar.gz', 'Webgrind'],
                                    ["http://bazaar.launchpad.net/~percona-too"
                                     "lkit-dev/percona-toolkit/2.1/download/he"
                                     "ad:/ptquerydigest-20110624220137-or26tn4"

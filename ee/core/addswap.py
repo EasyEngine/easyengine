@@ -1,6 +1,7 @@
 from ee.core.variables import EEVariables
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
+from ee.core.logging import Log
 
 
 class EESwap():
@@ -13,7 +14,7 @@ class EESwap():
     def add(self):
         if EEVariables.ee_ram < 512:
             if EEVariables.ee_swap < 1000:
-                self.app.log.info("Adding SWAP")
+                Log.info(self, "Adding SWAP")
                 EEShellExec.cmd_exec(self, "dd if=/dev/zero of=/ee-swapfile "
                                      "bs=1024 count=1048k")
                 EEShellExec.cmd_exec(self, "mkswap /ee-swapfile")

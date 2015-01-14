@@ -53,9 +53,9 @@ class EEFileUtils():
         try:
             shutil.copy2(src, dest)
         except shutil.Error as e:
-            Log.info(self, 'Error: {0}'.format(e))
+            Log.error(self, '{0}'.format(e))
         except IOError as e:
-            Log.info(self, 'Error: {e}'.format(e.strerror))
+            Log.error(self, '{e}'.format(e.strerror))
 
     def searchreplace(self, fnm, sstr, rstr):
         try:
@@ -63,7 +63,7 @@ class EEFileUtils():
                 Log.info(line.replace(sstr, rstr), end='')
             fileinput.close()
         except Exception as e:
-            Log.info(self, 'Error : {0}'.format(e))
+            Log.error(self, '{0}'.format(e))
 
     def mvfile(self, src, dst):
         try:

@@ -17,11 +17,12 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} start'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                        Log.info(self, "Started : {0}".format(service_name))
+                    Log.info(self, "Started : {0}               [ok]"
+                             .format(service_name))
                 else:
                     Log.error(self, retcode[1])
             except OSError as e:
-                Log.error(self, "Failed to start service  {0} {1}"
+                Log.error(self, "Failed to start service  {0} {1}     [FAIL]"
                           .format(e.errno, e.strerror))
                 return False
 
@@ -30,12 +31,13 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} stop'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "Stopped : {0}".format(service_name))
+                    Log.info(self, "Stopped : {0}               [OK]"
+                             .format(service_name))
                     return True
                 else:
                     return False
             except OSError as e:
-                Log.error(self, "Failed to stop service : {0}{1}"
+                Log.error(self, "Failed to stop service : {0}{1}     [FAIL]"
                           .format(e.errno, e.strerror))
                 return False
 
@@ -43,8 +45,10 @@ class EEService():
             try:
                 EEService.stop_service(self, service_name)
                 EEService.start_service(self, service_name)
+                Log.info(self, "restart : {0}                   [OK]"
+                         .format(service_name))
             except OSError as e:
-                Log.error(self, "Failed to restart services \{0} {1}"
+                Log.error(self, "Failed to restart services \{0} {1}   [FAIL]"
                           .format(e.errno, e.strerror))
 
     def reload_service(self, service_name):
@@ -55,26 +59,27 @@ class EEService():
                     if retcode[0] == 0:
                         subprocess.getstatusoutput('service {0} reload'
                                                    .format(service_name))
-                        self.app.log.info("reload : {0}    [OK]"
-                                          .format(service_name))
+                        Log.info("reload : {0}      [OK]"
+                                 .format(service_name))
                         return True
                     else:
-                        self.app.log.error("reload : {0}   [FAIL]"
-                                           .format(service_name))
-                        self.app.log.debug("{0}"
-                                           .format(retcode[1]))
+                        Log.error("reload : {0}    [FAIL]"
+                                  .format(service_name))
+                        Log.debug("{0}"
+                                  .format(retcode[1]))
                         return False
 
                 retcode = subprocess.getstatusoutput('service {0} reload'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "reload : {0}".format(service_name))
+                    Log.info(self, "reload : {0}  [OK]"
+                             .format(service_name))
                     return True
                 else:
                     return False
             except OSError as e:
 
-                Log.error(self, "Failed to reload {0} {1}"
+                Log.error(self, "Failed to reload {0} {1}   [FAIL]"
                           .format(service_name, e))
                 sys.exit(1)
 
@@ -92,6 +97,6 @@ class EEService():
             else:
                 return False
         except OSError as e:
-            Log.error(self, "Unable to get services status \ {0}{1}"
+            Log.error(self, "Unable to get services status \ {0}{1}  [FAIL]"
                       .format(e.errno, e.strerror))
             return False
