@@ -13,10 +13,18 @@ sudo python3 setup.py develop
 ee --help
 ```
 
+How to install this version on your system??
+```bash
+sudo apt-get update
+sudo apt-get install python3 python3-apt python3-setuptools python3-dev git
+git clone -b python https://github.com/rtCamp/easyengine.git
+cd easyengine
+sudo python3 setup.py install
+ee --help
+```
 
 
 EasyEngine 3.x Developement version
-
 
 
 Thinking To Contribute???

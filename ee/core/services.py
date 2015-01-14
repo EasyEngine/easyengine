@@ -64,10 +64,9 @@ class EEService():
                                  .format(service_name, "[OK]"))
                         return True
                     else:
-                        Log.error(self, "reload : {0} {1}"
+                        Log.error(self, "reload : {0}{1}"
                                   .format(service_name, "[FAIL]"))
-                        Log.debug(self, "{0}"
-                                  .format(retcode[1]))
+                        Log.debug("{0}".format(retcode[1]))
                         return False
 
                 retcode = subprocess.getstatusoutput('service {0} reload'
@@ -79,15 +78,14 @@ class EEService():
                 else:
                     return False
             except OSError as e:
-
-                Log.error(self, "Failed to reload {0} {1} {2}"
-                          .format(service_name, e, "[FAIL]"))
-                sys.exit(1)
+                    Log.error(self, "Failed to reload {0} {1} {2}"
+                              .format(service_name, e, "[FAIL]"))
+                    sys.exit(1)
 
     def get_service_status(self, service_name):
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
-                                                  .format(service_name))[0]
+                                                  .format(service_name))
             if is_exist == 0:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
