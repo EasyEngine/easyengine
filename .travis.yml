@@ -19,15 +19,5 @@ script:
   - sudo echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > ~/.gitconfig
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
   - sudo apt-get install git python3-setuptools python3-dev python3-apt
-  - sudo easy_install3 pip
-  - sudo pip3 install virtualenv
-  - virtualenv ./env --system-site-packages
-  - source ./env/bin/activate
-  - sudo pip3 install -r requirements.txt
-  - sudo python3 setup.py develop
-  - mkdir ~/.ee
-  - ln -s /home/travis/build/rtCamp/easyengine/config/plugins.d ~/.ee/plugins.d
-  - ln -s /home/travis/build/rtCamp/easyengineee/cli/plugins ~/.ee/plugins
-  - ee --help
-  - sudo pip3 install nose coverage
-  - sudo nosetests
+  - sudo python3 setup.py install
+  - sudo ee --help
