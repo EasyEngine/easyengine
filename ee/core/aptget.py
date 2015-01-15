@@ -100,7 +100,6 @@ class EEAptGet():
                 with cache.actiongroup():
                     # Mark Package for Installation
                     pkg.mark_install()
-                    pkg.mark_auto(auto=False)
                 my_selected_packages.append(pkg.name)
 
         # Check if packages available for install.
@@ -143,8 +142,7 @@ class EEAptGet():
                     # if onelevel:
                     if dep.name in cache:
                         if (cache[dep.name].is_installed and
-                           not cache[dep.name].is_auto_installed and
-                           not cache[dep.name].marked_delete):
+                           cache[dep.name].is_auto_installed):
                             onelevellist.append(cache[dep.name])
             # if onelevel:
             return onelevellist
@@ -183,7 +181,18 @@ class EEAptGet():
                                            onelevel=True)
             # Mark for deletion the first package, to fire up
             # auto_removable Purge?
-            packages = packages + onelevel
+
+            for dep in onelevel:
+                my_selected_packages.append(dep.name)
+                try:
+                    if purge:
+                        dep.mark_delete(purge=True)
+                    else:
+                        dep.mark_delete(purge=False)
+                except SystemError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to purge depedencies.")
+
             try:
                 if purge:
                     pkg.mark_delete(purge=True)
