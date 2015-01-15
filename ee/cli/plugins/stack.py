@@ -388,6 +388,14 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting PHP5 configartion into "
                               " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
+
+                with open("/etc/php5/fpm/pool.d/debug.conf", "a") as myfile:
+                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
+                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
+                                 "output_name] = cachegrind.out.%p-%H-%R "
+                                 "\nphp_admin_flag[xdebug.profiler_enable"
+                                 "_trigger] = on \nphp_admin_flag[xdebug."
+                                 "profiler_enable] = off\n")
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
 
