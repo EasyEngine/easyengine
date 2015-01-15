@@ -22,9 +22,9 @@ class EEDownload():
                 Log.info(self, "Downloading "+pkg_name+" ...")
                 urllib.request.urlretrieve(url, filename)
             except urllib.error.URLError as e:
+                Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to donwload file, {0}"
                           .format(filename))
-                Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 return False
             except urllib.error.HTTPError as e:
                 Log.error(self, "Package download failed. {0}"
@@ -32,8 +32,8 @@ class EEDownload():
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 return False
             except urllib.error.ContentTooShortError as e:
+                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 Log.error(self, "Package download failed. The amount of the"
                           " downloaded data is less than "
                           "the expected amount \{0} ".format(pkg_name))
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
                 return False
