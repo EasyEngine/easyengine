@@ -9,7 +9,7 @@ from ee.core.logging import Log
 class EEMysql():
     """Method for MySQL connection"""
 
-    def execute(self, statement):
+    def execute(self, statement, errormsg=''):
         config = configparser.RawConfigParser()
         cnfpath = expanduser("~")+"/.my.cnf"
         if [cnfpath] == config.read(cnfpath):
@@ -30,7 +30,13 @@ class EEMysql():
                                        user=user, passwd=passwd)
                 cur = conn.cursor()
             except Exception as e:
-                Log.error(self, 'Unable to connect to database: {0}'
+                if errormsg:
+                    Log.error(self, '{0}'
+                              .format(errormsg))
+                else:
+                    Log.error(self, 'Unable to connect to database: {0}'
+                              .format(e))
+                Log.debug(self, 'Unable to connect to database: {0}'
                           .format(e))
                 sys.exit(1)
 
