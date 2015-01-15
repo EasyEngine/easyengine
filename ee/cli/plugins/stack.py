@@ -919,7 +919,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
 
-            if not EEAptGet.is_installed('dovecot-core'):
+            if not EEAptGet.is_installed(self, 'dovecot-core'):
                 Log.debug(self, "Setting apt_packages variable for mail")
                 apt_packages = apt_packages + EEVariables.ee_mail
                 packages = packages + [["https://github.com/opensolutions/"
@@ -938,13 +938,13 @@ class EEStackController(CementBaseController):
 
         if self.app.pargs.nginx:
             Log.debug(self, "Setting apt_packages variable for Nginx")
-            if not EEAptGet.is_installed('nginx-common'):
+            if not EEAptGet.is_installed(self, 'nginx-common'):
                 apt_packages = apt_packages + EEVariables.ee_nginx
             else:
                 Log.info(self, "Nginx allready installed")
         if self.app.pargs.php:
             Log.debug(self, "Setting apt_packages variable for PHP")
-            if not EEAptGet.is_installed('php5-common'):
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php
             else:
                 Log.info(self, "PHP allready installed")
@@ -956,7 +956,7 @@ class EEStackController(CementBaseController):
                 Log.info(self, "MySQL connection is allready alive")
         if self.app.pargs.postfix:
             Log.debug(self, "Setting apt_packages variable for PostFix")
-            if not EEAptGet.is_installed('postfix'):
+            if not EEAptGet.is_installed(self, 'postfix'):
                 apt_packages = apt_packages + EEVariables.ee_postfix
             else:
                 Log.info(self, "Postfix is allready installed")
@@ -1022,9 +1022,10 @@ class EEStackController(CementBaseController):
         if len(apt_packages):
             EESwap.add(self)
             Log.debug(self, "Updating apt-cache")
-            EEAptGet.update()
+            EEAptGet.update(self)
             Log.debug(self, "Installing all apt_packages")
-            EEAptGet.install(apt_packages)
+            print(apt_packages)
+            EEAptGet.install(self, apt_packages)
         if len(packages):
             Log.debug(self, "Downloading all packages")
             EEDownload.download(self, packages)
@@ -1095,7 +1096,7 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
-            EEAptGet.remove(apt_packages)
+            EEAptGet.remove(self, apt_packages)
         if len(packages):
             EEFileUtils.remove(self, packages)
         Log.info(self, "Successfully removed packages")
@@ -1160,7 +1161,7 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
-            EEAptGet.remove(apt_packages, purge=True)
+            EEAptGet.remove(self, apt_packages, purge=True)
         if len(packages):
             EEFileUtils.remove(self, packages)
         Log.info(self, "Successfully purged packages")

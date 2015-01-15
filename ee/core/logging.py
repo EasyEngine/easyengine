@@ -12,6 +12,7 @@ class Log:
 
     def error(self, msg):
         self.app.log.error(Log.FAIL + msg + Log.ENDC)
+        self.app.close(1)
 
     def info(self, msg):
         self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
