@@ -23,10 +23,6 @@ class EEApp(foundation.CementApp):
     class Meta:
         label = 'ee'
 
-        # Log writing to file
-        defaults = init_defaults('ee', 'log.logging')
-        defaults['log.logging']['file'] = '/tmp/my.log'
-
         config_defaults = defaults
 
         # All built-in application bootstrapping (always run)

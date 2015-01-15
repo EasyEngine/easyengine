@@ -31,20 +31,21 @@ class EEMysql():
                 cur = conn.cursor()
             except Exception as e:
                 if errormsg:
+                    Log.debug(self, '{0}'
+                              .format(e))
                     Log.error(self, '{0}'
                               .format(errormsg))
                 else:
+                    Log.debug(self, '{0}'
+                              .format(e))
                     Log.error(self, 'Unable to connect to database: {0}'
                               .format(e))
-                Log.debug(self, 'Unable to connect to database: {0}'
-                          .format(e))
-                sys.exit(1)
 
         try:
             cur.execute(statement)
         except Exception as e:
-            Log.error(self, 'Error occured while executing: {0}'
-                      .format(e))
+            Log.error(self, 'Unable to execute statement:')
+            Lod.debug(self, "{0}".format(e))
             cur.close()
             conn.close()
             sys.exit(1)

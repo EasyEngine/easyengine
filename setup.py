@@ -14,6 +14,12 @@ for name in glob.glob('config/plugins.d/*.conf'):
 for name in glob.glob('ee/cli/templates/*.mustache'):
     templates.insert(1, name)
 
+if not os.path.exists('/var/log/ee/'):
+    os.makedirs('/var/log/ee/')
+
+if not os.path.exists('/var/lib/ee/'):
+    os.makedirs('/var/lib/ee/')
+
 setup(name='ee',
       version='3.0',
       description=('EasyEngine is the commandline tool to manage your Websites'

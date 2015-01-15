@@ -124,4 +124,4 @@ class EEStackStatusController(CementBaseController):
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
             if EEService.get_service_status(self, service):
-                Log.info(self, "{0}: Running".format(service))
+                Log.info(self, "{0:10}:  {1}".format(service, "Running"))
