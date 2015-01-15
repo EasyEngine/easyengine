@@ -142,3 +142,19 @@ class EEFileUtils():
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to Search string {0} in {1}"
                       .format(sstr, fnm))
+
+    def rm(self, path):
+        if EEFileUtils.isexist(self, path):
+            try:
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                else:
+                    os.remove(path)
+            except shutil.Error as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to remove directory : {0} "
+                          .format(path))
+            except OSError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to remove file  : {0} "
+                          .format(path))
