@@ -57,8 +57,8 @@ class EECleanController(CementBaseController):
             else:
                 Log.error(self, "Memcache not installed")
         except Exception as e:
-            Log.error(self, "Unable to restart memcached")
             Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to restart memcached")
 
     @expose(hide=True)
     def clean_fastcgi(self):
@@ -75,8 +75,8 @@ class EECleanController(CementBaseController):
             wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"
                                         "/opcache/opgui.php?page=reset").read()
         except Exception as e:
-                Log.error(self, "Unable to clean opacache")
                 Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to clean opacache")
 
 
 def load(app):

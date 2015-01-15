@@ -24,9 +24,8 @@ class EEFileUtils():
                     Log.info(self, "Removing "+os.path.basename(file)+"...")
                     shutil.rmtree(file)
                 except shutil.Error as e:
-                    Log.error(self, 'Unable to Remove file ')
                     Log.debug(self, "{err}".format(err=str(e.reason)))
-                    sys.exit(1)
+                    Log.error(self, 'Unable to Remove file ')
 
     def create_symlink(self, paths, errormsg=''):
         src = paths[0]
@@ -35,9 +34,8 @@ class EEFileUtils():
             try:
                 os.symlink(src, dst)
             except Exception as e:
-                Log.error(self, "Unable to create symbolic link ...\n ")
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                sys.exit(1)
+                Log.error(self, "Unable to create symbolic link ...\n ")
         else:
             Log.debug(self, "Destination: {0} exists".format(dst))
 
@@ -45,21 +43,20 @@ class EEFileUtils():
         try:
             os.unlink(filepath)
         except Exception as e:
-            Log.error(self, "Unable to reomove symbolic link ...\n")
             Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-            sys.exit(1)
+            Log.error(self, "Unable to reomove symbolic link ...\n")
 
     def copyfile(self, src, dest):
         try:
             shutil.copy2(src, dest)
         except shutil.Error as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, 'Unable to copy file from {0} to {1}'
                       .format(src, dest))
-            Log.debug(self, "{0}".format(e))
         except IOError as e:
+            Log.debug(self, "{e}".format(e.strerror))
             Log.error(self, "Unable to copy file from {0} to {1}"
                       .fromat(src, dest))
-            Log.debug(self, "{e}".format(e.strerror))
 
     def searchreplace(self, fnm, sstr, rstr):
         try:
@@ -67,26 +64,24 @@ class EEFileUtils():
                 print(line.replace(sstr, rstr), end='')
             fileinput.close()
         except Exception as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to search {0} and replace {1} {2}"
                       .format(fnm, sstr, rstr))
-            Log.debug(self, "{0}".format(e))
 
     def mvfile(self, src, dst):
         try:
             shutil.move(src, dst)
         except shutil.Error as e:
+            Log.debug(self, "{err}".format(err=str(e.reason)))
             Log.error(self, 'Unable to move file from {0} to {1}'
                       .format(src, dst))
-            Log.debug(self, "{err}".format(err=str(e.reason)))
-            sys.exit(1)
 
     def chdir(self, path):
         try:
             os.chdir(path)
         except OSError as e:
-            Log.error(self, 'Unable to Change Directory {0}'.format(path))
             Log.debug(self, "{err}".format(err=e.strerror))
-            sys.exit(1)
+            Log.error(self, 'Unable to Change Directory {0}'.format(path))
 
     def chown(self, path, user, group, recursive=False):
         try:
@@ -101,13 +96,11 @@ class EEFileUtils():
             else:
                 shutil.chown(path, user=user, group=group)
         except shutil.Error as e:
+            Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to change owner : {0}".format(path))
-            Log.debug(self, "{0}".format(e))
-            sys.exit(1)
         except Exception as e:
-            Log.error(self, "Unable to change owner : {0} ".format(path))
             Log.debug(self, "{0}".format(e))
-            sys.exit(1)
+            Log.error(self, "Unable to change owner : {0} ".format(path))
 
     def chmod(self, path, perm, recursive=False):
         try:
@@ -120,17 +113,15 @@ class EEFileUtils():
             else:
                 os.chmod(path, perm)
         except OSError as e:
-            Log.error(self, "Unable to change owner : {0}".format(path))
             Log.debug(self, "{0}".format(e.strerror))
-            sys.exit(1)
+            Log.error(self, "Unable to change owner : {0}".format(path))
 
     def mkdir(self, path):
         try:
             os.makedirs(path)
         except OSError as e:
-            Log.error(self, "Unable to create directory {0} ".format(path))
             Log.debug(self, "{0}".format(e.strerror))
-            sys.exit(1)
+            Log.error(self, "Unable to create directory {0} ".format(path))
 
     def isexist(self, path):
         try:
@@ -139,9 +130,8 @@ class EEFileUtils():
             else:
                 return (False)
         except OSError as e:
-            Log.error(self, "Unable to check path {0}".format(path))
             Log.debug(self, "{0}".format(e.strerror))
-            sys.exit(1)
+            Log.error(self, "Unable to check path {0}".format(path))
 
     def grep(self, fnm, sstr):
         try:
@@ -149,9 +139,9 @@ class EEFileUtils():
                 if sstr in line:
                     return line
         except OSError as e:
-            Log.error(self, "Unable to Search string {0}{1}"
-                      .format(e.strerror, "[FAIL]"))
-            sys.exit(1)
+            Log.debug(self, "{0}".format(e.strerror))
+            Log.error(self, "Unable to Search string {0} in {1}"
+                      .format(sstr, fnm))
 
     def rm(self, path):
         if EEFileUtils.isexist(self, path):
@@ -161,10 +151,10 @@ class EEFileUtils():
                 else:
                     os.remove(path)
             except shutil.Error as e:
-                Log.error(self, "Unable to remove directory : {0} {1}"
-                          .format(path, e))
-                sys.exit(1)
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to remove directory : {0} "
+                          .format(path))
             except OSError as e:
-                Log.error(self, "Unable to remove file  : {0} {1}"
-                          .format(path, e))
-                sys.exit(1)
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to remove file  : {0} "
+                          .format(path))
