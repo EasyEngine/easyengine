@@ -14,7 +14,8 @@ class Log:
         self.app.log.error(Log.FAIL + msg + Log.ENDC)
         self.app.close(1)
 
-    def info(self, msg):
+    def info(self, msg, end='\n'):
+        print(Log.OKBLUE + msg + Log.ENDC, end=end)
         self.app.log.info(Log.OKBLUE + msg + Log.ENDC)
 
     def warn(self, msg):
