@@ -98,8 +98,8 @@ def main():
             if exc_traceback is not None:
                 traceback.print_exc()
 
-        # Close the application
-        app.close(code)
+        # # Close the application
+    app.close(code)
 
 
 def get_test_app(**kw):
