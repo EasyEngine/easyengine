@@ -1,5 +1,6 @@
 """EasyEngine main application entry point."""
 import sys
+import os
 
 # this has to happen after you import sys, but before you import anything
 # from Cement "source: https://github.com/datafolklabs/cement/issues/290"
@@ -70,6 +71,11 @@ def main():
     try:
         # Default our exit status to 0 (non-error)
         code = 0
+
+        # if not root...kick out
+        if not os.geteuid() == 0:
+            print("\nOnly root or sudo user can run this EasyEngine\n")
+            app.close(1)
 
         # Setup the application
         app.setup()
