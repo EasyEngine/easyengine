@@ -125,3 +125,30 @@ class EEStackStatusController(CementBaseController):
         for service in services:
             if EEService.get_service_status(self, service):
                 Log.info(self, "{0:10}:  {1}".format(service, "Running"))
+
+    @expose(help="reload stack services")
+    def reload(self):
+        services = []
+        if self.app.pargs.nginx:
+            Log.debug(self, "nginx service restart")
+            services = services + ['nginx']
+        elif self.app.pargs.php:
+            Log.debug(self, "php5-fpm service restart")
+            services = services + ['php5-fpm']
+        elif self.app.pargs.mysql:
+            Log.debug(self, "mysql service restart")
+            services = services + ['mysql']
+        elif self.app.pargs.postfix:
+            Log.debug(self, "postfix service restart")
+            services = services + ['postfix']
+        elif self.app.pargs.memcache:
+            Log.debug(self, "memcached service restart")
+            services = services + ['memcached']
+        elif self.app.pargs.dovecot:
+            Log.debug(self, "dovecot service restart")
+            services = services + ['dovecot']
+        else:
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
+        for service in services:
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix services restart")
+            EEService.reload_service(self, service)

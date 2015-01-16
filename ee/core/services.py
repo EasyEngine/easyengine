@@ -10,74 +10,88 @@ import pystache
 class EEService():
     """Intialization for service"""
     def ___init__():
-        # TODO method for services
         pass
 
     def start_service(self, service_name):
             try:
+                Log.info(self, "Start : {0:10}" .format(service_name), end='')
                 retcode = subprocess.getstatusoutput('service {0} start'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "Started : {0:10}{1}"
-                             .format(service_name, "[OK]"))
+                    Log.info(self, "[OK]")
+                    return True
                 else:
-                    Log.error(self, retcode[1])
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    return False
             except OSError as e:
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                Log.error(self, "Failed to start service   {0}"
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "\nFailed to start service   {0}"
                           .format(service_name))
-                return False
 
     def stop_service(self, service_name):
             try:
+                Log.info(self, "Stop : {0:10}" .format(service_name), end='')
                 retcode = subprocess.getstatusoutput('service {0} stop'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "Stopped : {0:10}{1}"
-                             .format(service_name, "[OK]"))
+                    Log.info(self, "[OK]")
                     return True
                 else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
                     return False
             except OSError as e:
-                Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
-                Log.error(self, "Failed to stop service : {0}"
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "\nFailed to stop service : {0}"
                           .format(service_name))
-                return False
 
     def restart_service(self, service_name):
             try:
-                EEService.stop_service(self, service_name)
-                EEService.start_service(self, service_name)
-                Log.info(self, "restart : {0:10}{1}"
-                         .format(service_name, "[OK]"))
+                Log.info(self, "Restart : {0:10}".format(service_name), end='')
+                retcode = subprocess.getstatusoutput('service {0} restart'
+                                                     .format(service_name))
+                if retcode[0] == 0:
+                    Log.info(self, "[OK]")
+                    return True
+                else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+                    return False
             except OSError as e:
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                Log.error(self, "Failed to restart services \{0}"
+                Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
+                Log.error(self, "\nFailed to restart service : {0}"
                           .format(service_name))
 
     def reload_service(self, service_name):
             try:
                 if service_name in ['nginx', 'php5-fpm']:
-                    retcode = subprocess.getstatusoutput('{0} -t'
+                    Log.info(self, "Reload : {0:10}".format(service_name),
+                             end='')
+                    retcode = subprocess.getstatusoutput('{0} -t &&'
+                                                         ' service {0} reload'
                                                          .format(service_name))
                     if retcode[0] == 0:
-                        subprocess.getstatusoutput('service {0} reload'
-                                                   .format(service_name))
-                        Log.info(self, "reload :{0:10}{1}"
-                                 .format(service_name, "[OK]"))
+                        # print(retcode[0])
+                        # subprocess.getstatusoutput('service {0} reload'
+                        #                            .format(service_name))
+                        Log.info(self, "[OK]")
                         return True
                     else:
                         Log.debug(self, "{0}".format(retcode[1]))
-                        Log.error(self, "reload : {0}".format(service_name))
+                        Log.info(self, "[" + Log.FAIL + "Failed" +
+                                 Log.OKBLUE+"]")
                         return False
 
+                Log.info(self, "Reload : {0:10}".format(service_name), end='')
                 retcode = subprocess.getstatusoutput('service {0} reload'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "reload : {0:10}{1}"
-                             .format(service_name, "[OK]"))
+                    Log.info(self, "[OK]")
                     return True
                 else:
+                    Log.debug(self, "{0}".format(retcode[1]))
+                    Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
                     return False
             except OSError as e:
                     Log.debug(self, "{0}".format(e))
@@ -94,6 +108,7 @@ class EEService():
                 if retcode[0] == 0:
                     return True
                 else:
+                    Log.debug(self, "{0}".format(retcode[1]))
                     return False
             else:
                 return False
