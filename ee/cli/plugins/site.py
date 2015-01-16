@@ -214,7 +214,7 @@ class EESiteCreateController(CementBaseController):
             stype = 'html'
             cache = 'basic'
 
-        #PHP
+        # PHP
         if (self.app.pargs.php and not (self.app.pargs.html or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
@@ -226,7 +226,7 @@ class EESiteCreateController(CementBaseController):
                         wpsubdir=False, webroot=ee_site_webroot)
             stype = 'php'
             cache = 'basic'
-        #MySQL
+        # MySQL
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
@@ -240,7 +240,7 @@ class EESiteCreateController(CementBaseController):
                         ee_db_host='')
             stype = 'mysql'
             cache = 'basic'
-        #WP
+        # WP
         if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
             self.app.pargs.wpsc) and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
@@ -294,7 +294,7 @@ class EESiteCreateController(CementBaseController):
                 stype = 'wp'
                 cache = 'wpsc'
 
-        #WPSUBDIR
+        # WPSUBDIR
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
@@ -346,7 +346,7 @@ class EESiteCreateController(CementBaseController):
                 stype = 'wpsubdir'
                 cache = 'wpsc'
 
-        #WPSUBDOAIN
+        # WPSUBDOAIN
         if (self.app.pargs.wpsubdomain and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdir or self.app.pargs.wp)):
@@ -403,6 +403,8 @@ class EESiteCreateController(CementBaseController):
             self.app.args.print_help()
             self.app.close(1)
 
+        # Check rerequired packages are installed or not
+        site_package_check(self, stype)
         # setup NGINX configuration, and webroot
         setupDomain(self, data)
         # Setup database for MySQL site
@@ -500,7 +502,7 @@ class EESiteUpdateController(CementBaseController):
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
             pass
 
-        #PHP
+        # PHP
         if (self.app.pargs.php and not (self.app.pargs.html or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
@@ -519,7 +521,7 @@ class EESiteUpdateController(CementBaseController):
             stype = 'php'
             cache = 'basic'
 
-        #MySQL
+        # MySQL
         if (self.app.pargs.mysql and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
@@ -539,7 +541,7 @@ class EESiteUpdateController(CementBaseController):
             stype = 'mysql'
             cache = 'basic'
 
-        #WP
+        # WP
         if ((self.app.pargs.wp or self.app.pargs.w3tc or self.app.pargs.wpfc or
             self.app.pargs.wpsc) and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
@@ -618,7 +620,7 @@ class EESiteUpdateController(CementBaseController):
                 stype = 'wp'
                 cache = 'wpsc'
 
-        #WPSUBDIR
+        # WPSUBDIR
         if (self.app.pargs.wpsubdir and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdomain or self.app.pargs.wp)):
@@ -786,6 +788,7 @@ class EESiteUpdateController(CementBaseController):
         if not data:
             Log.error(self, " Cannot update"
                       .format(ee_domain))
+        site_package_check(self, stype)
         siteBackup(self, data)
         # TODO Check for required packages before update
 
@@ -862,7 +865,7 @@ class EESiteUpdateController(CementBaseController):
                   msg="{0} updated with {1} {2}"
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
-        #SetWebrootPermissions(self, data['webroot'])
+        # SetWebrootPermissions(self, data['webroot'])
 
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"

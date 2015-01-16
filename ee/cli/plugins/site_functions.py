@@ -3,10 +3,12 @@ import random
 import string
 import sys
 import getpass
+from ee.cli.plugins.stack import EEStackController
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+from ee.core.aptget import EEAptGet
 from ee.core.logging import Log
 import glob
 
@@ -187,9 +189,9 @@ def setupWordpress(self, data):
                              + "--dbuser={0} --dbpass={1} "
                                "--extra-php<<PHP \n {var1} {var2} \nPHP"
                              .format(data['ee_db_user'], data['ee_db_pass'],
-                                     var1=
+                                     var1=""
                                      "\n define('WP_ALLOW_MULTISITE', true);",
-                                     var2=
+                                     var2=""
                                      "\n define('WPMU_ACCEL_REDIRECT', true);")
                              )
     EEFileUtils.mvfile(self, './wp-config.php', '../')
@@ -338,3 +340,38 @@ def siteBackup(self, data):
             EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)
+
+
+def site_package_check(self, stype):
+    apt_packages = []
+    packages = []
+    stack = EEStackController()
+    stack.app = self.app
+    if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for Nginx")
+        if not EEAptGet.is_installed(self, 'nginx-common'):
+            apt_packages = apt_packages + EEVariables.ee_nginx
+
+    if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PHP")
+        if not EEAptGet.is_installed(self, 'php5-fpm'):
+            apt_packages = apt_packages + EEVariables.ee_php
+
+    if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for MySQL")
+        if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
+            apt_packages = apt_packages + EEVariables.ee_mysql
+
+    if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting apt_packages variable for PostFix")
+        if not EEAptGet.is_installed(self, 'postfix'):
+            apt_packages = apt_packages + EEVariables.ee_postfix
+
+    if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
+        Log.debug(self, "Setting packages variable for WPCLI")
+        if not EEShellExec.cmd_exec(self, "which wp"):
+            packages = packages + [["https://github.com/wp-cli/wp-cli/"
+                                    "releases/download/v0.17.1/"
+                                    "wp-cli.phar", "/usr/bin/wp",
+                                    "WP_CLI"]]
+    stack.install(apt_packages=apt_packages, packages=packages)
