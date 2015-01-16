@@ -141,7 +141,7 @@ def SetupWordpress(self, data):
     Log.info(self, "Downloading Wordpress...", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
-    Log.info("[Done]")
+    Log.info(self, "[Done]")
 
     if not (data['ee_db_name'] and data['ee_db_user'] and data['ee_db_pass']):
         data = SetupDatabase(self, data)

@@ -11,6 +11,7 @@ class Log:
     UNDERLINE = '\033[4m'
 
     def error(self, msg):
+        print(Log.FAIL + msg + Log.ENDC)
         self.app.log.error(Log.FAIL + msg + Log.ENDC)
         self.app.close(1)
 
