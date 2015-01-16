@@ -1042,7 +1042,7 @@ class EEStackController(CementBaseController):
         if len(self.msg):
             for msg in self.msg:
                 Log.info(self, msg)
-            Log.info(self, "Successfully installed packages")
+        Log.info(self, "Successfully installed packages")
 
     @expose()
     def remove(self):

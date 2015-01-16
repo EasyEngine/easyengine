@@ -15,7 +15,7 @@ def SetupDomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
-    self.app.log.info("Creating {0} ...".format(ee_domain_name))
+    self.app.log.info("Setting up NGINX config {0} ...".format(ee_domain_name))
     # write nginx config for file
     try:
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
@@ -138,9 +138,10 @@ def SetupWordpress(self, data):
     ee_wp_user = ''
     ee_wp_pass = ''
 
-    self.app.log.info("Downloading Wordpress...")
+    Log.info(self, "Downloading Wordpress...", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
+    Log.info("[Done]")
 
     if not (data['ee_db_name'] and data['ee_db_user'] and data['ee_db_pass']):
         data = SetupDatabase(self, data)
@@ -248,8 +249,9 @@ def SetupWordpress(self, data):
 def SetupWordpressNetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    Log.info(self, "Setting up WordPress Network")
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
-                         '--title={0} {subdomains}'
+                         ' --title={0} {subdomains}'
                          .format(data['www_domain'], subdomains='--subdomains'
                                  if not data['wpsubdir'] else ''))
 
@@ -271,6 +273,16 @@ def InstallWP_Plugin(self, plugin_name, data):
                          .format(plugin_name))
 
 
+def UnInstallWP_Plugin(self, plugin_name, data):
+    ee_site_webroot = data['webroot']
+    self.app.log.debug("Uninstalling plugin {0}".format(plugin_name))
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin --allow-root uninstall "
+                         "{0}".format(plugin_name),
+                         errormsg="Unable to Install plugin {0}"
+                         .format(plugin_name))
+
+
 def SetWebrootPermissions(self, webroot):
     self.app.log.debug("Setting Up Permissions...")
     EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
@@ -284,20 +296,24 @@ def siteBackup(self, data):
         EEFileUtils.mkdir(self, backup_path)
     Log.info(self, "Backup Location : {0}".format(backup_path))
     EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
-                         .format(data['ee_domain']), backup_path)
+                         .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'mysql']:
         Log.info(self, "Backup Webroot ...")
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
 
-    configfiles = glob(ee_site_webroot + '/*-config.php')
+    configfiles = glob.glob(ee_site_webroot + '/*-config.php')
 
     if EEFileUtils.isexist(self, configfiles[0]):
-        ee_db_name = (EEFileUtils.grep(self, file, 'DB_NAME').split(',')[1]
+        ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+                      'DB_NAME').split(',')[1]
                       .split(')')[0].strip().replace('\'', ''))
         Log.info(self, 'Backup Database, please wait')
         EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
                              .format(ee_db_name, backup_path),
                              "Failed: Backup Database")
         # move wp-config.php/ee-config.php to backup
-        EEFileUtils.mvfile(self, file, backup_path)
+        if data['currsitetype'] in ['mysql']:
+            EEFileUtils.mvfile(self, configfiles[0], backup_path)
+        else:
+            EEFileUtils.copyfile(self, configfiles[0], backup_path)

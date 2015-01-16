@@ -67,7 +67,7 @@ class EEService():
                                  .format(service_name, "[OK]"))
                         return True
                     else:
-                        Log.debug("{0}".format(retcode[1]))
+                        Log.debug(self, "{0}".format(retcode[1]))
                         Log.error(self, "reload : {0}".format(service_name))
                         return False
 
