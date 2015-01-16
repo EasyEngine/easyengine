@@ -388,6 +388,14 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting PHP5 configartion into "
                               " /etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
+
+                with open("/etc/php5/fpm/pool.d/debug.conf", "a") as myfile:
+                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
+                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
+                                 "output_name] = cachegrind.out.%p-%H-%R "
+                                 "\nphp_admin_flag[xdebug.profiler_enable"
+                                 "_trigger] = on \nphp_admin_flag[xdebug."
+                                 "profiler_enable] = off\n")
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
 
@@ -896,143 +904,156 @@ class EEStackController(CementBaseController):
     @expose()
     def install(self, packages=[], apt_packages=[]):
         self.msg = []
-        if self.app.pargs.web:
-            Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
-                      " ,MySQL ")
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.wpcli = True
-            self.app.pargs.postfix = True
+        try:
+            if self.app.pargs.web:
+                Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
+                          " ,MySQL ")
+                self.app.pargs.nginx = True
+                self.app.pargs.php = True
+                self.app.pargs.mysql = True
+                self.app.pargs.wpcli = True
+                self.app.pargs.postfix = True
 
-        if self.app.pargs.admin:
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.adminer = True
-            self.app.pargs.phpmyadmin = True
-            self.app.pargs.utils = True
+            if self.app.pargs.admin:
+                self.app.pargs.nginx = True
+                self.app.pargs.php = True
+                self.app.pargs.mysql = True
+                self.app.pargs.adminer = True
+                self.app.pargs.phpmyadmin = True
+                self.app.pargs.utils = True
 
-        if self.app.pargs.mail:
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.mysql = True
-            self.app.pargs.postfix = True
+            if self.app.pargs.mail:
+                self.app.pargs.nginx = True
+                self.app.pargs.php = True
+                self.app.pargs.mysql = True
+                self.app.pargs.postfix = True
 
-            if not EEAptGet.is_installed('dovecot-core'):
-                Log.debug(self, "Setting apt_packages variable for mail")
-                apt_packages = apt_packages + EEVariables.ee_mail
-                packages = packages + [["https://github.com/opensolutions/"
-                                        "ViMbAdmin/archive/3.0.10.tar.gz",
-                                        "/tmp/vimbadmin.tar.gz", "ViMbAdmin"],
-                                       ["https://github.com/roundcube/"
-                                        "roundcubemail/releases/download/"
-                                        "1.0.4/roundcubemail-1.0.4.tar.gz",
-                                        "/tmp/roundcube.tar.gz",
-                                        "Roundcube"]]
+                if not EEAptGet.is_installed(self, 'dovecot-core'):
+                    Log.debug(self, "Setting apt_packages variable for mail")
+                    apt_packages = apt_packages + EEVariables.ee_mail
+                    packages = packages + [["https://github.com/opensolutions/"
+                                            "ViMbAdmin/archive/3.0.10.tar.gz",
+                                            "/tmp/vimbadmin.tar.gz",
+                                            "ViMbAdmin"],
+                                           ["https://github.com/roundcube/"
+                                            "roundcubemail/releases/download/"
+                                            "1.0.4/roundcubemail-1.0.4.tar.gz",
+                                            "/tmp/roundcube.tar.gz",
+                                            "Roundcube"]]
 
-                if EEVariables.ee_ram > 1024:
-                    apt_packages = apt_packages + EEVariables.ee_mailscanner
-            else:
-                Log.info(self, "Mail server is allready installed")
+                    if EEVariables.ee_ram > 1024:
+                        apt_packages = (apt_packages +
+                                        EEVariables.ee_mailscanner)
+                else:
+                    Log.info(self, "Mail server is allready installed")
 
-        if self.app.pargs.nginx:
-            Log.debug(self, "Setting apt_packages variable for Nginx")
-            if not EEAptGet.is_installed('nginx-common'):
-                apt_packages = apt_packages + EEVariables.ee_nginx
-            else:
-                Log.info(self, "Nginx allready installed")
-        if self.app.pargs.php:
-            Log.debug(self, "Setting apt_packages variable for PHP")
-            if not EEAptGet.is_installed('php5-common'):
-                apt_packages = apt_packages + EEVariables.ee_php
-            else:
-                Log.info(self, "PHP allready installed")
-        if self.app.pargs.mysql:
-            Log.debug(self, "Setting apt_packages variable for MySQL")
-            if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
-                apt_packages = apt_packages + EEVariables.ee_mysql
-            else:
-                Log.info(self, "MySQL connection is allready alive")
-        if self.app.pargs.postfix:
-            Log.debug(self, "Setting apt_packages variable for PostFix")
-            if not EEAptGet.is_installed('postfix'):
-                apt_packages = apt_packages + EEVariables.ee_postfix
-            else:
-                Log.info(self, "Postfix is allready installed")
-        if self.app.pargs.wpcli:
-            Log.debug(self, "Setting packages variable for WPCLI")
-            if not EEShellExec.cmd_exec(self, "which wp"):
-                packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                        "releases/download/v0.17.1/"
-                                        "wp-cli.phar", "/usr/bin/wp",
-                                        "WP_CLI"]]
-            else:
-                Log.info(self, "WP-CLI is allready installed")
-        if self.app.pargs.phpmyadmin:
-            Log.debug(self, "Setting packages varible for phpMyAdmin ")
-            packages = packages + [["https://github.com/phpmyadmin/phpmyadmin"
-                                    "/archive/STABLE.tar.gz",
-                                    "/tmp/pma.tar.gz", "phpMyAdmin"]]
+            if self.app.pargs.nginx:
+                Log.debug(self, "Setting apt_packages variable for Nginx")
+                if not EEAptGet.is_installed(self, 'nginx-common'):
+                    apt_packages = apt_packages + EEVariables.ee_nginx
+                else:
+                    Log.info(self, "Nginx allready installed")
+            if self.app.pargs.php:
+                Log.debug(self, "Setting apt_packages variable for PHP")
+                if not EEAptGet.is_installed(self, 'php5-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php
+                else:
+                    Log.info(self, "PHP allready installed")
+            if self.app.pargs.mysql:
+                Log.debug(self, "Setting apt_packages variable for MySQL")
+                if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
+                    apt_packages = apt_packages + EEVariables.ee_mysql
+                else:
+                    Log.info(self, "MySQL connection is allready alive")
+            if self.app.pargs.postfix:
+                Log.debug(self, "Setting apt_packages variable for PostFix")
+                if not EEAptGet.is_installed(self, 'postfix'):
+                    apt_packages = apt_packages + EEVariables.ee_postfix
+                else:
+                    Log.info(self, "Postfix is allready installed")
+            if self.app.pargs.wpcli:
+                Log.debug(self, "Setting packages variable for WPCLI")
+                if not EEShellExec.cmd_exec(self, "which wp"):
+                    packages = packages + [["https://github.com/wp-cli/wp-cli/"
+                                            "releases/download/v0.17.1/"
+                                            "wp-cli.phar", "/usr/bin/wp",
+                                            "WP_CLI"]]
+                else:
+                    Log.info(self, "WP-CLI is allready installed")
+            if self.app.pargs.phpmyadmin:
+                Log.debug(self, "Setting packages varible for phpMyAdmin ")
+                packages = packages + [["https://github.com/phpmyadmin/"
+                                        "phpmyadmin/archive/STABLE.tar.gz",
+                                        "/tmp/pma.tar.gz", "phpMyAdmin"]]
 
-        if self.app.pargs.adminer:
-            Log.debug(self, "Setting packages variable for Adminer ")
-            packages = packages + [["http://downloads.sourceforge.net/adminer"
-                                    "/adminer-4.1.0.php", "/var/www/22222/"
-                                    "htdocs/db/adminer/index.php", "Adminer"]]
+            if self.app.pargs.adminer:
+                Log.debug(self, "Setting packages variable for Adminer ")
+                packages = packages + [["http://downloads.sourceforge.net/"
+                                        "adminer/adminer-4.1.0.php",
+                                        "/var/www/22222/"
+                                        "htdocs/db/adminer/index.php",
+                                        "Adminer"]]
 
-        if self.app.pargs.utils:
-            Log.debug(self, "Setting packages variable for utils")
-            packages = packages + [["http://phpmemcacheadmin.googlecode.com/"
-                                    "files/phpMemcachedAdmin-1.2.2"
-                                    "-r262.tar.gz", '/tmp/memcache.tar.gz',
-                                    'phpMemcachedAdmin'],
-                                   ["https://raw.githubusercontent.com/rtCamp/"
-                                    "eeadmin/master/cache/nginx/clean.php",
-                                    "/var/www/22222/htdocs/cache/"
-                                    "nginx/clean.php", "clean.php"],
-                                   ["https://raw.github.com/rlerdorf/opcache-"
-                                    "status/master/opcache.php",
-                                    "/var/www/22222/htdocs/cache/"
-                                    "opcache/opcache.php", "opcache.php"],
-                                   ["https://raw.github.com/amnuts/opcache-gui"
-                                    "/master/index.php",
-                                    "/var/www/22222/htdocs/"
-                                    "cache/opcache/opgui.php", "index.php"],
-                                   ["https://gist.github.com/ck-on/4959032/raw"
-                                    "/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb"
-                                    "/ocp.php",
-                                    "/var/www/22222/htdocs/cache/"
-                                    "opcache/ocp.php", "ocp.php"],
-                                   ["https://github.com/jokkedk/webgrind/"
-                                    "archive/master.tar.gz",
-                                    '/tmp/webgrind.tar.gz', 'Webgrind'],
-                                   ["http://bazaar.launchpad.net/~percona-too"
-                                    "lkit-dev/percona-toolkit/2.1/download/he"
-                                    "ad:/ptquerydigest-20110624220137-or26tn4"
-                                    "expb9ul2a-16/pt-query-digest",
-                                    "/usr/bin/pt-query-advisor",
-                                    "pt-query-digest"],
-                                   ["https://github.com/box/Anemometer/archive"
-                                    "/master.tar.gz",
-                                    '/tmp/anemometer.tar.gz', 'Anemometer']
-                                   ]
-        Log.debug(self, "Calling pre_pref ")
-        self.pre_pref(apt_packages)
-        if len(apt_packages):
-            EESwap.add(self)
-            Log.debug(self, "Updating apt-cache")
-            EEAptGet.update()
-            Log.debug(self, "Installing all apt_packages")
-            EEAptGet.install(apt_packages)
-        if len(packages):
-            Log.debug(self, "Downloading all packages")
-            EEDownload.download(self, packages)
-        Log.debug(self, "Calling post_pref")
-        self.post_pref(apt_packages, packages)
-        if len(self.msg):
-            for msg in self.msg:
-                Log.info(self, msg)
+            if self.app.pargs.utils:
+                Log.debug(self, "Setting packages variable for utils")
+                packages = packages + [["http://phpmemcacheadmin.googlecode"
+                                        ".com/files/phpMemcachedAdmin-1.2.2"
+                                        "-r262.tar.gz", '/tmp/memcache.tar.gz',
+                                        'phpMemcachedAdmin'],
+                                       ["https://raw.githubusercontent.com"
+                                        "/rtCamp/eeadmin/master/cache/nginx/"
+                                        "clean.php",
+                                        "/var/www/22222/htdocs/cache/"
+                                        "nginx/clean.php", "clean.php"],
+                                       ["https://raw.github.com/rlerdorf/"
+                                        "opcache-status/master/opcache.php",
+                                        "/var/www/22222/htdocs/cache/"
+                                        "opcache/opcache.php", "opcache.php"],
+                                       ["https://raw.github.com/amnuts/"
+                                        "opcache-gui/master/index.php",
+                                        "/var/www/22222/htdocs/"
+                                        "cache/opcache/opgui.php",
+                                        "index.php"],
+                                       ["https://gist.github.com/ck-on/4959032"
+                                        "/raw/0b871b345fd6cfcd6d2be030c1f33d1"
+                                        "ad6a475cb/ocp.php",
+                                        "/var/www/22222/htdocs/cache/"
+                                        "opcache/ocp.php", "ocp.php"],
+                                       ["https://github.com/jokkedk/webgrind/"
+                                        "archive/master.tar.gz",
+                                        '/tmp/webgrind.tar.gz', 'Webgrind'],
+                                       ["http://bazaar.launchpad.net/~"
+                                        "percona-toolkit-dev/percona-toolkit/"
+                                        "2.1/download/head:/ptquerydigest-"
+                                        "20110624220137-or26tn4"
+                                        "expb9ul2a-16/pt-query-digest",
+                                        "/usr/bin/pt-query-advisor",
+                                        "pt-query-digest"],
+                                       ["https://github.com/box/Anemometer/"
+                                        "archive/master.tar.gz",
+                                        '/tmp/anemometer.tar.gz', 'Anemometer']
+                                       ]
+        except Exception as e:
+            pass
+
+        if len(apt_packages) or len(packages):
+            Log.debug(self, "Calling pre_pref ")
+            self.pre_pref(apt_packages)
+            if len(apt_packages):
+                EESwap.add(self)
+                Log.debug(self, "Updating apt-cache")
+                EEAptGet.update(self)
+                Log.debug(self, "Installing all apt_packages")
+                print(apt_packages)
+                EEAptGet.install(self, apt_packages)
+            if len(packages):
+                Log.debug(self, "Downloading all packages")
+                EEDownload.download(self, packages)
+            Log.debug(self, "Calling post_pref")
+            self.post_pref(apt_packages, packages)
+            if len(self.msg):
+                for msg in self.msg:
+                    Log.info(self, msg)
             Log.info(self, "Successfully installed packages")
 
     @expose()
@@ -1095,7 +1116,7 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
-            EEAptGet.remove(apt_packages)
+            EEAptGet.remove(self, apt_packages)
         if len(packages):
             EEFileUtils.remove(self, packages)
         Log.info(self, "Successfully removed packages")
@@ -1160,7 +1181,7 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
-            EEAptGet.remove(apt_packages, purge=True)
+            EEAptGet.remove(self, apt_packages, purge=True)
         if len(packages):
             EEFileUtils.remove(self, packages)
         Log.info(self, "Successfully purged packages")

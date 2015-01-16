@@ -4,96 +4,66 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from ee.core.logging import Log
 import sys
-
-Base = declarative_base()
-
-
-class SiteDB(Base):
-    __tablename__ = 'Site'
-    id = Column(Integer, primary_key=True)
-    sitename = Column(String, unique=True)
-
-    site_type = Column(String)
-    cache_type = Column(String)
-    site_path = Column(String)
-
-    # Use default=func.now() to set the default created time
-    # of a site to be the current time when a
-    # Site record was created
-
-    created_on = Column(DateTime, default=func.now())
-    site_enabled = Column(Boolean, unique=False, default=True, nullable=False)
-    is_ssl = Column(Boolean, unique=False, default=False)
-    storage_fs = Column(String)
-    storage_db = Column(String)
-
-    def __init__(self):
-    #     from sqlalchemy import create_engine
-    #     self.engine = create_engine('sqlite:///orm_in_detail.sqlite')
-        self.sitename = sitename
-        self.site_type = site_type
-        self.cache_type = cache_type
-        self.site_path = site_path
-        self.created_on = created_on
-        self.site_enabled = site_enabled
-        self.is_ssl = is_ssl
-        self.storage_fs = storage_fs
-        self.storage_db = storage_db
-
-# if __name__ == "__main__":
-#
-#     from sqlalchemy import create_engine
-#     engine = create_engine('sqlite:///orm_in_detail.sqlite')
-#     from sqlalchemy.orm import sessionmaker
-#     session = sessionmaker()
-#     session.configure(bind=engine)
-#     Base.metadata.create_all(engine)
-#     s = session()
-#     newRec = SiteDB(sitename='exa.in', site_type='wp', cache_type='basic',
-    # site_path='/var/www', site_enabled=True, is_ssl=False, storage_fs='ext4',
-    # storage_db='mysql')
-#     s.add(newRec)
-#     s.commit()
-#     s.flush()
+from ee.core.database import db_session
+from ee.core.models import SiteDB
 
 
 def addNewSite(self, site, stype, cache, path,
                enabled=True, ssl=False, fs='ext4', db='mysql'):
-    db_path = self.app.config.get('site', 'db_path')
     try:
-        from sqlalchemy import create_engine
-        engine = create_engine(db_path)
-        from sqlalchemy.orm import sessionmaker
-        session = sessionmaker()
-        session.configure(bind=engine)
-        Base.metadata.create_all(engine)
-        s = session()
-        newRec = SiteDB(sitename=site, site_type=stype, cache_type=cache,
-                        site_path=path, site_enabled=enabled, is_ssl=ssl,
-                        storage_fs=fs, storage_db=db)
-        s.add(newRec)
-        s.commit()
-        s.flush()
+        newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db)
+        db_session.add(newRec)
+        db_session.commit()
     except Exception as e:
-        Log.error(self, "Unable to add site to database : {0}"
-                  .format(e))
-        sys.exit(1)
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to add site to database")
 
 
 def getSiteInfo(self, site):
-    db_path = self.app.config.get('site', 'db_path')
     try:
-        from sqlalchemy import create_engine
-        engine = create_engine(db_path)
-        from sqlalchemy.orm import sessionmaker
-        session = sessionmaker()
-        session.configure(bind=engine)
-        Base.metadata.create_all(engine)
-        s = session()
-        q = s.query(SiteDB).filter_by(sitename=site).first()
-        s.flush()
+        q = SiteDB.query.filter(SiteDB.sitename == site).first()
         return q
     except Exception as e:
-        Log.error(self, "Unable to add site to database : {0}"
-                  .format(e))
-        sys.exit(1)
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to query database for site info")
+
+
+def updateSiteInfo(self, site, stype='', cache='',
+                   enabled=True, ssl=False, fs='', db=''):
+    try:
+        q = SiteDB.query.filter(SiteDB.sitename == site).first()
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to query database for site info")
+    if stype and q.site_type != stype:
+        q.site_type = stype
+
+    if cache and q.cache_type != cache:
+        q.cache_type = cache
+
+    if enabled and q.is_enabled != enabled:
+        q.is_enabled = enabled
+
+    if ssl and q.is_ssl != ssl:
+        q.is_ssl = ssl
+
+    try:
+        q.created_on = func.now()
+        db_session.commit()
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to update site info in application database.")
+
+
+def deleteSiteInfo(self, site):
+    try:
+        q = SiteDB.query.filter(SiteDB.sitename == site).first()
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to query database :")
+    try:
+        db_session.delete(q)
+        db_session.commit()
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to delete site from application database.")

@@ -45,7 +45,7 @@ setup(name='ee',
           # "nose",
           # "coverage",
           # Required to function
-          'cement>=2.4',
+          'cement == 2.4',
           'pystache',
           'python-apt',
           'pynginxconfig',

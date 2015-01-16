@@ -1,13 +1,16 @@
 """EasyEngine package installation using apt-get module."""
 import apt
+import apt_pkg
 import sys
+from ee.core.logging import Log
 
 
 class EEAptGet():
     """Generic apt-get intialisation"""
 
-    def update():
+    def update(self):
         """Similar to apt-get update"""
+
         # app.log.debug("Update cache")
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
@@ -15,7 +18,7 @@ class EEAptGet():
         cache.update(fprogress)
         cache.close()
 
-    def upgrade(packages):
+    def upgrade(self, packages):
         """Similar to apt-get update"""
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
@@ -63,7 +66,7 @@ class EEAptGet():
                 return(False)
         return(True)
 
-    def install(packages):
+    def install(self, packages):
         """Installation of packages"""
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
@@ -110,7 +113,7 @@ class EEAptGet():
                   .format(req_download=cache.required_download))
             print("After this operation, {space} bytes of"
                   "additional disk space will be used."
-                  .format(space=cache.required_space))
+                  .format(space=cache.required_space/1e6))
             try:
                 # Commit changes in cache (actually install)
                 cache.commit(fprogress, iprogress)
@@ -122,7 +125,7 @@ class EEAptGet():
         cache.close()
         return(True)
 
-    def remove(packages, auto=True, purge=False):
+    def remove(self, packages, auto=False, purge=False):
         def __dependencies_loop(cache, deplist, pkg, onelevel=True):
             """ Loops through pkg's dependencies.
             Returns a list with every package found. """
@@ -132,15 +135,17 @@ class EEAptGet():
                 return
             for depf in pkg.installed.dependencies:
                 for dep in depf:
-                    if (dep.name in cache and not cache[dep.name]
-                       in deplist):
-                        deplist.append(cache[dep.name])
-                        __dependencies_loop(cache, deplist, cache[dep.name])
-                    if onelevel:
-                        if dep.name in cache:
+                    # if (dep.name in cache and not cache[dep.name]
+                    #    in deplist):
+                    #     deplist.append(cache[dep.name])
+                    #     __dependencies_loop(cache, deplist, cache[dep.name])
+                    # if onelevel:
+                    if dep.name in cache:
+                        if (cache[dep.name].is_installed and
+                           cache[dep.name].is_auto_installed):
                             onelevellist.append(cache[dep.name])
-            if onelevel:
-                return onelevellist
+            # if onelevel:
+            return onelevellist
 
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
@@ -154,68 +159,48 @@ class EEAptGet():
         cache.open()
         for package in packages:
             print("processing", package)
-            package = cache[package]
-            if not package.is_installed:
-                print("Package '{package_name}' is not installed,"
-                      " so not removed."
-                      .format(package_name=package.name))
+            try:
+                pkg = cache[package]
+            except KeyError as e:
+                Log.debug(self, "{0}".format(e))
                 continue
-            if package.marked_delete:
-                my_selected_packages.append(package.name)
-                # Mark for deletion the first package, to fire up
-                # auto_removable Purge?
-                if purge:
-                    package.mark_delete(purge=True)
-                else:
-                    package.mark_delete(purge=False)
+            if not pkg.is_installed:
+                Log.info(self, "Package '{package_name}' is not installed,"
+                         " so not removed."
+                         .format(package_name=pkg.name))
                 continue
-            else:
-                my_selected_packages.append(package.name)
-                print(my_selected_packages)
-                # How logic works:
-                # 1) We loop trough dependencies's dependencies and add them to
-                # the list.
-                # 2) We sequentially remove every package in list
-                # - via is_auto_installed we check if we can safely remove it
-                deplist = []
-                onelevel = __dependencies_loop(cache, deplist, package,
-                                               onelevel=True)
-                # Mark for deletion the first package, to fire up
-                # auto_removable Purge?
+            my_selected_packages.append(pkg.name)
+            print(my_selected_packages)
+            # How logic works:
+            # 1) We loop trough dependencies's dependencies and add them to
+            # the list.
+            # 2) We sequentially remove every package in list
+            # - via is_auto_installed we check if we can safely remove it
+            deplist = []
+            onelevel = __dependencies_loop(cache, deplist, pkg,
+                                           onelevel=True)
+            # Mark for deletion the first package, to fire up
+            # auto_removable Purge?
+
+            for dep in onelevel:
+                my_selected_packages.append(dep.name)
+                try:
+                    if purge:
+                        dep.mark_delete(purge=True)
+                    else:
+                        dep.mark_delete(purge=False)
+                except SystemError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to purge depedencies.")
+
+            try:
                 if purge:
-                    package.mark_delete(purge=True)
+                    pkg.mark_delete(purge=True)
                 else:
-                    package.mark_delete(purge=False)
-
-                # Also ensure we remove AT LEAST the first level of
-                # dependencies (that is, the actual package's dependencies).
-                if auto:
-                    markedauto = []
-                    for pkg in onelevel:
-                        if (not pkg.marked_install and pkg.is_installed
-                           and not pkg.is_auto_installed):
-                            pkg.mark_auto()
-                            markedauto.append(pkg)
-
-                    for pkg in deplist:
-                        if (not pkg.marked_install and pkg.is_installed and
-                           pkg.is_auto_removable):
-                            # Purge?
-                            if purge:
-                                pkg.mark_delete(purge=True)
-                            else:
-                                pkg.mark_delete(purge=False)
-                    # Restore auted items
-                    for pkg in markedauto:
-                        if not pkg.marked_delete:
-                            pkg.mark_auto(False)
-                else:
-                    # We need to ensure that the onelevel packages are not
-                    # marked as automatically installed, otherwise the user may
-                    # drop them via autoremove or aptitude.
-                    for pkg in onelevel:
-                        if pkg.is_installed and pkg.is_auto_installed:
-                            pkg.mark_auto(auto=False)
+                    pkg.mark_delete(purge=False)
+            except SystemError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to purge packages.")
 
         # Check if packages available for remove/update.
         if cache.delete_count > 0:
@@ -239,7 +224,7 @@ class EEAptGet():
         cache.close()
         return(True)
 
-    def is_installed(package):
+    def is_installed(self, package):
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
         iprogress = apt.progress.base.InstallProgress()
@@ -258,6 +243,8 @@ class EEAptGet():
             else:
                 cache.close()
                 return False
+        except KeyError as e:
+            Log.debug(self, "{0}".format(e))
         except Exception as e:
             cache.close()
             return False
