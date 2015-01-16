@@ -7,6 +7,9 @@ import glob
 conf = []
 templates = []
 
+long_description = '''EasyEngine is the commandline tool to manage your
+                      Websites based on WordPress and NGINX with easy to use
+                      commands'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
     conf.insert(1, name)
@@ -22,11 +25,8 @@ if not os.path.exists('/var/lib/ee/'):
 
 setup(name='ee',
       version='3.0',
-      description=('EasyEngine is the commandline tool to manage your Websites'
-                   'based on WordPress and NGINX with easy to use commands.'),
-      long_description=('EasyEngine is the commandline tool to manage your '
-                        'Websites based on WordPress and NGINX with easy'
-                        'to use commands.'),
+      description=long_description,
+      long_description=long_description,
       classifiers=[],
       keywords='',
       author='rtCamp Soultions Pvt. LTD',

@@ -9,7 +9,7 @@ from ee.core.models import SiteDB
 
 
 def addNewSite(self, site, stype, cache, path,
-               enabled=True, ssl=False, fs='ext4', db='mysql'):
+               enabled=True, ssl=False, fs='ext4', db=''):
     try:
         newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db)
         db_session.add(newRec)
@@ -41,7 +41,7 @@ def updateSiteInfo(self, site, stype='', cache='',
     if cache and q.cache_type != cache:
         q.cache_type = cache
 
-    if enabled and q.is_enabled != enabled:
+    if q.is_enabled != enabled:
         q.is_enabled = enabled
 
     if ssl and q.is_ssl != ssl:
@@ -67,3 +67,12 @@ def deleteSiteInfo(self, site):
     except Exception as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Unable to delete site from application database.")
+
+
+def getAllsites(self):
+    try:
+        q = SiteDB.query.all()
+        return q
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to query database :")

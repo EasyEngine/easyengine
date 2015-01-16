@@ -95,7 +95,7 @@ class EEService():
                     return False
             except OSError as e:
                     Log.debug(self, "{0}".format(e))
-                    Log.error(self, "Failed to reload service {0}"
+                    Log.error(self, "\nFailed to reload service {0}"
                               .format(service_name))
 
     def get_service_status(self, service_name):

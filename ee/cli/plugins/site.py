@@ -458,30 +458,30 @@ class EESiteUpdateController(CementBaseController):
                         help of the following subcommands'
         arguments = [
             (['site_name'],
-                dict(help='website name')),
+                dict(help='domain name for the site to be updated')),
             (['--html'],
-                dict(help="html site", action='store_true')),
+                dict(help="update to html site", action='store_true')),
             (['--php'],
-                dict(help="php site", action='store_true')),
+                dict(help="update to php site", action='store_true')),
             (['--mysql'],
-                dict(help="mysql site", action='store_true')),
+                dict(help="update to mysql site", action='store_true')),
             (['--wp'],
-                dict(help="wordpress site", action='store_true')),
+                dict(help="update to wordpress single site",
+                     action='store_true')),
             (['--wpsubdir'],
-                dict(help="wpsubdir site", action='store_true')),
+                dict(help="update to wpsubdir site", action='store_true')),
             (['--wpsubdomain'],
-                dict(help="wpsubdomain site", action='store_true')),
+                dict(help="update to  wpsubdomain site", action='store_true')),
             (['--w3tc'],
-                dict(help="w3tc", action='store_true')),
+                dict(help="update to w3tc cache", action='store_true')),
             (['--wpfc'],
-                dict(help="wpfc", action='store_true')),
+                dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
-                dict(help="wpsc", action='store_true')),
+                dict(help="update to wpsc cache", action='store_true')),
             ]
 
-    @expose(help="update example.com")
+    @expose(help="update site type or cache")
     def default(self):
-        # TODO Write code for ee site update here
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -810,10 +810,8 @@ class EESiteUpdateController(CementBaseController):
                                          data['ee_db_host']))
                 eedbconfig.close()
             except IOError as e:
-                Log.error(self, " Unable to create ee-config.php for "
-                          "{0}"
-                          .format(ee_domain))
-                Log.debug(self, "{0} {1}".format(e.errno, e.strerror))
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, " Unable to create ee-config.php.")
 
         if oldsitetype == 'mysql':
             config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
@@ -892,12 +890,17 @@ class EESiteDeleteController(CementBaseController):
                 dict(help="delete webroot only", action='store_true')),
             ]
 
-    @expose(help="delete example.com")
+    @expose(help="delete site")
     def default(self):
         # TODO Write code for ee site update here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_prompt = ''
+
+        if ((not self.app.pargs.db) and (not self.app.pargs.files) and
+           (not self.app.pargs.all)):
+            self.app.pargs.all = True
+
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -907,44 +910,49 @@ class EESiteDeleteController(CementBaseController):
 
             if self.app.pargs.db:
                 if not ee_prompt:
-                    ee_db_prompt = input('Do you want to delete database:'
-                                         '[Y/N] ')
+                    ee_db_prompt = input('Do you want to delete database'
+                                         '[Y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
-                if ee_db_prompt == 'Y':
+                    ee_nginx_prompt = 'Y'
+                if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
                     self.deleteDB(ee_site_webroot)
 
             if self.app.pargs.files:
                 if not ee_prompt:
-                    ee_web_prompt = input('Do you want to delete webroot:'
-                                          '[Y/N] ')
+                    ee_web_prompt = input('Do you want to delete webroot'
+                                          '[Y/N]: ')
                 else:
                     ee_web_prompt = 'Y'
-                if ee_web_prompt == 'Y':
+                    ee_nginx_prompt = 'Y'
+
+                if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
                     self.deleteWebRoot(ee_site_webroot)
 
             if self.app.pargs.all:
                 if not ee_prompt:
-                    ee_db_prompt = input('Do you want to delete database:'
-                                         '[Y/N] '
+                    ee_db_prompt = input('Do you want to delete database'
+                                         '[Y/N]: '
                                          )
-                    ee_web_prompt = input('Do you want to delete webroot:'
-                                          '[Y/N] ')
+                    ee_web_prompt = input('Do you want to delete webroot'
+                                          '[Y/N]: ')
                     ee_nginx_prompt = input('Do you want to delete NGINX'
-                                            ' configuration:[Y/N] ')
+                                            ' configuration [Y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
                     ee_web_prompt = 'Y'
                     ee_nginx_prompt = 'Y'
 
-                if ee_db_prompt == 'Y':
+                if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
                     self.deleteDB(ee_site_webroot)
-                if ee_web_prompt == 'Y':
+                if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
                     self.deleteWebRoot(ee_site_webroot)
-                if ee_nginx_prompt == 'Y':
+
+                if (ee_nginx_prompt == 'Y' or ee_nginx_prompt == 'y'):
                     EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                                    .format(ee_domain))
-                deleteSiteInfo(self, ee_domain)
+            deleteSiteInfo(self, ee_domain)
+            Log.info(self, "Deleted site {0}".format(ee_domain))
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
@@ -966,18 +974,20 @@ class EESiteDeleteController(CementBaseController):
                               'DB_HOST').split(',')[1]
                               .split(')')[0].strip().replace('\'', ''))
             try:
+                Log.debug(self, "dropping database {0}".format(ee_db_name))
                 EEMysql.execute(self,
                                 "drop database {0}".format(ee_db_name),
                                 errormsg='Unable to drop database {0}'
                                 .format(ee_db_name))
                 if ee_db_user != 'root':
+                    Log.debug(self, "dropping user {0}".format(ee_db_user))
                     EEMysql.execute(self,
                                     "drop user {0}@{1}"
                                     .format(ee_db_user, ee_db_host))
                     EEMysql.execute(self,
                                     "flush privileges")
             except Exception as e:
-                Log.error(self, " Error occured while deleting database")
+                Log.error(self, "Error occured while deleting database")
 
     @expose(hide=True)
     def deleteWebRoot(self, webroot):
@@ -1001,7 +1011,7 @@ class EESiteListController(CementBaseController):
     def default(self):
             sites = getAllsites(self)
             if not sites:
-                self.app.close(1)
+                pass
 
             if self.app.pargs.enabled:
                 for site in sites:
@@ -1010,6 +1020,9 @@ class EESiteListController(CementBaseController):
             elif self.app.pargs.disabled:
                 for site in sites:
                     if not site.is_enabled:
+                        Log.info(self, "{0}".format(site.sitename))
+            else:
+                for site in sites:
                         Log.info(self, "{0}".format(site.sitename))
 
 
