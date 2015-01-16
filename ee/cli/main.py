@@ -1,4 +1,13 @@
 """EasyEngine main application entry point."""
+import sys
+
+# this has to happen after you import sys, but before you import anything
+# from Cement "source: https://github.com/datafolklabs/cement/issues/290"
+if '--debug' in sys.argv:
+    sys.argv.remove('--debug')
+    TOGGLE_DEBUG = True
+else:
+    TOGGLE_DEBUG = False
 
 from cement.core import foundation
 from cement.utils.misc import init_defaults
@@ -41,6 +50,8 @@ class EEApp(foundation.CementApp):
 
         # default output handler
         output_handler = 'mustache'
+
+        debug = TOGGLE_DEBUG
 
 
 class EETestApp(EEApp):
