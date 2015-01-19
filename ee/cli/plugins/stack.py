@@ -1,4 +1,4 @@
-"""Example Plugin for EasyEngine."""
+"""Stack Plugin for EasyEngine."""
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
