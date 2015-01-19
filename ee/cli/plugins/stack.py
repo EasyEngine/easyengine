@@ -913,6 +913,15 @@ class EEStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[]):
         self.msg = []
         try:
+            # Default action for stack installation
+            if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+               (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+               (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+               (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+               (not self.app.pargs.phpmyadmin) and
+               (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+                self.app.pargs.web = True
+
             if self.app.pargs.web:
                 Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
                           " ,MySQL ")
@@ -1075,6 +1084,15 @@ class EEStackController(CementBaseController):
         apt_packages = []
         packages = []
 
+        # Default action for stack remove
+        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+           (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+            self.app.pargs.web = True
+
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -1139,6 +1157,15 @@ class EEStackController(CementBaseController):
     def purge(self):
         apt_packages = []
         packages = []
+
+        # Default action for stack purge
+        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+           (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+            self.app.pargs.web = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
