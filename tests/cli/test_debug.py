@@ -77,19 +77,19 @@ class CliTestCaseDebug(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_debug_site_name_start(self):
-        self.app = get_test_app(argv=['debug', 'example.com', '--start'])
+        self.app = get_test_app(argv=['debug', 'example1.com', '--start'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_debug_site_name_stop(self):
-        self.app = get_test_app(argv=['debug', 'example.com', '--stop'])
+        self.app = get_test_app(argv=['debug', 'example1.com', '--stop'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_debug_site_name_rewrite(self):
-        self.app = get_test_app(argv=['debug', 'example.com', '--rewrite'])
+        self.app = get_test_app(argv=['debug', 'example1.com', '--rewrite'])
         self.app.setup()
         self.app.run()
         self.app.close()
