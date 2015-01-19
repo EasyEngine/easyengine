@@ -171,13 +171,13 @@ class EEInfoController(CementBaseController):
             self.app.pargs.mysql = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed('nginx-common'):
+            if EEAptGet.is_installed(self, 'nginx-common'):
                 self.info_nginx()
             else:
                 print("Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed('php5-fpm'):
+            if EEAptGet.is_installed(self, 'php5-fpm'):
                 self.info_php()
             else:
                 print("PHP5 is installed")
