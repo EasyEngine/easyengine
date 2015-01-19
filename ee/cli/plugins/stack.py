@@ -647,15 +647,18 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, 'mysql < /var/www/22222/htdocs/db'
                                      '/anemometer/install.sql')
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'localhost\'')
+                                '@\'{0}\''.format(self.app.config.get('mysql',
+                                                  'grant-host')))
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'localhost\' IDENTIFIED'
-                                ' BY \''+chars+'\'')
+                                '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get(
+                                                     'mysql', 'grant-host'),
+                                                     chars))
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
-                data = dict(host='localhost', port='3306', user='anemometer',
-                            password=chars)
+                data = dict(host=EEVariables.ee_mysql_host, port='3306',
+                            user='anemometer', password=chars)
                 ee_anemometer = open('/var/www/22222/htdocs/db/anemometer'
                                      '/conf/config.inc.php', 'w')
                 self.app.render((data), 'anemometer.mustache',
@@ -700,8 +703,9 @@ class EEStackController(CementBaseController):
                                       " vimbadmin")
                 Log.debug(self, "Granting all privileges on vimbadmin ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
-                                " vimbadmin@localhost IDENTIFIED BY"
-                                " '{password}'".format(password=vm_passwd))
+                                " vimbadmin@{0} IDENTIFIED BY"
+                                " '{1}'".format(self.app.config.get('mysql',
+                                                'grant-host'), vm_passwd))
 
                 # Configure ViMbAdmin settings
                 config = configparser.ConfigParser(strict=False)
@@ -719,7 +723,7 @@ class EEStackController(CementBaseController):
                 config['user']['resources.doctrine2.connection.'
                                'options.password'] = vm_passwd
                 config['user']['resources.doctrine2.connection.'
-                               'options.host'] = 'localhost'
+                               'options.host'] = EEVariables.ee_mysql_host
                 config['user']['defaults.mailbox.password_scheme'] = 'md5'
                 config['user']['securitysalt'] = (''.join(random.sample
                                                   (string.ascii_letters
@@ -765,7 +769,7 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating directory "
                               "/etc/postfix/mysql/")
                     os.makedirs('/etc/postfix/mysql/')
-                data = dict(password=vm_passwd)
+                data = dict(password=vm_passwd, host=EEVariables.ee_mysql)
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_alias_maps.mustache',
@@ -832,8 +836,10 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Grant all privileges on roundcubemail")
                 EEMysql.execute(self, "grant all privileges"
                                 " on roundcubemail.* to "
-                                " roundcube@localhost IDENTIFIED BY "
-                                "'{password}'".format(password=rc_passwd))
+                                " roundcube@{0} IDENTIFIED BY "
+                                "'{1}'".format(self.app.config.get(
+                                               'mysql', 'grant-host'),
+                                               rc_passwd))
                 EEShellExec.cmd_exec(self, "mysql roundcubemail < /var/www/"
                                      "roundcubemail/htdocs/SQL/mysql"
                                      ".initial.sql")
@@ -844,10 +850,12 @@ class EEStackController(CementBaseController):
                                 "config.inc.php")
                 EEShellExec.cmd_exec(self, "sed -i \"s\'mysql://roundcube:"
                                      "pass@localhost/roundcubemail\'mysql://"
-                                     "roundcube:{password}@localhost/"
+                                     "roundcube:{0}@{1}/"
                                      "roundcubemail\'\" /var/www/roundcubemail"
                                      "/htdocs/config/config."
-                                     "inc.php".format(password=rc_passwd))
+                                     "inc.php"
+                                     .format(rc_passwd,
+                                             EEVariables.ee_mysql_host))
 
                 # Sieve plugin configuration in roundcube
                 EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["

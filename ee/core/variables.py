@@ -51,6 +51,18 @@ class EEVariables():
     ee_ram = psutil.virtual_memory().total / (1024 * 1024)
     ee_swap = psutil.swap_memory().total / (1024 * 1024)
 
+    # MySQL hostname
+    ee_mysql_host = ""
+    config = configparser.RawConfigParser()
+    cnfpath = os.path.expanduser("~")+"/.my.cnf"
+    if [cnfpath] == config.read(cnfpath):
+        try:
+            ee_mysql_host = config.get('client', 'host')
+        except configparser.NoOptionError as e:
+            ee_mysql_host = "localhost"
+    else:
+        ee_mysql_host = "localhost"
+
     # EasyEngine stack installation varibales
     # Nginx repo and packages
     if ee_platform_distro == 'Ubuntu':
