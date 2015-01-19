@@ -13,6 +13,16 @@ class EEVariables():
     config = configparser.ConfigParser()
     config.read(os.path.expanduser("~")+'/.gitconfig')
 
+    # EasyEngine version
+    ee_version = "3.0.0"
+
+    # EasyEngine packages versions
+    ee_wp_cli = "0.18.0"
+    ee_adminer = "4.1.0"
+    ee_roundcube = "1.0.4"
+    ee_vimbadmin = "3.0.10"
+
+    # Current date and time of System
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # EasyEngine core variables
@@ -23,8 +33,10 @@ class EEVariables():
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
 
+    # EasyEngien default webroot path
     ee_webroot = '/var/www/'
 
+    # PHP5 user
     ee_php_user = 'www-data'
 
     # Get git user name and EMail
@@ -38,6 +50,18 @@ class EEVariables():
     # Get System RAM and SWAP details
     ee_ram = psutil.virtual_memory().total / (1024 * 1024)
     ee_swap = psutil.swap_memory().total / (1024 * 1024)
+
+    # MySQL hostname
+    ee_mysql_host = ""
+    config = configparser.RawConfigParser()
+    cnfpath = os.path.expanduser("~")+"/.my.cnf"
+    if [cnfpath] == config.read(cnfpath):
+        try:
+            ee_mysql_host = config.get('client', 'host')
+        except configparser.NoOptionError as e:
+            ee_mysql_host = "localhost"
+    else:
+        ee_mysql_host = "localhost"
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages

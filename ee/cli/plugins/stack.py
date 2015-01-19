@@ -166,7 +166,7 @@ class EEStackController(CementBaseController):
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
-                    data = dict(version='EasyEngine 3.0.1')
+                    data = dict(version=EEVariables.ee_version)
                     Log.debug(self, 'writting the nginx configration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
@@ -647,15 +647,18 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, 'mysql < /var/www/22222/htdocs/db'
                                      '/anemometer/install.sql')
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'localhost\'')
+                                '@\'{0}\''.format(self.app.config.get('mysql',
+                                                  'grant-host')))
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
-                                '\'anemometer\'@\'localhost\' IDENTIFIED'
-                                ' BY \''+chars+'\'')
+                                '\'anemometer\'@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get(
+                                                     'mysql', 'grant-host'),
+                                                     chars))
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
-                data = dict(host='localhost', port='3306', user='anemometer',
-                            password=chars)
+                data = dict(host=EEVariables.ee_mysql_host, port='3306',
+                            user='anemometer', password=chars)
                 ee_anemometer = open('/var/www/22222/htdocs/db/anemometer'
                                      '/conf/config.inc.php', 'w')
                 self.app.render((data), 'anemometer.mustache',
@@ -700,8 +703,9 @@ class EEStackController(CementBaseController):
                                       " vimbadmin")
                 Log.debug(self, "Granting all privileges on vimbadmin ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
-                                " vimbadmin@localhost IDENTIFIED BY"
-                                " '{password}'".format(password=vm_passwd))
+                                " vimbadmin@{0} IDENTIFIED BY"
+                                " '{1}'".format(self.app.config.get('mysql',
+                                                'grant-host'), vm_passwd))
 
                 # Configure ViMbAdmin settings
                 config = configparser.ConfigParser(strict=False)
@@ -719,7 +723,7 @@ class EEStackController(CementBaseController):
                 config['user']['resources.doctrine2.connection.'
                                'options.password'] = vm_passwd
                 config['user']['resources.doctrine2.connection.'
-                               'options.host'] = 'localhost'
+                               'options.host'] = EEVariables.ee_mysql_host
                 config['user']['defaults.mailbox.password_scheme'] = 'md5'
                 config['user']['securitysalt'] = (''.join(random.sample
                                                   (string.ascii_letters
@@ -765,7 +769,7 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating directory "
                               "/etc/postfix/mysql/")
                     os.makedirs('/etc/postfix/mysql/')
-                data = dict(password=vm_passwd)
+                data = dict(password=vm_passwd, host=EEVariables.ee_mysql)
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_alias_maps.mustache',
@@ -832,8 +836,10 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Grant all privileges on roundcubemail")
                 EEMysql.execute(self, "grant all privileges"
                                 " on roundcubemail.* to "
-                                " roundcube@localhost IDENTIFIED BY "
-                                "'{password}'".format(password=rc_passwd))
+                                " roundcube@{0} IDENTIFIED BY "
+                                "'{1}'".format(self.app.config.get(
+                                               'mysql', 'grant-host'),
+                                               rc_passwd))
                 EEShellExec.cmd_exec(self, "mysql roundcubemail < /var/www/"
                                      "roundcubemail/htdocs/SQL/mysql"
                                      ".initial.sql")
@@ -844,10 +850,12 @@ class EEStackController(CementBaseController):
                                 "config.inc.php")
                 EEShellExec.cmd_exec(self, "sed -i \"s\'mysql://roundcube:"
                                      "pass@localhost/roundcubemail\'mysql://"
-                                     "roundcube:{password}@localhost/"
+                                     "roundcube:{0}@{1}/"
                                      "roundcubemail\'\" /var/www/roundcubemail"
                                      "/htdocs/config/config."
-                                     "inc.php".format(password=rc_passwd))
+                                     "inc.php"
+                                     .format(rc_passwd,
+                                             EEVariables.ee_mysql_host))
 
                 # Sieve plugin configuration in roundcube
                 EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["
@@ -905,6 +913,15 @@ class EEStackController(CementBaseController):
     def install(self, packages=[], apt_packages=[]):
         self.msg = []
         try:
+            # Default action for stack installation
+            if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+               (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+               (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+               (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+               (not self.app.pargs.phpmyadmin) and
+               (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+                self.app.pargs.web = True
+
             if self.app.pargs.web:
                 Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
                           " ,MySQL ")
@@ -932,12 +949,14 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
                     packages = packages + [["https://github.com/opensolutions/"
-                                            "ViMbAdmin/archive/3.0.10.tar.gz",
+                                            "ViMbAdmin/archive/{0}.tar.gz"
+                                            .format(EEVariables.ee_vimbadmin),
                                             "/tmp/vimbadmin.tar.gz",
                                             "ViMbAdmin"],
                                            ["https://github.com/roundcube/"
                                             "roundcubemail/releases/download/"
-                                            "1.0.4/roundcubemail-1.0.4.tar.gz",
+                                            "{0}/roundcubemail-{0}.tar.gz"
+                                            .format(EEVariables.ee_roundcube),
                                             "/tmp/roundcube.tar.gz",
                                             "Roundcube"]]
 
@@ -975,8 +994,10 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for WPCLI")
                 if not EEShellExec.cmd_exec(self, "which wp"):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                            "releases/download/v0.17.1/"
-                                            "wp-cli.phar", "/usr/bin/wp",
+                                            "releases/download/v{0}/"
+                                            "wp-cli-{0}.phar"
+                                            "".format(EEVariables.ee_wp_cli),
+                                            "/usr/bin/wp",
                                             "WP_CLI"]]
                 else:
                     Log.info(self, "WP-CLI is allready installed")
@@ -989,7 +1010,8 @@ class EEStackController(CementBaseController):
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["http://downloads.sourceforge.net/"
-                                        "adminer/adminer-4.1.0.php",
+                                        "adminer/adminer-{0}.php"
+                                        "".format(EEVariables.ee_adminer),
                                         "/var/www/22222/"
                                         "htdocs/db/adminer/index.php",
                                         "Adminer"]]
@@ -1043,11 +1065,12 @@ class EEStackController(CementBaseController):
                 EESwap.add(self)
                 Log.debug(self, "Updating apt-cache")
                 EEAptGet.update(self)
-                Log.debug(self, "Installing all apt_packages")
+                Log.debug(self, "Installing following: {0}"
+                                .format(apt_packages))
                 print(apt_packages)
                 EEAptGet.install(self, apt_packages)
             if len(packages):
-                Log.debug(self, "Downloading all packages")
+                Log.debug(self, "Downloading following: {0}".format(packages))
                 EEDownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
             self.post_pref(apt_packages, packages)
@@ -1060,6 +1083,15 @@ class EEStackController(CementBaseController):
     def remove(self):
         apt_packages = []
         packages = []
+
+        # Default action for stack remove
+        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+           (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+            self.app.pargs.web = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -1125,6 +1157,15 @@ class EEStackController(CementBaseController):
     def purge(self):
         apt_packages = []
         packages = []
+
+        # Default action for stack purge
+        if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
+           (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
+           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
+           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+            self.app.pargs.web = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
