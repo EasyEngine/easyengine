@@ -13,6 +13,16 @@ class EEVariables():
     config = configparser.ConfigParser()
     config.read(os.path.expanduser("~")+'/.gitconfig')
 
+    # EasyEngine version
+    ee_version = "3.0.0"
+
+    # EasyEngine packages versions
+    ee_wp_cli = "0.18.0"
+    ee_adminer = "4.1.0"
+    ee_roundcube = "1.0.4"
+    ee_vimbadmin = "3.0.10"
+
+    # Current date and time of System
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # EasyEngine core variables
@@ -23,8 +33,10 @@ class EEVariables():
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
 
+    # EasyEngien default webroot path
     ee_webroot = '/var/www/'
 
+    # PHP5 user
     ee_php_user = 'www-data'
 
     # Get git user name and EMail

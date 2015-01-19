@@ -166,7 +166,7 @@ class EEStackController(CementBaseController):
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
-                    data = dict(version='EasyEngine 3.0.1')
+                    data = dict(version=EEVariables.ee_version)
                     Log.debug(self, 'writting the nginx configration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
@@ -932,12 +932,14 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
                     packages = packages + [["https://github.com/opensolutions/"
-                                            "ViMbAdmin/archive/3.0.10.tar.gz",
+                                            "ViMbAdmin/archive/{0}.tar.gz"
+                                            .format(EEVariables.ee_vimbadmin),
                                             "/tmp/vimbadmin.tar.gz",
                                             "ViMbAdmin"],
                                            ["https://github.com/roundcube/"
                                             "roundcubemail/releases/download/"
-                                            "1.0.4/roundcubemail-1.0.4.tar.gz",
+                                            "{0}/roundcubemail-{0}.tar.gz"
+                                            .format(EEVariables.ee_roundcube),
                                             "/tmp/roundcube.tar.gz",
                                             "Roundcube"]]
 
@@ -975,8 +977,10 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting packages variable for WPCLI")
                 if not EEShellExec.cmd_exec(self, "which wp"):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                            "releases/download/v0.17.1/"
-                                            "wp-cli.phar", "/usr/bin/wp",
+                                            "releases/download/v{0}/"
+                                            "wp-cli-{0}.phar"
+                                            "".format(EEVariables.ee_wp_cli),
+                                            "/usr/bin/wp",
                                             "WP_CLI"]]
                 else:
                     Log.info(self, "WP-CLI is allready installed")
@@ -989,7 +993,8 @@ class EEStackController(CementBaseController):
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["http://downloads.sourceforge.net/"
-                                        "adminer/adminer-4.1.0.php",
+                                        "adminer/adminer-{0}.php"
+                                        "".format(EEVariables.ee_adminer),
                                         "/var/www/22222/"
                                         "htdocs/db/adminer/index.php",
                                         "Adminer"]]
@@ -1043,11 +1048,12 @@ class EEStackController(CementBaseController):
                 EESwap.add(self)
                 Log.debug(self, "Updating apt-cache")
                 EEAptGet.update(self)
-                Log.debug(self, "Installing all apt_packages")
+                Log.debug(self, "Installing following: {0}"
+                                .format(apt_packages))
                 print(apt_packages)
                 EEAptGet.install(self, apt_packages)
             if len(packages):
-                Log.debug(self, "Downloading all packages")
+                Log.debug(self, "Downloading following: {0}".format(packages))
                 EEDownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
             self.post_pref(apt_packages, packages)
