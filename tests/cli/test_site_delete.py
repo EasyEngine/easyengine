@@ -10,28 +10,28 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_detele(self):
-        self.app = get_test_app(argv=['site', 'delete', 'site_name',
+        self.app = get_test_app(argv=['site', 'delete', 'example1.com',
                                       '--no-prompt'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_site_detele_all(self):
-        self.app = get_test_app(argv=['site', 'delete', 'site_name',
+        self.app = get_test_app(argv=['site', 'delete', 'example2.com',
                                       '--all'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_site_detele_db(self):
-        self.app = get_test_app(argv=['site', 'delete', 'site_name',
+        self.app = get_test_app(argv=['site', 'delete', 'example3.com',
                                       '--db'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_site_detele_files(self):
-        self.app = get_test_app(argv=['site', 'delete', 'site_name',
+        self.app = get_test_app(argv=['site', 'delete', 'example4.com',
                                       '--files'])
         self.app.setup()
         self.app.run()

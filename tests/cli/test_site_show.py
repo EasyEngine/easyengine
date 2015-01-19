@@ -10,7 +10,7 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_show_edit(self):
-        self.app = get_test_app(argv=['site', 'show', 'site_name'])
+        self.app = get_test_app(argv=['site', 'show', 'example.com'])
         self.app.setup()
         self.app.run()
         self.app.close()

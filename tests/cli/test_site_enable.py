@@ -10,7 +10,7 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_enable(self):
-        self.app = get_test_app(argv=['site', 'enable', 'site_name'])
+        self.app = get_test_app(argv=['site', 'enable', 'example2.com'])
         self.app.setup()
         self.app.run()
         self.app.close()

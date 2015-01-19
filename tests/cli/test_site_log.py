@@ -10,7 +10,7 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_log(self):
-        self.app = get_test_app(argv=['site', 'log', 'site_name'])
+        self.app = get_test_app(argv=['site', 'log', 'example1.com'])
         self.app.setup()
         self.app.run()
         self.app.close()
