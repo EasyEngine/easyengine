@@ -3,12 +3,13 @@ from setuptools import setup, find_packages
 import sys
 import os
 import glob
+import configparser
 
 conf = []
 templates = []
 
 long_description = '''EasyEngine is the commandline tool to manage your
-                      Websites based on WordPress and NGINX with easy to use
+                      Websites based on WordPress and Nginx with easy to use
                       commands'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
@@ -22,6 +23,24 @@ if not os.path.exists('/var/log/ee/'):
 
 if not os.path.exists('/var/lib/ee/'):
     os.makedirs('/var/lib/ee/')
+
+# EasyEngine git function
+config = configparser.ConfigParser()
+config.read(os.path.expanduser("~")+'/.gitconfig')
+try:
+    ee_user = config['user']['name']
+    ee_email = config['user']['email']
+except Exception as e:
+    print("EasyEngine (ee) required your name & email address to track"
+          " changes you made under the Git version control")
+    print("EasyEngine (ee) will be able to send you daily reports & alerts in "
+          "upcoming version")
+    print("EasyEngine (ee) will NEVER send your information across")
+
+    ee_user = input("Enter username for Git:")
+    ee_email = input("Enter email for Git:")
+    os.system("git config --global user.name {0}".format(ee_user))
+    os.system("git config --global user.email {0}".format(ee_email))
 
 setup(name='ee',
       version='3.0',
@@ -56,7 +75,9 @@ setup(name='ee',
           ],
       data_files=[('/etc/ee', ['config/ee.conf']),
                   ('/etc/ee/plugins.d', conf),
-                  ('/usr/lib/ee/templates', templates)],
+                  ('/usr/lib/ee/templates', templates),
+                  ('/etc/bash_completion.d/',
+                   ['config/bash_completion.d/ee_auto.rc'])],
       setup_requires=[],
       entry_points="""
           [console_scripts]

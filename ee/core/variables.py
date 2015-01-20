@@ -10,8 +10,6 @@ import datetime
 
 class EEVariables():
     """Intialization of core variables"""
-    config = configparser.ConfigParser()
-    config.read(os.path.expanduser("~")+'/.gitconfig')
 
     # EasyEngine version
     ee_version = "3.0.0"
@@ -40,6 +38,8 @@ class EEVariables():
     ee_php_user = 'www-data'
 
     # Get git user name and EMail
+    config = configparser.ConfigParser()
+    config.read(os.path.expanduser("~")+'/.gitconfig')
     try:
         ee_user = config['user']['name']
         ee_email = config['user']['email']
