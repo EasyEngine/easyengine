@@ -59,7 +59,7 @@ class EEAptGet():
                   .format(space=cache.required_space))
             try:
                 # Commit changes in cache (actually install)
-                cache.commit(fprogress, iprogress)
+                cache.commit(fprogress, iprogres)
             except Exception as e:
                 print("package installation failed. [{err}]"
                       .format(err=str(e)))
@@ -111,8 +111,8 @@ class EEAptGet():
                   .format(pkg_install_count=cache.install_count))
             print("Need to get {req_download} bytes of archives"
                   .format(req_download=cache.required_download))
-            print("After this operation, {space} bytes of"
-                  "additional disk space will be used."
+            print("After this operation, {space:.2f} MB of"
+                  " additional disk space will be used."
                   .format(space=cache.required_space/1e6))
             try:
                 # Commit changes in cache (actually install)
@@ -182,16 +182,16 @@ class EEAptGet():
             # Mark for deletion the first package, to fire up
             # auto_removable Purge?
 
-            for dep in onelevel:
-                my_selected_packages.append(dep.name)
-                try:
-                    if purge:
-                        dep.mark_delete(purge=True)
-                    else:
-                        dep.mark_delete(purge=False)
-                except SystemError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.error(self, "Unable to purge depedencies.")
+            # for dep in onelevel:
+            #     my_selected_packages.append(dep.name)
+            #     try:
+            #         if purge:
+            #             dep.mark_delete(purge=True)
+            #         else:
+            #             dep.mark_delete(purge=False)
+            #     except SystemError as e:
+            #         Log.debug(self, "{0}".format(e))
+            #         Log.error(self, "Unable to purge depedencies.")
 
             try:
                 if purge:
@@ -211,8 +211,8 @@ class EEAptGet():
             print("{pkg_remove_count} to remove."
                   .format(pkg_remove_count=cache.delete_count))
             # app.log.debug('bytes disk space will be freed')
-            print("After this operation, {space} bytes disk spac"
-                  "e will be freed.".format(space=cache.required_space))
+            print("After this operation, {space:.2f} MB disk space "
+                  "will be freed.".format(space=cache.required_space/1e6))
             try:
                 cache.commit(fprogress, iprogress)
             except Exception as e:
