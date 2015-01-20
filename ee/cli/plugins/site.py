@@ -26,8 +26,7 @@ class EESiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Site command manages website configuration'
-                       ' with the help of the following subcommands')
+        description = ('Performs website specific operations')
         arguments = [
             (['site_name'],
                 dict(help='Website name')),
@@ -405,7 +404,7 @@ class EESiteCreateController(CementBaseController):
             self.app.close(1)
 
         # Check rerequired packages are installed or not
-        site_package_check(self, stype)
+        ee_auth = site_package_check(self, stype)
         # setup NGINX configuration, and webroot
         setupdomain(self, data)
         # Setup database for MySQL site
@@ -440,10 +439,14 @@ class EESiteCreateController(CementBaseController):
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
         setwebrootpermissions(self, data['webroot'])
+        if len(ee_auth):
+            for msg in ee_auth:
+                Log.info(self, Log.ENDC + msg)
+
         if data['wp']:
-            Log.info(self, Log.ENDC + "WordPress Admin User :"
+            Log.info(self, Log.ENDC + "WordPress admin user :"
                      " {0}".format(ee_wp_creds['wp_user']))
-            Log.info(self, Log.ENDC + "WordPress Admin User Password : {0}"
+            Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
                      .format(ee_wp_creds['wp_pass']))
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
@@ -882,9 +885,9 @@ class EESiteUpdateController(CementBaseController):
         # setwebrootpermissions(self, data['webroot'])
 
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
-            Log.info(self, Log.ENDC + "WordPress Admin User :"
+            Log.info(self, Log.ENDC + "WordPress admin user :"
                      " {0}".format(ee_wp_creds['wp_user']))
-            Log.info(self, Log.ENDC + "WordPress Admin User Password : {0}"
+            Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                      .format(ee_wp_creds['wp_pass']))
 
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)

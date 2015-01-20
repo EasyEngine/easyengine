@@ -17,7 +17,7 @@ def setupdomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
-    Log.info(self, "Setting up NGINX configuration \t\t", end='')
+    Log.info(self, "Setting up NGINX configuration \t", end='')
     # write nginx config for file
     try:
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
@@ -376,7 +376,8 @@ def site_package_check(self, stype):
                                     "releases/download/v0.17.1/"
                                     "wp-cli.phar", "/usr/bin/wp",
                                     "WP-CLI"]]
-    stack.install(apt_packages=apt_packages, packages=packages)
+    return(stack.install(apt_packages=apt_packages, packages=packages,
+                         disp_msg=False))
 
 
 def updatewpuserpassword(self, ee_domain, ee_site_webroot):

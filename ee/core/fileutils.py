@@ -74,7 +74,7 @@ class EEFileUtils():
         try:
             shutil.move(src, dst)
         except shutil.Error as e:
-            Log.debug(self, "{err}".format(err=str(e.reason)))
+            Log.debug(self, "{err}".format(err=e))
             Log.error(self, 'Unable to move file from {0} to {1}'
                       .format(src, dst))
 
