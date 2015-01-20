@@ -5,9 +5,7 @@
 
 from cement.core import handler
 from ee.cli.controllers.base import EEBaseController
-from ee.cli.controllers.isl import EEImportslowlogController
 
 
 def load(app):
     handler.register(EEBaseController)
-    handler.register(EEImportslowlogController)
