@@ -44,8 +44,8 @@ class EEVariables():
         ee_user = config['user']['name']
         ee_email = config['user']['email']
     except Exception as e:
-        print("Unable to find GIT user name and Email")
-        sys.exit(1)
+        ee_user = input("Enter username for Git:")
+        ee_email = input("Enter email for Git:")
 
     # Get System RAM and SWAP details
     ee_ram = psutil.virtual_memory().total / (1024 * 1024)

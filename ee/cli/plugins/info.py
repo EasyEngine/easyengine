@@ -174,19 +174,19 @@ class EEInfoController(CementBaseController):
             if EEAptGet.is_installed(self, 'nginx-common'):
                 self.info_nginx()
             else:
-                print("Nginx is not installed")
+                Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
             if EEAptGet.is_installed(self, 'php5-fpm'):
                 self.info_php()
             else:
-                print("PHP5 is installed")
+                Log.error("PHP5 is not installed")
 
         if self.app.pargs.mysql:
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 self.info_mysql()
             else:
-                print("MySQL is not installed")
+                Log.error("MySQL is not installed")
 
 
 def load(app):
