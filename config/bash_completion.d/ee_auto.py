@@ -1,15 +1,3 @@
-function ee_single()
-{
-    for (( j=0; j<${#COMP_WORDS[@]}; j++ )); do
-        for (( i=0; i<${#COMPREPLY[@]}; i++ )); do
-            if [[ ${COMP_WORDS[COMP_CWORD-j]} == ${COMPREPLY[i]} ]]; then
-                rem=( ${COMP_WORDS[COMP_CWORD-j]} );
-                COMPREPLY=( "${COMPREPLY[@]/$rem}" )
-            fi
-        done
-    done
-}
-
 _ee_complete()
 {
     local cur prev BASE_LEVEL
@@ -41,7 +29,7 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "--start --nginx --php --fpm --mysql -i --interactive" \
+                              -W "--start --nginx --php --fpm --mysql -i --interactive --stop " \
                               -- $cur) )
                 ;;
 
@@ -90,7 +78,7 @@ _ee_complete()
                               -- $cur) )
                 ;;
 
-            "edit" | "enable" | "info" | "log" | "show" | "cd" | "update")
+            "edit" | "enable" | "info" | "log" | "show" | "cd" | "update" | "delete")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
                               -- $cur) )
@@ -105,17 +93,13 @@ _ee_complete()
             *)
                 ;;
         esac
-
-        # case "$mprev" in
-        #     "debug")
-        #         COMPREPLY=( $(compgen \
-        #                             -W "--wp --nginx --rewrite --start --stop -i --interactive" \
-        #                         -- $cur) )
-        #     ;;
-        #
-        #     *)
-        #         ;;
-        # esac
+        if [[ ${COMP_WORDS[1]} == "debug" ]] && [ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]; then
+                retlist="--start --stop --wp --rewrite -i"
+                ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+        fi
 
     elif [ $COMP_CWORD -eq 4 ]; then
         case "$mprev" in
@@ -131,7 +115,6 @@ _ee_complete()
                                     -W "--db --files --all" \
                                  -- $cur) )
 
-
         esac
     fi
 
@@ -143,13 +126,15 @@ _ee_complete()
             ;;
 
         "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot")
-            if [[ $COMP_WORDS =~ "stack" ]]; then
+            if [[ ${COMP_WORDS[1]} == "stack" ]]; then
                 retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot"
-                ret="${retlist[@]/$prev}"
-                COMPREPLY=( $(compgen \
-                            -W "$(echo $ret)" \
-                            -- $cur) )
+            elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
+                    retlist="--start --nginx --php --fpm --mysql -i --interactive --stop"
             fi
+            ret="${retlist[@]/$prev}"
+            COMPREPLY=( $(compgen \
+                        -W "$(echo $ret)" \
+                        -- $cur) )
             ;;
 
         "--db" | "--files" | "--all")
