@@ -32,7 +32,7 @@ def setupdomain(self, data):
     except Exception as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "\nUnable to create NGINX configuration")
-    Log.info(self, "[Done]")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     # create symbolic link for
     EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
@@ -59,7 +59,7 @@ def setupdomain(self, data):
                                       .format(ee_domain_name),
                                       '{0}/logs/error.log'
                                       .format(ee_site_webroot)])
-    Log.info(self, "[Done]")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
 
 def setupdatabase(self, data):
@@ -126,7 +126,7 @@ def setupdatabase(self, data):
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
                     .format(ee_db_name, ee_db_username, ee_mysql_grant_host))
-    Log.info(self, "[Done]")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     data['ee_db_name'] = ee_db_name
     data['ee_db_user'] = ee_db_username
@@ -152,7 +152,7 @@ def setupwordpress(self, data):
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
-    Log.info(self, "[Done]")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     if not (data['ee_db_name'] and data['ee_db_user'] and data['ee_db_pass']):
         data = setupdatabase(self, data)
@@ -324,7 +324,7 @@ def sitebackup(self, data):
     if data['currsitetype'] in ['html', 'php', 'mysql']:
         Log.info(self, "Backing up Webroot \t\t", end='')
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
-        Log.info(self, "[Done]")
+        Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
 
@@ -336,7 +336,7 @@ def sitebackup(self, data):
         EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
                              .format(ee_db_name, backup_path),
                              errormsg="\nFailed: Backup Database")
-        Log.info(self, "[Done]")
+        Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql']:
             EEFileUtils.mvfile(self, configfiles[0], backup_path)
