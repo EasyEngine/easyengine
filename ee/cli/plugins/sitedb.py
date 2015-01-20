@@ -3,9 +3,9 @@ from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from ee.core.logging import Log
-import sys
 from ee.core.database import db_session
 from ee.core.models import SiteDB
+import sys
 
 
 def addNewSite(self, site, stype, cache, path,
@@ -60,7 +60,7 @@ def deleteSiteInfo(self, site):
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
     except Exception as e:
         Log.debug(self, "{0}".format(e))
-        Log.error(self, "Unable to query database :")
+        Log.error(self, "Unable to query database")
     try:
         db_session.delete(q)
         db_session.commit()
@@ -75,4 +75,4 @@ def getAllsites(self):
         return q
     except Exception as e:
         Log.debug(self, "{0}".format(e))
-        Log.error(self, "Unable to query database :")
+        Log.error(self, "Unable to query database")

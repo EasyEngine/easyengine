@@ -19,17 +19,17 @@ class EEInfoController(CementBaseController):
         label = 'info'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'info command used for debugging issued with stack or \
-                        site specific configuration'
+        description = ('Display configuration information related to Nginx,'
+                       ' PHP and MySQL')
         arguments = [
             (['--mysql'],
-                dict(help='get mysql configuration information',
+                dict(help='Get MySQL configuration information',
                      action='store_true')),
             (['--php'],
-                dict(help='get php configuration information',
+                dict(help='Get PHP configuration information',
                      action='store_true')),
             (['--nginx'],
-                dict(help='get nginx configuration information',
+                dict(help='Get Nginx configuration information',
                      action='store_true')),
             ]
 

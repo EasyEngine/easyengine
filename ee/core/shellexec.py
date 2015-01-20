@@ -1,9 +1,9 @@
 """EasyEngine shell executaion functions."""
+from subprocess import Popen
+from ee.core.logging import Log
 import os
 import sys
 import subprocess
-from subprocess import Popen
-from ee.core.logging import Log
 
 
 class EEShellExec():

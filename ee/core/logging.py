@@ -1,3 +1,4 @@
+"""EasyEngine log module"""
 
 
 class Log:

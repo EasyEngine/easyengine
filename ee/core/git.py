@@ -1,6 +1,7 @@
+"""EasyEngine GIT module"""
 from sh import git, ErrorReturnCode
-import os
 from ee.core.logging import Log
+import os
 
 
 class EEGit:

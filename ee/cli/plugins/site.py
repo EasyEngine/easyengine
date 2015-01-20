@@ -8,11 +8,11 @@ from ee.cli.plugins.site_functions import *
 from ee.core.services import EEService
 from ee.cli.plugins.sitedb import *
 from ee.core.git import EEGit
+from subprocess import Popen
 import sys
 import os
 import glob
 import subprocess
-from subprocess import Popen
 
 
 def ee_site_hook(app):
@@ -26,18 +26,18 @@ class EESiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('site command manages website configuration'
+        description = ('Site command manages website configuration'
                        ' with the help of the following subcommands')
         arguments = [
             (['site_name'],
-                dict(help='website name')),
+                dict(help='Website name')),
             ]
 
     @expose(hide=True)
     def default(self):
         self.app.args.print_help()
 
-    @expose(help="enable site example.com")
+    @expose(help="Enable site example.com")
     def enable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -51,7 +51,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="disable site example.com")
+    @expose(help="Disable site example.com")
     def disable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -63,7 +63,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="get example.com information")
+    @expose(help="Get example.com information")
     def info(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
@@ -105,7 +105,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="Edit example.com's nginx configuration")
+    @expose(help="Edit Nginx configuration of example.com")
     def edit(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -121,7 +121,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="Display example.com's nginx configuration")
+    @expose(help="Display Nginx configuration of example.com")
     def show(self):
         # TODO Write code for ee site edit command here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -136,7 +136,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="change directory to site webroot")
+    @expose(help="Change directory to site webroot")
     def cd(self):
 
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -454,7 +454,7 @@ class EESiteUpdateController(CementBaseController):
         label = 'update'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'update command manages website configuration with the \
+        description = 'Update command manages website configuration with the \
                         help of the following subcommands'
         arguments = [
             (['site_name'],
@@ -480,7 +480,7 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             ]
 
-    @expose(help="update site type or cache")
+    @expose(help="Update site type or cache")
     def default(self):
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
@@ -875,7 +875,7 @@ class EESiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'delete command deletes website'
+        description = 'To delete website'
         arguments = [
             (['site_name'],
                 dict(help='domain name to be deleted')),
@@ -890,7 +890,7 @@ class EESiteDeleteController(CementBaseController):
                 dict(help="delete webroot only", action='store_true')),
             ]
 
-    @expose(help="delete site")
+    @expose(help="Delete site")
     def default(self):
         # TODO Write code for ee site update here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -999,15 +999,15 @@ class EESiteListController(CementBaseController):
         label = 'list'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'list websites'
+        description = 'List websites'
         arguments = [
             (['--enabled'],
-                dict(help='list enabled sites', action='store_true')),
+                dict(help='List enabled websites', action='store_true')),
             (['--disabled'],
-                dict(help="list disabled sites", action='store_true')),
+                dict(help="List disabled websites", action='store_true')),
             ]
 
-    @expose(help="delete example.com")
+    @expose(help="Delete example.com")
     def default(self):
             sites = getAllsites(self)
             if not sites:
