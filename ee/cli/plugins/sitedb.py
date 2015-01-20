@@ -35,6 +35,10 @@ def updateSiteInfo(self, site, stype='', cache='',
     except Exception as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Unable to query database for site info")
+
+    if not q:
+        Log.error(self, "{0} does not exist in database".format(site))
+
     if stype and q.site_type != stype:
         q.site_type = stype
 
@@ -61,6 +65,10 @@ def deleteSiteInfo(self, site):
     except Exception as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Unable to query database :")
+
+    if not q:
+        Log.error(self, "{0} does not exist in database".format(site))
+
     try:
         db_session.delete(q)
         db_session.commit()

@@ -170,7 +170,6 @@ class EEAptGet():
                          .format(package_name=pkg.name))
                 continue
             my_selected_packages.append(pkg.name)
-            print(my_selected_packages)
             # How logic works:
             # 1) We loop trough dependencies's dependencies and add them to
             # the list.
