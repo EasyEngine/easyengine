@@ -16,15 +16,15 @@ before_script:
   - sudo apt-get -qq autoremove
 
 script:
-  - sudo echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > ~/.gitconfig
-  - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo apt-get install git python3-setuptools python3-dev python3-apt
-  - sudo python3 setup.py install
-  - sudo ee --help
-  - sudo ee stack install
-  - sudo ee stack install --web
-  - sudo ee stack install --admin
-  - sudo ee site create html.com
+  # - sudo echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > ~/.gitconfig
+  # - sudo echo "Travis Banch = $TRAVIS_BRANCH"
+  # - sudo apt-get install git python3-setuptools python3-dev python3-apt
+  # - sudo python3 setup.py install
+  # - sudo ee --help
+  # - sudo ee stack install
+  # - sudo ee stack install --web
+  # - sudo ee stack install --admin
+  # - sudo ee site create html.com
   - sudo ee site create html.net --html
   - sudo ee site create php.com --php
   - sudo ee site create mysql.com --mysql
@@ -43,63 +43,63 @@ script:
   - sudo ee site create site4.net --wp --wpfc
   - sudo ee site create site4.org --wpfc --wp
   - sudo ee site create site5.com --wpsubdir
-  - sudo ee site create site5.net --wpsubdir --basic
-  - sudo ee site create site5.org --basic --wpsubdir
-  - sudo ee site create site5.in --wpsubdirectory
-  - sudo ee site create site5.co --wpsubdirectory --basic
-  - sudo ee site create site5.co.in --basic --wpsubdirector
-  - sudo ee site create site6.com --wpsubdir --wpsc
-  - sudo ee site create site6.net --wpsc --wpsubdir
-  - sudo ee site create site6.org --wpsubdirectory --wpsc
-  - sudo ee site create site6.in --wpsc --wpsubdirectory
-  - sudo ee site create site7.com --wpsubdir --w3tc
-  - sudo ee site create site7.net --w3tc --wpsubdir
-  - sudo ee site create site7.org --wpsubdirectory --w3tc
-  - sudo ee site create site7.in --w3tc --wpsubdirectory
-  - sudo ee site create site8.com --wpsubdir --wpfc
-  - sudo ee site create site8.net --wpfc --wpsubdir
-  - sudo ee site create site8.org --wpsubdirectory --wpfc
-  - sudo ee site create site8.in --wpfc --wpsubdirectory
-  - sudo ee site create site9.com --wpsubdom
-  - sudo ee site create site9.net --wpsubdom --basic
-  - sudo ee site create site9.org --basic --wpsubdom
-  - sudo ee site create site9.in --wpsubdomain
-  - sudo ee site create site9.co --wpsubdomain --basic
-  - sudo ee site create site9.co.in --basic --wpsubdomain
-  - sudo ee site create site10.com --wpsubdom --wpsc
-  - sudo ee site create site10.net --wpsc --wpsubdom
-  - sudo ee site create site10.org --wpsubdomain --wpsc
-  - sudo ee site create site10.in --wpsc --wpsubdomain
-  - sudo ee site create site11.com --wpsubdom --w3tc
-  - sudo ee site create site11.net --w3tc --wpsubdom
-  - sudo ee site create site11.org --wpsubdomain --w3tc
-  - sudo ee site create site11.in --w3tc --wpsubdomain
-  - sudo ee site create site12.com --wpsubdom --wpfc
-  - sudo ee site create site12.net --wpfc --wpsubdom
-  - sudo ee site create site12.org --wpsubdomain --wpfc
-  - sudo ee site create site12.in --wpfc --wpsubdomain
-
-  - sudo ee debug
-  - sudo ee debug --stop
-  - sudo ee site create 1.com --html
-  - sudo ee site create 2.com --php
-  - sudo ee site create 3.com --mysql
-  - sudo ee site update 1.com --wp
-  - sudo ee site update 2.com --wpsubdir
-  - sudo ee site update 3.com --wpsubdomain
-  - sudo ee site update site1.com --wp --wpfc
-  - sudo ee site update site1.com --wp --w3tc
-  - sudo ee site update site1.com --wp --wpsc
-  - sudo ee site update site5.com --wpsubdir --wpfc
-  - sudo ee site update site5.com --wpsubdir --w3tc
-  - sudo ee site update site5.com --wpsubdir --wpsc
-  - sudo ee site update site9.com --wpsubdom --wpfc
-  - sudo ee site update site9.com --wpsubdom --w3tc
-  - sudo ee site update site9.com --wpsubdom --wpsc
-  - sudo ee site delete site12.com --no-prompt
-  - sudo ee site delete site12.net --no-prompt
-  - sudo ee site delete site12.org --no-prompt
-
-  - sudo ee stack install --mail
-  - sudo ls /var/www/
-  - sudo wp --allow-root --info
+  # - sudo ee site create site5.net --wpsubdir --basic
+  # - sudo ee site create site5.org --basic --wpsubdir
+  # - sudo ee site create site5.in --wpsubdirectory
+  # - sudo ee site create site5.co --wpsubdirectory --basic
+  # - sudo ee site create site5.co.in --basic --wpsubdirector
+  # - sudo ee site create site6.com --wpsubdir --wpsc
+  # - sudo ee site create site6.net --wpsc --wpsubdir
+  # - sudo ee site create site6.org --wpsubdirectory --wpsc
+  # - sudo ee site create site6.in --wpsc --wpsubdirectory
+  # - sudo ee site create site7.com --wpsubdir --w3tc
+  # - sudo ee site create site7.net --w3tc --wpsubdir
+  # - sudo ee site create site7.org --wpsubdirectory --w3tc
+  # - sudo ee site create site7.in --w3tc --wpsubdirectory
+  # - sudo ee site create site8.com --wpsubdir --wpfc
+  # - sudo ee site create site8.net --wpfc --wpsubdir
+  # - sudo ee site create site8.org --wpsubdirectory --wpfc
+  # - sudo ee site create site8.in --wpfc --wpsubdirectory
+  # - sudo ee site create site9.com --wpsubdom
+  # - sudo ee site create site9.net --wpsubdom --basic
+  # - sudo ee site create site9.org --basic --wpsubdom
+  # - sudo ee site create site9.in --wpsubdomain
+  # - sudo ee site create site9.co --wpsubdomain --basic
+  # - sudo ee site create site9.co.in --basic --wpsubdomain
+  # - sudo ee site create site10.com --wpsubdom --wpsc
+  # - sudo ee site create site10.net --wpsc --wpsubdom
+  # - sudo ee site create site10.org --wpsubdomain --wpsc
+  # - sudo ee site create site10.in --wpsc --wpsubdomain
+  # - sudo ee site create site11.com --wpsubdom --w3tc
+  # - sudo ee site create site11.net --w3tc --wpsubdom
+  # - sudo ee site create site11.org --wpsubdomain --w3tc
+  # - sudo ee site create site11.in --w3tc --wpsubdomain
+  # - sudo ee site create site12.com --wpsubdom --wpfc
+  # - sudo ee site create site12.net --wpfc --wpsubdom
+  # - sudo ee site create site12.org --wpsubdomain --wpfc
+  # - sudo ee site create site12.in --wpfc --wpsubdomain
+  #
+  # - sudo ee debug
+  # - sudo ee debug --stop
+  # - sudo ee site create 1.com --html
+  # - sudo ee site create 2.com --php
+  # - sudo ee site create 3.com --mysql
+  # - sudo ee site update 1.com --wp
+  # - sudo ee site update 2.com --wpsubdir
+  # - sudo ee site update 3.com --wpsubdomain
+  # - sudo ee site update site1.com --wp --wpfc
+  # - sudo ee site update site1.com --wp --w3tc
+  # - sudo ee site update site1.com --wp --wpsc
+  # - sudo ee site update site5.com --wpsubdir --wpfc
+  # - sudo ee site update site5.com --wpsubdir --w3tc
+  # - sudo ee site update site5.com --wpsubdir --wpsc
+  # - sudo ee site update site9.com --wpsubdom --wpfc
+  # - sudo ee site update site9.com --wpsubdom --w3tc
+  # - sudo ee site update site9.com --wpsubdom --wpsc
+  # - sudo ee site delete site12.com --no-prompt
+  # - sudo ee site delete site12.net --no-prompt
+  # - sudo ee site delete site12.org --no-prompt
+  #
+  # - sudo ee stack install --mail
+  # - sudo ls /var/www/
+  # - sudo wp --allow-root --info
