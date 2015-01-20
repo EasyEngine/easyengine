@@ -182,16 +182,16 @@ class EEAptGet():
             # Mark for deletion the first package, to fire up
             # auto_removable Purge?
 
-            # for dep in onelevel:
-            #     my_selected_packages.append(dep.name)
-            #     try:
-            #         if purge:
-            #             dep.mark_delete(purge=True)
-            #         else:
-            #             dep.mark_delete(purge=False)
-            #     except SystemError as e:
-            #         Log.debug(self, "{0}".format(e))
-            #         Log.error(self, "Unable to purge depedencies.")
+            for dep in onelevel:
+                my_selected_packages.append(dep.name)
+                try:
+                    if purge:
+                        dep.mark_delete(purge=True)
+                    else:
+                        dep.mark_delete(purge=False)
+                except SystemError as e:
+                    Log.debug(self, "{0}".format(e))
+                    Log.error(self, "Unable to purge depedencies.")
 
             try:
                 if purge:
