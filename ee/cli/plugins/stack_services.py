@@ -9,7 +9,7 @@ class EEStackStatusController(CementBaseController):
         label = 'stack_services'
         stacked_on = 'stack'
         stacked_type = 'embedded'
-        description = 'stack command manages stack operations'
+        description = 'Get status of stack'
         arguments = [
             (['--memcache'],
                 dict(help='start/stop/restart stack', action='store_true')),
@@ -130,25 +130,25 @@ class EEStackStatusController(CementBaseController):
     def reload(self):
         services = []
         if self.app.pargs.nginx:
-            Log.debug(self, "nginx service restart")
+            Log.debug(self, "nginx service reload")
             services = services + ['nginx']
         elif self.app.pargs.php:
-            Log.debug(self, "php5-fpm service restart")
+            Log.debug(self, "php5-fpm service reload")
             services = services + ['php5-fpm']
         elif self.app.pargs.mysql:
-            Log.debug(self, "mysql service restart")
+            Log.debug(self, "mysql service reload")
             services = services + ['mysql']
         elif self.app.pargs.postfix:
-            Log.debug(self, "postfix service restart")
+            Log.debug(self, "postfix service reload")
             services = services + ['postfix']
         elif self.app.pargs.memcache:
-            Log.debug(self, "memcached service restart")
+            Log.debug(self, "memcached service reload")
             services = services + ['memcached']
         elif self.app.pargs.dovecot:
-            Log.debug(self, "dovecot service restart")
+            Log.debug(self, "dovecot service reload")
             services = services + ['dovecot']
         else:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
-            Log.debug(self, "nginx,php5-fpm,mysql,postfix services restart")
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix services reload")
             EEService.reload_service(self, service)

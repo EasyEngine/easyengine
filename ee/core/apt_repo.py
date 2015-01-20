@@ -1,6 +1,7 @@
-import os
+"""EasyEngine packages repository operations"""
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+import os
 
 
 class EERepo():
@@ -11,7 +12,6 @@ class EERepo():
         pass
 
     def add(self, repo_url=None, ppa=None):
-        # TODO add repository code
 
         if repo_url is not None:
             repo_file_path = ("/etc/apt/sources.list.d/"
@@ -27,10 +27,11 @@ class EERepo():
                         repofile.close()
                 return True
             except IOError as e:
-                print("File I/O error({0}): {1}".format(e.errno, e.strerror))
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "File I/O error.")
             except Exception as e:
-                print("{error}".format(error=e))
-                return False
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to add repo")
         if ppa is not None:
             if EEVariables.ee_platform_distro == 'squeeze':
                 print("Cannot add repo for {distro}"
@@ -41,7 +42,6 @@ class EERepo():
                                      .format(ppa_name=ppa))
 
     def remove(self, repo_url=None):
-        # TODO remove repository
         EEShellExec.cmd_exec(self, "add-apt-repository -y "
                              "--remove '{ppa_name}'"
                              .format(ppa_name=repo_url))

@@ -1,8 +1,3 @@
-import os
-import random
-import string
-import sys
-import getpass
 from ee.cli.plugins.stack import EEStackController
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
@@ -10,14 +5,19 @@ from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.logging import Log
+import os
+import random
+import string
+import sys
+import getpass
 import glob
 
 
-def setupDomain(self, data):
+def setupdomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
-    Log.info(self, "Setting up NGINX configuration    ", end='')
+    Log.info(self, "Setting up NGINX configuration \t\t", end='')
     # write nginx config for file
     try:
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
@@ -41,7 +41,7 @@ def setupDomain(self, data):
                                       .format(ee_domain_name)])
 
     # Creating htdocs & logs directory
-    Log.info(self, "Setting up webroot    ", end='')
+    Log.info(self, "Setting up webroot \t\t", end='')
     try:
         if not os.path.exists('{0}/htdocs'.format(ee_site_webroot)):
             os.makedirs('{0}/htdocs'.format(ee_site_webroot))
@@ -62,14 +62,14 @@ def setupDomain(self, data):
     Log.info(self, "[Done]")
 
 
-def setupDatabase(self, data):
+def setupdatabase(self, data):
     ee_domain_name = data['site_name']
     ee_random = (''.join(random.sample(string.ascii_uppercase +
                  string.ascii_lowercase + string.digits, 15)))
     ee_replace_dot = ee_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
-    ee_mysql_host = self.app.config.get('mysql', 'grant-host')
+    ee_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
     ee_db_name = ''
     ee_db_username = ''
     ee_db_password = ''
@@ -89,8 +89,9 @@ def setupDatabase(self, data):
         try:
             ee_db_username = input('Enter the MySQL database user name [{0}]: '
                                    .format(ee_replace_dot))
-            ee_db_password = input('Enter the MySQL database password [{0}]: '
-                                   .format(ee_random))
+            ee_db_password = getpass.getpass(prompt='Enter the MySQL database'
+                                             ' password [{0}]: '
+                                             .format(ee_random))
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to input database credentials")
@@ -102,38 +103,39 @@ def setupDatabase(self, data):
 
     if len(ee_db_username) > 16:
         Log.info(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
-                 ' please wait...')
+                 ' please wait')
         ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                        string.ascii_lowercase + string.digits, 10)))
         ee_db_name = (ee_db_name[0:6] + ee_random10)
 
     # create MySQL database
-    Log.info(self, "Setting Up Database    ", end='')
-    Log.debug(self, "creating databse {0}".format(ee_db_name))
+    Log.info(self, "Setting up database\t\t", end='')
+    Log.debug(self, "Creating databse {0}".format(ee_db_name))
     EEMysql.execute(self, "create database {0}"
                     .format(ee_db_name))
 
     # Create MySQL User
-    Log.debug(self, "creating user {0}".format(ee_db_username))
+    Log.debug(self, "Creating user {0}".format(ee_db_username))
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
-                    .format(ee_db_username, ee_mysql_host, ee_db_password))
+                    .format(ee_db_username, ee_mysql_grant_host,
+                            ee_db_password))
 
     # Grant permission
-    Log.debug(self, "setting up user privileges")
+    Log.debug(self, "Setting up user privileges")
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
-                    .format(ee_db_name, ee_db_username, ee_mysql_host))
+                    .format(ee_db_name, ee_db_username, ee_mysql_grant_host))
     Log.info(self, "[Done]")
 
     data['ee_db_name'] = ee_db_name
     data['ee_db_user'] = ee_db_username
     data['ee_db_pass'] = ee_db_password
-    data['ee_db_host'] = ee_mysql_host
+    data['ee_db_host'] = EEVariables.ee_mysql_host
     return(data)
 
 
-def setupWordpress(self, data):
+def setupwordpress(self, data):
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
     prompt_wpprefix = self.app.config.get('wordpress', 'prefix')
@@ -147,13 +149,13 @@ def setupWordpress(self, data):
     ee_wp_user = ''
     ee_wp_pass = ''
 
-    Log.info(self, "Downloading Wordpress    ", end='')
+    Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "wp --allow-root core download")
     Log.info(self, "[Done]")
 
     if not (data['ee_db_name'] and data['ee_db_user'] and data['ee_db_pass']):
-        data = setupDatabase(self, data)
+        data = setupdatabase(self, data)
     if prompt_wpprefix == 'True' or prompt_wpprefix == 'true':
         try:
             ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
@@ -199,14 +201,14 @@ def setupWordpress(self, data):
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
         while not ee_wp_user:
-            Log.warn(self, "Usernames can have only alphanumeric"
+            Log.warn(self, "Username can have only alphanumeric"
                      "characters, spaces, underscores, hyphens,"
                      "periods and the @ symbol.")
             try:
                 ee_wp_user = input('Enter WordPress username: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to input wp user name")
+                Log.error(self, "Unable to input WordPress user name")
 
     if not ee_wp_pass:
         ee_wp_pass = ee_random
@@ -218,12 +220,12 @@ def setupWordpress(self, data):
                 ee_wp_email = input('Enter WordPress email: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to input wp user email")
+                Log.error(self, "Unable to input WordPress user email")
 
-    Log.debug(self, "setting up WordPress Tables")
+    Log.debug(self, "Setting up WordPress tables")
 
     if not data['multisite']:
-        Log.debug(self, "creating tables for WordPress Single site")
+        Log.debug(self, "Creating tables for WordPress Single site")
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core install "
                              "--url={0} --title={0} --admin_name={1} "
                              .format(data['www_domain'], ee_wp_user)
@@ -231,7 +233,7 @@ def setupWordpress(self, data):
                              .format(ee_wp_pass, ee_wp_email),
                              errormsg="Unable to setup WordPress Tables")
     else:
-        Log.debug(self, "creating tables for WordPress multisite")
+        Log.debug(self, "Creating tables for WordPress multisite")
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
                              "core multisite-install "
                              "--url={0} --title={0} --admin_name={1} "
@@ -250,15 +252,15 @@ def setupWordpress(self, data):
                          errormsg="Unable to Update WordPress permalink")
 
     """Install nginx-helper plugin """
-    installWP_Plugin(self, 'nginx-helper', data)
+    installwp_plugin(self, 'nginx-helper', data)
 
     """Install Wp Super Cache"""
     if data['wpsc']:
-        installWP_Plugin(self, 'wp-super-cache', data)
+        installwp_plugin(self, 'wp-super-cache', data)
 
     """Install W3 Total Cache"""
     if data['w3tc'] or data['wpfc']:
-        installWP_Plugin(self, 'w3-total-cache', data)
+        installwp_plugin(self, 'w3-total-cache', data)
 
     wp_creds = dict(wp_user=ee_wp_user, wp_pass=ee_wp_pass,
                     wp_email=ee_wp_email)
@@ -266,10 +268,10 @@ def setupWordpress(self, data):
     return(wp_creds)
 
 
-def setupWordpressNetwork(self, data):
+def setupwordpressnetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
-    Log.info(self, "Setting up WordPress Network    ", end='')
+    Log.info(self, "Setting up WordPress Network \t\t", end='')
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                          ' --title={0} {subdomains}'
                          .format(data['www_domain'], subdomains='--subdomains'
@@ -277,7 +279,7 @@ def setupWordpressNetwork(self, data):
     Log.info(self, "Done")
 
 
-def installWP_Plugin(self, plugin_name, data):
+def installwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
     Log.debug(self, "Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
@@ -294,7 +296,7 @@ def installWP_Plugin(self, plugin_name, data):
                          .format(plugin_name))
 
 
-def uninstallWP_Plugin(self, plugin_name, data):
+def uninstallwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
     Log.debug(self, "Uninstalling plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
@@ -304,23 +306,23 @@ def uninstallWP_Plugin(self, plugin_name, data):
                          .format(plugin_name))
 
 
-def SetWebrootPermissions(self, webroot):
-    Log.debug(self, "Setting Up Permissions...")
+def setwebrootpermissions(self, webroot):
+    Log.debug(self, "Setting up permissions")
     EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
                       EEVariables.ee_php_user, recursive=True)
 
 
-def siteBackup(self, data):
+def sitebackup(self, data):
     ee_site_webroot = data['webroot']
     backup_path = ee_site_webroot + '/backup/{0}'.format(EEVariables.ee_date)
     if not EEFileUtils.isexist(self, backup_path):
         EEFileUtils.mkdir(self, backup_path)
-    Log.info(self, "Backup Location : {0}".format(backup_path))
+    Log.info(self, "Backup location : {0}".format(backup_path))
     EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'mysql']:
-        Log.info(self, "Backing up Webroot    ", end='')
+        Log.info(self, "Backing up Webroot \t\t", end='')
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
         Log.info(self, "[Done]")
 
@@ -330,7 +332,7 @@ def siteBackup(self, data):
         ee_db_name = (EEFileUtils.grep(self, configfiles[0],
                       'DB_NAME').split(',')[1]
                       .split(')')[0].strip().replace('\'', ''))
-        Log.info(self, 'Backing up Database    ', end='')
+        Log.info(self, 'Backing up database \t\t', end='')
         EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
                              .format(ee_db_name, backup_path),
                              errormsg="\nFailed: Backup Database")
@@ -375,3 +377,50 @@ def site_package_check(self, stype):
                                     "wp-cli.phar", "/usr/bin/wp",
                                     "WP_CLI"]]
     stack.install(apt_packages=apt_packages, packages=packages)
+
+
+def updatewpuserpassword(self, ee_domain, ee_site_webroot):
+
+    ee_wp_user = ''
+    ee_wp_pass = ''
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+
+    # Check if ee_domain is wordpress install
+    is_wp = EEShellExec.cmd_exec(self, "wp --allow-root core"
+                                 " version",
+                                 errormsg="{0} : Unable to check if wp install"
+                                 .format(ee_domain))
+
+    # Exit if ee_domain is not wordpress install
+    if not is_wp:
+        Log.error(self, "{0} does not seem to be a WordPress site"
+                  .format(ee_domain))
+
+    ee_wp_user = input("Provide WordPress user name [admin]: ")
+    if ee_wp_user == "?":
+        Log.info(self, "Fetching WordPress user list")
+        EEShellExec.cmd_exec(self, "wp --allow-root user list "
+                             "--fields=user_login | grep -v user_login",
+                             errormsg="Unable to Fetch users list")
+
+    if not ee_wp_user:
+        ee_wp_user = 'admin'
+
+    is_user_exist = EEShellExec.cmd_exec(self, "wp --allow-root user list "
+                                         "--fields=user_login | grep {0}$ "
+                                         .format(ee_wp_user))
+
+    if is_user_exist:
+        ee_wp_pass = input("Provide password for {0} user: "
+                           .format(ee_wp_user))
+        if len(ee_wp_pass) > 8:
+            EEShellExec.cmd_exec(self, "wp --allow-root user update {0}"
+                                 "  --user_pass={1}"
+                                 .format(ee_wp_user, ee_wp_pass))
+            Log.info(self, "Password updated successfully")
+        else:
+            Log.error(self, "Password Unchanged. Hint : Your password must be "
+                      "8 characters long")
+    else:
+        Log.error(self, "Invalid WordPress user {0} for {1}."
+                  .format(ee_wp_user, ee_domain))

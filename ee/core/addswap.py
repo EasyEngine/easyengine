@@ -1,3 +1,4 @@
+"""EasyEngine SWAP creation"""
 from ee.core.variables import EEVariables
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils

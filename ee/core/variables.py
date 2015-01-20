@@ -10,8 +10,6 @@ import datetime
 
 class EEVariables():
     """Intialization of core variables"""
-    config = configparser.ConfigParser()
-    config.read(os.path.expanduser("~")+'/.gitconfig')
 
     # EasyEngine version
     ee_version = "3.0.0"
@@ -40,12 +38,14 @@ class EEVariables():
     ee_php_user = 'www-data'
 
     # Get git user name and EMail
+    config = configparser.ConfigParser()
+    config.read(os.path.expanduser("~")+'/.gitconfig')
     try:
         ee_user = config['user']['name']
         ee_email = config['user']['email']
     except Exception as e:
-        print("Unable to find GIT user name and Email")
-        sys.exit(1)
+        ee_user = input("Enter username for Git:")
+        ee_email = input("Enter email for Git:")
 
     # Get System RAM and SWAP details
     ee_ram = psutil.virtual_memory().total / (1024 * 1024)
@@ -81,9 +81,9 @@ class EEVariables():
     elif ee_platform_codename == 'wheezy':
         ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
                        .format(codename=ee_platform_codename))
-    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-cli", "php5-imap",
+    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
               "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
-              "php5-mysql", "memcached"]
+              "php5-mysql", "php5-cli", "memcached"]
 
     # MySQL repo and packages
     ee_mysql_repo = ("deb http://repo.percona.com/apt {codename} main"

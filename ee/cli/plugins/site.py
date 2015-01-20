@@ -8,11 +8,11 @@ from ee.cli.plugins.site_functions import *
 from ee.core.services import EEService
 from ee.cli.plugins.sitedb import *
 from ee.core.git import EEGit
+from subprocess import Popen
 import sys
 import os
 import glob
 import subprocess
-from subprocess import Popen
 
 
 def ee_site_hook(app):
@@ -26,18 +26,18 @@ class EESiteController(CementBaseController):
         label = 'site'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('site command manages website configuration'
+        description = ('Site command manages website configuration'
                        ' with the help of the following subcommands')
         arguments = [
             (['site_name'],
-                dict(help='website name')),
+                dict(help='Website name')),
             ]
 
     @expose(hide=True)
     def default(self):
         self.app.args.print_help()
 
-    @expose(help="enable site example.com")
+    @expose(help="Enable site example.com")
     def enable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -51,7 +51,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="disable site example.com")
+    @expose(help="Disable site example.com")
     def disable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -63,7 +63,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="get example.com information")
+    @expose(help="Get example.com information")
     def info(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
@@ -105,7 +105,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="Edit example.com's nginx configuration")
+    @expose(help="Edit Nginx configuration of example.com")
     def edit(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -121,7 +121,7 @@ class EESiteController(CementBaseController):
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="Display example.com's nginx configuration")
+    @expose(help="Display Nginx configuration of example.com")
     def show(self):
         # TODO Write code for ee site edit command here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -131,12 +131,12 @@ class EESiteController(CementBaseController):
                      .format(ee_domain))
             f = open('/etc/nginx/sites-available/{0}'.format(ee_domain), "r")
             text = f.read()
-            print(text)
+            Log.info(self, Log.ENDC + text)
             f.close()
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
-    @expose(help="change directory to site webroot")
+    @expose(help="Change directory to site webroot")
     def cd(self):
 
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -156,8 +156,8 @@ class EESiteCreateController(CementBaseController):
         label = 'create'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'create command manages website configuration with the \
-                        help of the following subcommands'
+        description = ('this commands set up configuration and installs '
+                       'required files as options are provided')
         arguments = [
             (['site_name'],
                 dict(help='domain name for the site to be created.')),
@@ -191,6 +191,7 @@ class EESiteCreateController(CementBaseController):
     def default(self):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
+        data = ''
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
@@ -406,10 +407,10 @@ class EESiteCreateController(CementBaseController):
         # Check rerequired packages are installed or not
         site_package_check(self, stype)
         # setup NGINX configuration, and webroot
-        setupDomain(self, data)
+        setupdomain(self, data)
         # Setup database for MySQL site
         if 'ee_db_name' in data.keys() and not data['wp']:
-            data = setupDatabase(self, data)
+            data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
                                   'w')
@@ -430,7 +431,7 @@ class EESiteCreateController(CementBaseController):
 
         # Setup WordPress if Wordpress site
         if data['wp']:
-            ee_wp_creds = setupWordpress(self, data)
+            ee_wp_creds = setupwordpress(self, data)
         # Service Nginx Reload
         EEService.reload_service(self, 'nginx')
 
@@ -438,11 +439,11 @@ class EESiteCreateController(CementBaseController):
                   msg="{0} created with {1} {2}"
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
-        SetWebrootPermissions(self, data['webroot'])
+        setwebrootpermissions(self, data['webroot'])
         if data['wp']:
-            Log.info(self, '\033[94m'+"WordPress Admin User :"
-                     " {0}".format(ee_wp_creds['wp_user'])+'\033[0m')
-            Log.info(self, "WordPress Admin User Password : {0}"
+            Log.info(self, Log.ENDC + "WordPress Admin User :"
+                     " {0}".format(ee_wp_creds['wp_user']))
+            Log.info(self, Log.ENDC + "WordPress Admin User Password : {0}"
                      .format(ee_wp_creds['wp_pass']))
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
@@ -454,11 +455,14 @@ class EESiteUpdateController(CementBaseController):
         label = 'update'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'update command manages website configuration with the \
-                        help of the following subcommands'
+        description = ('This command updates websites configuration to '
+                       'another as per the options are provided')
         arguments = [
             (['site_name'],
                 dict(help='domain name for the site to be updated')),
+            (['--password'],
+                dict(help="update to password for wordpress site user",
+                     action='store_true')),
             (['--html'],
                 dict(help="update to html site", action='store_true')),
             (['--php'],
@@ -480,8 +484,9 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpsc cache", action='store_true')),
             ]
 
-    @expose(help="update site type or cache")
+    @expose(help="Update site type or cache")
     def default(self):
+        data = ''
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -494,13 +499,20 @@ class EESiteUpdateController(CementBaseController):
             oldsitetype = check_site.site_type
             oldcachetype = check_site.cache_type
 
-        print(oldsitetype, oldcachetype)
+        if (self.app.pargs.password and not (self.app.pargs.html or
+            self.app.pargs.php or self.app.pargs.mysql or self.app.pargs.wp or
+            self.app.pargs.w3tc or self.app.pargs.wpfc or self.app.pargs.wpsc
+           or self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+
+            updatewpuserpassword(self, ee_domain, ee_site_webroot)
+            self.app.close(0)
 
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
            self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
-            pass
+            Log.error(self, " Cannot update {0} {1} to html"
+                      .format(ee_domain, oldsitetype))
 
         # PHP
         if (self.app.pargs.php and not (self.app.pargs.html or
@@ -549,8 +561,8 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wp and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
-                if ((oldsitetype in ['html', 'php', 'mysql', 'wp'])
-                   and (oldcachetype not in ['w3tc', 'wpfc', 'wpsc'])):
+                if ((oldsitetype not in ['html', 'php', 'mysql', 'wp'])
+                   or (oldsitetype is 'wp' and oldcachetype is 'basic')):
                     print(oldsitetype, oldcachetype)
                     Log.error(self, " Cannot update {0}, {1} {2} to wp basic"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -568,9 +580,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp']
-                   and oldcachetype not in ['basic', 'wpfc', 'wpsc']):
-                    Log.error(self, " Cannot update {0}, {1} {2}to wp w3tc"
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
+                   or (oldsitetype is 'wp' and oldcachetype is 'w3tc')):
+                    Log.error(self, " Cannot update {0}, {1} {2} to wp w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -587,8 +599,8 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
+                   or (oldsitetype is 'wp' and oldcachetype is 'wpfc')):
                     Log.error(self, "Cannot update {0}, {1} {2} to wp wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
@@ -605,8 +617,8 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpfc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
+                   or (oldsitetype is 'wp' and oldcachetype is 'wpsc')):
                     Log.error(self, "Cannot update {0}, {1} {2} to wp wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
@@ -627,8 +639,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpsubdir and not (self.app.pargs.w3tc
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp', 'wpsubdir']
-                   and oldcachetype not in ['w3tc', 'wpfc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdir']
+                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'basic')):
                     Log.error(self, " Cannot update {0}, {1} {2} "
                               "to wpsubdir basic"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -646,8 +659,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp', 'wpsubdir']
-                   and oldcachetype not in ['basic', 'wpfc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdir']
+                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'w3tc')):
                     Log.error(self, " Cannot update {0} {1} {2}"
                               "to wpsubdir w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -666,8 +680,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp', 'wpsubdir']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdir']
+                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'wpfc')):
                     Log.error(self, " Cannot update {0} {1} {2}"
                               " to wpsubdir wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -685,8 +700,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp', 'wpsubdir']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpfc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdir']
+                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'wpsc')):
                     Log.error(self, " Cannot update {0} {1} {2}"
                               " to wpsubdir wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -705,8 +721,9 @@ class EESiteUpdateController(CementBaseController):
             self.app.pargs.php or self.app.pargs.mysql or
            self.app.pargs.wpsubdir or self.app.pargs.wp)):
 
-            if (oldsitetype in ['html', 'php', 'mysql', 'wp', 'wpsubdomain']
-               and oldcachetype not in ['w3tc', 'wpfc', 'wpsc']):
+            if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                    'wpsubdomain']
+               or (oldsitetype is 'wpsubdomain' and oldcachetype is 'basic')):
                 Log.error(self, " Cannot update {0} {1} {2}"
                           " to wpsubdomain basic"
                           .format(ee_domain, oldsitetype, oldcachetype))
@@ -725,9 +742,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.w3tc and not
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp',
-                                    'wpsubdomain']
-                   and oldcachetype not in ['basic', 'wpfc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdomain'] or
+                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'w3tc')):
                     Log.error(self, " Cannot update {0}, {1} {2}"
                               " to wpsubdomain w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -746,9 +763,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpfc and not
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp',
-                                    'wpsubdomain']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpsc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdomain'] or
+                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'wpfc')):
                     Log.error(self, " Cannot update {0}, {1} {2} "
                               "to wpsubdomain wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -767,9 +784,9 @@ class EESiteUpdateController(CementBaseController):
             if (self.app.pargs.wpsc and not
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
 
-                if (oldsitetype in ['html', 'php', 'mysql', 'wp',
-                                    'wpsubdomain']
-                   and oldcachetype not in ['basic', 'w3tc', 'wpfc']):
+                if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
+                                        'wpsubdomain'] or
+                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'wpsc')):
                     Log.error(self, " Cannot update {0}, {1} {2}"
                               " to wpsubdomain wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -786,17 +803,17 @@ class EESiteUpdateController(CementBaseController):
                 cache = 'wpsc'
 
         if not data:
-            Log.error(self, " Cannot update"
+            Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
+
         site_package_check(self, stype)
-        siteBackup(self, data)
-        # TODO Check for required packages before update
+        sitebackup(self, data)
 
         # setup NGINX configuration, and webroot
-        setupDomain(self, data)
+        setupdomain(self, data)
 
         if 'ee_db_name' in data.keys() and not data['wp']:
-            data = setupDatabase(self, data)
+            data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
                                   'w')
@@ -816,45 +833,44 @@ class EESiteUpdateController(CementBaseController):
         if oldsitetype == 'mysql':
             config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
                            .format(EEVariables.ee_date))
-            data['ee_db_name'] = EEFileUtils.grep(EEFileUtils
-                                                  .grep(self, config_file,
-                                                        'DB_NAME')
-                                                  .split(',')[1]
-                                                  .split(')')[0].strip())
-            data['ee_db_user'] = EEFileUtils.grep(EEFileUtils
-                                                  .grep(self, config_file,
-                                                        'DB_USER')
-                                                  .split(',')[1]
-                                                  .split(')')[0].strip())
-            data['ee_db_pass'] = EEFileUtils.grep(EEFileUtils
-                                                  .grep(self, config_file,
-                                                        'DB_PASSWORD')
-                                                  .split(',')[1]
-                                                  .split(')')[0].strip())
+            print(config_file, 'DB_NAME')
+            data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
+                                  'DB_NAME')
+                                  .split(',')[1]
+                                  .split(')')[0].strip())
+            data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
+                                  'DB_USER')
+                                  .split(',')[1]
+                                  .split(')')[0].strip())
+            data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
+                                  'DB_PASSWORD')
+                                  .split(',')[1]
+                                  .split(')')[0].strip())
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
-            ee_wp_creds = setupWordpress(self, data)
+            ee_wp_creds = setupwordpress(self, data)
 
         # Uninstall unnecessary plugins
         if oldsitetype in ['wp', 'wpsubdir', 'wpsubdomain']:
             # Setup WordPress Network if update option is multisite
             # and oldsite is WordPress single site
             if data['multisite'] and oldsitetype == 'wp':
-                setupWordpressNetwork(self, data)
+                setupwordpressnetwork(self, data)
 
             if (oldcachetype == 'w3tc' or oldcachetype == 'wpfc' and
-               not data['w3tc', 'wpfc']):
-                uninstallWP_Plugin(self, 'w3-total-cache', data)
+               not (data['w3tc'] or data['wpfc'])):
+                uninstallwp_plugin(self, 'w3-total-cache', data)
 
             if oldcachetype == 'wpsc' and not data['wpsc']:
-                uninstallWP_Plugin(self, 'wp-super-cache', data)
+                uninstallwp_plugin(self, 'wp-super-cache', data)
 
-        if (oldcachetype != 'w3tc' or oldcachetype != 'wpfc') and data['w3tc']:
-            installWP_Plugin(self, 'w3-total-cache', data)
+        if (oldcachetype != 'w3tc' or oldcachetype != 'wpfc') and (data['w3tc']
+           or data['wpfc']):
+            installwp_plugin(self, 'w3-total-cache', data)
 
         if oldcachetype != 'wpsc' and data['wpsc']:
-            installWP_Plugin(self, 'wp-super-cache', data)
+            installwp_plugin(self, 'wp-super-cache', data)
 
         # Service Nginx Reload
         EEService.reload_service(self, 'nginx')
@@ -863,7 +879,13 @@ class EESiteUpdateController(CementBaseController):
                   msg="{0} updated with {1} {2}"
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
-        # SetWebrootPermissions(self, data['webroot'])
+        # setwebrootpermissions(self, data['webroot'])
+
+        if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
+            Log.info(self, Log.ENDC + "WordPress Admin User :"
+                     " {0}".format(ee_wp_creds['wp_user']))
+            Log.info(self, Log.ENDC + "WordPress Admin User Password : {0}"
+                     .format(ee_wp_creds['wp_pass']))
 
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
@@ -875,7 +897,7 @@ class EESiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'delete command deletes website'
+        description = 'To delete website'
         arguments = [
             (['site_name'],
                 dict(help='domain name to be deleted')),
@@ -890,12 +912,13 @@ class EESiteDeleteController(CementBaseController):
                 dict(help="delete webroot only", action='store_true')),
             ]
 
-    @expose(help="delete site")
+    @expose(help="Delete website configuration and files")
     def default(self):
         # TODO Write code for ee site update here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_prompt = ''
+        ee_nginx_prompt = ''
 
         if ((not self.app.pargs.db) and (not self.app.pargs.files) and
            (not self.app.pargs.all)):
@@ -914,7 +937,7 @@ class EESiteDeleteController(CementBaseController):
                                          '[Y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
-                    ee_nginx_prompt = 'Y'
+
                 if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
                     self.deleteDB(ee_site_webroot)
 
@@ -924,7 +947,6 @@ class EESiteDeleteController(CementBaseController):
                                           '[Y/N]: ')
                 else:
                     ee_web_prompt = 'Y'
-                    ee_nginx_prompt = 'Y'
 
                 if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
                     self.deleteWebRoot(ee_site_webroot)
@@ -949,9 +971,10 @@ class EESiteDeleteController(CementBaseController):
                     self.deleteWebRoot(ee_site_webroot)
 
                 if (ee_nginx_prompt == 'Y' or ee_nginx_prompt == 'y'):
+                    Log.debug(self, "Removing Nginx configuration")
                     EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                                    .format(ee_domain))
-            deleteSiteInfo(self, ee_domain)
+                deleteSiteInfo(self, ee_domain)
             Log.info(self, "Deleted site {0}".format(ee_domain))
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
@@ -999,15 +1022,15 @@ class EESiteListController(CementBaseController):
         label = 'list'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'list websites'
+        description = 'List websites'
         arguments = [
             (['--enabled'],
-                dict(help='list enabled sites', action='store_true')),
+                dict(help='List enabled websites', action='store_true')),
             (['--disabled'],
-                dict(help="list disabled sites", action='store_true')),
+                dict(help="List disabled websites", action='store_true')),
             ]
 
-    @expose(help="delete example.com")
+    @expose(help="Lists websites")
     def default(self):
             sites = getAllsites(self)
             if not sites:

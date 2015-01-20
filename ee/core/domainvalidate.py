@@ -1,3 +1,4 @@
+"""EasyEngine domain validation module."""
 from urllib.parse import urlparse
 
 
