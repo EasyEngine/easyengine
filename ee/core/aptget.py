@@ -15,7 +15,7 @@ class EEAptGet():
         cache = apt.Cache()
         fprogress = apt.progress.text.AcquireProgress()
         iprogress = apt.progress.base.InstallProgress()
-        cache.update(fprogress)
+        cache.update()
         cache.close()
 
     def upgrade(self, packages):
@@ -116,7 +116,7 @@ class EEAptGet():
                   .format(space=cache.required_space/1e6))
             try:
                 # Commit changes in cache (actually install)
-                cache.commit(fprogress, iprogress)
+                cache.commit()
             except Exception as e:
                 print("package installation failed. [{err}]"
                       .format(err=str(e)))

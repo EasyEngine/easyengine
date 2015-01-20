@@ -911,7 +911,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user, recursive=True)
 
     @expose(help="Install packages")
-    def install(self, packages=[], apt_packages=[]):
+    def install(self, packages=[], apt_packages=[], disp_msg=True):
         self.msg = []
         try:
             # Default action for stack installation
@@ -1072,10 +1072,13 @@ class EEStackController(CementBaseController):
                 EEDownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
             self.post_pref(apt_packages, packages)
-            if len(self.msg):
-                for msg in self.msg:
-                    Log.info(self, msg)
-            Log.info(self, "Successfully installed packages")
+            if disp_msg:
+                if len(self.msg):
+                    for msg in self.msg:
+                        Log.info(self, Log.ENDC + msg)
+                Log.info(self, "Successfully installed packages")
+            else:
+                return self.msg
 
     @expose(help="Remove packages")
     def remove(self):
