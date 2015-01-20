@@ -363,12 +363,12 @@ def site_package_check(self, stype):
             apt_packages = apt_packages + EEVariables.ee_mysql
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting apt_packages variable for PostFix")
+        Log.debug(self, "Setting apt_packages variable for Postfix")
         if not EEAptGet.is_installed(self, 'postfix'):
             apt_packages = apt_packages + EEVariables.ee_postfix
 
     if stype in ['wp', 'wpsubdir', 'wpsubdomain']:
-        Log.debug(self, "Setting packages variable for WPCLI")
+        Log.debug(self, "Setting packages variable for WP-CLI")
         if not EEShellExec.cmd_exec(self, "which wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v0.17.1/"

@@ -98,7 +98,6 @@ class EEsecureController(CementBaseController):
             ip = ['127.0.0.1']
         self.app.config.set('mysql', 'grant-host', "hello")
         exist_ip_list = self.app.config.get('stack', 'ip-address').split()
-        print(exist_ip_list)
         for check_ip in user_list_ip:
             if check_ip not in exist_ip_list:
                 newlist.extend(exist_ip_list)

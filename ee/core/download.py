@@ -19,8 +19,9 @@ class EEDownload():
                 directory = os.path.dirname(filename)
                 if not os.path.exists(directory):
                     os.makedirs(directory)
-                Log.info(self, "Downloading "+pkg_name+" ...")
+                Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
                 urllib.request.urlretrieve(url, filename)
+                Log.info(self, "{0}".format("[ Done ]"))
             except urllib.error.URLError as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to donwload file, {0}"

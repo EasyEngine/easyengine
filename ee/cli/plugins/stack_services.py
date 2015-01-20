@@ -17,7 +17,7 @@ class EEStackStatusController(CementBaseController):
                 dict(help='start/stop/restart dovecot', action='store_true')),
             ]
 
-    @expose(help="start stack services")
+    @expose(help="Start stack services")
     def start(self):
         services = []
         if self.app.pargs.nginx:
@@ -44,7 +44,7 @@ class EEStackStatusController(CementBaseController):
         for service in services:
             EEService.start_service(self, service)
 
-    @expose(help="stop stack services")
+    @expose(help="Stop stack services")
     def stop(self):
         services = []
         if self.app.pargs.nginx:
@@ -71,7 +71,7 @@ class EEStackStatusController(CementBaseController):
         for service in services:
             EEService.stop_service(self, service)
 
-    @expose(help="restart stack services")
+    @expose(help="Restart stack services")
     def restart(self):
         services = []
         if self.app.pargs.nginx:
@@ -98,7 +98,7 @@ class EEStackStatusController(CementBaseController):
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services restart")
             EEService.restart_service(self, service)
 
-    @expose(help="get stack status")
+    @expose(help="Get stack status")
     def status(self):
         services = []
         if self.app.pargs.nginx:
@@ -126,7 +126,7 @@ class EEStackStatusController(CementBaseController):
             if EEService.get_service_status(self, service):
                 Log.info(self, "{0:10}:  {1}".format(service, "Running"))
 
-    @expose(help="reload stack services")
+    @expose(help="Reload stack services")
     def reload(self):
         services = []
         if self.app.pargs.nginx:

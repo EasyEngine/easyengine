@@ -1,5 +1,5 @@
 from ee.utils import test
-from ee.cli.main import get_test_app
+from ee.cli.plugins.site import EESiteUpdateController
 
 
 class CliTestCaseSite(test.EETestCase):
@@ -10,15 +10,13 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_update(self):
-        self.app = get_test_app(argv=['site', 'update', 'example5.com',
-                                      '--password'])
+        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_site_update_html(self):
-        self.app = get_test_app(argv=['site', 'update', 'example2.com',
-                                      '--html'])
+        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
         self.app.setup()
         self.app.run()
         self.app.close()
@@ -38,8 +36,7 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_update_wp(self):
-        self.app = get_test_app(argv=['site', 'update', 'example5.com',
-                                      '--wp'])
+        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
         self.app.setup()
         self.app.run()
         self.app.close()

@@ -63,19 +63,14 @@ class EEStackController(CementBaseController):
             ]
 
     @expose(hide=True)
-    def package_check(self, packages=[]):
-        # Function for packages check
-        pass
-
-    @expose(hide=True)
     def default(self):
         # TODO Default action for ee stack command
-        Log.info(self, "Inside EEStackController.default().")
+        self.app.args.print_help()
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
-            Log.info(self, "Pre-seeding postfix variables ... ")
+            Log.info(self, "Pre-seeding Postfix")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
                                  "/main_mailer_type string \'Internet Site\'\""
                                  " | debconf-set-selections")
@@ -83,12 +78,13 @@ class EEStackController(CementBaseController):
                                  " $(hostname -f)\" | debconf-set-selections")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for MySQL ... ")
+            Log.info(self, "Adding repository for MySQL")
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
-            Log.debug(self, 'Adding key of MySQL.')
+            Log.debug(self, 'Adding key for {0}'
+                      .format(EEVariables.ee_mysql_repo))
             EERepo.add_key(self, '1C4CBDCDCD2EFD2A')
             chars = ''.join(random.sample(string.ascii_letters, 8))
-            Log.info(self, "Pre-seeding MySQL variables ... ")
+            Log.info(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
@@ -104,25 +100,25 @@ class EEStackController(CementBaseController):
             """.format(chars=chars)
             config = configparser.ConfigParser()
             config.read_string(mysql_config)
-            Log.debug(self, 'writting configartion into MySQL file.')
+            Log.debug(self, 'Writting configuration into MySQL file')
             with open(os.path.expanduser("~")+'/.my.cnf', 'w') as configfile:
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for Nginx ... ")
+            Log.info(self, "Adding repository for Nginx")
             if EEVariables.ee_platform_distro == 'Debian':
                 Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
             else:
-                Log.debug(self, 'Adding ppa of Nginx')
                 EERepo.add(self, ppa=EEVariables.ee_nginx_repo)
+                Log.debug(self, 'Adding ppa of Nginx')
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP ... ")
+            Log.info(self, "Adding repository for PHP")
             if EEVariables.ee_platform_distro == 'Debian':
                 Log.debug(self, 'Adding repo_url of php for Debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
-                Log.debug(self, 'Adding  Dotdeb/php GPG key')
+                Log.debug(self, 'Adding Dotdeb/php GPG key')
                 EERepo.add_key(self, '89DF5277')
             else:
                 Log.debug(self, 'Adding ppa for PHP')
@@ -130,7 +126,7 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
-                Log.info(self, "Adding repository for dovecot ... ")
+                Log.info(self, "Adding repository for dovecot ")
                 EERepo.add(self, repo_url=EEVariables.ee_dovecot_repo)
             Log.debug(self, 'Executing the command debconf-set-selections.')
             EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
@@ -161,13 +157,13 @@ class EEStackController(CementBaseController):
                               [('worker_connections', '4096'),
                                ('multi_accept', 'on')]}, position=4)
                     nc.set([('http',), 'keepalive_timeout'], '30')
-                    Log.debug(self, "Writting nginx configration to "
+                    Log.debug(self, "Writting nginx configuration to "
                               "file /etc/nginx/nginx.conf ")
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
                     data = dict(version=EEVariables.ee_version)
-                    Log.debug(self, 'writting the nginx configration to '
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
                     self.app.render((data), 'nginx-core.mustache',
@@ -175,20 +171,20 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     data = dict()
-                    Log.debug(self, 'writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
                     ee_nginx = open('/etc/nginx/conf.d/blockips.conf', 'w')
                     self.app.render((data), 'blockips.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'writting the nginx configration to'
-                              ' file /etc/nginx/conf.d/fastcgi.conf')
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/conf.d/fastcgi.conf')
                     ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf', 'w')
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
                     data = dict(php="9000", debug="9001")
-                    Log.debug(self, 'writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
                     self.app.render((data), 'upstream.mustache', out=ee_nginx)
@@ -201,56 +197,56 @@ class EEStackController(CementBaseController):
                         os.makedirs('/etc/nginx/common')
 
                     data = dict()
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
                     self.app.render((data), 'acl.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations.conf')
                     ee_nginx = open('/etc/nginx/common/locations.conf', 'w')
                     self.app.render((data), 'locations.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/ php.conf')
                     ee_nginx = open('/etc/nginx/common/php.conf', 'w')
                     self.app.render((data), 'php.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/w3tc.conf')
                     ee_nginx = open('/etc/nginx/common/w3tc.conf', 'w')
                     self.app.render((data), 'w3tc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpcommon.conf')
                     ee_nginx = open('/etc/nginx/common/wpcommon.conf', 'w')
                     self.app.render((data), 'wpcommon.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpfc.conf')
                     ee_nginx = open('/etc/nginx/common/wpfc.conf', 'w')
                     self.app.render((data), 'wpfc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpsc.conf')
                     ee_nginx = open('/etc/nginx/common/wpsc.conf', 'w')
                     self.app.render((data), 'wpsc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpsubdir.conf')
                     ee_nginx = open('/etc/nginx/common/wpsubdir.conf', 'w')
                     self.app.render((data), 'wpsubdir.mustache',
@@ -258,7 +254,7 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     # 22222 port settings
-                    Log.debug(self, 'Writting the nginx configration to'
+                    Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
                               '22222.conf')
                     ee_nginx = open('/etc/nginx/sites-available/22222.conf',
@@ -285,9 +281,13 @@ class EEStackController(CementBaseController):
                                                       '22222.conf'])
                     # Create log and cert folder and softlinks
                     if not os.path.exists('/var/www/22222/logs'):
+                        Log.debug(self, "Creating directory "
+                                  "/var/www/22222/logs ")
                         os.makedirs('/var/www/22222/logs')
 
                     if not os.path.exists('/var/www/22222/cert'):
+                        Log.debug(self, "Creating directory "
+                                  "/var/www/22222/cert")
                         os.makedirs('/var/www/22222/cert')
 
                     EEFileUtils.create_symlink(self, ['/var/log/nginx/'
@@ -327,7 +327,7 @@ class EEStackController(CementBaseController):
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
-                                + ["HTTP Auth Password: {0}".format(passwd)])
+                                + ["HTTP Auth Password : {0}".format(passwd)])
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -337,7 +337,7 @@ class EEStackController(CementBaseController):
 
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configring php file /etc/php5/fpm/php.ini")
+                Log.debug(self, "configuring php file /etc/php5/fpm/php.ini")
                 config.read('/etc/php5/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
@@ -345,8 +345,8 @@ class EEStackController(CementBaseController):
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = time.tzname[time.daylight]
                 with open('/etc/php5/fpm/php.ini', 'w') as configfile:
-                    Log.debug(self, "writting configration of php in to"
-                              "file /etc/php5/fpm/php.ini")
+                    Log.debug(self, "Writting php configuration into "
+                              "/etc/php5/fpm/php.ini")
                     config.write(configfile)
 
                 # Prase /etc/php5/fpm/php-fpm.conf
@@ -354,8 +354,8 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/php-fpm.conf')
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
-                    Log.debug(self, "writting php5 configartion into "
-                              " /etc/php5/fpm/php-fpm.conf")
+                    Log.debug(self, "writting php5 configuration into "
+                              "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
@@ -372,8 +372,8 @@ class EEStackController(CementBaseController):
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
                 with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
-                    Log.debug(self, "writting PHP5 configartion into "
-                              " /etc/php5/fpm/pool.d/www.conf")
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
 
                 # Generate /etc/php5/fpm/pool.d/debug.conf
@@ -385,8 +385,8 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
                 with open('/etc/php5/fpm/pool.d/debug.conf', 'w') as confifile:
-                    Log.debug(self, "writting PHP5 configartion into "
-                              " /etc/php5/fpm/pool.d/debug.conf")
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
                 with open("/etc/php5/fpm/pool.d/debug.conf", "a") as myfile:
@@ -425,7 +425,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
-                Log.debug(self, "Executing mail commands")
+                Log.debug(self, "Adding user")
                 EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
                                      "/vmail --disabled-password --gecos ''"
                                      " vmail")
@@ -436,14 +436,14 @@ class EEStackController(CementBaseController):
                                      "pem -keyout /etc/ssl/private/dovecot.pem"
                                      .format(HOSTNAME=EEVariables.ee_fqdn,
                                              EMAIL=EEVariables.ee_email))
-                Log.debug(self, "Adding Privillages to file "
-                          "/etc/ssl/private/dovecot.pem ")
+                Log.debug(self, "Setting Privileges to "
+                          "/etc/ssl/private/dovecot.pem file ")
                 EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
                                      "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
                 data = dict()
-                Log.debug(self, "Writting configration into file"
+                Log.debug(self, "Writting configuration into file"
                           "/etc/dovecot/conf.d/99-ee.conf ")
                 ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
@@ -514,13 +514,13 @@ class EEStackController(CementBaseController):
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
-                    Log.debug(self, 'Creating directory'
+                    Log.debug(self, 'Creating directory '
                               '/var/lib/dovecot/sieve/ ')
                     os.makedirs('/var/lib/dovecot/sieve/')
 
                 # Custom sieve configuration by EasyEngine
                 data = dict()
-                Log.debug(self, "Writting configaration of EasyEngine into"
+                Log.debug(self, "Writting configuration of EasyEngine into "
                           "file /var/lib/dovecot/sieve/default.sieve")
                 ee_sieve = open('/var/lib/dovecot/sieve/default.sieve', 'w')
                 self.app.render((data), 'default-sieve.mustache',
@@ -528,7 +528,7 @@ class EEStackController(CementBaseController):
                 ee_sieve.close()
 
                 # Compile sieve rules
-                Log.debug(self, "Privillages to dovecot ")
+                Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
                 EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail",
@@ -565,13 +565,13 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "adduser clamav amavis")
                 Log.debug(self, "Adding new user amavis clamav")
                 EEShellExec.cmd_exec(self, "adduser amavis clamav")
-                Log.debug(self, "Privillages to file /var/lib/amavis/tmp ")
+                Log.debug(self, "Setting Privileges to /var/lib/amavis/tmp ")
                 EEShellExec.cmd_exec(self, "chmod -R 775 /var/lib/amavis/tmp")
 
                 # Update ClamAV database
                 Log.debug(self, "Updating database")
                 EEShellExec.cmd_exec(self, "freshclam")
-                Log.debug(self, "Restarting service clamav-daemon")
+                Log.debug(self, "Restarting clamav-daemon service")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
                 EEService.reload_service(self, 'dovecot')
@@ -580,7 +580,7 @@ class EEStackController(CementBaseController):
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
-                Log.debug(self, "Privillages to /usr/bin/wp ")
+                Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
                 EEShellExec.cmd_exec(self, "chmod +x /usr/bin/wp")
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
@@ -593,8 +593,8 @@ class EEStackController(CementBaseController):
                     os.makedirs('/var/www/22222/htdocs/db')
                 shutil.move('/tmp/phpmyadmin-STABLE/',
                             '/var/www/22222/htdocs/db/pma/')
-                Log.debug(self, 'Privillages to www-data:www-data '
-                          '/var/www/22222/htdocs/db/pma ')
+                Log.debug(self, 'Setting Privileges of www-data:www-data to  '
+                          '/var/www/22222/htdocs/db/pma file ')
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -606,8 +606,8 @@ class EEStackController(CementBaseController):
                           " /var/www/22222/htdocs/cache/memcache ")
                 EEExtract.extract(self, '/tmp/memcache.tar.gz',
                                   '/var/www/22222/htdocs/cache/memcache')
-                Log.debug(self, "Privillages to"
-                          " /var/www/22222/htdocs/cache/memcache")
+                Log.debug(self, "Setting Privileges to "
+                          "/var/www/22222/htdocs/cache/memcache file")
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -625,8 +625,8 @@ class EEStackController(CementBaseController):
                     os.makedirs('/var/www/22222/htdocs/php')
                 shutil.move('/tmp/webgrind-master/',
                             '/var/www/22222/htdocs/php/webgrind')
-                Log.debug(self, "Privillages www-data:www-data "
-                          "/var/www/22222/htdocs/php/webgrind/ ")
+                Log.debug(self, "Setting Privileges of www-data:www-data to "
+                          "/var/www/22222/htdocs/php/webgrind/ file ")
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '/var/www/22222',
@@ -677,7 +677,7 @@ class EEStackController(CementBaseController):
                 EEExtract.extract(self, '/tmp/vimbadmin.tar.gz', '/tmp/')
                 if not os.path.exists('/var/www/22222/htdocs/'):
                     Log.debug(self, "Creating directory "
-                              " /var/www/22222/htdocs/")
+                              "/var/www/22222/htdocs/")
                     os.makedirs('/var/www/22222/htdocs/')
                 shutil.move('/tmp/ViMbAdmin-3.0.10/',
                             '/var/www/22222/htdocs/vimbadmin/')
@@ -739,7 +739,7 @@ class EEStackController(CementBaseController):
                                                  string.ascii_letters, 64)))
                 config['user']['defaults.mailbox.'
                                'password_salt'] = vm_salt
-                Log.debug(self, "Writting configration to file "
+                Log.debug(self, "Writting configuration to file "
                           "/var/www/22222/htdocs/vimbadmin"
                           "/application/configs/application.ini ")
                 with open('/var/www/22222/htdocs/vimbadmin/application'
@@ -776,25 +776,26 @@ class EEStackController(CementBaseController):
                                 out=vm_config)
                 vm_config.close()
 
-                Log.debug(self, "Configration of file "
+                Log.debug(self, "Writting configuration to  "
                           "/etc/postfix/mysql"
-                          "/virtual_domains_maps.cf")
+                          "/virtual_domains_maps.cf file")
                 vm_config = open('/etc/postfix/mysql/virtual_domains_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_domains_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
 
-                Log.debug(self, "Configation of file "
+                Log.debug(self, "Writting configuration to "
                           "/etc/postfix/mysql"
-                          "/virtual_mailbox_maps.cf ")
+                          "/virtual_mailbox_maps.cf file")
                 vm_config = open('/etc/postfix/mysql/virtual_mailbox_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_mailbox_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
 
-                Log.debug(self, "Configration of file ")
+                Log.debug(self, "Writting configration"
+                                " to /etc/dovecot/dovecot-sql.conf.ext file ")
                 vm_config = open('/etc/dovecot/dovecot-sql.conf.ext',
                                  'w')
                 self.app.render((data), 'dovecot-sql-conf.mustache',
@@ -876,8 +877,8 @@ class EEStackController(CementBaseController):
                             ee_db_user='', ee_db_pass='', ee_db_host='',
                             rc=True)
 
-                Log.debug(self, 'Writting the nginx configration for'
-                          ' RoundCubemail')
+                Log.debug(self, 'Writting the nginx configuration for '
+                          'RoundCubemail')
                 ee_rc = open('/etc/nginx/sites-available/webmail.conf', 'w')
                 self.app.render((data), 'virtualconf.mustache',
                                 out=ee_rc)
@@ -909,7 +910,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user, recursive=True)
 
-    @expose()
+    @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[]):
         self.msg = []
         try:
@@ -964,43 +965,43 @@ class EEStackController(CementBaseController):
                         apt_packages = (apt_packages +
                                         EEVariables.ee_mailscanner)
                 else:
-                    Log.info(self, "Mail server is allready installed")
+                    Log.info(self, "Mail server is already installed")
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
                 if not EEAptGet.is_installed(self, 'nginx-common'):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
-                    Log.info(self, "Nginx allready installed")
+                    Log.debug(self, "Nginx already installed")
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not EEAptGet.is_installed(self, 'php5-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php
                 else:
-                    Log.info(self, "PHP allready installed")
+                    Log.debug(self, "PHP already installed")
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + EEVariables.ee_mysql
                 else:
-                    Log.info(self, "MySQL connection is allready alive")
+                    Log.debug(self, "MySQL connection is already alive")
             if self.app.pargs.postfix:
-                Log.debug(self, "Setting apt_packages variable for PostFix")
+                Log.debug(self, "Setting apt_packages variable for Postfix")
                 if not EEAptGet.is_installed(self, 'postfix'):
                     apt_packages = apt_packages + EEVariables.ee_postfix
                 else:
-                    Log.info(self, "Postfix is allready installed")
+                    Log.debug(self, "Postfix is already installed")
             if self.app.pargs.wpcli:
-                Log.debug(self, "Setting packages variable for WPCLI")
+                Log.debug(self, "Setting packages variable for WP-CLI")
                 if not EEShellExec.cmd_exec(self, "which wp"):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
                                             "".format(EEVariables.ee_wp_cli),
                                             "/usr/bin/wp",
-                                            "WP_CLI"]]
+                                            "WP-CLI"]]
                 else:
-                    Log.info(self, "WP-CLI is allready installed")
+                    Log.debug(self, "WP-CLI is already installed")
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages varible for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
@@ -1035,12 +1036,12 @@ class EEStackController(CementBaseController):
                                         "opcache-gui/master/index.php",
                                         "/var/www/22222/htdocs/"
                                         "cache/opcache/opgui.php",
-                                        "index.php"],
+                                        "Opgui"],
                                        ["https://gist.github.com/ck-on/4959032"
                                         "/raw/0b871b345fd6cfcd6d2be030c1f33d1"
                                         "ad6a475cb/ocp.php",
                                         "/var/www/22222/htdocs/cache/"
-                                        "opcache/ocp.php", "ocp.php"],
+                                        "opcache/ocp.php", "OCP.php"],
                                        ["https://github.com/jokkedk/webgrind/"
                                         "archive/master.tar.gz",
                                         '/tmp/webgrind.tar.gz', 'Webgrind'],
@@ -1050,7 +1051,7 @@ class EEStackController(CementBaseController):
                                         "20110624220137-or26tn4"
                                         "expb9ul2a-16/pt-query-digest",
                                         "/usr/bin/pt-query-advisor",
-                                        "pt-query-digest"],
+                                        "pt-query-advisor"],
                                        ["https://github.com/box/Anemometer/"
                                         "archive/master.tar.gz",
                                         '/tmp/anemometer.tar.gz', 'Anemometer']
@@ -1059,15 +1060,12 @@ class EEStackController(CementBaseController):
             pass
 
         if len(apt_packages) or len(packages):
-            Log.debug(self, "Calling pre_pref ")
+            Log.debug(self, "Calling pre_pref")
             self.pre_pref(apt_packages)
             if len(apt_packages):
                 EESwap.add(self)
                 Log.debug(self, "Updating apt-cache")
                 EEAptGet.update(self)
-                Log.debug(self, "Installing following: {0}"
-                                .format(apt_packages))
-                print(apt_packages)
                 EEAptGet.install(self, apt_packages)
             if len(packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
@@ -1079,7 +1077,7 @@ class EEStackController(CementBaseController):
                     Log.info(self, msg)
             Log.info(self, "Successfully installed packages")
 
-    @expose()
+    @expose(help="Remove packages")
     def remove(self):
         apt_packages = []
         packages = []
@@ -1135,16 +1133,16 @@ class EEStackController(CementBaseController):
             packages = packages + ['/var/www/22222/htdocs/db/pma']
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
-            packages = packages + ['/var/www/22222/htdocs/db/adminer']
+            packages = packages + ['/var/www/22222/htdocs/db/Adminer']
         if self.app.pargs.utils:
             Log.debug(self, "Removing package variable of utils ")
             packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
                                    '/var/www/22222/htdocs/cache/opcache',
-                                   '/var/www/22222/htdocs/cache/nginx/'
+                                   '/var/www/22222/htdocs/cache/Nginx/'
                                    'clean.php',
-                                   '/var/www/22222/htdocs/cache/memcache',
+                                   '/var/www/22222/htdocs/cache/Memcache',
                                    '/usr/bin/pt-query-advisor',
-                                   '/var/www/22222/htdocs/db/anemometer']
+                                   '/var/www/22222/htdocs/db/Anemometer']
 
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
@@ -1153,7 +1151,7 @@ class EEStackController(CementBaseController):
             EEFileUtils.remove(self, packages)
         Log.info(self, "Successfully removed packages")
 
-    @expose()
+    @expose(help="Purge packages")
     def purge(self):
         apt_packages = []
         packages = []
