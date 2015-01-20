@@ -21,9 +21,9 @@ script:
   - sudo apt-get install git python3-setuptools python3-dev python3-apt
   - sudo python3 setup.py install
   - sudo ee --help
-  # - sudo ee stack install
-  # - sudo ee stack install --web
-  # - sudo ee stack install --admin
+  - sudo ee stack install
+  - sudo ee stack install --web
+  - sudo ee stack install --admin
   # - sudo ee site create html.com
   - sudo ee site create html.net --html
   - sudo ee site create php.com --php
@@ -43,7 +43,7 @@ script:
   - sudo ee site create site4.net --wp --wpfc
   - sudo ee site create site4.org --wpfc --wp
   - sudo ee site create site5.com --wpsubdir
-  # - sudo ee site create site5.net --wpsubdir --basic
+  # - sudo ee site create site5.net --wpsubdir
   # - sudo ee site create site5.org --basic --wpsubdir
   # - sudo ee site create site5.in --wpsubdirectory
   # - sudo ee site create site5.co --wpsubdirectory --basic
