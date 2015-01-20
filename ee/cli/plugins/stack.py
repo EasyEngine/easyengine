@@ -36,7 +36,7 @@ class EEStackController(CementBaseController):
         label = 'stack'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'stack command manages stack operations'
+        description = 'Stack command manages stack operations'
         arguments = [
             (['--web'],
                 dict(help='Install web stack', action='store_true')),

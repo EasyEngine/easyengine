@@ -1,5 +1,5 @@
 from ee.utils import test
-from ee.cli.plugins.site import EESiteUpdateController
+from ee.cli.main import get_test_app
 
 
 class CliTestCaseSite(test.EETestCase):
@@ -10,13 +10,15 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_update(self):
-        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
+        self.app = get_test_app(argv=['site', 'update', 'example3.com',
+                                      '--password'])
         self.app.setup()
         self.app.run()
         self.app.close()
 
     def test_ee_cli_site_update_html(self):
-        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
+        self.app = get_test_app(argv=['site', 'update', 'example4.com',
+                                      '--php'])
         self.app.setup()
         self.app.run()
         self.app.close()
@@ -36,7 +38,8 @@ class CliTestCaseSite(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_site_update_wp(self):
-        self.ok(self.config.has_key('EESiteUpdateController', 'debug'))
+        self.app = get_test_app(argv=['site', 'update', 'example4.com',
+                                      '--mysql'])
         self.app.setup()
         self.app.run()
         self.app.close()

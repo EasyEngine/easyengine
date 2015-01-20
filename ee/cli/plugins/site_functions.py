@@ -375,7 +375,7 @@ def site_package_check(self, stype):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                     "releases/download/v0.17.1/"
                                     "wp-cli.phar", "/usr/bin/wp",
-                                    "WP_CLI"]]
+                                    "WP-CLI"]]
     stack.install(apt_packages=apt_packages, packages=packages)
 
 
