@@ -69,7 +69,7 @@ def setupDatabase(self, data):
     ee_replace_dot = ee_domain_name.replace('.', '_')
     prompt_dbname = self.app.config.get('mysql', 'db-name')
     prompt_dbuser = self.app.config.get('mysql', 'db-user')
-    ee_mysql_host = self.app.config.get('mysql', 'grant-host')
+    ee_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
     ee_db_name = ''
     ee_db_username = ''
     ee_db_password = ''
@@ -117,19 +117,20 @@ def setupDatabase(self, data):
     Log.debug(self, "creating user {0}".format(ee_db_username))
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
-                    .format(ee_db_username, ee_mysql_host, ee_db_password))
+                    .format(ee_db_username, ee_mysql_grant_host,
+                            ee_db_password))
 
     # Grant permission
     Log.debug(self, "setting up user privileges")
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
-                    .format(ee_db_name, ee_db_username, ee_mysql_host))
+                    .format(ee_db_name, ee_db_username, ee_mysql_grant_host))
     Log.info(self, "[Done]")
 
     data['ee_db_name'] = ee_db_name
     data['ee_db_user'] = ee_db_username
     data['ee_db_pass'] = ee_db_password
-    data['ee_db_host'] = ee_mysql_host
+    data['ee_db_host'] = EEVariables.ee_mysql_host
     return(data)
 
 
@@ -375,3 +376,50 @@ def site_package_check(self, stype):
                                     "wp-cli.phar", "/usr/bin/wp",
                                     "WP_CLI"]]
     stack.install(apt_packages=apt_packages, packages=packages)
+
+
+def updateWPuserPassword(self, ee_domain, ee_site_webroot):
+
+    ee_wp_user = ''
+    ee_wp_pass = ''
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+
+    # Check if ee_domain is wordpress install
+    is_wp = EEShellExec.cmd_exec(self, "wp --allow-root core"
+                                 " version",
+                                 errormsg="{0} : Unable to check if wp install"
+                                 .format(ee_domain))
+
+    # Exit if ee_domain is not wordpress install
+    if not is_wp:
+        Log.error(self, "{0} does not seem to be a WordPress site"
+                  .format(ee_domain))
+
+    ee_wp_user = input("Provide WordPress user name [admin]: ")
+    if ee_wp_user == "?":
+        Log.info(self, "Fetching WordPress user list")
+        EEShellExec.cmd_exec(self, "wp --allow-root user list "
+                             "--fields=user_login | grep -v user_login",
+                             errormsg="Unable to Fetch users list")
+
+    if not ee_wp_user:
+        ee_wp_user = 'admin'
+
+    is_user_exist = EEShellExec.cmd_exec(self, "wp --allow-root user list "
+                                         "--fields=user_login | grep {0}$ "
+                                         .format(ee_wp_user))
+
+    if is_user_exist:
+        ee_wp_pass = input("Provide password for {0} user: "
+                           .format(ee_wp_user))
+        if len(ee_wp_pass) < 8:
+            EEShellExec.cmd_exec(self, "wp --allow-root user update {0}"
+                                 "  --user_pass={1}"
+                                 .format(ee_wp_user, ee_wp_pass))
+            Log.info(self, "Password updated successfully")
+        else:
+            Log.error(self, "Password Unchanged. Hint : Your password must be "
+                      "8 characters long")
+    else:
+        Log.error(self, "Invalid WordPress user {0} for {1}."
+                  .format(ee_wp_user, ee_domain))
