@@ -439,7 +439,7 @@ class EESiteCreateController(CementBaseController):
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
         setwebrootpermissions(self, data['webroot'])
-        if len(ee_auth):
+        if ee_auth and len(ee_auth):
             for msg in ee_auth:
                 Log.info(self, Log.ENDC + msg)
 
@@ -809,7 +809,7 @@ class EESiteUpdateController(CementBaseController):
             Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
 
-        site_package_check(self, stype)
+        ee_auth = site_package_check(self, stype)
         sitebackup(self, data)
 
         # setup NGINX configuration, and webroot
@@ -883,12 +883,15 @@ class EESiteUpdateController(CementBaseController):
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
         # setwebrootpermissions(self, data['webroot'])
+        if ee_auth and len(ee_auth):
+            for msg in ee_auth:
+                Log.info(self, Log.ENDC + msg)
 
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
-            Log.info(self, Log.ENDC + "WordPress admin user :"
+            Log.info(self, "\n\n" + Log.ENDC + "WordPress admin user :"
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
-                     .format(ee_wp_creds['wp_pass']))
+                     .format(ee_wp_creds['wp_pass']) + "\n\n")
 
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
