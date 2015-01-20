@@ -44,11 +44,13 @@ class EEMysql():
         try:
             cur.execute(statement)
         except Exception as e:
-            Log.error(self, 'Unable to execute statement:')
-            Lod.debug(self, "{0}".format(e))
             cur.close()
             conn.close()
-            sys.exit(1)
+            Log.debug(self, "{0}".format(e))
+            if not errormsg:
+                Log.error(self, 'Unable to execute statement')
+            else:
+                Log.error(self, '{0}'.format(errormsg))
 
         cur.close()
         conn.close()

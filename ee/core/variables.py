@@ -81,9 +81,9 @@ class EEVariables():
     elif ee_platform_codename == 'wheezy':
         ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
                        .format(codename=ee_platform_codename))
-    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-cli", "php5-imap",
+    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
               "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
-              "php5-mysql", "memcached"]
+              "php5-mysql", "php5-cli", "memcached"]
 
     # MySQL repo and packages
     ee_mysql_repo = ("deb http://repo.percona.com/apt {codename} main"
