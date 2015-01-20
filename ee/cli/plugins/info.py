@@ -19,17 +19,17 @@ class EEInfoController(CementBaseController):
         label = 'info'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = 'info command used for debugging issued with stack or \
-                        site specific configuration'
+        description = ('Display configuration information related to Nginx,'
+                       ' PHP and MySQL')
         arguments = [
             (['--mysql'],
-                dict(help='get mysql configuration information',
+                dict(help='Get MySQL configuration information',
                      action='store_true')),
             (['--php'],
-                dict(help='get php configuration information',
+                dict(help='Get PHP configuration information',
                      action='store_true')),
             (['--nginx'],
-                dict(help='get nginx configuration information',
+                dict(help='Get Nginx configuration information',
                      action='store_true')),
             ]
 
@@ -174,19 +174,19 @@ class EEInfoController(CementBaseController):
             if EEAptGet.is_installed(self, 'nginx-common'):
                 self.info_nginx()
             else:
-                print("Nginx is not installed")
+                Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
             if EEAptGet.is_installed(self, 'php5-fpm'):
                 self.info_php()
             else:
-                print("PHP5 is installed")
+                Log.error("PHP5 is not installed")
 
         if self.app.pargs.mysql:
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 self.info_mysql()
             else:
-                print("MySQL is not installed")
+                Log.error("MySQL is not installed")
 
 
 def load(app):

@@ -1,6 +1,7 @@
-import os
+"""EasyEngine packages repository operations"""
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+import os
 
 
 class EERepo():

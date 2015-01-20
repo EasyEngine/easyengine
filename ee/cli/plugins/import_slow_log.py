@@ -21,6 +21,7 @@ class EEImportslowlogController(CementBaseController):
         if os.path.isdir("/var/www/22222/htdocs/db/anemometer"):
             if os.path.isfile("/var/log/mysql/mysql-slow.log"):
                 # Get Anemometer user name and password
+                Log.error(self, "Importing MySQL slow log to Anemometer")
                 host = os.popen("grep -e \"\'host\'\" /var/www/22222/htdocs/"
                                 "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
@@ -33,6 +34,7 @@ class EEImportslowlogController(CementBaseController):
                                     "htdocs/db/anemometer/conf/config.inc.php "
                                     "| head -1 | cut -d\\\' -f4 | "
                                     "tr -d '\n'").read()
+
                 # Import slow log Anemometer using pt-query-digest
                 EEShellExec.cmd_exec(self, "pt-query-digest --user={0} "
                                      "--password={1} "

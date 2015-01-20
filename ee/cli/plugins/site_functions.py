@@ -1,8 +1,3 @@
-import os
-import random
-import string
-import sys
-import getpass
 from ee.cli.plugins.stack import EEStackController
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import EEMysql
@@ -10,6 +5,11 @@ from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.logging import Log
+import os
+import random
+import string
+import sys
+import getpass
 import glob
 
 
@@ -109,20 +109,20 @@ def setupdatabase(self, data):
         ee_db_name = (ee_db_name[0:6] + ee_random10)
 
     # create MySQL database
-    Log.info(self, "Setting Up Database\t\t", end='')
-    Log.debug(self, "creating databse {0}".format(ee_db_name))
+    Log.info(self, "Setting up database\t\t", end='')
+    Log.debug(self, "Creating databse {0}".format(ee_db_name))
     EEMysql.execute(self, "create database {0}"
                     .format(ee_db_name))
 
     # Create MySQL User
-    Log.debug(self, "creating user {0}".format(ee_db_username))
+    Log.debug(self, "Creating user {0}".format(ee_db_username))
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
                     .format(ee_db_username, ee_mysql_grant_host,
                             ee_db_password))
 
     # Grant permission
-    Log.debug(self, "setting up user privileges")
+    Log.debug(self, "Setting up user privileges")
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
                     .format(ee_db_name, ee_db_username, ee_mysql_grant_host))
@@ -201,14 +201,14 @@ def setupwordpress(self, data):
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
         while not ee_wp_user:
-            Log.warn(self, "Usernames can have only alphanumeric"
+            Log.warn(self, "Username can have only alphanumeric"
                      "characters, spaces, underscores, hyphens,"
                      "periods and the @ symbol.")
             try:
                 ee_wp_user = input('Enter WordPress username: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to input wp user name")
+                Log.error(self, "Unable to input WordPress user name")
 
     if not ee_wp_pass:
         ee_wp_pass = ee_random
@@ -220,12 +220,12 @@ def setupwordpress(self, data):
                 ee_wp_email = input('Enter WordPress email: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to input wp user email")
+                Log.error(self, "Unable to input WordPress user email")
 
-    Log.debug(self, "setting up WordPress Tables")
+    Log.debug(self, "Setting up WordPress tables")
 
     if not data['multisite']:
-        Log.debug(self, "creating tables for WordPress Single site")
+        Log.debug(self, "Creating tables for WordPress Single site")
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core install "
                              "--url={0} --title={0} --admin_name={1} "
                              .format(data['www_domain'], ee_wp_user)
@@ -233,7 +233,7 @@ def setupwordpress(self, data):
                              .format(ee_wp_pass, ee_wp_email),
                              errormsg="Unable to setup WordPress Tables")
     else:
-        Log.debug(self, "creating tables for WordPress multisite")
+        Log.debug(self, "Creating tables for WordPress multisite")
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
                              "core multisite-install "
                              "--url={0} --title={0} --admin_name={1} "
@@ -307,7 +307,7 @@ def uninstallwp_plugin(self, plugin_name, data):
 
 
 def setwebrootpermissions(self, webroot):
-    Log.debug(self, "Setting Up Permissions")
+    Log.debug(self, "Setting up permissions")
     EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
                       EEVariables.ee_php_user, recursive=True)
 
@@ -317,7 +317,7 @@ def sitebackup(self, data):
     backup_path = ee_site_webroot + '/backup/{0}'.format(EEVariables.ee_date)
     if not EEFileUtils.isexist(self, backup_path):
         EEFileUtils.mkdir(self, backup_path)
-    Log.info(self, "Backup Location : {0}".format(backup_path))
+    Log.info(self, "Backup location : {0}".format(backup_path))
     EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['site_name']), backup_path)
 
@@ -332,7 +332,7 @@ def sitebackup(self, data):
         ee_db_name = (EEFileUtils.grep(self, configfiles[0],
                       'DB_NAME').split(',')[1]
                       .split(')')[0].strip().replace('\'', ''))
-        Log.info(self, 'Backing up Database \t\t', end='')
+        Log.info(self, 'Backing up database \t\t', end='')
         EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
                              .format(ee_db_name, backup_path),
                              errormsg="\nFailed: Backup Database")
