@@ -531,7 +531,9 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot", "vmail", "vmail",
+                EEFileUtils.chown(self, "/var/lig/dovecot",
+                                  pwd.getpwnam('vmail')[2],
+                                  pwd.getpwnam('vmail')[3],
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
@@ -598,8 +600,9 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  EEVariables.ee_php_user,
-                                  EEVariables.ee_php_user, recursive=True)
+                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
+                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  recursive=True)
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcache.tar.gz to location"
@@ -611,8 +614,9 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  EEVariables.ee_php_user,
-                                  EEVariables.ee_php_user, recursive=True)
+                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
+                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  recursive=True)
 
             if any('/tmp/webgrind.tar.gz' == x[1]
                     for x in packages):
@@ -630,8 +634,9 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  EEVariables.ee_php_user,
-                                  EEVariables.ee_php_user, recursive=True)
+                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
+                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  recursive=True)
 
             if any('/tmp/anemometer.tar.gz' == x[1]
                     for x in packages):
@@ -759,8 +764,9 @@ class EEStackController(CementBaseController):
                                      "create")
 
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  EEVariables.ee_php_user,
-                                  EEVariables.ee_php_user, recursive=True)
+                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
+                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  recursive=True)
 
                 # Copy Dovecot and Postfix templates which are depednet on
                 # Vimbadmin
@@ -907,8 +913,9 @@ class EEStackController(CementBaseController):
                 EEFileUtils.remove(self, ["/var/www/roundcubemail"
                                    "/htdocs/installer"])
                 EEFileUtils.chown(self, '/var/www/roundcubemail',
-                                  EEVariables.ee_php_user,
-                                  EEVariables.ee_php_user, recursive=True)
+                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
+                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  recursive=True)
 
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):

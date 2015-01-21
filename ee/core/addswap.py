@@ -3,6 +3,7 @@ from ee.core.variables import EEVariables
 from ee.core.shellexec import EEShellExec
 from ee.core.fileutils import EEFileUtils
 from ee.core.logging import Log
+import pwd
 
 
 class EESwap():
@@ -19,7 +20,9 @@ class EESwap():
                 EEShellExec.cmd_exec(self, "dd if=/dev/zero of=/ee-swapfile "
                                      "bs=1024 count=1048k")
                 EEShellExec.cmd_exec(self, "mkswap /ee-swapfile")
-                EEFileUtils.chown(self, "/ee-swapfile", "root", "root")
+                EEFileUtils.chown(self, "/ee-swapfile",
+                                  pwd.getpwnam("root")[2],
+                                  pwd.getpwnam("root")[3])
                 EEFileUtils.chmod(self, "/ee-swapfile", 0o600)
                 EEShellExec.cmd_exec(self, "swapon /ee-swapfile")
                 with open("/etc/fstab", "a") as swap_file:

@@ -11,6 +11,7 @@ import string
 import sys
 import getpass
 import glob
+import pwd
 
 
 def setupdomain(self, data):
@@ -308,8 +309,8 @@ def uninstallwp_plugin(self, plugin_name, data):
 
 def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
-    EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
-                      EEVariables.ee_php_user, recursive=True)
+    EEFileUtils.chown(self, webroot, pwd.getpwnam(EEVariables.ee_php_user)[2],
+                      pwd.getpwnam(EEVariables.ee_php_user)[3], recursive=True)
 
 
 def sitebackup(self, data):

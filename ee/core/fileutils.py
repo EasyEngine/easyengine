@@ -18,13 +18,15 @@ class EEFileUtils():
             if os.path.isfile(file):
                 Log.info(self, "Removing {0:65}".format(file), end=' ')
                 os.remove(file)
-                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" + Log.OKBLUE + "]"))
+                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" +
+                         Log.OKBLUE + "]"))
                 Log.debug(self, 'file Removed')
             if os.path.isdir(file):
                 try:
                     Log.info(self, "Removing {0:65}".format(file), end=' ')
                     shutil.rmtree(file)
-                    Log.info(self, "{0}".format("[" + Log.ENDC + "Done" + Log.OKBLUE + "]"))
+                    Log.info(self, "{0}".format("[" + Log.ENDC + "Done" +
+                             Log.OKBLUE + "]"))
                 except shutil.Error as e:
                     Log.debug(self, "{err}".format(err=str(e.reason)))
                     Log.error(self, 'Unable to Remove file ')
@@ -85,18 +87,18 @@ class EEFileUtils():
             Log.debug(self, "{err}".format(err=e.strerror))
             Log.error(self, 'Unable to Change Directory {0}'.format(path))
 
-    def chown(self, path, user, group, recursive=False):
+    def chown(self, path, userid, groupid, recursive=False):
         try:
             if recursive:
                 for root, dirs, files in os.walk(path):
                     for d in dirs:
-                        shutil.chown(os.path.join(root, d), user=user,
-                                     group=group)
+                        os.chown(os.path.join(root, d), userid,
+                                 groupid)
                     for f in files:
-                        shutil.chown(os.path.join(root, f), user=user,
-                                     group=group)
+                        os.chown(os.path.join(root, f), userid,
+                                 groupid)
             else:
-                shutil.chown(path, user=user, group=group)
+                os.chown(path, userid, groupid)
         except shutil.Error as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to change owner : {0}".format(path))
