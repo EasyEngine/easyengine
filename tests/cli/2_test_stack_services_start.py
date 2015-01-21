@@ -16,7 +16,7 @@ class CliTestCaseStack(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_stack_services_start_php5_fpm(self):
-        self.app = get_test_app(argv=['stack', 'start', '--php5-fpm'])
+        self.app = get_test_app(argv=['stack', 'start', '--php'])
         self.app.setup()
         self.app.run()
         self.app.close()
@@ -34,7 +34,7 @@ class CliTestCaseStack(test.EETestCase):
         self.app.close()
 
     def test_ee_cli_stack_services_start_memcached(self):
-        self.app = get_test_app(argv=['stack', 'start', '--memcached'])
+        self.app = get_test_app(argv=['stack', 'start', '--memcache'])
         self.app.setup()
         self.app.run()
         self.app.close()

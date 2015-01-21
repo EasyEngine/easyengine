@@ -93,9 +93,3 @@ class CliTestCaseDebug(test.EETestCase):
         self.app.setup()
         self.app.run()
         self.app.close()
-
-    def test_ee_cli_debug(self):
-        self.app = get_test_app(argv=['debug'])
-        self.app.setup()
-        self.app.run()
-        self.app.close()

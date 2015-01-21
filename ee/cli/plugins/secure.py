@@ -71,17 +71,13 @@ class EESecureController(CementBaseController):
         if EEVariables.ee_platform_distro == 'Ubuntu':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl spdy;/\" "
-                                 "/etc/nginx/sites-available/22222"
+                                 "/etc/nginx/sites-available/22222.conf"
                                  .format(port=port))
-        else:
-            Log.error(self, "Unable to change EasyEngine admin port")
         if EEVariables.ee_platform_distro == 'Debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl;/\" "
                                  "/etc/nginx/sites-available/22222"
                                  .format(port=port))
-        else:
-            Log.error(self, "Unable to change EasyEngine admin port")
 
     @expose(hide=True)
     def secure_ip(self):
