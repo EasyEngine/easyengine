@@ -185,11 +185,12 @@ def setupwordpress(self, data):
                              + "--dbpass={0}".format(data['ee_db_pass']))
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core config "
+        EEShellExec.cmd_exec(self, "bash -c \'php /usr/bin/wp --allow-root "
+                             + "core config "
                              + "--dbname={0} --dbprefix={1} "
                              .format(data['ee_db_name'], ee_wp_prefix)
                              + "--dbuser={0} --dbpass={1} "
-                               "--extra-php<<PHP \n {var1} {var2} \nPHP"
+                               "--extra-php<<PHP \n {var1} {var2} \nPHP\'"
                              .format(data['ee_db_user'], data['ee_db_pass'],
                                      var1=""
                                      "\n define('WP_ALLOW_MULTISITE', true);",

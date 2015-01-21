@@ -48,7 +48,7 @@ script:
   - sudo ee site create site7.net --w3tc --wpsubdir
   - sudo ee site create site8.com --wpsubdir --wpfc
   - sudo ee site create site8.net --wpfc --wpsubdir
-  - sudo ee site create site9.in --wpsubdomain
+  - sudo ee site create site9.com --wpsubdomain
 
   - sudo ee site create site10.org --wpsubdomain --wpsc
   - sudo ee site create site10.in --wpsc --wpsubdomain
@@ -56,25 +56,32 @@ script:
   - sudo ee site create site11.in --w3tc --wpsubdomain
   - sudo ee site create site12.org --wpsubdomain --wpfc
   - sudo ee site create site12.in --wpfc --wpsubdomain
- 
+  - sudo ee site create site12.net --wpfc --wpsubdomain
+  - sudo ee site create site12.org --wpfc --wpsubdomain
+
   - sudo ee debug
   - sudo ee debug --stop
   - sudo ee site create 1.com --html
   - sudo ee site create 2.com --php
   - sudo ee site create 3.com --mysql
+
   - sudo ee site update 1.com --wp
   - sudo ee site update 2.com --wpsubdir
   - sudo ee site update 3.com --wpsubdomain
+
   - sudo ee site update site1.com --wp --wpfc
   - sudo ee site update site1.com --wp --w3tc
   - sudo ee site update site1.com --wp --wpsc
+
   - sudo ee site update site5.com --wpsubdir --wpfc
   - sudo ee site update site5.com --wpsubdir --w3tc
   - sudo ee site update site5.com --wpsubdir --wpsc
-  - sudo ee site update site9.com --wpsubdom --wpfc
-  - sudo ee site update site9.com --wpsubdom --w3tc
-  - sudo ee site update site9.com --wpsubdom --wpsc
-  - sudo ee site delete site12.com --no-prompt
+
+  - sudo ee site update site9.com --wpsubdomain --wpfc
+  - sudo ee site update site9.com --wpsubdomain --w3tc
+  - sudo ee site update site9.com --wpsubdomain --wpsc
+
+  - sudo ee site delete site12.com --all --no-prompt
   - sudo ee site delete site12.net --no-prompt
   - sudo ee site delete site12.org --no-prompt
 
