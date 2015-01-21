@@ -372,11 +372,19 @@ class EEDebugController(CementBaseController):
 
         if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
-           and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)):
+           and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
+           and (not self.app.pargs.site_name)):
             self.debug_nginx()
             self.debug_php()
             self.debug_fpm()
             self.debug_mysql()
+            self.debug_rewrite()
+
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
+           and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
+           and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
+           and self.app.pargs.site_name):
+            self.debug_nginx()
             self.debug_wp()
             self.debug_rewrite()
 
