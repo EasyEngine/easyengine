@@ -18,7 +18,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} start'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "[OK]")
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
@@ -35,7 +35,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} stop'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "[OK]")
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
@@ -52,7 +52,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} restart'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "[OK]")
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))
@@ -75,7 +75,7 @@ class EEService():
                         # print(retcode[0])
                         # subprocess.getstatusoutput('service {0} reload'
                         #                            .format(service_name))
-                        Log.info(self, "[OK]")
+                        Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                         return True
                     else:
                         Log.debug(self, "{0}".format(retcode[1]))
@@ -87,7 +87,7 @@ class EEService():
                 retcode = subprocess.getstatusoutput('service {0} reload'
                                                      .format(service_name))
                 if retcode[0] == 0:
-                    Log.info(self, "[OK]")
+                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     return True
                 else:
                     Log.debug(self, "{0}".format(retcode[1]))

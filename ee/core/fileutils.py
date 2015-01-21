@@ -18,13 +18,13 @@ class EEFileUtils():
             if os.path.isfile(file):
                 Log.info(self, "Removing {0:65}".format(file), end=' ')
                 os.remove(file)
-                Log.info(self, "{0}".format("[Done]"))
+                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" + Log.OKBLUE + "]"))
                 Log.debug(self, 'file Removed')
             if os.path.isdir(file):
                 try:
                     Log.info(self, "Removing {0:65}".format(file), end=' ')
                     shutil.rmtree(file)
-                    Log.info(self, "{0}".format("[Done]"))
+                    Log.info(self, "{0}".format("[" + Log.ENDC + "Done" + Log.OKBLUE + "]"))
                 except shutil.Error as e:
                     Log.debug(self, "{err}".format(err=str(e.reason)))
                     Log.error(self, 'Unable to Remove file ')
