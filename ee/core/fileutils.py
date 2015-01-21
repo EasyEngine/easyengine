@@ -4,6 +4,7 @@ import os
 import sys
 import glob
 import shutil
+import pwd
 import fileinput
 from ee.core.logging import Log
 
@@ -74,8 +75,9 @@ class EEFileUtils():
 
     def mvfile(self, src, dst):
         try:
+            Log.debug(self, "Moving file from {0} to {1}".format(src, dst))
             shutil.move(src, dst)
-        except shutil.Error as e:
+        except Exception as e:
             Log.debug(self, "{err}".format(err=e))
             Log.error(self, 'Unable to move file from {0} to {1}'
                       .format(src, dst))
@@ -87,7 +89,9 @@ class EEFileUtils():
             Log.debug(self, "{err}".format(err=e.strerror))
             Log.error(self, 'Unable to Change Directory {0}'.format(path))
 
-    def chown(self, path, userid, groupid, recursive=False):
+    def chown(self, path, user, group, recursive=False):
+        userid = pwd.getpwnam(user)[2]
+        groupid = pwd.getpwnam(user)[3]
         try:
             if recursive:
                 for root, dirs, files in os.walk(path):

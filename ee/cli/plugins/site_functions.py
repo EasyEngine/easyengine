@@ -11,7 +11,6 @@ import string
 import sys
 import getpass
 import glob
-import pwd
 
 
 def setupdomain(self, data):
@@ -197,7 +196,8 @@ def setupwordpress(self, data):
                                      var2=""
                                      "\n define('WPMU_ACCEL_REDIRECT', true);")
                              )
-    EEFileUtils.mvfile(self, './wp-config.php', '../')
+    EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
+                       os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
@@ -309,8 +309,8 @@ def uninstallwp_plugin(self, plugin_name, data):
 
 def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
-    EEFileUtils.chown(self, webroot, pwd.getpwnam(EEVariables.ee_php_user)[2],
-                      pwd.getpwnam(EEVariables.ee_php_user)[3], recursive=True)
+    EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
+                      EEVariables.ee_php_user, recursive=True)
 
 
 def sitebackup(self, data):

@@ -531,9 +531,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot",
-                                  pwd.getpwnam('vmail')[2],
-                                  pwd.getpwnam('vmail')[3],
+                EEFileUtils.chown(self, "/var/lig/dovecot", 'vmail', 'vmail',
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
@@ -600,8 +598,8 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
-                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
                                   recursive=True)
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
@@ -614,8 +612,8 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
-                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
                                   recursive=True)
 
             if any('/tmp/webgrind.tar.gz' == x[1]
@@ -634,8 +632,8 @@ class EEStackController(CementBaseController):
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
-                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
                                   recursive=True)
 
             if any('/tmp/anemometer.tar.gz' == x[1]
@@ -764,8 +762,8 @@ class EEStackController(CementBaseController):
                                      "create")
 
                 EEFileUtils.chown(self, '/var/www/22222',
-                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
-                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
                                   recursive=True)
 
                 # Copy Dovecot and Postfix templates which are depednet on
@@ -913,8 +911,8 @@ class EEStackController(CementBaseController):
                 EEFileUtils.remove(self, ["/var/www/roundcubemail"
                                    "/htdocs/installer"])
                 EEFileUtils.chown(self, '/var/www/roundcubemail',
-                                  pwd.getpwnam(EEVariables.ee_php_user)[2],
-                                  pwd.getpwnam(EEVariables.ee_php_user)[3],
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
                                   recursive=True)
 
     @expose(help="Install packages")

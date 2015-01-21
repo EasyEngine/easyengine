@@ -24,7 +24,14 @@ class EEShellExec():
             if errormsg:
                 Log.error(self, errormsg)
             else:
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to execute command {0}"
+                          .format(command))
+        except Exception as e:
+            if errormsg:
+                Log.error(self, errormsg)
+            else:
+                Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to execute command {0}"
                           .format(command))
 
