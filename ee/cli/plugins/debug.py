@@ -86,11 +86,12 @@ class EEDebugController(CementBaseController):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if os.path.isfile(config_path):
-                if not EEShellExec.cmd_exec("grep \"error.log debug\" {0}"
-                                            .format(config_path)):
+                if not EEShellExec.cmd_exec(self, "grep \"error.log debug\" "
+                                            "{0}".format(config_path)):
                     Log.info(self, "Starting NGINX debug connection for "
                              "{0}".format(self.app.pargs.site_name))
-                    EEShellExec.cmd_exec("sed -i \"s/error.log;/error.log "
+                    EEShellExec.cmd_exec(self, "sed -i \"s/error.log;/"
+                                         "error.log "
                                          "debug;/\" {0}".format(config_path))
                     self.trigger_nginx = True
 
@@ -109,11 +110,11 @@ class EEDebugController(CementBaseController):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if os.path.isfile(config_path):
-                if EEShellExec.cmd_exec("grep \"error.log debug\" {0}"
+                if EEShellExec.cmd_exec(self, "grep \"error.log debug\" {0}"
                                         .format(config_path)):
                     Log.info(self, "Stoping NGINX debug connection for {0}"
                              .format(self.app.pargs.site_name))
-                    EEShellExec.cmd_exec("sed -i \"s/error.log debug;/"
+                    EEShellExec.cmd_exec(self, "sed -i \"s/error.log debug;/"
                                          "error.log;/\" {0}"
                                          .format(config_path))
                     self.trigger_nginx = True
@@ -286,7 +287,7 @@ class EEDebugController(CementBaseController):
                     EEShellExec.cmd_exec(self, "sed -i \"/define(\'"
                                          "WP_DEBUG_LOG\', true);/d\" {0}"
                                          .format(wp_config))
-                    EEShellExec.cmd_exec("sed -i \"/define(\'"
+                    EEShellExec.cmd_exec(self, "sed -i \"/define(\'"
                                          "SAVEQUERIES\', "
                                          "true);/d\" {0}".format(wp_config))
                 else:
