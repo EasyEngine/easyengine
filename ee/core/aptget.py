@@ -16,7 +16,6 @@ class EEAptGet():
         fprogress = apt.progress.text.AcquireProgress()
         iprogress = apt.progress.base.InstallProgress()
         cache.update()
-        cache.close()
 
     def upgrade(self, packages):
         """Similar to apt-get update"""
@@ -121,8 +120,6 @@ class EEAptGet():
                 print("package installation failed. [{err}]"
                       .format(err=str(e)))
                 return(False)
-                cache.close()
-        cache.close()
         return(True)
 
     def remove(self, packages, auto=False, purge=False):
@@ -222,9 +219,7 @@ class EEAptGet():
                 # app.log.error('Sorry, package installation failed ')
                 print("Sorry, package installation failed [{err}]"
                       .format(err=str(e)))
-                cache.close()
                 return(False)
-        cache.close()
         return(True)
 
     def is_installed(self, package):
@@ -241,13 +236,10 @@ class EEAptGet():
             pkg = cache[package]
             # Check Package Installed
             if pkg.is_installed:
-                cache.close()
                 return True
             else:
-                cache.close()
                 return False
         except KeyError as e:
             Log.debug(self, "{0}".format(e))
         except Exception as e:
-            cache.close()
             return False
