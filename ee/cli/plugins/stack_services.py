@@ -12,7 +12,7 @@ class EEStackStatusController(CementBaseController):
         description = 'Get status of stack'
         arguments = [
             (['--memcache'],
-                dict(help='start/stop/restart stack', action='store_true')),
+                dict(help='start/stop/restart memcache', action='store_true')),
             (['--dovecot'],
                 dict(help='start/stop/restart dovecot', action='store_true')),
             ]
