@@ -396,6 +396,27 @@ class EEStackController(CementBaseController):
                                  "\nphp_admin_flag[xdebug.profiler_enable"
                                  "_trigger] = on \nphp_admin_flag[xdebug."
                                  "profiler_enable] = off\n")
+
+                # PHP and Debug pull configuration
+                if not os.path.exists('/var/www/22222/htdocs/fpm/status/'):
+                    Log.debug(self, 'Creating directory '
+                              '/var/www/22222/htdocs/fpm/status/ ')
+                    os.makedirs('/var/www/22222/htdocs/fpm/status/')
+                open('/var/www/22222/htdocs/fpm/status/debug', 'a').close()
+                open('/var/www/22222/htdocs/fpm/status/php', 'a').close()
+
+                # Write info.php
+                if not os.path.exists('/var/www/22222/htdocs/php/'):
+                    Log.debug(self, 'Creating directory '
+                              '/var/www/22222/htdocs/php/ ')
+                    os.makedirs('/var/www/22222/htdocs/php')
+
+                with open("/var/www/22222/htdocs/php/info.php", "w") as myfile:
+                    myfile.write("<?php\nphpinfo();\n?>")
+
+                EEFileUtils.chown(self, "/var/www/22222", 'www-data',
+                                  'www-data', recursive=True)
+
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
 
