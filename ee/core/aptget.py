@@ -151,6 +151,8 @@ class EEAptGet():
         fprogress = apt.progress.text.AcquireProgress()
         iprogress = apt.progress.base.InstallProgress()
 
+        onelevel = []
+
         my_selected_packages = []
         # Cache Initialization
         if not cache:
@@ -176,21 +178,10 @@ class EEAptGet():
             # 2) We sequentially remove every package in list
             # - via is_auto_installed we check if we can safely remove it
             deplist = []
-            onelevel = __dependencies_loop(cache, deplist, pkg,
-                                           onelevel=True)
+            onelevel = onelevel + __dependencies_loop(cache, deplist, pkg,
+                                                      onelevel=True)
             # Mark for deletion the first package, to fire up
             # auto_removable Purge?
-
-            for dep in onelevel:
-                my_selected_packages.append(dep.name)
-                try:
-                    if purge:
-                        dep.mark_delete(purge=True)
-                    else:
-                        dep.mark_delete(purge=False)
-                except SystemError as e:
-                    Log.debug(self, "{0}".format(e))
-                    Log.error(self, "Unable to purge depedencies.")
 
             try:
                 if purge:
@@ -199,7 +190,20 @@ class EEAptGet():
                     pkg.mark_delete(purge=False)
             except SystemError as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to purge packages.")
+                apt.ProblemResolver(cache).remove(pkg)
+                # print(pkg.inst_state)
+                # Log.error(self, "Unable to purge packages.")
+
+        for dep in onelevel:
+            my_selected_packages.append(dep.name)
+            try:
+                if purge:
+                    dep.mark_delete(purge=True)
+                else:
+                    dep.mark_delete(purge=False)
+            except SystemError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to purge depedencies.")
 
         # Check if packages available for remove/update.
         if cache.delete_count > 0:
