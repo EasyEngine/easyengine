@@ -26,7 +26,7 @@ class EEVariables():
     # EasyEngine core variables
     ee_platform_distro = platform.linux_distribution()[0]
     ee_platform_version = platform.linux_distribution()[1]
-    ee_platform_codename = platform.linux_distribution()[2]
+    ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
 
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
