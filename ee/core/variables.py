@@ -18,7 +18,7 @@ class EEVariables():
     ee_wp_cli = "0.18.0"
     ee_adminer = "4.1.0"
     ee_roundcube = "1.0.4"
-    ee_vimbadmin = "3.0.10"
+    ee_vimbadmin = "3.0.11"
 
     # Current date and time of System
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
