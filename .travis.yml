@@ -57,10 +57,11 @@ script:
   - sudo ee site create site12.org --wpsubdomain --wpfc
   - sudo ee site create site12.in --wpfc --wpsubdomain
   - sudo ee site create site12.net --wpfc --wpsubdomain
-  - sudo ee site create site12.org --wpfc --wpsubdomain
 
   - sudo ee debug
   - sudo ee debug --stop
+  - sudo ee debug site12.net
+  - sudo ee debug site12.net --stop
   - sudo ee site create 1.com --html
   - sudo ee site create 2.com --php
   - sudo ee site create 3.com --mysql
@@ -81,7 +82,7 @@ script:
   - sudo ee site update site9.com --wpsubdomain --w3tc
   - sudo ee site update site9.com --wpsubdomain --wpsc
 
-  - sudo ee site delete site12.com --all --no-prompt
+  - sudo ee site delete site12.in --all --no-prompt
   - sudo ee site delete site12.net --no-prompt
   - sudo ee site delete site12.org --no-prompt
 

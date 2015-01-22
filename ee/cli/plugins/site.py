@@ -836,7 +836,6 @@ class EESiteUpdateController(CementBaseController):
         if oldsitetype == 'mysql':
             config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
                            .format(EEVariables.ee_date))
-            print(config_file, 'DB_NAME')
             data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
                                   'DB_NAME')
                                   .split(',')[1]

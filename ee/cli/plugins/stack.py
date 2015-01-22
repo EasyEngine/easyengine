@@ -682,7 +682,8 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating directory "
                               "/var/www/22222/htdocs/")
                     os.makedirs('/var/www/22222/htdocs/')
-                shutil.move('/tmp/ViMbAdmin-3.0.10/',
+                shutil.move('/tmp/ViMbAdmin-{0}/'
+                            .format(EEVariables.ee_vimbadmin),
                             '/var/www/22222/htdocs/vimbadmin/')
 
                 # Donwload composer and install ViMbAdmin
