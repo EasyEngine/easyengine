@@ -13,7 +13,7 @@ readonly EE_ADMINER_VERSION='4.1.0'
 readonly EE_ROUNDCUBE_VERSION='1.0.3'
 
 # ViMbAdmin Version
-readonly EE_VIMBADMIN_VERSION='3.0.10'
+readonly EE_VIMBADMIN_VERSION='3.0.11'
 
 # EasyEngine Date variable for backup
 readonly EE_DATE=$(date +%d%b%Y%H%M%S)
