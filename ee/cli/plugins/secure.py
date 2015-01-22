@@ -27,8 +27,11 @@ class EESecureController(CementBaseController):
             (['--port'],
                 dict(help='secure port', action='store_true')),
             (['--ip'],
-                dict(help='secure ip', action='store_true'))
-            ]
+                dict(help='secure ip', action='store_true')),
+            (['user_input'],
+                dict(help='user input', nargs='?', default=None)),
+            (['user_pass'],
+                dict(help='user pass', nargs='?', default=None))]
 
     @expose(hide=True)
     def default(self):
@@ -44,65 +47,77 @@ class EESecureController(CementBaseController):
         passwd = ''.join([random.choice
                          (string.ascii_letters + string.digits)
                          for n in range(6)])
-        username = input("Provide HTTP authentication user "
-                         "name [{0}] :".format(EEVariables.ee_user))
-        password = input("Provide HTTP authentication "
-                         "password [{0}]".format(passwd))
-        if username == "":
-            username = EEVariables.ee_user
-            Log.info(self, "HTTP authentication username:{username}"
-                     .format(username=username))
-        if password == "":
-            password = passwd
-            Log.info(self, "HTTP authentication password:{password}"
-                     .format(password=password))
+        if not self.app.pargs.user_input:
+            username = input("Provide HTTP authentication user "
+                             "name [{0}] :".format(EEVariables.ee_user))
+            self.app.pargs.user_input = username
+            if username == "":
+                self.app.pargs.user_input = EEVariables.ee_user
+        if not self.app.pargs.user_pass:
+            password = input("Provide HTTP authentication "
+                             "password [{0}]".format(passwd))
+            self.app.pargs.user_pass = password
+            if password == "":
+                self.app.pargs.user_pass = passwd
         EEShellExec.cmd_exec(self, "printf \"{username}:"
                              "$(openssl passwd -crypt "
                              "{password} 2> /dev/null)\n\""
                              "> /etc/nginx/htpasswd-ee 2>/dev/null"
-                             .format(username=username,
-                                     password=password))
+                             .format(username=self.app.pargs.user_input,
+                                     password=self.app.pargs.user_pass))
+        Log.info(self, "Successfully changed HTTP authentication"
+                       " username:{username}"
+                       .format(username=self.app.pargs.user_input))
+        Log.info(self, "Successfully changed HTTP authentication"
+                       " password:{password}"
+                       .format(password=self.app.pargs.user_pass))
 
     @expose(hide=True)
     def secure_port(self):
-        port = input("EasyEngine admin port [22222]:")
-        if port == "":
-            port = 22222
+        while not self.app.pargs.user_input.isdigit():
+            Log.info(self, "Please Enter valid port number ")
+            self.app.pargs.user_input = input("EasyEngine admin port [22222]:")
+        if not self.app.pargs.user_input:
+            port = input("EasyEngine admin port [22222]:")
+            if port == "":
+                self.app.pargs.user_input = 22222
+            while not port.isdigit() and port != "":
+                Log.info(self, "Please Enter valid port number :")
+                port = input("EasyEngine admin port [22222]:")
+            self.app.pargs.user_input = port
         if EEVariables.ee_platform_distro == 'Ubuntu':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl spdy;/\" "
                                  "/etc/nginx/sites-available/22222.conf"
-                                 .format(port=port))
+                                 .format(port=self.app.pargs.user_input))
         if EEVariables.ee_platform_distro == 'Debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl;/\" "
-                                 "/etc/nginx/sites-available/22222"
-                                 .format(port=port))
+                                 "/etc/nginx/sites-available/22222.conf"
+                                 .format(port=self.app.pargs.user_input))
+        Log.info(self, "Successfully port changed {port}"
+                 .format(port=self.app.pargs.user_input))
 
     @expose(hide=True)
     def secure_ip(self):
-        # TODO:remaining with ee.conf updation in file
+         # TODO:remaining with ee.conf updation in file
         newlist = []
-        ip = input("Enter the comma separated IP addresses "
-                   "to white list [127.0.0.1]:")
+        if not self.app.pargs.user_input:
+            ip = input("Enter the comma separated IP addresses "
+                       "to white list [127.0.0.1]:")
+            self.app.pargs.user_input = ip
         try:
-            user_list_ip = ip.split(',')
+            user_ip = self.app.pargs.user_input.split(',')
         except Exception as e:
-            ip = ['127.0.0.1']
-        self.app.config.set('mysql', 'grant-host', "hello")
-        exist_ip_list = self.app.config.get('stack', 'ip-address').split()
-        for check_ip in user_list_ip:
-            if check_ip not in exist_ip_list:
-                newlist.extend(exist_ip_list)
-            # changes in acl.conf file
-            if len(newlist) != 0:
-                EEShellExec.cmd_exec(self, "sed -i \"/allow.*/d\" /etc/nginx"
-                                     "/common/acl.conf")
-            for whitelist_adre in newlist:
-                EEShellExec.cmd_exec(self, "sed -i \"/deny/i "
-                                     "echo allow {whitelist_adre}\\;\" "
-                                     "/etc/nginx/common/acl.conf"
-                                     .format(whitelist_adre=whitelist_adre))
+            user_ip = ['127.0.0.1']
+        for ip_addr in user_ip:
+            if not ("exist_ip_address "+ip_addr in open('/etc/nginx/common/'
+                    'acl.conf').read()):
+                EEShellExec.cmd_exec(self, "sed -i "
+                                     "\"/deny/i allow {whitelist_adre}\;\""
+                                     " /etc/nginx/common/acl.conf"
+                                     .format(whitelist_adre=ip_addr))
+        Log.info(self, "Successfully added IP address in acl.conf file")
 
 
 def load(app):
