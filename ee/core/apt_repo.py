@@ -20,10 +20,12 @@ class EERepo():
                 if not os.path.isfile(repo_file_path):
                     with open(repo_file_path, "a") as repofile:
                         repofile.write(repo_url)
+                        repofile.write('\n')
                         repofile.close()
                 elif repo_url not in open(repo_file_path).read():
                     with open(repo_file_path, "a") as repofile:
                         repofile.write(repo_url)
+                        repofile.write('\n')
                         repofile.close()
                 return True
             except IOError as e:

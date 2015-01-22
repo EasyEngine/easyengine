@@ -67,10 +67,11 @@ class EEVariables():
     # Nginx repo and packages
     if ee_platform_distro == 'Ubuntu':
         ee_nginx_repo = "ppa:rtcamp/nginx"
+        ee_nginx = ["nginx-custom"]
     elif ee_platform_distro == 'debian':
         ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
                          .format(codename=ee_platform_codename))
-    ee_nginx = ["nginx-custom"]
+        ee_nginx = ["nginx-full"]
 
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':
