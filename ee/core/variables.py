@@ -67,7 +67,7 @@ class EEVariables():
     # Nginx repo and packages
     if ee_platform_distro == 'Ubuntu':
         ee_nginx_repo = "ppa:rtcamp/nginx"
-    elif ee_platform_distro == 'Debian':
+    elif ee_platform_distro == 'debian':
         ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
                          .format(codename=ee_platform_codename))
     ee_nginx = ["nginx-custom"]

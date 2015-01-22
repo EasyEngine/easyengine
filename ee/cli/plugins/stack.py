@@ -106,7 +106,7 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for Nginx")
-            if EEVariables.ee_platform_distro == 'Debian':
+            if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
             else:
@@ -115,8 +115,8 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP")
-            if EEVariables.ee_platform_distro == 'Debian':
-                Log.debug(self, 'Adding repo_url of php for Debian')
+            if EEVariables.ee_platform_distro == 'debian':
+                Log.debug(self, 'Adding repo_url of php for debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
                 Log.debug(self, 'Adding Dotdeb/php GPG key')
                 EERepo.add_key(self, '89DF5277')

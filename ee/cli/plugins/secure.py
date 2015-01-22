@@ -90,7 +90,7 @@ class EESecureController(CementBaseController):
                                  "{port} default_server ssl spdy;/\" "
                                  "/etc/nginx/sites-available/22222.conf"
                                  .format(port=self.app.pargs.user_input))
-        if EEVariables.ee_platform_distro == 'Debian':
+        if EEVariables.ee_platform_distro == 'debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl;/\" "
                                  "/etc/nginx/sites-available/22222.conf"
@@ -100,7 +100,7 @@ class EESecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_ip(self):
-         # TODO:remaining with ee.conf updation in file
+        # TODO:remaining with ee.conf updation in file
         newlist = []
         if not self.app.pargs.user_input:
             ip = input("Enter the comma separated IP addresses "
