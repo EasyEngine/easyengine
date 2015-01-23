@@ -178,24 +178,24 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        EEShellExec.cmd_exec(self, "bash -c \'php /usr/bin/wp --allow-root "
+        EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
                              + "--dbname={0} --dbprefix={1} --dbuser={2} "
                              .format(data['ee_db_name'], ee_wp_prefix,
                                      data['ee_db_user'])
-                             + "--dbpass={0}"
-                               "--extra-php<<PHP \n {1}\nPHP\'"
+                             + "--dbpass={0} "
+                               "--extra-php<<PHP \n {1}\nPHP\""
                                .format(data['ee_db_pass'],
                                        "\n\ndefine(\\\'WP_DEBUG\\\', false);")
                              )
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        EEShellExec.cmd_exec(self, "bash -c \'php /usr/bin/wp --allow-root "
+        EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
                              + "--dbname={0} --dbprefix={1} "
                              .format(data['ee_db_name'], ee_wp_prefix)
                              + "--dbuser={0} --dbpass={1} "
-                               "--extra-php<<PHP \n {2} {3} {4}\nPHP\'"
+                               "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                              .format(data['ee_db_user'], data['ee_db_pass'],
                                      "\ndefine(\\\'WP_ALLOW_MULTISITE\\\', "
                                      "true);",
