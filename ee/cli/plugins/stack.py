@@ -1180,8 +1180,10 @@ class EEStackController(CementBaseController):
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
             EEAptGet.remove(self, apt_packages)
+            EEAptGet.auto_remove(self)
         if len(packages):
             EEFileUtils.remove(self, packages)
+            EEAptGet.auto_remove(self)
         Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
@@ -1254,8 +1256,10 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             EEAptGet.remove(self, apt_packages, purge=True)
+            EEAptGet.auto_remove(self)
         if len(packages):
             EEFileUtils.remove(self, packages)
+            EEAptGet.auto_remove(self)
         Log.info(self, "Successfully purged packages")
 
 

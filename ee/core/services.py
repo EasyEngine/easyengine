@@ -75,7 +75,8 @@ class EEService():
                         # print(retcode[0])
                         # subprocess.getstatusoutput('service {0} reload'
                         #                            .format(service_name))
-                        Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                        Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE +
+                                 "]")
                         return True
                     else:
                         Log.debug(self, "{0}".format(retcode[1]))
