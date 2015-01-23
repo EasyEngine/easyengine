@@ -326,7 +326,7 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Nginx rewrite logs already disabled")
         # Start Nginx rewrite for site
         elif self.start and self.app.pargs.site_name:
-            config_path = ("/etc/nginx/sites-available/{0}.conf"
+            config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
                                         .format(config_path)):
@@ -347,7 +347,7 @@ class EEDebugController(CementBaseController):
 
         # Stop Nginx rewrite for site
         elif not self.start and self.app.pargs.site_name:
-            config_path = ("/etc/nginx/sites-available/{0}.conf"
+            config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
                                     .format(config_path)):
