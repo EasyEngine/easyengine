@@ -36,10 +36,10 @@ class EEAptGet():
         """Installation of packages"""
         apt_pkg.init()
         # #apt_pkg.PkgSystemLock()
+        global apt_cache
         apt_cache = apt.cache.Cache()
 
         def install_package(self, package_name):
-            global apt_cache
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if pkg.is_installed:
@@ -71,10 +71,10 @@ class EEAptGet():
     def remove(self, packages, auto=False, purge=False):
         apt_pkg.init()
         # apt_pkg.PkgSystemLock()
+        global apt_cache
         apt_cache = apt.cache.Cache()
 
         def remove_package(self, package_name, purge=False):
-            global apt_cache
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if not pkg.is_installed:
