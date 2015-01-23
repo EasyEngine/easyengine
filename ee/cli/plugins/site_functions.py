@@ -186,7 +186,7 @@ def setupwordpress(self, data):
                              + "--dbpass={0} "
                                "--extra-php<<PHP \n {1}\nPHP\""
                                .format(data['ee_db_pass'],
-                                       "\n\ndefine(\\\'WP_DEBUG\\\', false);")
+                                       "\n\ndefine(\'WP_DEBUG\', false);")
                              )
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
@@ -197,11 +197,11 @@ def setupwordpress(self, data):
                              + "--dbuser={0} --dbpass={1} "
                                "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                              .format(data['ee_db_user'], data['ee_db_pass'],
-                                     "\ndefine(\\\'WP_ALLOW_MULTISITE\\\', "
+                                     "\ndefine(\'WP_ALLOW_MULTISITE\', "
                                      "true);",
-                                     "\ndefine(\\\'WPMU_ACCEL_REDIRECT\\\',"
+                                     "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                                      " true);",
-                                     "\n\ndefine(\\\'WP_DEBUG\\\', false);")
+                                     "\n\ndefine(\'WP_DEBUG\', false);")
                              )
     EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
                        os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
