@@ -353,6 +353,7 @@ class EEStackController(CementBaseController):
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/php-fpm.conf')
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
+                config['global']['log_level'] = 'notice'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
