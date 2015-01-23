@@ -7,6 +7,7 @@ from ee.core.mysql import EEMysql
 from ee.core.services import EEService
 from ee.core.logging import Log
 import os
+import configparser
 
 
 def debug_plugin_hook(app):
@@ -170,9 +171,13 @@ class EEDebugController(CementBaseController):
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                               "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
-                EEShellExec.cmd_exec(self, "sed -i \"s\';log_level.*\'log_"
-                                           "level = debug\'\" /etc/php5/fpm"
-                                           "/php-fpm.conf")
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/php-fpm.conf')
+                config['global']['log_level'] = 'debug'
+                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                    Log.debug(self, "writting php5 configuration into "
+                              "/etc/php5/fpm/php-fpm.conf")
+                    config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
@@ -183,9 +188,14 @@ class EEDebugController(CementBaseController):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
-                EEShellExec.cmd_exec(self, "sed -i \"s\'log_level.*\';log_"
-                                           "level = notice\'\" /etc/php5/fpm"
-                                           "/php-fpm.conf")
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/php-fpm.conf')
+                config['global']['log_level'] = 'notice'
+                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                    Log.debug(self, "writting php5 configuration into "
+                              "/etc/php5/fpm/php-fpm.conf")
+                    config.write(configfile)
+
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug  already disabled")
