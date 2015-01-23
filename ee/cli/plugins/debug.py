@@ -155,8 +155,8 @@ class EEDebugController(CementBaseController):
                                           "| grep 9001"):
                 Log.info(self, "Disabling PHP debug")
                 data = dict(php="9000", debug="9001")
-                Log.info(self, 'Writting the Nginx debug configration to file '
-                         '/etc/nginx/conf.d/upstream.conf ')
+                Log.debug(self, 'Writting the Nginx debug configration to file'
+                          ' /etc/nginx/conf.d/upstream.conf ')
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
@@ -173,9 +173,11 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/php-fpm.conf')
+                config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
+                config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
-                    Log.debug(self, "writting php5 configuration into "
+                    Log.debug(self, "Writting php5-FPM configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
                 self.trigger_php = True
@@ -190,7 +192,9 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/php-fpm.conf')
+                config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
+                config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
                 with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
