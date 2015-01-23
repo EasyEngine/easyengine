@@ -39,6 +39,7 @@ class EESiteController(CementBaseController):
     @expose(help="Enable site example.com")
     def enable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        Log.info(self, "Enable domain {0:10}".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             EEFileUtils.create_symlink(self,
@@ -47,18 +48,26 @@ class EESiteController(CementBaseController):
                                         '/etc/nginx/sites-enabled/{0}'
                                         .format(ee_domain)])
             updateSiteInfo(self, ee_domain, enabled=True)
+            Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
     @expose(help="Disable site example.com")
     def disable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        Log.info(self, "Disable domain {0:10}".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            EEFileUtils.remove_symlink(self,
-                                       '/etc/nginx/sites-enabled/{0}'
-                                       .format(ee_domain))
-            updateSiteInfo(self, ee_domain, enabled=False)
+            if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
+                                  .format(ee_domain)):
+                Log.debug(self, "Site {0} already disabled" + ee_domain)
+                Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
+            else:
+                EEFileUtils.remove_symlink(self,
+                                           '/etc/nginx/sites-enabled/{0}'
+                                           .format(ee_domain))
+                updateSiteInfo(self, ee_domain, enabled=False)
+                Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
