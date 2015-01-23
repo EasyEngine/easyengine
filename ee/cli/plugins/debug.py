@@ -407,10 +407,10 @@ class EEDebugController(CementBaseController):
 
         # Reload Nginx
         if self.trigger_nginx:
-            EEService.reload_service(self, ['nginx'])
+            EEService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            EEService.reload_service(self, ['php5-fpm'])
+            EEService.reload_service(self, 'php5-fpm')
         #
         # if len(self.msg) > 0:
         #     self.app.log.info("Use following command to check debug logs:"
