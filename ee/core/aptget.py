@@ -69,12 +69,12 @@ class EEAptGet():
     def remove(self, packages, auto=False, purge=False):
         def remove_package(self, package_name, purge=False):
             apt_pkg.init()
-            #apt_pkg.PkgSystemLock()
+            # apt_pkg.PkgSystemLock()
             apt_cache = apt.cache.Cache()
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if not pkg.is_installed:
-                    #apt_pkg.PkgSystemUnLock()
+                    # apt_pkg.PkgSystemUnLock()
                     Log.info(self, 'Trying to uninstall a package '
                              'that is not installed (' +
                              package_name.strip() + ')')
@@ -86,16 +86,16 @@ class EEAptGet():
                         Log.debug(self, 'SystemError: ' + str(e))
                         return False
                     try:
-                        #apt_pkg.PkgSystemUnLock()
+                        # apt_pkg.PkgSystemUnLock()
                         result = apt_cache.commit()
-                        #apt_cache.close()
+                        # apt_cache.close()
                         return result
                     except SystemError as e:
                         Log.debug(self, 'SystemError: ' + str(e))
                         return False
-                        #apt_cache.close()
+                        # apt_cache.close()
             else:
-                #apt_cache.close()
+                # apt_cache.close()
                 Log.error(self, 'Unknown package selected (' +
                           package_name.strip() + ')')
 
@@ -123,7 +123,7 @@ class EEAptGet():
         apt_cache.open()
         if (package_name.strip() in apt_cache and
            apt_cache[package_name.strip()].is_installed):
-            apt_cache.close()
+            # apt_cache.close()
             return True
-        #apt_cache.close()
+        # apt_cache.close()
         return False
