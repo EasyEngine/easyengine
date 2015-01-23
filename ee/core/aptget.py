@@ -34,17 +34,19 @@ class EEAptGet():
 
     def install(self, packages):
         """Installation of packages"""
+        apt_pkg.init()
+        # #apt_pkg.PkgSystemLock()
+        apt_cache = apt.cache.Cache()
+
         def install_package(self, package_name):
-            apt_pkg.init()
-            # #apt_pkg.PkgSystemLock()
-            apt_cache = apt.cache.Cache()
+            global apt_cache
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if pkg.is_installed:
                     #apt_pkg.PkgSystemUnLock()
-                    Log.info(self, 'Trying to install a package that '
-                             'is already installed (' +
-                             package_name.strip() + ')')
+                    Log.debug(self, 'Trying to install a package that '
+                              'is already installed (' +
+                              package_name.strip() + ')')
                     #apt_cache.close()
                     return False
                 else:
@@ -67,17 +69,19 @@ class EEAptGet():
                 continue
 
     def remove(self, packages, auto=False, purge=False):
+        apt_pkg.init()
+        # apt_pkg.PkgSystemLock()
+        apt_cache = apt.cache.Cache()
+
         def remove_package(self, package_name, purge=False):
-            apt_pkg.init()
-            # apt_pkg.PkgSystemLock()
-            apt_cache = apt.cache.Cache()
+            global apt_cache
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if not pkg.is_installed:
                     # apt_pkg.PkgSystemUnLock()
-                    Log.info(self, 'Trying to uninstall a package '
-                             'that is not installed (' +
-                             package_name.strip() + ')')
+                    Log.debug(self, 'Trying to uninstall a package '
+                              'that is not installed (' +
+                              package_name.strip() + ')')
                     return False
                 else:
                     try:
