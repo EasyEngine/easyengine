@@ -182,20 +182,23 @@ def setupwordpress(self, data):
                              + "--dbname={0} --dbprefix={1} --dbuser={2} "
                              .format(data['ee_db_name'], ee_wp_prefix,
                                      data['ee_db_user'])
-                             + "--dbpass={0}".format(data['ee_db_pass']))
-    else:
+                             + "--dbpass={0}"
+                               "--extra-php<<PHP \n {1}\nPHP\'"
+                               .format(data['ee_db_pass'],
+                                       "\n \ndefine('WP_DEBUG', false);")
+                             )
+
         Log.debug(self, "Generating wp-config for WordPress multisite")
         EEShellExec.cmd_exec(self, "bash -c \'php /usr/bin/wp --allow-root "
                              + "core config "
                              + "--dbname={0} --dbprefix={1} "
                              .format(data['ee_db_name'], ee_wp_prefix)
                              + "--dbuser={0} --dbpass={1} "
-                               "--extra-php<<PHP \n {var1} {var2} \nPHP\'"
+                               "--extra-php<<PHP \n {2} {3} {4}\nPHP\'"
                              .format(data['ee_db_user'], data['ee_db_pass'],
-                                     var1=""
                                      "\n define('WP_ALLOW_MULTISITE', true);",
-                                     var2=""
-                                     "\n define('WPMU_ACCEL_REDIRECT', true);")
+                                     "\n define('WPMU_ACCEL_REDIRECT', true);",
+                                     "\n \ndefine('WP_DEBUG', false);")
                              )
     EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
                        os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
