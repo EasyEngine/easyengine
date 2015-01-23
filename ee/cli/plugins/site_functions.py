@@ -178,7 +178,8 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        EEShellExec.cmd_exec(self, "wp --allow-root core config "
+        EEShellExec.cmd_exec(self, "bash -c \'php /usr/bin/wp --allow-root "
+                             + "core config "
                              + "--dbname={0} --dbprefix={1} --dbuser={2} "
                              .format(data['ee_db_name'], ee_wp_prefix,
                                      data['ee_db_user'])
