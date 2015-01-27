@@ -651,6 +651,9 @@ class EEStackController(CementBaseController):
                     os.makedirs('/var/www/22222/htdocs/php')
                 shutil.move('/tmp/webgrind-master/',
                             '/var/www/22222/htdocs/php/webgrind')
+                EEShellExec.cmd_exec(self, "sed -i \"s\'/usr/local/bin/dot\'"
+                                     "/usr/bin/dot\'\" /var/www/22222/htdocs/"
+                                     "php/webgrind/config.php")
                 Log.debug(self, "Setting Privileges of www-data:www-data to "
                           "/var/www/22222/htdocs/php/webgrind/ file ")
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
