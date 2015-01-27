@@ -1,4 +1,5 @@
 notifications:
+  slack: rtcamp:MGteQ7CA6kFIsNbMIarkeWxa
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/bd77a26eab56de803949
