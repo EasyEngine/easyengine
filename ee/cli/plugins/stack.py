@@ -855,7 +855,8 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating new directory "
                               " /var/www/roundcubemail/")
                     os.makedirs('/var/www/roundcubemail/')
-                shutil.move('/tmp/roundcubemail-1.0.4/',
+                shutil.move('/tmp/roundcubemail-{0}/'
+                            .format(EEVariables.ee_roundcube),
                             '/var/www/roundcubemail/htdocs')
 
                 # Configure roundcube database
