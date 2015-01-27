@@ -737,45 +737,20 @@ class EEStackController(CementBaseController):
                                 " vimbadmin@{0} IDENTIFIED BY"
                                 " '{1}'".format(self.app.config.get('mysql',
                                                 'grant-host'), vm_passwd))
-
-                # Configure ViMbAdmin settings
-                config = configparser.ConfigParser(strict=False)
-                Log.debug(self, "configuring ViMbAdmin ")
-                config.read('/var/www/22222/htdocs/vimbadmin/application/'
-                            'configs/application.ini.dist')
-                config['user']['defaults.mailbox.uid'] = '5000'
-                config['user']['defaults.mailbox.gid'] = '5000'
-                config['user']['defaults.mailbox.maildir'] = ("maildir:/var/v"
-                                                              + "mail/%%d/%%u")
-                config['user']['defaults.mailbox.homedir'] = ("/srv/vmail/"
-                                                              + "%%d/%%u")
-                config['user']['resources.doctrine2.connection.'
-                               'options.driver'] = 'mysqli'
-                config['user']['resources.doctrine2.connection.'
-                               'options.password'] = vm_passwd
-                config['user']['resources.doctrine2.connection.'
-                               'options.host'] = EEVariables.ee_mysql_host
-                config['user']['defaults.mailbox.password_scheme'] = 'md5'
-                config['user']['securitysalt'] = (''.join(random.sample
-                                                  (string.ascii_letters
-                                                   + string.ascii_letters,
-                                                   64)))
-                config['user']['resources.auth.'
-                               'oss.rememberme.salt'] = (''.join(random.sample
-                                                         (string.ascii_letters
-                                                          + string.
-                                                             ascii_letters,
-                                                          64)))
                 vm_salt = (''.join(random.sample(string.ascii_letters +
                                                  string.ascii_letters, 64)))
-                config['user']['defaults.mailbox.'
-                               'password_salt'] = vm_salt
-                Log.debug(self, "Writting configuration to file "
-                          "/var/www/22222/htdocs/vimbadmin"
-                          "/application/configs/application.ini ")
-                with open('/var/www/22222/htdocs/vimbadmin/application'
-                          '/configs/application.ini', 'w') as configfile:
-                    config.write(configfile)
+
+                # Custom Vimbadmin configuration by EasyEngine
+                data = dict(salt=vm_salt, host=EEVariables.ee_mysql_host,
+                            password=vm_passwd)
+                Log.debug(self, 'Writting the ViMbAdmin configuration to '
+                          'file /var/www/22222/htdocs/vimbadmin/application/'
+                          'configs/application.ini')
+                ee_vmb = open('/var/www/22222/htdocs/vimbadmin/application/'
+                              'configs/application.ini', 'w')
+                self.app.render((data), 'vimbadmin.mustache',
+                                out=ee_vmb)
+                ee_vmb.close()
 
                 shutil.copyfile("/var/www/22222/htdocs/vimbadmin/public/"
                                 ".htaccess.dist",
