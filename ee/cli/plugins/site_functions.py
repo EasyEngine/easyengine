@@ -433,3 +433,69 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
     else:
         Log.error(self, "Invalid WordPress user {0} for {1}."
                   .format(ee_wp_user, ee_domain))
+
+
+def display_cache_settings(self, data):
+    if data['wpsc']:
+        if data['multisite']:
+            Log.info(self, "Configure WPSC:"
+                     "\t\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=wpsupercache"
+                     .format(data['site_name']))
+        else:
+            Log.info(self, "Configure WPSC:"
+                     "\t\thttp://{0}/wp-admin/options-general.php?"
+                     "page=wpsupercache"
+                     .format(data['site_name']))
+
+    if data['wpfc']:
+        if data['multisite']:
+            Log.info(self, "Configure nginx-helper:"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=nginx".format(data['site_name']))
+        else:
+            Log.info(self, "Configure nginx-helper:"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=nginx".format(data['site_name']))
+
+    if data['wpfc'] or data['w3tc']:
+        if data['multisite']:
+            Log.info(self, "Configure W3TC:"
+                     "\t\thttp://{0}/wp-admin/network/admin.php?"
+                     "page=w3tc_general".format(data['site_name']))
+        else:
+            Log.info(self, "Configure W3TC:"
+                     "\t\thttp://{0}wp-admin/admin.php?"
+                     "page=w3tc_general".format(data['site_name']))
+
+        if data['wpfc']:
+            Log.info(self, "Page Cache:\t\tDisable")
+        elif data['w3tc']:
+            Log.info(self, "Page Cache:\t\tDisk Enhanced")
+        Log.info(self, "Database Cache:\t\tMemcached")
+        Log.info(self, "Object Cache:\t\tMemcached")
+        Log.info(self, "Browser Cache:\t\tDisable")
+
+
+def logwatch(self, logdir):
+    import zlib
+    import base64
+    import time
+    from ee.core import logwatch
+
+    def callback(filename, lines):
+        for line in lines:
+            if line.find(':::') == -1:
+                print(line)
+            else:
+                data = line.split(':::')
+                try:
+                    print(data[0], data[1],
+                          zlib.decompress(base64.decodestring(data[2])))
+                except Exception as e:
+                    Log.info(time.time(),
+                             'caught exception rendering a new log line in %s'
+                             % filename)
+
+    l = logwatch.LogWatcher(logdir, callback)
+    l.loop()

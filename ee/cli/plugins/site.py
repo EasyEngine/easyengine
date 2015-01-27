@@ -106,10 +106,10 @@ class EESiteController(CementBaseController):
     @expose(help="Monitor example.com logs")
     def log(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+        ee_site_webroot = EEVariables.ee_webroot + ee_domain
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            EEShellExec.cmd_exec(self, 'tail -f /var/log/nginx/{0}.*.log'
-                                 .format(ee_domain))
+            logwatch(self, ee_site_webroot + '/logs/')
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
@@ -457,6 +457,8 @@ class EESiteCreateController(CementBaseController):
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
                      .format(ee_wp_creds['wp_pass']))
+
+        display_cache_settings(self, data)
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
                  " http://{0}".format(ee_domain))
@@ -900,7 +902,7 @@ class EESiteUpdateController(CementBaseController):
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                      .format(ee_wp_creds['wp_pass']) + "\n\n")
-
+        display_cache_settings(self, data)
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
@@ -916,7 +918,7 @@ class EESiteDeleteController(CementBaseController):
             (['site_name'],
                 dict(help='domain name to be deleted')),
             (['--no-prompt'],
-                dict(help="dont ask for permission for delete",
+                dict(help="doesnt ask permission for delete",
                      action='store_true')),
             (['--all'],
                 dict(help="delete all", action='store_true')),
