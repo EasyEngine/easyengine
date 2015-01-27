@@ -44,8 +44,8 @@ class EEVariables():
         ee_user = config['user']['name']
         ee_email = config['user']['email']
     except Exception as e:
-        ee_user = input("Enter username for Git:")
-        ee_email = input("Enter email for Git:")
+        ee_user = input("Enter your name: ")
+        ee_email = input("Enter your email: ")
 
     # Get System RAM and SWAP details
     ee_ram = psutil.virtual_memory().total / (1024 * 1024)
