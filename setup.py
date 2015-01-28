@@ -37,8 +37,8 @@ except Exception as e:
           "upcoming version")
     print("EasyEngine (ee) will NEVER send your information across")
 
-    ee_user = input("Enter username for Git:")
-    ee_email = input("Enter email for Git:")
+    ee_user = input("Enter your name: ")
+    ee_email = input("Enter your email: ")
     os.system("git config --global user.name {0}".format(ee_user))
     os.system("git config --global user.email {0}".format(ee_email))
 
