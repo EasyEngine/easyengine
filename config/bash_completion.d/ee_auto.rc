@@ -93,7 +93,8 @@ _ee_complete()
             *)
                 ;;
         esac
-        if [[ ${COMP_WORDS[1]} == "debug" ]] && [ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]; then
+
+        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
                 retlist="--start --stop --wp --rewrite -i"
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
