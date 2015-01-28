@@ -107,9 +107,11 @@ class EESiteController(CementBaseController):
     def log(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
+
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            logwatch(self, ee_site_webroot + '/logs/')
+            logfiles = glob.glob(ee_site_webroot + '/logs/*.log')
+            logwatch(self, logfiles)
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 

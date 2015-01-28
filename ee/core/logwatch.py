@@ -24,7 +24,7 @@ class LogWatcher(object):
     >>> l.loop()
     """
 
-    def __init__(self, folder, callback, extensions=["log"], tail_lines=0):
+    def __init__(self, filelist, callback, extensions=["log"], tail_lines=0):
         """Arguments:
 
         (str) @folder:
@@ -42,11 +42,14 @@ class LogWatcher(object):
             read last N lines from files being watched before starting
         """
         self.files_map = {}
+        self.filelist = filelist
         self.callback = callback
-        self.folder = os.path.realpath(folder)
+        # self.folder = os.path.realpath(folder)
         self.extensions = extensions
-        assert (os.path.isdir(self.folder), "%s does not exists"
-                                            % self.folder)
+        # assert (os.path.isdir(self.folder), "%s does not exists"
+        #                                     % self.folder)
+        for files in self.filelist:
+            assert (os.path.isfile(file), "%s does not exists" % file)
         assert callable(callback)
         self.update_files()
         # The first time we run the script we move all file markers at EOF.
@@ -77,17 +80,17 @@ class LogWatcher(object):
         """Log when a file is un/watched"""
         print(line)
 
-    def listdir(self):
-        """List directory and filter files by extension.
-        You may want to override this to add extra logic or
-        globbling support.
-        """
-        ls = os.listdir(self.folder)
-        if self.extensions:
-            return ([x for x in ls if os.path.splitext(x)[1][1:]
-                     in self.extensions])
-        else:
-            return ls
+    # def listdir(self):
+    #     """List directory and filter files by extension.
+    #     You may want to override this to add extra logic or
+    #     globbling support.
+    #     """
+    #     ls = os.listdir(self.folder)
+    #     if self.extensions:
+    #         return ([x for x in ls if os.path.splitext(x)[1][1:]
+    #                  in self.extensions])
+    #     else:
+    #         return ls
 
     @staticmethod
     def tail(fname, window):
@@ -122,8 +125,8 @@ class LogWatcher(object):
 
     def update_files(self):
         ls = []
-        for name in self.listdir():
-            absname = os.path.realpath(os.path.join(self.folder, name))
+        for name in self.filelist:
+            absname = os.path.realpath(os.path.join(name))
             try:
                 st = os.stat(absname)
             except EnvironmentError as err:

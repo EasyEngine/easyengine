@@ -465,7 +465,7 @@ def display_cache_settings(self, data):
                      "page=w3tc_general".format(data['site_name']))
         else:
             Log.info(self, "Configure W3TC:"
-                     "\t\thttp://{0}wp-admin/admin.php?"
+                     "\t\thttp://{0}/wp-admin/admin.php?"
                      "page=w3tc_general".format(data['site_name']))
 
         if data['wpfc']:
@@ -477,7 +477,7 @@ def display_cache_settings(self, data):
         Log.info(self, "Browser Cache:\t\tDisable")
 
 
-def logwatch(self, logdir):
+def logwatch(self, logfiles):
     import zlib
     import base64
     import time
@@ -497,5 +497,5 @@ def logwatch(self, logdir):
                              'caught exception rendering a new log line in %s'
                              % filename)
 
-    l = logwatch.LogWatcher(logdir, callback)
+    l = logwatch.LogWatcher(logfiles, callback)
     l.loop()
