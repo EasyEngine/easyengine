@@ -55,7 +55,7 @@ class EESecureController(CementBaseController):
                 self.app.pargs.user_input = EEVariables.ee_user
         if not self.app.pargs.user_pass:
             password = input("Provide HTTP authentication "
-                             "password [{0}]".format(passwd))
+                             "password [{0}] :".format(passwd))
             self.app.pargs.user_pass = password
             if password == "":
                 self.app.pargs.user_pass = passwd
@@ -66,10 +66,10 @@ class EESecureController(CementBaseController):
                              .format(username=self.app.pargs.user_input,
                                      password=self.app.pargs.user_pass))
         Log.info(self, "Successfully changed HTTP authentication"
-                       " username:{username}"
+                       " username to : {username}"
                        .format(username=self.app.pargs.user_input))
         Log.info(self, "Successfully changed HTTP authentication"
-                       " password:{password}"
+                       " password to : {password}"
                        .format(password=self.app.pargs.user_pass))
 
     @expose(hide=True)
