@@ -66,10 +66,10 @@ class EESecureController(CementBaseController):
                              .format(username=self.app.pargs.user_input,
                                      password=self.app.pargs.user_pass))
         Log.info(self, "Successfully changed HTTP authentication"
-                       " username to :{username}"
+                       " username to : {username}"
                        .format(username=self.app.pargs.user_input))
         Log.info(self, "Successfully changed HTTP authentication"
-                       " password to :{password}"
+                       " password to : {password}"
                        .format(password=self.app.pargs.user_pass))
 
     @expose(hide=True)
