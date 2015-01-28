@@ -982,24 +982,28 @@ class EEStackController(CementBaseController):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
                     Log.debug(self, "Nginx already installed")
+                    Log.info(self, "Nginx already installed")
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not EEAptGet.is_installed(self, 'php5-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.debug(self, "PHP already installed")
+                    Log.info(self, "PHP already installed")
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + EEVariables.ee_mysql
                 else:
                     Log.debug(self, "MySQL connection is already alive")
+                    Log.info(self, "MySQL connection is already alive")
             if self.app.pargs.postfix:
                 Log.debug(self, "Setting apt_packages variable for Postfix")
                 if not EEAptGet.is_installed(self, 'postfix'):
                     apt_packages = apt_packages + EEVariables.ee_postfix
                 else:
                     Log.debug(self, "Postfix is already installed")
+                    Log.info(self, "Postfix is already installed")
             if self.app.pargs.wpcli:
                 Log.debug(self, "Setting packages variable for WP-CLI")
                 if not EEShellExec.cmd_exec(self, "which wp"):
@@ -1011,6 +1015,7 @@ class EEStackController(CementBaseController):
                                             "WP-CLI"]]
                 else:
                     Log.debug(self, "WP-CLI is already installed")
+                    Log.info(self, "WP-CLI is already installed")
             if self.app.pargs.phpmyadmin:
                 Log.debug(self, "Setting packages varible for phpMyAdmin ")
                 packages = packages + [["https://github.com/phpmyadmin/"
