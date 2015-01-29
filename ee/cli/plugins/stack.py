@@ -514,8 +514,8 @@ class EEStackController(CementBaseController):
                                      "= static:5000\"")
                 EEShellExec.cmd_exec(self, "postconf -e \""
                                      " virtual_mailbox_domains = "
-                                     " mysql:/etc/postfix/mysql/virtual_"
-                                     " domains_maps.cf\"")
+                                     "mysql:/etc/postfix/mysql/virtual_"
+                                     "domains_maps.cf\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"virtual_mailbox_maps"
                                      " = mysql:/etc/postfix/mysql/virtual_"
                                      "mailbox_maps.cf\"")
@@ -534,7 +534,7 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_cert_file "
                                      "= /etc/ssl/certs/postfix.pem\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_key_file "
-                                     " = /etc/ssl/private/postfix.pem\"")
+                                     "= /etc/ssl/private/postfix.pem\"")
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
