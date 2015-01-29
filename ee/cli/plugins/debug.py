@@ -6,8 +6,11 @@ from ee.core.shellexec import EEShellExec
 from ee.core.mysql import EEMysql
 from ee.core.services import EEService
 from ee.core.logging import Log
+from ee.cli.plugins.site_functions import logwatch
 import os
 import configparser
+import glob
+import signal
 
 
 def debug_plugin_hook(app):
@@ -383,6 +386,31 @@ class EEDebugController(CementBaseController):
                          " disabled".format(self.app.pargs.site_name))
 
     @expose(hide=True)
+    def signal_handler(self, signal, frame):
+        self.start = False
+        if self.app.pargs.nginx:
+            self.debug_nginx()
+        if self.app.pargs.php:
+            self.debug_php()
+        if self.app.pargs.fpm:
+            self.debug_fpm()
+        if self.app.pargs.mysql:
+            self.debug_mysql()
+        if self.app.pargs.wp:
+            self.debug_wp()
+        if self.app.pargs.rewrite:
+            self.debug_rewrite()
+
+        # Reload Nginx
+        if self.trigger_nginx:
+            EEService.reload_service(self, 'nginx')
+
+        # Reload PHP
+        if self.trigger_php:
+            EEService.reload_service(self, 'php5-fpm')
+        self.app.close(0)
+
+    @expose(hide=True)
     def default(self):
         self.start = True
         self.interactive = False
@@ -435,9 +463,17 @@ class EEDebugController(CementBaseController):
             EEService.reload_service(self, 'php5-fpm')
 
         if len(self.msg) > 0:
-            disp_msg = ' '.join(self.msg)
-            Log.info(self, "Use following command to check debug logs:\n"
-                     + Log.ENDC + "tail -f {0}".format(disp_msg))
+            if not self.app.pargs.interactive:
+                disp_msg = ' '.join(self.msg)
+                Log.info(self, "Use following command to check debug logs:\n"
+                         + Log.ENDC + "tail -f {0}".format(disp_msg))
+            else:
+                signal.signal(signal.SIGINT, self.signal_handler)
+                watch_list = []
+                for w_list in self.msg:
+                    watch_list = watch_list + glob.glob(w_list)
+
+                logwatch(self, watch_list)
 
 
 def load(app):
