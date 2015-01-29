@@ -70,7 +70,7 @@ class EEDebugController(CementBaseController):
             if not self.trigger_nginx:
                 Log.info(self, "Nginx debug connection already enabled")
 
-            self.msg = self.msg + [" /var/log/nginx/*.error.log"]
+            self.msg = self.msg + ["/var/log/nginx/*.error.log"]
 
         # stop global debug
         elif not self.start and not self.app.pargs.site_name:
@@ -99,7 +99,7 @@ class EEDebugController(CementBaseController):
                 else:
                     Log.info(self, "Debug for site allready enabled")
 
-                self.msg = self.msg + ['/var/www//logs/error.log'
+                self.msg = self.msg + ['/var/www/{0}/logs/error.log'
                                        .format(self.app.pargs.site_name)]
 
             else:
@@ -143,6 +143,7 @@ class EEDebugController(CementBaseController):
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
                 self.trigger_php = True
+                self.trigger_nginx = True
             else:
                 Log.info(self, "PHP debug is allready enabled")
 
@@ -161,6 +162,7 @@ class EEDebugController(CementBaseController):
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
                 self.trigger_php = True
+                self.trigger_nginx = True
             else:
                 Log.info(self, "PHP debug is allready disabled")
 
@@ -185,6 +187,7 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
 
             self.msg = self.msg + ['/var/log/php5/fpm.log']
+
         # PHP5-FPM stop global debug
         else:
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
@@ -280,6 +283,11 @@ class EEDebugController(CementBaseController):
                                          .format(webroot))
                 else:
                     Log.info(self, "WordPress debug log already enabled")
+
+                self.msg = self.msg + ['/var/www/{0}/htdocs/wp-content'
+                                       '/debug.log'
+                                       .format(self.app.pargs.site_name)]
+
             else:
                 Log.info(self, "{0} domain not valid"
                          .format(self.app.pargs.site_name))
@@ -425,10 +433,11 @@ class EEDebugController(CementBaseController):
         # Reload PHP
         if self.trigger_php:
             EEService.reload_service(self, 'php5-fpm')
-        #
-        # if len(self.msg) > 0:
-        #     self.app.log.info("Use following command to check debug logs:"
-        #                       "\n{0}".format(self.msg.join()))
+
+        if len(self.msg) > 0:
+            disp_msg = ' '.join(self.msg)
+            Log.info(self, "Use following command to check debug logs:\n"
+                     + Log.ENDC + "tail -f {0}".format(disp_msg))
 
 
 def load(app):
