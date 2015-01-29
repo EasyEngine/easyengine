@@ -776,7 +776,7 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating directory "
                               "/etc/postfix/mysql/")
                     os.makedirs('/etc/postfix/mysql/')
-                data = dict(password=vm_passwd, host=EEVariables.ee_mysql)
+                data = dict(password=vm_passwd, host=EEVariables.ee_mysql_host)
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_alias_maps.mustache',
