@@ -521,7 +521,7 @@ class EEStackController(CementBaseController):
                                      "mailbox_maps.cf\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"virtual_alias_maps  "
                                      "= mysql:/etc/postfix/mysql/virtual_"
-                                     " alias_maps.cf\"")
+                                     "alias_maps.cf\"")
                 EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
                                      " 3650 -nodes -subj /commonName="
                                      "{HOSTNAME}/emailAddress={EMAIL}"
