@@ -50,15 +50,25 @@ class EEAptGet():
                     #apt_cache.close()
                     return False
                 else:
-                    pkg.mark_install()
+                    try:
+                        print(pkg.name)
+                        pkg.mark_install()
+                    except Exception as e:
+                        Log.debug(self, str(e))
+                        Log.error(self, str(e))
+
                     try:
                         #apt_pkg.PkgSystemUnLock()
                         result = apt_cache.commit()
                         #apt_cache.close()
                         return result
                     except SystemError as e:
+                        Log.debug(self, 'SystemError: ' + str(e))
                         Log.error(self, 'SystemError: ' + str(e))
                         #apt_cache.close()
+                    except Exception as e:
+                        Log.debug(self, str(e))
+                        Log.error(self, str(e))
             else:
                 #apt_cache.close()
                 Log.error(self, 'Unknown package selected (' +
@@ -85,6 +95,7 @@ class EEAptGet():
                     return False
                 else:
                     try:
+                        print(pkg.name)
                         pkg.mark_delete(purge)
                     except SystemError as e:
                         Log.debug(self, 'SystemError: ' + str(e))
@@ -97,6 +108,9 @@ class EEAptGet():
                     except SystemError as e:
                         Log.debug(self, 'SystemError: ' + str(e))
                         return False
+                    except Exception as e:
+                        Log.debug(self, str(e))
+                        Log.error(self, str(e))
                         # apt_cache.close()
             else:
                 # apt_cache.close()
