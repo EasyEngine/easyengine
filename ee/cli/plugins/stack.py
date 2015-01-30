@@ -12,6 +12,7 @@ from ee.core.extract import EEExtract
 from ee.core.mysql import EEMysql
 from ee.core.addswap import EESwap
 from ee.core.git import EEGit
+from ee.core.checkfqdn import check_fqdn
 from pynginxconfig import NginxConfig
 from ee.core.services import EEService
 import random
@@ -44,6 +45,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install admin tools stack', action='store_true')),
             (['--mail'],
                 dict(help='Install mail server stack', action='store_true')),
+            (['--mailscanner'],
+                dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
@@ -588,6 +591,20 @@ class EEStackController(CementBaseController):
                                 out=ee_amavis)
                 ee_amavis.close()
 
+                # Amavis ViMbadmin configuration
+                if os.path.isfile("/etc/postfix/mysql/virtual_alias_maps.cf"):
+                    vm_host = os.popen("grep hosts /etc/postfix/mysql/virtual_"
+                                       "alias_maps.cf | awk \'{ print $3 }\' |"
+                                       " tr -d '\\n'").read()
+                    vm_pass = os.popen("grep password /etc/postfix/mysql/"
+                                       "virtual_alias_maps.cf | awk \'{ print "
+                                       "$3 }\' | tr -d '\\n'").read()
+
+                    data = dict(host=vm_host, password=vm_pass)
+                    vm_config = open('/etc/amavis/conf.d/50-user', 'w')
+                    self.app.render((data), '50-user.mustache', out=vm_config)
+                    vm_config.close()
+
                 # Amavis postfix configuration
                 EEShellExec.cmd_exec(self, "postconf -e \"content_filter = "
                                      "smtp-amavis:[127.0.0.1]:10024\"")
@@ -948,7 +965,8 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and
-               (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+               (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+               (not self.app.pargs.mailscanner)):
                 self.app.pargs.web = True
 
             if self.app.pargs.web:
@@ -975,6 +993,8 @@ class EEStackController(CementBaseController):
                 self.app.pargs.postfix = True
 
                 if not EEAptGet.is_installed(self, 'dovecot-core'):
+                    check_fqdn(self,
+                               os.popen("hostname -f | tr -d '\n'").read())
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
                     packages = packages + [["https://github.com/opensolutions/"
@@ -990,8 +1010,11 @@ class EEStackController(CementBaseController):
                                             "Roundcube"]]
 
                     if EEVariables.ee_ram > 1024:
-                        apt_packages = (apt_packages +
-                                        EEVariables.ee_mailscanner)
+                        self.app.pargs.mailscanner = True
+                    else:
+                        Log.info(self, "System RAM is less than 1GB\nMail "
+                                 "scanner packages are not going to install"
+                                 " automatically")
                 else:
                     Log.info(self, "Mail server is already installed")
 
@@ -1049,6 +1072,9 @@ class EEStackController(CementBaseController):
                                         "/var/www/22222/"
                                         "htdocs/db/adminer/index.php",
                                         "Adminer"]]
+
+            if self.app.pargs.mailscanner:
+                apt_packages = (apt_packages + EEVariables.ee_mailscanner)
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1149,6 +1175,9 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
+        if self.app.pargs.mailscanner:
+            apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
         if self.app.pargs.nginx:
             Log.debug(self, "Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
@@ -1224,6 +1253,9 @@ class EEStackController(CementBaseController):
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
+
+        if self.app.pargs.mailscanner:
+            apt_packages = (apt_packages + EEVariables.ee_mailscanner)
 
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")
