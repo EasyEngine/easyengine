@@ -883,8 +883,8 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["
                                      "\'plugins\'\] "
                                      "= array(:\$config\['plugins'\] =  "
-                                     "array(\n\'sieverules\',:\\\" /var/www"
-                                     "/roundcubemail/htdocs/config"
+                                     "array(\\n    \'sieverules\',:\\\" "
+                                     "/var/www/roundcubemail/htdocs/config"
                                      "/config.inc.php\"")
                 EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
                                      "=4190;\" >> /var/www/roundcubemail"
