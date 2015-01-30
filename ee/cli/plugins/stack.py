@@ -473,6 +473,19 @@ class EEStackController(CementBaseController):
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
 
+                EEShellExec.cmd_exec(self, "sed -i \"s/\\!include "
+                                     "auth-system.conf.ext/#\\!include "
+                                     "auth-system.conf.ext/\" "
+                                     "/etc/dovecot/conf.d/10-auth.conf")
+
+                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                     "dovecot.pem\'/etc/ssl/certs/dovecot.pem"
+                                     "\'\" /etc/dovecot/conf.d/10-ssl.conf")
+                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                     "private/dovecot.pem\'/etc/ssl/private"
+                                     "/dovecot.pem\'\" /etc/dovecot/conf.d/"
+                                     "10-ssl.conf")
+
                 # Custom Postfix configuration needed with Dovecot
                 # Changes in master.cf
                 # TODO: Find alternative for sed in Python
@@ -561,7 +574,7 @@ class EEStackController(CementBaseController):
                                      "default.sieve")
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
                           msg="Installed mail server")
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
@@ -598,7 +611,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Restarting clamav-daemon service")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
                 EEService.reload_service(self, 'amavis')
 
@@ -817,7 +830,7 @@ class EEStackController(CementBaseController):
                     self.app.render((data), '50-user.mustache',
                                     out=vm_config)
                     vm_config.close()
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
                 EEService.reload_service(self, 'php5-fpm')
                 self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
