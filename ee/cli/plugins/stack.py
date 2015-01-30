@@ -82,7 +82,8 @@ class EEStackController(CementBaseController):
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
-            EERepo.add_key(self, '1C4CBDCDCD2EFD2A')
+            EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
+                           keyserver="subkeys.pgp.net")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.info(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
