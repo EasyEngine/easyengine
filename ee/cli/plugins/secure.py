@@ -20,7 +20,7 @@ class EESecureController(CementBaseController):
         label = 'secure'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('clean command cleans different cache ')
+        description = ('Secure command secure auth, ip and port')
         arguments = [
             (['--auth'],
                 dict(help='secure auth', action='store_true')),
