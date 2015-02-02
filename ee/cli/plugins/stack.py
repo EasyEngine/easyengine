@@ -12,6 +12,7 @@ from ee.core.extract import EEExtract
 from ee.core.mysql import EEMysql
 from ee.core.addswap import EESwap
 from ee.core.git import EEGit
+from ee.core.checkfqdn import check_fqdn
 from pynginxconfig import NginxConfig
 from ee.core.services import EEService
 import random
@@ -44,6 +45,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install admin tools stack', action='store_true')),
             (['--mail'],
                 dict(help='Install mail server stack', action='store_true')),
+            (['--mailscanner'],
+                dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
             (['--php'],
@@ -82,7 +85,8 @@ class EEStackController(CementBaseController):
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
-            EERepo.add_key(self, '1C4CBDCDCD2EFD2A')
+            EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
+                           keyserver="subkeys.pgp.net")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.info(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
@@ -466,12 +470,25 @@ class EEStackController(CementBaseController):
                                      "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
-                data = dict()
+                data = dict(email=EEVariables.ee_email)
                 Log.debug(self, "Writting configuration into file"
                           "/etc/dovecot/conf.d/99-ee.conf ")
                 ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
+
+                EEShellExec.cmd_exec(self, "sed -i \"s/\\!include "
+                                     "auth-system.conf.ext/#\\!include "
+                                     "auth-system.conf.ext/\" "
+                                     "/etc/dovecot/conf.d/10-auth.conf")
+
+                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                     "dovecot.pem\'/etc/ssl/certs/dovecot.pem"
+                                     "\'\" /etc/dovecot/conf.d/10-ssl.conf")
+                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                     "private/dovecot.pem\'/etc/ssl/private"
+                                     "/dovecot.pem\'\" /etc/dovecot/conf.d/"
+                                     "10-ssl.conf")
 
                 # Custom Postfix configuration needed with Dovecot
                 # Changes in master.cf
@@ -514,14 +531,14 @@ class EEStackController(CementBaseController):
                                      "= static:5000\"")
                 EEShellExec.cmd_exec(self, "postconf -e \""
                                      " virtual_mailbox_domains = "
-                                     " mysql:/etc/postfix/mysql/virtual_"
-                                     " domains_maps.cf\"")
+                                     "mysql:/etc/postfix/mysql/virtual_"
+                                     "domains_maps.cf\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"virtual_mailbox_maps"
                                      " = mysql:/etc/postfix/mysql/virtual_"
                                      "mailbox_maps.cf\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"virtual_alias_maps  "
                                      "= mysql:/etc/postfix/mysql/virtual_"
-                                     " alias_maps.cf\"")
+                                     "alias_maps.cf\"")
                 EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
                                      " 3650 -nodes -subj /commonName="
                                      "{HOSTNAME}/emailAddress={EMAIL}"
@@ -534,7 +551,7 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_cert_file "
                                      "= /etc/ssl/certs/postfix.pem\"")
                 EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_key_file "
-                                     " = /etc/ssl/private/postfix.pem\"")
+                                     "= /etc/ssl/private/postfix.pem\"")
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
@@ -561,7 +578,7 @@ class EEStackController(CementBaseController):
                                      "default.sieve")
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
                           msg="Installed mail server")
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
@@ -574,6 +591,20 @@ class EEStackController(CementBaseController):
                 self.app.render((data), '15-content_filter_mode.mustache',
                                 out=ee_amavis)
                 ee_amavis.close()
+
+                # Amavis ViMbadmin configuration
+                if os.path.isfile("/etc/postfix/mysql/virtual_alias_maps.cf"):
+                    vm_host = os.popen("grep hosts /etc/postfix/mysql/virtual_"
+                                       "alias_maps.cf | awk \'{ print $3 }\' |"
+                                       " tr -d '\\n'").read()
+                    vm_pass = os.popen("grep password /etc/postfix/mysql/"
+                                       "virtual_alias_maps.cf | awk \'{ print "
+                                       "$3 }\' | tr -d '\\n'").read()
+
+                    data = dict(host=vm_host, password=vm_pass)
+                    vm_config = open('/etc/amavis/conf.d/50-user', 'w')
+                    self.app.render((data), '50-user.mustache', out=vm_config)
+                    vm_config.close()
 
                 # Amavis postfix configuration
                 EEShellExec.cmd_exec(self, "postconf -e \"content_filter = "
@@ -598,7 +629,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Restarting clamav-daemon service")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
                 EEService.reload_service(self, 'amavis')
 
@@ -776,7 +807,13 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Creating directory "
                               "/etc/postfix/mysql/")
                     os.makedirs('/etc/postfix/mysql/')
-                data = dict(password=vm_passwd, host=EEVariables.ee_mysql)
+
+                if EEVariables.ee_mysql_host is "localhost":
+                    data = dict(password=vm_passwd, host="127.0.0.1")
+                else:
+                    data = dict(password=vm_passwd,
+                                host=EEVariables.ee_mysql_host)
+
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
                                  'w')
                 self.app.render((data), 'virtual_alias_maps.mustache',
@@ -817,7 +854,7 @@ class EEStackController(CementBaseController):
                     self.app.render((data), '50-user.mustache',
                                     out=vm_config)
                     vm_config.close()
-                EEService.reload_service(self, 'dovecot')
+                EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
                 EEService.reload_service(self, 'php5-fpm')
                 self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
@@ -870,8 +907,8 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["
                                      "\'plugins\'\] "
                                      "= array(:\$config\['plugins'\] =  "
-                                     "array(\n\'sieverules\',:\\\" /var/www"
-                                     "/roundcubemail/htdocs/config"
+                                     "array(\\n    \'sieverules\',:\\\" "
+                                     "/var/www/roundcubemail/htdocs/config"
                                      "/config.inc.php\"")
                 EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
                                      "=4190;\" >> /var/www/roundcubemail"
@@ -929,7 +966,8 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and
-               (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+               (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+               (not self.app.pargs.mailscanner)):
                 self.app.pargs.web = True
 
             if self.app.pargs.web:
@@ -956,6 +994,8 @@ class EEStackController(CementBaseController):
                 self.app.pargs.postfix = True
 
                 if not EEAptGet.is_installed(self, 'dovecot-core'):
+                    check_fqdn(self,
+                               os.popen("hostname -f | tr -d '\n'").read())
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
                     packages = packages + [["https://github.com/opensolutions/"
@@ -971,8 +1011,11 @@ class EEStackController(CementBaseController):
                                             "Roundcube"]]
 
                     if EEVariables.ee_ram > 1024:
-                        apt_packages = (apt_packages +
-                                        EEVariables.ee_mailscanner)
+                        self.app.pargs.mailscanner = True
+                    else:
+                        Log.info(self, "System RAM is less than 1GB\nMail "
+                                 "scanner packages are not going to install"
+                                 " automatically")
                 else:
                     Log.info(self, "Mail server is already installed")
 
@@ -1030,6 +1073,9 @@ class EEStackController(CementBaseController):
                                         "/var/www/22222/"
                                         "htdocs/db/adminer/index.php",
                                         "Adminer"]]
+
+            if self.app.pargs.mailscanner:
+                apt_packages = (apt_packages + EEVariables.ee_mailscanner)
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1130,6 +1176,9 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
 
+        if self.app.pargs.mailscanner:
+            apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
         if self.app.pargs.nginx:
             Log.debug(self, "Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
@@ -1205,6 +1254,9 @@ class EEStackController(CementBaseController):
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
+
+        if self.app.pargs.mailscanner:
+            apt_packages = (apt_packages + EEVariables.ee_mailscanner)
 
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")

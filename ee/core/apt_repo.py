@@ -48,11 +48,12 @@ class EERepo():
                              "--remove '{ppa_name}'"
                              .format(ppa_name=repo_url))
 
-    def add_key(keyids, keyserver=None):
+    def add_key(self, keyids, keyserver=None):
         if keyserver is None:
-            EEShellExec.cmd_exec("gpg --keyserver {serv}"
-                                 .format(serv=(keyserver
-                                         or "hkp://keys.gnupg.net"))
+            EEShellExec.cmd_exec(self, "gpg --keyserver {serv}"
+                                 .format(serv=(keyserver or
+                                               "hkp://keys.gnupg.net"))
                                  + " --recv-keys {key}".format(key=keyids))
-            EEShellExec.cmd_exec("gpg -a --export --armor {0}".format(keyids)
+            EEShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
+                                 .format(keyids)
                                  + " | apt-key add - ")

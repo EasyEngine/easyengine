@@ -8,7 +8,7 @@ $final_spam_destiny  = D_PASS;
 
 # We need to provide list of domains for which filtering need to be done
 @lookup_sql_dsn = (
-['DBI:mysql:database=vimbadmin;host=127.0.0.1;port=3306',
+['DBI:mysql:database=vimbadmin;host={{host}};port=3306',
 'vimbadmin',
 '{{password}}']);
 

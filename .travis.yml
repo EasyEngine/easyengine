@@ -13,6 +13,8 @@ before_install:
   - rm -rf ~/.gnupg
 
 before_script:
+  - sudo bash -c 'echo example.com > /etc/hostname'
+  - sudo service hostname restart
   - sudo apt-get -qq purge mysql* graphviz*
   - sudo apt-get -qq autoremove
 
