@@ -4,6 +4,7 @@ import os
 
 
 def check_fqdn(self, ee_host):
+    """FQDN check with EasyEngine, for mail server hostname must be FQDN"""
     #ee_host=os.popen("hostname -f | tr -d '\n'").read()
     if '.' in ee_host:
         EEVariables.ee_fqdn = ee_host

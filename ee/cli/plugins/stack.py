@@ -68,11 +68,12 @@ class EEStackController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        # TODO Default action for ee stack command
+        """default action of ee stack command"""
         self.app.args.print_help()
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
+        """Pre settings to do before installation packages"""
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             Log.info(self, "Pre-seeding Postfix")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
@@ -143,6 +144,7 @@ class EEStackController(CementBaseController):
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
+        """Post activity after installation of packages"""
         if len(apt_packages):
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                 EEGit.add(self, ["/etc/postfix"],
@@ -1033,6 +1035,7 @@ class EEStackController(CementBaseController):
 
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
+        """Start installation of packages"""
         self.msg = []
         try:
             # Default action for stack installation
@@ -1225,6 +1228,7 @@ class EEStackController(CementBaseController):
 
     @expose(help="Remove packages")
     def remove(self):
+        """Start removal of packages"""
         apt_packages = []
         packages = []
 
@@ -1312,6 +1316,7 @@ class EEStackController(CementBaseController):
 
     @expose(help="Purge packages")
     def purge(self):
+        """Start purging of packages"""
         apt_packages = []
         packages = []
 

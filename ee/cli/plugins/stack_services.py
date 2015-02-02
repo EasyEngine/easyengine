@@ -19,6 +19,7 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="Start stack services")
     def start(self):
+        """Start services"""
         services = []
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service start")
@@ -46,6 +47,7 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="Stop stack services")
     def stop(self):
+        """Stop services"""
         services = []
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service stop")
@@ -73,6 +75,7 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="Restart stack services")
     def restart(self):
+        """Restart services"""
         services = []
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service restart")
@@ -100,6 +103,7 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="Get stack status")
     def status(self):
+        """Status of services"""
         services = []
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service status")
@@ -128,6 +132,7 @@ class EEStackStatusController(CementBaseController):
 
     @expose(help="Reload stack services")
     def reload(self):
+        """Reload service"""
         services = []
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service reload")
