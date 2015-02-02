@@ -5,6 +5,7 @@ from cement.core import handler, hook
 from pynginxconfig import NginxConfig
 from ee.core.aptget import EEAptGet
 from ee.core.shellexec import EEShellExec
+from ee.core.logging import Log
 import os
 import configparser
 
@@ -180,13 +181,13 @@ class EEInfoController(CementBaseController):
             if EEAptGet.is_installed(self, 'php5-fpm'):
                 self.info_php()
             else:
-                Log.error("PHP5 is not installed")
+                Log.error(self, "PHP5 is not installed")
 
         if self.app.pargs.mysql:
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 self.info_mysql()
             else:
-                Log.error("MySQL is not installed")
+                Log.error(self, "MySQL is not installed")
 
 
 def load(app):
