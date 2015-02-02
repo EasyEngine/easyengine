@@ -12,6 +12,14 @@ class EERepo():
         pass
 
     def add(self, repo_url=None, ppa=None):
+        """
+        This function used to add apt repositories and or ppa's
+        If repo_url is provided adds repo file to
+            /etc/apt/sources.list.d/
+        If ppa is provided add apt-repository using
+            add-apt-repository
+        command.
+        """
 
         if repo_url is not None:
             repo_file_path = ("/etc/apt/sources.list.d/"
@@ -43,12 +51,23 @@ class EERepo():
                                            "'{ppa_name}'"
                                      .format(ppa_name=ppa))
 
-    def remove(self, repo_url=None):
+    def remove(self, ppa=None):
+        """
+        This function used to remove ppa's
+        If ppa is provided adds repo file to
+            /etc/apt/sources.list.d/
+        command.
+        """
         EEShellExec.cmd_exec(self, "add-apt-repository -y "
                              "--remove '{ppa_name}'"
                              .format(ppa_name=repo_url))
 
     def add_key(self, keyids, keyserver=None):
+        """
+        This function adds imports repository keys from keyserver.
+        default keyserver is hkp://keys.gnupg.net
+        user can provide other keyserver with keyserver="hkp://xyz"
+        """
         if keyserver is None:
             EEShellExec.cmd_exec(self, "gpg --keyserver {serv}"
                                  .format(serv=(keyserver or

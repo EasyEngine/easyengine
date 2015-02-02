@@ -3,6 +3,9 @@ from ee.core.database import Base
 
 
 class SiteDB(Base):
+    """
+        Databse model for site table
+    """
     __tablename__ = 'sites'
     id = Column(Integer, primary_key=True)
     sitename = Column(String, unique=True)

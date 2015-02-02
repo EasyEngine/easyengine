@@ -11,6 +11,10 @@ class EEGit:
         pass
 
     def add(self, paths, msg="Intializating"):
+        """
+            Initializes Directory as repository if not already git repo.
+            and adds uncommited changes automatically
+        """
         for path in paths:
             global git
             git = git.bake("--git-dir={0}/.git".format(path),
@@ -40,6 +44,9 @@ class EEGit:
                 Log.debug(self, "EEGit: Path {0} not present".format(path))
 
     def checkfilestatus(self, repo, filepath):
+        """
+            Checks status of file, If its tracked or untracked.
+        """
         global git
         git = git.bake("--git-dir={0}/.git".format(repo),
                        "--work-tree={0}".format(repo))

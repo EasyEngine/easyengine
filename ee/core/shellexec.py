@@ -36,6 +36,9 @@ class EEShellExec():
                           .format(command))
 
     def invoke_editor(self, filepath, errormsg=''):
+        """
+            Open files using sensible editor
+        """
         try:
             subprocess.call(['sensible-editor', filepath])
         except OSError as e:

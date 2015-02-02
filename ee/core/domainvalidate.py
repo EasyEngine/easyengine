@@ -3,6 +3,10 @@ from urllib.parse import urlparse
 
 
 def ValidateDomain(url):
+    """
+        This function returns domain name removing http:// and https://
+        returns domain name only with or without www as user provided.
+    """
 
     # Check if http:// or https://  present remove it if present
     domain_name = url.split('/')

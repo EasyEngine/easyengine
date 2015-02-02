@@ -10,6 +10,9 @@ class EEAptGet():
     """Generic apt-get intialisation"""
 
     def update(self):
+        """
+        Similar to `apt-get upgrade`
+        """
         try:
             apt_cache = apt.cache.Cache()
             apt_cache.update()
@@ -22,6 +25,9 @@ class EEAptGet():
             Log.error(self, 'AttributeError: ' + str(e))
 
     def dist_upgrade():
+        """
+        Similar to `apt-get upgrade`
+        """
         apt_cache = apt.cache.Cache()
         apt_cache.update()
         apt_cache.open(None)
@@ -33,7 +39,9 @@ class EEAptGet():
         return success
 
     def install(self, packages):
-        """Installation of packages"""
+        """
+        Similar to `apt-get install`
+        """
         apt_pkg.init()
         # #apt_pkg.PkgSystemLock()
         global apt_cache
@@ -79,6 +87,10 @@ class EEAptGet():
                 continue
 
     def remove(self, packages, auto=False, purge=False):
+        """
+            Similar to `apt-get remove/purge`
+            purge packages if purge=True
+        """
         apt_pkg.init()
         # apt_pkg.PkgSystemLock()
         global apt_cache
@@ -122,6 +134,9 @@ class EEAptGet():
                 continue
 
     def auto_clean(self):
+        """
+        Similar to `apt-get autoclean`
+        """
         try:
             apt_get.autoclean("-y")
         except ErrorReturnCode as e:
@@ -129,6 +144,9 @@ class EEAptGet():
             Log.error(self, "Unable to apt-get autoclean")
 
     def auto_remove(self):
+        """
+        Similar to `apt-get autoremove`
+        """
         try:
             Log.debug(self, "Running apt-get autoremove")
             apt_get.autoremove("-y")
@@ -137,6 +155,10 @@ class EEAptGet():
             Log.error(self, "Unable to apt-get autoremove")
 
     def is_installed(self, package_name):
+        """
+        Checks if package is available in cache and is installed or not
+        returns True if installed otherwise returns False
+        """
         apt_cache = apt.cache.Cache()
         apt_cache.open()
         if (package_name.strip() in apt_cache and
