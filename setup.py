@@ -77,7 +77,8 @@ setup(name='ee',
                   ('/etc/ee/plugins.d', conf),
                   ('/usr/lib/ee/templates', templates),
                   ('/etc/bash_completion.d/',
-                   ['config/bash_completion.d/ee_auto.rc'])],
+                   ['config/bash_completion.d/ee_auto.rc']),
+                  ('/usr/share/man/man8/', ['docs/ee.8'])],
       setup_requires=[],
       entry_points="""
           [console_scripts]
