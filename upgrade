@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# EasyEngine update script.
+# This script is designed to update current EasyEngine from 2.2.2 to 3.x
+# Define echo function
+# Blue color
+
+function ee_lib_echo()
+{
+    echo $(tput setaf 4)$@$(tput sgr0)
+}
+# White color
+function ee_lib_echo_info()
+{
+    echo $(tput setaf 7)$@$(tput sgr0)
+}
+# Red color
+function ee_lib_echo_fail()
+{
+    echo $(tput setaf 1)$@$(tput sgr0)
+}
+
+# Checking permissions
+if [[ $EUID -ne 0 ]]; then
+    ee_lib_echo_fail "Sudo privilege required..."
+    ee_lib_echo_fail "Uses: wget -qO ee rt.cx/ee && sudo bash ee"
+    exit 1
+fi
+
+# Check old EasyEngine is installed or not
+which ee > /dev/null
+if [[ $? -ne 0 ]]; then
+    ee_lib_echo_fail "EasyEngine 2.0 not found"
+    exit 1
+fi
+
+# Check old EasyEngine version
+ee version | grep "2.2.2" > /dev/null
+if [[ $? -ne 0 ]]; then
+    ee_lib_echo_fail "EasyEngine 2.2.2 not found on your system"
+    ee_lib_echo_fail "Please update is using command: ee update"
+    exit 1
+fi
+
+# Execute: apt-get update
+ee_lib_echo "Executing apt-get update"
+apt-get update &>> /dev/null
+
+# Install Python3 on users system
+ee_lib_echo "Installing Python3 on system"
