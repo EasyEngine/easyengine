@@ -8,7 +8,7 @@ function ee_mod_repo_mysql()
 	|| ee_lib_error "Unable to add Percona repository, exit status = " $?
 
 	# Fetch and install Percona GnuPG key
-	gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A &>> $EE_COMMAND_LOG && \
+	gpg --keyserver  hkp://keyserver.ubuntu.com/ --recv-keys 1C4CBDCDCD2EFD2A &>> $EE_COMMAND_LOG && \
 	gpg -a --export CD2EFD2A | apt-key add - &>> $EE_COMMAND_LOG \
 	|| ee_lib_error "Unable to add Percona GnuPG key, exit status = " $?
 }
