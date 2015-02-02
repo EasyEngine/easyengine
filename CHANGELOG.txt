@@ -1,3 +1,6 @@
+v 2.2.3 - Feb 01,2015
+- Fixed installation issue of Percona Mysql
+
 v 2.2.2 - Dec 03,2014
 - Fixed installation issue of Percona Mysql on Debian
 - Fixed error during ViMbAdmin installation
