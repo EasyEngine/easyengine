@@ -15,6 +15,7 @@ from ee.core.git import EEGit
 from ee.core.checkfqdn import check_fqdn
 from pynginxconfig import NginxConfig
 from ee.core.services import EEService
+from ee.core.variables import EEVariables
 import random
 import string
 import configparser
@@ -284,48 +285,64 @@ class EEStackController(CementBaseController):
                                                       'sites-enabled/'
                                                       '22222.conf'])
                     # Create log and cert folder and softlinks
-                    if not os.path.exists('/var/www/22222/logs'):
+                    if not os.path.exists('{0}22222/logs'
+                                          .format(EEVariables.ee_webroot)):
                         Log.debug(self, "Creating directory "
-                                  "/var/www/22222/logs ")
-                        os.makedirs('/var/www/22222/logs')
+                                  "{0}22222/logs "
+                                  .format(EEVariables.ee_webroot))
+                        os.makedirs('{0}22222/logs'
+                                    .format(EEVariables.ee_webroot))
 
-                    if not os.path.exists('/var/www/22222/cert'):
+                    if not os.path.exists('{0}22222/cert'
+                                          .format(EEVariables.ee_webroot)):
                         Log.debug(self, "Creating directory "
-                                  "/var/www/22222/cert")
-                        os.makedirs('/var/www/22222/cert')
+                                  "{0}22222/cert"
+                                  .format(EEVariables.ee_webroot))
+                        os.makedirs('{0}22222/cert'
+                                    .format(EEVariables.ee_webroot))
 
                     EEFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                       '22222.access.log',
-                                                      '/var/www/22222/'
-                                                      'logs/access.log'])
+                                                      '{0}22222/'
+                                                      'logs/access.log'
+                                               .format(EEVariables.ee_webroot)]
+                                               )
 
                     EEFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                       '22222.error.log',
-                                                      '/var/www/22222/'
-                                                      'logs/error.log'])
+                                                      '{0}22222/'
+                                                      'logs/error.log'
+                                               .format(EEVariables.ee_webroot)]
+                                               )
 
                     EEShellExec.cmd_exec(self, "openssl genrsa -out "
-                                         "/var/www/22222/cert/22222.key 2048")
+                                         "{0}22222/cert/22222.key 2048"
+                                         .format(EEVariables.ee_webroot))
                     EEShellExec.cmd_exec(self, "openssl req -new -batch -subj "
                                                "/commonName=127.0.0.1/ -key "
-                                               "/var/www/22222/cert/22222.key "
-                                               "-out /var/www/22222/cert/"
-                                               "22222.csr")
+                                               "{0}22222/cert/22222.key "
+                                               "-out {0}22222/cert/"
+                                               "22222.csr"
+                                         .format(EEVariables.ee_webroot))
 
-                    EEFileUtils.mvfile(self, "/var/www/22222/cert/22222.key",
-                                             "/var/www/22222/cert/"
-                                             "22222.key.org")
+                    EEFileUtils.mvfile(self, "{0}22222/cert/22222.key"
+                                       .format(EEVariables.ee_webroot),
+                                             "{0}22222/cert/"
+                                             "22222.key.org"
+                                       .format(EEVariables.ee_webroot))
 
                     EEShellExec.cmd_exec(self, "openssl rsa -in "
-                                               "/var/www/22222/cert/"
+                                               "{0}22222/cert/"
                                                "22222.key.org -out "
-                                               "/var/www/22222/cert/22222.key")
+                                               "{0}22222/cert/22222.key"
+                                         .format(EEVariables.ee_webroot))
 
                     EEShellExec.cmd_exec(self, "openssl x509 -req -days 3652 "
-                                               "-in /var/www/22222/cert/"
-                                               "22222.csr -signkey /var/www/"
+                                               "-in {0}22222/cert/"
+                                               "22222.csr -signkey {0}"
                                                "22222/cert/22222.key -out "
-                                               "/var/www/22222/cert/22222.crt")
+                                               "{0}22222/cert/22222.crt"
+                                         .format(EEVariables.ee_webroot))
                     # Nginx Configation into GIT
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
@@ -405,23 +422,33 @@ class EEStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # PHP and Debug pull configuration
-                if not os.path.exists('/var/www/22222/htdocs/fpm/status/'):
+                if not os.path.exists('{0}22222/htdocs/fpm/status/'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, 'Creating directory '
-                              '/var/www/22222/htdocs/fpm/status/ ')
-                    os.makedirs('/var/www/22222/htdocs/fpm/status/')
-                open('/var/www/22222/htdocs/fpm/status/debug', 'a').close()
-                open('/var/www/22222/htdocs/fpm/status/php', 'a').close()
+                              '{0}22222/htdocs/fpm/status/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/fpm/status/'
+                                .format(EEVariables.ee_webroot))
+                open('{0}22222/htdocs/fpm/status/debug'
+                     .format(EEVariables.ee_webroot), 'a').close()
+                open('{0}22222/htdocs/fpm/status/php'
+                     .format(EEVariables.ee_webroot), 'a').close()
 
                 # Write info.php
-                if not os.path.exists('/var/www/22222/htdocs/php/'):
+                if not os.path.exists('{0}22222/htdocs/php/'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, 'Creating directory '
-                              '/var/www/22222/htdocs/php/ ')
-                    os.makedirs('/var/www/22222/htdocs/php')
+                              '{0}22222/htdocs/php/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/php'
+                                .format(EEVariables.ee_webroot))
 
-                with open("/var/www/22222/htdocs/php/info.php", "w") as myfile:
+                with open("{0}22222/htdocs/php/info.php"
+                          .format(EEVariables.ee_webroot), "w") as myfile:
                     myfile.write("<?php\nphpinfo();\n?>")
 
-                EEFileUtils.chown(self, "/var/www/22222", 'www-data',
+                EEFileUtils.chown(self, "{0}22222"
+                                  .format(EEVariables.ee_webroot), 'www-data',
                                   'www-data', recursive=True)
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
@@ -642,31 +669,41 @@ class EEStackController(CementBaseController):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
                 Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
                           'loaction /tmp/')
-                if not os.path.exists('/var/www/22222/htdocs/db'):
+                if not os.path.exists('{0}22222/htdocs/db'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating new  directory "
-                              "/var/www/22222/htdocs/db")
-                    os.makedirs('/var/www/22222/htdocs/db')
+                              "{0}22222/htdocs/db"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/db'
+                                .format(EEVariables.ee_webroot))
                 shutil.move('/tmp/phpmyadmin-STABLE/',
-                            '/var/www/22222/htdocs/db/pma/')
+                            '{0}22222/htdocs/db/pma/'
+                            .format(EEVariables.ee_webroot))
                 Log.debug(self, 'Setting Privileges of www-data:www-data to  '
-                          '/var/www/22222/htdocs/db/pma file ')
+                          '{0}22222/htdocs/db/pma file '
+                          .format(EEVariables.ee_webroot))
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/db/pma')
-                EEFileUtils.chown(self, '/var/www/22222',
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user,
                                   recursive=True)
             if any('/tmp/memcache.tar.gz' == x[1]
                     for x in packages):
                 Log.debug(self, "Extracting memcache.tar.gz to location"
-                          " /var/www/22222/htdocs/cache/memcache ")
+                          " {0}22222/htdocs/cache/memcache "
+                          .format(EEVariables.ee_webroot))
                 EEExtract.extract(self, '/tmp/memcache.tar.gz',
-                                  '/var/www/22222/htdocs/cache/memcache')
+                                  '{0}22222/htdocs/cache/memcache'
+                                  .format(EEVariables.ee_webroot))
                 Log.debug(self, "Setting Privileges to "
-                          "/var/www/22222/htdocs/cache/memcache file")
+                          "{0}22222/htdocs/cache/memcache file"
+                          .format(EEVariables.ee_webroot))
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/cache/memcache')
-                EEFileUtils.chown(self, '/var/www/22222',
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user,
                                   recursive=True)
@@ -676,20 +713,27 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Extracting file webgrind.tar.gz to "
                           "location /tmp/ ")
                 EEExtract.extract(self, '/tmp/webgrind.tar.gz', '/tmp/')
-                if not os.path.exists('/var/www/22222/htdocs/php'):
+                if not os.path.exists('{0}22222/htdocs/php'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating directroy "
-                              "/var/www/22222/htdocs/php")
-                    os.makedirs('/var/www/22222/htdocs/php')
+                              "{0}22222/htdocs/php"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/php'
+                                .format(EEVariables.ee_webroot))
                 shutil.move('/tmp/webgrind-master/',
-                            '/var/www/22222/htdocs/php/webgrind')
+                            '{0}22222/htdocs/php/webgrind'
+                            .format(EEVariables.ee_webroot))
                 EEShellExec.cmd_exec(self, "sed -i \"s\'/usr/local/bin/dot\'"
-                                     "/usr/bin/dot\'\" /var/www/22222/htdocs/"
-                                     "php/webgrind/config.php")
+                                     "/usr/bin/dot\'\" {0}22222/htdocs/"
+                                     "php/webgrind/config.php"
+                                     .format(EEVariables.ee_webroot))
                 Log.debug(self, "Setting Privileges of www-data:www-data to "
-                          "/var/www/22222/htdocs/php/webgrind/ file ")
+                          "{0}22222/htdocs/php/webgrind/ file "
+                          .format(EEVariables.ee_webroot))
                 # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
                 #                     '/var/www/22222/htdocs/php/webgrind/')
-                EEFileUtils.chown(self, '/var/www/22222',
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user,
                                   recursive=True)
@@ -699,14 +743,18 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Extracting file anemometer.tar.gz to "
                           "location /tmp/ ")
                 EEExtract.extract(self, '/tmp/anemometer.tar.gz', '/tmp/')
-                if not os.path.exists('/var/www/22222/htdocs/db/'):
+                if not os.path.exists('{0}22222/htdocs/db/'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating directory")
-                    os.makedirs('/var/www/22222/htdocs/db/')
+                    os.makedirs('{0}22222/htdocs/db/'
+                                .format(EEVariables.ee_webroot))
                 shutil.move('/tmp/Anemometer-master',
-                            '/var/www/22222/htdocs/db/anemometer')
+                            '{0}22222/htdocs/db/anemometer'
+                            .format(EEVariables.ee_webroot))
                 chars = ''.join(random.sample(string.ascii_letters, 8))
-                EEShellExec.cmd_exec(self, 'mysql < /var/www/22222/htdocs/db'
-                                     '/anemometer/install.sql')
+                EEShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                     '/anemometer/install.sql'
+                                     .format(EEVariables.ee_webroot))
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\''.format(self.app.config.get('mysql',
                                                   'grant-host')))
@@ -720,8 +768,9 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "configration Anemometer")
                 data = dict(host=EEVariables.ee_mysql_host, port='3306',
                             user='anemometer', password=chars)
-                ee_anemometer = open('/var/www/22222/htdocs/db/anemometer'
-                                     '/conf/config.inc.php', 'w')
+                ee_anemometer = open('{0}22222/htdocs/db/anemometer'
+                                     '/conf/config.inc.php'
+                                     .format(EEVariables.ee_webroot), 'w')
                 self.app.render((data), 'anemometer.mustache',
                                 out=ee_anemometer)
                 ee_anemometer.close()
@@ -736,27 +785,33 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Extracting ViMbAdmin.tar.gz to "
                           "location /tmp/")
                 EEExtract.extract(self, '/tmp/vimbadmin.tar.gz', '/tmp/')
-                if not os.path.exists('/var/www/22222/htdocs/'):
+                if not os.path.exists('{0}22222/htdocs/'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating directory "
-                              "/var/www/22222/htdocs/")
-                    os.makedirs('/var/www/22222/htdocs/')
+                              "{0}22222/htdocs/"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/'
+                                .format(EEVariables.ee_webroot))
                 shutil.move('/tmp/ViMbAdmin-{0}/'
                             .format(EEVariables.ee_vimbadmin),
-                            '/var/www/22222/htdocs/vimbadmin/')
+                            '{0}22222/htdocs/vimbadmin/'
+                            .format(EEVariables.ee_webroot))
 
                 # Donwload composer and install ViMbAdmin
                 Log.debug(self, "Downloading composer "
                           "https://getcomposer.org/installer | php ")
-                EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
+                EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
                                      "/vimbadmin; curl"
                                      " -sS https://getcomposer.org/installer |"
-                                     " php")
+                                     " php".format(EEVariables.ee_webroot))
                 Log.debug(self, "installation of composer")
-                EEShellExec.cmd_exec(self, "cd /var/www/22222/htdocs"
+                EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
                                      "/vimbadmin && "
                                      "php composer.phar install --prefer-dist"
-                                     " --no-dev && rm -f /var/www/22222/htdocs"
-                                     "/vimbadmin/composer.phar")
+                                     " --no-dev && rm -f {1}22222/htdocs"
+                                     "/vimbadmin/composer.phar"
+                                     .format(EEVariables.ee_webroot,
+                                             EEVariables.ee_webroot))
 
                 # Configure vimbadmin database
                 vm_passwd = ''.join(random.sample(string.ascii_letters, 8))
@@ -775,27 +830,31 @@ class EEStackController(CementBaseController):
                 data = dict(salt=vm_salt, host=EEVariables.ee_mysql_host,
                             password=vm_passwd)
                 Log.debug(self, 'Writting the ViMbAdmin configuration to '
-                          'file /var/www/22222/htdocs/vimbadmin/application/'
-                          'configs/application.ini')
-                ee_vmb = open('/var/www/22222/htdocs/vimbadmin/application/'
-                              'configs/application.ini', 'w')
+                          'file {0}22222/htdocs/vimbadmin/application/'
+                          'configs/application.ini'
+                          .format(EEVariables.ee_webroot))
+                ee_vmb = open('{0}22222/htdocs/vimbadmin/application/'
+                              'configs/application.ini'
+                              .format(EEVariables.ee_webroot), 'w')
                 self.app.render((data), 'vimbadmin.mustache',
                                 out=ee_vmb)
                 ee_vmb.close()
 
-                shutil.copyfile("/var/www/22222/htdocs/vimbadmin/public/"
-                                ".htaccess.dist",
-                                "/var/www/22222/htdocs/vimbadmin/public/"
-                                ".htaccess")
+                shutil.copyfile("{0}22222/htdocs/vimbadmin/public/"
+                                ".htaccess.dist"
+                                .format(EEVariables.ee_webroot),
+                                "{0}22222/htdocs/vimbadmin/public/"
+                                ".htaccess".format(EEVariables.ee_webroot))
                 Log.debug(self, "Executing command "
-                          "/var/www/22222/htdocs/vimbadmin/bin"
+                          "{0}22222/htdocs/vimbadmin/bin"
                           "/doctrine2-cli.php orm:schema-tool:"
-                          "create")
-                EEShellExec.cmd_exec(self, "/var/www/22222/htdocs/vimbadmin"
+                          "create".format(EEVariables.ee_webroot))
+                EEShellExec.cmd_exec(self, "{0}22222/htdocs/vimbadmin"
                                      "/bin/doctrine2-cli.php orm:schema-tool:"
-                                     "create")
+                                     "create".format(EEVariables.ee_webroot))
 
-                EEFileUtils.chown(self, '/var/www/22222',
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user,
                                   recursive=True)
@@ -866,13 +925,17 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Extracting file /tmp/roundcube.tar.gz "
                           "to location /tmp/ ")
                 EEExtract.extract(self, '/tmp/roundcube.tar.gz', '/tmp/')
-                if not os.path.exists('/var/www/roundcubemail'):
+                if not os.path.exists('{0}roundcubemail'
+                                      .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating new directory "
-                              " /var/www/roundcubemail/")
-                    os.makedirs('/var/www/roundcubemail/')
+                              " {0}roundcubemail/"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}roundcubemail/'
+                                .format(EEVariables.ee_webroot))
                 shutil.move('/tmp/roundcubemail-{0}/'
                             .format(EEVariables.ee_roundcube),
-                            '/var/www/roundcubemail/htdocs')
+                            '{0}roundcubemail/htdocs'
+                            .format(EEVariables.ee_webroot))
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
@@ -886,33 +949,39 @@ class EEStackController(CementBaseController):
                                 "'{1}'".format(self.app.config.get(
                                                'mysql', 'grant-host'),
                                                rc_passwd))
-                EEShellExec.cmd_exec(self, "mysql roundcubemail < /var/www/"
+                EEShellExec.cmd_exec(self, "mysql roundcubemail < {0}"
                                      "roundcubemail/htdocs/SQL/mysql"
-                                     ".initial.sql")
+                                     ".initial.sql"
+                                     .format(EEVariables.ee_webroot))
 
-                shutil.copyfile("/var/www/roundcubemail/htdocs/config/"
-                                "config.inc.php.sample",
-                                "/var/www/roundcubemail/htdocs/config/"
-                                "config.inc.php")
+                shutil.copyfile("{0}roundcubemail/htdocs/config/"
+                                "config.inc.php.sample"
+                                .format(EEVariables.ee_webroot),
+                                "{0}roundcubemail/htdocs/config/"
+                                "config.inc.php"
+                                .format(EEVariables.ee_webroot))
                 EEShellExec.cmd_exec(self, "sed -i \"s\'mysql://roundcube:"
                                      "pass@localhost/roundcubemail\'mysql://"
                                      "roundcube:{0}@{1}/"
-                                     "roundcubemail\'\" /var/www/roundcubemail"
+                                     "roundcubemail\'\" {2}roundcubemail"
                                      "/htdocs/config/config."
                                      "inc.php"
                                      .format(rc_passwd,
-                                             EEVariables.ee_mysql_host))
+                                             EEVariables.ee_mysql_host,
+                                             EEVariables.ee_webroot))
 
                 # Sieve plugin configuration in roundcube
                 EEShellExec.cmd_exec(self, "bash -c \"sed -i \\\"s:\$config\["
                                      "\'plugins\'\] "
                                      "= array(:\$config\['plugins'\] =  "
                                      "array(\\n    \'sieverules\',:\\\" "
-                                     "/var/www/roundcubemail/htdocs/config"
-                                     "/config.inc.php\"")
+                                     "{0}roundcubemail/htdocs/config"
+                                     .format(EEVariables.ee_webroot)
+                                     + "/config.inc.php\"")
                 EEShellExec.cmd_exec(self, "echo \"\$config['sieverules_port']"
-                                     "=4190;\" >> /var/www/roundcubemail"
-                                     "/htdocs/config/config.inc.php")
+                                     "=4190;\" >> {0}roundcubemail"
+                                     .format(EEVariables.ee_webroot)
+                                     + "/htdocs/config/config.inc.php")
 
                 data = dict(site_name='webmail', www_domain='webmail',
                             static=False,
@@ -935,23 +1004,29 @@ class EEStackController(CementBaseController):
                                                   '/etc/nginx/sites-enabled/'
                                                   'webmail.conf'])
                 # Create log folder and softlinks
-                if not os.path.exists('/var/www/roundcubemail/logs'):
-                    os.makedirs('/var/www/roundcubemail/logs')
+                if not os.path.exists('{0}roundcubemail/logs'
+                                      .format(EEVariables.ee_webroot)):
+                    os.makedirs('{0}roundcubemail/logs'
+                                .format(EEVariables.ee_webroot))
 
                 EEFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                   'webmail.access.log',
-                                                  '/var/www/roundcubemail/'
-                                                  'logs/access.log'])
+                                                  '{0}roundcubemail/'
+                                                  'logs/access.log'
+                                           .format(EEVariables.ee_webroot)])
 
                 EEFileUtils.create_symlink(self, ['/var/log/nginx/'
                                                   'webmail.error.log',
-                                                  '/var/www/roundcubemail/'
-                                                  'logs/error.log'])
+                                                  '{0}roundcubemail/'
+                                                  'logs/error.log'
+                                           .format(EEVariables.ee_webroot)])
                 # Remove roundcube installer
                 EEService.reload_service(self, 'nginx')
-                EEFileUtils.remove(self, ["/var/www/roundcubemail"
-                                   "/htdocs/installer"])
-                EEFileUtils.chown(self, '/var/www/roundcubemail',
+                EEFileUtils.remove(self, ["{0}roundcubemail"
+                                   "/htdocs/installer"
+                                   .format(EEVariables.ee_webroot)])
+                EEFileUtils.chown(self, '{0}roundcubemail'
+                                  .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user,
                                   recursive=True)
@@ -1070,8 +1145,9 @@ class EEStackController(CementBaseController):
                 packages = packages + [["http://downloads.sourceforge.net/"
                                         "adminer/adminer-{0}.php"
                                         "".format(EEVariables.ee_adminer),
-                                        "/var/www/22222/"
-                                        "htdocs/db/adminer/index.php",
+                                        "{0}22222/"
+                                        "htdocs/db/adminer/index.php"
+                                        .format(EEVariables.ee_webroot),
                                         "Adminer"]]
 
             if self.app.pargs.mailscanner:
@@ -1086,22 +1162,29 @@ class EEStackController(CementBaseController):
                                        ["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
                                         "clean.php",
-                                        "/var/www/22222/htdocs/cache/"
-                                        "nginx/clean.php", "clean.php"],
+                                        "{0}22222/htdocs/cache/"
+                                        "nginx/clean.php"
+                                        .format(EEVariables.ee_webroot),
+                                        "clean.php"],
                                        ["https://raw.github.com/rlerdorf/"
                                         "opcache-status/master/opcache.php",
-                                        "/var/www/22222/htdocs/cache/"
-                                        "opcache/opcache.php", "opcache.php"],
+                                        "{0}22222/htdocs/cache/"
+                                        "opcache/opcache.php"
+                                        .format(EEVariables.ee_webroot),
+                                        "opcache.php"],
                                        ["https://raw.github.com/amnuts/"
                                         "opcache-gui/master/index.php",
-                                        "/var/www/22222/htdocs/"
-                                        "cache/opcache/opgui.php",
+                                        "{0}22222/htdocs/"
+                                        "cache/opcache/opgui.php"
+                                        .format(EEVariables.ee_webroot),
                                         "Opgui"],
                                        ["https://gist.github.com/ck-on/4959032"
                                         "/raw/0b871b345fd6cfcd6d2be030c1f33d1"
                                         "ad6a475cb/ocp.php",
-                                        "/var/www/22222/htdocs/cache/"
-                                        "opcache/ocp.php", "OCP.php"],
+                                        "{0}22222/htdocs/cache/"
+                                        "opcache/ocp.php"
+                                        .format(EEVariables.ee_webroot),
+                                        "OCP.php"],
                                        ["https://github.com/jokkedk/webgrind/"
                                         "archive/master.tar.gz",
                                         '/tmp/webgrind.tar.gz', 'Webgrind'],
@@ -1170,8 +1253,10 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Removing mail server packages")
             apt_packages = apt_packages + EEVariables.ee_mail
             apt_packages = apt_packages + EEVariables.ee_mailscanner
-            packages = packages + ["/var/www/22222/htdocs/vimbadmin",
-                                   "/var/www/roundcubemail"]
+            packages = packages + ["{0}22222/htdocs/vimbadmin"
+                                   .format(EEVariables.ee_webroot),
+                                   "{0}roundcubemail"
+                                   .format(EEVariables.ee_webroot)]
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
@@ -1196,19 +1281,25 @@ class EEStackController(CementBaseController):
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
-            packages = packages + ['/var/www/22222/htdocs/db/pma']
+            packages = packages + ['{0}22222/htdocs/db/pma'
+                                   .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
-            packages = packages + ['/var/www/22222/htdocs/db/Adminer']
+            packages = packages + ['{0}22222/htdocs/db/Adminer'
+                                   .format(EEVariables.ee_webroot)]
         if self.app.pargs.utils:
             Log.debug(self, "Removing package variable of utils ")
-            packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
-                                   '/var/www/22222/htdocs/cache/opcache',
-                                   '/var/www/22222/htdocs/cache/Nginx/'
-                                   'clean.php',
-                                   '/var/www/22222/htdocs/cache/Memcache',
+            packages = packages + ['{0}22222/htdocs/php/webgrind/'
+                                   .format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/opcache'
+                                   .format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/Nginx/'
+                                   'clean.php'.format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/Memcache'
+                                   .format(EEVariables.ee_webroot),
                                    '/usr/bin/pt-query-advisor',
-                                   '/var/www/22222/htdocs/db/Anemometer']
+                                   '{0}22222/htdocs/db/Anemometer'
+                                   .format(EEVariables.ee_webroot)]
 
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
@@ -1249,8 +1340,10 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Removing mail server packages")
             apt_packages = apt_packages + EEVariables.ee_mail
             apt_packages = apt_packages + EEVariables.ee_mailscanner
-            packages = packages + ["/var/www/22222/htdocs/vimbadmin",
-                                   "/var/www/roundcubemail"]
+            packages = packages + ["{0}22222/htdocs/vimbadmin"
+                                   .format(EEVariables.ee_webroot),
+                                   "{0}roundcubemail"
+                                   .format(EEVariables.ee_webroot)]
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):
                 EEMysql.execute(self, "drop database IF EXISTS vimbadmin")
                 EEMysql.execute(self, "drop database IF EXISTS roundcubemail")
@@ -1274,20 +1367,26 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Purge package variable WPCLI")
             packages = packages + ['/usr/bin/wp']
         if self.app.pargs.phpmyadmin:
-            packages = packages + ['/var/www/22222/htdocs/db/pma']
+            packages = packages + ['{0}22222/htdocs/db/pma'.
+                                   format(EEVariables.ee_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
-            packages = packages + ['/var/www/22222/htdocs/db/adminer']
+            packages = packages + ['{0}22222/htdocs/db/adminer'
+                                   .format(EEVariables.ee_webroot)]
         if self.app.pargs.utils:
             Log.debug(self, "Purge package variable utils")
-            packages = packages + ['/var/www/22222/htdocs/php/webgrind/',
-                                   '/var/www/22222/htdocs/cache/opcache',
-                                   '/var/www/22222/htdocs/cache/nginx/'
-                                   'clean.php',
-                                   '/var/www/22222/htdocs/cache/memcache',
+            packages = packages + ['{0}22222/htdocs/php/webgrind/'
+                                   .format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/opcache'
+                                   .format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/nginx/'
+                                   'clean.php'.format(EEVariables.ee_webroot),
+                                   '{0}22222/htdocs/cache/memcache'
+                                   .format(EEVariables.ee_webroot),
                                    '/usr/bin/pt-query-advisor',
-                                   '/var/www/22222/htdocs/db/anemometer'
+                                   '{0}22222/htdocs/db/anemometer'
+                                   .format(EEVariables.ee_webroot)
                                    ]
 
         if len(apt_packages):

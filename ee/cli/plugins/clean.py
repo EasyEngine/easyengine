@@ -50,6 +50,7 @@ class EECleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_memcache(self):
+        """This function Clears memcache"""
         try:
             if(EEAptGet.is_installed(self, "memcached")):
                 EEService.restart_service(self, "memcached")
@@ -62,6 +63,7 @@ class EECleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_fastcgi(self):
+        """This function clears Fastcgi cache"""
         if(os.path.isdir("/var/run/nginx-cache")):
             Log.info(self, "Cleaning NGINX FastCGI cache")
             EEShellExec.cmd_exec(self, "rm -rf /var/run/nginx-cache/*")
@@ -70,6 +72,7 @@ class EECleanController(CementBaseController):
 
     @expose(hide=True)
     def clean_opcache(self):
+        """This function clears opcache"""
         try:
             Log.info(self, "Cleaning opcache")
             wp = urllib.request.urlopen(" https://127.0.0.1:22222/cache"

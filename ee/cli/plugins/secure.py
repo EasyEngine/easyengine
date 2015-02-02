@@ -44,6 +44,7 @@ class EESecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_auth(self):
+        """This function Secures authentication"""
         passwd = ''.join([random.choice
                          (string.ascii_letters + string.digits)
                          for n in range(6)])
@@ -74,6 +75,7 @@ class EESecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_port(self):
+        """This function Secures port"""
         while not self.app.pargs.user_input.isdigit():
             Log.info(self, "Please Enter valid port number ")
             self.app.pargs.user_input = input("EasyEngine admin port [22222]:")
@@ -100,6 +102,7 @@ class EESecureController(CementBaseController):
 
     @expose(hide=True)
     def secure_ip(self):
+        """This function Secures IP"""
         # TODO:remaining with ee.conf updation in file
         newlist = []
         if not self.app.pargs.user_input:

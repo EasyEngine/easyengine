@@ -7,6 +7,7 @@ from ee.core.mysql import EEMysql
 from ee.core.services import EEService
 from ee.core.logging import Log
 from ee.cli.plugins.site_functions import logwatch
+from ee.core.variables import EEVariables
 import os
 import configparser
 import glob
@@ -102,8 +103,9 @@ class EEDebugController(CementBaseController):
                 else:
                     Log.info(self, "Debug for site allready enabled")
 
-                self.msg = self.msg + ['/var/www/{0}/logs/error.log'
-                                       .format(self.app.pargs.site_name)]
+                self.msg = self.msg + ['{0}{1}/logs/error.log'
+                                       .format(EEVariables.ee_webroot,
+                                               self.app.pargs.site_name)]
 
             else:
                 Log.info(self, "{0} domain not valid"
@@ -261,9 +263,11 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def debug_wp(self):
         if self.start and self.app.pargs.site_name:
-            wp_config = ("/var/www/{0}/wp-config.php"
-                         .format(self.app.pargs.site_name))
-            webroot = "/var/www/{0}".format(self.app.pargs.site_name)
+            wp_config = ("{0}{1}/wp-config.php"
+                         .format(EEVariables.ee_webroot,
+                                 self.app.pargs.site_name))
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
             if os.path.isfile(wp_config):
                 if not EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} |"
                                             " grep true".format(wp_config)):
@@ -287,18 +291,21 @@ class EEDebugController(CementBaseController):
                 else:
                     Log.info(self, "WordPress debug log already enabled")
 
-                self.msg = self.msg + ['/var/www/{0}/htdocs/wp-content'
+                self.msg = self.msg + ['{0}{1}/htdocs/wp-content'
                                        '/debug.log'
-                                       .format(self.app.pargs.site_name)]
+                                       .format(EEVariables.ee_webroot,
+                                               self.app.pargs.site_name)]
 
             else:
                 Log.info(self, "{0} domain not valid"
                          .format(self.app.pargs.site_name))
 
         elif not self.start and self.app.pargs.site_name:
-            wp_config = ("/var/www/{0}/wp-config.php"
-                         .format(self.app.pargs.site_name))
-            webroot = "/var/www/{0}".format(self.app.pargs.site_name)
+            wp_config = ("{0}{1}/wp-config.php"
+                         .format(EEVariables.ee_webroot,
+                                 self.app.pargs.site_name))
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
             if os.path.isfile(wp_config):
                 if EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} | "
                                         "grep true".format(wp_config)):
@@ -365,10 +372,12 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Nginx rewrite logs for {0} allready setup"
                          .format(self.app.pargs.site_name))
 
-            if ('/var/www/{0}/logs/error.log'.format(self.app.pargs.site_name)
+            if ('{0}{1}/logs/error.log'.format(EEVariables.ee_webroot,
+                                               self.app.pargs.site_name)
                not in self.msg):
-                self.msg = self.msg + ['/var/www/{0}/logs/error.log'
-                                       .format(self.app.pargs.site_name)]
+                self.msg = self.msg + ['{0}{1}/logs/error.log'
+                                       .format(EEVariables.ee_webroot,
+                                               self.app.pargs.site_name)]
 
         # Stop Nginx rewrite for site
         elif not self.start and self.app.pargs.site_name:

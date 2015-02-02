@@ -2,6 +2,7 @@ from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.shellexec import EEShellExec
 from ee.core.logging import Log
+from ee.core.variables import EEVariables
 import os
 
 
@@ -18,20 +19,25 @@ class EEImportslowlogController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        if os.path.isdir("/var/www/22222/htdocs/db/anemometer"):
+        if os.path.isdir("{0}22222/htdocs/db/anemometer"
+                         .format(EEVariables.ee_webroot)):
             if os.path.isfile("/var/log/mysql/mysql-slow.log"):
                 # Get Anemometer user name and password
                 Log.error(self, "Importing MySQL slow log to Anemometer")
-                host = os.popen("grep -e \"\'host\'\" /var/www/22222/htdocs/"
-                                "db/anemometer/conf/config.inc.php  "
+                host = os.popen("grep -e \"\'host\'\" {0}22222/htdocs/"
+                                .format(EEVariables.ee_webroot)
+                                + "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
-                user = os.popen("grep -e \"\'user\'\" /var/www/22222/htdocs/"
-                                "db/anemometer/conf/config.inc.php  "
+                user = os.popen("grep -e \"\'user\'\" {0}22222/htdocs/"
+                                .format(EEVariables.ee_webroot)
+                                + "db/anemometer/conf/config.inc.php  "
                                 "| head -1 | cut -d\\\' -f4 | "
                                 "tr -d '\n'").read()
-                password = os.popen("grep -e \"\'password\'\" /var/www/22222/"
-                                    "htdocs/db/anemometer/conf/config.inc.php "
+                password = os.popen("grep -e \"\'password\'\" {0}22222/"
+                                    .format(EEVariables.ee_webroot)
+                                    + "htdocs/db/anemometer/conf"
+                                    "/config.inc.php "
                                     "| head -1 | cut -d\\\' -f4 | "
                                     "tr -d '\n'").read()
 
