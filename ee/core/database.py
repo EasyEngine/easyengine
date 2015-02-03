@@ -2,9 +2,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from ee.core.variables import EEVariables
 
 # db_path = self.app.config.get('site', 'db_path')
-engine = create_engine('sqlite:////var/lib/ee/ee.sqlite', convert_unicode=True)
+engine = create_engine(EEVariables.ee_db_uri, convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
