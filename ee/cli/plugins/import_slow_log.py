@@ -19,6 +19,7 @@ class EEImportslowlogController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        """Default function for import slow log"""
         if os.path.isdir("{0}22222/htdocs/db/anemometer"
                          .format(EEVariables.ee_webroot)):
             if os.path.isfile("/var/log/mysql/mysql-slow.log"):

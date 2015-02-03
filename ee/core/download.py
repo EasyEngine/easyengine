@@ -11,6 +11,8 @@ class EEDownload():
         pass
 
     def download(self, packages):
+        """Download packages, packges must be list in format of
+        [url, path, package name]"""
         for package in packages:
             url = package[0]
             filename = package[1]
@@ -21,7 +23,8 @@ class EEDownload():
                     os.makedirs(directory)
                 Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
                 urllib.request.urlretrieve(url, filename)
-                Log.info(self, "{0}".format("[" + Log.ENDC + "Done" + Log.OKBLUE + "]"))
+                Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
+                                            + Log.OKBLUE + "]"))
             except urllib.error.URLError as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
                 Log.error(self, "Unable to donwload file, {0}"

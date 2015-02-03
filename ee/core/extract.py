@@ -8,6 +8,7 @@ class EEExtract():
     """Method to extract from tar.gz file"""
 
     def extract(self, file, path):
+        """Function to extract tar.gz file"""
         try:
             tar = tarfile.open(file)
             tar.extractall(path=path)

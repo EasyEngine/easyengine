@@ -9,7 +9,10 @@ import sys
 
 
 def addNewSite(self, site, stype, cache, path,
-               enabled=True, ssl=False, fs='ext4', db=''):
+               enabled=True, ssl=False, fs='ext4', db='mysql'):
+    """
+    Add New Site record information into ee database.
+    """
     try:
         newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db)
         db_session.add(newRec)
@@ -20,6 +23,9 @@ def addNewSite(self, site, stype, cache, path,
 
 
 def getSiteInfo(self, site):
+    """
+        Retrieves site record from ee databse
+    """
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
         return q
@@ -30,6 +36,7 @@ def getSiteInfo(self, site):
 
 def updateSiteInfo(self, site, stype='', cache='',
                    enabled=True, ssl=False, fs='', db=''):
+    """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
     except Exception as e:
@@ -39,6 +46,7 @@ def updateSiteInfo(self, site, stype='', cache='',
     if not q:
         Log.error(self, "{0} does not exist in database".format(site))
 
+    # Check if new record matches old if not then only update database
     if stype and q.site_type != stype:
         q.site_type = stype
 
@@ -60,6 +68,7 @@ def updateSiteInfo(self, site, stype='', cache='',
 
 
 def deleteSiteInfo(self, site):
+    """Delete site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
     except Exception as e:
@@ -78,6 +87,7 @@ def deleteSiteInfo(self, site):
 
 
 def getAllsites(self):
+
     try:
         q = SiteDB.query.all()
         return q

@@ -10,6 +10,7 @@ class EEMysql():
     """Method for MySQL connection"""
 
     def execute(self, statement, errormsg=''):
+        """Get login details from ~/.my.cnf & Execute MySQL query"""
         config = configparser.RawConfigParser()
         cnfpath = expanduser("~")+"/.my.cnf"
         if [cnfpath] == config.read(cnfpath):

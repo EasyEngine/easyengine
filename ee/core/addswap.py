@@ -13,6 +13,7 @@ class EESwap():
         pass
 
     def add(self):
+        """Swap addition with EasyEngine"""
         if EEVariables.ee_ram < 512:
             if EEVariables.ee_swap < 1000:
                 Log.info(self, "Adding SWAP")

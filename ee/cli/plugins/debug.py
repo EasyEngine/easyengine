@@ -53,6 +53,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_nginx(self):
+        """Start/Stop Nginx debug"""
         # start global debug
         if self.start and not self.app.pargs.site_name:
             try:
@@ -134,6 +135,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_php(self):
+        """Start/Stop PHP debug"""
         # PHP global debug start
         if self.start:
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php"
@@ -173,6 +175,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_fpm(self):
+        """Start/Stop PHP5-FPM debug"""
         # PHP5-FPM start global debug
         if self.start:
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
@@ -214,6 +217,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_mysql(self):
+        """Start/Stop MySQL debug"""
         # MySQL start global debug
         if self.start:
             if not EEShellExec.cmd_exec(self, "mysql -e \"show variables like"
@@ -262,6 +266,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_wp(self):
+        """Start/Stop WordPress debug"""
         if self.start and self.app.pargs.site_name:
             wp_config = ("{0}{1}/wp-config.php"
                          .format(EEVariables.ee_webroot,
@@ -332,6 +337,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def debug_rewrite(self):
+        """Start/Stop Nginx rewrite rules debug"""
         # Start Nginx rewrite debug globally
         if self.start and not self.app.pargs.site_name:
             if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
@@ -396,6 +402,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def signal_handler(self, signal, frame):
+        """Handle Ctrl+c hevent for -i option of debug"""
         self.start = False
         if self.app.pargs.nginx:
             self.debug_nginx()
@@ -421,6 +428,7 @@ class EEDebugController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        """Default function of debug"""
         self.start = True
         self.interactive = False
         self.msg = []

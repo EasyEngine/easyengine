@@ -12,6 +12,7 @@ class EEShellExec():
         pass
 
     def cmd_exec(self, command, errormsg=''):
+        """Run shell command from Python"""
         try:
             Log.debug(self, "Running command: {0}".format(command))
             retcode = subprocess.getstatusoutput(command)

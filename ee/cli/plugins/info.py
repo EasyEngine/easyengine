@@ -36,6 +36,7 @@ class EEInfoController(CementBaseController):
 
     @expose(hide=True)
     def info_nginx(self):
+        """Display Nginx information"""
         version = os.popen("nginx -v 2>&1 | cut -d':' -f2 | cut -d' ' -f2 | "
                            "cut -d'/' -f2 | tr -d '\n'").read()
         allow = os.popen("grep ^allow /etc/nginx/common/acl.conf | "
@@ -65,6 +66,7 @@ class EEInfoController(CementBaseController):
 
     @expose(hide=True)
     def info_php(self):
+        """Display PHP information"""
         version = os.popen("php -v | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
@@ -138,6 +140,7 @@ class EEInfoController(CementBaseController):
 
     @expose(hide=True)
     def info_mysql(self):
+        """Display MySQL information"""
         version = os.popen("mysql -V | awk '{print($5)}' | cut -d ',' "
                            "-f1 | tr -d '\n'").read()
         host = "localhost"
@@ -165,6 +168,7 @@ class EEInfoController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
+        """default function for info"""
         if (not self.app.pargs.nginx and not self.app.pargs.php
            and not self.app.pargs.mysql):
             self.app.pargs.nginx = True
