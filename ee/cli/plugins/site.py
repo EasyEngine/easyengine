@@ -578,9 +578,9 @@ class EESiteUpdateController(CementBaseController):
                or self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
                 if ((oldsitetype not in ['html', 'php', 'mysql', 'wp'])
-                   or (oldsitetype is 'wp' and oldcachetype is 'basic')):
-                    print(oldsitetype, oldcachetype)
-                    Log.error(self, " Cannot update {0}, {1} {2} to wp basic"
+                   or (oldsitetype == 'wp' and oldcachetype == 'basic')):
+
+                    Log.error(self, "Cannot update {0} {1} {2} to wp basic"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -597,8 +597,8 @@ class EESiteUpdateController(CementBaseController):
                (self.app.pargs.wpfc or self.app.pargs.wpsc)):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
-                   or (oldsitetype is 'wp' and oldcachetype is 'w3tc')):
-                    Log.error(self, " Cannot update {0}, {1} {2} to wp w3tc"
+                   or (oldsitetype == 'wp' and oldcachetype == 'w3tc')):
+                    Log.error(self, "Cannot update {0}, {1} {2} to wp w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -616,7 +616,7 @@ class EESiteUpdateController(CementBaseController):
                (self.app.pargs.wpsc or self.app.pargs.w3tc)):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
-                   or (oldsitetype is 'wp' and oldcachetype is 'wpfc')):
+                   or (oldsitetype == 'wp' and oldcachetype == 'wpfc')):
                     Log.error(self, "Cannot update {0}, {1} {2} to wp wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
@@ -634,7 +634,7 @@ class EESiteUpdateController(CementBaseController):
                (self.app.pargs.w3tc or self.app.pargs.wpfc)):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp']
-                   or (oldsitetype is 'wp' and oldcachetype is 'wpsc')):
+                   or (oldsitetype == 'wp' and oldcachetype == 'wpsc')):
                     Log.error(self, "Cannot update {0}, {1} {2} to wp wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
@@ -657,7 +657,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdir']
-                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'basic')):
+                   or (oldsitetype == 'wpsubdir' and oldcachetype == 'basic')):
                     Log.error(self, " Cannot update {0}, {1} {2} "
                               "to wpsubdir basic"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -677,7 +677,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdir']
-                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'w3tc')):
+                   or (oldsitetype == 'wpsubdir' and oldcachetype == 'w3tc')):
                     Log.error(self, " Cannot update {0} {1} {2}"
                               "to wpsubdir w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -698,8 +698,8 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdir']
-                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'wpfc')):
-                    Log.error(self, " Cannot update {0} {1} {2}"
+                   or (oldsitetype == 'wpsubdir' and oldcachetype == 'wpfc')):
+                    Log.error(self, "Cannot update {0} {1} {2}"
                               " to wpsubdir wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
 
@@ -718,7 +718,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdir']
-                   or (oldsitetype is 'wpsubdir' and oldcachetype is 'wpsc')):
+                   or (oldsitetype == 'wpsubdir' and oldcachetype == 'wpsc')):
                     Log.error(self, " Cannot update {0} {1} {2}"
                               " to wpsubdir wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -739,7 +739,7 @@ class EESiteUpdateController(CementBaseController):
 
             if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                     'wpsubdomain']
-               or (oldsitetype is 'wpsubdomain' and oldcachetype is 'basic')):
+               or (oldsitetype == 'wpsubdomain' and oldcachetype == 'basic')):
                 Log.error(self, " Cannot update {0} {1} {2}"
                           " to wpsubdomain basic"
                           .format(ee_domain, oldsitetype, oldcachetype))
@@ -760,7 +760,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdomain'] or
-                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'w3tc')):
+                   (oldsitetype == 'wpsubdomain' and oldcachetype == 'w3tc')):
                     Log.error(self, " Cannot update {0}, {1} {2}"
                               " to wpsubdomain w3tc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -781,7 +781,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdomain'] or
-                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'wpfc')):
+                   (oldsitetype == 'wpsubdomain' and oldcachetype == 'wpfc')):
                     Log.error(self, " Cannot update {0}, {1} {2} "
                               "to wpsubdomain wpfc"
                               .format(ee_domain, oldsitetype, oldcachetype))
@@ -802,7 +802,7 @@ class EESiteUpdateController(CementBaseController):
 
                 if (oldsitetype not in ['html', 'php', 'mysql', 'wp',
                                         'wpsubdomain'] or
-                   (oldsitetype is 'wpsubdomain' and oldcachetype is 'wpsc')):
+                   (oldsitetype == 'wpsubdomain' and oldcachetype == 'wpsc')):
                     Log.error(self, " Cannot update {0}, {1} {2}"
                               " to wpsubdomain wpsc"
                               .format(ee_domain, oldsitetype, oldcachetype))
