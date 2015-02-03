@@ -79,6 +79,13 @@ class EESiteController(CementBaseController):
         ee_db_pass = ''
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
+            check_site = getSiteInfo(self, ee_domain)
+            if check_site is None:
+                Log.error(self, " Site {0} does not exist.".format(ee_domain))
+            else:
+                sitetype = check_site.site_type
+                cachetype = check_site.cache_type
+
             ee_site_webroot = EEVariables.ee_webroot + ee_domain
             access_log = (ee_site_webroot + '/logs/access.log')
             error_log = (ee_site_webroot + '/logs/error.log')
@@ -98,7 +105,10 @@ class EESiteController(CementBaseController):
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
-                        dbpass=ee_db_pass)
+                        dbpass=ee_db_pass, type=sitetype + " " + cachetype +
+                        " ({0})".format("enabled"
+                                        if check_site.is_enabled else
+                                        "disabled"))
             self.app.render((data), 'siteinfo.mustache')
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
