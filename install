@@ -233,8 +233,8 @@ else
         ee_lib_echo_fail "Please update it using command: ee update"
         exit 1
     fi
-    sync_db
     install_dep
+    sync_db
     install_ee3
     update_to_ee3
     git_init
