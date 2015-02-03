@@ -35,6 +35,12 @@ Update Procedure For EasyEngine
 wget -qO eeup http://rt.cx/eeup && sudo bash eeup
 ```
 
+## Try EasyEngine 3.0.0-beta
+
+```bash
+wget http://rt.cx/eebeta && sudo bash install
+```
+
 ## More Site Creation Commands
 
 ### Standard WordPress Sites
