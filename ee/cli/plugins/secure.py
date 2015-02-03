@@ -76,9 +76,11 @@ class EESecureController(CementBaseController):
     @expose(hide=True)
     def secure_port(self):
         """This function Secures port"""
-        while not self.app.pargs.user_input.isdigit():
-            Log.info(self, "Please Enter valid port number ")
-            self.app.pargs.user_input = input("EasyEngine admin port [22222]:")
+        if self.app.pargs.user_input:
+            while not self.app.pargs.user_input.isdigit():
+                Log.info(self, "Please Enter valid port number ")
+                self.app.pargs.user_input = input("EasyEngine "
+                                                  "admin port [22222]:")
         if not self.app.pargs.user_input:
             port = input("EasyEngine admin port [22222]:")
             if port == "":
