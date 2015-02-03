@@ -114,6 +114,8 @@ class EEVariables():
     # Repo path
     ee_repo_file = "ee-repo.list"
     ee_repo_file_path = ("/etc/apt/sources.list.d/" + ee_repo_file)
+
+    # Application dabase file path
     basedir = os.path.abspath(os.path.dirname('/var/lib/ee/'))
     ee_db_uri = 'sqlite:///' + os.path.join(basedir, 'ee.db')
 

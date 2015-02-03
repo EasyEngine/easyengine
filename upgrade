@@ -27,6 +27,7 @@ function sync_db()
 {
     mkdir /var/lib/ee
 
+    # Sqlite query to create table `sites` into ee.db which will be used by ee.3.0
     echo "CREATE TABLE sites (
            id INTEGER PRIMARY KEY     AUTOINCREMENT,
            sitename UNIQUE,
@@ -112,6 +113,8 @@ function sync_db()
     fi
 
     WEBROOT="/var/www/$site"
+
+    # Insert query to insert old site information into ee.db
     echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
     VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/ee/ee.db
 
