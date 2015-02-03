@@ -39,18 +39,10 @@ function install_dep()
     apt-get update &>> /dev/null
 
     # Install Python3 on users system
-    ee_lib_echo "Installing Python3"
-    apt-get -y install python3 python3-apt python3-setuptools python3-dev
+    ee_lib_echo "Installing pre depedencies"
+    apt-get -y install python3 python3-apt python3-setuptools python3-dev sqlite3 git
     if [[ $? -ne 0 ]]; then
-        ee_lib_echo_fail "Unable to install Python3 on system"
-        exit 1
-    fi
-
-    # Install sqlite3
-    ee_lib_echo "Installing sqlite3"
-    apt-get -y install sqlite3
-    if [[ $? -ne 0 ]]; then
-        ee_lib_echo_fail "Unable to install sqlite3 on system"
+        ee_lib_echo_fail "Unable to install pre depedencies"
         exit 1
     fi
 }
