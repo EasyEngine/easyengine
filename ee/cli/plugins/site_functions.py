@@ -279,12 +279,12 @@ def setupwordpress(self, data):
 def setupwordpressnetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
-    Log.info(self, "Setting up WordPress Network \t\t", end='')
+    Log.info(self, "Setting up WordPress Network \t", end='')
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                          ' --title={0} {subdomains}'
                          .format(data['www_domain'], subdomains='--subdomains'
                                  if not data['wpsubdir'] else ''))
-    Log.info(self, "Done")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
 
 def installwp_plugin(self, plugin_name, data):
