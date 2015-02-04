@@ -106,8 +106,7 @@ def setupdatabase(self, data):
                  ' please wait')
         ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                        string.ascii_lowercase + string.digits, 10)))
-        ee_db_name = (ee_db_name[0:6] + ee_random10)
-
+        ee_db_username = (ee_db_name[0:6] + ee_random10)
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
