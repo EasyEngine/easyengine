@@ -640,7 +640,7 @@ class EEStackController(CementBaseController):
                                      "smtp-amavis:[127.0.0.1]:10024\"")
                 EEShellExec.cmd_exec(self, "sed -i \"s/1       pickup/1       "
                                      "pickup"
-                                     "\n        -o content_filter=\n        -o"
+                                     "\\n        -o content_filter=\\n        -o"
                                      " receive_override_options=no_header_body"
                                      "_checks/\" /etc/postfix/master.cf")
 
@@ -657,10 +657,10 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "freshclam")
                 Log.debug(self, "Restarting clamav-daemon service")
                 EEShellExec.cmd_exec(self, "service clamav-daemon restart")
-                EEGit.add(self, ["/etc/amavis"], msg="Adding Amvis into Git")
+                EEGit.add(self, ["/etc/amavis"], msg="Adding Amavis into Git")
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
-                EEService.reload_service(self, 'amavis')
+                EEService.restart_service(self, 'amavis')
 
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
