@@ -11,6 +11,7 @@ import string
 import sys
 import getpass
 import glob
+import re
 
 
 def setupdomain(self, data):
@@ -76,7 +77,7 @@ def setupdatabase(self, data):
 
     if prompt_dbname == 'True' or prompt_dbname == 'true':
         try:
-            ee_db_name = input('Enter the MySQL database name [{0}]:'
+            ee_db_name = input('Enter the MySQL database name [{0}]: '
                                .format(ee_replace_dot))
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
@@ -102,12 +103,11 @@ def setupdatabase(self, data):
         ee_db_password = ee_random
 
     if len(ee_db_username) > 16:
-        Log.info(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
-                 ' please wait')
+        Log.debug(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
+                  ' please wait')
         ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                        string.ascii_lowercase + string.digits, 10)))
-        ee_db_name = (ee_db_name[0:6] + ee_random10)
-
+        ee_db_username = (ee_db_name[0:6] + ee_random10)
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
@@ -146,8 +146,8 @@ def setupwordpress(self, data):
     ee_random = (''.join(random.sample(string.ascii_uppercase +
                  string.ascii_lowercase + string.digits, 15)))
     ee_wp_prefix = ''
-    ee_wp_user = ''
-    ee_wp_pass = ''
+    # ee_wp_user = ''
+    # ee_wp_pass = ''
 
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
@@ -158,9 +158,8 @@ def setupwordpress(self, data):
         data = setupdatabase(self, data)
     if prompt_wpprefix == 'True' or prompt_wpprefix == 'true':
         try:
-            ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '
-                                 .format(ee_replace_dot))
-            while re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
+            ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: ')
+            while not re.match('^[A-Za-z0-9_]*$', ee_wp_prefix):
                 Log.warn(self, "table prefix can only "
                          "contain numbers, letters, and underscores")
                 ee_wp_prefix = input('Enter the WordPress table prefix [wp_]: '

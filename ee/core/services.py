@@ -118,7 +118,7 @@ class EEService():
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))
-            if is_exist == 0:
+            if is_exist[0] == 0:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:

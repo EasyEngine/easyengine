@@ -106,9 +106,15 @@ _ee_complete()
         case "$mprev" in
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
 
-            "create" | "update")
+            "create")
                 COMPREPLY=( $(compgen \
                                     -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
+                                 -- $cur) )
+                ;;
+
+            "update")
+                COMPREPLY=( $(compgen \
+                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
                                  -- $cur) )
                 ;;
             "delete")
