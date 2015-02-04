@@ -19,20 +19,22 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 - Ubuntu 12.04 & 14.04
 - Debian 7
 
+### This is Beta version. Donot Try on Production/Live servers
+
 ## Quick Start
 
 ```bash
-wget -qO ee rt.cx/ee && sudo bash ee     # install easyengine
+wget http://rt.cx/eebeta && sudo bash install     # install easyengine 3.0.0-beta
 sudo ee site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
 
 ## Update EasyEngine
 
 
-Update Procedure For EasyEngine
+Update Procedure For EasyEngine to version 3.0.0-beta
 
 ```bash
-wget -qO eeup http://rt.cx/eeup && sudo bash eeup
+wget http://rt.cx/eebeta && sudo bash install
 ```
 
 ## More Site Creation Commands

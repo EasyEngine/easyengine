@@ -106,8 +106,7 @@ def setupdatabase(self, data):
                  ' please wait')
         ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                        string.ascii_lowercase + string.digits, 10)))
-        ee_db_name = (ee_db_name[0:6] + ee_random10)
-
+        ee_db_username = (ee_db_name[0:6] + ee_random10)
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
@@ -279,12 +278,12 @@ def setupwordpress(self, data):
 def setupwordpressnetwork(self, data):
     ee_site_webroot = data['webroot']
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
-    Log.info(self, "Setting up WordPress Network \t\t", end='')
+    Log.info(self, "Setting up WordPress Network \t", end='')
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                          ' --title={0} {subdomains}'
                          .format(data['www_domain'], subdomains='--subdomains'
                                  if not data['wpsubdir'] else ''))
-    Log.info(self, "Done")
+    Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
 
 def installwp_plugin(self, plugin_name, data):
