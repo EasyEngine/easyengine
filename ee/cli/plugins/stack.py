@@ -203,7 +203,7 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    data = dict()
+                    data = dict(webroot=EEVariables.ee_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
@@ -450,8 +450,9 @@ class EEStackController(CementBaseController):
                     myfile.write("<?php\nphpinfo();\n?>")
 
                 EEFileUtils.chown(self, "{0}22222"
-                                  .format(EEVariables.ee_webroot), 'www-data',
-                                  'www-data', recursive=True)
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
@@ -644,7 +645,7 @@ class EEStackController(CementBaseController):
                                      " receive_override_options=no_header_body"
                                      "_checks/\" /etc/postfix/master.cf")
 
-                amavis_master = """smtp-amavis unix - - n - 2 smtp
+                amavis_master = ("""smtp-amavis unix - - n - 2 smtp
     -o smtp_data_done_timeout=1200
     -o smtp_send_xforward_command=yes
     -o disable_dns_lookups=yes
@@ -665,9 +666,9 @@ class EEStackController(CementBaseController):
     -o smtpd_hard_error_limit=1000
     -o smtpd_client_connection_count_limit=0
     -o smtpd_client_connection_rate_limit=0
-    -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks
-    -o local_header_rewrite_clients=
-"""
+    -o receive_override_options=no_header_body_checks,""" +
+                                 """no_unknown_recipient_check
+    -o local_header_rewrite_clients=""")
 
                 with open("/etc/postfix/master.cf", "a") as am_config:
                         am_config.write(amavis_master)
@@ -709,11 +710,9 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/phpmyadmin-STABLE/',
                             '{0}22222/htdocs/db/pma/'
                             .format(EEVariables.ee_webroot))
-                Log.debug(self, 'Setting Privileges of www-data:www-data to  '
+                Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -730,8 +729,6 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs/cache/memcache file"
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -757,11 +754,9 @@ class EEStackController(CementBaseController):
                                      "/usr/bin/dot\'\" {0}22222/htdocs/"
                                      "php/webgrind/config.php"
                                      .format(EEVariables.ee_webroot))
-                Log.debug(self, "Setting Privileges of www-data:www-data to "
+                Log.debug(self, "Setting Privileges of webroot permission to "
                           "{0}22222/htdocs/php/webgrind/ file "
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -858,7 +853,8 @@ class EEStackController(CementBaseController):
 
                 # Custom Vimbadmin configuration by EasyEngine
                 data = dict(salt=vm_salt, host=EEVariables.ee_mysql_host,
-                            password=vm_passwd)
+                            password=vm_passwd,
+                            php_user=EEVariables.ee_php_user)
                 Log.debug(self, 'Writting the ViMbAdmin configuration to '
                           'file {0}22222/htdocs/vimbadmin/application/'
                           'configs/application.ini'
@@ -1017,7 +1013,7 @@ class EEStackController(CementBaseController):
                             static=False,
                             basic=True, wp=False, w3tc=False, wpfc=False,
                             wpsc=False, multisite=False, wpsubdir=False,
-                            webroot='/var/www', ee_db_name='',
+                            webroot=EEVariables.ee_webroot, ee_db_name='',
                             ee_db_user='', ee_db_pass='', ee_db_host='',
                             rc=True)
 
