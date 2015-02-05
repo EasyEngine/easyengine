@@ -24,7 +24,7 @@ EasyEngine (ee) is a linux shell-script collection, which makes it easy to manag
 ## Quick Start
 
 ```bash
-wget http://rt.cx/eebeta && sudo bash install     # install easyengine 3.0.0-beta
+wget http://rt.cx/eebeta && sudo bash eebeta     # install easyengine 3.0.0-beta
 sudo ee site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
 
