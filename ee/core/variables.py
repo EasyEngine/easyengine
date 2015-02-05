@@ -92,7 +92,7 @@ class EEVariables():
     # MySQL repo and packages
     ee_mysql_repo = ("deb http://repo.percona.com/apt {codename} main"
                      .format(codename=ee_platform_codename))
-    ee_mysql = ["percona-server-server-5.6"]
+    ee_mysql = ["percona-server-server-5.6", "mysqltuner", "percona-toolkit"]
 
     # Postfix repo and packages
     ee_postfix_repo = ""
