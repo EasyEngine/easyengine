@@ -1182,7 +1182,15 @@ class EEStackController(CementBaseController):
                                         "Adminer"]]
 
             if self.app.pargs.mailscanner:
-                apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+                if not EEAptGet.is_installed(self, 'amavisd-new'):
+                    if (EEAptGet.is_installed(self, 'dovecot-core') or
+                       self.app.pargs.mail):
+                        apt_packages = (apt_packages +
+                                        EEVariables.ee_mailscanner)
+                    else:
+                        Log.error(self, "Failed to find installed Dovecot")
+                else:
+                    Log.error(self, "Mail scanner allready installed")
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1266,7 +1274,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
-           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+           (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
 
         if self.app.pargs.web:
@@ -1354,7 +1363,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
-           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+           (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
 
         if self.app.pargs.web:
