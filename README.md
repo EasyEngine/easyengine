@@ -12,7 +12,7 @@ IMPORTANT
 
 [![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
 
-EasyEngine (ee) is a linux shell-script collection, which makes it easy to manage your wordpress sites running on nginx web-server.
+EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress sites running on nginx web-server.
 
 **EasyEngine currently supports:**
 
@@ -94,5 +94,4 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 [![Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
 
 ## License
-
-Same [GPL] (http://www.gnu.org/licenses/gpl-2.0.txt) that WordPress uses!
+[MIT] (http://opensource.org/licenses/MIT)
