@@ -628,8 +628,8 @@ resources.session.remember_me_seconds = 3600
 resources.session.name = 'VIMBADMIN3'
 
 ondemand_resources.logger.writers.stream.path    = APPLICATION_PATH "/../var/log"
-ondemand_resources.logger.writers.stream.owner   = www-data
-ondemand_resources.logger.writers.stream.group   = www-data
+ondemand_resources.logger.writers.stream.owner   = {{php_user}}
+ondemand_resources.logger.writers.stream.group   = {{php_user}}
 ondemand_resources.logger.writers.stream.mode    = single
 ondemand_resources.logger.writers.stream.logname = vimbadmin.log
 
