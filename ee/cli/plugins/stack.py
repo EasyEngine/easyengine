@@ -75,7 +75,7 @@ class EEStackController(CementBaseController):
     def pre_pref(self, apt_packages):
         """Pre settings to do before installation packages"""
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
-            Log.info(self, "Pre-seeding Postfix")
+            Log.debug(self, "Pre-seeding Postfix")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
                                  "/main_mailer_type string \'Internet Site\'\""
                                  " | debconf-set-selections")
@@ -90,7 +90,7 @@ class EEStackController(CementBaseController):
             EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
                            keyserver="subkeys.pgp.net")
             chars = ''.join(random.sample(string.ascii_letters, 8))
-            Log.info(self, "Pre-seeding MySQL")
+            Log.debug(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
