@@ -39,7 +39,7 @@ class EESiteController(CementBaseController):
     @expose(help="Enable site example.com")
     def enable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        Log.info(self, "Enable domain {0:10}".format(ee_domain), end='')
+        Log.info(self, "Enable domain {0:10} \t".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             EEFileUtils.create_symlink(self,
@@ -47,15 +47,17 @@ class EESiteController(CementBaseController):
                                         .format(ee_domain),
                                         '/etc/nginx/sites-enabled/{0}'
                                         .format(ee_domain)])
+
             updateSiteInfo(self, ee_domain, enabled=True)
             Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+            EEService.reload_service(self, 'nginx')
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 
     @expose(help="Disable site example.com")
     def disable(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        Log.info(self, "Disable domain {0:10}".format(ee_domain), end='')
+        Log.info(self, "Disable domain {0:10} \t".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
@@ -68,6 +70,7 @@ class EESiteController(CementBaseController):
                                            .format(ee_domain))
                 updateSiteInfo(self, ee_domain, enabled=False)
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
+                EEService.reload_service(self, 'nginx')
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))
 

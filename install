@@ -222,7 +222,7 @@ if [ ! -f /usr/local/sbin/easyengine ]; then
         install_ee3
         git_init
     else
-        ee_lib_echo_fail "EasyEngine 3 allready installed on ur system"
+        ee_lib_echo_fail "EasyEngine 3 allready installed on your system"
         exit 1
     fi
 else

@@ -64,19 +64,6 @@ class EEAptGet():
                     except Exception as e:
                         Log.debug(self, str(e))
                         Log.error(self, str(e))
-
-                    try:
-                        #apt_pkg.PkgSystemUnLock()
-                        result = apt_cache.commit()
-                        #apt_cache.close()
-                        return result
-                    except SystemError as e:
-                        Log.debug(self, 'SystemError: ' + str(e))
-                        Log.error(self, 'SystemError: ' + str(e))
-                        #apt_cache.close()
-                    except Exception as e:
-                        Log.debug(self, str(e))
-                        Log.error(self, str(e))
             else:
                 #apt_cache.close()
                 Log.error(self, 'Unknown package selected (' +
@@ -85,6 +72,20 @@ class EEAptGet():
         for package in packages:
             if not install_package(self, package):
                 continue
+
+        if apt_cache.install_count > 0:
+            try:
+                #apt_pkg.PkgSystemUnLock()
+                result = apt_cache.commit()
+                #apt_cache.close()
+                return result
+            except SystemError as e:
+                Log.debug(self, 'SystemError: ' + str(e))
+                Log.error(self, 'SystemError: ' + str(e))
+                #apt_cache.close()
+            except Exception as e:
+                Log.debug(self, str(e))
+                Log.error(self, str(e))
 
     def remove(self, packages, auto=False, purge=False):
         """
@@ -112,18 +113,6 @@ class EEAptGet():
                     except SystemError as e:
                         Log.debug(self, 'SystemError: ' + str(e))
                         return False
-                    try:
-                        # apt_pkg.PkgSystemUnLock()
-                        result = apt_cache.commit()
-                        # apt_cache.close()
-                        return result
-                    except SystemError as e:
-                        Log.debug(self, 'SystemError: ' + str(e))
-                        return False
-                    except Exception as e:
-                        Log.debug(self, str(e))
-                        Log.error(self, str(e))
-                        # apt_cache.close()
             else:
                 # apt_cache.close()
                 Log.error(self, 'Unknown package selected (' +
@@ -132,6 +121,20 @@ class EEAptGet():
         for package in packages:
             if not remove_package(self, package, purge=purge):
                 continue
+
+        if apt_cache.delete_count > 0:
+            try:
+                # apt_pkg.PkgSystemUnLock()
+                result = apt_cache.commit()
+                # apt_cache.close()
+                return result
+            except SystemError as e:
+                Log.debug(self, 'SystemError: ' + str(e))
+                return False
+            except Exception as e:
+                Log.debug(self, str(e))
+                Log.error(self, str(e))
+                # apt_cache.close()
 
     def auto_clean(self):
         """

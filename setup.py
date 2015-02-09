@@ -4,6 +4,7 @@ import sys
 import os
 import glob
 import configparser
+import re
 
 conf = []
 templates = []
@@ -39,6 +40,12 @@ except Exception as e:
 
     ee_user = input("Enter your name: ")
     ee_email = input("Enter your email: ")
+
+    while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
+                       ee_email):
+        print("EMail not Valid, Please enter again")
+        ee_email = input("Enter your email: ")
+
     os.system("git config --global user.name {0}".format(ee_user))
     os.system("git config --global user.email {0}".format(ee_email))
 

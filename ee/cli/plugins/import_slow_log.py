@@ -24,7 +24,7 @@ class EEImportslowlogController(CementBaseController):
                          .format(EEVariables.ee_webroot)):
             if os.path.isfile("/var/log/mysql/mysql-slow.log"):
                 # Get Anemometer user name and password
-                Log.error(self, "Importing MySQL slow log to Anemometer")
+                Log.info(self, "Importing MySQL slow log to Anemometer")
                 host = os.popen("grep -e \"\'host\'\" {0}22222/htdocs/"
                                 .format(EEVariables.ee_webroot)
                                 + "db/anemometer/conf/config.inc.php  "

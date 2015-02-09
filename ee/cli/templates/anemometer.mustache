@@ -125,8 +125,8 @@ $conf['plugins'] = array(
 			$conn['db'] = $sample['db_max'];
 		}
 
-		$conn['user'] = 'root';
-		$conn['password'] = '';
+		$conn['user'] = '{{user}}';
+		$conn['password'] = '{{password}}';
 
 		return $conn;
 	},

@@ -279,8 +279,10 @@ class EEDebugController(CementBaseController):
                     Log.info(self, "Starting WordPress debug")
                     open("{0}/htdocs/wp-content/debug.log".format(webroot),
                          'a').close()
-                    EEShellExec.cmd_exec(self, "chown www-data: {0}/htdocs/wp-"
-                                         "content/debug.log".format(webroot))
+                    EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
+                                         "content/debug.log"
+                                         "".format(webroot,
+                                                   EEVariables.ee_php_user))
                     EEShellExec.cmd_exec(self, "sed -i \"s/define(\'WP_DEBUG\'"
                                          ".*/define(\'WP_DEBUG\', true);\\n"
                                          "define(\'WP_DEBUG_DISPLAY\', false);"
@@ -290,9 +292,10 @@ class EEDebugController(CementBaseController):
                     EEShellExec.cmd_exec(self, "cd {0}/htdocs/ && wp"
                                          " plugin --allow-root install "
                                          "developer".format(webroot))
-                    EEShellExec.cmd_exec(self, "chown -R www-data: {0}/htdocs/"
+                    EEShellExec.cmd_exec(self, "chown -R {1}: {0}/htdocs/"
                                          "wp-content/plugins"
-                                         .format(webroot))
+                                         .format(webroot,
+                                                 EEVariables.ee_php_user))
                 else:
                     Log.info(self, "WordPress debug log already enabled")
 

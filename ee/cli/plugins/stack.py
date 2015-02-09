@@ -75,7 +75,7 @@ class EEStackController(CementBaseController):
     def pre_pref(self, apt_packages):
         """Pre settings to do before installation packages"""
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
-            Log.info(self, "Pre-seeding Postfix")
+            Log.debug(self, "Pre-seeding Postfix")
             EEShellExec.cmd_exec(self, "echo \"postfix postfix"
                                  "/main_mailer_type string \'Internet Site\'\""
                                  " | debconf-set-selections")
@@ -90,7 +90,7 @@ class EEStackController(CementBaseController):
             EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
                            keyserver="subkeys.pgp.net")
             chars = ''.join(random.sample(string.ascii_letters, 8))
-            Log.info(self, "Pre-seeding MySQL")
+            Log.debug(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
@@ -203,7 +203,7 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    data = dict()
+                    data = dict(webroot=EEVariables.ee_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
@@ -450,8 +450,9 @@ class EEStackController(CementBaseController):
                     myfile.write("<?php\nphpinfo();\n?>")
 
                 EEFileUtils.chown(self, "{0}22222"
-                                  .format(EEVariables.ee_webroot), 'www-data',
-                                  'www-data', recursive=True)
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
@@ -640,9 +641,37 @@ class EEStackController(CementBaseController):
                                      "smtp-amavis:[127.0.0.1]:10024\"")
                 EEShellExec.cmd_exec(self, "sed -i \"s/1       pickup/1       "
                                      "pickup"
-                                     "\\n        -o content_filter=\\n        -o"
+                                     "\\n        -o content_filter=\\n      -o"
                                      " receive_override_options=no_header_body"
                                      "_checks/\" /etc/postfix/master.cf")
+
+                amavis_master = ("""smtp-amavis unix - - n - 2 smtp
+    -o smtp_data_done_timeout=1200
+    -o smtp_send_xforward_command=yes
+    -o disable_dns_lookups=yes
+    -o max_use=20
+127.0.0.1:10025 inet n - n - - smtpd
+    -o content_filter=
+    -o smtpd_delay_reject=no
+    -o smtpd_client_restrictions=permit_mynetworks,reject
+    -o smtpd_helo_restrictions=
+    -o smtpd_sender_restrictions=
+    -o smtpd_recipient_restrictions=permit_mynetworks,reject
+    -o smtpd_data_restrictions=reject_unauth_pipelining
+    -o smtpd_end_of_data_restrictions=
+    -o smtpd_restriction_classes=
+    -o mynetworks=127.0.0.0/8
+    -o smtpd_error_sleep_time=0
+    -o smtpd_soft_error_limit=1001
+    -o smtpd_hard_error_limit=1000
+    -o smtpd_client_connection_count_limit=0
+    -o smtpd_client_connection_rate_limit=0
+    -o receive_override_options=no_header_body_checks,""" +
+                                 """no_unknown_recipient_check
+    -o local_header_rewrite_clients=""")
+
+                with open("/etc/postfix/master.cf", "a") as am_config:
+                        am_config.write(amavis_master)
 
                 # Amavis ClamAV configuration
                 Log.debug(self, "Adding new user clamav amavis")
@@ -681,11 +710,9 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/phpmyadmin-STABLE/',
                             '{0}22222/htdocs/db/pma/'
                             .format(EEVariables.ee_webroot))
-                Log.debug(self, 'Setting Privileges of www-data:www-data to  '
+                Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/db/pma')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -702,8 +729,6 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to "
                           "{0}22222/htdocs/cache/memcache file"
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/cache/memcache')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -729,11 +754,9 @@ class EEStackController(CementBaseController):
                                      "/usr/bin/dot\'\" {0}22222/htdocs/"
                                      "php/webgrind/config.php"
                                      .format(EEVariables.ee_webroot))
-                Log.debug(self, "Setting Privileges of www-data:www-data to "
+                Log.debug(self, "Setting Privileges of webroot permission to "
                           "{0}22222/htdocs/php/webgrind/ file "
                           .format(EEVariables.ee_webroot))
-                # EEShellExec.cmd_exec(self, 'chown -R www-data:www-data '
-                #                     '/var/www/22222/htdocs/php/webgrind/')
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
                                   EEVariables.ee_php_user,
@@ -830,7 +853,8 @@ class EEStackController(CementBaseController):
 
                 # Custom Vimbadmin configuration by EasyEngine
                 data = dict(salt=vm_salt, host=EEVariables.ee_mysql_host,
-                            password=vm_passwd)
+                            password=vm_passwd,
+                            php_user=EEVariables.ee_php_user)
                 Log.debug(self, 'Writting the ViMbAdmin configuration to '
                           'file {0}22222/htdocs/vimbadmin/application/'
                           'configs/application.ini'
@@ -989,7 +1013,7 @@ class EEStackController(CementBaseController):
                             static=False,
                             basic=True, wp=False, w3tc=False, wpfc=False,
                             wpsc=False, multisite=False, wpsubdir=False,
-                            webroot='/var/www', ee_db_name='',
+                            webroot=EEVariables.ee_webroot, ee_db_name='',
                             ee_db_user='', ee_db_pass='', ee_db_host='',
                             rc=True)
 
@@ -1154,7 +1178,15 @@ class EEStackController(CementBaseController):
                                         "Adminer"]]
 
             if self.app.pargs.mailscanner:
-                apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+                if not EEAptGet.is_installed(self, 'amavisd-new'):
+                    if (EEAptGet.is_installed(self, 'dovecot-core') or
+                       self.app.pargs.mail):
+                        apt_packages = (apt_packages +
+                                        EEVariables.ee_mailscanner)
+                    else:
+                        Log.error(self, "Failed to find installed Dovecot")
+                else:
+                    Log.error(self, "Mail scanner allready installed")
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1238,7 +1270,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
-           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+           (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
 
         if self.app.pargs.web:
@@ -1326,7 +1359,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
-           (not self.app.pargs.adminer) and (not self.app.pargs.utils)):
+           (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
+           (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
 
         if self.app.pargs.web:

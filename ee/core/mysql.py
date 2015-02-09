@@ -43,6 +43,7 @@ class EEMysql():
                               .format(e))
 
         try:
+            Log.debug(self, "Executing MySQL statement: {0}".format(statement))
             cur.execute(statement)
         except Exception as e:
             cur.close()
