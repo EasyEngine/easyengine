@@ -963,6 +963,11 @@ class EEStackController(CementBaseController):
                             '{0}roundcubemail/htdocs'
                             .format(EEVariables.ee_webroot))
 
+                # Install Roundcube depednet pear packages
+                EEShellExec.cmd_exec(self, "pear install Mail_Mime Net_SMTP"
+                                     " Mail_mimeDecode Net_IDNA2-beta "
+                                     "Auth_SASL Net_Sieve Crypt_GPG")
+
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
                 Log.debug(self, "Creating Database roundcubemail")
