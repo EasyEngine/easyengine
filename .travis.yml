@@ -17,6 +17,7 @@ before_script:
   - sudo service hostname restart
   - sudo apt-get -qq purge mysql* graphviz*
   - sudo apt-get -qq autoremove
+  - sudo apt-get update
 
 script:
   - sudo echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > ~/.gitconfig

@@ -105,7 +105,7 @@ class EEVariables():
     ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                "dovecot-managesieved", "postfix-mysql", "php5-cgi",
-               "php-gettext"]
+               "php-gettext", "php-pear"]
 
     # Mailscanner repo and packages
     ee_mailscanner_repo = ()

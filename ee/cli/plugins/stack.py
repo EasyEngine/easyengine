@@ -668,8 +668,6 @@ class EEStackController(CementBaseController):
     -o smtpd_hard_error_limit=1000
     -o smtpd_client_connection_count_limit=0
     -o smtpd_client_connection_rate_limit=0
-    -o receive_override_options=no_header_body_checks,""" +
-                                 """no_unknown_recipient_check
     -o local_header_rewrite_clients=""")
 
                 with open("/etc/postfix/master.cf", "a") as am_config:
@@ -964,6 +962,11 @@ class EEStackController(CementBaseController):
                             .format(EEVariables.ee_roundcube),
                             '{0}roundcubemail/htdocs'
                             .format(EEVariables.ee_webroot))
+
+                # Install Roundcube depednet pear packages
+                EEShellExec.cmd_exec(self, "pear install Mail_Mime Net_SMTP"
+                                     " Mail_mimeDecode Net_IDNA2-beta "
+                                     "Auth_SASL Net_Sieve Crypt_GPG")
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
