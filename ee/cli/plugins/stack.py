@@ -40,6 +40,8 @@ class EEStackController(CementBaseController):
         stacked_type = 'nested'
         description = 'Stack command manages stack operations'
         arguments = [
+            (['--all'],
+                dict(help='Install all stack', action='store_true')),
             (['--web'],
                 dict(help='Install web stack', action='store_true')),
             (['--admin'],
@@ -1075,6 +1077,11 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.mailscanner)):
                 self.app.pargs.web = True
 
+            if self.app.pargs.all:
+                self.app.pargs.web = True
+                self.app.pargs.admin = True
+                self.app.pargs.mail = True
+
             if self.app.pargs.web:
                 Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
                           " ,MySQL ")
@@ -1277,6 +1284,11 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
 
+        if self.app.pargs.all:
+            self.app.pargs.web = True
+            self.app.pargs.admin = True
+            self.app.pargs.mail = True
+
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
@@ -1365,6 +1377,11 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner)):
             self.app.pargs.web = True
+
+        if self.app.pargs.all:
+            self.app.pargs.web = True
+            self.app.pargs.admin = True
+            self.app.pargs.mail = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
