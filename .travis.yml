@@ -22,7 +22,7 @@ before_script:
 script:
   - sudo echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > ~/.gitconfig
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
-  - sudo apt-get install git python3-setuptools python3-dev python3-apt
+  - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt
   - sudo python3 setup.py install
   - sudo ee --help
   - sudo ee stack install
