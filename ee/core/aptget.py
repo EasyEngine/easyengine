@@ -23,20 +23,29 @@ class EEAptGet():
             return success
         except AttributeError as e:
             Log.error(self, 'AttributeError: ' + str(e))
+        except FetchFailedException as e:
+            Log.debug(self, 'SystemError:  ' + str(e))
+            Log.error(self, 'Unable to Fetch update')
 
     def dist_upgrade():
         """
         Similar to `apt-get upgrade`
         """
-        apt_cache = apt.cache.Cache()
-        apt_cache.update()
-        apt_cache.open(None)
-        apt_cache.upgrade(True)
-        success = (apt_cache.commit(
-                   apt.progress.text.AcquireProgress(),
-                   apt.progress.base.InstallProgress()))
-        #apt_cache.close()
-        return success
+        try:
+            apt_cache = apt.cache.Cache()
+            apt_cache.update()
+            apt_cache.open(None)
+            apt_cache.upgrade(True)
+            success = (apt_cache.commit(
+                       apt.progress.text.AcquireProgress(),
+                       apt.progress.base.InstallProgress()))
+            #apt_cache.close()
+            return success
+        except AttributeError as e:
+            Log.error(self, 'AttributeError: ' + str(e))
+        except FetchFailedException as e:
+            Log.debug(self, 'SystemError:  ' + str(e))
+            Log.error(self, 'Unable to Fetch update')
 
     def install(self, packages):
         """
@@ -59,7 +68,7 @@ class EEAptGet():
                     return False
                 else:
                     try:
-                        print(pkg.name)
+                        # print(pkg.name)
                         pkg.mark_install()
                     except Exception as e:
                         Log.debug(self, str(e))
@@ -108,7 +117,7 @@ class EEAptGet():
                     return False
                 else:
                     try:
-                        print(pkg.name)
+                        # print(pkg.name)
                         pkg.mark_delete(purge)
                     except SystemError as e:
                         Log.debug(self, 'SystemError: ' + str(e))
