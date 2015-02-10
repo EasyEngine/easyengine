@@ -15,15 +15,19 @@ class EEAptGet():
         """
         try:
             apt_cache = apt.cache.Cache()
-            apt_cache.update()
-            success = (apt_cache.commit(
-                       apt.progress.text.AcquireProgress(),
-                       apt.progress.base.InstallProgress()))
-            #apt_cache.close()
-            return success
+            import sys
+            orig_out = sys.stdout
+            sys.stdout = open(self.app.config.get('log.logging', 'file'), 'a')
+            apt_cache.update(apt.progress.text.AcquireProgress())
+            sys.stdout = orig_out
+            # success = (apt_cache.commit(
+            #            apt.progress.text.AcquireProgress(),
+            #            apt.progress.base.InstallProgress()))
+            # #apt_cache.close()
+            # return success
         except AttributeError as e:
             Log.error(self, 'AttributeError: ' + str(e))
-        except FetchFailedException as e:
+        except Exception as e:
             Log.debug(self, 'SystemError:  ' + str(e))
             Log.error(self, 'Unable to Fetch update')
 
@@ -85,7 +89,12 @@ class EEAptGet():
         if apt_cache.install_count > 0:
             try:
                 #apt_pkg.PkgSystemUnLock()
-                result = apt_cache.commit()
+                orig_out = sys.stdout
+                sys.stdout = open(self.app.config.get('log.logging', 'file'),
+                                  'a')
+                result = apt_cache.commit(apt.progress.text.AcquireProgress(),
+                                          apt.progress.base.InstallProgress())
+                sys.stdout = orig_out
                 #apt_cache.close()
                 return result
             except SystemError as e:
@@ -134,7 +143,12 @@ class EEAptGet():
         if apt_cache.delete_count > 0:
             try:
                 # apt_pkg.PkgSystemUnLock()
-                result = apt_cache.commit()
+                orig_out = sys.stdout
+                sys.stdout = open(self.app.config.get('log.logging', 'file'),
+                                  'a')
+                result = apt_cache.commit(apt.progress.text.AcquireProgress(),
+                                          apt.progress.base.InstallProgress())
+                sys.stdout = orig_out
                 # apt_cache.close()
                 return result
             except SystemError as e:
@@ -150,7 +164,10 @@ class EEAptGet():
         Similar to `apt-get autoclean`
         """
         try:
+            orig_out = sys.stdout
+            sys.stdout = open(self.app.config.get('log.logging', 'file'), 'a')
             apt_get.autoclean("-y")
+            sys.stdout = orig_out
         except ErrorReturnCode as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to apt-get autoclean")

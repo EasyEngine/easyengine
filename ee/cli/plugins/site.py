@@ -1,4 +1,4 @@
-"""EasyEngine site controller."""
+# """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.variables import EEVariables
@@ -913,7 +913,7 @@ class EESiteUpdateController(CementBaseController):
                   msg="{0} updated with {1} {2}"
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
-        # setwebrootpermissions(self, data['webroot'])
+        setwebrootpermissions(self, data['webroot'])
         if ee_auth and len(ee_auth):
             for msg in ee_auth:
                 Log.info(self, Log.ENDC + msg)
