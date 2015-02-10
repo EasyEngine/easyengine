@@ -41,7 +41,7 @@ class EEStackController(CementBaseController):
         description = 'Stack command manages stack operations'
         arguments = [
             (['--all'],
-                dict(help='Install web stack', action='store_true')),
+                dict(help='Install all stack', action='store_true')),
             (['--web'],
                 dict(help='Install web stack', action='store_true')),
             (['--admin'],
