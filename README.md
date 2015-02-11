@@ -19,12 +19,11 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 - Ubuntu 12.04 & 14.04
 - Debian 7
 
-### This is Beta version. Donot Try on Production/Live servers
 
 ## Quick Start
 
 ```bash
-wget http://rt.cx/eebeta && sudo bash eebeta     # install easyengine 3.0.0-beta
+wget http://rt.cx/ee && sudo bash ee     # install easyengine 3.0.0-beta
 sudo ee site create example.com --wp     # Install required packages & setup WordPress on example.com
 ```
 
@@ -85,8 +84,8 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 
 
 ## Useful Links
-- [Documentation] (http://rtcamp.com/easyengine/docs/)
-- [FAQ] (http://rtcamp.com/easyengine/faq/)
+- [Documentation] (http://docs.rtcamp.com/easyengine/docs/)
+- [FAQ] (http://docs.rtcamp.com/easyengine/faq/)
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
 
 ## Donations
