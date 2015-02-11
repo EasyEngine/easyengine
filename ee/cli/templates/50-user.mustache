@@ -1,0 +1,17 @@
+use strict;
+$sa_spam_subject_tag = undef;
+$spam_quarantine_to  = undef;
+$sa_tag_level_deflt  = undef;
+
+# Prevent spams from automatically rejected by mail-server
+$final_spam_destiny  = D_PASS;
+
+# We need to provide list of domains for which filtering need to be done
+@lookup_sql_dsn = (
+['DBI:mysql:database=vimbadmin;host={{host}};port=3306',
+'vimbadmin',
+'{{password}}']);
+
+$sql_select_policy = 'SELECT domain FROM domain WHERE CONCAT("@",domain) IN (%k)';
+
+1;  # ensure a defined return

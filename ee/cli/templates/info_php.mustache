@@ -1,0 +1,35 @@
+
+PHP ({{version}}):
+
+user                             {{user}}
+expose_php                       {{expose_php}}
+memory_limit                     {{memory_limit}}
+post_max_size                    {{post_max_size}}
+upload_max_filesize              {{upload_max_filesize}}
+max_execution_time               {{max_execution_time}}
+
+Information about www.conf
+ping.path                        {{www_ping_path}}
+pm.status_path                   {{www_pm_status_path}}
+process_manager                  {{www_pm}}
+pm.max_requests                  {{www_pm_max_requests}}
+pm.max_children                  {{www_pm_max_children}}
+pm.start_servers                 {{www_pm_start_servers}}
+pm.min_spare_servers             {{www_pm_min_spare_servers}}
+pm.max_spare_servers             {{www_pm_max_spare_servers}}
+request_terminate_timeout        {{www_request_terminate_timeout}}
+xdebug.profiler_enable_trigger   {{www_xdebug_profiler_enable_trigger}}
+listen                           {{www_listen}}
+
+Information about debug.conf
+ping.path                        {{debug_ping_path}}
+pm.status_path                   {{debug_pm_status_path}}
+process_manager                  {{debug_pm}}
+pm.max_requests                  {{debug_pm_max_requests}}
+pm.max_children                  {{debug_pm_max_children}}
+pm.start_servers                 {{debug_pm_start_servers}}
+pm.min_spare_servers             {{debug_pm_min_spare_servers}}
+pm.max_spare_servers             {{debug_pm_max_spare_servers}}
+request_terminate_timeout        {{debug_request_terminate_timeout}}
+xdebug.profiler_enable_trigger   {{debug_xdebug_profiler_enable_trigger}}
+listen                           {{debug_listen}}

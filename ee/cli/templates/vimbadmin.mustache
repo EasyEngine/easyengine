@@ -1,0 +1,662 @@
+;; This file is licenesed Under GNU GENERAL PUBLIC LICENSE Version 3
+;; © Copyright 2011 - 2014 Open Source Solutions Limited, Dublin, Ireland.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; ViMbAdmin :: Virtual Mailbox Admin
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; IMPORTANT: Review and change all options in [user]
+;;
+;; ** This is for ViMbAdmin V3 and later **
+;;
+;; See: https://github.com/opensolutions/ViMbAdmin/wiki/Configuration
+
+[user]
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Installation Keys and Salts
+;
+; During installation, you will be prompted to enter strings here. This
+; is to verify that you are in fact the person authorised to complete the
+; installation as well as provide security for cookies and passwords.
+
+securitysalt                       = "{{salt}}"
+resources.auth.oss.rememberme.salt = "{{salt}}"
+defaults.mailbox.password_salt     = "{{salt}}"
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; When installing for the first time, it may be useful to set the following
+; to 1 BUT ensure you set it to zero again in a production system
+
+phpSettings.display_startup_errors = 0
+phpSettings.display_errors = 0
+resources.frontController.params.displayExceptions = 0
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; You database and caching connection.
+;;
+
+resources.doctrine2.connection.options.driver   = 'mysqli'
+resources.doctrine2.connection.options.dbname   = 'vimbadmin'
+resources.doctrine2.connection.options.user     = 'vimbadmin'
+resources.doctrine2.connection.options.password = '{{password}}'
+resources.doctrine2.connection.options.host     = '{{host}}'
+resources.doctrine2.connection.options.charset  = 'utf8'
+
+;; Doctrine2 requires Memcache for maximum efficency. Without Memcache
+;; it can be highly inefficient and will slow page requests down.
+;;
+;; You are strongly advised to install memcache and comment ArrayCache
+;; here and uncomment MemcacheCache.
+;;
+
+resources.doctrine2cache.type                    = 'ArrayCache'
+;resources.doctrine2cache.type                    = 'MemcacheCache'
+;resources.doctrine2cache.memcache.servers.0.host = '127.0.0.1'
+resources.doctrine2cache.namespace              = 'ViMbAdmin3'
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Default values used when creating domains
+;
+; See: https://github.com/opensolutions/ViMbAdmin/wiki/Configuration
+; See: https://github.com/opensolutions/ViMbAdmin/wiki/Quotas
+
+defaults.domain.quota = 0
+defaults.domain.maxquota = 0
+defaults.domain.transport = "virtual"
+defaults.domain.aliases = 0
+defaults.domain.mailboxes = 0
+
+defaults.quota.multiplier = 'MB'
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Use server side filtering to reduce pagination time on client side
+;; Defaults to off / false
+defaults.server_side.pagination.enable = false
+defaults.server_side.pagination.min_search_str = 3
+defaults.server_side.pagination.max_result_cnt = 500
+
+;; Separate configuration for domain list
+defaults.server_side.pagination.domain.enable = false
+defaults.server_side.pagination.domain.min_search_str = 3
+defaults.server_side.pagination.domain.max_result_cnt = 500
+
+; The number of rows displayed in the tables
+; must be one of these: 10, 25, 50, 100
+defaults.table.entries = 50
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Options for the display of domain and mailbox sizes
+;;
+;; See: https://github.com/opensolutions/ViMbAdmin/wiki/Mailbox-Sizes
+;;
+;; Enable or disable display of sizes. Default: disabled
+
+defaults.list_size.disabled = true
+
+;; Maildir size units. By default: KB. One of B, KB, MB or GB.
+defaults.list_size.multiplier = 'GB'
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Default values for creating mailboxes
+
+; This sets the uid and gid columns in the mailbox table to the below values
+defaults.mailbox.uid = 5000
+defaults.mailbox.gid = 5000
+
+
+; Set the homedir and maildir values in the mailbox table where the
+; following substitutions apply:
+;
+;     %d -> domain part of email address
+;     %u -> user part of email address
+;     $m -> full email address
+;
+;
+; http://wiki2.dovecot.org/VirtualUsers/Home
+
+defaults.mailbox.maildir = "maildir:/var/vmail/%d/%u"
+defaults.mailbox.homedir = "/var/vmail/"
+
+;minimum mailbox password length
+defaults.mailbox.min_password_length = 8
+
+; The password hashing function to use. Set to one of:
+;
+;   "plain"       - password stored as clear text
+;   "md5"         - password hashed using MD5 without salt (PHP md5())
+;   "md5.salted"  - password hashed using MD5 with salt (see below)
+;   "sha1"        - password hashed using sha1 without salt
+;   "sha1.salted" - password hashed using sha1 with salt defined below
+;   "crypt:XXX"   - call the PHP crypt function (with random salt) where XXX is one of: md5, blowfish, sha256, sha512
+;   "dovecot:XXX" - call the Dovecot password generator (see next option below) and use the
+;                      scheme specified by XXX. To see available schemes, use 'dovecotpw -l'
+;                      or 'doveadm pw -l'
+
+defaults.mailbox.password_scheme = "md5"
+
+; The path to (and initial option(s) if necessary) the Dovecot password generator. Typical
+; values may be something like:
+;
+; "/usr/bin/doveadm pw"
+; "/usr/bin/dovecotpw"
+
+defaults.mailbox.dovecot_pw_binary = "/usr/bin/doveadm pw"
+
+
+
+;; A "mailbox alias" will, for example add the following entry to
+;; the alias table for a mailbox: name@example.com
+;;
+;;    name@example.com -> name@example.com
+;;
+;; This is required for aliasing an entire domain. If in doubt, leave it enabled.
+mailboxAliases = 1
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; See: https://github.com/opensolutions/ViMbAdmin/wiki/Archiving-Mailboxes
+
+server_id = 1
+
+;;Archive options
+binary.path.chown_R   = "/bin/chown -R"
+binary.path.tar_cf    = "/bin/tar -cf"
+binary.path.tar_xf    = "/bin/tar -xf"
+binary.path.bzip2_q   = "/bin/bzip2 -q"
+binary.path.bunzip2_q = "/bin/bunzip2 -q"
+binary.path.rm_rf     = "/bin/rm -rf"
+
+archive.path = "/srv/archives"
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Enable mailbox deletion on the file system
+;
+; See: https://github.com/opensolutions/ViMbAdmin/wiki/Deleting-Mailboxes
+;
+
+mailbox_deletion_fs_enabled = false
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Export Mailbox Settings
+;
+; See: https://github.com/opensolutions/ViMbAdmin/wiki/Export-Settings
+;
+defaults.export_settings.disabled = true
+
+
+;; Export settings alowed subnets
+defaults.export_settings.allowed_subnet[] = "10."
+defaults.export_settings.allowed_subnet[] = "192.168."
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Settings email default values.
+;;
+;; Substituions are as follows:
+;;
+;;     %d -> domain part of email address
+;;     %u -> user part of email address
+;;     $m -> full email address
+;;
+;; See (and skin) the following file to see how the below are used:
+;;
+;;     views/mailbox/email/settings.phtml
+;;
+
+server.smtp.enabled = 1
+server.smtp.host    = "mail.%d"
+server.smtp.user    = "%m"
+server.smtp.port    = "465"
+server.smtp.crypt   = "SSL"
+
+server.pop3.enabled = 1
+server.pop3.host  = "gpo.%d"
+server.pop3.user  = "%m"
+server.pop3.port  = "995"
+server.pop3.crypt = "SSL"
+
+server.imap.enabled = 1
+server.imap.host  = "gpo.%d"
+server.imap.user  = "%m"
+server.imap.port  = "993"
+server.imap.crypt = "SSL"
+
+server.webmail.enabled = 1
+server.webmail.host  = "https://webmail.%d"
+server.webmail.user  = "%m"
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Identity
+
+identity.orgname  = "Example Limited"
+identity.name  = "Example Support Team"
+identity.email = "support@example.com"
+identity.autobot.name  = "ViMbAdmin Autobot"
+identity.autobot.email = "autobot@example.com"
+identity.mailer.name   = "ViMbAdmin Autobot"
+identity.mailer.email  = "do-not-reply@example.com"
+
+identity.sitename = "ViMbAdmin"
+identity.siteurl = "https://www.example.com/vimbadmin/"
+
+
+;;
+;; All mail and correspondence will come from the following;;
+
+server.email.name = "ViMbAdmin Administrator"
+server.email.address = "support@example.com"
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Skinning
+;;
+;; You can skin ViMbAdmin pages if you wish.
+;;
+;; See: https://github.com/opensolutions/ViMbAdmin/wiki/Skinning
+
+; resources.smarty.skin      = "myskin"
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; See: http://framework.zend.com/manual/en/zend.mail.smtp-authentication.html
+;;
+;; Ensure you have a working mail server configuration so the system can
+;; send emails:
+;;
+resources.mailer.smtphost = "localhost"
+;resources.mailer.username = ""
+;resources.mailer.password = ""
+;resources.mailer.auth     = ""
+;resources.mailer.ssl      = ""
+;resources.mailer.port     = "25"
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Local filesystem logging.
+;;
+;; We log various things to var/log/YYYY/MM/ if you enable the logger here.
+;;
+;; It is useful to use the email logger to be alerted of serious errors.
+;;
+
+ondemand_resources.logger.enabled = 1
+
+;ondemand_resources.logger.writers.email.from   = "admin@example.com"
+;ondemand_resources.logger.writers.email.to     = "admin@example.com"
+;ondemand_resources.logger.writers.email.prefix = "ViMbAdmin_Error"
+;ondemand_resources.logger.writers.email.level  = 3
+
+ondemand_resources.logger.writers.stream.level = 7
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; ViMbAdmin performs a version check on administrator login and alerts the
+;; user if there is a newer version available.
+;;
+;; This can be disabled by setting the below to 1
+;;
+
+skipVersionCheck = 0
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; ViMbAdmin 'pings' the developers as part of the set up process to let
+;; them know there is a new installation.
+;;
+;; All we are interested in is knowing whether people are using the software
+;; or not and whether continued support and development is worth the time
+;; and effort.
+;;
+;; Unless you're very shy, PLEASE LET US KNOW YOU'RE USING IT!
+;;
+;; This can be disabled by setting the below to 1
+;;
+
+skipInstallPingback = 0
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Allow admins to dictate whether a user can use BOTH, IMAP ONLY,
+; POP3 ONLY when creating mailboxes.
+;
+; Must be supported by your POP3/IMAP server.
+;
+; See https://github.com/opensolutions/ViMbAdmin/wiki/POP3-IMAP-Access-Permissions
+; for documentation.
+;
+; This is handled via a plugin
+;
+
+vimbadmin_plugins.AccessPermissions.disabled = false
+
+; specify the options which should be allowed for access restrictions
+vimbadmin_plugins.AccessPermissions.type.SMTP  = "SMTP"
+vimbadmin_plugins.AccessPermissions.type.IMAP  = "IMAP"
+vimbadmin_plugins.AccessPermissions.type.POP3  = "POP3"
+vimbadmin_plugins.AccessPermissions.type.SIEVE = "SIEVE"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; Proceed onwards with caution.
+;;
+;; The above [user] params are the may ones of consequence.
+;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Allows to add additional information.
+;
+; This is handled via a plugin
+;
+
+vimbadmin_plugins.AccessPermissions.disabled = false
+vimbadmin_plugins.Jabber.disabled            = true
+vimbadmin_plugins.DirectoryEntry.disabled    = true
+vimbadmin_plugins.SharedMailbox.disabled     = true
+vimbadmin_plugins.SOGo.disabled              = true
+
+
+vimbadmin_plugins.AdditionalInfo.disabled = true
+vimbadmin_plugins.Addressbook.disabled    = true
+vimbadmin_plugins.Calendar.disabled       = true
+vimbadmin_plugins.RoundCube.disabled      = true
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Disabling directory entry subform element
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+vimbadmin_plugins.DirectoryEntry.disabled_elements.JpegPhoto         = true
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Mail              = true
+vimbadmin_plugins.DirectoryEntry.disabled_elements.PreferredLanguage = true
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Secretary         = true
+
+vimbadmin_plugins.DirectoryEntry.disabled_elements.PersonalTitle            = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.GivenName                = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Sn                       = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.DisplayName              = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Initials                 = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.BusinesCategory          = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.EmployeeType             = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Title                    = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.DepartmentNumber         = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Ou                       = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.RoomNumber               = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.O                        = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.CarLicense               = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.EmployeeNumber           = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.HomePhone                = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.TelephoneNumber          = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Mobile                   = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Pager                    = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.FacsimileTelephoneNumber = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.HomePostalAddress        = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.LabeledUri               = false
+vimbadmin_plugins.DirectoryEntry.disabled_elements.Manager                  = false
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Mailbox AdditionalInfo plugin elements
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;Additional text messages for plugin.
+AdditionalInfo.mailbox.formPreBlurb  = "<p><strong>NB:</strong> Do not edit the following. It is sync'd on a nightly basis ..."
+
+; First Name
+vimbadmin_plugins.AdditionalInfo.elements.id.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.id.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.id.options.label = "LDAP Id"
+
+; First Name
+vimbadmin_plugins.AdditionalInfo.elements.first_name.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.first_name.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.first_name.options.label = "First Name"
+
+; Last Name
+vimbadmin_plugins.AdditionalInfo.elements.second_name.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.second_name.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.second_name.options.label = "Last Name"
+
+; Grade
+vimbadmin_plugins.AdditionalInfo.elements.grade.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.grade.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.grade.options.label = "Grade"
+
+; Grade Id
+vimbadmin_plugins.AdditionalInfo.elements.grade_id.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.grade_id.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.grade_id.options.label = "Grade Id"
+vimbadmin_plugins.AdditionalInfo.elements.grade_id.options.validators.digits[] = 'Digits'
+vimbadmin_plugins.AdditionalInfo.elements.grade_id.options.validators.digits[] = true
+
+; Department
+vimbadmin_plugins.AdditionalInfo.elements.department.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.department.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.department.options.label = "Department"
+
+; Department Id
+vimbadmin_plugins.AdditionalInfo.elements.department_id.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.department_id.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.department_id.options.label = "Department Id"
+vimbadmin_plugins.AdditionalInfo.elements.department_id.options.validators.digits[] = 'Digits'
+vimbadmin_plugins.AdditionalInfo.elements.department_id.options.validators.digits[] = true
+
+; Section
+vimbadmin_plugins.AdditionalInfo.elements.section.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.section.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.section.options.label = "Section"
+
+; Extension Number
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.label = "Extension Number"
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.digits[] = 'Digits'
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.digits[] = true
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.length[] = 'StringLength'
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.length[] = false
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.length.range[] = 4
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.validators.length.range[] = 4
+;;to disable autocomplete functionality
+vimbadmin_plugins.AdditionalInfo.elements.ext_no.options.autocomplete = 'off'
+
+; Direct Dial
+vimbadmin_plugins.AdditionalInfo.elements.d_dial.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.d_dial.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.d_dial.options.label = "Direct Dial"
+vimbadmin_plugins.AdditionalInfo.elements.d_dial.options.autocomplete = 'off'
+
+; Mobile
+vimbadmin_plugins.AdditionalInfo.elements.mobile.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.elements.mobile.options.required = false
+vimbadmin_plugins.AdditionalInfo.elements.mobile.options.label = "Mobile"
+vimbadmin_plugins.AdditionalInfo.elements.mobile.options.autocomplete = 'off'
+
+;;;;;;;
+;; Aliases additional information
+;;
+; First Name
+vimbadmin_plugins.AdditionalInfo.alias.elements.name.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.alias.elements.name.options.required = false
+vimbadmin_plugins.AdditionalInfo.alias.elements.name.options.label = "Name"
+
+; Extension Number
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.required = false
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.label = "Extension Number"
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.digits[] = 'Digits'
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.digits[] = true
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.length[] = 'StringLength'
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.length[] = false
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.length.range[] = 4
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.validators.length.range[] = 4
+vimbadmin_plugins.AdditionalInfo.alias.elements.ext_no.options.autocomplete = 'off'
+
+; Direct Dial
+vimbadmin_plugins.AdditionalInfo.alias.elements.d_dial.type = "Zend_Form_Element_Text"
+vimbadmin_plugins.AdditionalInfo.alias.elements.d_dial.options.required = false
+vimbadmin_plugins.AdditionalInfo.alias.elements.d_dial.options.label = "Direct Dial"
+vimbadmin_plugins.AdditionalInfo.alias.elements.d_dial.options.autocomplete = 'off'
+
+
+[production : user]
+
+includePaths.library = APPLICATION_PATH "/../library"
+includePaths.osslibrary = APPLICATION_PATH "/../vendor/opensolutions/oss-framework/src/"
+
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "ViMbAdmin"
+
+temporary_directory = APPLICATION_PATH "/../var/tmp"
+
+pluginPaths.OSS_Resource = APPLICATION_PATH "/../vendor/opensolutions/oss-framework/src/OSS/Resource"
+pluginPaths.ViMbAdmin_Resource = APPLICATION_PATH "/../library/ViMbAdmin/Resource"
+
+mini_js = 1
+mini_css = 1
+
+alias_autocomplete_min_length = 2
+
+
+
+resources.frontController.controllerDirectory = APPLICATION_PATH "/controllers"
+resources.frontController.moduleDirectory = APPLICATION_PATH "/modules"
+resources.modules[] =
+
+
+; doctrine2
+resources.doctrine2.models_path        = APPLICATION_PATH
+resources.doctrine2.proxies_path       = APPLICATION_PATH "/Proxies"
+resources.doctrine2.repositories_path  = APPLICATION_PATH
+resources.doctrine2.xml_schema_path    = APPLICATION_PATH "/../doctrine2/xml"
+resources.doctrine2.autogen_proxies    = 0
+resources.doctrine2.logger             = 1
+resources.doctrine2.models_namespace       = "Entities"
+resources.doctrine2.proxies_namespace      = "Proxies"
+resources.doctrine2.repositories_namespace = "Repositories"
+
+
+resources.doctrine2cache.autoload_method    = "composer"
+;resources.doctrine2cache.type              = 'ArrayCache'
+;resources.doctrine2cache.type               = 'MemcacheCache'
+;resources.doctrine2cache.memcache.servers.0.host       = '127.0.0.1'
+;resources.doctrine2cache.memcache.servers.0.port       = '11211'
+;resources.doctrine2cache.memcache.servers.0.persistent = false
+;resources.doctrine2cache.memcache.servers.0.weight     = 1
+;resources.doctrine2cache.memcache.servers.0.timeout    = 1
+;resources.doctrine2cache.memcache.servers.0.retry_int  = 15
+
+; resources.doctrine2cache.memcache.servers.1.host       = 'xxx'
+; resources.doctrine2cache.memcache.servers.2.host       = 'yyy'
+
+resources.namespace.checkip = 0
+
+resources.auth.enabled = 1
+resources.auth.oss.adapter = "OSS_Auth_Doctrine2Adapter"
+resources.auth.oss.pwhash  = "bcrypt"
+resources.auth.oss.hash_cost  = 9
+resources.auth.oss.entity  = "\\Entities\\Admin"
+resources.auth.oss.disabled.lost-username = 1
+resources.auth.oss.disabled.lost-password = 0
+
+resources.auth.oss.rememberme.enabled = 1
+resources.auth.oss.rememberme.timeout = 2592000
+resources.auth.oss.rememberme.secure  = true
+
+resources.auth.oss.lost_password.use_captcha = true
+
+resources.session.save_path = APPLICATION_PATH "/../var/session"
+resources.session.use_only_cookies = true
+resources.session.remember_me_seconds = 3600
+resources.session.name = 'VIMBADMIN3'
+
+ondemand_resources.logger.writers.stream.path    = APPLICATION_PATH "/../var/log"
+ondemand_resources.logger.writers.stream.owner   = {{php_user}}
+ondemand_resources.logger.writers.stream.group   = {{php_user}}
+ondemand_resources.logger.writers.stream.mode    = single
+ondemand_resources.logger.writers.stream.logname = vimbadmin.log
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Smarty View
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+resources.smarty.enabled   = 1
+resources.smarty.templates = APPLICATION_PATH "/views"
+; resources.smarty.skin      = "myskin"
+resources.smarty.compiled  = APPLICATION_PATH "/../var/templates_c"
+resources.smarty.cache     = APPLICATION_PATH "/../var/cache"
+resources.smarty.config    = APPLICATION_PATH "/configs/smarty"
+resources.smarty.plugins[] = APPLICATION_PATH "/../library/ViMbAdmin/Smarty/functions"
+resources.smarty.plugins[] = APPLICATION_PATH "/../vendor/opensolutions/oss-framework/src/OSS/Smarty/functions"
+resources.smarty.plugins[] = APPLICATION_PATH "/../vendor/smarty/smarty/libs/plugins"
+resources.smarty.plugins[] = APPLICATION_PATH "/../vendor/smarty/smarty/libs/sysplugins"
+resources.smarty.debugging = 0
+
+
+
+
+[development : production]
+
+mini_js = 0
+mini_css = 0
+
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+resources.frontController.params.displayExceptions = 1

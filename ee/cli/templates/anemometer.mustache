@@ -1,0 +1,255 @@
+<?php
+$conf['datasources']['localhost'] = array(
+	'host'	=> '{{host}}',
+	'port'	=> '{{port}}',
+	'db'	=> 'slow_query_log',
+	'user'	=> '{{user}}',
+	'password' => '{{password}}',
+	'tables' => array(
+		'global_query_review' => 'fact',
+		'global_query_review_history' => 'dimension'
+	),
+	'source_type' => 'slow_query_log'
+);
+
+$conf['default_report_action'] = 'report';
+
+$conf['reviewers'] = array( 'dba1','dba2');
+$conf['review_types'] = array( 'good', 'bad', 'ticket-created', 'needs-fix', 'fixed', 'needs-analysis', 'review-again');
+
+$conf['history_defaults'] = array(
+	'output'		=> 'table',
+	'fact-group'	=> 'date',
+	'fact-order'	=> 'date DESC',
+	'fact-limit' => '90',
+	'dimension-ts_min_start' => date("Y-m-d H:i:s", strtotime( '-90 day')),
+	'dimension-ts_min_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array('date', 'index_ratio','query_time_avg','rows_sent_avg','ts_cnt','Query_time_sum','Lock_time_sum','Rows_sent_sum','Rows_examined_sum','Tmp_table_sum','Filesort_sum','Full_scan_sum')
+);
+
+$conf['report_defaults'] = array(
+	'fact-group'	=> 'checksum',
+	'fact-order'	=> 'Query_time_sum DESC',
+	'fact-limit' => '20',
+	'dimension-ts_min_start' => date("Y-m-d H:i:s", strtotime( '-1 day')),
+	'dimension-ts_min_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array('checksum','snippet', 'index_ratio','query_time_avg','rows_sent_avg','ts_cnt','Query_time_sum','Lock_time_sum','Rows_sent_sum','Rows_examined_sum','Tmp_table_sum','Filesort_sum','Full_scan_sum'),
+	'dimension-pivot-hostname_max' => null
+);
+
+$conf['graph_defaults'] = array(
+	'fact-group'	=> 'minute_ts',
+	'fact-order'	=> 'minute_ts',
+	'fact-limit' => '',
+	'dimension-ts_min_start' => date("Y-m-d H:i:s", strtotime( '-7 day')),
+	'dimension-ts_min_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array('minute_ts'),
+	'plot_field' => 'Query_time_sum',
+);
+
+$conf['report_defaults']['performance_schema'] = array(
+	'fact-order'	=> 'SUM_TIMER_WAIT DESC',
+	'fact-limit' => '20',
+	'fact-group' => 'DIGEST',
+	'table_fields' => array( 'DIGEST', 'snippet', 'index_ratio', 'COUNT_STAR', 'SUM_TIMER_WAIT', 'SUM_LOCK_TIME','SUM_ROWS_AFFECTED','SUM_ROWS_SENT','SUM_ROWS_EXAMINED','SUM_CREATED_TMP_TABLES','SUM_SORT_SCAN','SUM_NO_INDEX_USED' )
+);
+
+$conf['history_defaults']['performance_schema'] = array(
+	'fact-order'	=> 'SUM_TIMER_WAIT DESC',
+	'fact-limit' => '20',
+	'fact-group' => 'DIGEST',
+	'table_fields' => array( 'DIGEST', 'index_ratio', 'COUNT_STAR', 'SUM_LOCK_TIME','SUM_ROWS_AFFECTED','SUM_ROWS_SENT','SUM_ROWS_EXAMINED','SUM_CREATED_TMP_TABLES','SUM_SORT_SCAN','SUM_NO_INDEX_USED' )
+);
+
+$conf['report_defaults']['performance_schema_history'] = array(
+	'fact-group'	=> 'DIGEST',
+	'fact-order'	=> 'SUM_TIMER_WAIT DESC',
+	'fact-limit' => '20',
+	'dimension-FIRST_SEEN_start' => date("Y-m-d H:i:s", strtotime( '-1 day')),
+	'dimension-FIRST_SEEN_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array( 'DIGEST', 'snippet', 'index_ratio', 'COUNT_STAR', 'SUM_LOCK_TIME','SUM_ROWS_AFFECTED','SUM_ROWS_SENT','SUM_ROWS_EXAMINED','SUM_CREATED_TMP_TABLES','SUM_SORT_SCAN','SUM_NO_INDEX_USED' )
+);
+
+$conf['graph_defaults']['performance_schema_history'] = array(
+	'fact-group'	=> 'minute_ts',
+	'fact-order'	=> 'minute_ts',
+	'fact-limit' => '',
+	'dimension-FIRST_SEEN_start' => date("Y-m-d H:i:s", strtotime( '-7 day')),
+	'dimension-FIRST_SEEN_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array('minute_ts'),
+	'plot_field' => 'SUM_TIMER_WAIT',
+	'dimension-pivot-hostname_max' => null
+);
+
+$conf['history_defaults']['performance_schema_history'] = array(
+	'output'		=> 'table',
+	'fact-group'	=> 'date',
+	'fact-order'	=> 'date DESC',
+	'fact-limit' => '90',
+	'dimension-FIRST_SEEN_start' => date("Y-m-d H:i:s", strtotime( '-90 day')),
+	'dimension-FIRST_SEEN_end'	=> date("Y-m-d H:i:s"),
+	'table_fields' => array( 'date', 'snippet', 'index_ratio', 'COUNT_STAR', 'SUM_LOCK_TIME','SUM_ROWS_AFFECTED','SUM_ROWS_SENT','SUM_ROWS_EXAMINED','SUM_CREATED_TMP_TABLES','SUM_SORT_SCAN','SUM_NO_INDEX_USED' )
+);
+$conf['plugins'] = array(
+
+	'visual_explain' => '/usr/bin/pt-visual-explain',
+	'query_advisor'	=> '/usr/bin/pt-query-advisor',
+
+	'show_create'	=> true,
+	'show_status'	=> true,
+
+	'explain'	=>	function ($sample) {
+		$conn = array();
+
+		if (!array_key_exists('hostname_max',$sample) or strlen($sample['hostname_max']) < 5)
+		{
+			return;
+		}
+
+		$pos = strpos($sample['hostname_max'], ':');
+		if ($pos === false)
+		{
+			$conn['port'] = 3306;
+			$conn['host'] = $sample['hostname_max'];
+		}
+		else
+		{
+			$parts = preg_split("/:/", $sample['hostname_max']);
+			$conn['host'] = $parts[0];
+			$conn['port'] = $parts[1];
+		}
+
+		$conn['db'] = 'mysql';
+		if ($sample['db_max'] != '')
+		{
+			$conn['db'] = $sample['db_max'];
+		}
+
+		$conn['user'] = '{{user}}';
+		$conn['password'] = '{{password}}';
+
+		return $conn;
+	},
+);
+
+$conf['reports']['slow_query_log'] = array(
+	'join'	=> array (
+		'dimension'	=> 'USING (`checksum`)'
+	),
+	'fields'	=> array(
+		'fact' => array(
+			'group'		=> 'group',
+			'order'		=> 'order',
+			'having'	=> 'having',
+			'limit'		=> 'limit',
+			'first_seen'=> 'clear|reldate|ge|where',
+			'where'		=>	'raw_where',
+			'sample'	=> 'clear|like|where',
+			'checksum'	=>	'clear|where',
+			'reviewed_status' => 'clear|where',
+
+		),
+
+		'dimension' => array(
+			'extra_fields' 	=> 	'where',
+			'hostname_max'	=> 'clear|where',
+			'ts_min'	=>	'date_range|reldate|clear|where',
+			'pivot-hostname_max' => 'clear|pivot|select',
+			'pivot-checksum' => 'clear|pivot|select',
+		),
+	),
+	'custom_fields'	=> array(
+		'checksum' => 'checksum',
+		'date'	=> 'DATE(ts_min)',
+		'hour'	=> 'substring(ts_min,1,13)',
+		'hour_ts'	=> 'round(unix_timestamp(substring(ts_min,1,13)))',
+		'minute_ts'     => 'round(unix_timestamp(substring(ts_min,1,16)))',
+		'minute'        => 'substring(ts_min,1,16)',
+		'snippet' => 'LEFT(dimension.sample,20)',
+		'index_ratio' =>'ROUND(SUM(Rows_examined_sum)/SUM(rows_sent_sum),2)',
+		'query_time_avg' => 'SUM(Query_time_sum) / SUM(ts_cnt)',
+		'rows_sent_avg' => 'ROUND(SUM(Rows_sent_sum)/SUM(ts_cnt),0)',
+	),
+
+	'callbacks'     => array(
+		'table' => array(
+			'date'  => function ($x) { $type=''; if ( date('N',strtotime($x)) >= 6) { $type = 'weekend'; } return array($x,$type); },
+			'checksum' => function ($x) { return array(dec2hex($x), ''); }
+		)
+	)
+
+);
+
+$conf['reports']['performance_schema'] = array(
+	'fields'	=> array(
+		'fact' => array(
+			'order'		=> 'order',
+			'having'	=> 'having',
+			'limit'		=> 'limit',
+			'first_seen'	=> 'date_range|reldate|clear|where',
+			'where'		=> 'raw_where',
+			'DIGEST'	=> 'clear|where',
+			'DIGEST_TEXT' => 'clear|like|where',
+		        'group'		=> 'group',
+		),
+	),
+	'custom_fields'	=> array(
+		'snippet' => 'LEFT(fact.DIGEST_TEXT,20)',
+		'index_ratio' =>'ROUND(SUM_ROWS_EXAMINED/SUM_ROWS_SENT,2)',
+		'rows_sent_avg' => 'ROUND(SUM_ROWS_SENT/COUNT_STAR,0)',
+
+	),
+
+	'special_field_names' => array(
+		'time'	 	=> 'FIRST_SEEN',
+		'checksum'	=> 'DIGEST',
+		'sample'	=> 'DIGEST_TEXT',
+		'fingerprint'   => 'DIGEST_TEXT',
+	),
+);
+
+$conf['reports']['performance_schema_history'] = array(
+	'join'	=> array (
+		'dimension'	=> 'USING (`DIGEST`)'
+	),
+	'fields'	=> array(
+		'fact' => array(
+			'group'		=> 'group',
+			'order'		=> 'order',
+			'having'	=> 'having',
+			'limit'		=> 'limit',
+			'first_seen'=> 'clear|reldate|ge|where',
+			'where'		=>	'raw_where',
+			'DIGEST_TEXT'	=> 'clear|like|where',
+			'DIGEST'	=>	'clear|where',
+			'reviewed_status' => 'clear|where',
+
+		),
+
+		'dimension' => array(
+			'extra_fields' 	=> 	'where',
+			'hostname'	=> 'clear|where',
+			'FIRST_SEEN'	=>	'date_range|reldate|clear|where',
+			'pivot-hostname' => 'clear|pivot|select',
+		),
+	),
+	'custom_fields'	=> array(
+		'date'	=> 'DATE(fact.FIRST_SEEN)',
+		'snippet' => 'LEFT(fact.DIGEST_TEXT,20)',
+		'index_ratio' =>'ROUND(SUM_ROWS_EXAMINED/SUM_ROWS_SENT,2)',
+		'rows_sent_avg' => 'ROUND(SUM_ROWS_SENT/COUNT_STAR,0)',
+		'hour'	=> 'substring(dimension.FIRST_SEEN,1,13)',
+		'hour_ts'	=> 'round(unix_timestamp(substring(dimension.FIRST_SEEN,1,13)))',
+		'minute_ts'     => 'round(unix_timestamp(substring(dimension.FIRST_SEEN,1,16)))',
+		'minute'        => 'substring(dimension.FIRST_SEEN,1,16)',
+	),
+
+	'special_field_names' => array(
+		'time'	 	=> 'FIRST_SEEN',
+		'checksum'	=> 'DIGEST',
+		'hostname'	=> 'hostname',
+		'sample'	=> 'DIGEST_TEXT'
+	),
+);
+
+?>

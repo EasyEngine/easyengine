@@ -1,0 +1,244 @@
+#!/bin/bash
+
+# EasyEngine update script.
+# This script is designed to install latest EasyEngine or
+# to update current EasyEngine from 2.x to 3.x
+
+old_ee_version="2.2.3"
+branch=$1
+
+# Define echo function
+# Blue color
+
+function ee_lib_echo()
+{
+    echo $(tput setaf 4)$@$(tput sgr0)
+}
+# White color
+function ee_lib_echo_info()
+{
+    echo $(tput setaf 7)$@$(tput sgr0)
+}
+# Red color
+function ee_lib_echo_fail()
+{
+    echo $(tput setaf 1)$@$(tput sgr0)
+}
+
+# Capture errors
+function ee_lib_error()
+{
+    echo "[ `date` ] $(tput setaf 1)$@$(tput sgr0)"
+    exit $2
+}
+
+function install_dep()
+{
+    # Execute: apt-get update
+    ee_lib_echo "Executing apt-get update"
+    apt-get update &>> /dev/null
+
+    # Install Python3 on users system
+    ee_lib_echo "Installing pre depedencies"
+    apt-get -y install python3 python3-apt python3-setuptools python3-dev sqlite3 git
+    if [[ $? -ne 0 ]]; then
+        ee_lib_echo_fail "Unable to install pre depedencies"
+        exit 1
+    fi
+}
+
+function sync_db()
+{
+    mkdir /var/lib/ee
+
+    # Sqlite query to create table `sites` into ee.db which will be used by ee.3.0
+    echo "CREATE TABLE sites (
+           id INTEGER PRIMARY KEY     AUTOINCREMENT,
+           sitename UNIQUE,
+           site_type CHAR,
+           cache_type CHAR,
+           site_path  CHAR,
+           created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+           is_enabled INT,
+           is_ssl INT,
+           storage_fs CHAR,
+           storage_db CHAR
+        );" | sqlite3 /var/lib/ee/ee.db
+
+    for site in $(ls /etc/nginx/sites-available/ | grep -v default);
+    do
+    if [ -f /etc/nginx/sites-available/$site ]; then
+        ENABLE_STATUS='1'
+    else
+        ENABLE_STATUS='0'
+    fi
+    # Find out information about current NGINX configuration
+    EE_SITE_CURRENT_TYPE=$(head -n1 /etc/nginx/sites-available/$site | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+    # Detect current website type and cache
+    if [ "$EE_SITE_CURRENT_TYPE" = "HTML" ]; then
+        EE_SITE_CURRENT="html"
+        EE_SITE_CURRENT_CACHE="basic"
+    elif [ "$EE_SITE_CURRENT_TYPE" = "PHP" ]; then
+        EE_SITE_CURRENT="php"
+        EE_SITE_CURRENT_CACHE="basic"
+    elif [ "$EE_SITE_CURRENT_TYPE" = "MYSQL" ]; then
+        EE_SITE_CURRENT="mysql"
+        EE_SITE_CURRENT_CACHE="basic"
+    # Single WordPress
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE BASIC" ]; then
+        EE_SITE_CURRENT="wp"
+        EE_SITE_CURRENT_CACHE="basic"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE WP SUPER CACHE" ]; then
+        EE_SITE_CURRENT="wp"
+        EE_SITE_CURRENT_CACHE="wpsc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE W3 TOTAL CACHE" ]; then
+        EE_SITE_CURRENT="wp"
+        EE_SITE_CURRENT_CACHE="w3tc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FASTCGI" ]; then
+        EE_SITE_CURRENT="wp"
+        EE_SITE_CURRENT_CACHE="wpfc"
+
+    # WordPress subdirectory
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR BASIC" ]; then
+        EE_SITE_CURRENT="wpsubdir"
+        EE_SITE_CURRENT_CACHE="basic"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR WP SUPER CACHE" ]; then
+        EE_SITE_CURRENT="wpsubdir"
+        EE_SITE_CURRENT_CACHE="wpsc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR W3 TOTAL CACHE" ]; then
+        EE_SITE_CURRENT="wpsubdir"
+        EE_SITE_CURRENT_CACHE="w3tc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FASTCGI" ]; then
+        EE_SITE_CURRENT="wpsubdir"
+        EE_SITE_CURRENT_CACHE="wpfc"
+
+    # WordPress subdomain
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN BASIC" ]; then
+        EE_SITE_CURRENT="wpsubdomain"
+        EE_SITE_CURRENT_CACHE="basic"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
+        EE_SITE_CURRENT="wpsubdomain"
+        EE_SITE_CURRENT_CACHE="wpsc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
+        EE_SITE_CURRENT="wpsubdomain"
+        EE_SITE_CURRENT_CACHE="w3tc"
+
+    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FASTCGI" ]; then
+        EE_SITE_CURRENT="wpsubdomain"
+        EE_SITE_CURRENT_CACHE="wpfc"
+    fi
+
+    WEBROOT="/var/www/$site"
+
+    # Insert query to insert old site information into ee.db
+    echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
+    VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/ee/ee.db
+
+    done
+}
+
+
+function install_ee3()
+{
+    # Remove old clone of EasyEngine (ee) if any
+    rm -rf /tmp/easyengine &>> /dev/null
+
+    # Clone EE 3.0 Python branch
+    ee_lib_echo "Cloning EasyEngine 3.0"
+    if [ "$branch" = "" ]; then
+        branch=stable
+    fi
+
+    git clone -b $branch https://github.com/rtCamp/easyengine.git /tmp/easyengine --quiet > /dev/null || ee_lib_error "Unable to clone EasyEngine, exit status" 1
+
+    cd /tmp/easyengine
+    ee_lib_echo "Installing EasyEngine 3.0"
+    python3 setup.py install || ee_lib_error "Unable to install EasyEngine 3.0, exit status " 1
+
+}
+
+function update_to_ee3()
+{
+    # Preserve old configuration
+    ee_lib_echo "Updating EasyEngine 3.0 configuration"
+
+    grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }')
+    db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
+    db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
+    wp_prefix=$(grep prefix /etc/easyengine/ee.conf | awk '{ print $3 }')
+    wp_user=$(grep 'user ' /etc/easyengine/ee.conf | grep -v db-user |awk '{ print $3 }')
+    wp_pass=$(grep password /etc/easyengine/ee.conf | awk '{ print $3 }')
+    wp_email=$(grep email /etc/easyengine/ee.conf | awk '{ print $3 }')
+    ip_addr=$(grep ip-address /etc/easyengine/ee.conf |awk -F'=' '{ print $2 }')
+
+    sed -i "s/ip-address.*/ip-address = ${ip_addr}/" /etc/ee/ee.conf && \
+    sed -i "s/grant-host.*/grant-host = ${grant_host}/" /etc/ee/ee.conf && \
+    sed -i "s/db-name.*/db-name = ${db-name}/" /etc/ee/ee.conf && \
+    sed -i "s/db-user.*/db-user = ${db_user}/" /etc/ee/ee.conf && \
+    sed -i "s/prefix.*/prefix = ${wp_prefix}/" /etc/ee/ee.conf && \
+    sed -i "s/^user.*/user = ${wp_user}/" /etc/ee/ee.conf && \
+    sed -i "s/password.*/password = ${wp_password}/" /etc/ee/ee.conf && \
+    sed -i "s/email.*/email = ${wp_email}/" /etc/ee/ee.conf || ee_lib_error "Unable to update configuration, exit status " 1
+
+
+    # Remove old EasyEngine
+    ee_lib_echo "Removing EasyEngine 2"
+    rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
+
+    # Softlink to fix command not found error
+    ln -s /usr/local/bin/ee /usr/local/sbin/ee
+
+}
+
+function git_init()
+{
+    # Do git intialisation on EasyEngine configuration
+    cd /etc/ee
+    if [ ! -d /etc/ee/.git ]; then
+        git init > /dev/null
+    fi
+    git add .
+    git commit -am "Installed/Updated to EasyEngine 3" > /dev/null
+
+}
+
+# Checking permissions
+if [[ $EUID -ne 0 ]]; then
+    ee_lib_echo_fail "Sudo privilege required..."
+    ee_lib_echo_fail "Uses: wget -qO ee rt.cx/ee && sudo bash ee"
+    exit 1
+fi
+
+if [ -f /usr/local/sbin/easyengine ]; then
+    # Check old EasyEngine version
+    ee version | grep ${old_ee_version} &>> /dev/null
+    if [[ $? -ne 0 ]]; then
+        ee_lib_echo "EasyEngine $old_ee_version not found on your system"
+        ee_lib_echo "Updating your EasyEngine to $old_ee_version for compability"
+        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
+        if [[ $? -ne 0 ]]; then
+            ee_lib_echo_info "Unbale to update EasyEngine2 to $old_ee_version"
+            exit 1
+        fi
+    fi
+    install_dep
+    sync_db
+    install_ee3
+    update_to_ee3
+    git_init
+elif [ ! -f /usr/local/bin/ee ]; then
+    install_dep
+    install_ee3
+    git_init
+else
+    ee_lib_echo_fail "EasyEngine 3 allready installed on your system"
+    exit 1
+fi
