@@ -154,7 +154,7 @@ function install_ee3()
     # Clone EE 3.0 Python branch
     ee_lib_echo "Cloning EasyEngine 3.0"
     if [ "$branch" = "" ]; then
-        branch=python
+        branch=stable
     fi
 
     git clone -b $branch https://github.com/rtCamp/easyengine.git /tmp/easyengine --quiet > /dev/null || ee_lib_error "Unable to clone EasyEngine, exit status" 1
