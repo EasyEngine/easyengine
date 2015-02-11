@@ -47,7 +47,7 @@ except Exception as e:
 
     while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
                        ee_email):
-        print("EMail not Valid, Please enter again")
+        print("Invalid email address, please try again")
         ee_email = input("Enter your email: ")
 
     os.system("git config --global user.name {0}".format(ee_user))
