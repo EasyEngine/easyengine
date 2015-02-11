@@ -214,28 +214,28 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# Check old EasyEngine is installed or not
-if [ ! -f /usr/local/sbin/easyengine ]; then
-    # Check latest EasyEngine is installed or not
-    if [ ! -f /usr/local/bin/ee ]; then
-        install_dep
-        install_ee3
-        git_init
-    else
-        ee_lib_echo_fail "EasyEngine 3 allready installed on your system"
-        exit 1
-    fi
-else
+if [ -f /usr/local/sbin/easyengine ]; then
     # Check old EasyEngine version
     ee version | grep ${old_ee_version} &>> /dev/null
     if [[ $? -ne 0 ]]; then
-        ee_lib_echo_fail "EasyEngine $old_ee_version not found on your system"
-        ee_lib_echo_fail "Please update it using command: ee update"
-        exit 1
+        ee_lib_echo "EasyEngine $old_ee_version not found on your system"
+        ee_lib_echo "Updating your EasyEngine to $old_ee_version for compability"
+        wget https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
+        if [[ $? -ne 0 ]]; then
+            ee_lib_echo_info "Unbale to update EasyEngine2 to $old_ee_version"
+            exit 1
+        fi
     fi
     install_dep
     sync_db
     install_ee3
     update_to_ee3
     git_init
+elif [ ! -f /usr/local/bin/ee ]; then
+    install_dep
+    install_ee3
+    git_init
+else
+    ee_lib_echo_fail "EasyEngine 3 allready installed on your system"
+    exit 1
 fi
