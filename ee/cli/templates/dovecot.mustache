@@ -1,0 +1,60 @@
+protocols = imap pop3 lmtp sieve
+
+mail_location = maildir:/var/vmail/%d/%n
+
+disable_plaintext_auth = no
+auth_mechanisms = plain login
+#!include auth-system.conf.ext
+!include auth-sql.conf.ext
+
+ssl_protocols = !SSLv2 !SSLv3
+
+service lmtp {
+  unix_listener /var/spool/postfix/private/dovecot-lmtp {
+    mode = 0600
+    user = postfix
+    group = postfix
+  }
+}
+service auth {
+  unix_listener /var/spool/postfix/private/auth {
+    mode = 0666
+    user = postfix
+    group = postfix
+  }
+  unix_listener auth-userdb {
+    mode = 0600
+    user = vmail
+  }
+  user = dovecot
+}
+service auth-worker {
+  user = vmail
+}
+
+log_path = /var/log/dovecot.log
+
+mail_plugins = $mail_plugins autocreate
+
+plugin {
+  autocreate = Trash
+  autocreate2 = Junk
+  autocreate3 = Drafts
+  autocreate4 = Sent
+  autosubscribe = Trash
+  autosubscribe2 = Junk
+  autosubscribe3 = Drafts
+  autosubscribe4 = Sent
+}
+
+protocol lmtp {
+  postmaster_address = {{email}}
+  mail_plugins = $mail_plugins sieve
+}
+
+plugin {
+  sieve = ~/.dovecot.sieve
+  sieve_global_path = /var/lib/dovecot/sieve/default.sieve
+  sieve_global_dir = /var/lib/dovecot/sieve/
+  sieve_dir = ~/sieve
+}
