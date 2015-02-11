@@ -1,0 +1,172 @@
+v 3.0.0 - Feb 11,2015
+- Refactored complete code in Python 3
+- Updated WP-CLI to 0.18
+- Update RoundCube to 1.1
+- Update ViMbAdmin to 3.0.11
+
+v 2.2.3 - Feb 01,2015
+- Fixed installation issue of Percona Mysql
+
+v 2.2.2 - Dec 03,2014
+- Fixed installation issue of Percona Mysql on Debian
+- Fixed error during ViMbAdmin installation
+- Fixed alias in ViMbAdmin are not working
+- Updated WP-CLI to 0.17.1
+
+v 2.2.1 - Oct 16,2014
+- Fixed update script issue for remote MySQL #323
+- Fixed remote MySQL delete user issue by @brennentsmith #324
+- Improved auto-completion
+
+v 2.2.0 - Oct 13, 2014
+- Percona Mysql 5.6 support on Fresh installation. #107
+- RAM Based Optimization for PHP5-FPM,OpCache and Memcache
+- Introduced following new commands for
+  - ee site cd example.com  # Change Directory to example.com Webroot
+  - ee site log example.com  # Real time log monitoring for example.com access and error logs
+  - ee site update example.com <parameters> # update example.com cache and convert site
+  - ee clean # Clean cache NGINX FastCGI, Memcache, OPcache.
+- Change WordPress user password easily ( ee site update example.com --password) #315
+- Added PHP5-GeoIP Support
+- Auto Swap creation for low RAM servers.
+- Fixed Better autocompletion feature. Fixed #311.
+- Fixed phpMyAdmin (blowfish_secret) error #301
+- Simplified way to update EasyEngine. #307
+
+v 2.1.0 - Sept 3, 2014
+  - Added Mail Server Package installation #65
+  - Fixed incorrect log file path during debug #299
+  - Added support for pt-query-advisor #189
+  - Fixed Firefox cross-domain fonts
+  - Fixed ee site edit command on Nano editor
+
+v 2.0.2 - Aug 13, 2014
+  - Remote MySQL Support
+
+v 2.0.1 - July 21, 2014
+  - Fixed wp-cli installation #289
+
+v 2.0.0 - July 14, 2014
+  - Completly rewritten code
+  - Updated wp-cli to 0.16.0
+  - Introduced ee secure command
+  - Changed the way to update EasyEngine #179
+  - Fixed security on 22222 port by @RenzoF #263
+  - Fixed MySQL stopped in ee stack status #233
+  - Added WordPress SEO Yoast plugin support in wpcommon.conf #165
+  - Depricated ee system command with ee stack command
+
+
+v 1.3.8 - May 26, 2014
+  - Fixed phpMyAdmin download issue #251
+  - Fixed swap issue #223 by @Swingline0
+  - Delete website without prompt by @edwinvandeven #239
+
+
+v 1.3.7 - Apr 29, 2014
+  - Fixed EasyEngine Update Problem
+  - Fixed Issue #206
+  - Update nginx version 1.6.0
+  - Update wp-cli version 0.14.1
+
+
+v 1.3.6 - Apr 24, 2014
+  - Fixed Nginx Update Problem #201
+  - Automate Testing Using Travis-ci
+
+
+v 1.3.5 - Apr 22, 2014
+  - Update nginx to the latest stable version (1.4.7)
+
+
+v 1.3.4 - Apr 22, 2014
+  - Supports Ubuntu 12.04, 12.10, 13.10 & 14.04 ( Fixed Issue #94 #195 )
+  - Change FPM process management from dynamic to ondemand #184
+  - Fixed Issue #188
+  - Fixed Debian 6 wget command issue
+
+
+v 1.3.3 - Apr 16, 2014
+  - Fixed issue #186
+  - Fixed issue #187
+
+
+v 1.3.2 - Apr 14, 2014
+  - Fixed ee update
+
+
+v 1.3.1 - Apr 14, 2014
+  - Fixed Autocompletion Issue #185
+  - ee info command display php5-fpm process manager details (dynamic/ondemand)
+
+
+v 1.3.0 - Apr 11, 2014
+  - Introduce `ee debug` command
+  - Introduce `ee system [status|stop|start|restart]` command
+
+  - EasyEngine Admin Tools shifted on port `22222` with self signed SSL Certificate #124
+  - Setup Separate PHP5-FPM Pool on Port 9001 for debugging purpose
+  - Polish `ee site edit` command #157
+  - Fixed MySQL Username Character Limit #113
+  - Nginx Settings #100
+
+
+v 1.2.2 - Mar 18, 2014
+  - Check/Install bc command
+  - Fixed EasyEngine Update Issue #134 #148
+  - Automatic set WordPress Permalink Structure by @UmeshSingla
+  - Fixed @WP-CLI version to 0.14.1
+  - Correct Typo Mistake, Thanks to @sdenike on pull request #155
+  - Introduce ee site edit command by @Mermouy on pull request #153
+  - Auto Switch the site create options
+  - Better way to detect Linux Ditribution
+
+
+v 1.2.1 - Mar 3, 2014
+  - Fixed Debian Issue #136
+
+
+v 1.2 - Feb 20, 2014
+  - Debian 6 and Debian 7 support added
+
+
+v 1.1.5 - Feb 17, 2014
+  - Fixed WordPress multisite issue (#127).
+
+
+v 1.1.4 - Feb 14, 2014
+  - Fixed wp-cli issue with --allow-root error.
+
+
+v 1.1.3 - Jan 28, 2014
+  - Added GPL License. Ref - https://rtcamp.com/easyengine-is-gpl/
+
+
+v 1.1.2 - Jan 28, 2014
+  - Fix White-list IP Address
+  - Fix ee info command
+  - Fix site delete issue (#111)
+
+
+v 1.1.1 - Jan 17, 2014
+  - IP-detcect issue. (#108)
+
+
+v 1.1 - Jan 16, 2014
+  - Handling redirects from “non-www to www” and vice-versa. (#71)
+  - Automating mysql setup. Every site which needs a database gets a new mysql user and password automatically. mysql root is not used anymore for new sites. (#72)
+  - Automated postfix installation. (#72)
+  - Added “ee info” command (#69)
+  - Secured /ee locations (#60 and https://rtcamp.com/tutorials/nginx/ssl-pci-compliance-performance/)
+  - SSL Session cache for nginx (#56)
+
+
+v 1.0.1 - Dec 17, 2013
+  - Fix wp-cli issue
+
+
+v 1.0.0 - Oct 1, 2013
+  - First Release
+  - Support for Standard WordPress and multisite WordPress
+  - Support for Nginx Fastcgi-Cache, W3 Total Cache and WP Super Cache
+  - Support for PHP and HTML sites
