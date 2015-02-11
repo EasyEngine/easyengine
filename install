@@ -220,7 +220,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     if [[ $? -ne 0 ]]; then
         ee_lib_echo "EasyEngine $old_ee_version not found on your system"
         ee_lib_echo "Updating your EasyEngine to $old_ee_version for compability"
-        wget https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
+        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
         if [[ $? -ne 0 ]]; then
             ee_lib_echo_info "Unbale to update EasyEngine2 to $old_ee_version"
             exit 1
