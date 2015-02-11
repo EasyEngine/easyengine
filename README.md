@@ -85,7 +85,7 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 
 ## Useful Links
 - [Documentation] (http://docs.rtcamp.com/easyengine/docs/)
-- [FAQ] (http://rtcamp.com/easyengine/faq/)
+- [FAQ] (http://docs.rtcamp.com/easyengine/faq/)
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
 
 ## Donations
