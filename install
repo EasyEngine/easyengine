@@ -193,6 +193,9 @@ function update_to_ee3()
     ee_lib_echo "Removing EasyEngine 2"
     rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
 
+    # Softlink to fix command not found error
+    ln -s /usr/local/bin/ee /usr/local/sbin/ee
+
 }
 
 function git_init()
