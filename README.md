@@ -30,10 +30,10 @@ sudo ee site create example.com --wp     # Install required packages & setup Wor
 ## Update EasyEngine
 
 
-Update Procedure For EasyEngine to version 3.0.0-beta
+Update Procedure For EasyEngine to version 3.0
 
 ```bash
-wget http://rt.cx/eebeta && sudo bash install
+wget http://rt.cx/ee && sudo bash install
 ```
 
 ## More Site Creation Commands
