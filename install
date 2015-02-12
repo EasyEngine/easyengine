@@ -44,6 +44,8 @@ function install_dep()
         apt-get -y install graphviz python-software-properties python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
 
+    # Generating Locale
+    locale-gen en 
 }
 
 function sync_db()
