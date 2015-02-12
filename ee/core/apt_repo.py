@@ -26,12 +26,15 @@ class EERepo():
                               + EEVariables().ee_repo_file)
             try:
                 if not os.path.isfile(repo_file_path):
-                    with open(repo_file_path, "a") as repofile:
+                    with open(repo_file_path,
+                              encoding='utf-8', mode='a') as repofile:
                         repofile.write(repo_url)
                         repofile.write('\n')
                         repofile.close()
-                elif repo_url not in open(repo_file_path).read():
-                    with open(repo_file_path, "a") as repofile:
+                elif repo_url not in open(repo_file_path,
+                                          encoding='utf-8').read():
+                    with open(repo_file_path,
+                              encoding='utf-8', mode='a') as repofile:
                         repofile.write(repo_url)
                         repofile.write('\n')
                         repofile.close()
