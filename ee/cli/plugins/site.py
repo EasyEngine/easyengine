@@ -475,9 +475,9 @@ class EESiteCreateController(CementBaseController):
 
         if data['wp']:
             Log.info(self, Log.ENDC + "WordPress admin user :"
-                     " {0}".format(ee_wp_creds['wp_user']))
+                     " {0}".format(ee_wp_creds['wp_user']), log=False)
             Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
-                     .format(ee_wp_creds['wp_pass']))
+                     .format(ee_wp_creds['wp_pass']), log=False)
 
         display_cache_settings(self, data)
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)

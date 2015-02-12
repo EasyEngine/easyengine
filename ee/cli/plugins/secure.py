@@ -60,18 +60,23 @@ class EESecureController(CementBaseController):
             self.app.pargs.user_pass = password
             if password == "":
                 self.app.pargs.user_pass = passwd
+        Log.debug(self, "printf username:"
+                  "$(openssl passwd -crypt "
+                  "password 2> /dev/null)\n\""
+                  "> /etc/nginx/htpasswd-ee 2>/dev/null")
         EEShellExec.cmd_exec(self, "printf \"{username}:"
                              "$(openssl passwd -crypt "
                              "{password} 2> /dev/null)\n\""
                              "> /etc/nginx/htpasswd-ee 2>/dev/null"
                              .format(username=self.app.pargs.user_input,
-                                     password=self.app.pargs.user_pass))
+                                     password=self.app.pargs.user_pass),
+                             log=False)
         Log.info(self, "Successfully changed HTTP authentication"
                        " username to : {username}"
-                       .format(username=self.app.pargs.user_input))
+                       .format(username=self.app.pargs.user_input), log=False)
         Log.info(self, "Successfully changed HTTP authentication"
                        " password to : {password}"
-                       .format(password=self.app.pargs.user_pass))
+                       .format(password=self.app.pargs.user_pass), log=False)
 
     @expose(hide=True)
     def secure_port(self):

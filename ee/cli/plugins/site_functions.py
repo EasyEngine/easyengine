@@ -117,11 +117,13 @@ def setupdatabase(self, data):
 
     # Create MySQL User
     Log.debug(self, "Creating user {0}".format(ee_db_username))
+    Log.debug(self, "create user {0}@{1} identified by ''"
+              .format(ee_db_username, ee_mysql_grant_host))
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
                     .format(ee_db_username, ee_mysql_grant_host,
                             ee_db_password),
-                    errormsg="Cannot setup database user")
+                    errormsg="Cannot setup database user", log=False)
 
     # Grant permission
     Log.debug(self, "Setting up user privileges")
