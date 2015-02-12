@@ -1365,7 +1365,7 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
-            packages = packages + ['{0}22222/htdocs/db/Adminer'
+            packages = packages + ['{0}22222/htdocs/db/adminer'
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.utils:
             Log.debug(self, "Removing package variable of utils ")
@@ -1373,12 +1373,12 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot),
                                    '{0}22222/htdocs/cache/opcache'
                                    .format(EEVariables.ee_webroot),
-                                   '{0}22222/htdocs/cache/Nginx/'
+                                   '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(EEVariables.ee_webroot),
-                                   '{0}22222/htdocs/cache/Memcache'
+                                   '{0}22222/htdocs/cache/memcache'
                                    .format(EEVariables.ee_webroot),
                                    '/usr/bin/pt-query-advisor',
-                                   '{0}22222/htdocs/db/Anemometer'
+                                   '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
 
         if len(apt_packages):
