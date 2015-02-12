@@ -9,7 +9,7 @@ from ee.core.logging import Log
 class EEMysql():
     """Method for MySQL connection"""
 
-    def execute(self, statement, errormsg=''):
+    def execute(self, statement, errormsg='', log=True):
         """Get login details from ~/.my.cnf & Execute MySQL query"""
         config = configparser.RawConfigParser()
         cnfpath = expanduser("~")+"/.my.cnf"
@@ -43,7 +43,10 @@ class EEMysql():
                               .format(e))
 
         try:
-            Log.debug(self, "Executing MySQL statement: {0}".format(statement))
+            if log:
+                Log.debug(self, "Executing MySQL statement: {0}"
+                          .format(statement))
+
             cur.execute(statement)
         except Exception as e:
             cur.close()
