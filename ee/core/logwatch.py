@@ -96,7 +96,7 @@ class LogWatcher(object):
     def tail(fname, window):
         """Read last N lines from file fname."""
         try:
-            f = open(fname, 'r')
+            f = open(fname, encoding='utf-8', mode='r')
         except IOError as err:
             if err.errno == errno.ENOENT:
                 return []
@@ -166,7 +166,7 @@ class LogWatcher(object):
 
     def watch(self, fname):
         try:
-            file = open(fname, "r")
+            file = open(fname, encoding='utf-8', mode='r')
             fid = self.get_file_id(os.stat(fname))
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:

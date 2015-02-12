@@ -196,7 +196,7 @@ class EEFileUtils():
             Searches for string in file and returns the matched line.
         """
         try:
-            for line in open(fnm):
+            for line in open(fnm, encoding='utf-8'):
                 if sstr in line:
                     return line
         except OSError as e:

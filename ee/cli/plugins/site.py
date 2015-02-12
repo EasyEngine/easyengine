@@ -157,7 +157,8 @@ class EESiteController(CementBaseController):
                           .format(ee_domain)):
             Log.info(self, "Display NGINX configuration for {0}"
                      .format(ee_domain))
-            f = open('/etc/nginx/sites-available/{0}'.format(ee_domain), "r")
+            f = open('/etc/nginx/sites-available/{0}'.format(ee_domain),
+                     encoding='utf-8', mode='r')
             text = f.read()
             Log.info(self, Log.ENDC + text)
             f.close()
@@ -441,7 +442,7 @@ class EESiteCreateController(CementBaseController):
             data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
-                                  'w')
+                                  encoding='utf-8', mode='w')
                 eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                  "\ndefine('DB_USER', '{1}'); "
                                  "\ndefine('DB_PASSWORD', '{2}');"
@@ -856,7 +857,7 @@ class EESiteUpdateController(CementBaseController):
             data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
-                                  'w')
+                                  encoding='utf-8', mode='w')
                 eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                  "\ndefine('DB_USER', '{1}'); "
                                  "\ndefine('DB_PASSWORD', '{2}');"

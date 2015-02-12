@@ -63,7 +63,7 @@ class EEDebugController(CementBaseController):
                 debug_address = ['0.0.0.0/0']
             for ip_addr in debug_address:
                 if not ("debug_connection "+ip_addr in open('/etc/nginx/'
-                   'nginx.conf').read()):
+                   'nginx.conf', encoding='utf-8').read()):
                     Log.info(self, "Setting up Nginx debug connection"
                              " for "+ip_addr)
                     EEShellExec.cmd_exec(self, "sed -i \"/events {{/a\\ \\ \\ "
@@ -79,7 +79,8 @@ class EEDebugController(CementBaseController):
 
         # stop global debug
         elif not self.start and not self.app.pargs.site_name:
-            if "debug_connection " in open('/etc/nginx/nginx.conf').read():
+            if "debug_connection " in open('/etc/nginx/nginx.conf',
+                                           encoding='utf-8').read():
                 Log.info(self, "Disabling Nginx debug connections")
                 EEShellExec.cmd_exec(self, "sed -i \"/debug_connection.*/d\""
                                      " /etc/nginx/nginx.conf")
@@ -146,7 +147,8 @@ class EEDebugController(CementBaseController):
                 data = dict(php="9001", debug="9001")
                 Log.info(self, 'Writting the Nginx debug configration to file '
                          '/etc/nginx/conf.d/upstream.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
+                ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
+                                encoding='utf-8', mode='w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
                 self.trigger_php = True
@@ -165,7 +167,8 @@ class EEDebugController(CementBaseController):
                 data = dict(php="9000", debug="9001")
                 Log.debug(self, 'Writting the Nginx debug configration to file'
                           ' /etc/nginx/conf.d/upstream.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
+                ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
+                                encoding='utf-8', mode='w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
                 self.trigger_php = True
@@ -186,7 +189,8 @@ class EEDebugController(CementBaseController):
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
                 config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                with open('/etc/php5/fpm/php-fpm.conf',
+                          encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php5-FPM configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
@@ -206,7 +210,8 @@ class EEDebugController(CementBaseController):
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
                 config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                with open('/etc/php5/fpm/php-fpm.conf',
+                          encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
@@ -278,7 +283,7 @@ class EEDebugController(CementBaseController):
                                             " grep true".format(wp_config)):
                     Log.info(self, "Starting WordPress debug")
                     open("{0}/htdocs/wp-content/debug.log".format(webroot),
-                         'a').close()
+                         encoding='utf-8', mode='a').close()
                     EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
                                          "content/debug.log"
                                          "".format(webroot,
