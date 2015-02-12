@@ -4,6 +4,7 @@ import apt_pkg
 import sys
 from ee.core.logging import Log
 from sh import apt_get
+from sh import ErrorReturnCode
 
 
 class EEAptGet():

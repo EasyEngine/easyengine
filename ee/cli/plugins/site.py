@@ -47,12 +47,14 @@ class EESiteController(CementBaseController):
                                         .format(ee_domain),
                                         '/etc/nginx/sites-enabled/{0}'
                                         .format(ee_domain)])
-
+            EEGit.add(self, ["/etc/nginx"],
+                      msg="Enabled {0} "
+                      .format(ee_domain))
             updateSiteInfo(self, ee_domain, enabled=True)
             Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
             EEService.reload_service(self, 'nginx')
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "\nsite {0} does not exists".format(ee_domain))
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -62,12 +64,15 @@ class EESiteController(CementBaseController):
                           .format(ee_domain)):
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
                                   .format(ee_domain)):
-                Log.debug(self, "Site {0} already disabled" + ee_domain)
+                Log.debug(self, "Site {0} already disabled".format(ee_domain))
                 Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
             else:
                 EEFileUtils.remove_symlink(self,
                                            '/etc/nginx/sites-enabled/{0}'
                                            .format(ee_domain))
+                EEGit.add(self, ["/etc/nginx"],
+                          msg="Disabled {0} "
+                          .format(ee_domain))
                 updateSiteInfo(self, ee_domain, enabled=False)
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                 EEService.reload_service(self, 'nginx')
@@ -934,7 +939,7 @@ class EESiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'To delete website'
+        description = 'delete an existing website'
         arguments = [
             (['site_name'],
                 dict(help='domain name to be deleted')),
@@ -950,6 +955,7 @@ class EESiteDeleteController(CementBaseController):
             ]
 
     @expose(help="Delete website configuration and files")
+    @expose(hide=True)
     def default(self):
         # TODO Write code for ee site update here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -1011,7 +1017,11 @@ class EESiteDeleteController(CementBaseController):
                     Log.debug(self, "Removing Nginx configuration")
                     EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                                    .format(ee_domain))
+                    EEGit.add(self, ["/etc/nginx"],
+                              msg="Deleted {0} "
+                              .format(ee_domain))
                 deleteSiteInfo(self, ee_domain)
+
             Log.info(self, "Deleted site {0}".format(ee_domain))
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))

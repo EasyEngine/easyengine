@@ -112,20 +112,22 @@ def setupdatabase(self, data):
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
     EEMysql.execute(self, "create database {0}"
-                    .format(ee_db_name))
+                    .format(ee_db_name), errormsg="Cannot create database")
 
     # Create MySQL User
     Log.debug(self, "Creating user {0}".format(ee_db_username))
     EEMysql.execute(self,
                     "create user {0}@{1} identified by '{2}'"
                     .format(ee_db_username, ee_mysql_grant_host,
-                            ee_db_password))
+                            ee_db_password),
+                    errormsg="Cannot setup database user")
 
     # Grant permission
     Log.debug(self, "Setting up user privileges")
     EEMysql.execute(self,
                     "grant all privileges on {0}.* to {1}@{2}"
-                    .format(ee_db_name, ee_db_username, ee_mysql_grant_host))
+                    .format(ee_db_name, ee_db_username, ee_mysql_grant_host),
+                    errormsg="Cannot setup database user privileges")
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     data['ee_db_name'] = ee_db_name
