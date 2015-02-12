@@ -442,7 +442,12 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
         Log.error(self, "{0} does not seem to be a WordPress site"
                   .format(ee_domain))
 
-    ee_wp_user = input("Provide WordPress user name [admin]: ")
+    try:
+        ee_wp_user = input("Provide WordPress user name [admin]: ")
+    except Exception as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "\nCould not update password")
+
     if ee_wp_user == "?":
         Log.info(self, "Fetching WordPress user list")
         EEShellExec.cmd_exec(self, "wp --allow-root user list "
@@ -457,8 +462,14 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
                                          .format(ee_wp_user))
 
     if is_user_exist:
-        ee_wp_pass = input("Provide password for {0} user: "
-                           .format(ee_wp_user))
+        try:
+            ee_wp_pass = getpass.getpass(prompt="Provide password for "
+                                         "{0} user: "
+                                         .format(ee_wp_user))
+        except Exception as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Could not update password")
+
         if len(ee_wp_pass) > 8:
             EEShellExec.cmd_exec(self, "wp --allow-root user update {0}"
                                  "  --user_pass={1}"
