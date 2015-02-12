@@ -5,6 +5,7 @@
 # to update current EasyEngine from 2.x to 3.x
 
 old_ee_version="2.2.3"
+new_ee_version="3.0.1"
 branch=$1
 
 # Define echo function
@@ -196,9 +197,27 @@ function update_to_ee3()
 
 }
 
+function update_to_ee_latest()
+{
+    ee_lib_echo "Updating Nginx configuration"
+    if [ -f /etc/nginx/ee-nginx.conf ]; then
+        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $new_ee_version\";/" /etc/nginx/nginx.conf &>> /dev/null
+    elif [ -f /etc/nginx/nginx.conf ]; then
+        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $new_ee_version\";/" /etc/nginx/nginx.conf &>> /dev/null
+    fi
+}
+
 function git_init()
 {
-    # Do git intialisation on EasyEngine configuration
+    # Do git intialisation on EasyEngine adn Nginx configuration
+    if [ -d /etc/nginx ];then
+        cd /etc/nginx
+        if [ ! -d /etc/nginx/.git ]; then
+            git init > /dev/null
+        fi
+        git add .
+        git commit -am "Updated Nginx" > /dev/null
+    fi
     cd /etc/ee
     if [ ! -d /etc/ee/.git ]; then
         git init > /dev/null
@@ -282,6 +301,13 @@ elif [ ! -f /usr/local/bin/ee ]; then
     install_ee3 | tee -ai $EE_INSTALL_LOG
     git_init | tee -ai $EE_INSTALL_LOG
 else
-    ee_lib_echo_fail "EasyEngine 3 allready installed on your system" | tee -ai $EE_INSTALL_LOG
+    ee -v 2>&1 | grep $new_ee_version &>> /dev/null
+    if [[ $? -ne 0 ]];then
+        update_to_ee_latest | tee -ai $EE_INSTALL_LOG
+        install_ee3 | tee -ai $EE_INSTALL_LOG
+        git_init | tee -ai $EE_INSTALL_LOG
+        service nginx reload &>> /dev/null
+    fi
+    ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
     exit 1
 fi
