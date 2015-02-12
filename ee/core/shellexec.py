@@ -26,16 +26,18 @@ class EEShellExec():
             if errormsg:
                 Log.error(self, errormsg)
             else:
-                Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to execute command {0}"
+                Log.debug(self, "Unable to execute command {0}"
                           .format(command))
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Error occured while executing command")
         except Exception as e:
             if errormsg:
                 Log.error(self, errormsg)
             else:
-                Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to execute command {0}"
+                Log.debug(self, "Unable to execute command {0}"
                           .format(command))
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Error occurred while executing command")
 
     def invoke_editor(self, filepath, errormsg=''):
         """
