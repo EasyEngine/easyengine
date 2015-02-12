@@ -45,7 +45,7 @@ function install_dep()
     fi
 
     # Generating Locale
-    locale-gen en 
+    locale-gen en &>> /dev/null 
 }
 
 function sync_db()
