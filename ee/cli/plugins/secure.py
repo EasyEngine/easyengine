@@ -92,12 +92,12 @@ class EESecureController(CementBaseController):
         if EEVariables.ee_platform_distro == 'Ubuntu':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl spdy;/\" "
-                                 "/etc/nginx/sites-available/22222.conf"
+                                 "/etc/nginx/sites-available/22222"
                                  .format(port=self.app.pargs.user_input))
         if EEVariables.ee_platform_distro == 'debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl;/\" "
-                                 "/etc/nginx/sites-available/22222.conf"
+                                 "/etc/nginx/sites-available/22222"
                                  .format(port=self.app.pargs.user_input))
         Log.info(self, "Successfully port changed {port}"
                  .format(port=self.app.pargs.user_input))

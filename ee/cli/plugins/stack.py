@@ -278,8 +278,8 @@ class EEStackController(CementBaseController):
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
-                              '22222.conf')
-                    ee_nginx = open('/etc/nginx/sites-available/22222.conf',
+                              '22222')
+                    ee_nginx = open('/etc/nginx/sites-available/22222',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), '22222.mustache',
                                     out=ee_nginx)
@@ -297,10 +297,10 @@ class EEStackController(CementBaseController):
                     # Create Symbolic link for 22222
                     EEFileUtils.create_symlink(self, ['/etc/nginx/'
                                                       'sites-available/'
-                                                      '22222.conf',
+                                                      '22222',
                                                       '/etc/nginx/'
                                                       'sites-enabled/'
-                                                      '22222.conf'])
+                                                      '22222'])
                     # Create log and cert folder and softlinks
                     if not os.path.exists('{0}22222/logs'
                                           .format(EEVariables.ee_webroot)):
@@ -1052,17 +1052,17 @@ class EEStackController(CementBaseController):
 
                 Log.debug(self, 'Writting the nginx configuration for '
                           'RoundCubemail')
-                ee_rc = open('/etc/nginx/sites-available/webmail.conf',
+                ee_rc = open('/etc/nginx/sites-available/webmail',
                              encoding='utf-8', mode='w')
                 self.app.render((data), 'virtualconf.mustache',
                                 out=ee_rc)
                 ee_rc.close()
 
-                # Create Symbolic link for webmail.conf
+                # Create Symbolic link for webmail
                 EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available'
-                                                  '/webmail.conf',
+                                                  '/webmail',
                                                   '/etc/nginx/sites-enabled/'
-                                                  'webmail.conf'])
+                                                  'webmail'])
                 # Create log folder and softlinks
                 if not os.path.exists('{0}roundcubemail/logs'
                                       .format(EEVariables.ee_webroot)):
