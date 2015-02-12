@@ -305,6 +305,7 @@ else
     if [[ $? -ne 0 ]];then
         read -p "Update EasyEngine to $new_ee_version (y/n): " ee_ans
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
+            install_dep | tee -ai $EE_INSTALL_LOG
             update_to_ee_latest | tee -ai $EE_INSTALL_LOG
             install_ee3 | tee -ai $EE_INSTALL_LOG
             git_init | tee -ai $EE_INSTALL_LOG
