@@ -34,22 +34,20 @@ function ee_lib_error()
 
 function install_dep()
 {
-    # Execute: apt-get update
-    ee_lib_echo "Executing apt-get update"
-    apt-get update &>> /dev/null
 
     # Install Python3 on users system
     ee_lib_echo "Installing pre depedencies"
-    apt-get -y install python3 python3-apt python3-setuptools python3-dev sqlite3 git
-    if [[ $? -ne 0 ]]; then
-        ee_lib_echo_fail "Unable to install pre depedencies"
-        exit 1
+    if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
+        apt-get -y install python-software-properties software-properties-common python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to install pre depedencies, exit status " 1
+    elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
+        apt-get -y install graphviz python-software-properties python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
+
 }
 
 function sync_db()
 {
-    mkdir /var/lib/ee
+    mkdir -p /var/lib/ee
 
     # Sqlite query to create table `sites` into ee.db which will be used by ee.3.0
     echo "CREATE TABLE sites (
@@ -194,7 +192,7 @@ function update_to_ee3()
     rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
 
     # Softlink to fix command not found error
-    ln -s /usr/local/bin/ee /usr/local/sbin/ee
+    ln -s /usr/local/bin/ee /usr/local/sbin/ee || ee_lib_error "Unable to create softlink to old EasyEngine, exit status " 1
 
 }
 
@@ -217,28 +215,73 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+# Execute: apt-get update
+ee_lib_echo "Executing apt-get update"
+apt-get update &>> /dev/null
+
+# Checking lsb_release package
+if [ ! -x /usr/bin/lsb_release ]; then
+    ee_lib_echo "Installing lsb-release, please wait..."
+    apt-get -y install lsb-release &>> /dev/null
+fi
+
+# Define variables for later use
+readonly EE_LOG_DIR=/var/log/ee/
+readonly EE_INSTALL_LOG=/var/log/ee/install.log
+readonly EE_LINUX_DISTRO=$(lsb_release -i | awk '{print $3}')
+readonly EE_DEBIAN_VERSION=$(lsb_release -sc)
+
+# Checking linux distro
+if [ "$EE_LINUX_DISTRO" != "Ubuntu" ] && [ "$EE_LINUX_DISTRO" != "Debian" ]; then
+    ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
+    ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x"
+    exit 100
+fi
+
+# EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
+lsb_release -d | egrep -e "12.04|14.04|wheezy" &>> /dev/null
+if [ "$?" -ne "0" ]; then
+    exit 100
+fi
+
+
+# Pre checks to avoid later screw ups
+# Checking EasyEngine (ee) log directory
+if [ ! -d $EE_LOG_DIR ]; then
+
+    ee_lib_echo "Creating EasyEngine log directory, please wait..."
+    mkdir -p $EE_LOG_DIR || ee_lib_error "Creating log  directory failed, exit status " 1
+
+    # Create EasyEngine log files
+    touch /var/log/ee/{ee.log,install.log}
+
+    # Keep EasyEngine log folder accessible to root only
+    chmod -R 700 /var/log/ee || ee_lib_error "Unable to setup log directory permissions , exit status " 1
+fi
+
 if [ -f /usr/local/sbin/easyengine ]; then
     # Check old EasyEngine version
     ee version | grep ${old_ee_version} &>> /dev/null
     if [[ $? -ne 0 ]]; then
-        ee_lib_echo "EasyEngine $old_ee_version not found on your system"
-        ee_lib_echo "Updating your EasyEngine to $old_ee_version for compability"
-        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
+        ee_lib_echo "EasyEngine $old_ee_version not found on your system" | tee -ai $EE_INSTALL_LOG
+        ee_lib_echo "Updating your EasyEngine to $old_ee_version for compability" | tee -ai $EE_INSTALL_LOG
+        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update | tee -ai $EE_INSTALL_LOG
         if [[ $? -ne 0 ]]; then
             ee_lib_echo_info "Unbale to update EasyEngine2 to $old_ee_version"
             exit 1
         fi
     fi
-    install_dep
-    sync_db
-    install_ee3
-    update_to_ee3
-    git_init
+    install_dep | tee -ai $EE_INSTALL_LOG
+    sync_db | tee -ai $EE_INSTALL_LOG
+    install_ee3 | tee -ai $EE_INSTALL_LOG
+    update_to_ee3 | tee -ai $EE_INSTALL_LOG
+    git_init | tee -ai $EE_INSTALL_LOG
 elif [ ! -f /usr/local/bin/ee ]; then
-    install_dep
-    install_ee3
-    git_init
+    install_dep | tee -ai $EE_INSTALL_LOG
+    install_ee3 | tee -ai $EE_INSTALL_LOG
+    git_init | tee -ai $EE_INSTALL_LOG
 else
-    ee_lib_echo_fail "EasyEngine 3 allready installed on your system"
+    ee_lib_echo_fail "EasyEngine 3 allready installed on your system" | tee -ai $EE_INSTALL_LOG
     exit 1
 fi

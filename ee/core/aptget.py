@@ -17,7 +17,8 @@ class EEAptGet():
             apt_cache = apt.cache.Cache()
             import sys
             orig_out = sys.stdout
-            sys.stdout = open(self.app.config.get('log.logging', 'file'), 'a')
+            sys.stdout = open(self.app.config.get('log.logging', 'file'),
+                              encoding='utf-8', mode='a')
             apt_cache.update(apt.progress.text.AcquireProgress())
             sys.stdout = orig_out
             # success = (apt_cache.commit(
@@ -43,7 +44,7 @@ class EEAptGet():
             success = (apt_cache.commit(
                        apt.progress.text.AcquireProgress(),
                        apt.progress.base.InstallProgress()))
-            #apt_cache.close()
+            # apt_cache.close()
             return success
         except AttributeError as e:
             Log.error(self, 'AttributeError: ' + str(e))
@@ -64,11 +65,11 @@ class EEAptGet():
             pkg = apt_cache[package_name.strip()]
             if package_name.strip() in apt_cache:
                 if pkg.is_installed:
-                    #apt_pkg.PkgSystemUnLock()
+                    # apt_pkg.PkgSystemUnLock()
                     Log.debug(self, 'Trying to install a package that '
                               'is already installed (' +
                               package_name.strip() + ')')
-                    #apt_cache.close()
+                    # apt_cache.close()
                     return False
                 else:
                     try:
@@ -78,7 +79,7 @@ class EEAptGet():
                         Log.debug(self, str(e))
                         Log.error(self, str(e))
             else:
-                #apt_cache.close()
+                # apt_cache.close()
                 Log.error(self, 'Unknown package selected (' +
                           package_name.strip() + ')')
 
@@ -88,19 +89,19 @@ class EEAptGet():
 
         if apt_cache.install_count > 0:
             try:
-                #apt_pkg.PkgSystemUnLock()
+                # apt_pkg.PkgSystemUnLock()
                 orig_out = sys.stdout
                 sys.stdout = open(self.app.config.get('log.logging', 'file'),
-                                  'a')
+                                  encoding='utf-8', mode='a')
                 result = apt_cache.commit(apt.progress.text.AcquireProgress(),
                                           apt.progress.base.InstallProgress())
                 sys.stdout = orig_out
-                #apt_cache.close()
+                # apt_cache.close()
                 return result
             except SystemError as e:
                 Log.debug(self, 'SystemError: ' + str(e))
                 Log.error(self, 'SystemError: ' + str(e))
-                #apt_cache.close()
+                # apt_cache.close()
             except Exception as e:
                 Log.debug(self, str(e))
                 Log.error(self, str(e))
@@ -145,7 +146,7 @@ class EEAptGet():
                 # apt_pkg.PkgSystemUnLock()
                 orig_out = sys.stdout
                 sys.stdout = open(self.app.config.get('log.logging', 'file'),
-                                  'a')
+                                  encoding='utf-8', mode='a')
                 result = apt_cache.commit(apt.progress.text.AcquireProgress(),
                                           apt.progress.base.InstallProgress())
                 sys.stdout = orig_out
@@ -165,7 +166,8 @@ class EEAptGet():
         """
         try:
             orig_out = sys.stdout
-            sys.stdout = open(self.app.config.get('log.logging', 'file'), 'a')
+            sys.stdout = open(self.app.config.get('log.logging', 'file'),
+                              encoding='utf-8', mode='a')
             apt_get.autoclean("-y")
             sys.stdout = orig_out
         except ErrorReturnCode as e:
