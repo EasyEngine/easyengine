@@ -1,3 +1,7 @@
+v 3.0.1 - Feb 12,2015
+- Fixed #411, #40, #409
+- Improved installation script
+
 v 3.0.0 - Feb 11,2015
 - Refactored complete code in Python 3
 - Updated WP-CLI to 0.18

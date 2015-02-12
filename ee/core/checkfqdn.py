@@ -5,10 +5,10 @@ import os
 
 def check_fqdn(self, ee_host):
     """FQDN check with EasyEngine, for mail server hostname must be FQDN"""
-    #ee_host=os.popen("hostname -f | tr -d '\n'").read()
+    # ee_host=os.popen("hostname -f | tr -d '\n'").read()
     if '.' in ee_host:
         EEVariables.ee_fqdn = ee_host
-        with open('/etc/hostname', 'w') as hostfile:
+        with open('/etc/hostname', encoding='utf-8', mode='w') as hostfile:
             hostfile.write(ee_host)
 
         EEShellExec.cmd_exec(self, "sed -i \"1i\\127.0.0.1 {0}\" /etc/hosts"
