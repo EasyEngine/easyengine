@@ -303,10 +303,13 @@ elif [ ! -f /usr/local/bin/ee ]; then
 else
     ee -v 2>&1 | grep $new_ee_version &>> /dev/null
     if [[ $? -ne 0 ]];then
-        update_to_ee_latest | tee -ai $EE_INSTALL_LOG
-        install_ee3 | tee -ai $EE_INSTALL_LOG
-        git_init | tee -ai $EE_INSTALL_LOG
-        service nginx reload &>> /dev/null
+        read -p "Update EasyEngine to $new_ee_version (y/n): " ee_ans
+        if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
+            update_to_ee_latest | tee -ai $EE_INSTALL_LOG
+            install_ee3 | tee -ai $EE_INSTALL_LOG
+            git_init | tee -ai $EE_INSTALL_LOG
+            service nginx reload &>> /dev/null
+        fi
     fi
     ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
     exit 1
