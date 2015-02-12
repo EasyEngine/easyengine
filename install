@@ -151,7 +151,7 @@ function install_ee3()
     rm -rf /tmp/easyengine &>> /dev/null
 
     # Clone EE 3.0 Python branch
-    ee_lib_echo "Cloning EasyEngine 3.0"
+    ee_lib_echo "Cloning EasyEngine 3"
     if [ "$branch" = "" ]; then
         branch=stable
     fi
@@ -159,7 +159,7 @@ function install_ee3()
     git clone -b $branch https://github.com/rtCamp/easyengine.git /tmp/easyengine --quiet > /dev/null || ee_lib_error "Unable to clone EasyEngine, exit status" 1
 
     cd /tmp/easyengine
-    ee_lib_echo "Installing EasyEngine 3.0"
+    ee_lib_echo "Installing EasyEngine 3"
     python3 setup.py install || ee_lib_error "Unable to install EasyEngine 3.0, exit status " 1
 
 }
@@ -167,7 +167,7 @@ function install_ee3()
 function update_to_ee3()
 {
     # Preserve old configuration
-    ee_lib_echo "Updating EasyEngine 3.0 configuration"
+    ee_lib_echo "Updating EasyEngine 3 configuration"
 
     grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }')
     db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
@@ -310,7 +310,8 @@ else
             git_init | tee -ai $EE_INSTALL_LOG
             service nginx reload &>> /dev/null
         fi
+    else
+        ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
     fi
-    ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
     exit 1
 fi
