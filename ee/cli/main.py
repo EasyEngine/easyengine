@@ -94,6 +94,9 @@ def main():
         # Default Cement signals are SIGINT and SIGTERM, exit 0 (non-error)
         code = 0
         print(e)
+    except Exception as e:
+        code = 1
+        print(e)
     finally:
         # Print an exception (if it occurred) and --debug was passed
         if app.debug:
