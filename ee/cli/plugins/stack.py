@@ -503,7 +503,7 @@ class EEStackController(CementBaseController):
                                          "performance_schema = 0\" "
                                          "/etc/mysql/my.cnf")
 
-                EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
+                EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
