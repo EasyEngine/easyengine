@@ -112,15 +112,15 @@ def setupdatabase(self, data):
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
-    EEMysql.execute(self, "create database {0}"
+    EEMysql.execute(self, "create database `{0}`"
                     .format(ee_db_name), errormsg="Cannot create database")
 
     # Create MySQL User
     Log.debug(self, "Creating user {0}".format(ee_db_username))
-    Log.debug(self, "create user {0}@{1} identified by ''"
+    Log.debug(self, "create user `{0}`@`{1}` identified by ''"
               .format(ee_db_username, ee_mysql_grant_host))
     EEMysql.execute(self,
-                    "create user {0}@{1} identified by '{2}'"
+                    "create user `{0}`@`{1}` identified by '{2}'"
                     .format(ee_db_username, ee_mysql_grant_host,
                             ee_db_password),
                     errormsg="Cannot setup database user", log=False)
@@ -128,7 +128,7 @@ def setupdatabase(self, data):
     # Grant permission
     Log.debug(self, "Setting up user privileges")
     EEMysql.execute(self,
-                    "grant all privileges on {0}.* to {1}@{2}"
+                    "grant all privileges on `{0}`.* to `{1}`@`{2}`"
                     .format(ee_db_name, ee_db_username, ee_mysql_grant_host),
                     errormsg="Cannot setup database user privileges")
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -423,9 +423,10 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting packages variable for WP-CLI")
         if not EEShellExec.cmd_exec(self, "which wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                    "releases/download/v0.17.1/"
-                                    "wp-cli.phar", "/usr/bin/wp",
-                                    "WP-CLI"]]
+                                    "releases/download/{0}/"
+                                    "wp-cli.phar"
+                                    .format(EEVariables.ee_wp_cli),
+                                    "/usr/bin/wp", "WP-CLI"]]
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
