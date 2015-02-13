@@ -1,4 +1,4 @@
-"""EasyEngine site controller."""
+# """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
 from ee.core.variables import EEVariables
@@ -47,12 +47,14 @@ class EESiteController(CementBaseController):
                                         .format(ee_domain),
                                         '/etc/nginx/sites-enabled/{0}'
                                         .format(ee_domain)])
-
+            EEGit.add(self, ["/etc/nginx"],
+                      msg="Enabled {0} "
+                      .format(ee_domain))
             updateSiteInfo(self, ee_domain, enabled=True)
             Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
             EEService.reload_service(self, 'nginx')
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "\nsite {0} does not exists".format(ee_domain))
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -62,12 +64,15 @@ class EESiteController(CementBaseController):
                           .format(ee_domain)):
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
                                   .format(ee_domain)):
-                Log.debug(self, "Site {0} already disabled" + ee_domain)
+                Log.debug(self, "Site {0} already disabled".format(ee_domain))
                 Log.info(self, "[" + Log.FAIL + "Failed" + Log.OKBLUE+"]")
             else:
                 EEFileUtils.remove_symlink(self,
                                            '/etc/nginx/sites-enabled/{0}'
                                            .format(ee_domain))
+                EEGit.add(self, ["/etc/nginx"],
+                          msg="Disabled {0} "
+                          .format(ee_domain))
                 updateSiteInfo(self, ee_domain, enabled=False)
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                 EEService.reload_service(self, 'nginx')
@@ -152,7 +157,8 @@ class EESiteController(CementBaseController):
                           .format(ee_domain)):
             Log.info(self, "Display NGINX configuration for {0}"
                      .format(ee_domain))
-            f = open('/etc/nginx/sites-available/{0}'.format(ee_domain), "r")
+            f = open('/etc/nginx/sites-available/{0}'.format(ee_domain),
+                     encoding='utf-8', mode='r')
             text = f.read()
             Log.info(self, Log.ENDC + text)
             f.close()
@@ -436,7 +442,7 @@ class EESiteCreateController(CementBaseController):
             data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
-                                  'w')
+                                  encoding='utf-8', mode='w')
                 eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                  "\ndefine('DB_USER', '{1}'); "
                                  "\ndefine('DB_PASSWORD', '{2}');"
@@ -469,9 +475,9 @@ class EESiteCreateController(CementBaseController):
 
         if data['wp']:
             Log.info(self, Log.ENDC + "WordPress admin user :"
-                     " {0}".format(ee_wp_creds['wp_user']))
+                     " {0}".format(ee_wp_creds['wp_user']), log=False)
             Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
-                     .format(ee_wp_creds['wp_pass']))
+                     .format(ee_wp_creds['wp_pass']), log=False)
 
         display_cache_settings(self, data)
         addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
@@ -851,7 +857,7 @@ class EESiteUpdateController(CementBaseController):
             data = setupdatabase(self, data)
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
-                                  'w')
+                                  encoding='utf-8', mode='w')
                 eedbconfig.write("<?php \ndefine('DB_NAME', '{0}');"
                                  "\ndefine('DB_USER', '{1}'); "
                                  "\ndefine('DB_PASSWORD', '{2}');"
@@ -913,7 +919,7 @@ class EESiteUpdateController(CementBaseController):
                   msg="{0} updated with {1} {2}"
                   .format(ee_www_domain, stype, cache))
         # Setup Permissions for webroot
-        # setwebrootpermissions(self, data['webroot'])
+        setwebrootpermissions(self, data['webroot'])
         if ee_auth and len(ee_auth):
             for msg in ee_auth:
                 Log.info(self, Log.ENDC + msg)
@@ -934,7 +940,7 @@ class EESiteDeleteController(CementBaseController):
         label = 'delete'
         stacked_on = 'site'
         stacked_type = 'nested'
-        description = 'To delete website'
+        description = 'delete an existing website'
         arguments = [
             (['site_name'],
                 dict(help='domain name to be deleted')),
@@ -950,6 +956,7 @@ class EESiteDeleteController(CementBaseController):
             ]
 
     @expose(help="Delete website configuration and files")
+    @expose(hide=True)
     def default(self):
         # TODO Write code for ee site update here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
@@ -1011,7 +1018,11 @@ class EESiteDeleteController(CementBaseController):
                     Log.debug(self, "Removing Nginx configuration")
                     EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                                    .format(ee_domain))
+                    EEGit.add(self, ["/etc/nginx"],
+                              msg="Deleted {0} "
+                              .format(ee_domain))
                 deleteSiteInfo(self, ee_domain)
+
             Log.info(self, "Deleted site {0}".format(ee_domain))
         else:
             Log.error(self, " site {0} does not exists".format(ee_domain))

@@ -109,7 +109,8 @@ class EEStackController(CementBaseController):
             config = configparser.ConfigParser()
             config.read_string(mysql_config)
             Log.debug(self, 'Writting configuration into MySQL file')
-            with open(os.path.expanduser("~")+'/.my.cnf', 'w') as configfile:
+            with open(os.path.expanduser("~")+'/.my.cnf', encoding='utf-8',
+                      mode='w') as configfile:
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
@@ -174,7 +175,8 @@ class EEStackController(CementBaseController):
                     data = dict(version=EEVariables.ee_version)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
-                    ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf', 'w')
+                    ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'nginx-core.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
@@ -182,20 +184,23 @@ class EEStackController(CementBaseController):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
-                    ee_nginx = open('/etc/nginx/conf.d/blockips.conf', 'w')
+                    ee_nginx = open('/etc/nginx/conf.d/blockips.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'blockips.mustache', out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/fastcgi.conf')
-                    ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf', 'w')
+                    ee_nginx = open('/etc/nginx/conf.d/fastcgi.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
                     data = dict(php="9000", debug="9001")
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf ')
-                    ee_nginx = open('/etc/nginx/conf.d/upstream.conf', 'w')
+                    ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'upstream.mustache', out=ee_nginx)
                     ee_nginx.close()
 
@@ -208,56 +213,64 @@ class EEStackController(CementBaseController):
                     data = dict(webroot=EEVariables.ee_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
-                    ee_nginx = open('/etc/nginx/common/acl.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/acl.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'acl.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/locations.conf')
-                    ee_nginx = open('/etc/nginx/common/locations.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/locations.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'locations.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/ php.conf')
-                    ee_nginx = open('/etc/nginx/common/php.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/php.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'php.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/w3tc.conf')
-                    ee_nginx = open('/etc/nginx/common/w3tc.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/w3tc.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'w3tc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpcommon.conf')
-                    ee_nginx = open('/etc/nginx/common/wpcommon.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/wpcommon.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'wpcommon.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpfc.conf')
-                    ee_nginx = open('/etc/nginx/common/wpfc.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/wpfc.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'wpfc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpsc.conf')
-                    ee_nginx = open('/etc/nginx/common/wpsc.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/wpsc.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsc.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/wpsubdir.conf')
-                    ee_nginx = open('/etc/nginx/common/wpsubdir.conf', 'w')
+                    ee_nginx = open('/etc/nginx/common/wpsubdir.conf',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
@@ -265,9 +278,9 @@ class EEStackController(CementBaseController):
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
-                              '22222.conf')
-                    ee_nginx = open('/etc/nginx/sites-available/22222.conf',
-                                    'w')
+                              '22222')
+                    ee_nginx = open('/etc/nginx/sites-available/22222',
+                                    encoding='utf-8', mode='w')
                     self.app.render((data), '22222.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
@@ -284,10 +297,10 @@ class EEStackController(CementBaseController):
                     # Create Symbolic link for 22222
                     EEFileUtils.create_symlink(self, ['/etc/nginx/'
                                                       'sites-available/'
-                                                      '22222.conf',
+                                                      '22222',
                                                       '/etc/nginx/'
                                                       'sites-enabled/'
-                                                      '22222.conf'])
+                                                      '22222'])
                     # Create log and cert folder and softlinks
                     if not os.path.exists('{0}22222/logs'
                                           .format(EEVariables.ee_webroot)):
@@ -369,7 +382,8 @@ class EEStackController(CementBaseController):
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = time.tzname[time.daylight]
-                with open('/etc/php5/fpm/php.ini', 'w') as configfile:
+                with open('/etc/php5/fpm/php.ini',
+                          encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
                               "/etc/php5/fpm/php.ini")
                     config.write(configfile)
@@ -381,7 +395,8 @@ class EEStackController(CementBaseController):
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
                 config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf', 'w') as configfile:
+                with open('/etc/php5/fpm/php-fpm.conf',
+                          encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
@@ -399,7 +414,8 @@ class EEStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
-                with open('/etc/php5/fpm/pool.d/www.conf', 'w') as configfile:
+                with open('/etc/php5/fpm/pool.d/www.conf',
+                          encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
                               "/etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
@@ -412,12 +428,14 @@ class EEStackController(CementBaseController):
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
-                with open('/etc/php5/fpm/pool.d/debug.conf', 'w') as confifile:
+                with open('/etc/php5/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
                               "/etc/php5/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
-                with open("/etc/php5/fpm/pool.d/debug.conf", "a") as myfile:
+                with open("/etc/php5/fpm/pool.d/debug.conf",
+                          encoding='utf-8', mode='a') as myfile:
                     myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                                  "= /tmp/ \nphp_admin_value[xdebug.profiler_"
                                  "output_name] = cachegrind.out.%p-%H-%R "
@@ -434,9 +452,11 @@ class EEStackController(CementBaseController):
                     os.makedirs('{0}22222/htdocs/fpm/status/'
                                 .format(EEVariables.ee_webroot))
                 open('{0}22222/htdocs/fpm/status/debug'
-                     .format(EEVariables.ee_webroot), 'a').close()
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
                 open('{0}22222/htdocs/fpm/status/php'
-                     .format(EEVariables.ee_webroot), 'a').close()
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
 
                 # Write info.php
                 if not os.path.exists('{0}22222/htdocs/php/'
@@ -448,7 +468,8 @@ class EEStackController(CementBaseController):
                                 .format(EEVariables.ee_webroot))
 
                 with open("{0}22222/htdocs/php/info.php"
-                          .format(EEVariables.ee_webroot), "w") as myfile:
+                          .format(EEVariables.ee_webroot),
+                          encoding='utf-8', mode='w') as myfile:
                     myfile.write("<?php\nphpinfo();\n?>")
 
                 EEFileUtils.chown(self, "{0}22222"
@@ -471,7 +492,8 @@ class EEStackController(CementBaseController):
                 if not os.path.isfile("/etc/mysql/my.cnf"):
                     config = ("[mysqld]\nwait_timeout = 30\n"
                               "interactive_timeout=60\nperformance_schema = 0")
-                    config_file = open("/etc/mysql/my.cnf", "w")
+                    config_file = open("/etc/mysql/my.cnf",
+                                       encoding='utf-8', mode='w')
                     config_file.write(config)
                     config_file.close()
                 else:
@@ -481,7 +503,7 @@ class EEStackController(CementBaseController):
                                          "performance_schema = 0\" "
                                          "/etc/mysql/my.cnf")
 
-                EEGit.add(self, ["/etc/mysql"], msg="Adding Nginx into Git")
+                EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
@@ -505,7 +527,8 @@ class EEStackController(CementBaseController):
                 data = dict(email=EEVariables.ee_email)
                 Log.debug(self, "Writting configuration into file"
                           "/etc/dovecot/conf.d/99-ee.conf ")
-                ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf', 'w')
+                ee_dovecot = open('/etc/dovecot/conf.d/99-ee.conf',
+                                  encoding='utf-8', mode='w')
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
 
@@ -595,7 +618,8 @@ class EEStackController(CementBaseController):
                 data = dict()
                 Log.debug(self, "Writting configuration of EasyEngine into "
                           "file /var/lib/dovecot/sieve/default.sieve")
-                ee_sieve = open('/var/lib/dovecot/sieve/default.sieve', 'w')
+                ee_sieve = open('/var/lib/dovecot/sieve/default.sieve',
+                                encoding='utf-8', mode='w')
                 self.app.render((data), 'default-sieve.mustache',
                                 out=ee_sieve)
                 ee_sieve.close()
@@ -619,7 +643,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Configuring file /etc/amavis/conf.d"
                           "/15-content_filter_mode")
                 ee_amavis = open('/etc/amavis/conf.d/15-content_filter_mode',
-                                 'w')
+                                 encoding='utf-8', mode='w')
                 self.app.render((data), '15-content_filter_mode.mustache',
                                 out=ee_amavis)
                 ee_amavis.close()
@@ -634,7 +658,8 @@ class EEStackController(CementBaseController):
                                        "$3 }\' | tr -d '\\n'").read()
 
                     data = dict(host=vm_host, password=vm_pass)
-                    vm_config = open('/etc/amavis/conf.d/50-user', 'w')
+                    vm_config = open('/etc/amavis/conf.d/50-user',
+                                     encoding='utf-8', mode='w')
                     self.app.render((data), '50-user.mustache', out=vm_config)
                     vm_config.close()
 
@@ -670,7 +695,8 @@ class EEStackController(CementBaseController):
     -o smtpd_client_connection_rate_limit=0
     -o local_header_rewrite_clients=""")
 
-                with open("/etc/postfix/master.cf", "a") as am_config:
+                with open("/etc/postfix/master.cf",
+                          encoding='utf-8', mode='a') as am_config:
                         am_config.write(amavis_master)
 
                 # Amavis ClamAV configuration
@@ -795,7 +821,8 @@ class EEStackController(CementBaseController):
                             user='anemometer', password=chars)
                 ee_anemometer = open('{0}22222/htdocs/db/anemometer'
                                      '/conf/config.inc.php'
-                                     .format(EEVariables.ee_webroot), 'w')
+                                     .format(EEVariables.ee_webroot),
+                                     encoding='utf-8', mode='w')
                 self.app.render((data), 'anemometer.mustache',
                                 out=ee_anemometer)
                 ee_anemometer.close()
@@ -861,7 +888,8 @@ class EEStackController(CementBaseController):
                           .format(EEVariables.ee_webroot))
                 ee_vmb = open('{0}22222/htdocs/vimbadmin/application/'
                               'configs/application.ini'
-                              .format(EEVariables.ee_webroot), 'w')
+                              .format(EEVariables.ee_webroot),
+                              encoding='utf-8', mode='w')
                 self.app.render((data), 'vimbadmin.mustache',
                                 out=ee_vmb)
                 ee_vmb.close()
@@ -900,7 +928,7 @@ class EEStackController(CementBaseController):
                                 host=EEVariables.ee_mysql_host)
 
                 vm_config = open('/etc/postfix/mysql/virtual_alias_maps.cf',
-                                 'w')
+                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'virtual_alias_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
@@ -909,7 +937,7 @@ class EEStackController(CementBaseController):
                           "/etc/postfix/mysql"
                           "/virtual_domains_maps.cf file")
                 vm_config = open('/etc/postfix/mysql/virtual_domains_maps.cf',
-                                 'w')
+                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'virtual_domains_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
@@ -918,7 +946,7 @@ class EEStackController(CementBaseController):
                           "/etc/postfix/mysql"
                           "/virtual_mailbox_maps.cf file")
                 vm_config = open('/etc/postfix/mysql/virtual_mailbox_maps.cf',
-                                 'w')
+                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'virtual_mailbox_maps.mustache',
                                 out=vm_config)
                 vm_config.close()
@@ -926,7 +954,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Writting configration"
                                 " to /etc/dovecot/dovecot-sql.conf.ext file ")
                 vm_config = open('/etc/dovecot/dovecot-sql.conf.ext',
-                                 'w')
+                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'dovecot-sql-conf.mustache',
                                 out=vm_config)
                 vm_config.close()
@@ -935,7 +963,7 @@ class EEStackController(CementBaseController):
                 # Amvis settings
                 if set(EEVariables.ee_mailscanner).issubset(set(apt_packages)):
                     vm_config = open('/etc/amavis/conf.d/50-user',
-                                     'w')
+                                     encoding='utf-8', mode='w')
                     self.app.render((data), '50-user.mustache',
                                     out=vm_config)
                     vm_config.close()
@@ -1024,16 +1052,17 @@ class EEStackController(CementBaseController):
 
                 Log.debug(self, 'Writting the nginx configuration for '
                           'RoundCubemail')
-                ee_rc = open('/etc/nginx/sites-available/webmail.conf', 'w')
+                ee_rc = open('/etc/nginx/sites-available/webmail',
+                             encoding='utf-8', mode='w')
                 self.app.render((data), 'virtualconf.mustache',
                                 out=ee_rc)
                 ee_rc.close()
 
-                # Create Symbolic link for webmail.conf
+                # Create Symbolic link for webmail
                 EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available'
-                                                  '/webmail.conf',
+                                                  '/webmail',
                                                   '/etc/nginx/sites-enabled/'
-                                                  'webmail.conf'])
+                                                  'webmail'])
                 # Create log folder and softlinks
                 if not os.path.exists('{0}roundcubemail/logs'
                                       .format(EEVariables.ee_webroot)):
@@ -1053,8 +1082,7 @@ class EEStackController(CementBaseController):
                                            .format(EEVariables.ee_webroot)])
                 # Remove roundcube installer
                 EEService.reload_service(self, 'nginx')
-                EEFileUtils.remove(self, ["{0}roundcubemail"
-                                   "/htdocs/installer"
+                EEFileUtils.remove(self, ["{0}roundcubemail/htdocs/installer"
                                    .format(EEVariables.ee_webroot)])
                 EEFileUtils.chown(self, '{0}roundcubemail'
                                   .format(EEVariables.ee_webroot),
@@ -1337,7 +1365,7 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
-            packages = packages + ['{0}22222/htdocs/db/Adminer'
+            packages = packages + ['{0}22222/htdocs/db/adminer'
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.utils:
             Log.debug(self, "Removing package variable of utils ")
@@ -1345,12 +1373,12 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot),
                                    '{0}22222/htdocs/cache/opcache'
                                    .format(EEVariables.ee_webroot),
-                                   '{0}22222/htdocs/cache/Nginx/'
+                                   '{0}22222/htdocs/cache/nginx/'
                                    'clean.php'.format(EEVariables.ee_webroot),
-                                   '{0}22222/htdocs/cache/Memcache'
+                                   '{0}22222/htdocs/cache/memcache'
                                    .format(EEVariables.ee_webroot),
                                    '/usr/bin/pt-query-advisor',
-                                   '{0}22222/htdocs/db/Anemometer'
+                                   '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
 
         if len(apt_packages):
