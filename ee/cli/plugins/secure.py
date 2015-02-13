@@ -3,6 +3,7 @@ from cement.core import handler, hook
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.logging import Log
+from ee.core.git import EEGit
 import string
 import random
 import sys
@@ -55,8 +56,8 @@ class EESecureController(CementBaseController):
             if username == "":
                 self.app.pargs.user_input = EEVariables.ee_user
         if not self.app.pargs.user_pass:
-            password = input("Provide HTTP authentication "
-                             "password [{0}] :".format(passwd))
+            password = getpass.getpass("Provide HTTP authentication "
+                                       "password [{0}] :".format(passwd))
             self.app.pargs.user_pass = password
             if password == "":
                 self.app.pargs.user_pass = passwd
@@ -71,12 +72,8 @@ class EESecureController(CementBaseController):
                              .format(username=self.app.pargs.user_input,
                                      password=self.app.pargs.user_pass),
                              log=False)
-        Log.info(self, "Successfully changed HTTP authentication"
-                       " username to : {username}"
-                       .format(username=self.app.pargs.user_input), log=False)
-        Log.info(self, "Successfully changed HTTP authentication"
-                       " password to : {password}"
-                       .format(password=self.app.pargs.user_pass), log=False)
+        EEGit.add(self, ["/etc/nginx"],
+                  msg="Adding changed secure auth into Git")
 
     @expose(hide=True)
     def secure_port(self):
@@ -104,6 +101,9 @@ class EESecureController(CementBaseController):
                                  "{port} default_server ssl;/\" "
                                  "/etc/nginx/sites-available/22222"
                                  .format(port=self.app.pargs.user_input))
+        EEGit.add(self, ["/etc/nginx"],
+                  msg="Adding changed secure port into Git")
+
         Log.info(self, "Successfully port changed {port}"
                  .format(port=self.app.pargs.user_input))
 
@@ -127,6 +127,9 @@ class EESecureController(CementBaseController):
                                      "\"/deny/i allow {whitelist_adre}\;\""
                                      " /etc/nginx/common/acl.conf"
                                      .format(whitelist_adre=ip_addr))
+        EEGit.add(self, ["/etc/nginx"],
+                  msg="Adding changed secure ip into Git")
+
         Log.info(self, "Successfully added IP address in acl.conf file")
 
 
