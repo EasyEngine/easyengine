@@ -66,9 +66,14 @@ _ee_complete()
     elif [ $COMP_CWORD -eq 3 ]; then
         case "$prev" in
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
-            "install" | "purge" | "remove" | "start" | "stop" | "reload")
+            "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
                               -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot" \
+                              -- $cur) )
+                ;;
+            "start" | "stop" | "reload" | "restart" | "status")
+                COMPREPLY=( $(compgen \
+                              -W "--nginx --php --mysql --postfix --memcache --dovecot" \
                               -- $cur) )
                 ;;
 
