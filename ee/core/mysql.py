@@ -48,6 +48,9 @@ class EEMysql():
                           .format(statement))
 
             cur.execute(statement)
+            cur.close()
+            conn.close()
+            
         except Exception as e:
             cur.close()
             conn.close()
@@ -57,8 +60,6 @@ class EEMysql():
             else:
                 Log.error(self, '{0}'.format(errormsg))
 
-        cur.close()
-        conn.close()
 
 #    def __del__(self):
 #        self.cur.close()
