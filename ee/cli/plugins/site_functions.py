@@ -423,7 +423,7 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting packages variable for WP-CLI")
         if not EEShellExec.cmd_exec(self, "which wp"):
             packages = packages + [["https://github.com/wp-cli/wp-cli/"
-                                    "releases/download/{0}/"
+                                    "releases/download/v{0}/"
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
