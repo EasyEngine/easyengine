@@ -39,13 +39,13 @@ function install_dep()
     # Install Python3 on users system
     ee_lib_echo "Installing pre depedencies"
     if [ "$EE_LINUX_DISTRO" == "Ubuntu" ]; then
-        apt-get -y install python-software-properties software-properties-common python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to install pre depedencies, exit status " 1
+        apt-get -y install gcc python-software-properties software-properties-common python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to install pre depedencies, exit status " 1
     elif [ "$EE_LINUX_DISTRO" == "Debian" ]; then
-        apt-get -y install graphviz python-software-properties python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to pre depedencies, exit status " 1
+        apt-get -y install gcc graphviz python-software-properties python3 python3-apt python3-setuptools python3-dev sqlite3 git || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
 
     # Generating Locale
-    locale-gen en &>> /dev/null 
+    locale-gen en &>> /dev/null
 }
 
 function sync_db()
