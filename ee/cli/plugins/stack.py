@@ -90,7 +90,7 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
             EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
-                           keyserver="subkeys.pgp.net")
+                           keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
@@ -155,8 +155,8 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if ((not os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf')) and
-                   os.path.isfile('/etc/nginx/nginx.conf')):
+                if ((not EEShellExec.cmd_exec(self, "grep -Hr EasyEngine "
+                   "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
                     nc = NginxConfig()
                     Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
                     nc.loadf('/etc/nginx/nginx.conf')
