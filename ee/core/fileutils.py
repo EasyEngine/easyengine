@@ -84,8 +84,9 @@ class EEFileUtils():
             rstr: replace string
         """
         try:
-            for line in fileinput.hook_encoded('utf-8').input(fnm,
-                                                              inplace=True):
+            for line in fileinput.input(fnm, inplace=True,
+                                        openhook=fileinput.
+                                        hook_encoded('utf-8')):
                 print(line.replace(sstr, rstr), end='')
             fileinput.close()
         except Exception as e:
