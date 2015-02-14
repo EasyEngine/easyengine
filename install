@@ -319,6 +319,6 @@ else
         fi
     else
         ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
+        exit 1
     fi
-    exit 1
 fi
