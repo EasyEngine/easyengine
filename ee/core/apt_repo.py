@@ -71,11 +71,10 @@ class EERepo():
         default keyserver is hkp://keys.gnupg.net
         user can provide other keyserver with keyserver="hkp://xyz"
         """
-        if keyserver is None:
-            EEShellExec.cmd_exec(self, "gpg --keyserver {serv}"
-                                 .format(serv=(keyserver or
-                                               "hkp://keys.gnupg.net"))
-                                 + " --recv-keys {key}".format(key=keyids))
-            EEShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
-                                 .format(keyids)
-                                 + " | apt-key add - ")
+        EEShellExec.cmd_exec(self, "gpg --keyserver {serv}"
+                             .format(serv=(keyserver or
+                                           "hkp://keys.gnupg.net"))
+                             + " --recv-keys {key}".format(key=keyids))
+        EEShellExec.cmd_exec(self, "gpg -a --export --armor {0}"
+                             .format(keyids)
+                             + " | apt-key add - ")

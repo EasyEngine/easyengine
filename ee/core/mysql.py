@@ -42,23 +42,24 @@ class EEMysql():
                     Log.error(self, 'Unable to connect to database: {0}'
                               .format(e))
 
-        try:
-            if log:
-                Log.debug(self, "Executing MySQL statement: {0}"
-                          .format(statement))
+            try:
+                if log:
+                    Log.debug(self, "Executing MySQL statement: {0}"
+                              .format(statement))
 
-            cur.execute(statement)
-        except Exception as e:
-            cur.close()
-            conn.close()
-            Log.debug(self, "{0}".format(e))
-            if not errormsg:
-                Log.error(self, 'Unable to execute statement')
-            else:
-                Log.error(self, '{0}'.format(errormsg))
+                cur.execute(statement)
+                cur.close()
+                conn.close()
 
-        cur.close()
-        conn.close()
+            except Exception as e:
+                cur.close()
+                conn.close()
+                Log.debug(self, "{0}".format(e))
+                if not errormsg:
+                    Log.error(self, 'Unable to execute statement')
+                else:
+                    Log.error(self, '{0}'.format(errormsg))
+
 
 #    def __del__(self):
 #        self.cur.close()
