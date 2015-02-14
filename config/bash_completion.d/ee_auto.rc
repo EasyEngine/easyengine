@@ -29,7 +29,7 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "--start --nginx --php --fpm --mysql -i --interactive --stop " \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --start --nginx --php --fpm --mysql -i --interactive --stop " \
                               -- $cur) )
                 ;;
 
@@ -126,20 +126,25 @@ _ee_complete()
                 COMPREPLY=( $(compgen \
                                     -W "--db --files --all" \
                                  -- $cur) )
-
+                ;;
+            *)
+                ;;
         esac
+
     fi
 
     case "$prev" in
-        "--wpsubdir" | "--wpsubdomain")
+        "--wp" | "--wpsubdir" | "--wpsubdomain")
             COMPREPLY=( $(compgen \
                           -W "--w3tc --wpfc --wpsc" \
                           -- $cur) )
             ;;
 
         "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot")
-            if [[ ${COMP_WORDS[1]} == "stack" ]]; then
+            if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
                 retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot"
+            elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
+                    retlist="--nginx --php --mysql --postfix --memcache --dovecot"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
                     retlist="--start --nginx --php --fpm --mysql -i --interactive --stop"
             fi
@@ -149,13 +154,26 @@ _ee_complete()
                         -- $cur) )
             ;;
 
-        "--db" | "--files" | "--all")
+        "--db" | "--files" )
             retlist="--db --files --all"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \
                           -- $cur) )
             ;;
+
+        "--all")
+          if [ ${COMP_WORDS[1]} == "clean" ]; then
+                  retlist="--memcache --opcache --fastcgi"
+          else
+              retlist="--db --files"
+
+          fi
+          ret="${retlist[@]/$prev}"
+              COMPREPLY=( $(compgen \
+                            -W "$(echo $ret)" \
+                            -- $cur) )
+          ;;
 
         "--memcache" | "--opcache" | "--fastcgi" | "--all")
             retlist="--memcache --opcache --fastcgi --all"
