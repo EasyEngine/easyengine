@@ -24,22 +24,22 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service start")
             services = services + ['nginx']
-        elif self.app.pargs.php:
+        if self.app.pargs.php:
             Log.debug(self, "php5-fpm service start")
             services = services + ['php5-fpm']
-        elif self.app.pargs.mysql:
+        if self.app.pargs.mysql:
             Log.debug(self, "mysql service start")
             services = services + ['mysql']
-        elif self.app.pargs.postfix:
+        if self.app.pargs.postfix:
             Log.debug(self, "postfix service start")
             services = services + ['postfix']
-        elif self.app.pargs.memcache:
+        if self.app.pargs.memcache:
             Log.debug(self, "memcached service start")
             services = services + ['memcached']
-        elif self.app.pargs.dovecot:
+        if self.app.pargs.dovecot:
             Log.debug(self, "dovecot service start")
             services = services + ['dovecot']
-        else:
+        if not services:
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services start")
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
@@ -52,22 +52,22 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service stop")
             services = services + ['nginx']
-        elif self.app.pargs.php:
+        if self.app.pargs.php:
             Log.debug(self, "php5-fpm service stop")
             services = services + ['php5-fpm']
-        elif self.app.pargs.mysql:
+        if self.app.pargs.mysql:
             Log.debug(self, "mysql service stop")
             services = services + ['mysql']
-        elif self.app.pargs.postfix:
+        if self.app.pargs.postfix:
             Log.debug(self, "postfix service stop")
             services = services + ['postfix']
-        elif self.app.pargs.memcache:
+        if self.app.pargs.memcache:
             Log.debug(self, "memcached service stop")
             services = services + ['memcached']
-        elif self.app.pargs.dovecot:
+        if self.app.pargs.dovecot:
             Log.debug(self, "dovecot service stop")
             services = services + ['dovecot']
-        else:
+        if not services:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services stop")
         for service in services:
@@ -80,22 +80,22 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service restart")
             services = services + ['nginx']
-        elif self.app.pargs.php:
+        if self.app.pargs.php:
             Log.debug(self, "php5-fpm service restart")
             services = services + ['php5-fpm']
-        elif self.app.pargs.mysql:
+        if self.app.pargs.mysql:
             Log.debug(self, "mysql service restart")
             services = services + ['mysql']
-        elif self.app.pargs.postfix:
+        if self.app.pargs.postfix:
             Log.debug(self, "postfix service restart")
             services = services + ['postfix']
-        elif self.app.pargs.memcache:
+        if self.app.pargs.memcache:
             Log.debug(self, "memcached service restart")
             services = services + ['memcached']
-        elif self.app.pargs.dovecot:
+        if self.app.pargs.dovecot:
             Log.debug(self, "dovecot service restart")
             services = services + ['dovecot']
-        else:
+        if not services:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services restart")
@@ -108,22 +108,22 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service status")
             services = services + ['nginx']
-        elif self.app.pargs.php:
+        if self.app.pargs.php:
             Log.debug(self, "php5-fpm service status")
             services = services + ['php5-fpm']
-        elif self.app.pargs.mysql:
+        if self.app.pargs.mysql:
             Log.debug(self, "mysql service status")
             services = services + ['mysql']
-        elif self.app.pargs.postfix:
+        if self.app.pargs.postfix:
             services = services + ['postfix']
             Log.debug(self, "postfix service status")
-        elif self.app.pargs.memcache:
+        if self.app.pargs.memcache:
             Log.debug(self, "memcached service status")
             services = services + ['memcached']
-        elif self.app.pargs.dovecot:
+        if self.app.pargs.dovecot:
             Log.debug(self, "dovecot service status")
             services = services + ['dovecot']
-        else:
+        if not services:
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services status")
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
@@ -137,22 +137,22 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "nginx service reload")
             services = services + ['nginx']
-        elif self.app.pargs.php:
+        if self.app.pargs.php:
             Log.debug(self, "php5-fpm service reload")
             services = services + ['php5-fpm']
-        elif self.app.pargs.mysql:
+        if self.app.pargs.mysql:
             Log.debug(self, "mysql service reload")
             services = services + ['mysql']
-        elif self.app.pargs.postfix:
+        if self.app.pargs.postfix:
             Log.debug(self, "postfix service reload")
             services = services + ['postfix']
-        elif self.app.pargs.memcache:
+        if self.app.pargs.memcache:
             Log.debug(self, "memcached service reload")
             services = services + ['memcached']
-        elif self.app.pargs.dovecot:
+        if self.app.pargs.dovecot:
             Log.debug(self, "dovecot service reload")
             services = services + ['dovecot']
-        else:
+        if not services:
             services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
         for service in services:
             Log.debug(self, "nginx,php5-fpm,mysql,postfix services reload")
