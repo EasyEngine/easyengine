@@ -74,7 +74,7 @@ class EEFileUtils():
         except IOError as e:
             Log.debug(self, "{e}".format(e.strerror))
             Log.error(self, "Unable to copy file from {0} to {1}"
-                      .fromat(src, dest))
+                      .format(src, dest))
 
     def searchreplace(self, fnm, sstr, rstr):
         """
