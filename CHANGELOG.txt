@@ -1,3 +1,9 @@
+v 3.0.2 - Feb 14,2015
+- Fixed #413
+- Improved installation script
+- Fixed Percona key not importing
+- Small bug fixes and improvements 
+
 v 3.0.1 - Feb 12,2015
 - Fixed #411, #40, #409
 - Improved installation script
