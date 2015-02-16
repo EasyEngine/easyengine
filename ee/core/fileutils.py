@@ -138,8 +138,8 @@ class EEFileUtils():
         userid = pwd.getpwnam(user)[2]
         groupid = pwd.getpwnam(user)[3]
         try:
-            Log.debug(self, "Changing ownership of {0}, User:{1}, Group:{2}"
-                      .format(path, user, group))
+            Log.debug(self, "Changing ownership of {0}, Userid:{1},Groupid:{2}"
+                      .format(path, userid, groupid))
             if recursive:
                 for root, dirs, files in os.walk(path):
                     for d in dirs:
@@ -187,7 +187,7 @@ class EEFileUtils():
         """
         try:
             Log.debug(self, "Creating directories: {0}"
-                      .format(path, user, group))
+                      .format(path))
             os.makedirs(path)
         except OSError as e:
             Log.debug(self, "{0}".format(e.strerror))
