@@ -3,7 +3,6 @@ from ee.core.logging import Log
 import os
 import sys
 import subprocess
-import shlex
 
 
 class EEShellExec():
@@ -16,8 +15,7 @@ class EEShellExec():
         try:
             if log:
                 Log.debug(self, "Running command: {0}".format(command))
-            args = shlex.split(command)
-            with subprocess.Popen(args, stdout=subprocess.PIPE,
+            with subprocess.Popen([command], stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, shell=True) as proc:
                 (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
                 (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8',
