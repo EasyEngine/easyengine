@@ -24,6 +24,7 @@ import shutil
 import os
 import pwd
 import grp
+import codecs
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.core.logging import Log
 
