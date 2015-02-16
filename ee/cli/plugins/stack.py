@@ -390,13 +390,14 @@ class EEStackController(CementBaseController):
 
                 # Prase /etc/php5/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/php-fpm.conf')
+                config.read(codecs.open("/etc/php5/fpm/php-fpm.conf",
+                                        "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
                 config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf',
-                          encoding='utf-8', mode='w') as configfile:
+                with codecs.open('/etc/php5/fpm/php-fpm.conf',
+                                 encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
