@@ -391,6 +391,8 @@ class EEStackController(CementBaseController):
 
                 # Prase /etc/php5/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
+                Log.debug(self, "configuring php file"
+                          "/etc/php5/fpm/php-fpm.conf")
                 config.read(codecs.open("/etc/php5/fpm/php-fpm.conf",
                                         "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
