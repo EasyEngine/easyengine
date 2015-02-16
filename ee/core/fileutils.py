@@ -90,7 +90,8 @@ class EEFileUtils():
         """
         try:
             Log.debug(self, "Doning search and replace, File:{0},"
-                      "Source string:{1}, Dest String:{2}".format(src, dst))
+                      "Source string:{1}, Dest String:{2}"
+                      .format(fnm, sstr, rstr))
             for line in fileinput.input(fnm, inplace=True):
                 print(line.replace(sstr, rstr), end='')
             fileinput.close()
