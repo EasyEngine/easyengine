@@ -23,7 +23,7 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 ## Quick Start
 
 ```bash
-wget -q http://rt.cx/ee && sudo bash ee     # Install easyengine 3
+wget -qO ee rt.cx/ee && sudo bash ee     # Install easyengine 3
 sudo ee site create example.com --wp        # Install required packages & setup WordPress on example.com
 ```
 
@@ -33,7 +33,7 @@ sudo ee site create example.com --wp        # Install required packages & setup 
 Update Procedure For EasyEngine to version 3.0.1
 
 ```bash
-wget -q http://rt.cx/ee && sudo bash ee
+wget -qO ee rt.cx/ee && sudo bash ee
 ```
 
 ## More Site Creation Commands
