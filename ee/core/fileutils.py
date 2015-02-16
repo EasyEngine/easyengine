@@ -70,7 +70,7 @@ class EEFileUtils():
         """
         try:
             Log.debug(self, "Copying file, Source:{0}, Dest:{1}"
-                      .format(src, dst))
+                      .format(src, dest))
             shutil.copy2(src, dest)
         except shutil.Error as e:
             Log.debug(self, "{0}".format(e))
