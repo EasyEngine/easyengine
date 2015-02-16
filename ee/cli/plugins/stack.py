@@ -407,7 +407,8 @@ class EEStackController(CementBaseController):
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/pool.d/www.conf')
+                config.read_file(codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                             "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
                 config['www']['pm.max_requests'] = '500'
@@ -418,8 +419,8 @@ class EEStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
-                with open('/etc/php5/fpm/pool.d/www.conf',
-                          encoding='utf-8', mode='w') as configfile:
+                with codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                 encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
                               "/etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
