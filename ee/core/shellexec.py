@@ -1,9 +1,9 @@
 """EasyEngine shell executaion functions."""
-from subprocess import Popen
 from ee.core.logging import Log
 import os
 import sys
 import subprocess
+import shlex
 
 
 class EEShellExec():
@@ -16,11 +16,20 @@ class EEShellExec():
         try:
             if log:
                 Log.debug(self, "Running command: {0}".format(command))
-            retcode = subprocess.getstatusoutput(command)
-            if retcode[0] == 0:
+            args = shlex.split(command)
+            with subprocess.Popen(args, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE) as proc:
+                (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
+                (cmd_stdout, cmd_stderr) = (cmd_stdout_bytes.decode('utf-8',
+                                            "replace"),
+                                            cmd_stderr_bytes.decode('utf-8',
+                                            "replace"))
+
+            if proc.returncode == 0:
                 return True
             else:
-                Log.debug(self, retcode[1])
+                Log.debug(self, "Command Output: {0}, Command Error: {1}"
+                                .format(cmd_stdout, cmd_stderr))
                 return False
         except OSError as e:
             if errormsg:
