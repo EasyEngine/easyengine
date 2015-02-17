@@ -94,14 +94,24 @@ class EEStackController(CementBaseController):
                            keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password_again "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
             mysql_config = """
             [client]
             user = root
