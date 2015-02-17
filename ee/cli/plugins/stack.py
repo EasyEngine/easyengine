@@ -367,7 +367,6 @@ class EEStackController(CementBaseController):
                     EEService.reload_service(self, 'nginx')
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
-
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
@@ -813,11 +812,13 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\''.format(self.app.config.get('mysql',
                                                   'grant-host')))
+                Log.debug(self, "grant all on slow-query-log.*
+                          " to anemometer@root_user IDENTIFIED BY password ")
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
                                 '\'anemometer\'@\'{0}\' IDENTIFIED'
                                 ' BY \'{1}\''.format(self.app.config.get(
                                                      'mysql', 'grant-host'),
-                                                     chars))
+                                                     chars), Log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
@@ -874,11 +875,14 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Creating vimbadmin database if not exist")
                 EEMysql.execute(self, "create database if not exists"
                                       " vimbadmin")
-                Log.debug(self, "Granting all privileges on vimbadmin ")
+                Log.debug(self, "Granting all privileges on vimbadmin.* to
+                          "vimbadmin@root IDENTIFIED BY password  ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
                                 " vimbadmin@{0} IDENTIFIED BY"
                                 " '{1}'".format(self.app.config.get('mysql',
-                                                'grant-host'), vm_passwd))
+                                                'grant-host'), vm_passwd),
+                                errormsg="Cannot setup database "
+                                "user privileges", Log=False)
                 vm_salt = (''.join(random.sample(string.ascii_letters +
                                                  string.ascii_letters, 64)))
 
