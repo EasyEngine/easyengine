@@ -829,7 +829,8 @@ class EEStackController(CementBaseController):
                                 '\'anemometer\'@\'{0}\' IDENTIFIED'
                                 ' BY \'{1}\''.format(self.app.config.get(
                                                      'mysql', 'grant-host'),
-                                                     chars), Log=False)
+                                                     chars),
+                                errormsg="cannot grant privillages", log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
@@ -892,8 +893,8 @@ class EEStackController(CementBaseController):
                                 " vimbadmin@{0} IDENTIFIED BY"
                                 " '{1}'".format(self.app.config.get('mysql',
                                                 'grant-host'), vm_passwd),
-                                errormsg="Cannot setup database "
-                                "user privileges", Log=False)
+                                errormsg="Cannot grant "
+                                "user privileges", log=False)
                 vm_salt = (''.join(random.sample(string.ascii_letters +
                                                  string.ascii_letters, 64)))
 
