@@ -643,7 +643,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot", 'vmail', 'vmail',
+                EEFileUtils.chown(self, "/var/lib/dovecot", 'vmail', 'vmail',
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
