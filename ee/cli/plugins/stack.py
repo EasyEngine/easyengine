@@ -886,7 +886,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Creating vimbadmin database if not exist")
                 EEMysql.execute(self, "create database if not exists"
                                       " vimbadmin")
-                Log.debug(self, "Granting all privileges on vimbadmin.* to
+                Log.debug(self, "Granting all privileges on vimbadmin.* to "
                           "vimbadmin@root IDENTIFIED BY password  ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
                                 " vimbadmin@{0} IDENTIFIED BY"
