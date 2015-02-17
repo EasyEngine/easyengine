@@ -184,18 +184,18 @@ def setupwordpress(self, data):
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
                   + "core config "
-                  + "--dbname={0} --dbprefix={1} --dbuser={2} "
+                  + "--dbname={0} --dbprefix={1} --dbuser={2} --dbhost={3} "
                   .format(data['ee_db_name'], ee_wp_prefix,
-                          data['ee_db_user'])
+                          data['ee_db_user'], data['ee_db_host'])
                   + "--dbpass= "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
-                             + "--dbname={0} --dbprefix={1} --dbuser={2} "
+                             + "--dbname={0} --dbprefix={1} --dbuser={2} --dbhost={3} "
                              .format(data['ee_db_name'], ee_wp_prefix,
-                                     data['ee_db_user'])
+                                     data['ee_db_user'],  data['ee_db_host'])
                              + "--dbpass={0} "
                                "--extra-php<<PHP \n {1}\nPHP\""
                                .format(data['ee_db_pass'],
@@ -206,8 +206,8 @@ def setupwordpress(self, data):
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
                   + "core config "
-                  + "--dbname={0} --dbprefix={1} "
-                  .format(data['ee_db_name'], ee_wp_prefix)
+                  + "--dbname={0} --dbprefix={1} --dbhost={2} "
+                  .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
                   + "--dbuser={0} --dbpass= "
                   "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                   .format(data['ee_db_user'], data['ee_db_pass'],
@@ -218,8 +218,8 @@ def setupwordpress(self, data):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
-                             + "--dbname={0} --dbprefix={1} "
-                             .format(data['ee_db_name'], ee_wp_prefix)
+                             + "--dbname={0} --dbprefix={1} --dbhost={3} "
+                             .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
                              + "--dbuser={0} --dbpass={1} "
                                "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                              .format(data['ee_db_user'], data['ee_db_pass'],
