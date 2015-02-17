@@ -90,7 +90,8 @@ class EEFileUtils():
         """
         try:
             Log.debug(self, "Doning search and replace, File:{0},"
-                      "Source string:{1}, Dest String:{2}".format(src, dst))
+                      "Source string:{1}, Dest String:{2}"
+                      .format(fnm, sstr, rstr))
             for line in fileinput.input(fnm, inplace=True):
                 print(line.replace(sstr, rstr), end='')
             fileinput.close()
@@ -140,6 +141,8 @@ class EEFileUtils():
         try:
             Log.debug(self, "Changing ownership of {0}, Userid:{1},Groupid:{2}"
                       .format(path, userid, groupid))
+            # Change inside files/directory permissions only if recursive flag
+            # is set
             if recursive:
                 for root, dirs, files in os.walk(path):
                     for d in dirs:
@@ -148,8 +151,7 @@ class EEFileUtils():
                     for f in files:
                         os.chown(os.path.join(root, f), userid,
                                  groupid)
-            else:
-                os.chown(path, userid, groupid)
+            os.chown(path, userid, groupid)
         except shutil.Error as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to change owner : {0}".format(path))

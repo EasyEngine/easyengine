@@ -94,14 +94,24 @@ class EEStackController(CementBaseController):
                            keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password_again "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
             mysql_config = """
             [client]
             user = root
@@ -392,8 +402,8 @@ class EEStackController(CementBaseController):
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file"
                           "/etc/php5/fpm/php-fpm.conf")
-                config.read(codecs.open("/etc/php5/fpm/php-fpm.conf",
-                                        "r", "utf8"))
+                config.read_file(codecs.open("/etc/php5/fpm/php-fpm.conf",
+                                             "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
@@ -406,7 +416,8 @@ class EEStackController(CementBaseController):
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/pool.d/www.conf')
+                config.read_file(codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                             "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
                 config['www']['pm.max_requests'] = '500'
@@ -417,8 +428,8 @@ class EEStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
-                with open('/etc/php5/fpm/pool.d/www.conf',
-                          encoding='utf-8', mode='w') as configfile:
+                with codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                 encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
                               "/etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
@@ -631,7 +642,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot", 'vmail', 'vmail',
+                EEFileUtils.chown(self, "/var/lib/dovecot", 'vmail', 'vmail',
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
