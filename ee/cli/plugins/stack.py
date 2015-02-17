@@ -823,7 +823,7 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\''.format(self.app.config.get('mysql',
                                                   'grant-host')))
-                Log.debug(self, "grant all on slow-query-log.*
+                Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user IDENTIFIED BY password ")
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
                                 '\'anemometer\'@\'{0}\' IDENTIFIED'
