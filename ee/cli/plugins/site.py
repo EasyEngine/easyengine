@@ -886,6 +886,10 @@ class EESiteUpdateController(CementBaseController):
                                   'DB_PASSWORD')
                                   .split(',')[1]
                                   .split(')')[0].strip())
+            data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
+                                  'DB_HOST')
+                                  .split(',')[1]
+                                  .split(')')[0].strip())
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
