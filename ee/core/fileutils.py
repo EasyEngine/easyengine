@@ -42,6 +42,8 @@ class EEFileUtils():
         dst = paths[1]
         if not os.path.islink(dst):
             try:
+                Log.debug(self, "Creating Symbolic link, Source:{0}, Dest:{1}"
+                          .format(src, dst))
                 os.symlink(src, dst)
             except Exception as e:
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
@@ -54,6 +56,7 @@ class EEFileUtils():
             Removes symbolic link for the path provided with filepath
         """
         try:
+            Log.debug(self, "Removing symbolic link: {0}".format(filepath))
             os.unlink(filepath)
         except Exception as e:
             Log.debug(self, "{0}".format(e))
@@ -66,6 +69,8 @@ class EEFileUtils():
             dest : destination path
         """
         try:
+            Log.debug(self, "Copying file, Source:{0}, Dest:{1}"
+                      .format(src, dest))
             shutil.copy2(src, dest)
         except shutil.Error as e:
             Log.debug(self, "{0}".format(e))
@@ -84,6 +89,9 @@ class EEFileUtils():
             rstr: replace string
         """
         try:
+            Log.debug(self, "Doning search and replace, File:{0},"
+                      "Source string:{1}, Dest String:{2}"
+                      .format(fnm, sstr, rstr))
             for line in fileinput.input(fnm, inplace=True):
                 print(line.replace(sstr, rstr), end='')
             fileinput.close()
@@ -112,6 +120,8 @@ class EEFileUtils():
             Path : path for destination directory
         """
         try:
+            Log.debug(self, "Changing directory to {0}"
+                      .format(path))
             os.chdir(path)
         except OSError as e:
             Log.debug(self, "{err}".format(err=e.strerror))
@@ -129,6 +139,10 @@ class EEFileUtils():
         userid = pwd.getpwnam(user)[2]
         groupid = pwd.getpwnam(user)[3]
         try:
+            Log.debug(self, "Changing ownership of {0}, Userid:{1},Groupid:{2}"
+                      .format(path, userid, groupid))
+            # Change inside files/directory permissions only if recursive flag
+            # is set
             if recursive:
                 for root, dirs, files in os.walk(path):
                     for d in dirs:
@@ -137,8 +151,7 @@ class EEFileUtils():
                     for f in files:
                         os.chown(os.path.join(root, f), userid,
                                  groupid)
-            else:
-                os.chown(path, userid, groupid)
+            os.chown(path, userid, groupid)
         except shutil.Error as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to change owner : {0}".format(path))
@@ -154,6 +167,8 @@ class EEFileUtils():
             recursive: change permission recursively for all files
         """
         try:
+            Log.debug(self, "Changing permission of {0}, Perm:{1}"
+                      .format(path, perm))
             if recursive:
                 for root, dirs, files in os.walk(path):
                     for d in dirs:
@@ -173,6 +188,8 @@ class EEFileUtils():
             Similar to `mkdir -p`
         """
         try:
+            Log.debug(self, "Creating directories: {0}"
+                      .format(path))
             os.makedirs(path)
         except OSError as e:
             Log.debug(self, "{0}".format(e.strerror))
@@ -196,6 +213,8 @@ class EEFileUtils():
             Searches for string in file and returns the matched line.
         """
         try:
+            Log.debug(self, "Finding string {0} to file {1}"
+                      .format(sstr, fnm))
             for line in open(fnm, encoding='utf-8'):
                 if sstr in line:
                     return line
@@ -208,6 +227,7 @@ class EEFileUtils():
         """
             Remove files
         """
+        Log.debug(self, "Removing {0}".format(path))
         if EEFileUtils.isexist(self, path):
             try:
                 if os.path.isdir(path):

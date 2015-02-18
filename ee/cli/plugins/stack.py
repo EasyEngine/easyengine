@@ -24,6 +24,7 @@ import shutil
 import os
 import pwd
 import grp
+import codecs
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.core.logging import Log
 
@@ -93,14 +94,24 @@ class EEStackController(CementBaseController):
                            keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
+            Log.debug(self, "echo \"percona-server-server-5.6 "
+                      "percona-server-server/root_password_again "
+                      "password \" | "
+                      "debconf-set-selections")
             EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
                                  "percona-server-server/root_password_again "
                                  "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars))
+                                 "debconf-set-selections".format(chars=chars),
+                                 log=False)
             mysql_config = """
             [client]
             user = root
@@ -366,7 +377,6 @@ class EEStackController(CementBaseController):
                     EEService.reload_service(self, 'nginx')
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
-
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
@@ -390,20 +400,24 @@ class EEStackController(CementBaseController):
 
                 # Prase /etc/php5/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/php-fpm.conf')
+                Log.debug(self, "configuring php file"
+                          "/etc/php5/fpm/php-fpm.conf")
+                config.read_file(codecs.open("/etc/php5/fpm/php-fpm.conf",
+                                             "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
                 config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf',
-                          encoding='utf-8', mode='w') as configfile:
+                with codecs.open('/etc/php5/fpm/php-fpm.conf',
+                                 encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/pool.d/www.conf')
+                config.read_file(codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                             "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
                 config['www']['pm.max_requests'] = '500'
@@ -414,8 +428,8 @@ class EEStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
-                with open('/etc/php5/fpm/pool.d/www.conf',
-                          encoding='utf-8', mode='w') as configfile:
+                with codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                                 encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
                               "/etc/php5/fpm/pool.d/www.conf")
                     config.write(configfile)
@@ -628,7 +642,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting Privileges to dovecot ")
                 # EEShellExec.cmd_exec(self, "chown -R vmail:vmail /var/lib"
                 #                     "/dovecot")
-                EEFileUtils.chown(self, "/var/lig/dovecot", 'vmail', 'vmail',
+                EEFileUtils.chown(self, "/var/lib/dovecot", 'vmail', 'vmail',
                                   recursive=True)
                 EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
                                      "default.sieve")
@@ -809,11 +823,14 @@ class EEStackController(CementBaseController):
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\''.format(self.app.config.get('mysql',
                                                   'grant-host')))
+                Log.debug(self, "grant all on slow-query-log.*"
+                          " to anemometer@root_user IDENTIFIED BY password ")
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
                                 '\'anemometer\'@\'{0}\' IDENTIFIED'
                                 ' BY \'{1}\''.format(self.app.config.get(
                                                      'mysql', 'grant-host'),
-                                                     chars))
+                                                     chars),
+                                errormsg="cannot grant privillages", log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
@@ -870,11 +887,14 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Creating vimbadmin database if not exist")
                 EEMysql.execute(self, "create database if not exists"
                                       " vimbadmin")
-                Log.debug(self, "Granting all privileges on vimbadmin ")
+                Log.debug(self, "Granting all privileges on vimbadmin.* to "
+                          "vimbadmin@root IDENTIFIED BY password  ")
                 EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
                                 " vimbadmin@{0} IDENTIFIED BY"
                                 " '{1}'".format(self.app.config.get('mysql',
-                                                'grant-host'), vm_passwd))
+                                                'grant-host'), vm_passwd),
+                                errormsg="Cannot grant "
+                                "user privileges", log=False)
                 vm_salt = (''.join(random.sample(string.ascii_letters +
                                                  string.ascii_letters, 64)))
 
