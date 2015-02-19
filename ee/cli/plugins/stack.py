@@ -442,6 +442,7 @@ class EEStackController(CementBaseController):
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
+                config['debug']['rlimit_core'] = 'unlimited'
                 with open('/etc/php5/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "

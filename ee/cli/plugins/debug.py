@@ -103,7 +103,7 @@ class EEDebugController(CementBaseController):
                     self.trigger_nginx = True
 
                 else:
-                    Log.info(self, "Debug for site allready enabled")
+                    Log.info(self, "Nginx debug for site allready enabled")
 
                 self.msg = self.msg + ['{0}{1}/logs/error.log'
                                        .format(EEVariables.ee_webroot,
@@ -129,7 +129,7 @@ class EEDebugController(CementBaseController):
 
                 else:
 
-                    Log.info(self, "Debug for site allready disabled")
+                    Log.info(self, "Nginx debug for site allready disabled")
             else:
                 Log.info(self, "{0} domain not valid"
                          .format(self.app.pargs.site_name))
@@ -273,7 +273,7 @@ class EEDebugController(CementBaseController):
     def debug_wp(self):
         """Start/Stop WordPress debug"""
         if self.start and self.app.pargs.site_name:
-            wp_config = ("{0}{1}/wp-config.php"
+            wp_config = ("{0}/{1}/wp-config.php"
                          .format(EEVariables.ee_webroot,
                                  self.app.pargs.site_name))
             webroot = "{0}{1}".format(EEVariables.ee_webroot,
@@ -301,8 +301,6 @@ class EEDebugController(CementBaseController):
                                          "wp-content/plugins"
                                          .format(webroot,
                                                  EEVariables.ee_php_user))
-                else:
-                    Log.info(self, "WordPress debug log already enabled")
 
                 self.msg = self.msg + ['{0}{1}/htdocs/wp-content'
                                        '/debug.log'
@@ -337,9 +335,6 @@ class EEDebugController(CementBaseController):
                                          "true);/d\" {0}".format(wp_config))
                 else:
                     Log.info(self, "WordPress debug all already disabled")
-            else:
-                Log.error(self, "{0} domain not valid"
-                          .format(self.app.pargs.site_name))
         else:
             Log.error(self, "Missing argument site name")
 
