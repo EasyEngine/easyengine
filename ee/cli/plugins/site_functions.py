@@ -187,7 +187,7 @@ def setupwordpress(self, data):
                   + "--dbname={0} --dbprefix={1} --dbuser={2} --dbhost={3} "
                   .format(data['ee_db_name'], ee_wp_prefix,
                           data['ee_db_user'], data['ee_db_host'])
-                  + "--dbpass= "
+                  + "--dbpass={1} "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
@@ -208,7 +208,7 @@ def setupwordpress(self, data):
                   + "core config "
                   + "--dbname={0} --dbprefix={1} --dbhost={2} "
                   .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
-                  + "--dbuser={0} --dbpass= "
+                  + "--dbuser={0} --dbpass={1} "
                   "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                   .format(data['ee_db_user'], data['ee_db_pass'],
                           "\ndefine(\'WP_ALLOW_MULTISITE\', "
