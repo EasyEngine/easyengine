@@ -976,12 +976,12 @@ class EESiteUpdateController(CementBaseController):
             for msg in ee_auth:
                 Log.info(self, Log.ENDC + msg)
 
+        display_cache_settings(self, data)
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
             Log.info(self, "\n\n" + Log.ENDC + "WordPress admin user :"
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
-                     .format(ee_wp_creds['wp_pass']) + "\n\n")
-        display_cache_settings(self, data)
+                     .format(ee_wp_creds['wp_pass']) + "\n\n")        
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))

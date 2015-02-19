@@ -331,7 +331,7 @@ def setupwordpressnetwork(self, data):
 
 def installwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    Log.debug(self, "Installing plugin {0}".format(plugin_name))
+    Log.info(self, "Installing plugin {0}".format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin --allow-root install "
                          "{0}".format(plugin_name),
