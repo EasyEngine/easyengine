@@ -175,7 +175,7 @@ function update_to_ee3()
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $new_ee_version\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
-    grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }')
+    grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }' | head -1 )
     db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     wp_prefix=$(grep prefix /etc/easyengine/ee.conf | awk '{ print $3 }')
