@@ -1246,7 +1246,7 @@ class EEStackController(CementBaseController):
                     else:
                         Log.error(self, "Failed to find installed Dovecot")
                 else:
-                    Log.error(self, "Mail scanner allready installed")
+                    Log.error(self, "Mail scanner already installed")
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
