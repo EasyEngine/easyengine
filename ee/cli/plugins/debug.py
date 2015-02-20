@@ -414,7 +414,12 @@ class EEDebugController(CementBaseController):
         if self.app.pargs.fpm:
             self.debug_fpm()
         if self.app.pargs.mysql:
-            self.debug_mysql()
+            # MySQL debug will not work for remote MySQL
+            if EEVariables.ee_mysql_host is "localhost":
+                self.debug_mysql()
+            else:
+                Log.warn(self, "Remote MySQL found, EasyEngine will not "
+                         "enable remote debug")
         if self.app.pargs.wp:
             self.debug_wp()
         if self.app.pargs.rewrite:
