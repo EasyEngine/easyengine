@@ -1123,8 +1123,9 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-               (not self.app.pargs.mailscanner)):
+               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
+                self.app.pargs.admin = True
 
             if self.app.pargs.all:
                 self.app.pargs.web = True
@@ -1330,8 +1331,9 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
+            self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -1424,8 +1426,9 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
+            self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
