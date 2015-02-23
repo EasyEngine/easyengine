@@ -5,7 +5,7 @@
 # to update current EasyEngine from 2.x to 3.x
 
 old_ee_version="2.2.3"
-new_ee_version="3.0.2"
+new_ee_version="3.0.3"
 branch=$1
 
 # Define echo function
@@ -175,7 +175,7 @@ function update_to_ee3()
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $new_ee_version\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
-    grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }')
+    grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }' | head -1 )
     db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     wp_prefix=$(grep prefix /etc/easyengine/ee.conf | awk '{ print $3 }')
@@ -318,7 +318,7 @@ else
             service nginx reload &>> /dev/null
         fi
     else
-        ee_lib_echo_fail "You allready have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
+        ee_lib_echo_fail "You already have EasyEngine $new_ee_version" | tee -ai $EE_INSTALL_LOG
+        exit 1
     fi
-    exit 1
 fi

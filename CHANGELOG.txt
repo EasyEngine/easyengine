@@ -1,3 +1,17 @@
+v 3.0.3 - Feb 23,2015
+- Fixed remote MySQL supports, #428, #427, thanks to @joshlyford #432
+- Fixed ascii encoding issue #414
+- Fixed bug in debug pool #426
+- Added admin tools to default stack
+- Added more MIME types,thanks to @cborgia #423
+- Small bugs fixes and improvements
+
+v 3.0.2 - Feb 14,2015
+- Fixed #413
+- Improved installation script
+- Fixed Percona key not importing
+- Small bug fixes and improvements
+
 v 3.0.1 - Feb 12,2015
 - Fixed #411, #40, #409
 - Improved installation script
