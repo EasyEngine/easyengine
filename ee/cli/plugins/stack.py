@@ -888,10 +888,12 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Creating vimbadmin database if not exist")
                 EEMysql.execute(self, "create database if not exists"
                                       " vimbadmin")
-                Log.debug(self, "Granting all privileges on vimbadmin.* to "
-                          "vimbadmin@root IDENTIFIED BY password  ")
-                EEMysql.execute(self, "grant all privileges on vimbadmin.* to"
-                                " vimbadmin@{0} IDENTIFIED BY"
+                Log.debug(self, " grant all privileges on `vimbadmin`.* to"
+                                " `vimbadmin`@`{0}` IDENTIFIED BY"
+                                " ' '".format(self.app.config.get('mysql',
+                                              'grant-host')))
+                EEMysql.execute(self, "grant all privileges on `vimbadmin`.* "
+                                " to `vimbadmin`@`{0}` IDENTIFIED BY"
                                 " '{1}'".format(self.app.config.get('mysql',
                                                 'grant-host'), vm_passwd),
                                 errormsg="Cannot grant "
@@ -1022,10 +1024,14 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Creating Database roundcubemail")
                 EEMysql.execute(self, "create database if not exists "
                                 " roundcubemail")
-                Log.debug(self, "Grant all privileges on roundcubemail")
+                Log.debug(self, "grant all privileges"
+                                " on `roundcubemail`.* to "
+                                " `roundcube`@`{0}` IDENTIFIED BY "
+                                "' '".format(self.app.config.get(
+                                             'mysql', 'grant-host')))
                 EEMysql.execute(self, "grant all privileges"
-                                " on roundcubemail.* to "
-                                " roundcube@{0} IDENTIFIED BY "
+                                " on `roundcubemail`.* to "
+                                " `roundcube`@`{0}` IDENTIFIED BY "
                                 "'{1}'".format(self.app.config.get(
                                                'mysql', 'grant-host'),
                                                rc_passwd))
