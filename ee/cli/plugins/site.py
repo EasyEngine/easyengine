@@ -29,7 +29,7 @@ class EESiteController(CementBaseController):
         description = ('Performs website specific operations')
         arguments = [
             (['site_name'],
-                dict(help='Website name')),
+                dict(help='Website name', nargs='?')),
             ]
 
     @expose(hide=True)
@@ -38,6 +38,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Enable site example.com")
     def enable(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         Log.info(self, "Enable domain {0:10} \t".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -58,6 +63,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Disable site example.com")
     def disable(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         Log.info(self, "Disable domain {0:10} \t".format(ee_domain), end='')
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -81,6 +91,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Get example.com information")
     def info(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_db_user = ''
@@ -135,6 +150,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Edit Nginx configuration of example.com")
     def edit(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
@@ -151,6 +171,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Display Nginx configuration of example.com")
     def show(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         # TODO Write code for ee site edit command here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -167,7 +192,11 @@ class EESiteController(CementBaseController):
 
     @expose(help="Change directory to site webroot")
     def cd(self):
-
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
@@ -189,7 +218,8 @@ class EESiteCreateController(CementBaseController):
                        'required files as options are provided')
         arguments = [
             (['site_name'],
-                dict(help='domain name for the site to be created.')),
+                dict(help='domain name for the site to be created.',
+                     nargs='?')),
             (['--html'],
                 dict(help="create html site", action='store_true')),
             (['--php'],
@@ -220,6 +250,18 @@ class EESiteCreateController(CementBaseController):
     def default(self):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
+        if not (self.app.pargs.html or self.app.pargs.php or
+                self.app.pargs.mysql or self.app.pargs.wp or
+                self.app.pargs.w3tc or self.app.pargs.wpfc or
+                self.app.pargs.wpsc or self.app.pargs.wpsubdir or
+                self.app.pargs.wpsubdomain):
+            self.app.pargs.html = True
+
         data = ''
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -494,7 +536,8 @@ class EESiteUpdateController(CementBaseController):
                        'another as per the options are provided')
         arguments = [
             (['site_name'],
-                dict(help='domain name for the site to be updated')),
+                dict(help='domain name for the site to be updated',
+                     nargs='?')),
             (['--password'],
                 dict(help="update to password for wordpress site user",
                      action='store_true')),
@@ -521,6 +564,11 @@ class EESiteUpdateController(CementBaseController):
 
     @expose(help="Update site type or cache")
     def default(self):
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         data = ''
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
@@ -886,6 +934,10 @@ class EESiteUpdateController(CementBaseController):
                                   'DB_PASSWORD')
                                   .split(',')[1]
                                   .split(')')[0].strip())
+            data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
+                                  'DB_HOST')
+                                  .split(',')[1]
+                                  .split(')')[0].strip())
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
@@ -943,7 +995,7 @@ class EESiteDeleteController(CementBaseController):
         description = 'delete an existing website'
         arguments = [
             (['site_name'],
-                dict(help='domain name to be deleted')),
+                dict(help='domain name to be deleted', nargs='?')),
             (['--no-prompt'],
                 dict(help="doesnt ask permission for delete",
                      action='store_true')),
@@ -958,12 +1010,15 @@ class EESiteDeleteController(CementBaseController):
     @expose(help="Delete website configuration and files")
     @expose(hide=True)
     def default(self):
-        # TODO Write code for ee site update here
+        if not self.app.pargs.site_name:
+            try:
+                self.app.pargs.site_name = input('Enter site name : ')
+            except IOError as e:
+                Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_prompt = ''
         ee_nginx_prompt = ''
-
         if ((not self.app.pargs.db) and (not self.app.pargs.files) and
            (not self.app.pargs.all)):
             self.app.pargs.all = True

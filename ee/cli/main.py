@@ -13,7 +13,10 @@ else:
 from cement.core import foundation
 from cement.utils.misc import init_defaults
 from cement.core.exc import FrameworkError, CaughtSignal
+from cement.utils import fs
+from cement.ext.ext_mustache import MustacheOutputHandler
 from ee.core import exc
+
 
 # Application default.  Should update config/ee.conf to reflect any
 # changes, or additions here.
@@ -27,6 +30,23 @@ defaults['ee']['plugin_dir'] = '/var/lib/ee/plugins'
 
 # External templates (generally, do not ship with application code)
 defaults['ee']['template_dir'] = '/var/lib/ee/templates'
+
+
+# Based on https://github.com/datafolklabs/cement/issues/295
+# To avoid encoding releated error,we defined our custom output handler
+# I hope we will remove this when we upgarde to Cement 2.6 (Not released yet)
+class EEOutputHandler(MustacheOutputHandler):
+    class Meta:
+        label = 'ee_output_handler'
+
+    def _load_template_from_file(self, path):
+        for templ_dir in self.app._meta.template_dirs:
+            full_path = fs.abspath(os.path.join(templ_dir, path))
+            if os.path.exists(full_path):
+                self.app.log.debug('loading template file %s' % full_path)
+                return open(full_path, encoding='utf-8', mode='r').read()
+            else:
+                continue
 
 
 class EEApp(foundation.CementApp):
@@ -50,7 +70,7 @@ class EEApp(foundation.CementApp):
         extensions = ['mustache']
 
         # default output handler
-        output_handler = 'mustache'
+        output_handler = EEOutputHandler
 
         debug = TOGGLE_DEBUG
 

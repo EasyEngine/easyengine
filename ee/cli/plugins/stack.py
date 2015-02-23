@@ -442,6 +442,7 @@ class EEStackController(CementBaseController):
                 config = configparser.ConfigParser()
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
+                config['debug']['rlimit_core'] = 'unlimited'
                 with open('/etc/php5/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
@@ -1128,8 +1129,9 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-               (not self.app.pargs.mailscanner)):
+               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
+                self.app.pargs.admin = True
 
             if self.app.pargs.all:
                 self.app.pargs.web = True
@@ -1250,7 +1252,7 @@ class EEStackController(CementBaseController):
                     else:
                         Log.error(self, "Failed to find installed Dovecot")
                 else:
-                    Log.error(self, "Mail scanner allready installed")
+                    Log.error(self, "Mail scanner already installed")
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
@@ -1335,8 +1337,9 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
+            self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
@@ -1429,8 +1432,9 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
+            self.app.pargs.admin = True
 
         if self.app.pargs.all:
             self.app.pargs.web = True
