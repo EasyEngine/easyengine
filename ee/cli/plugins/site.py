@@ -1102,7 +1102,7 @@ class EESiteDeleteController(CementBaseController):
             try:
                 Log.debug(self, "dropping database `{0}`".format(ee_db_name))
                 EEMysql.execute(self,
-                                "drop database `{0}``".format(ee_db_name),
+                                "drop database `{0}`".format(ee_db_name),
                                 errormsg='Unable to drop database {0}'
                                 .format(ee_db_name))
                 if ee_db_user != 'root':
