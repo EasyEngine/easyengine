@@ -57,6 +57,12 @@ _ee_complete()
                               -- $cur) )
                 ;;
 
+            "log")
+                COMPREPLY=( $(compgen \
+                              -W "--mysql --php --nginx --all" \
+                              -- $cur) )
+                ;;
+
             # EVERYTHING ELSE
             *)
                 ;;

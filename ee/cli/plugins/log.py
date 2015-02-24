@@ -52,8 +52,12 @@ class EELogController(CementBaseController):
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
-                open('/var/log/mysql/mysql-slow.log', 'a').close()
-                self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                if os.path.isfile('/var/log/mysql/mysql-slow.log'):
+                    self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
+                else:
+                    Log.error(self, "Unable to find MySQL slow log file,"
+                              "Please generate it using commnad ee debug "
+                              "--mysql")
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
