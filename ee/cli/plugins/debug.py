@@ -103,7 +103,7 @@ class EEDebugController(CementBaseController):
                     self.trigger_nginx = True
 
                 else:
-                    Log.info(self, "Nginx debug for site allready enabled")
+                    Log.info(self, "Nginx debug for site already enabled")
 
                 self.msg = self.msg + ['{0}{1}/logs/error.log'
                                        .format(EEVariables.ee_webroot,
@@ -129,7 +129,7 @@ class EEDebugController(CementBaseController):
 
                 else:
 
-                    Log.info(self, "Nginx debug for site allready disabled")
+                    Log.info(self, "Nginx debug for site already disabled")
             else:
                 Log.info(self, "{0} domain not valid"
                          .format(self.app.pargs.site_name))
@@ -154,7 +154,7 @@ class EEDebugController(CementBaseController):
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
-                Log.info(self, "PHP debug is allready enabled")
+                Log.info(self, "PHP debug is already enabled")
 
             self.msg = self.msg + ['/var/log/php5/slow.log']
 
@@ -174,7 +174,7 @@ class EEDebugController(CementBaseController):
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
-                Log.info(self, "PHP debug is allready disabled")
+                Log.info(self, "PHP debug is already disabled")
 
     @expose(hide=True)
     def debug_fpm(self):
@@ -249,7 +249,7 @@ class EEDebugController(CementBaseController):
                                          "n#EasyEngine end MySQL slow log\\\";"
                                          " }} | crontab -\"".format(cron_time))
             else:
-                Log.info(self, "MySQL slow log is allready enabled")
+                Log.info(self, "MySQL slow log is already enabled")
 
             self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
 
@@ -378,7 +378,7 @@ class EEDebugController(CementBaseController):
                                      .format(config_path))
                 self.trigger_nginx = True
             else:
-                Log.info(self, "Nginx rewrite logs for {0} allready setup"
+                Log.info(self, "Nginx rewrite logs for {0} already setup"
                          .format(self.app.pargs.site_name))
 
             if ('{0}{1}/logs/error.log'.format(EEVariables.ee_webroot,
@@ -400,7 +400,7 @@ class EEDebugController(CementBaseController):
                                      .format(config_path))
                 self.trigger_nginx = True
             else:
-                Log.info(self, "Nginx rewrite logs for {0} allready "
+                Log.info(self, "Nginx rewrite logs for {0} already "
                          " disabled".format(self.app.pargs.site_name))
 
     @expose(hide=True)
@@ -414,7 +414,12 @@ class EEDebugController(CementBaseController):
         if self.app.pargs.fpm:
             self.debug_fpm()
         if self.app.pargs.mysql:
-            self.debug_mysql()
+            # MySQL debug will not work for remote MySQL
+            if EEVariables.ee_mysql_host is "localhost":
+                self.debug_mysql()
+            else:
+                Log.warn(self, "Remote MySQL found, EasyEngine will not "
+                         "enable remote debug")
         if self.app.pargs.wp:
             self.debug_wp()
         if self.app.pargs.rewrite:
@@ -445,19 +450,19 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and (not self.app.pargs.site_name)):
-            self.debug_nginx()
-            self.debug_php()
-            self.debug_fpm()
-            self.debug_mysql()
-            self.debug_rewrite()
+            self.app.pargs.nginx = True
+            self.app.pargs.php = True
+            self.app.pargs.fpm = True
+            self.app.pargs.mysql = True
+            self.app.pargs.rewrite = True
 
         if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and self.app.pargs.site_name):
-            self.debug_nginx()
-            self.debug_wp()
-            self.debug_rewrite()
+            self.app.pargs.nginx = True
+            self.app.pargs.wp = True
+            self.app.pargs.rewrite = True
 
         if self.app.pargs.nginx:
             self.debug_nginx()
@@ -466,7 +471,12 @@ class EEDebugController(CementBaseController):
         if self.app.pargs.fpm:
             self.debug_fpm()
         if self.app.pargs.mysql:
-            self.debug_mysql()
+            # MySQL debug will not work for remote MySQL
+            if EEVariables.ee_mysql_host is "localhost":
+                self.debug_mysql()
+            else:
+                Log.warn(self, "Remote MySQL found, EasyEngine will not "
+                         "enable remote debug")
         if self.app.pargs.wp:
             self.debug_wp()
         if self.app.pargs.rewrite:
