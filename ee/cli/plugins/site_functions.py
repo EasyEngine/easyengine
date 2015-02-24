@@ -184,31 +184,35 @@ def setupwordpress(self, data):
         Log.debug(self, "Generating wp-config for WordPress Single site")
         Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
                   + "core config "
-                  + "--dbname={0} --dbprefix={1} --dbuser={2} "
+                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
+                  "--dbhost=\'{3}\' "
                   .format(data['ee_db_name'], ee_wp_prefix,
-                          data['ee_db_user'])
+                          data['ee_db_user'], data['ee_db_host'])
                   + "--dbpass= "
                   "--extra-php<<PHP \n {1}\nPHP\""
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
-                             + "--dbname={0} --dbprefix={1} --dbuser={2} "
+                             + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                             "--dbuser=\'{2}\' --dbhost=\'{3}\' "
                              .format(data['ee_db_name'], ee_wp_prefix,
-                                     data['ee_db_user'])
-                             + "--dbpass={0} "
+                                     data['ee_db_user'], data['ee_db_host'])
+                             + "--dbpass=\'{0}\' "
                                "--extra-php<<PHP \n {1}\nPHP\""
                                .format(data['ee_db_pass'],
                                        "\n\ndefine(\'WP_DEBUG\', false);"),
                                log=False
-                             )
+                             ) or Log.error(self,
+                                            "Unable to Generate "
+                                            "wp-config")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
         Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
                   + "core config "
-                  + "--dbname={0} --dbprefix={1} "
-                  .format(data['ee_db_name'], ee_wp_prefix)
-                  + "--dbuser={0} --dbpass= "
+                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
+                  .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
+                  + "--dbuser=\'{0}\' --dbpass= "
                   "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                   .format(data['ee_db_user'], data['ee_db_pass'],
                           "\ndefine(\'WP_ALLOW_MULTISITE\', "
@@ -218,9 +222,11 @@ def setupwordpress(self, data):
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root "
                              + "core config "
-                             + "--dbname={0} --dbprefix={1} "
-                             .format(data['ee_db_name'], ee_wp_prefix)
-                             + "--dbuser={0} --dbpass={1} "
+                             + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
+                             "--dbhost=\'{2}\' "
+                             .format(data['ee_db_name'], ee_wp_prefix,
+                                     data['ee_db_host'])
+                             + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
                                "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
                              .format(data['ee_db_user'], data['ee_db_pass'],
                                      "\ndefine(\'WP_ALLOW_MULTISITE\', "
@@ -229,7 +235,9 @@ def setupwordpress(self, data):
                                      " true);",
                                      "\n\ndefine(\'WP_DEBUG\', false);"),
                              log=False
-                             )
+                             ) or Log.error(self,
+                                            "Unable to Generate "
+                                            "wp-config")
     EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
                        os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
 
@@ -257,43 +265,61 @@ def setupwordpress(self, data):
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to input WordPress user email")
 
+    try:
+        while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
+                           ee_wp_email):
+            Log.info(self, "EMail not Valid in config, "
+                     "Please provide valid email id")
+            ee_wp_email = input("Enter your email: ")
+    except EOFError as e:
+        Log.debug(self, "{0}".format(e))
+        Log.error(self, "Unable to input WordPress user email")
+
     Log.debug(self, "Setting up WordPress tables")
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
         Log.debug(self, "php /usr/bin/wp --allow-root core install "
-                  "--url={0} --title={0} --admin_name={1} "
+                  "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
-                  + "--admin_password= --admin_email={1}"
+                  + "--admin_password= --admin_email=\'{1}\'"
                   .format(ee_wp_pass, ee_wp_email))
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core install "
-                             "--url={0} --title={0} --admin_name={1} "
+                             "--url=\'{0}\' --title=\'{0}\' "
+                             "--admin_name=\'{1}\' "
                              .format(data['www_domain'], ee_wp_user)
-                             + "--admin_password={0} --admin_email={1}"
+                             + "--admin_password=\'{0}\' --admin_email=\'{1}\'"
                              .format(ee_wp_pass, ee_wp_email),
                              errormsg="Unable to setup WordPress Tables",
-                             log=False)
+                             log=False) or Log.error(self,
+                                                     "Unable to setup "
+                                                     "WordPress Tables")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
         Log.debug(self, "php /usr/bin/wp --allow-root "
                   "core multisite-install "
-                  "--url={0} --title={0} --admin_name={1} "
+                  "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
-                  + "--admin_password= --admin_email={1} "
+                  + "--admin_password= --admin_email=\'{1}\' "
                   "{subdomains}"
                   .format(ee_wp_pass, ee_wp_email,
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
                              "core multisite-install "
-                             "--url={0} --title={0} --admin_name={1} "
+                             "--url=\'{0}\' --title=\'{0}\' "
+                             "--admin_name=\'{1}\' "
                              .format(data['www_domain'], ee_wp_user)
-                             + "--admin_password={0} --admin_email={1} "
+                             + "--admin_password=\'{0}\' "
+                             "--admin_email=\'{1}\' "
                              "{subdomains}"
                              .format(ee_wp_pass, ee_wp_email,
                                      subdomains='--subdomains'
                                      if not data['wpsubdir'] else ''),
-                             errormsg="Unable to setup WordPress Tables")
+                             errormsg="Unable to setup WordPress Tables",
+                             log=False) or Log.error(self,
+                                                     "Unable to setup "
+                                                     "WordPress Tables")
 
     Log.debug(self, "Updating WordPress permalink")
     EEShellExec.cmd_exec(self, " php /usr/bin/wp --allow-root "
@@ -323,7 +349,7 @@ def setupwordpressnetwork(self, data):
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     Log.info(self, "Setting up WordPress Network \t", end='')
     EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
-                         ' --title={0} {subdomains}'
+                         ' --title=\'{0}\' {subdomains}'
                          .format(data['www_domain'], subdomains='--subdomains'
                                  if not data['wpsubdir'] else ''))
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
