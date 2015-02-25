@@ -12,6 +12,7 @@ import os
 import configparser
 import glob
 import signal
+import subprocess
 
 
 def debug_plugin_hook(app):
@@ -160,7 +161,7 @@ class EEDebugController(CementBaseController):
 
         # PHP global debug stop
         else:
-            if EEShellExec.cmd_exec(self, "sed -n \"/upstream php {/,/}/p\" "
+            if EEShellExec.cmd_exec(self, " sed -n \"/upstream php {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9001"):
                 Log.info(self, "Disabling PHP debug")
@@ -241,13 +242,16 @@ class EEDebugController(CementBaseController):
                         cron_time = int(self.app.pargs.interval)
                     except Exception as e:
                         cron_time = 5
-                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l 2> "
-                                         "/dev/null | {{ cat; echo -e"
-                                         " \\\"#EasyEngine start MySQL slow"
-                                         " log \\n*/{0} * * * * "
-                                         "/usr/local/sbin/ee import-slow-log\\"
-                                         "n#EasyEngine end MySQL slow log\\\";"
-                                         " }} | crontab -\"".format(cron_time))
+
+                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
+                                         "2> /dev/null | {{ cat; echo -e"
+                                         " \\\"#EasyEngine start MySQL "
+                                         "slow log \\n*/{0} * * * * "
+                                         "/usr/local/bin/ee "
+                                         "import-slow-log\\n"
+                                         "#EasyEngine end MySQL slow log"
+                                         "\\\"; }} | crontab -\""
+                                         .format(cron_time))
             else:
                 Log.info(self, "MySQL slow log is already enabled")
 
@@ -296,7 +300,8 @@ class EEDebugController(CementBaseController):
                                          " {0}".format(wp_config))
                     EEShellExec.cmd_exec(self, "cd {0}/htdocs/ && wp"
                                          " plugin --allow-root install "
-                                         "developer".format(webroot))
+                                         "developer query-monitor"
+                                         .format(webroot))
                     EEShellExec.cmd_exec(self, "chown -R {1}: {0}/htdocs/"
                                          "wp-content/plugins"
                                          .format(webroot,

@@ -1308,7 +1308,7 @@ class EEStackController(CementBaseController):
             self.pre_pref(apt_packages)
             if len(apt_packages):
                 EESwap.add(self)
-                Log.debug(self, "Updating apt-cache")
+                Log.info(self, "Updating apt-cache")
                 EEAptGet.update(self)
                 EEAptGet.install(self, apt_packages)
             if len(packages):
