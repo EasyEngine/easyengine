@@ -1,3 +1,10 @@
+v 3.0.4 - Feb 25,2015
+- Fixed #406, install Wp Query Monitor on wp debug option
+- Fixed #429, added `log` command
+- Fixed #442
+- Fixed bug in delete command for site
+- Small bug fixes and improvements  
+
 v 3.0.3 - Feb 23,2015
 - Fixed remote MySQL supports, #428, #427, thanks to @joshlyford #432
 - Fixed ascii encoding issue #414
