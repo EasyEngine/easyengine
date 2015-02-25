@@ -5,7 +5,7 @@
 # to update current EasyEngine from 2.x to 3.x
 
 old_ee_version="2.2.3"
-new_ee_version="3.0.3"
+new_ee_version="3.0.4"
 branch=$1
 
 # Define echo function
