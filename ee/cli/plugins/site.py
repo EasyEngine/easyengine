@@ -513,7 +513,7 @@ class EESiteCreateController(CementBaseController):
         setwebrootpermissions(self, data['webroot'])
         if ee_auth and len(ee_auth):
             for msg in ee_auth:
-                Log.info(self, Log.ENDC + msg)
+                Log.info(self, Log.ENDC + msg, log=False)
 
         if data['wp']:
             Log.info(self, Log.ENDC + "WordPress admin user :"
