@@ -513,7 +513,7 @@ class EESiteCreateController(CementBaseController):
         setwebrootpermissions(self, data['webroot'])
         if ee_auth and len(ee_auth):
             for msg in ee_auth:
-                Log.info(self, Log.ENDC + msg)
+                Log.info(self, Log.ENDC + msg, log=False)
 
         if data['wp']:
             Log.info(self, Log.ENDC + "WordPress admin user :"
@@ -976,12 +976,12 @@ class EESiteUpdateController(CementBaseController):
             for msg in ee_auth:
                 Log.info(self, Log.ENDC + msg)
 
+        display_cache_settings(self, data)
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
             Log.info(self, "\n\n" + Log.ENDC + "WordPress admin user :"
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                      .format(ee_wp_creds['wp_pass']) + "\n\n")
-        display_cache_settings(self, data)
         updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
@@ -1100,15 +1100,15 @@ class EESiteDeleteController(CementBaseController):
                               'DB_HOST').split(',')[1]
                               .split(')')[0].strip().replace('\'', ''))
             try:
-                Log.debug(self, "dropping database {0}".format(ee_db_name))
+                Log.debug(self, "dropping database `{0}`".format(ee_db_name))
                 EEMysql.execute(self,
-                                "drop database {0}".format(ee_db_name),
+                                "drop database `{0}`".format(ee_db_name),
                                 errormsg='Unable to drop database {0}'
                                 .format(ee_db_name))
                 if ee_db_user != 'root':
-                    Log.debug(self, "dropping user {0}".format(ee_db_user))
+                    Log.debug(self, "dropping user `{0}`".format(ee_db_user))
                     EEMysql.execute(self,
-                                    "drop user {0}@{1}"
+                                    "drop user `{0}`@`{1}`"
                                     .format(ee_db_user, ee_db_host))
                     EEMysql.execute(self,
                                     "flush privileges")
