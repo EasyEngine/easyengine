@@ -86,7 +86,7 @@ class EEStackController(CementBaseController):
                                  " $(hostname -f)\" | debconf-set-selections")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for MySQL")
+            Log.info(self, "Adding repository for MySQL, please wait ...")
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
@@ -125,7 +125,7 @@ class EEStackController(CementBaseController):
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for Nginx")
+            Log.info(self, "Adding repository for NGINX, please wait ...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
@@ -134,7 +134,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, 'Adding ppa of Nginx')
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP")
+            Log.info(self, "Adding repository for PHP, please wait ...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding repo_url of php for debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
@@ -146,7 +146,8 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
-                Log.info(self, "Adding repository for dovecot ")
+                Log.info(self, "Adding repository for dovecot, "
+                         "please wait ...")
                 EERepo.add(self, repo_url=EEVariables.ee_dovecot_repo)
             Log.debug(self, 'Executing the command debconf-set-selections.')
             EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
@@ -1308,8 +1309,9 @@ class EEStackController(CementBaseController):
             self.pre_pref(apt_packages)
             if len(apt_packages):
                 EESwap.add(self)
-                Log.info(self, "Updating apt-cache")
+                Log.info(self, "Updating apt-cache, please wait ...")
                 EEAptGet.update(self)
+                Log.info(self, "Installing packages, please wait ...")
                 EEAptGet.install(self, apt_packages)
             if len(packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
@@ -1412,6 +1414,7 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             Log.debug(self, "Removing apt_packages")
+            Log.info(self, "Uninstalling packages, please wait ...")
             EEAptGet.remove(self, apt_packages)
             EEAptGet.auto_remove(self)
         if len(packages):
@@ -1507,6 +1510,7 @@ class EEStackController(CementBaseController):
                                    ]
 
         if len(apt_packages):
+            Log.info(self, "Uninstalling packages, please wait ...")
             EEAptGet.remove(self, apt_packages, purge=True)
             EEAptGet.auto_remove(self)
         if len(packages):
