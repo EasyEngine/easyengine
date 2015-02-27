@@ -18,7 +18,7 @@ def ValidateDomain(url):
     final_domain = ''
     if www_domain_name[0] == 'www':
         final_domain = '.'.join(www_domain_name[1:])
-        return final_domain
     else:
         final_domain = domain_name
-        return (final_domain, domain_name)
+
+    return (final_domain, domain_name)
