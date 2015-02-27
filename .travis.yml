@@ -88,6 +88,11 @@ script:
   - sudo ee site update site9.com --wpsubdomain --w3tc
   - sudo ee site update site9.com --wpsubdomain --wpsc
 
+  - sudo ee site create www.site-1.com --wp
+  - sudo ee site create www.subsite.site-1.com --wpfc
+  - sudo ee site update www.subsite.site-1.com --wp
+  - sudo ee site delete www.subsite.site-1.com --all --no-prompt
+
   - sudo ee site delete site12.in --all --no-prompt
   - sudo ee site delete site12.net --no-prompt
   - sudo ee site delete site12.org --no-prompt
