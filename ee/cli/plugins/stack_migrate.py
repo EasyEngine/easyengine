@@ -73,6 +73,7 @@ class EEStackMigrateController(CementBaseController):
         EEAptGet.update(self)
         Log.info(self, "Installing MariaDB, please wait ...")
         EEAptGet.install(self, apt_packages)
+        EEAptGet.auto_remove(self)
 
     @expose(hide=True)
     def default(self):
