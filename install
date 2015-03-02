@@ -46,7 +46,7 @@ if [ ! -x /usr/bin/lsb_release ]; then
 fi
 
 # Define variables for later use
-readonly ee_branch=$1
+ee_branch=$1
 readonly ee_version_old="2.2.3"
 readonly ee_version_new="3.0.4"
 readonly ee_log_dir=/var/log/ee/
@@ -98,7 +98,7 @@ function ee_install_dep()
     locale-gen en &>> /dev/null
 }
 
-# Sqlite query to create table `sites` into ee.db 
+# Sqlite query to create table `sites` into ee.db
 # which will be used by EasyEngine 3.x
 function ee_sync_db()
 {
@@ -291,7 +291,7 @@ function ee_git_init()
 
 }
 
-# Update EasyEngine 
+# Update EasyEngine
 if [ -f /usr/local/sbin/easyengine ]; then
     # Check old EasyEngine version
     ee version | grep ${ee_version_old} &>> /dev/null
