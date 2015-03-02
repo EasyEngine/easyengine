@@ -90,25 +90,25 @@ class EEStackController(CementBaseController):
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
-            EERepo.add_key(self, '1C4CBDCDCD2EFD2A',
+            EERepo.add_key(self, '0xcbcb082a1bb943db',
                            keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"percona-server-server-5.6 "
-                      "percona-server-server/root_password "
+            Log.debug(self, "echo \"mariadb-server-10.0 "
+                      "mysql-server/root_password "
                       "password \" | "
                       "debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
-                                 "percona-server-server/root_password "
+            EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                                 "mysql-server/root_password "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars),
                                  log=False)
-            Log.debug(self, "echo \"percona-server-server-5.6 "
-                      "percona-server-server/root_password_again "
+            Log.debug(self, "echo \"mariadb-server-10.0 "
+                      "mysql-server/root_password_again "
                       "password \" | "
                       "debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"percona-server-server-5.6 "
-                                 "percona-server-server/root_password_again "
+            EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                                 "mysql-server/root_password_again "
                                  "password {chars}\" | "
                                  "debconf-set-selections".format(chars=chars),
                                  log=False)
