@@ -522,7 +522,7 @@ class EESiteCreateController(CementBaseController):
                      .format(ee_wp_creds['wp_pass']), log=False)
 
         display_cache_settings(self, data)
-        addNewSite(self, ee_www_domain, stype, cache, ee_site_webroot)
+        addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
                  " http://{0}".format(ee_domain))
 
@@ -1071,6 +1071,8 @@ class EESiteDeleteController(CementBaseController):
 
                 if (ee_nginx_prompt == 'Y' or ee_nginx_prompt == 'y'):
                     Log.debug(self, "Removing Nginx configuration")
+                    EEFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
+                                   .format(ee_domain))
                     EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                                    .format(ee_domain))
                     EEGit.add(self, ["/etc/nginx"],
