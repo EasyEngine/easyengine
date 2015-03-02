@@ -982,7 +982,7 @@ class EESiteUpdateController(CementBaseController):
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                      .format(ee_wp_creds['wp_pass']) + "\n\n")
-        updateSiteInfo(self, ee_www_domain, stype=stype, cache=cache)
+        updateSiteInfo(self, ee_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
 
