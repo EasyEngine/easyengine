@@ -54,15 +54,15 @@ except Exception as e:
     os.system("git config --global user.email {0}".format(ee_email))
 
 setup(name='ee',
-      version='3.0.4',
+      version='3.0.5',
       description=long_description,
       long_description=long_description,
       classifiers=[],
       keywords='',
       author='rtCamp Soultions Pvt. LTD',
-      author_email='sys@rtcamp.com',
+      author_email='ee@rtcamp.com',
       url='http://rtcamp.com/easyengine',
-      license='GPL',
+      license='MIT',
       packages=find_packages(exclude=['ez_setup', 'examples', 'tests',
                                       'templates']),
       include_package_data=True,
