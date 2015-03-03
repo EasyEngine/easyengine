@@ -47,7 +47,9 @@ class EEAptGet():
         global apt_get
         apt_get = apt_get.bake("-y")
         try:
-            for line in apt_get.install(*packages, _iter=True):
+            for line in apt_get.install("-o",
+                                        "Dpkg::Options::=--force-confold",
+                                        *packages, _iter=True):
                 Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
         except ErrorReturnCode as e:
             Log.debug(self, "{0}".format(e))

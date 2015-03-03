@@ -93,11 +93,11 @@ class EEMysql():
                 # Allow p1 to receive a SIGPIPE if p2 exits
                 p1.stdout.close()
                 output = p1.stderr.read()
-
-                if output == b'':
+                p1.wait()
+                if p1.returncode == 0:
                     Log.debug(self, "done")
                 else:
-                    Log.error(self, output)
+                    Log.error(self, output.decode("utf-8"))
         except Exception as e:
             Log.error(self, "Error: process exited with status %s"
                             % e)
