@@ -35,7 +35,7 @@ _ee_complete()
 
             "stack")
                 COMPREPLY=( $(compgen \
-                              -W "install purge reload remove restart start status stop" \
+                              -W "install purge reload remove restart start status stop migrate" \
                               -- $cur) )
                 ;;
 
@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot" \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -82,7 +82,11 @@ _ee_complete()
                               -W "--nginx --php --mysql --postfix --memcache --dovecot" \
                               -- $cur) )
                 ;;
-
+            "migrate")
+                COMPREPLY=( $(compgen \
+                              -W "--mariadb" \
+                              -- $cur) )
+                ;;
             "list")
                 COMPREPLY=( $(compgen \
                               -W "--enabled --disabled" \
