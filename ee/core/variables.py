@@ -83,8 +83,8 @@ class EEVariables():
                        .format(codename=ee_platform_codename))
     ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
               "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
-              "php5-mysql", "php5-cli", "php5-memcache", "memcached",
-              "graphviz"]
+              "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+              "memcached", "graphviz"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'Ubuntu':
