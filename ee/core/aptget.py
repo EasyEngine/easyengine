@@ -65,7 +65,7 @@ class EEAptGet():
                     Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
         except ErrorReturnCode as e:
             Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to run apt-get install")
+            Log.error(self, "Unable to remove packages")
 
     def auto_clean(self):
         """
