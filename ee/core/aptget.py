@@ -14,24 +14,14 @@ class EEAptGet():
         """
         Similar to `apt-get upgrade`
         """
+        global apt_get
+        apt_get = apt_get.bake("-y")
         try:
-            apt_cache = apt.cache.Cache()
-            import sys
-            orig_out = sys.stdout
-            sys.stdout = open(self.app.config.get('log.logging', 'file'),
-                              encoding='utf-8', mode='a')
-            apt_cache.update(apt.progress.text.AcquireProgress())
-            sys.stdout = orig_out
-            # success = (apt_cache.commit(
-            #            apt.progress.text.AcquireProgress(),
-            #            apt.progress.base.InstallProgress()))
-            # #apt_cache.close()
-            # return success
-        except AttributeError as e:
-            Log.error(self, 'AttributeError: ' + str(e))
-        except Exception as e:
-            Log.debug(self, 'SystemError:  ' + str(e))
-            Log.error(self, 'Unable to Fetch update')
+            for line in apt_get.update(_iter=True):
+                Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
+        except ErrorReturnCode as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to run apt-get update")
 
     def dist_upgrade():
         """
@@ -54,112 +44,28 @@ class EEAptGet():
             Log.error(self, 'Unable to Fetch update')
 
     def install(self, packages):
-        """
-        Similar to `apt-get install`
-        """
-        apt_pkg.init()
-        # #apt_pkg.PkgSystemLock()
-        global apt_cache
-        apt_cache = apt.cache.Cache()
-
-        def install_package(self, package_name):
-            pkg = apt_cache[package_name.strip()]
-            if package_name.strip() in apt_cache:
-                if pkg.is_installed:
-                    # apt_pkg.PkgSystemUnLock()
-                    Log.debug(self, 'Trying to install a package that '
-                              'is already installed (' +
-                              package_name.strip() + ')')
-                    # apt_cache.close()
-                    return False
-                else:
-                    try:
-                        # print(pkg.name)
-                        pkg.mark_install()
-                    except Exception as e:
-                        Log.debug(self, str(e))
-                        Log.error(self, str(e))
-            else:
-                # apt_cache.close()
-                Log.error(self, 'Unknown package selected (' +
-                          package_name.strip() + ')')
-
-        for package in packages:
-            if not install_package(self, package):
-                continue
-
-        if apt_cache.install_count > 0:
-            try:
-                # apt_pkg.PkgSystemUnLock()
-                orig_out = sys.stdout
-                sys.stdout = open(self.app.config.get('log.logging', 'file'),
-                                  encoding='utf-8', mode='a')
-                result = apt_cache.commit(apt.progress.text.AcquireProgress(),
-                                          apt.progress.base.InstallProgress())
-                sys.stdout = orig_out
-                # apt_cache.close()
-                return result
-            except SystemError as e:
-                Log.debug(self, 'SystemError: ' + str(e))
-                Log.error(self, 'SystemError: ' + str(e))
-                # apt_cache.close()
-            except Exception as e:
-                Log.debug(self, str(e))
-                Log.error(self, str(e))
+        global apt_get
+        apt_get = apt_get.bake("-y")
+        try:
+            for line in apt_get.install(*packages, _iter=True):
+                Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
+        except ErrorReturnCode as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to run apt-get install")
 
     def remove(self, packages, auto=False, purge=False):
-        """
-            Similar to `apt-get remove/purge`
-            purge packages if purge=True
-        """
-        apt_pkg.init()
-        # apt_pkg.PkgSystemLock()
-        global apt_cache
-        apt_cache = apt.cache.Cache()
-
-        def remove_package(self, package_name, purge=False):
-            pkg = apt_cache[package_name.strip()]
-            if package_name.strip() in apt_cache:
-                if not pkg.is_installed:
-                    # apt_pkg.PkgSystemUnLock()
-                    Log.debug(self, 'Trying to uninstall a package '
-                              'that is not installed (' +
-                              package_name.strip() + ')')
-                    return False
-                else:
-                    try:
-                        # print(pkg.name)
-                        pkg.mark_delete(purge)
-                    except SystemError as e:
-                        Log.debug(self, 'SystemError: ' + str(e))
-                        return False
+        global apt_get
+        apt_get = apt_get.bake("-y")
+        try:
+            if purge == "True":
+                for line in apt_get.purge(*packages, _iter=True):
+                    Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
             else:
-                # apt_cache.close()
-                Log.error(self, 'Unknown package selected (' +
-                          package_name.strip() + ')')
-
-        for package in packages:
-            if not remove_package(self, package, purge=purge):
-                continue
-
-        if apt_cache.delete_count > 0:
-            try:
-                # apt_pkg.PkgSystemUnLock()
-                orig_out = sys.stdout
-                sys.stdout = open(self.app.config.get('log.logging', 'file'),
-                                  encoding='utf-8', mode='a')
-                result = apt_cache.commit(apt.progress.text.AcquireProgress(),
-                                          apt.progress.base.InstallProgress())
-                sys.stdout = orig_out
-                # apt_cache.close()
-                return result
-            except SystemError as e:
-                Log.debug(self, 'SystemError: ' + str(e))
-                return False
-            except Exception as e:
-                Log.debug(self, str(e))
-                Log.error(self, str(e))
-                # apt_cache.close()
+                for line in apt_get.remove(*packages, _iter=True):
+                    Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
+        except ErrorReturnCode as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, "Unable to run apt-get install")
 
     def auto_clean(self):
         """
