@@ -59,7 +59,7 @@ class EEAptGet():
         global apt_get
         apt_get = apt_get.bake("-y")
         try:
-            if purge == "True":
+            if purge:
                 for line in apt_get.purge(*packages, _iter=True):
                     Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
             else:

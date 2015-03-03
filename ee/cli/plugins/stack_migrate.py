@@ -31,6 +31,13 @@ class EEStackMigrateController(CementBaseController):
 
         # Add MariaDB repo
         Log.info(self, "Adding repository for MariaDB, please wait ...")
+
+        mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
+                      "\nPin-Priority: 1000\n")
+        with open('/etc/apt/preferences.d/'
+                  'MariaDB.pref', 'w') as mysql_pref_file:
+            mysql_pref_file.write(mysql_pref)
+
         EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
         Log.debug(self, 'Adding key for {0}'
                   .format(EEVariables.ee_mysql_repo))
@@ -72,6 +79,7 @@ class EEStackMigrateController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait ...")
         EEAptGet.update(self)
         Log.info(self, "Installing MariaDB, please wait ...")
+        EEAptGet.remove(self, ["libmysqlclient18"])
         EEAptGet.install(self, apt_packages)
         EEAptGet.auto_remove(self)
 
