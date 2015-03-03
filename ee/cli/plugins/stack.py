@@ -88,6 +88,11 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for MySQL, please wait ...")
+            mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
+                          "\nPin-Priority: 1000\n")
+            with open('/etc/apt/preferences.d/'
+                      'MariaDB.pref', 'w') as mysql_pref_file:
+                mysql_pref_file.write(mysql_pref)
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                       .format(EEVariables.ee_mysql_repo))
