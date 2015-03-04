@@ -79,7 +79,7 @@ class EEStackMigrateController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait ...")
         EEAptGet.update(self)
         Log.info(self, "Installing MariaDB, please wait ...")
-        EEAptGet.remove(self, ["mysql-common"])
+        EEAptGet.remove(self, ["mysql-common", "libmysqlclient18"])
         EEAptGet.auto_remove(self)
         EEAptGet.install(self, apt_packages)
 
