@@ -75,7 +75,7 @@ class EEStackMigrateController(CementBaseController):
                                    log=False)
 
         # Install MariaDB
-        apt_packages = EEVariables.ee_mysql
+        apt_packages = EEVariables.ee_mysql + ["php5-mysql"]
         Log.info(self, "Updating apt-cache, please wait ...")
         EEAptGet.update(self)
         Log.info(self, "Installing MariaDB, please wait ...")
