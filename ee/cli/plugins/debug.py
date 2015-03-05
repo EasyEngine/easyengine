@@ -16,33 +16,23 @@ import subprocess
 
 usage = """
 Usage: ee debug {<sitename>} {arguments}
-arguments :
---all [{on,off}]      start/stop debugging all server parameters.
---nginx [{on,off}]    start/stop debugging nginx server configuration for site
---rewrite [{on,off}]  start/stop debugging nginx rewrite rules for site
---php [{on,off}]      start/stop debugging server php configuration
---fpm [{on,off}]      start/stop debugging fastcgi configuration
---mysql [{on,off}]    start/stop debugging mysql server
---wp [{on,off}]       start/stop wordpress debugging
 
+arguments usage:
+--all --all=on          start debugging all server parameters.
+--all=off               stop debugging all server parameters
+--nginx --nginx=on      start debugging nginx server configuration for site
+--nginx=off             stop debugging nginx server configuration for site
+--rewrite --rewrite=on  start debugging nginx rewrite rules for site
+--rewrite=off           stop debugging nginx rewrite rules for site
+--php --php=on          start debugging server php configuration
+--php=off               stop debugging server php configuration
+--fpm --fpm=on          start debugging fastcgi configuration
+--fpm=off               stop debugging fastcgi configuration
+--mysql --mysql=on      start debugging mysql server
+--mysql=off             stop debugging mysql server
+--wp --wp=on            start wordpress debugging
+--wp=off                stop wordpress debugging
 
-Usage example:
-# This is global option will affect all sites
-# start debugging all server parameters
-
-ee debug --all / --all=on
-# stop debugging for all server parameters
-
-ee debug --all=off
-
-#This is site specific option will affect specific site mentioned
-# start debugging all server parameters for example.com
-
-ee debug example.com --all / --all=on
-
-# stop debugging for all server parameters available for example.com
-
-ee debug example.com --all=off
 """
 
 
@@ -506,7 +496,7 @@ class EEDebugController(CementBaseController):
                 print("--start/stop option is deprecated in ee3.0.5", usage)
             else:
                 print(usage)
-                
+
         if self.app.pargs.all == 'on':
             if self.app.pargs.site_name:
                 self.app.pargs.wp = 'on'
