@@ -64,10 +64,10 @@ script:
   - sudo ee site create site12.in --wpfc --wpsubdomain
   - sudo ee site create site12.net --wpfc --wpsubdomain
 
-  - sudo ee debug
-  - sudo ee debug --stop
+  - sudo ee debug --all
+  - sudo ee debug --all=off
   - sudo ee debug site12.net
-  - sudo ee debug site12.net --stop
+  - sudo ee debug site12.net --all=off
   - sudo ee site create 1.com --html
   - sudo ee site create 2.com --php
   - sudo ee site create 3.com --mysql
