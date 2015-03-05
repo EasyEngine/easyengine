@@ -14,6 +14,37 @@ import glob
 import signal
 import subprocess
 
+usage = """
+Usage: ee debug {<sitename>} {arguments}
+arguments :
+--all [{on,off}]      start/stop debugging all server parameters.
+--nginx [{on,off}]    start/stop debugging nginx server configuration for site
+--rewrite [{on,off}]  start/stop debugging nginx rewrite rules for site
+--php [{on,off}]      start/stop debugging server php configuration
+--fpm [{on,off}]      start/stop debugging fastcgi configuration
+--mysql [{on,off}]    start/stop debugging mysql server
+--wp [{on,off}]       start/stop wordpress debugging
+
+
+Usage example:
+# This is global option will affect all sites
+# start debugging all server parameters
+
+ee debug --all / --all=on
+# stop debugging for all server parameters
+
+ee debug --all=off
+
+#This is site specific option will affect specific site mentioned
+# start debugging all server parameters for example.com
+
+ee debug example.com --all / --all=on
+
+# stop debugging for all server parameters available for example.com
+
+ee debug example.com --all=off
+"""
+
 
 def debug_plugin_hook(app):
     # do something with the ``app`` object here.
@@ -27,10 +58,10 @@ class EEDebugController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         arguments = [
-            # (['--stop'],
-            #     dict(help='Stop debug', action='store_true')),
-            # (['--start'],
-            #     dict(help='Start debug', action='store_true')),
+            (['--stop'],
+                dict(help='Stop debug', action='store_true')),
+            (['--start'],
+                dict(help='Start debug', action='store_true')),
             (['--nginx'],
                 dict(help='start/stop debugging nginx server '
                      'configuration for site',
@@ -466,45 +497,16 @@ class EEDebugController(CementBaseController):
         self.trigger_nginx = False
         self.trigger_php = False
 
-        # if self.app.pargs.stop:
-        #     self.start = False
-
         if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)):
-            print("""
-Usage: ee debug {<sitename>} {arguments}
-arguments :
---all [{on,off}]      start/stop debugging all server parameters.
---nginx [{on,off}]    start/stop debugging nginx server configuration for site
---rewrite [{on,off}]  start/stop debugging nginx rewrite rules for site
---php [{on,off}]      start/stop debugging server php configuration
---fpm [{on,off}]      start/stop debugging fastcgi configuration
---mysql [{on,off}]    start/stop debugging mysql server
---wp [{on,off}]       start/stop wordpress debugging
-
-
-Usage example:
-# This is global option will affect all sites
-# start debugging all server parameters
-
-ee debug --all / --all=on
-# stop debugging for all server parameters
-
-ee debug --all=off
-
-#This is site specific option will affect specific site mentioned
-# start debugging all server parameters for example.com
-
-ee debug example.com --all / --all=on
-
-# stop debugging for all server parameters available for example.com
-
-ee debug example.com --all=off
-            """)
-
+            if self.app.pargs.stop or self.app.pargs.start:
+                print("--start/stop option is deprecated in ee3.0.5", usage)
+            else:
+                print(usage)
+                
         if self.app.pargs.all == 'on':
             if self.app.pargs.site_name:
                 self.app.pargs.wp = 'on'
@@ -527,24 +529,7 @@ ee debug example.com --all=off
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and self.app.pargs.site_name):
-            print("""
-usage: ee debug <sitename> {arguments}
-arguments :
---all [{on,off}]       start/stop debugging all server parameters
---nginx [{on,off}]     start/stop debugging nginx server configuration for site
---rewrite [{on,off}]   start/stop debugging nginx rewrite rules for site
---wp [{on,off}]        start/stop wordpress debugging for site
-
-Usage example:
-#This is site specific option will affect specific site mentioned
-# start debugging all server parameters for example.com
-
-ee debug example.com --all / --all=on
-
-# stop debugging for all server parameters available for example.com
-
-ee debug example.com --all=off
-            """)
+            print(usage)
             # self.app.pargs.nginx = 'on'
             # self.app.pargs.wp = 'on'
             # self.app.pargs.rewrite = 'on'
