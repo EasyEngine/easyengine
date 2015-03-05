@@ -75,6 +75,16 @@ class EEStackMigrateController(CementBaseController):
                                    log=False)
 
         # Install MariaDB
+        apt_packages = EEVariables.ee_mysql
+
+        # If PHP is installed then install php5-mysql
+        if EEAptGet.is_installed(self, "php5-fpm"):
+            apt_packages = apt_packages + ["php5-mysql"]
+
+        # If mail server is installed then install dovecot-sql and postfix-sql
+        if EEAptGet.is_installed(self, "dovecot-core"):
+            apt_packages = apt_packages + ["dovecot-mysql", "postfix-mysql"]
+
         apt_packages = EEVariables.ee_mysql + ["php5-mysql"]
         Log.info(self, "Updating apt-cache, please wait ...")
         EEAptGet.update(self)
