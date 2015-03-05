@@ -59,7 +59,7 @@ _ee_complete()
 
             "log")
                 COMPREPLY=( $(compgen \
-                              -W "--mysql --php --nginx --all" \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --mysql --php --nginx --all" \
                               -- $cur) )
                 ;;
 
@@ -116,6 +116,15 @@ _ee_complete()
                               -W "$(echo $ret)" \
                               -- $cur) )
         fi
+
+        if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
+                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+                ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+        fi
+
 
     elif [ $COMP_CWORD -eq 4 ]; then
         case "$mprev" in
