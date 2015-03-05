@@ -29,7 +29,7 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --start --nginx --php --fpm --mysql -i --interactive --stop " \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --fpm --mysql -i --interactive --all --nginx=off --php=off --fpm=off --mysql=off --all=off  " \
                               -- $cur) )
                 ;;
 
@@ -110,7 +110,7 @@ _ee_complete()
         esac
 
         if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
-                retlist="--start --stop --wp --rewrite -i"
+                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
                               -W "$(echo $ret)" \
@@ -145,9 +145,16 @@ _ee_complete()
 
     case "$prev" in
         "--wp" | "--wpsubdir" | "--wpsubdomain")
-            COMPREPLY=( $(compgen \
-                          -W "--w3tc --wpfc --wpsc" \
-                          -- $cur) )
+            if [ ${COMP_WORDS[1]} != "debug" ]; then
+                retlist="--w3tc --wpfc --wpsc"
+            else
+                retlist="--wp=off --rewrite --rewrite=off -i --interactive"
+            fi
+
+            ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
             ;;
 
         "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot")
