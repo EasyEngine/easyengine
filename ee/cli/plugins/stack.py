@@ -546,6 +546,14 @@ class EEStackController(CementBaseController):
                                      "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
+                Log.debug(self, "Writting configuration into file"
+                          "/etc/dovecot/conf.d/auth-sql.conf.ext ")
+                ee_dovecot = open('/etc/dovecot/conf.d/auth-sql.conf.ext',
+                                  encoding='utf-8', mode='w')
+                self.app.render((data), 'auth-sql-conf.mustache',
+                                out=ee_dovecot)
+                ee_dovecot.close()
+
                 data = dict(email=EEVariables.ee_email)
                 Log.debug(self, "Writting configuration into file"
                           "/etc/dovecot/conf.d/99-ee.conf ")
