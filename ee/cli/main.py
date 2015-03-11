@@ -13,7 +13,6 @@ else:
 from cement.core import foundation
 from cement.utils.misc import init_defaults
 from cement.core.exc import FrameworkError, CaughtSignal
-from cement.utils import fs
 from cement.ext.ext_argparse import ArgParseArgumentHandler
 from ee.core import exc
 from ee.cli.ext.ee_outputhandler import EEOutputHandler
