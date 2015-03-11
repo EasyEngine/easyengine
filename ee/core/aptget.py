@@ -26,13 +26,11 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.debug(self, "Command Output: {0}, Command Error: {1}"
-                                .format(cmd_stdout, cmd_stderr))
+                Log.error(self, "Unable to run apt-get update")
 
         except Exception as e:
-                    Log.error(self, "Error, while installing packages, "
-                                    "apt-get exited with status %s"
-                                    % e)
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def dist_upgrade():
         """
@@ -67,13 +65,11 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.debug(self, "Command Output: {0}, Command Error: {1}"
-                                .format(cmd_stdout, cmd_stderr))
+                Log.error(self, "Unable to run apt-get install")
 
         except Exception as e:
-                    Log.error(self, "Error, while installing packages, "
-                                    "apt-get exited with status %s"
-                                    % e)
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def remove(self, packages, auto=False, purge=False):
         all_packages = ' '.join(packages)
@@ -93,13 +89,11 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.debug(self, "Command Output: {0}, Command Error: {1}"
-                                .format(cmd_stdout, cmd_stderr))
+                Log.error(self, "Unable to run apt-get remove/purge")
 
         except Exception as e:
-                    Log.error(self, "Error, while installing packages, "
-                                    "apt-get exited with status %s"
-                                    % e)
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def auto_clean(self):
         """
