@@ -17,8 +17,8 @@ class EEAptGet():
         """
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
-                proc = subprocess.Popen('apt-get update {0}'
-                                        .format(all_packages), shell=True,
+                proc = subprocess.Popen('apt-get update',
+                                        shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")
                 proc.wait()
