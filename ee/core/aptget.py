@@ -56,7 +56,8 @@ class EEAptGet():
         all_packages = ' '.join(packages)
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
-                proc = subprocess.Popen('apt-get install -y {0}'
+                proc = subprocess.Popen("apt-get install -o Dpkg::Options::=--"
+                                        "force-confold -y {0}"
                                         .format(all_packages), shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")
