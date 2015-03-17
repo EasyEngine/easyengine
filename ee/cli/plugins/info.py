@@ -33,6 +33,7 @@ class EEInfoController(CementBaseController):
                 dict(help='Get Nginx configuration information',
                      action='store_true')),
             ]
+        usage = "ee info [options]"
 
     @expose(hide=True)
     def info_nginx(self):

@@ -43,6 +43,7 @@ class EELogController(CementBaseController):
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
             ]
+        usage = "ee log [<site_name>] [options]"
 
     @expose(hide=True)
     def default(self):

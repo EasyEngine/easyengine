@@ -69,6 +69,7 @@ class EEStackController(CementBaseController):
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
             ]
+        usage = "ee stack (command) [options]"
 
     @expose(hide=True)
     def default(self):

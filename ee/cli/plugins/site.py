@@ -31,6 +31,7 @@ class EESiteController(CementBaseController):
             (['site_name'],
                 dict(help='Website name', nargs='?')),
             ]
+        usage = "ee site (command) <site_name> [options]"
 
     @expose(hide=True)
     def default(self):
