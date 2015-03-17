@@ -6,6 +6,7 @@ from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.shellexec import EEShellExec
 from ee.core.apt_repo import EERepo
+from ee.core.services import EEService
 import configparser
 import os
 
@@ -75,13 +76,28 @@ class EEStackMigrateController(CementBaseController):
                                    log=False)
 
         # Install MariaDB
-        apt_packages = EEVariables.ee_mysql + ["php5-mysql"]
+        apt_packages = EEVariables.ee_mysql
+
+        # If PHP is installed then install php5-mysql
+        if EEAptGet.is_installed(self, "php5-fpm"):
+            apt_packages = apt_packages + ["php5-mysql"]
+
+        # If mail server is installed then install dovecot-sql and postfix-sql
+        if EEAptGet.is_installed(self, "dovecot-core"):
+            apt_packages = apt_packages + ["dovecot-mysql", "postfix-mysql",
+                                           "libclass-dbi-mysql-perl"]
+
         Log.info(self, "Updating apt-cache, please wait ...")
         EEAptGet.update(self)
         Log.info(self, "Installing MariaDB, please wait ...")
         EEAptGet.remove(self, ["mysql-common", "libmysqlclient18"])
         EEAptGet.auto_remove(self)
         EEAptGet.install(self, apt_packages)
+
+        # Restart  dovecot and postfix if installed
+        if EEAptGet.is_installed(self, "dovecot-core"):
+            EEService.restart_service(self, 'dovecot')
+            EEService.restart_service(self, 'postfix')
 
     @expose(hide=True)
     def default(self):

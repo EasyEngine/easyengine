@@ -2,6 +2,7 @@
 import apt
 import apt_pkg
 import sys
+import subprocess
 from ee.core.logging import Log
 from sh import apt_get
 from sh import ErrorReturnCode
@@ -14,14 +15,22 @@ class EEAptGet():
         """
         Similar to `apt-get upgrade`
         """
-        global apt_get
-        apt_get = apt_get.bake("-y")
         try:
-            for line in apt_get.update(_iter=True):
-                Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
-        except ErrorReturnCode as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to run apt-get update")
+            with open('/var/log/ee/ee.log', 'a') as f:
+                proc = subprocess.Popen('apt-get update',
+                                        shell=True,
+                                        stdin=None, stdout=f, stderr=f,
+                                        executable="/bin/bash")
+                proc.wait()
+
+            if proc.returncode == 0:
+                return True
+            else:
+                Log.error(self, "Unable to run apt-get update")
+
+        except Exception as e:
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def dist_upgrade():
         """
@@ -44,30 +53,48 @@ class EEAptGet():
             Log.error(self, 'Unable to Fetch update')
 
     def install(self, packages):
-        global apt_get
-        apt_get = apt_get.bake("-y")
+        all_packages = ' '.join(packages)
         try:
-            for line in apt_get.install("-o",
-                                        "Dpkg::Options::=--force-confold",
-                                        *packages, _iter=True):
-                Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
-        except ErrorReturnCode as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to run apt-get install")
+            with open('/var/log/ee/ee.log', 'a') as f:
+                proc = subprocess.Popen("apt-get install -o Dpkg::Options::=--"
+                                        "force-confold -y {0}"
+                                        .format(all_packages), shell=True,
+                                        stdin=None, stdout=f, stderr=f,
+                                        executable="/bin/bash")
+                proc.wait()
+
+            if proc.returncode == 0:
+                return True
+            else:
+                Log.error(self, "Unable to run apt-get install")
+
+        except Exception as e:
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def remove(self, packages, auto=False, purge=False):
-        global apt_get
-        apt_get = apt_get.bake("-y")
+        all_packages = ' '.join(packages)
         try:
-            if purge:
-                for line in apt_get.purge(*packages, _iter=True):
-                    Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
+            with open('/var/log/ee/ee.log', 'a') as f:
+                if purge:
+                    proc = subprocess.Popen('apt-get purge -y {0}'
+                                            .format(all_packages), shell=True,
+                                            stdin=None, stdout=f, stderr=f,
+                                            executable="/bin/bash")
+                else:
+                    proc = subprocess.Popen('apt-get remove -y {0}'
+                                            .format(all_packages), shell=True,
+                                            stdin=None, stdout=f, stderr=f,
+                                            executable="/bin/bash")
+                proc.wait()
+            if proc.returncode == 0:
+                return True
             else:
-                for line in apt_get.remove(*packages, _iter=True):
-                    Log.info(self, Log.ENDC+line+Log.OKBLUE, end=' ')
-        except ErrorReturnCode as e:
-            Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to remove packages")
+                Log.error(self, "Unable to run apt-get remove/purge")
+
+        except Exception as e:
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def auto_clean(self):
         """
