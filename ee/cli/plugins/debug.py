@@ -14,27 +14,6 @@ import glob
 import signal
 import subprocess
 
-usage = """
-Usage: ee debug {<sitename>} {arguments}
-
-arguments usage:
---all --all=on          start debugging all server parameters.
---all=off               stop debugging all server parameters
---nginx --nginx=on      start debugging nginx server configuration for site
---nginx=off             stop debugging nginx server configuration for site
---rewrite --rewrite=on  start debugging nginx rewrite rules for site
---rewrite=off           stop debugging nginx rewrite rules for site
---php --php=on          start debugging server php configuration
---php=off               stop debugging server php configuration
---fpm --fpm=on          start debugging fastcgi configuration
---fpm=off               stop debugging fastcgi configuration
---mysql --mysql=on      start debugging mysql server
---mysql=off             stop debugging mysql server
---wp --wp=on            start wordpress debugging
---wp=off                stop wordpress debugging
-
-"""
-
 
 def debug_plugin_hook(app):
     # do something with the ``app`` object here.
@@ -89,6 +68,7 @@ class EEDebugController(CementBaseController):
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
             ]
+        usage = "ee debug [<site_name>] [options] "
 
     @expose(hide=True)
     def debug_nginx(self):
@@ -493,9 +473,10 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)):
             if self.app.pargs.stop or self.app.pargs.start:
-                print("--start/stop option is deprecated in ee3.0.5", usage)
+                print("--start/stop option is deprecated in ee3.0.5")
+                self.app.args.print_help()
             else:
-                print(usage)
+                self.app.args.print_help()
 
         if self.app.pargs.all == 'on':
             if self.app.pargs.site_name:
@@ -519,7 +500,7 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and self.app.pargs.site_name):
-            print(usage)
+            self.app.args.print_help()
             # self.app.pargs.nginx = 'on'
             # self.app.pargs.wp = 'on'
             # self.app.pargs.rewrite = 'on'
