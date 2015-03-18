@@ -1,16 +1,7 @@
-IMPORTANT
-============================================
-
-#### We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team. We offer work from home, so you can join EasyEngine team anywhere! _[Why Python?] (https://rtcamp.com/blog/easyengine-3-roadmap/#whypython)_
-
----
-
-[![Stories in Ready](https://badge.waffle.io/rtcamp/easyengine.png?label=ready&title=Ready)](https://waffle.io/rtcamp/easyengine)
-[![Stories in Progress](https://badge.waffle.io/rtcamp/easyengine.png?label=in%20progress&title=In%20Progress)](https://waffle.io/rtcamp/easyengine)
-
-<img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1.png" alt="EasyEngine Logo" align="right" />
-
 [![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
+[![Join the chat at https://gitter.im/rtCamp/easyengine](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rtCamp/easyengine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+<img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1-240x184.png" alt="EasyEngine Logo" align="right" />
 
 EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress sites running on nginx web-server.
 
@@ -91,6 +82,14 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 ## Donations
 
 [![Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
+
+## Careers
+
+We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team. 
+
+We offer work from home, so you can join EasyEngine team anywhere! _[Why Python?] (https://rtcamp.com/blog/easyengine-3-roadmap/#whypython)_
+
+---
 
 ## License
 [MIT] (http://opensource.org/licenses/MIT)

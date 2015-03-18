@@ -4,6 +4,7 @@ from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.logging import Log
 from ee.core.git import EEGit
+from ee.core.services import EEService
 import string
 import random
 import sys
@@ -103,7 +104,7 @@ class EESecureController(CementBaseController):
                                  .format(port=self.app.pargs.user_input))
         EEGit.add(self, ["/etc/nginx"],
                   msg="Adding changed secure port into Git")
-
+        EEService.reload_service(self, 'nginx')
         Log.info(self, "Successfully port changed {port}"
                  .format(port=self.app.pargs.user_input))
 

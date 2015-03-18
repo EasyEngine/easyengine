@@ -29,13 +29,13 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --start --nginx --php --fpm --mysql -i --interactive --stop " \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --fpm --mysql -i --interactive --all --nginx=off --php=off --fpm=off --mysql=off --all=off  " \
                               -- $cur) )
                 ;;
 
             "stack")
                 COMPREPLY=( $(compgen \
-                              -W "install purge reload remove restart start status stop" \
+                              -W "install purge reload remove restart start status stop migrate" \
                               -- $cur) )
                 ;;
 
@@ -59,7 +59,7 @@ _ee_complete()
 
             "log")
                 COMPREPLY=( $(compgen \
-                              -W "--mysql --php --nginx --all" \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --mysql --php --nginx --all" \
                               -- $cur) )
                 ;;
 
@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot" \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -82,7 +82,11 @@ _ee_complete()
                               -W "--nginx --php --mysql --postfix --memcache --dovecot" \
                               -- $cur) )
                 ;;
-
+            "migrate")
+                COMPREPLY=( $(compgen \
+                              -W "--mariadb" \
+                              -- $cur) )
+                ;;
             "list")
                 COMPREPLY=( $(compgen \
                               -W "--enabled --disabled" \
@@ -106,12 +110,21 @@ _ee_complete()
         esac
 
         if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
-                retlist="--start --stop --wp --rewrite -i"
+                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
                               -W "$(echo $ret)" \
                               -- $cur) )
         fi
+
+        if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
+                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+                ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+        fi
+
 
     elif [ $COMP_CWORD -eq 4 ]; then
         case "$mprev" in
@@ -141,9 +154,16 @@ _ee_complete()
 
     case "$prev" in
         "--wp" | "--wpsubdir" | "--wpsubdomain")
-            COMPREPLY=( $(compgen \
-                          -W "--w3tc --wpfc --wpsc" \
-                          -- $cur) )
+            if [ ${COMP_WORDS[1]} != "debug" ]; then
+                retlist="--w3tc --wpfc --wpsc"
+            else
+                retlist="--wp=off --rewrite --rewrite=off -i --interactive"
+            fi
+
+            ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
             ;;
 
         "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot")

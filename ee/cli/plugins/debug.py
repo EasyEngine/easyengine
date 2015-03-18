@@ -14,6 +14,27 @@ import glob
 import signal
 import subprocess
 
+usage = """
+Usage: ee debug {<sitename>} {arguments}
+
+arguments usage:
+--all --all=on          start debugging all server parameters.
+--all=off               stop debugging all server parameters
+--nginx --nginx=on      start debugging nginx server configuration for site
+--nginx=off             stop debugging nginx server configuration for site
+--rewrite --rewrite=on  start debugging nginx rewrite rules for site
+--rewrite=off           stop debugging nginx rewrite rules for site
+--php --php=on          start debugging server php configuration
+--php=off               stop debugging server php configuration
+--fpm --fpm=on          start debugging fastcgi configuration
+--fpm=off               stop debugging fastcgi configuration
+--mysql --mysql=on      start debugging mysql server
+--mysql=off             stop debugging mysql server
+--wp --wp=on            start wordpress debugging
+--wp=off                stop wordpress debugging
+
+"""
+
 
 def debug_plugin_hook(app):
     # do something with the ``app`` object here.
@@ -32,17 +53,34 @@ class EEDebugController(CementBaseController):
             (['--start'],
                 dict(help='Start debug', action='store_true')),
             (['--nginx'],
-                dict(help='Debug Nginx', action='store_true')),
+                dict(help='start/stop debugging nginx server '
+                     'configuration for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--php'],
-                dict(help='Debug PHP', action='store_true')),
+                dict(help='start/stop debugging server php configuration',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--fpm'],
-                dict(help='Debug FastCGI', action='store_true')),
+                dict(help='start/stop debugging fastcgi configuration',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
-                dict(help='Debug MySQL', action='store_true')),
+                dict(help='start/stop debugging mysql server',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--wp'],
-                dict(help='Debug WordPress sites', action='store_true')),
+                dict(help='start/stop wordpress debugging for site',
+                     action='store' or 'store_const', choices=('on', 'off'),
+                     const='on', nargs='?')),
             (['--rewrite'],
-                dict(help='Debug Nginx rewrite rules', action='store_true')),
+                dict(help='start/stop debugging nginx rewrite rules for site',
+                     action='store' or 'store_const', choices=('on', 'off'),
+                     const='on', nargs='?')),
+            (['--all'],
+                dict(help='start/stop debugging all server parameters',
+                     action='store' or 'store_const', choices=('on', 'off'),
+                     const='on', nargs='?')),
             (['-i', '--interactive'],
                 dict(help='Interactive debug', action='store_true')),
             (['--import-slow-log-interval'],
@@ -56,7 +94,7 @@ class EEDebugController(CementBaseController):
     def debug_nginx(self):
         """Start/Stop Nginx debug"""
         # start global debug
-        if self.start and not self.app.pargs.site_name:
+        if (self.app.pargs.nginx == 'on' and not self.app.pargs.site_name):
             try:
                 debug_address = (self.app.config.get('stack', 'ip-address')
                                  .split())
@@ -79,7 +117,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*.error.log"]
 
         # stop global debug
-        elif not self.start and not self.app.pargs.site_name:
+        elif (self.app.pargs.nginx == 'off' and not self.app.pargs.site_name):
             if "debug_connection " in open('/etc/nginx/nginx.conf',
                                            encoding='utf-8').read():
                 Log.info(self, "Disabling Nginx debug connections")
@@ -90,7 +128,7 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Nginx debug connection already disabled")
 
         # start site specific debug
-        elif self.start and self.app.pargs.site_name:
+        elif (self.app.pargs.nginx == 'on'and self.app.pargs.site_name):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if os.path.isfile(config_path):
@@ -115,7 +153,7 @@ class EEDebugController(CementBaseController):
                          .format(self.app.pargs.site_name))
 
         # stop site specific debug
-        elif not self.start and self.app.pargs.site_name:
+        elif (self.app.pargs.nginx == 'off' and self.app.pargs.site_name):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if os.path.isfile(config_path):
@@ -139,7 +177,7 @@ class EEDebugController(CementBaseController):
     def debug_php(self):
         """Start/Stop PHP debug"""
         # PHP global debug start
-        if self.start:
+        if (self.app.pargs.php == 'on' and not self.app.pargs.site_name):
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php"
                                                "{/,/}/p \" /etc/nginx/"
                                                "conf.d/upstream.conf "
@@ -160,7 +198,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/php5/slow.log']
 
         # PHP global debug stop
-        else:
+        elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, " sed -n \"/upstream php {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9001"):
@@ -181,7 +219,7 @@ class EEDebugController(CementBaseController):
     def debug_fpm(self):
         """Start/Stop PHP5-FPM debug"""
         # PHP5-FPM start global debug
-        if self.start:
+        if (self.app.pargs.php == 'on'and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                               "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
@@ -202,7 +240,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/php5/fpm.log']
 
         # PHP5-FPM stop global debug
-        else:
+        elif (self.app.pargs.php == 'on' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
@@ -225,7 +263,7 @@ class EEDebugController(CementBaseController):
     def debug_mysql(self):
         """Start/Stop MySQL debug"""
         # MySQL start global debug
-        if self.start:
+        if (self.app.pargs.mysql == 'on' and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "mysql -e \"show variables like"
                                               " \'slow_query_log\';\" | "
                                               "grep ON"):
@@ -258,7 +296,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
 
         # MySQL stop global debug
-        else:
+        elif (self.app.pargs.mysql == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "mysql -e \"show variables like \'"
                                     "slow_query_log\';\" | grep ON"):
                 Log.info(self, "Disabling MySQL slow log")
@@ -276,7 +314,7 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def debug_wp(self):
         """Start/Stop WordPress debug"""
-        if self.start and self.app.pargs.site_name:
+        if (self.app.pargs.wp == 'on' and self.app.pargs.site_name):
             wp_config = ("{0}/{1}/wp-config.php"
                          .format(EEVariables.ee_webroot,
                                  self.app.pargs.site_name))
@@ -316,7 +354,7 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "{0} domain not valid"
                          .format(self.app.pargs.site_name))
 
-        elif not self.start and self.app.pargs.site_name:
+        elif (self.app.pargs.wp == 'off' and self.app.pargs.site_name):
             wp_config = ("{0}{1}/wp-config.php"
                          .format(EEVariables.ee_webroot,
                                  self.app.pargs.site_name))
@@ -347,7 +385,7 @@ class EEDebugController(CementBaseController):
     def debug_rewrite(self):
         """Start/Stop Nginx rewrite rules debug"""
         # Start Nginx rewrite debug globally
-        if self.start and not self.app.pargs.site_name:
+        if (self.app.pargs.rewrite == 'on' and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
                                         "/etc/nginx/nginx.conf"):
                 Log.info(self, "Setting up Nginx rewrite logs")
@@ -361,7 +399,8 @@ class EEDebugController(CementBaseController):
                 self.msg = self.msg + ['/var/log/nginx/*.error.log']
 
         # Stop Nginx rewrite debug globally
-        elif not self.start and not self.app.pargs.site_name:
+        elif (self.app.pargs.rewrite == 'off'
+              and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" "
                                     "/etc/nginx/nginx.conf"):
                 Log.info(self, "Disabling Nginx rewrite logs")
@@ -371,7 +410,7 @@ class EEDebugController(CementBaseController):
             else:
                 Log.info(self, "Nginx rewrite logs already disabled")
         # Start Nginx rewrite for site
-        elif self.start and self.app.pargs.site_name:
+        elif (self.app.pargs.rewrite == 'on' and self.app.pargs.site_name):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if not EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
@@ -394,7 +433,7 @@ class EEDebugController(CementBaseController):
                                                self.app.pargs.site_name)]
 
         # Stop Nginx rewrite for site
-        elif not self.start and self.app.pargs.site_name:
+        elif (self.app.pargs.rewrite == 'off' and self.app.pargs.site_name):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if EEShellExec.cmd_exec(self, "grep \"rewrite_log on;\" {0}"
@@ -442,32 +481,48 @@ class EEDebugController(CementBaseController):
     @expose(hide=True)
     def default(self):
         """Default function of debug"""
-        self.start = True
+        # self.start = True
         self.interactive = False
         self.msg = []
         self.trigger_nginx = False
         self.trigger_php = False
 
-        if self.app.pargs.stop:
-            self.start = False
-
         if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
+           and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)):
-            self.app.pargs.nginx = True
-            self.app.pargs.php = True
-            self.app.pargs.fpm = True
-            self.app.pargs.mysql = True
-            self.app.pargs.rewrite = True
+            if self.app.pargs.stop or self.app.pargs.start:
+                print("--start/stop option is deprecated in ee3.0.5", usage)
+            else:
+                print(usage)
+
+        if self.app.pargs.all == 'on':
+            if self.app.pargs.site_name:
+                self.app.pargs.wp = 'on'
+            self.app.pargs.nginx = 'on'
+            self.app.pargs.php = 'on'
+            self.app.pargs.fpm = 'on'
+            self.app.pargs.mysql = 'on'
+            self.app.pargs.rewrite = 'on'
+
+        if self.app.pargs.all == 'off':
+            if self.app.pargs.site_name:
+                self.app.pargs.wp = 'off'
+            self.app.pargs.nginx = 'off'
+            self.app.pargs.php = 'off'
+            self.app.pargs.fpm = 'off'
+            self.app.pargs.mysql = 'off'
+            self.app.pargs.rewrite = 'off'
 
         if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and self.app.pargs.site_name):
-            self.app.pargs.nginx = True
-            self.app.pargs.wp = True
-            self.app.pargs.rewrite = True
+            print(usage)
+            # self.app.pargs.nginx = 'on'
+            # self.app.pargs.wp = 'on'
+            # self.app.pargs.rewrite = 'on'
 
         if self.app.pargs.nginx:
             self.debug_nginx()

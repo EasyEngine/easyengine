@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.0.4"
+    ee_version = "3.0.5"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.18.0"
@@ -78,21 +78,24 @@ class EEVariables():
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':
         ee_php_repo = "ppa:ondrej/php5"
-    elif ee_platform_codename == 'squeeze':
-        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php54 all"
-                       .format(codename=ee_platform_codename))
     elif ee_platform_codename == 'wheezy':
         ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
                        .format(codename=ee_platform_codename))
     ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
               "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
-              "php5-mysql", "php5-cli", "php5-memcache", "memcached",
-              "graphviz"]
+              "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+              "memcached", "graphviz"]
 
     # MySQL repo and packages
-    ee_mysql_repo = ("deb http://repo.percona.com/apt {codename} main"
-                     .format(codename=ee_platform_codename))
-    ee_mysql = ["percona-server-server-5.6", "mysqltuner", "percona-toolkit"]
+    if ee_platform_distro == 'Ubuntu':
+        ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
+                         "10.0/ubuntu {codename} main"
+                         .format(codename=ee_platform_codename))
+    elif ee_platform_distro == 'debian':
+        ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
+                         "10.0/debian {codename} main"
+                         .format(codename=ee_platform_codename))
+    ee_mysql = ["mariadb-server", "mysqltuner", "percona-toolkit"]
 
     # Postfix repo and packages
     ee_postfix_repo = ""
