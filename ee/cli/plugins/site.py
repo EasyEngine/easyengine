@@ -18,6 +18,7 @@ import subprocess
 def ee_site_hook(app):
     # do something with the ``app`` object here.
     from ee.core.database import init_db
+    import ee.cli.plugins.models
     init_db()
 
 
