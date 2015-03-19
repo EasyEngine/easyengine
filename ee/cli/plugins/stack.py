@@ -157,7 +157,7 @@ class EEStackController(CementBaseController):
             Log.info(self, "Adding repository for HHVM, please wait ...")
             if EEVariables.ee_platform_codename == 'precise':
                 Log.debug(self, 'Adding PPA for Boost')
-                EERepo.add(self, ppa_url=EEVariables.ee_boost_repo)
+                EERepo.add(self, ppa=EEVariables.ee_boost_repo)
             Log.debug(self, 'Adding ppa repo for HHVM')
             EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
             Log.debug(self, 'Adding HHVM GPG Key')
