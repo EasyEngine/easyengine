@@ -28,17 +28,17 @@ class SiteDB(Base):
     db_password = Column(String)
     db_user = Column(String)
 
-    # def __init__(self, sitename=None, site_type=None, cache_type=None,
-    #              site_path=None, site_enabled=None,
-    #              is_ssl=None, storage_fs=None, storage_db=None):
-    #     self.sitename = sitename
-    #     self.site_type = site_type
-    #     self.cache_type = cache_type
-    #     self.site_path = site_path
-    #     self.is_enabled = site_enabled
-    #     self.is_ssl = is_ssl
-    #     self.storage_fs = storage_fs
-    #     self.storage_db = storage_db
+    def __init__(self, sitename=None, site_type=None, cache_type=None,
+                 site_path=None, site_enabled=None,
+                 is_ssl=None, storage_fs=None, storage_db=None):
+        self.sitename = sitename
+        self.site_type = site_type
+        self.cache_type = cache_type
+        self.site_path = site_path
+        self.is_enabled = site_enabled
+        self.is_ssl = is_ssl
+        self.storage_fs = storage_fs
+        self.storage_db = storage_db
 
     # def __repr__(self):
     #     return '<Site %r>' % (self.site_type)
