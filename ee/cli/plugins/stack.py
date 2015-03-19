@@ -515,6 +515,33 @@ class EEStackController(CementBaseController):
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
 
+            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+                EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
+                                                "9000", "8000")
+                EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
+                                                "9000", "8000")
+
+                with open("/etc/hhvm/php.ini", "a") as hhvm_file:
+                    hhvm_file.write("hhvm.log.header = true\n"
+                                    "hhvm.log.natives_stack_trace = true\n"
+                                    "hhvm.mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.pdo_mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.mysqli.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n")
+
+                with open("/etc/nginx/conf.d/fastcgi.conf", "a") as hhvm_file:
+                    hhvm_file.write("fastcgi_keep_conn on;")
+
+                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
+                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
+                                    "server 127.0.0.1:9000 backup;\n}")
+
+                EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
+                EEService.reload_service(self, 'hhvm')
+                EEService.reload_service(self, 'nginx')
+
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
                 # config = configparser.ConfigParser()
