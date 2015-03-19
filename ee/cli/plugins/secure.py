@@ -12,7 +12,7 @@ import hashlib
 import getpass
 
 
-def secure_plugin_hook(app):
+def ee_secure_hook(app):
     # do something with the ``app`` object here.
     pass
 
@@ -139,4 +139,4 @@ def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EESecureController)
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', secure_plugin_hook)
+    hook.register('post_argument_parsing', ee_secure_hook)
