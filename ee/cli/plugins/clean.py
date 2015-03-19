@@ -31,6 +31,7 @@ class EECleanController(CementBaseController):
             (['--opcache'],
                 dict(help='Clean OpCache', action='store_true'))
             ]
+        usage = "ee clean [options]"
 
     @expose(hide=True)
     def default(self):

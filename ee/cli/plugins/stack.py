@@ -69,6 +69,7 @@ class EEStackController(CementBaseController):
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
             ]
+        usage = "ee stack (command) [options]"
 
     @expose(hide=True)
     def default(self):
@@ -546,6 +547,15 @@ class EEStackController(CementBaseController):
                                      "/dovecot.pem")
 
                 # Custom Dovecot configuration by EasyEngine
+                data = dict()
+                Log.debug(self, "Writting configuration into file"
+                          "/etc/dovecot/conf.d/auth-sql.conf.ext ")
+                ee_dovecot = open('/etc/dovecot/conf.d/auth-sql.conf.ext',
+                                  encoding='utf-8', mode='w')
+                self.app.render((data), 'auth-sql-conf.mustache',
+                                out=ee_dovecot)
+                ee_dovecot.close()
+
                 data = dict(email=EEVariables.ee_email)
                 Log.debug(self, "Writting configuration into file"
                           "/etc/dovecot/conf.d/99-ee.conf ")

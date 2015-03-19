@@ -34,6 +34,7 @@ class EESecureController(CementBaseController):
                 dict(help='user input', nargs='?', default=None)),
             (['user_pass'],
                 dict(help='user pass', nargs='?', default=None))]
+        usage = "ee secure [options]"
 
     @expose(hide=True)
     def default(self):
