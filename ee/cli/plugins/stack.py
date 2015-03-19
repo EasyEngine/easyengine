@@ -58,6 +58,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install PHP stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--hhvm'],
+                dict(help='Install HHVM stack', action='store_true')),
             (['--postfix'],
                 dict(help='Install Postfix stack', action='store_true')),
             (['--wpcli'],
@@ -150,6 +152,16 @@ class EEStackController(CementBaseController):
             else:
                 Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
+
+        if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for HHVM, please wait ...")
+            if EEVariables.ee_platform_codename == 'precise':
+                Log.debug(self, 'Adding PPA for Boost')
+                EERepo.add(self, ppa_url=EEVariables.ee_boost_repo)
+            Log.debug(self, 'Adding ppa repo for HHVM')
+            EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
+            Log.debug(self, 'Adding HHVM GPG Key')
+            EERepo.add_key(self, '0x5a16e7281be7a449')
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             if EEVariables.ee_platform_codename == 'squeeze':
@@ -1144,7 +1156,8 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-               (not self.app.pargs.phpmyadmin) and
+               (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
+               and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
@@ -1156,13 +1169,12 @@ class EEStackController(CementBaseController):
                 self.app.pargs.mail = True
 
             if self.app.pargs.web:
-                Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
-                          " ,MySQL ")
                 self.app.pargs.nginx = True
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
                 self.app.pargs.wpcli = True
                 self.app.pargs.postfix = True
+                self.app.pargs.hhvm = True
 
             if self.app.pargs.admin:
                 self.app.pargs.nginx = True
@@ -1218,6 +1230,15 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
+
+            if self.app.pargs.hhvm:
+                Log.debug(self, "Setting apt packages variable for HHVM")
+                if not EEAptGet.is_installed(self, 'hhvm'):
+                    apt_packages = apt_packages + EEVariables.ee_hhvm
+                else:
+                    Log.debug(self, "HHVM already installed")
+                    Log.info(self, "HHVM already installed")
+
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
@@ -1353,7 +1374,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
@@ -1367,6 +1388,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
+            self.app.pargs.hhvm = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
@@ -1397,6 +1419,11 @@ class EEStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
+
+        if self.app.pargs.hhvm:
+            Log.debug(self, "Removing apt_packages varible of HHVM")
+            apt_packages = apt_packages + EEVariables.ee_hhvm
+
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1449,7 +1476,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
@@ -1466,6 +1493,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
@@ -1493,6 +1521,9 @@ class EEStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
+        if self.app.pargs.hhvm:
+            Log.debug(self, "Removing apt_packages varible of HHVM")
+            apt_packages = apt_packages + EEVariables.ee_hhvm
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql

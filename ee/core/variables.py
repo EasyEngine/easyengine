@@ -116,6 +116,20 @@ class EEVariables():
                       "arj", "zoo", "nomarch", "lzop", "cabextract", "p7zip",
                       "rpm", "unrar-free"]
 
+    # HHVM repo details
+    # 12.04 requires boot repository
+    if ee_platform_distro == 'Ubuntu':
+        if ee_platform_codename == "precise":
+            ee_boost_repo = ("ppa:mapnik/boost")
+
+        ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+                        .format(codename=ee_platform_codename))
+    else:
+        ee_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
+                        .format(codename=ee_platform_codename))
+
+    ee_hhvm = ["hhvm"]
+
     # Repo path
     ee_repo_file = "ee-repo.list"
     ee_repo_file_path = ("/etc/apt/sources.list.d/" + ee_repo_file)
