@@ -532,14 +532,14 @@ class EEStackController(CementBaseController):
                                     "/var/run/mysqld/mysqld.sock\n")
 
                 with open("/etc/nginx/conf.d/fastcgi.conf", "a") as hhvm_file:
-                    hhvm_file.write("fastcgi_keep_conn on;")
+                    hhvm_file.write("fastcgi_keep_conn on;\n")
 
                 with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
                     hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
-                                    "server 127.0.0.1:9000 backup;\n}")
+                                    "server 127.0.0.1:9000 backup;\n}\n")
 
                 EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
-                EEService.reload_service(self, 'hhvm')
+                EEService.restart_service(self, 'hhvm')
                 EEService.reload_service(self, 'nginx')
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
