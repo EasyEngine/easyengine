@@ -259,7 +259,39 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/ php.conf')
+                              'file /etc/nginx/common/php-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php.conf')
                     ee_nginx = open('/etc/nginx/common/php.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'php.mustache',
@@ -531,12 +563,23 @@ class EEStackController(CementBaseController):
                                     "hhvm.mysqli.socket = "
                                     "/var/run/mysqld/mysqld.sock\n")
 
-                with open("/etc/nginx/conf.d/fastcgi.conf", "a") as hhvm_file:
-                    hhvm_file.write("fastcgi_keep_conn on;\n")
+                if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "fastcgi.conf",
+                                            "fastcgi_keep_conn"):
+                        with open(, "a") as hhvm_file:
+                            hhvm_file.write("fastcgi_keep_conn on;\n")
 
-                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
-                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
-                                    "server 127.0.0.1:9000 backup;\n}\n")
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
+                                            "hhvm"):
+                        with open("/etc/nginx/conf.d/upstream.conf",
+                                  "a") as hhvm_file:
+                            hhvm_file.write("upstream hhvm {\nserver "
+                                            "127.0.0.1:8000;\n"
+                                            "server 127.0.0.1:9000 backup;\n}"
+                                            "\n")
 
                 EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
                 EEService.restart_service(self, 'hhvm')
