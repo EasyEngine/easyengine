@@ -567,7 +567,8 @@ class EEStackController(CementBaseController):
                     if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
                                             "fastcgi.conf",
                                             "fastcgi_keep_conn"):
-                        with open(, "a") as hhvm_file:
+                        with open("/etc/nginx/conf.d/fastcgi.conf",
+                                  "a") as hhvm_file:
                             hhvm_file.write("fastcgi_keep_conn on;\n")
 
                 if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
