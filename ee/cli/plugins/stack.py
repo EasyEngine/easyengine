@@ -586,6 +586,41 @@ class EEStackController(CementBaseController):
                 EEService.restart_service(self, 'hhvm')
                 EEService.reload_service(self, 'nginx')
 
+                if os.path.isdir("/etc/nginx") and (not
+                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+                   
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
                 # config = configparser.ConfigParser()
