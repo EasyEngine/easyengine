@@ -514,7 +514,8 @@ class EEStackController(CementBaseController):
                 #     config.write(configfile)
                 if not os.path.isfile("/etc/mysql/my.cnf"):
                     config = ("[mysqld]\nwait_timeout = 30\n"
-                              "interactive_timeout=60\nperformance_schema = 0")
+                              "interactive_timeout=60\nperformance_schema = 0"
+                              "\nquery_cache_type = 1")
                     config_file = open("/etc/mysql/my.cnf",
                                        encoding='utf-8', mode='w')
                     config_file.write(config)
@@ -523,7 +524,8 @@ class EEStackController(CementBaseController):
                     EEShellExec.cmd_exec(self, "sed -i \"/#max_connections/a "
                                          "wait_timeout = 30 \\n"
                                          "interactive_timeout = 60 \\n"
-                                         "performance_schema = 0\" "
+                                         "performance_schema = 0\\n"
+                                         "query_cache_type = 1 \" "
                                          "/etc/mysql/my.cnf")
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
