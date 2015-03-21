@@ -475,10 +475,10 @@ class EESiteCreateController(CementBaseController):
                 cache = 'wpsc'
 
         if data and self.app.pargs.hhvm:
-            data[hhvm] = True
+            data['hhvm'] = True
             hhvm = True
         else:
-            data[hhvm] = False
+            data['hhvm'] = False
             hhvm = False
 
         if not data:
