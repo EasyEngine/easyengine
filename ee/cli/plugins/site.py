@@ -245,6 +245,8 @@ class EESiteCreateController(CementBaseController):
             (['--wpsc'],
                 dict(help="create wordpress single/multi site with wpsc cache",
                      action='store_true')),
+            (['--hhvm'],
+                dict(help="create HHVM site", action='store_true')),
             ]
 
     @expose(hide=True)
@@ -471,6 +473,13 @@ class EESiteCreateController(CementBaseController):
                             ee_db_host='')
                 stype = 'wpsubdomain'
                 cache = 'wpsc'
+
+        if data and self.app.pargs.hhvm:
+            data[hhvm] = True
+            hhvm = True
+        else:
+            data[hhvm] = False
+            hhvm = False
 
         if not data:
             self.app.args.print_help()
