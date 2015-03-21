@@ -280,7 +280,8 @@ class EESiteCreateController(CementBaseController):
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
-           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain
+           or self.app.pargs.hhvm)):
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
