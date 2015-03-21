@@ -262,7 +262,7 @@ class EESiteCreateController(CementBaseController):
                 self.app.pargs.mysql or self.app.pargs.wp or
                 self.app.pargs.w3tc or self.app.pargs.wpfc or
                 self.app.pargs.wpsc or self.app.pargs.wpsubdir or
-                self.app.pargs.wpsubdomain):
+                self.app.pargs.wpsubdomain or self.app.pargs.hhvm):
             self.app.pargs.html = True
 
         data = ''
