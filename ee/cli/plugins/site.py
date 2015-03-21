@@ -477,7 +477,7 @@ class EESiteCreateController(CementBaseController):
         if data and self.app.pargs.hhvm:
             data['hhvm'] = True
             hhvm = True
-        else:
+        elif data:
             data['hhvm'] = False
             hhvm = False
 
