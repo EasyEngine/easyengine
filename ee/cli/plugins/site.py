@@ -973,10 +973,16 @@ class EESiteUpdateController(CementBaseController):
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
+
         sitebackup(self, data)
 
         # setup NGINX configuration, and webroot
         setupdomain(self, data)
+
+        if stype == oldsitetype and cache == oldcachetype:
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(ee_domain))
+            self.app.close(0)
 
         if 'ee_db_name' in data.keys() and not data['wp']:
             data = setupdatabase(self, data)

@@ -455,6 +455,12 @@ def site_package_check(self, stype):
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
+
+    if self.app.pargs.hhvm:
+        Log.debug(self, "Setting apt_packages variable for HHVM")
+        if not EEAptGet.is_installed(self, 'hhvm'):
+            apt_packages = apt_packages + EEVariables.ee_hhvm
+
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
