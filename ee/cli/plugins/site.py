@@ -920,18 +920,28 @@ class EESiteUpdateController(CementBaseController):
                             currsitetype=oldsitetype,
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
+
                 if stype == 'basic':
                     data['basic'] = True
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
                 elif stype == 'wp':
+                    data['basic'] = False
                     data['wp'] = True
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
                 elif stype == 'wpsubdir':
+                    data['basic'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = True
                 elif stype == 'wpsubdomain':
+                    data['basic'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = False
+
             if self.app.pargs.hhvm == 'on':
                 data['hhvm'] = True
             else:
