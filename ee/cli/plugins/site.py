@@ -918,7 +918,8 @@ class EESiteUpdateController(CementBaseController):
             if not data:
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             currsitetype=oldsitetype,
-                            currcachetype=oldcachetype)
+                            currcachetype=oldcachetype,
+                            webroot=ee_site_webroot)
                 if stype == 'basic':
                     data['basic'] = True
                 elif stype == 'wp':
