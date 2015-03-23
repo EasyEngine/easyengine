@@ -579,6 +579,8 @@ class EESiteUpdateController(CementBaseController):
 
     @expose(help="Update site type or cache")
     def default(self):
+        stype = None
+        cache = None
         if not self.app.pargs.site_name:
             try:
                 self.app.pargs.site_name = input('Enter site name : ')
