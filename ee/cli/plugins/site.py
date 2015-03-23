@@ -571,6 +571,10 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
+            (['--hhvm'],
+                dict(help='Use HHVM',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             ]
 
     @expose(help="Update site type or cache")
@@ -596,7 +600,8 @@ class EESiteUpdateController(CementBaseController):
         if (self.app.pargs.password and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or self.app.pargs.wp or
             self.app.pargs.w3tc or self.app.pargs.wpfc or self.app.pargs.wpsc
-           or self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+           or self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain
+           or self.app.pargs.hhvm)):
 
             updatewpuserpassword(self, ee_domain, ee_site_webroot)
             self.app.close(0)
@@ -604,7 +609,8 @@ class EESiteUpdateController(CementBaseController):
         if (self.app.pargs.html and not (self.app.pargs.php or
             self.app.pargs.mysql or self.app.pargs.wp or self.app.pargs.w3tc
             or self.app.pargs.wpfc or self.app.pargs.wpsc or
-           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+           self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain
+           or self.app.pargs.hhvm)):
             Log.error(self, " Cannot update {0} {1} to html"
                       .format(ee_domain, oldsitetype))
 
@@ -901,6 +907,32 @@ class EESiteUpdateController(CementBaseController):
 
                 stype = 'wpsubdomain'
                 cache = 'wpsc'
+
+        if self.app.pargs.hhvm:
+            if not stype:
+                stype = oldsitetype
+            if not cache:
+                cache = oldcachetype
+            if not data:
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            currsitetype=oldsitetype,
+                            currcachetype=oldcachetype)
+                if stype == 'basic':
+                    data['basic'] = True
+                elif stype == 'wp':
+                    data['wp'] = True
+                elif stype == 'wpsubdir':
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = True
+                elif stype == 'wpsubdomain':
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = False
+            if self.app.pargs.hhvm == 'on':
+                data['hhvm'] = True
+            else:
+                data['hhvm'] = False
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
