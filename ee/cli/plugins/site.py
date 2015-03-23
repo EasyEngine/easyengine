@@ -921,40 +921,44 @@ class EESiteUpdateController(CementBaseController):
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
 
-                if stype == 'basic':
-                    data['basic'] = True
+                if stype == 'php' or stype == 'mysql':
+                    data['static'] = False
                     data['wp'] = False
                     data['multisite'] = False
                     data['wpsubdir'] = False
                 elif stype == 'wp':
-                    data['basic'] = False
+                    data['static'] = False
                     data['wp'] = True
                     data['multisite'] = False
                     data['wpsubdir'] = False
                 elif stype == 'wpsubdir':
-                    data['basic'] = False
+                    data['static'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = True
                 elif stype == 'wpsubdomain':
-                    data['basic'] = False
+                    data['static'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = False
 
                 if cache == 'basic':
+                    data['basic'] = True
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
                 elif cache == 'w3tc':
+                    data['basic'] = False
                     data['w3tc'] = True
                     data['wpfc'] = False
                     data['wpsc'] = False
                 elif cache == 'wpfc':
+                    data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = True
                     data['wpsc'] = False
                 elif cache == 'wpsc':
+                    data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = True
