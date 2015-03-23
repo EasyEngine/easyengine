@@ -942,6 +942,23 @@ class EESiteUpdateController(CementBaseController):
                     data['multisite'] = True
                     data['wpsubdir'] = False
 
+                if cache == 'basic':
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif cache == 'w3tc':
+                    data['w3tc'] = True
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif cache == 'wpfc':
+                    data['w3tc'] = False
+                    data['wpfc'] = True
+                    data['wpsc'] = False
+                elif cache == 'wpsc':
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = True
+
             if self.app.pargs.hhvm == 'on':
                 data['hhvm'] = True
             else:
