@@ -1070,7 +1070,7 @@ class EESiteDeleteController(CementBaseController):
             if ee_db_name != 'deleted':
                 if not self.app.pargs.no_prompt:
                     ee_db_prompt = input('Are you sure, you want to delete'
-                                         ' database [Y/N]: ')
+                                         ' database [y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
 
@@ -1093,7 +1093,7 @@ class EESiteDeleteController(CementBaseController):
             if ee_site_webroot != 'deleted':
                 if not self.app.pargs.no_prompt:
                     ee_web_prompt = input('Are you sure, you want to delete '
-                                          'webroot [Y/N]: ')
+                                          'webroot [y/N]: ')
                 else:
                     ee_web_prompt = 'Y'
 
