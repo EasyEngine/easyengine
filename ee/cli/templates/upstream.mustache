@@ -9,6 +9,6 @@ server 127.0.0.1:{{debug}};
 }
 upstream hhvm {
 # HHVM Pool
-server 127.0.0.1:8000;
-server 127.0.0.1:9000 backup;
+server 127.0.0.1:{{hhvm}};
+server 127.0.0.1:{{php}} backup;
 }

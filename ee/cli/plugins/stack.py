@@ -227,7 +227,7 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    data = dict(php="9000", debug="9001")
+                    data = dict(php="9000", debug="9001", hhvm="8000")
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -588,7 +588,7 @@ class EEStackController(CementBaseController):
 
                 if os.path.isdir("/etc/nginx") and (not
                    os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
-                   
+
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php-hhvm.conf')
                     ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
