@@ -49,9 +49,10 @@ class EEMysql():
                     Log.debug(self, "Executing MySQL statement: {0}"
                               .format(statement))
 
-                cur.execute(statement)
+                result = cur.execute(statement)
                 cur.close()
                 conn.close()
+                return result
 
             except Exception as e:
                 cur.close()
