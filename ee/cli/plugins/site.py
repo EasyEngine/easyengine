@@ -524,7 +524,14 @@ class EESiteCreateController(CementBaseController):
                      .format(ee_wp_creds['wp_pass']), log=False)
 
         display_cache_settings(self, data)
-        addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+        if 'ee_db_name' in data.keys():
+            addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
+                       db_name=data['ee_db_name'],
+                       db_user=data['ee_db_user'],
+                       db_password=data['ee_db_pass'],
+                       db_host=data['ee_db_host'])
+        else:
+            addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
         Log.info(self, "Successfully created site"
                  " http://{0}".format(ee_domain))
 
@@ -984,7 +991,14 @@ class EESiteUpdateController(CementBaseController):
                      " {0}".format(ee_wp_creds['wp_user']))
             Log.info(self, Log.ENDC + "WordPress admin password : {0}"
                      .format(ee_wp_creds['wp_pass']) + "\n\n")
-        updateSiteInfo(self, ee_domain, stype=stype, cache=cache)
+        if oldsitetype in ['html', 'php'] and stype != 'php':
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           db_name=data['ee_db_name'],
+                           db_user=data['ee_db_user'],
+                           db_password=data['ee_db_pass'],
+                           db_host=data['ee_db_host'])
+        else:
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
 
@@ -1021,107 +1035,129 @@ class EESiteDeleteController(CementBaseController):
         ee_db_name = ''
         ee_prompt = ''
         ee_nginx_prompt = ''
+        mark_db_deleted = False
+        mark_webroot_deleted = False
         if ((not self.app.pargs.db) and (not self.app.pargs.files) and
            (not self.app.pargs.all)):
             self.app.pargs.all = True
 
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(ee_domain)):
-            ee_site_webroot = EEVariables.ee_webroot + ee_domain
+        # Gather information from ee-db for ee_domain
+        check_site = getSiteInfo(self, ee_domain)
 
-            if self.app.pargs.no_prompt:
-                ee_prompt = 'Y'
-
-            if self.app.pargs.db:
-                if not ee_prompt:
-                    ee_db_prompt = input('Do you want to delete database'
-                                         '[Y/N]: ')
-                else:
-                    ee_db_prompt = 'Y'
-
-                if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
-                    self.deleteDB(ee_site_webroot)
-
-            if self.app.pargs.files:
-                if not ee_prompt:
-                    ee_web_prompt = input('Do you want to delete webroot'
-                                          '[Y/N]: ')
-                else:
-                    ee_web_prompt = 'Y'
-
-                if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
-                    self.deleteWebRoot(ee_site_webroot)
-
-            if self.app.pargs.all:
-                if not ee_prompt:
-                    ee_db_prompt = input('Do you want to delete database'
-                                         '[Y/N]: '
-                                         )
-                    ee_web_prompt = input('Do you want to delete webroot'
-                                          '[Y/N]: ')
-                    ee_nginx_prompt = input('Do you want to delete NGINX'
-                                            ' configuration [Y/N]: ')
-                else:
-                    ee_db_prompt = 'Y'
-                    ee_web_prompt = 'Y'
-                    ee_nginx_prompt = 'Y'
-
-                if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
-                    self.deleteDB(ee_site_webroot)
-                if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
-                    self.deleteWebRoot(ee_site_webroot)
-
-                if (ee_nginx_prompt == 'Y' or ee_nginx_prompt == 'y'):
-                    Log.debug(self, "Removing Nginx configuration")
-                    EEFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
-                                   .format(ee_domain))
-                    EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
-                                   .format(ee_domain))
-                    EEGit.add(self, ["/etc/nginx"],
-                              msg="Deleted {0} "
-                              .format(ee_domain))
-                deleteSiteInfo(self, ee_domain)
-
-            Log.info(self, "Deleted site {0}".format(ee_domain))
+        if check_site is None:
+            Log.error(self, " Site {0} does not exist.".format(ee_domain))
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            ee_site_type = check_site.site_type
+            ee_site_webroot = check_site.site_path
+            if ee_site_webroot == 'deleted':
+                mark_webroot_deleted = True
+            if ee_site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+                ee_db_name = check_site.db_name
+                ee_db_user = check_site.db_user
+                ee_db_host = check_site.db_host
+                if ee_db_name == 'deleted':
+                    mark_db_deleted = True
+                if self.app.pargs.all:
+                    self.app.pargs.db = True
+                    self.app.pargs.files = True
+            else:
+                if self.app.pargs.all:
+                    self.app.pargs.files = True
+
+        # Delete website database
+        if self.app.pargs.db:
+            if ee_db_name != 'deleted':
+                if not self.app.pargs.no_prompt:
+                    ee_db_prompt = input('Are you sure, you want to delete'
+                                         ' database [Y/N]: ')
+                else:
+                    ee_db_prompt = 'Y'
+
+                if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
+                    Log.info(self, "Deleting Database, {0}, user {1}"
+                             .format(ee_db_name, ee_db_user))
+                    self.deleteDB(ee_db_name, ee_db_user, ee_db_host)
+                    updateSiteInfo(self, ee_domain,
+                                   db_name='deleted',
+                                   db_user='deleted',
+                                   db_password='deleted')
+                    mark_db_deleted = True
+                    Log.info(self, "Deleted Database successfully.")
+            else:
+                mark_db_deleted = True
+                Log.info(self, "Database seems to be deleted.")
+
+        # Delete webroot
+        if self.app.pargs.files:
+            if ee_site_webroot != 'deleted':
+                if not self.app.pargs.no_prompt:
+                    ee_web_prompt = input('Are you sure, you want to delete '
+                                          'webroot [Y/N]: ')
+                else:
+                    ee_web_prompt = 'Y'
+
+                if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
+                    Log.info(self, "Deleting Webroot, {0}"
+                             .format(ee_site_webroot))
+                    self.deleteWebRoot(ee_site_webroot)
+                    updateSiteInfo(self, ee_domain, webroot='deleted')
+                    mark_webroot_deleted = True
+                    Log.info(self, "Deleted webroot successfully")
+            else:
+                mark_webroot_deleted = True
+                Log.info(self, "Webroot seems to be already deleted")
+
+        if (mark_webroot_deleted and mark_db_deleted):
+                # TODO Delete nginx conf
+                self.removeNginxConf(ee_domain)
+                deleteSiteInfo(self, ee_domain)
+                Log.info(self, "Deleted site {0}".format(ee_domain))
+        # else:
+        #     Log.error(self, " site {0} does not exists".format(ee_domain))
 
     @expose(hide=True)
-    def deleteDB(self, webroot):
-        configfiles = glob.glob(webroot + '/*-config.php')
-        if configfiles:
-            if EEFileUtils.isexist(self, configfiles[0]):
-                ee_db_name = (EEFileUtils.grep(self, configfiles[0],
-                              'DB_NAME').split(',')[1]
-                              .split(')')[0].strip().replace('\'', ''))
-                ee_db_user = (EEFileUtils.grep(self, configfiles[0],
-                              'DB_USER').split(',')[1]
-                              .split(')')[0].strip().replace('\'', ''))
-                ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
-                              'DB_PASSWORD').split(',')[1]
-                              .split(')')[0].strip().replace('\'', ''))
-                ee_db_host = (EEFileUtils.grep(self, configfiles[0],
-                              'DB_HOST').split(',')[1]
-                              .split(')')[0].strip().replace('\'', ''))
-            try:
-                Log.debug(self, "dropping database `{0}`".format(ee_db_name))
+    def deleteDB(self, dbname, dbuser, dbhost):
+        try:
+            # Check if Database exists
+
+            # Drop database if exists
+            Log.debug(self, "dropping database `{0}`".format(dbname))
+            EEMysql.execute(self,
+                            "drop database `{0}`".format(dbname),
+                            errormsg='Unable to drop database {0}'
+                            .format(dbname))
+
+            if dbuser != 'root':
+                Log.debug(self, "dropping user `{0}`".format(dbuser))
                 EEMysql.execute(self,
-                                "drop database `{0}`".format(ee_db_name),
-                                errormsg='Unable to drop database {0}'
-                                .format(ee_db_name))
-                if ee_db_user != 'root':
-                    Log.debug(self, "dropping user `{0}`".format(ee_db_user))
-                    EEMysql.execute(self,
-                                    "drop user `{0}`@`{1}`"
-                                    .format(ee_db_user, ee_db_host))
-                    EEMysql.execute(self,
-                                    "flush privileges")
-            except Exception as e:
-                Log.error(self, "Error occured while deleting database")
+                                "drop user `{0}`@`{1}`"
+                                .format(dbuser, dbhost))
+                EEMysql.execute(self, "flush privileges")
+        except Exception as e:
+            Log.error(self, "Error occured while deleting database")
 
     @expose(hide=True)
     def deleteWebRoot(self, webroot):
-        EEFileUtils.rm(self, webroot)
+        if os.path.isdir(webroot):
+            Log.debug(self, "Removing {0}".format(webroot))
+            EEFileUtils.rm(self, webroot)
+            return True
+        else:
+            Log.debug(self, "{0} does not exist".format(webroot))
+            return False
+
+    @expose(hide=True)
+    def removeNginxConf(self, domain):
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(domain)):
+                Log.debug(self, "Removing Nginx configuration")
+                EEFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
+                               .format(domain))
+                EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
+                               .format(domain))
+                EEGit.add(self, ["/etc/nginx"],
+                          msg="Deleted {0} "
+                          .format(domain))
 
 
 class EESiteListController(CementBaseController):
