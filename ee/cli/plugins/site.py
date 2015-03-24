@@ -1062,6 +1062,7 @@ class EESiteDeleteController(CementBaseController):
                     self.app.pargs.files = True
             else:
                 if self.app.pargs.all:
+                    mark_db_deleted = True
                     self.app.pargs.files = True
 
         # Delete website database
