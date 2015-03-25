@@ -247,6 +247,8 @@ class EESiteCreateController(CementBaseController):
                      action='store_true')),
             (['--hhvm'],
                 dict(help="create HHVM site", action='store_true')),
+            (['--pagespeed'],
+                dict(help="create pagespeed site", action='store_true')),
             ]
 
     @expose(hide=True)
@@ -481,6 +483,34 @@ class EESiteCreateController(CementBaseController):
         elif data:
             data['hhvm'] = False
             hhvm = False
+
+        if data and self.app.pargs.pagespeed:
+            if (os.path.isdir('/etc/nginx') and
+               (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+                # Pagespeed configuration
+                Log.debug(self, 'Writting the Pagespeed Global '
+                          'configuration to file /etc/nginx/conf.d/'
+                          'pagespeed.conf')
+                ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'pagespeed-global.mustache',
+                                out=ee_nginx)
+                ee_nginx.close()
+
+                Log.debug(self, 'Writting the Pagespeed common '
+                          'configuration to file /etc/nginx/common/'
+                          'pagespeed.conf')
+                ee_nginx = open('/etc/nginx/common/pagespeed.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'pagespeed-common.mustache',
+                                out=ee_nginx)
+                ee_nginx.close()
+
+            data['pagespeed'] = True
+            pagespeed = True
+        elif data:
+            data['pagespeed'] = False
+            pagespeed = False
 
         if not data:
             self.app.args.print_help()
