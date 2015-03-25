@@ -1343,7 +1343,13 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
-                if not EEAptGet.is_installed(self, 'nginx-common'):
+
+                if EEVariables.ee_platform_distro == 'Debian':
+                    check_nginx = 'nginx-extras'
+                else:
+                    check_nginx = 'nginx-Custom'
+
+                if not EEAptGet.is_installed(self, check_nginx):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
                     Log.debug(self, "Nginx already installed")
