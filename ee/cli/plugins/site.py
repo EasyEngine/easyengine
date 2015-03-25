@@ -602,9 +602,13 @@ class EESiteUpdateController(CementBaseController):
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
             (['--hhvm'],
-                dict(help='Use HHVM',
+                dict(help='Use HHVM for site',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
+            (['--pagespeed'],
+                dict(help='Use PageSpeed for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?'))
             ]
 
     @expose(help="Update site type or cache")
@@ -940,7 +944,7 @@ class EESiteUpdateController(CementBaseController):
                 stype = 'wpsubdomain'
                 cache = 'wpsc'
 
-        if self.app.pargs.hhvm:
+        if self.app.pargs.hhvm or self.app.pargs.hhvm:
             if not stype:
                 stype = oldsitetype
             if not cache:
@@ -951,7 +955,12 @@ class EESiteUpdateController(CementBaseController):
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
 
-                if stype == 'php' or stype == 'mysql':
+                if stype == 'html':
+                    data['static'] = True
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif stype == 'php' or stype == 'mysql':
                     data['static'] = False
                     data['wp'] = False
                     data['multisite'] = False
@@ -995,8 +1004,13 @@ class EESiteUpdateController(CementBaseController):
 
             if self.app.pargs.hhvm == 'on':
                 data['hhvm'] = True
-            else:
+            elif self.app.pargs.hhvm == 'off':
                 data['hhvm'] = False
+
+            if self.app.pargs.pagespeed == 'on':
+                data['pagespeed'] = True
+            elif self.app.pargs.pagespeed == 'off':
+                data['pagespeed'] = False
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
