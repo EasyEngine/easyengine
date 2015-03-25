@@ -73,7 +73,7 @@ class EEVariables():
     elif ee_platform_distro == 'debian':
         ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
                          .format(codename=ee_platform_codename))
-        ee_nginx = ["nginx-full", "nginx-common"]
+        ee_nginx = ["nginx-extras", "nginx-common"]
 
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':

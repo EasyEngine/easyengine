@@ -338,6 +338,25 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    # Pagespeed configuration
+                    Log.debug(self, 'Writting the Pagespeed Global '
+                              'configuration to file /etc/nginx/conf.d/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-global.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the Pagespeed common '
+                              'configuration to file /etc/nginx/common/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/common/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-common.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
