@@ -65,6 +65,18 @@ class EEApp(foundation.CementApp):
 
         debug = TOGGLE_DEBUG
 
+        plugin_config_dirs=[
+            '/etc/ee/plugins.d',
+            '~/.ee/plugins.d',
+            '/vagrant/test2/easyengine/plugins/myplugin/config/plugins.d',
+            ]
+        plugin_dirs=[
+            '/usr/lib/ee/plugins',
+            '~/.ee/plugins',
+            '/vagrant/test2/easyengine/plugins/myplugin/plugins',
+            ]
+
+
 
 class EETestApp(EEApp):
     """A test app that is better suited for testing."""
