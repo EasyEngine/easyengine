@@ -1347,7 +1347,7 @@ class EEStackController(CementBaseController):
                 if EEVariables.ee_platform_distro == 'Debian':
                     check_nginx = 'nginx-extras'
                 else:
-                    check_nginx = 'nginx-Custom'
+                    check_nginx = 'nginx-custom'
 
                 if not EEAptGet.is_installed(self, check_nginx):
                     apt_packages = apt_packages + EEVariables.ee_nginx

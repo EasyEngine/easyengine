@@ -944,7 +944,7 @@ class EESiteUpdateController(CementBaseController):
                 stype = 'wpsubdomain'
                 cache = 'wpsc'
 
-        if self.app.pargs.hhvm or self.app.pargs.hhvm:
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
             if not stype:
                 stype = oldsitetype
             if not cache:
