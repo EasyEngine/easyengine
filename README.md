@@ -21,7 +21,7 @@ sudo ee site create example.com --wp        # Install required packages & setup 
 ## Update EasyEngine
 
 
-Update Procedure For EasyEngine to version 3.0.1
+Update Procedure For EasyEngine to version 3.0.5
 
 ```bash
 wget -qO ee rt.cx/ee && sudo bash ee
