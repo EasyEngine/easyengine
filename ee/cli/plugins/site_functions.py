@@ -106,12 +106,17 @@ def setupdatabase(self, data):
     if len(ee_db_username) > 16:
         Log.debug(self, 'Autofix MySQL username (ERROR 1470 (HY000)),'
                   ' please wait')
-        ee_random10 = (''.join(random.sample(string.ascii_uppercase +
-                       string.ascii_lowercase + string.digits, 10)))
-        ee_db_username = (ee_db_name[0:6] + ee_random10)
+        ee_db_username = (ee_db_name[0:6] + generate_random())
+
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating databse {0}".format(ee_db_name))
+
+    if EEMysql.check_db_exists(self, ee_db_name):
+        Log.debug(self, "Database already exists, Updating DB_NAME .. ")
+        ee_db_name = (ee_db_name[0:6] + generate_random())
+        ee_db_username = (ee_db_name[0:6] + generate_random())
+
     EEMysql.execute(self, "create database `{0}`"
                     .format(ee_db_name), errormsg="Cannot create database")
 
@@ -583,3 +588,9 @@ def logwatch(self, logfiles):
 
     l = logwatch.LogWatcher(logfiles, callback)
     l.loop()
+
+
+def generate_random():
+    ee_random10 = (''.join(random.sample(string.ascii_uppercase +
+                   string.ascii_lowercase + string.digits, 10)))
+    return ee_random10
