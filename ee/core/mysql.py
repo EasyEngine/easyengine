@@ -1,5 +1,6 @@
 """EasyEngine MySQL core classes."""
 import pymysql
+from pymysql import connections, DatabaseError
 import configparser
 from os.path import expanduser
 import sys
@@ -102,3 +103,17 @@ class EEMysql():
         except Exception as e:
             Log.error(self, "Error: process exited with status %s"
                             % e)
+
+    def check_db_exists(self, db_name):
+        try:
+            connection = connections.Connection(db=db_name,
+                                                read_default_file='~/.my.cnf')
+            if connection:
+                return True
+        except DatabaseError as e:
+            if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
+                return False
+            else:
+                raise RuntimeError
+        except Exception as e:
+            Log.error(self, "Runtime Exception occured")
