@@ -13,14 +13,14 @@ class EEApp(foundation.CementApp):
     class Meta:
         label = 'ee'
         # list of paths where this app looks for plugins(.py files)
-        # if not set , is set by app during setup by default to the first two entries shown here 
+        # if not set, is set by app during setup by default to the first two entries shown here 
         plugin_config_dirs=[
             '/etc/ee/plugins.d',
             '~/.ee/plugins.d',
             '/vagrant/test/easyengine/plugins/myplugin/config/plugins.d',
             ]
         # list of paths where this app looks for plugin configuration files(.conf files)
-        # if not set , is set by app during setup by default to the first two entries shown here
+        # if not set, is set by app during setup by default to the first two entries shown here
         plugin_dirs=[
             '/usr/lib/ee/plugins',
             '~/.ee/plugins',
