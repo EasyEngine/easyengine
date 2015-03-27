@@ -218,7 +218,7 @@ class EEFileUtils():
             for line in open(fnm, encoding='utf-8'):
                 if sstr in line:
                     return line
-            return false
+            return False
         except OSError as e:
             Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to Search string {0} in {1}"
