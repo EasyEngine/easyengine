@@ -15,7 +15,7 @@ import signal
 import subprocess
 
 
-def debug_plugin_hook(app):
+def ee_debug_hook(app):
     # do something with the ``app`` object here.
     pass
 
@@ -551,4 +551,4 @@ def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EEDebugController)
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', debug_plugin_hook)
+    hook.register('post_argument_parsing', ee_debug_hook)

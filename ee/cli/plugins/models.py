@@ -7,6 +7,7 @@ class SiteDB(Base):
         Databse model for site table
     """
     __tablename__ = 'sites'
+    __table_args__ = {'extend_existing': True}
     id = Column(Integer, primary_key=True)
     sitename = Column(String, unique=True)
 
@@ -23,10 +24,15 @@ class SiteDB(Base):
     is_ssl = Column(Boolean, unique=False, default=False)
     storage_fs = Column(String)
     storage_db = Column(String)
+    db_name = Column(String)
+    db_user = Column(String)
+    db_password = Column(String)
+    db_host = Column(String)
 
     def __init__(self, sitename=None, site_type=None, cache_type=None,
                  site_path=None, site_enabled=None,
-                 is_ssl=None, storage_fs=None, storage_db=None):
+                 is_ssl=None, storage_fs=None, storage_db=None, db_name=None,
+                 db_user=None, db_password=None, db_host='localhost'):
         self.sitename = sitename
         self.site_type = site_type
         self.cache_type = cache_type
@@ -35,6 +41,10 @@ class SiteDB(Base):
         self.is_ssl = is_ssl
         self.storage_fs = storage_fs
         self.storage_db = storage_db
+        self.db_name = db_name
+        self.db_user = db_user
+        self.db_password = db_password
+        self.db_host = db_host
 
     # def __repr__(self):
     #     return '<Site %r>' % (self.site_type)

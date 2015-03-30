@@ -10,7 +10,7 @@ import os
 import configparser
 
 
-def info_plugin_hook(app):
+def ee_info_hook(app):
     # do something with the ``app`` object here.
     pass
 
@@ -200,4 +200,4 @@ def load(app):
     handler.register(EEInfoController)
 
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', info_plugin_hook)
+    hook.register('post_argument_parsing', ee_info_hook)

@@ -6,7 +6,7 @@ from ee.core.variables import EEVariables
 import os
 
 
-def import_slow_log_plugin_hook(app):
+def ee_import_slow_log_hook(app):
     pass
 
 
@@ -68,4 +68,4 @@ def load(app):
     handler.register(EEImportslowlogController)
 
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', import_slow_log_plugin_hook)
+    hook.register('post_argument_parsing', ee_import_slow_log_hook)
