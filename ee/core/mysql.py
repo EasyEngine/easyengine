@@ -115,7 +115,7 @@ class EEMysql():
             Log.error(self, "Error: process exited with status %s"
                             % e)
 
-    def check_db_exist(self, db_name):
+    def check_db_exists(self, db_name):
         try:
             if EEMysql.dbConnection(self, db_name):
                 return True
