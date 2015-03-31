@@ -473,7 +473,7 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)):
             if self.app.pargs.stop or self.app.pargs.start:
-                print("--start/stop option is deprecated in ee3.0.5")
+                print("--start/stop option is deprecated since ee3.0.5")
                 self.app.args.print_help()
             else:
                 self.app.args.print_help()
