@@ -320,6 +320,11 @@ class EESiteCreateController(CementBaseController):
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:
                     data = setupdatabase(self, data)
+                    # Add database information for site into database
+                    updateSiteInfo(self, ee_domain, db_name=data['ee_db_name'],
+                                   db_user=data['ee_db_user'],
+                                   db_password=data['ee_db_pass'],
+                                   db_host=data['ee_db_host'])
                 except SiteError as e:
                     # TODO call cleanup actions
                     Log.error(str(e))
@@ -347,16 +352,14 @@ class EESiteCreateController(CementBaseController):
             if data['wp']:
                 try:
                     ee_wp_creds = setupwordpress(self, data)
+                    # Add database information for site into database
+                    updateSiteInfo(self, ee_domain, db_name=data['ee_db_name'],
+                                   db_user=data['ee_db_user'],
+                                   db_password=data['ee_db_pass'],
+                                   db_host=data['ee_db_host'])
                 except SiteError as e:
                     # TODO call cleanup actions
                     Log.error(str(e))
-
-            # Add database information for site into database 
-            if 'ee_db_name' in data.keys():
-                updateSiteInfo(self, ee_domain, db_name=data['ee_db_name'],
-                               db_user=data['ee_db_user'],
-                               db_password=data['ee_db_pass'],
-                               db_host=data['ee_db_host'])
 
             # Service Nginx Reload
             EEService.reload_service(self, 'nginx')
@@ -461,9 +464,8 @@ class EESiteUpdateController(CementBaseController):
             (stype == 'mysql' and oldsitetype not in ['html', 'php']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
                                                    'wp']) or
-            (stype == 'wpsubdir' and oldsitetype not in ['wp', 'wpsubdir']) or
-            (stype == 'wpsubdomain' and oldsitetype not in ['wp',
-                                                            'wpsubdomain']) or
+            (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
+            (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype)):
             Log.error(self, "can not update {0} {1} to {2} {3}".
                       format(oldsitetype, oldcachetype, stype, cache))
