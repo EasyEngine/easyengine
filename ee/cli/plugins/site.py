@@ -486,27 +486,6 @@ class EESiteCreateController(CementBaseController):
             hhvm = False
 
         if data and self.app.pargs.pagespeed:
-            if (os.path.isdir('/etc/nginx') and
-               (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
-                # Pagespeed configuration
-                Log.debug(self, 'Writting the Pagespeed Global '
-                          'configuration to file /etc/nginx/conf.d/'
-                          'pagespeed.conf')
-                ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'pagespeed-global.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
-
-                Log.debug(self, 'Writting the Pagespeed common '
-                          'configuration to file /etc/nginx/common/'
-                          'pagespeed.conf')
-                ee_nginx = open('/etc/nginx/common/pagespeed.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'pagespeed-common.mustache',
-                                out=ee_nginx)
-                ee_nginx.close()
-
             data['pagespeed'] = True
             pagespeed = True
         elif data:
@@ -1005,13 +984,17 @@ class EESiteUpdateController(CementBaseController):
 
             if self.app.pargs.hhvm == 'on':
                 data['hhvm'] = True
+                hhvm = True
             elif self.app.pargs.hhvm == 'off':
                 data['hhvm'] = False
+                hhvm = False
 
             if self.app.pargs.pagespeed == 'on':
                 data['pagespeed'] = True
+                pagespeed = True
             elif self.app.pargs.pagespeed == 'off':
                 data['pagespeed'] = False
+                pagespeed = False
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"

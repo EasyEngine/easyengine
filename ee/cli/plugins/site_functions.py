@@ -467,6 +467,30 @@ def site_package_check(self, stype):
         if not EEAptGet.is_installed(self, 'hhvm'):
             apt_packages = apt_packages + EEVariables.ee_hhvm
 
+    # Check if Nginx is allready installed and Pagespeed config there or not
+    # If not then copy pagespeed config
+    if data and self.app.pargs.pagespeed:
+        if (os.path.isdir('/etc/nginx') and
+           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+            # Pagespeed configuration
+            Log.debug(self, 'Writting the Pagespeed Global '
+                      'configuration to file /etc/nginx/conf.d/'
+                      'pagespeed.conf')
+            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'pagespeed-global.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the Pagespeed common '
+                      'configuration to file /etc/nginx/common/'
+                      'pagespeed.conf')
+            ee_nginx = open('/etc/nginx/common/pagespeed.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'pagespeed-common.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
