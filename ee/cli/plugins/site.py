@@ -1008,6 +1008,10 @@ class EESiteUpdateController(CementBaseController):
         setupdomain(self, data)
 
         if stype == oldsitetype and cache == oldcachetype:
+
+            # Service Nginx Reload
+            EEService.reload_service(self, 'nginx')
+
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
             self.app.close(0)

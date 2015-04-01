@@ -473,6 +473,7 @@ def site_package_check(self, stype):
         if (os.path.isdir('/etc/nginx') and
            (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
             # Pagespeed configuration
+            data = dict()
             Log.debug(self, 'Writting the Pagespeed Global '
                       'configuration to file /etc/nginx/conf.d/'
                       'pagespeed.conf')
