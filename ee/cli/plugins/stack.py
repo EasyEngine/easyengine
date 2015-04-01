@@ -608,6 +608,7 @@ class EEStackController(CementBaseController):
                 if os.path.isdir("/etc/nginx") and (not
                    os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
 
+                    data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/php-hhvm.conf')
                     ee_nginx = open('/etc/nginx/common/php-hhvm.conf',

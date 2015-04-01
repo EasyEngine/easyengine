@@ -267,7 +267,8 @@ class EESiteCreateController(CementBaseController):
                 self.app.pargs.wpsubdomain or self.app.pargs.hhvm):
             self.app.pargs.html = True
 
-        data = ''
+        data = None
+
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
