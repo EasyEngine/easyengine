@@ -39,8 +39,9 @@ def setupdomain(self, data):
     ee_site_webroot = data['webroot']
 
     # Check if nginx configuration already exists
-    if os.path.isfile('/etc/nginx/sites-available/{0}'.format(ee_domain_name)):
-        raise SiteError("nginx configuration already exists for site")
+    # if os.path.isfile('/etc/nginx/sites-available/{0}'
+    #                   .format(ee_domain_name)):
+    #     raise SiteError("nginx configuration already exists for site")
 
     Log.info(self, "Setting up NGINX configuration \t", end='')
     # write nginx config for file
