@@ -37,6 +37,11 @@ def setupdomain(self, data):
 
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot']
+
+    # Check if nginx configuration already exists
+    if os.path.isfile('/etc/nginx/sites-available/{0}'.format(ee_domain_name)):
+        raise SiteError("nginx configuration already exists for site")
+
     Log.info(self, "Setting up NGINX configuration \t", end='')
     # write nginx config for file
     try:
@@ -56,14 +61,17 @@ def setupdomain(self, data):
     finally:
         # Check nginx -t and return status over it
         try:
+            Log.debug(self, "Checking generated nginx conf, please wait ...")
             FNULL = open('/dev/null', 'w')
             ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
                                         stderr=subprocess.STDOUT)
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         except CalledProcessError as e:
             Log.debug(self, "{0}".format(str(e)))
-            Log.info(self, "[" + Log.ENDC + "Fail" + Log.OKBLUE + "]")
-            raise SiteError("create nginx configuration failed for site")
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail"
+                     + Log.OKBLUE + "]")
+            raise SiteError("created nginx configuration failed for site."
+                            " check with `nginx -t`")
 
     # create symbolic link for
     EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
@@ -671,6 +679,41 @@ def logwatch(self, logfiles):
 
     l = logwatch.LogWatcher(logfiles, callback)
     l.loop()
+
+
+def detSitePar(opts):
+    """
+        Takes dictionary of parsed arguments
+        1.returns sitetype and cachetype
+        2. raises RuntimeError when wrong combination is used like
+            "--wp --wpsubdir" or "--html --wp"
+    """
+    sitetype, cachetype = '', ''
+    typelist = list()
+    cachelist = list()
+    for key, val in opts.items():
+        if val and key in ['html', 'php', 'mysql', 'wp',
+                           'wpsubdir', 'wpsubdomain']:
+            typelist.append(key)
+        elif val and key in ['wpfc', 'wpsc', 'w3tc']:
+            cachelist.append(key)
+
+    if len(typelist) > 1 or len(cachelist) > 1:
+        raise RuntimeError("could not determine site and cache type")
+    else:
+        if not typelist and not cachelist:
+            sitetype = 'html'
+            cachetype = 'basic'
+        elif (not typelist) and cachelist:
+            sitetype = 'wp'
+            cachetype = cachelist[0]
+        elif typelist and (not cachelist):
+            sitetype = typelist[0]
+            cachetype = 'basic'
+        else:
+            sitetype = typelist[0]
+            cachetype = cachelist[0]
+    return (sitetype, cachetype)
 
 
 def generate_random():
