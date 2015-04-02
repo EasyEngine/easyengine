@@ -1,3 +1,6 @@
+v 3.0.6 - April 2,2015
+- Added `update` command to update EasyEngine.
+
 v 3.0.5 - March 18,2015
 - Changed Database from Percona MySQL to MariaDB #362
 - Better arguments for ee debug command
