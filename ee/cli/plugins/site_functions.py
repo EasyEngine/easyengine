@@ -5,6 +5,7 @@ from ee.core.shellexec import *
 from ee.core.variables import EEVariables
 from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
+from ee.core.git import EEGit
 from ee.core.logging import Log
 import subprocess
 from subprocess import CalledProcessError
@@ -156,11 +157,13 @@ def setupdatabase(self, data):
     # create MySQL database
     Log.info(self, "Setting up database\t\t", end='')
     Log.debug(self, "Creating database {0}".format(ee_db_name))
-
-    if EEMysql.check_db_exists(self, ee_db_name):
-        Log.debug(self, "Database already exists, Updating DB_NAME .. ")
-        ee_db_name = (ee_db_name[0:6] + generate_random())
-        ee_db_username = (ee_db_name[0:6] + generate_random())
+    try:
+        if EEMysql.check_db_exists(self, ee_db_name):
+            Log.debug(self, "Database already exists, Updating DB_NAME .. ")
+            ee_db_name = (ee_db_name[0:6] + generate_random())
+            ee_db_username = (ee_db_name[0:6] + generate_random())
+    except MySQLConnectionError as e:
+        raise SiteError("MySQL Connectivity problem occured")
 
     try:
         EEMysql.execute(self, "create database `{0}`"
@@ -473,8 +476,11 @@ def uninstallwp_plugin(self, plugin_name, data):
 
 def setwebrootpermissions(self, webroot):
     Log.debug(self, "Setting up permissions")
-    EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
-                      EEVariables.ee_php_user, recursive=True)
+    try:
+        EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
+                          EEVariables.ee_php_user, recursive=True)
+    except Exception as e:
+        raise SiteError("problem occured while settingup webroot permissions")
 
 
 def sitebackup(self, data):
@@ -721,3 +727,84 @@ def generate_random():
     ee_random10 = (''.join(random.sample(string.ascii_uppercase +
                    string.ascii_lowercase + string.digits, 10)))
     return ee_random10
+
+
+def deleteDB(self, dbname, dbuser, dbhost):
+    try:
+        # Check if Database exists
+        try:
+            if EEMysql.check_db_exists(self, dbname):
+                # Drop database if exists
+                Log.debug(self, "dropping database `{0}`".format(dbname))
+                EEMysql.execute(self,
+                                "drop database `{0}`".format(dbname),
+                                errormsg='Unable to drop database {0}'
+                                .format(dbname))
+        except StatementExcecutionError as e:
+            Log.debug(self, "drop database failed")
+            Log.info(self, "Database {0} not dropped".format(dbname))
+
+        except MySQLConnectionError as e:
+            Log.debug(self, "Mysql Connection problem occured")
+
+        if dbuser != 'root':
+            Log.debug(self, "dropping user `{0}`".format(dbuser))
+            try:
+                EEMysql.execute(self,
+                                "drop user `{0}`@`{1}`"
+                                .format(dbuser, dbhost))
+            except StatementExcecutionError as e:
+                Log.debug(self, "drop database user failed")
+                Log.info(self, "Database {0} not dropped".format(dbuser))
+            try:
+                EEMysql.execute(self, "flush privileges")
+            except StatementExcecutionError as e:
+                Log.debug(self, "drop database failed")
+                Log.info(self, "Database {0} not dropped".format(dbname))
+    except Exception as e:
+        Log.error(self, "Error occured while deleting database")
+
+
+def deleteWebRoot(self, webroot):
+    if os.path.isdir(webroot):
+        Log.debug(self, "Removing {0}".format(webroot))
+        EEFileUtils.rm(self, webroot)
+        return True
+    else:
+        Log.debug(self, "{0} does not exist".format(webroot))
+        return False
+
+
+def removeNginxConf(self, domain):
+    if os.path.isfile('/etc/nginx/sites-available/{0}'
+                      .format(domain)):
+            Log.debug(self, "Removing Nginx configuration")
+            EEFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
+                           .format(domain))
+            EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
+                           .format(domain))
+            EEGit.add(self, ["/etc/nginx"],
+                      msg="Deleted {0} "
+                      .format(domain))
+
+
+def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
+                    dbhost=''):
+    """
+       Removes the nginx configuration and database for the domain provided.
+       doCleanupAction(self, domain='sitename', webroot='',
+                       dbname='', dbuser='', dbhost='')
+    """
+    if domain:
+        if os.path.isfile('/etc/nginx/sites-available/{0}'
+                          .format(domain)):
+            removeNginxConf(self, domain)
+    if webroot:
+        deleteWebRoot(self, webroot)
+
+    if dbname:
+        if not dbuser:
+            raise SiteError("dbuser not provided")
+            if not dbhost:
+                raise SiteError("dbhost not provided")
+        deleteDB(self, dbname, dbuser, dbhost)
