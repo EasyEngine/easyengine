@@ -160,8 +160,11 @@ class EESiteController(CementBaseController):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            EEShellExec.invoke_editor(self, '/etc/nginx/sites-available/{0}'
-                                      .format(ee_domain))
+            try:
+                EEShellExec.invoke_editor(self, '/etc/nginx/sites-available/'
+                                          '{0}'.format(ee_domain))
+            except CommandExecutionError as e:
+                Log.error(self, "Failed invoke editor")
             if (EEGit.checkfilestatus(self, "/etc/nginx",
                '/etc/nginx/sites-available/{0}'.format(ee_domain))):
                 EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
@@ -257,20 +260,24 @@ class EESiteCreateController(CementBaseController):
             stype, cache = detSitePar(vars(self.app.pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
-            Log.error(self, "Please provide valid option combination for"
-                      " creating site")
+            Log.error(self, "Please provide valid options to creating site")
 
         if not self.app.pargs.site_name:
             try:
                 self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
-                Log.error(self, 'could not input site name')
+                Log.debug(self, str(e))
+                Log.error(self, "Unable to input site name, Please try again!")
 
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         if check_domain_exists(self, ee_domain):
             Log.error(self, "site {0} already exists".format(ee_domain))
+        elif os.path.isfile('/etc/nginx/sites-available/{0}'
+                            .format(ee_domain)):
+            Log.error(self, "Nginx configuration /etc/nginx/sites-available/"
+                      "{0} already exists".format(ee_domain))
 
         if stype in ['html', 'php']:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -311,9 +318,14 @@ class EESiteCreateController(CementBaseController):
                 # setup NGINX configuration, and webroot
                 setupdomain(self, data)
             except SiteError as e:
-                # TODO call cleanup actions
+                # call cleanup actions on failure
+                Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                doCleanupAction(self, domain=ee_domain,
+                                webroot=data['webroot'])
                 Log.debug(self, str(e))
-                Log.error(self, "Failed. Check logs `tail /var/log/ee/ee.log`")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
 
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
             # Setup database for MySQL site
@@ -326,8 +338,18 @@ class EESiteCreateController(CementBaseController):
                                    db_password=data['ee_db_pass'],
                                    db_host=data['ee_db_host'])
                 except SiteError as e:
-                    # TODO call cleanup actions
-                    Log.error(str(e))
+                    # call cleanup actions on failure
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                    Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                    doCleanupAction(self, domain=ee_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['ee_db_name'],
+                                    dbuser=data['ee_db_user'],
+                                    dbhost=data['ee_db_host'])
+                    deleteSiteInfo(self, ee_domain)
+                    Log.error(self, "Check logs for reason "
+                              "`tail /var/log/ee/ee.log` & Try Again!!!")
 
                 try:
                     eedbconfig = open("{0}/ee-config.php"
@@ -344,9 +366,19 @@ class EESiteCreateController(CementBaseController):
                     eedbconfig.close()
                     stype = 'mysql'
                 except IOError as e:
-                    Log.debug(self, "{2} ({0}): {1}"
-                              .format(e.errno, e.strerror, ee_domain))
-                    Log.error(self, " Unable to create ee-config.php for ")
+                    Log.debug(self, str(e))
+                    Log.debug(self, "Error occured while generating "
+                              "ee-config.php")
+                    Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                    Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                    doCleanupAction(self, domain=ee_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['ee_db_name'],
+                                    dbuser=data['ee_db_user'],
+                                    dbhost=data['ee_db_host'])
+                    deleteSiteInfo(self, ee_domain)
+                    Log.error(self, "Check logs for reason "
+                              "`tail /var/log/ee/ee.log` & Try Again!!!")
 
             # Setup WordPress if Wordpress site
             if data['wp']:
@@ -358,8 +390,18 @@ class EESiteCreateController(CementBaseController):
                                    db_password=data['ee_db_pass'],
                                    db_host=data['ee_db_host'])
                 except SiteError as e:
-                    # TODO call cleanup actions
-                    Log.error(str(e))
+                    # call cleanup actions on failure
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                    Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                    doCleanupAction(self, domain=ee_domain,
+                                    webroot=data['webroot'],
+                                    dbname=data['ee_db_name'],
+                                    dbuser=data['ee_db_user'],
+                                    dbhost=data['ee_db_host'])
+                    deleteSiteInfo(self, ee_domain)
+                    Log.error(self, "Check logs for reason "
+                              "`tail /var/log/ee/ee.log` & Try Again!!!")
 
             # Service Nginx Reload
             EEService.reload_service(self, 'nginx')
@@ -368,7 +410,21 @@ class EESiteCreateController(CementBaseController):
                       msg="{0} created with {1} {2}"
                       .format(ee_www_domain, stype, cache))
             # Setup Permissions for webroot
-            setwebrootpermissions(self, data['webroot'])
+            try:
+                setwebrootpermissions(self, data['webroot'])
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                doCleanupAction(self, domain=ee_domain,
+                                webroot=data['webroot'],
+                                dbname=data['ee_db_name'],
+                                dbuser=data['ee_db_user'],
+                                dbhost=data['ee_db_host'])
+                deleteSiteInfo(self, ee_domain)
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
+
             if ee_auth and len(ee_auth):
                 for msg in ee_auth:
                     Log.info(self, Log.ENDC + msg, log=False)
@@ -384,8 +440,8 @@ class EESiteCreateController(CementBaseController):
             Log.info(self, "Successfully created site"
                      " http://{0}".format(ee_domain))
         except SiteError as e:
-            Log.error(self, "Check logs for more info "
-                      "`tail /var/log/ee/ee.log`")
+            Log.error(self, "Check logs for reason "
+                      "`tail /var/log/ee/ee.log` & Try Again!!!")
 
 
 class EESiteUpdateController(CementBaseController):
@@ -673,7 +729,7 @@ class EESiteDeleteController(CementBaseController):
                 if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
                     Log.info(self, "Deleting Database, {0}, user {1}"
                              .format(ee_db_name, ee_db_user))
-                    self.deleteDB(ee_db_name, ee_db_user, ee_db_host)
+                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host)
                     updateSiteInfo(self, ee_domain,
                                    db_name='deleted',
                                    db_user='deleted',
@@ -696,7 +752,7 @@ class EESiteDeleteController(CementBaseController):
                 if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
                     Log.info(self, "Deleting Webroot, {0}"
                              .format(ee_site_webroot))
-                    self.deleteWebRoot(ee_site_webroot)
+                    deleteWebRoot(self, ee_site_webroot)
                     updateSiteInfo(self, ee_domain, webroot='deleted')
                     mark_webroot_deleted = True
                     Log.info(self, "Deleted webroot successfully")
@@ -706,55 +762,11 @@ class EESiteDeleteController(CementBaseController):
 
         if (mark_webroot_deleted and mark_db_deleted):
                 # TODO Delete nginx conf
-                self.removeNginxConf(ee_domain)
+                removeNginxConf(self, ee_domain)
                 deleteSiteInfo(self, ee_domain)
                 Log.info(self, "Deleted site {0}".format(ee_domain))
         # else:
         #     Log.error(self, " site {0} does not exists".format(ee_domain))
-
-    @expose(hide=True)
-    def deleteDB(self, dbname, dbuser, dbhost):
-        try:
-            # Check if Database exists
-
-            # Drop database if exists
-            Log.debug(self, "dropping database `{0}`".format(dbname))
-            EEMysql.execute(self,
-                            "drop database `{0}`".format(dbname),
-                            errormsg='Unable to drop database {0}'
-                            .format(dbname))
-
-            if dbuser != 'root':
-                Log.debug(self, "dropping user `{0}`".format(dbuser))
-                EEMysql.execute(self,
-                                "drop user `{0}`@`{1}`"
-                                .format(dbuser, dbhost))
-                EEMysql.execute(self, "flush privileges")
-        except Exception as e:
-            Log.error(self, "Error occured while deleting database")
-
-    @expose(hide=True)
-    def deleteWebRoot(self, webroot):
-        if os.path.isdir(webroot):
-            Log.debug(self, "Removing {0}".format(webroot))
-            EEFileUtils.rm(self, webroot)
-            return True
-        else:
-            Log.debug(self, "{0} does not exist".format(webroot))
-            return False
-
-    @expose(hide=True)
-    def removeNginxConf(self, domain):
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(domain)):
-                Log.debug(self, "Removing Nginx configuration")
-                EEFileUtils.rm(self, '/etc/nginx/sites-enabled/{0}'
-                               .format(domain))
-                EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
-                               .format(domain))
-                EEGit.add(self, ["/etc/nginx"],
-                          msg="Deleted {0} "
-                          .format(domain))
 
 
 class EESiteListController(CementBaseController):
