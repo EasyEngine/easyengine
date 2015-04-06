@@ -41,8 +41,8 @@ class EEMysql():
 
     def dbConnection(self, db_name):
         try:
-            connection = connections.Connection(db=db_name,
-                                                read_default_file='~/.my.cnf')
+            connection = pymysql.connect(db=db_name,
+                                         read_default_file='~/.my.cnf')
             return connection
         except DatabaseError as e:
             if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
