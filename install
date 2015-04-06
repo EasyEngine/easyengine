@@ -5,7 +5,7 @@
 # to update current EasyEngine from 2.x to 3.x
 
 old_ee_version="2.2.3"
-new_ee_version="3.0.5"
+new_ee_version="3.0.6"
 branch=$1
 
 # Define echo function
@@ -50,100 +50,109 @@ function install_dep()
 
 function sync_db()
 {
-    mkdir -p /var/lib/ee
+    if [ ! -f /var/lib/ee/ee.db ]; then
+        mkdir -p /var/lib/ee
 
-    # Sqlite query to create table `sites` into ee.db which will be used by ee.3.0
-    echo "CREATE TABLE sites (
-           id INTEGER PRIMARY KEY     AUTOINCREMENT,
-           sitename UNIQUE,
-           site_type CHAR,
-           cache_type CHAR,
-           site_path  CHAR,
-           created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-           is_enabled INT,
-           is_ssl INT,
-           storage_fs CHAR,
-           storage_db CHAR
-        );" | sqlite3 /var/lib/ee/ee.db
+        # Sqlite query to create table `sites` into ee.db which will be used by ee.3.0
+        echo "CREATE TABLE sites (
+               id INTEGER PRIMARY KEY     AUTOINCREMENT,
+               sitename UNIQUE,
+               site_type CHAR,
+               cache_type CHAR,
+               site_path  CHAR,
+               created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+               is_enabled INT,
+               is_ssl INT,
+               storage_fs CHAR,
+               storage_db CHAR,
+               db_name VARCHAR,
+               db_user VARCHAR,
+               db_password VARCHAR,
+               db_host VARCHAR
+            );" | sqlite3 /var/lib/ee/ee.db
 
-    for site in $(ls /etc/nginx/sites-available/ | grep -v default);
-    do
-    if [ -f /etc/nginx/sites-available/$site ]; then
-        ENABLE_STATUS='1'
+        for site in $(ls /etc/nginx/sites-available/ | grep -v default);
+        do
+        if [ -f /etc/nginx/sites-available/$site ]; then
+            ENABLE_STATUS='1'
+        else
+            ENABLE_STATUS='0'
+        fi
+        # Find out information about current NGINX configuration
+        EE_SITE_CURRENT_TYPE=$(head -n1 /etc/nginx/sites-available/$site | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
+        # Detect current website type and cache
+        if [ "$EE_SITE_CURRENT_TYPE" = "HTML" ]; then
+            EE_SITE_CURRENT="html"
+            EE_SITE_CURRENT_CACHE="basic"
+        elif [ "$EE_SITE_CURRENT_TYPE" = "PHP" ]; then
+            EE_SITE_CURRENT="php"
+            EE_SITE_CURRENT_CACHE="basic"
+        elif [ "$EE_SITE_CURRENT_TYPE" = "MYSQL" ]; then
+            EE_SITE_CURRENT="mysql"
+            EE_SITE_CURRENT_CACHE="basic"
+        # Single WordPress
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE BASIC" ]; then
+            EE_SITE_CURRENT="wp"
+            EE_SITE_CURRENT_CACHE="basic"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE WP SUPER CACHE" ]; then
+            EE_SITE_CURRENT="wp"
+            EE_SITE_CURRENT_CACHE="wpsc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE W3 TOTAL CACHE" ]; then
+            EE_SITE_CURRENT="wp"
+            EE_SITE_CURRENT_CACHE="w3tc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FASTCGI" ]; then
+            EE_SITE_CURRENT="wp"
+            EE_SITE_CURRENT_CACHE="wpfc"
+
+        # WordPress subdirectory
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR BASIC" ]; then
+            EE_SITE_CURRENT="wpsubdir"
+            EE_SITE_CURRENT_CACHE="basic"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR WP SUPER CACHE" ]; then
+            EE_SITE_CURRENT="wpsubdir"
+            EE_SITE_CURRENT_CACHE="wpsc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR W3 TOTAL CACHE" ]; then
+            EE_SITE_CURRENT="wpsubdir"
+            EE_SITE_CURRENT_CACHE="w3tc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FASTCGI" ]; then
+            EE_SITE_CURRENT="wpsubdir"
+            EE_SITE_CURRENT_CACHE="wpfc"
+
+        # WordPress subdomain
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN BASIC" ]; then
+            EE_SITE_CURRENT="wpsubdomain"
+            EE_SITE_CURRENT_CACHE="basic"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
+            EE_SITE_CURRENT="wpsubdomain"
+            EE_SITE_CURRENT_CACHE="wpsc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
+            EE_SITE_CURRENT="wpsubdomain"
+            EE_SITE_CURRENT_CACHE="w3tc"
+
+        elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FASTCGI" ]; then
+            EE_SITE_CURRENT="wpsubdomain"
+            EE_SITE_CURRENT_CACHE="wpfc"
+        fi
+
+        WEBROOT="/var/www/$site"
+
+        # Insert query to insert old site information into ee.db
+        echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
+        VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/ee/ee.db
+
+        done
     else
-        ENABLE_STATUS='0'
+        ee_lib_echo "Updating EasyEngine Database"
+        echo "ALTER TABLE sites ADD COLUMN db_name varchar; ALTER TABLE sites ADD COLUMN db_user varchar; ALTER TABLE sites ADD COLUMN db_password varchar; ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/ee/ee.db
     fi
-    # Find out information about current NGINX configuration
-    EE_SITE_CURRENT_TYPE=$(head -n1 /etc/nginx/sites-available/$site | grep "NGINX CONFIGURATION" | rev | cut -d' ' -f3,4,5,6,7 | rev | cut -d ' ' -f2,3,4,5)
-    # Detect current website type and cache
-    if [ "$EE_SITE_CURRENT_TYPE" = "HTML" ]; then
-        EE_SITE_CURRENT="html"
-        EE_SITE_CURRENT_CACHE="basic"
-    elif [ "$EE_SITE_CURRENT_TYPE" = "PHP" ]; then
-        EE_SITE_CURRENT="php"
-        EE_SITE_CURRENT_CACHE="basic"
-    elif [ "$EE_SITE_CURRENT_TYPE" = "MYSQL" ]; then
-        EE_SITE_CURRENT="mysql"
-        EE_SITE_CURRENT_CACHE="basic"
-    # Single WordPress
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE BASIC" ]; then
-        EE_SITE_CURRENT="wp"
-        EE_SITE_CURRENT_CACHE="basic"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE WP SUPER CACHE" ]; then
-        EE_SITE_CURRENT="wp"
-        EE_SITE_CURRENT_CACHE="wpsc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE W3 TOTAL CACHE" ]; then
-        EE_SITE_CURRENT="wp"
-        EE_SITE_CURRENT_CACHE="w3tc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSINGLE FASTCGI" ]; then
-        EE_SITE_CURRENT="wp"
-        EE_SITE_CURRENT_CACHE="wpfc"
-
-    # WordPress subdirectory
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR BASIC" ]; then
-        EE_SITE_CURRENT="wpsubdir"
-        EE_SITE_CURRENT_CACHE="basic"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR WP SUPER CACHE" ]; then
-        EE_SITE_CURRENT="wpsubdir"
-        EE_SITE_CURRENT_CACHE="wpsc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR W3 TOTAL CACHE" ]; then
-        EE_SITE_CURRENT="wpsubdir"
-        EE_SITE_CURRENT_CACHE="w3tc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDIR FASTCGI" ]; then
-        EE_SITE_CURRENT="wpsubdir"
-        EE_SITE_CURRENT_CACHE="wpfc"
-
-    # WordPress subdomain
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN BASIC" ]; then
-        EE_SITE_CURRENT="wpsubdomain"
-        EE_SITE_CURRENT_CACHE="basic"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN WP SUPER CACHE" ]; then
-        EE_SITE_CURRENT="wpsubdomain"
-        EE_SITE_CURRENT_CACHE="wpsc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN W3 TOTAL CACHE" ]; then
-        EE_SITE_CURRENT="wpsubdomain"
-        EE_SITE_CURRENT_CACHE="w3tc"
-
-    elif [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FAST CGI" ] || [ "$EE_SITE_CURRENT_TYPE" = "WPSUBDOMAIN FASTCGI" ]; then
-        EE_SITE_CURRENT="wpsubdomain"
-        EE_SITE_CURRENT_CACHE="wpfc"
-    fi
-
-    WEBROOT="/var/www/$site"
-
-    # Insert query to insert old site information into ee.db
-    echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
-    VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/ee/ee.db
-
-    done
 }
 
 
@@ -241,12 +250,12 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Execute: apt-get update
-ee_lib_echo "Executing apt-get update"
+ee_lib_echo "Executing apt-get update, please wait ..."
 apt-get update &>> /dev/null
 
 # Checking lsb_release package
 if [ ! -x /usr/bin/lsb_release ]; then
-    ee_lib_echo "Installing lsb-release, please wait..."
+    ee_lib_echo "Installing lsb-release, please wait ..."
     apt-get -y install lsb-release &>> /dev/null
 fi
 
@@ -275,7 +284,7 @@ fi
 # Checking EasyEngine (ee) log directory
 if [ ! -d $EE_LOG_DIR ]; then
 
-    ee_lib_echo "Creating EasyEngine log directory, please wait..."
+    ee_lib_echo "Creating EasyEngine log directory, please wait ..."
     mkdir -p $EE_LOG_DIR || ee_lib_error "Creating log  directory failed, exit status " 1
 
     # Create EasyEngine log files
@@ -312,6 +321,7 @@ else
         read -p "Update EasyEngine to $new_ee_version (y/n): " ee_ans
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
             install_dep | tee -ai $EE_INSTALL_LOG
+            sync_db | tee -ai $EE_INSTALL_LOG
             update_to_ee_latest | tee -ai $EE_INSTALL_LOG
             install_ee3 | tee -ai $EE_INSTALL_LOG
             git_init | tee -ai $EE_INSTALL_LOG
