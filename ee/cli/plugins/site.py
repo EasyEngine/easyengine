@@ -20,7 +20,7 @@ def ee_site_hook(app):
     from ee.core.database import init_db
     import ee.cli.plugins.models
     init_db(app)
-    syncdbinfo(app)
+    # syncdbinfo()
 
 
 class EESiteController(CementBaseController):
