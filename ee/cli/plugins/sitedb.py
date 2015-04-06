@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from ee.core.logging import Log
 from ee.core.database import db_session
+from ee.core.fileutils import EEFileUtils
 from ee.cli.plugins.models import SiteDB
 import sys
 import glob
