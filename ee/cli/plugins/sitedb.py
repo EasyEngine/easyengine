@@ -6,6 +6,7 @@ from ee.core.logging import Log
 from ee.core.database import db_session
 from ee.cli.plugins.models import SiteDB
 import sys
+import glob
 
 
 def addNewSite(self, site, stype, cache, path,
