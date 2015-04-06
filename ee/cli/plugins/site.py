@@ -716,25 +716,23 @@ class EESiteDeleteController(CementBaseController):
 
         # Gather information from ee-db for ee_domain
         check_site = getSiteInfo(self, ee_domain)
-
+        ee_site_type = check_site.site_type
+        ee_site_webroot = check_site.site_path
+        if ee_site_webroot == 'deleted':
+            mark_webroot_deleted = True
+        if ee_site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+            ee_db_name = check_site.db_name
+            ee_db_user = check_site.db_user
+            ee_db_host = check_site.db_host
+            if ee_db_name == 'deleted':
+                mark_db_deleted = True
+            if self.app.pargs.all:
+                self.app.pargs.db = True
+                self.app.pargs.files = True
         else:
-            ee_site_type = check_site.site_type
-            ee_site_webroot = check_site.site_path
-            if ee_site_webroot == 'deleted':
-                mark_webroot_deleted = True
-            if ee_site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-                ee_db_name = check_site.db_name
-                ee_db_user = check_site.db_user
-                ee_db_host = check_site.db_host
-                if ee_db_name == 'deleted':
-                    mark_db_deleted = True
-                if self.app.pargs.all:
-                    self.app.pargs.db = True
-                    self.app.pargs.files = True
-            else:
-                if self.app.pargs.all:
-                    mark_db_deleted = True
-                    self.app.pargs.files = True
+            if self.app.pargs.all:
+                mark_db_deleted = True
+                self.app.pargs.files = True
 
         # Delete website database
         if self.app.pargs.db:
