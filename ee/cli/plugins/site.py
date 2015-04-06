@@ -45,10 +45,16 @@ class EESiteController(CementBaseController):
                 self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
+
+        # validate domain name
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        Log.info(self, "Enable domain {0:10} \t".format(ee_domain), end='')
+
+        # check if site exists
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
+            Log.info(self, "Enable domain {0:10} \t".format(ee_domain), end='')
             EEFileUtils.create_symlink(self,
                                        ['/etc/nginx/sites-available/{0}'
                                         .format(ee_domain),
@@ -61,7 +67,8 @@ class EESiteController(CementBaseController):
             Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
             EEService.reload_service(self, 'nginx')
         else:
-            Log.error(self, "\nsite {0} does not exists".format(ee_domain))
+            Log.error(self, "nginx configuration file does not exist"
+                      .format(ee_domain))
 
     @expose(help="Disable site example.com")
     def disable(self):
@@ -71,9 +78,14 @@ class EESiteController(CementBaseController):
             except IOError as e:
                 Log.error(self, 'could not input site name')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        Log.info(self, "Disable domain {0:10} \t".format(ee_domain), end='')
+        # check if site exists
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
+            Log.info(self, "Disable domain {0:10} \t"
+                     .format(ee_domain), end='')
             if not os.path.isfile('/etc/nginx/sites-enabled/{0}'
                                   .format(ee_domain)):
                 Log.debug(self, "Site {0} already disabled".format(ee_domain))
@@ -89,7 +101,8 @@ class EESiteController(CementBaseController):
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                 EEService.reload_service(self, 'nginx')
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "nginx configuration file does not exist"
+                      .format(ee_domain))
 
     @expose(help="Get example.com information")
     def info(self):
@@ -102,53 +115,45 @@ class EESiteController(CementBaseController):
         ee_db_name = ''
         ee_db_user = ''
         ee_db_pass = ''
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
-            check_site = getSiteInfo(self, ee_domain)
-            if check_site is None:
-                Log.error(self, " Site {0} does not exist.".format(ee_domain))
-            else:
-                sitetype = check_site.site_type
-                cachetype = check_site.cache_type
+            siteinfo = getSiteInfo(self, ee_domain)
 
-            ee_site_webroot = EEVariables.ee_webroot + ee_domain
+            sitetype = siteinfo.site_type
+            cachetype = siteinfo.cache_type
+            ee_site_webroot = siteinfo.site_path
             access_log = (ee_site_webroot + '/logs/access.log')
             error_log = (ee_site_webroot + '/logs/error.log')
-            configfiles = glob.glob(ee_site_webroot + '/*-config.php')
-            if configfiles:
-                if EEFileUtils.isexist(self, configfiles[0]):
-                    ee_db_name = (EEFileUtils.grep(self, configfiles[0],
-                                  'DB_NAME').split(',')[1]
-                                  .split(')')[0].strip().replace('\'', ''))
-                    ee_db_user = (EEFileUtils.grep(self, configfiles[0],
-                                  'DB_USER').split(',')[1]
-                                  .split(')')[0].strip().replace('\'', ''))
-                    ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
-                                  'DB_PASSWORD').split(',')[1]
-                                  .split(')')[0].strip().replace('\'', ''))
+            ee_db_name = siteinfo.db_name
+            ee_db_user = siteinfo.db_user
+            ee_db_pass = siteinfo.db_password
+            ee_db_host = siteinfo.db_host
 
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
                         dbpass=ee_db_pass, type=sitetype + " " + cachetype +
                         " ({0})".format("enabled"
-                                        if check_site.is_enabled else
+                                        if siteinfo.is_enabled else
                                         "disabled"))
             self.app.render((data), 'siteinfo.mustache')
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "nginx configuration file does not exist"
+                      .format(ee_domain))
 
     @expose(help="Monitor example.com logs")
     def log(self):
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        ee_site_webroot = EEVariables.ee_webroot + ee_domain
+        ee_site_webroot = getSiteInfo(self, ee_domain).site_path
 
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(ee_domain)):
-            logfiles = glob.glob(ee_site_webroot + '/logs/*.log')
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+        logfiles = glob.glob(ee_site_webroot + '/logs/*.log')
+        if logfiles:
             logwatch(self, logfiles)
-        else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
 
     @expose(help="Edit Nginx configuration of example.com")
     def edit(self):
@@ -156,8 +161,11 @@ class EESiteController(CementBaseController):
             try:
                 self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
-                Log.error(self, 'could not input site name')
+                Log.error(self, 'Unable to read input, Please try again')
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             try:
@@ -172,7 +180,8 @@ class EESiteController(CementBaseController):
                 # Reload NGINX
                 EEService.reload_service(self, 'nginx')
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "nginx configuration file does not exists"
+                      .format(ee_domain))
 
     @expose(help="Display Nginx configuration of example.com")
     def show(self):
@@ -183,6 +192,10 @@ class EESiteController(CementBaseController):
                 Log.error(self, 'could not input site name')
         # TODO Write code for ee site edit command here
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
         if os.path.isfile('/etc/nginx/sites-available/{0}'
                           .format(ee_domain)):
             Log.info(self, "Display NGINX configuration for {0}"
@@ -193,7 +206,8 @@ class EESiteController(CementBaseController):
             Log.info(self, Log.ENDC + text)
             f.close()
         else:
-            Log.error(self, " site {0} does not exists".format(ee_domain))
+            Log.error(self, "nginx configuration file does not exists"
+                      .format(ee_domain))
 
     @expose(help="Change directory to site webroot")
     def cd(self):
@@ -201,17 +215,21 @@ class EESiteController(CementBaseController):
             try:
                 self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
-                Log.error(self, 'could not input site name')
+                Log.error(self, 'Unable to read input, please try again')
+
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(ee_domain)):
-            ee_site_webroot = EEVariables.ee_webroot + ee_domain
-            EEFileUtils.chdir(self, ee_site_webroot)
-            try:
-                subprocess.call(['bash'])
-            except OSError as e:
-                Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                Log.error(self, " cannot change directory")
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
+        ee_site_webroot = getSiteInfo(self, ee_domain).site_path
+        EEFileUtils.chdir(self, ee_site_webroot)
+
+        try:
+            subprocess.call(['bash'])
+        except OSError as e:
+            Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
+            Log.error(self, "unable to change directory")
 
 
 class EESiteCreateController(CementBaseController):
@@ -487,8 +505,8 @@ class EESiteUpdateController(CementBaseController):
             stype, cache = detSitePar(vars(self.app.pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
-            Log.error(self, "Please provide valid option combination for"
-                      " creating site")
+            Log.error(self, "Please provide valid options combination for"
+                      " site update")
 
         if not self.app.pargs.site_name:
             try:
@@ -689,6 +707,9 @@ class EESiteDeleteController(CementBaseController):
         ee_nginx_prompt = ''
         mark_db_deleted = False
         mark_webroot_deleted = False
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
         if ((not self.app.pargs.db) and (not self.app.pargs.files) and
            (not self.app.pargs.all)):
             self.app.pargs.all = True
@@ -696,8 +717,6 @@ class EESiteDeleteController(CementBaseController):
         # Gather information from ee-db for ee_domain
         check_site = getSiteInfo(self, ee_domain)
 
-        if check_site is None:
-            Log.error(self, " Site {0} does not exist.".format(ee_domain))
         else:
             ee_site_type = check_site.site_type
             ee_site_webroot = check_site.site_path
