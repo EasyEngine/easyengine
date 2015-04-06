@@ -141,8 +141,8 @@ def syncdbinfo(self):
                                   .split(')')[0].strip().replace('\'', ''))
 
                     if site.db_name != ee_db_name:
-                        Log.debug(self, "Updating {0}"
-                                  .format(site.sitename))
+                        app.log.debug("Updating {0}"
+                                      .format(site.sitename))
                         updateSiteInfo(self, site.sitename,
                                        db_name=ee_db_name,
                                        db_user=ee_db_user,
