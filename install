@@ -157,7 +157,7 @@ function sync_db()
 
 function secure_ee_db()
 {
-    chown -R root:root /var/lib/ee/ &>>
+    chown -R root:root /var/lib/ee/
     chmod -R 600 /var/lib/ee/
 }
 
