@@ -605,19 +605,20 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
                                          .format(ee_wp_user))
         except Exception as e:
             Log.debug(self, "{0}".format(e))
-            raise SiteError("failed to get input password ")
+            raise SiteError("failed to read password input ")
 
-        if len(ee_wp_pass) > 8:
-            try:
-                EEShellExec.cmd_exec(self, "wp --allow-root user update {0}"
-                                     "  --user_pass={1}"
-                                     .format(ee_wp_user, ee_wp_pass))
-            except CommandExecutionError as e:
-                raise SiteError("wp user password update command failed")
-            Log.info(self, "Password updated successfully")
-        else:
-            Log.error(self, "Password Unchanged. Hint : Your password must be "
-                      "8 characters long")
+        if len(ee_wp_pass) < 8:
+            Log.warn(self, "Warning : Warning: You have provided a "
+                     "weak password")
+
+        try:
+            EEShellExec.cmd_exec(self, "wp --allow-root user update {0}"
+                                 "  --user_pass={1}"
+                                 .format(ee_wp_user, ee_wp_pass))
+        except CommandExecutionError as e:
+            raise SiteError("wp user password update command failed")
+        Log.info(self, "Password updated successfully")
+
     else:
         Log.error(self, "Invalid WordPress user {0} for {1}."
                   .format(ee_wp_user, ee_domain))
