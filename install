@@ -155,6 +155,12 @@ function sync_db()
     fi
 }
 
+function secure_ee_db()
+{
+    chown -R root:root /var/lib/ee/ &>>
+    chmod -R 600 /var/lib/ee/
+}
+
 
 function install_ee3()
 {
@@ -308,12 +314,14 @@ if [ -f /usr/local/sbin/easyengine ]; then
     fi
     install_dep | tee -ai $EE_INSTALL_LOG
     sync_db | tee -ai $EE_INSTALL_LOG
+    secure_ee_db | tee -ai $EE_INSTALL_LOG
     install_ee3 | tee -ai $EE_INSTALL_LOG
     update_to_ee3 | tee -ai $EE_INSTALL_LOG
     git_init | tee -ai $EE_INSTALL_LOG
 elif [ ! -f /usr/local/bin/ee ]; then
     install_dep | tee -ai $EE_INSTALL_LOG
     install_ee3 | tee -ai $EE_INSTALL_LOG
+    secure_ee_db | tee -ai $EE_INSTALL_LOG
     git_init | tee -ai $EE_INSTALL_LOG
 else
     ee -v 2>&1 | grep $new_ee_version &>> /dev/null
@@ -322,6 +330,7 @@ else
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
             install_dep | tee -ai $EE_INSTALL_LOG
             sync_db | tee -ai $EE_INSTALL_LOG
+            secure_ee_db | tee -ai $EE_INSTALL_LOG
             update_to_ee_latest | tee -ai $EE_INSTALL_LOG
             install_ee3 | tee -ai $EE_INSTALL_LOG
             git_init | tee -ai $EE_INSTALL_LOG
