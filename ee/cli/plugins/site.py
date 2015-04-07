@@ -535,7 +535,7 @@ class EESiteUpdateController(CementBaseController):
                 updatewpuserpassword(self, ee_domain, ee_site_webroot)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Updating WP user password failed")
+                Log.error(self, "Password Unchanged.")
             self.app.close(0)
 
         if ((stype == 'php' and oldsitetype != 'html') or
