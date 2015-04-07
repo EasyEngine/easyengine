@@ -564,9 +564,8 @@ class EEStackController(CementBaseController):
                     EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
                                          "/vmail --disabled-password --gecos "
                                          "'' vmail")
-                    except CommandExecutionError as e:
-                        Log.error(self, "Unable to add vmail user for mail "
-                                  "server")
+                except CommandExecutionError as e:
+                    Log.error(self, "Unable to add vmail user for mail server")
                 try:
                     EEShellExec.cmd_exec(self, "openssl req -new -x509 -days"
                                          " 3650 "
@@ -577,9 +576,8 @@ class EEStackController(CementBaseController):
                                          "/etc/ssl/private/dovecot.pem"
                                          .format(hostname=EEVariables.ee_fqdn,
                                                  email=EEVariables.ee_email))
-                    except CommandExecutionError as e:
-                        Log.error(self, "Unable to generate PEM key for "
-                                  "dovecot")
+                except CommandExecutionError as e:
+                    Log.error(self, "Unable to generate PEM key for dovecot")
                 Log.debug(self, "Setting Privileges to "
                           "/etc/ssl/private/dovecot.pem file ")
                 EEFileUtils.chmod(self, "/etc/ssl/private/dovecot.pem", "0600")
