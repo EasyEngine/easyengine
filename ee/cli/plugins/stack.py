@@ -81,11 +81,16 @@ class EEStackController(CementBaseController):
         """Pre settings to do before installation packages"""
         if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
             Log.debug(self, "Pre-seeding Postfix")
-            EEShellExec.cmd_exec(self, "echo \"postfix postfix"
-                                 "/main_mailer_type string \'Internet Site\'\""
-                                 " | debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"postfix postfix/mailname string"
-                                 " $(hostname -f)\" | debconf-set-selections")
+            try:
+                EEShellExec.cmd_exec(self, "echo \"postfix postfix"
+                                     "/main_mailer_type string \'Internet Site"
+                                     "\'\""
+                                     " | debconf-set-selections")
+                EEShellExec.cmd_exec(self, "echo \"postfix postfix/mailname"
+                                     " string $(hostname -f)\" | "
+                                     "debconf-set-selections")
+            except CommandExecutionError as e:
+                Log.error(self, "Failed to intialize postfix package")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for MySQL, please wait ...")
@@ -105,20 +110,30 @@ class EEStackController(CementBaseController):
                       "mysql-server/root_password "
                       "password \" | "
                       "debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
-                                 "mysql-server/root_password "
-                                 "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars),
-                                 log=False)
+            try:
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                                     "mysql-server/root_password "
+                                     "password {chars}\" | "
+                                     "debconf-set-selections"
+                                     .format(chars=chars),
+                                     log=False)
+            except CommandExecutionError as e:
+                Log.error("Failed to initialize MySQL package")
+
             Log.debug(self, "echo \"mariadb-server-10.0 "
                       "mysql-server/root_password_again "
                       "password \" | "
                       "debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
-                                 "mysql-server/root_password_again "
-                                 "password {chars}\" | "
-                                 "debconf-set-selections".format(chars=chars),
-                                 log=False)
+            try:
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                                     "mysql-server/root_password_again "
+                                     "password {chars}\" | "
+                                     "debconf-set-selections"
+                                     .format(chars=chars),
+                                     log=False)
+            except CommandExecutionError as e:
+                Log.error("Failed to initialize MySQL package")
+
             mysql_config = """
             [client]
             user = root
@@ -152,17 +167,16 @@ class EEStackController(CementBaseController):
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
-            if EEVariables.ee_platform_codename == 'squeeze':
-                Log.info(self, "Adding repository for dovecot, "
-                         "please wait ...")
-                EERepo.add(self, repo_url=EEVariables.ee_dovecot_repo)
             Log.debug(self, 'Executing the command debconf-set-selections.')
-            EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
-                                 "create-ssl-cert boolean yes\" "
-                                 "| debconf-set-selections")
-            EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core"
-                                 "/ssl-cert-name string $(hostname -f)\""
-                                 " | debconf-set-selections")
+            try:
+                EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core/"
+                                     "create-ssl-cert boolean yes\" "
+                                     "| debconf-set-selections")
+                EEShellExec.cmd_exec(self, "echo \"dovecot-core dovecot-core"
+                                     "/ssl-cert-name string $(hostname -f)\""
+                                     " | debconf-set-selections")
+            except CommandExecutionError as e:
+                Log.error("Failed to initialize dovecot packages")
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
@@ -174,8 +188,8 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if ((not EEShellExec.cmd_exec(self, "grep -Hr EasyEngine "
-                   "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
+                if ((not EEFileUtils.grep(self, "/etc/nginx", "EasyEngine"))
+                   and os.path.isfile('/etc/nginx/nginx.conf')):
                     nc = NginxConfig()
                     Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
                     nc.loadf('/etc/nginx/nginx.conf')
@@ -307,11 +321,15 @@ class EEStackController(CementBaseController):
                     passwd = ''.join([random.choice
                                      (string.ascii_letters + string.digits)
                                      for n in range(6)])
-                    EEShellExec.cmd_exec(self, "printf \"easyengine:"
-                                         "$(openssl passwd -crypt "
-                                         "{password} 2> /dev/null)\n\""
-                                         "> /etc/nginx/htpasswd-ee 2>/dev/null"
-                                         .format(password=passwd))
+                    try:
+                        EEShellExec.cmd_exec(self, "printf \"easyengine:"
+                                             "$(openssl passwd -crypt "
+                                             "{password} 2> /dev/null)\n\""
+                                             "> /etc/nginx/htpasswd-ee "
+                                             "2>/dev/null"
+                                             .format(password=passwd))
+                    except CommandExecutionError as e:
+                        Log.error(self, "Failed to save HTTP Auth")
 
                     # Create Symbolic link for 22222
                     EEFileUtils.create_symlink(self, ['/etc/nginx/'
@@ -351,40 +369,46 @@ class EEStackController(CementBaseController):
                                                .format(EEVariables.ee_webroot)]
                                                )
 
-                    EEShellExec.cmd_exec(self, "openssl genrsa -out "
-                                         "{0}22222/cert/22222.key 2048"
-                                         .format(EEVariables.ee_webroot))
-                    EEShellExec.cmd_exec(self, "openssl req -new -batch -subj "
-                                               "/commonName=127.0.0.1/ -key "
-                                               "{0}22222/cert/22222.key "
-                                               "-out {0}22222/cert/"
-                                               "22222.csr"
-                                         .format(EEVariables.ee_webroot))
+                    try:
+                        EEShellExec.cmd_exec(self, "openssl genrsa -out "
+                                             "{0}22222/cert/22222.key 2048"
+                                             .format(EEVariables.ee_webroot))
+                        EEShellExec.cmd_exec(self, "openssl req -new -batch  "
+                                             "-subj /commonName=127.0.0.1/ "
+                                             "-key {0}22222/cert/22222.key "
+                                             "-out {0}22222/cert/"
+                                             "22222.csr"
+                                             .format(EEVariables.ee_webroot))
 
-                    EEFileUtils.mvfile(self, "{0}22222/cert/22222.key"
-                                       .format(EEVariables.ee_webroot),
+                        EEFileUtils.mvfile(self, "{0}22222/cert/22222.key"
+                                           .format(EEVariables.ee_webroot),
+                                           "{0}22222/cert/"
+                                           "22222.key.org"
+                                           .format(EEVariables.ee_webroot))
+
+                        EEShellExec.cmd_exec(self, "openssl rsa -in "
                                              "{0}22222/cert/"
-                                             "22222.key.org"
-                                       .format(EEVariables.ee_webroot))
+                                             "22222.key.org -out "
+                                             "{0}22222/cert/22222.key"
+                                             .format(EEVariables.ee_webroot))
 
-                    EEShellExec.cmd_exec(self, "openssl rsa -in "
-                                               "{0}22222/cert/"
-                                               "22222.key.org -out "
-                                               "{0}22222/cert/22222.key"
-                                         .format(EEVariables.ee_webroot))
+                        EEShellExec.cmd_exec(self, "openssl x509 -req -days "
+                                             "3652 -in {0}22222/cert/"
+                                             "22222.csr -signkey {0}"
+                                             "22222/cert/22222.key -out "
+                                             "{0}22222/cert/22222.crt"
+                                             .format(EEVariables.ee_webroot))
 
-                    EEShellExec.cmd_exec(self, "openssl x509 -req -days 3652 "
-                                               "-in {0}22222/cert/"
-                                               "22222.csr -signkey {0}"
-                                               "22222/cert/22222.key -out "
-                                               "{0}22222/cert/22222.crt"
-                                         .format(EEVariables.ee_webroot))
+                    except CommandExecutionError as e:
+                        Log.error(self, "Failed to generate SSL for 22222")
+
                     # Nginx Configation into GIT
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
+
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
@@ -521,32 +545,44 @@ class EEStackController(CementBaseController):
                     config_file.write(config)
                     config_file.close()
                 else:
-                    EEShellExec.cmd_exec(self, "sed -i \"/#max_connections/a "
-                                         "wait_timeout = 30 \\n"
-                                         "interactive_timeout = 60 \\n"
-                                         "performance_schema = 0\\n"
-                                         "query_cache_type = 1 \" "
-                                         "/etc/mysql/my.cnf")
+                    try:
+                        EEShellExec.cmd_exec(self, "sed -i \"/#max_conn"
+                                             "ections/a wait_timeout = 30 \\n"
+                                             "interactive_timeout = 60 \\n"
+                                             "performance_schema = 0\\n"
+                                             "query_cache_type = 1 \" "
+                                             "/etc/mysql/my.cnf")
+                    except CommandExecutionError as e:
+                        Log.error(self, "Unable to update MySQL file")
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
 
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 Log.debug(self, "Adding user")
-                EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
-                                     "/vmail --disabled-password --gecos ''"
-                                     " vmail")
-                EEShellExec.cmd_exec(self, "openssl req -new -x509 -days 3650 "
-                                     "-nodes -subj /commonName={HOSTNAME}"
-                                     "/emailAddress={EMAIL} -out /etc/ssl"
-                                     "/certs/dovecot."
-                                     "pem -keyout /etc/ssl/private/dovecot.pem"
-                                     .format(HOSTNAME=EEVariables.ee_fqdn,
-                                             EMAIL=EEVariables.ee_email))
+                try:
+                    EEShellExec.cmd_exec(self, "adduser --uid 5000 --home /var"
+                                         "/vmail --disabled-password --gecos "
+                                         "'' vmail")
+                    except CommandExecutionError as e:
+                        Log.error(self, "Unable to add vmail user for mail "
+                                  "server")
+                try:
+                    EEShellExec.cmd_exec(self, "openssl req -new -x509 -days"
+                                         " 3650 "
+                                         "-nodes -subj /commonName={hostname}"
+                                         "/emailAddress={email} -out /etc/ssl"
+                                         "/certs/dovecot."
+                                         "pem -keyout "
+                                         "/etc/ssl/private/dovecot.pem"
+                                         .format(hostname=EEVariables.ee_fqdn,
+                                                 email=EEVariables.ee_email))
+                    except CommandExecutionError as e:
+                        Log.error(self, "Unable to generate PEM key for "
+                                  "dovecot")
                 Log.debug(self, "Setting Privileges to "
                           "/etc/ssl/private/dovecot.pem file ")
-                EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
-                                     "/dovecot.pem")
+                EEFileUtils.chmod(self, "/etc/ssl/private/dovecot.pem", "0600")
 
                 # Custom Dovecot configuration by EasyEngine
                 data = dict()
@@ -565,82 +601,95 @@ class EEStackController(CementBaseController):
                                   encoding='utf-8', mode='w')
                 self.app.render((data), 'dovecot.mustache', out=ee_dovecot)
                 ee_dovecot.close()
+                try:
+                    EEShellExec.cmd_exec(self, "sed -i \"s/\\!include "
+                                         "auth-system.conf.ext/#\\!include "
+                                         "auth-system.conf.ext/\" "
+                                         "/etc/dovecot/conf.d/10-auth.conf")
 
-                EEShellExec.cmd_exec(self, "sed -i \"s/\\!include "
-                                     "auth-system.conf.ext/#\\!include "
-                                     "auth-system.conf.ext/\" "
-                                     "/etc/dovecot/conf.d/10-auth.conf")
+                    EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                         "dovecot.pem\'/etc/ssl/certs/"
+                                         "dovecot.pem"
+                                         "\'\" /etc/dovecot/conf.d/"
+                                         "10-ssl.conf")
+                    EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
+                                         "private/dovecot.pem\'/etc/ssl/"
+                                         "private"
+                                         "/dovecot.pem\'\" /etc/dovecot/"
+                                         "conf.d/"
+                                         "10-ssl.conf")
 
-                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
-                                     "dovecot.pem\'/etc/ssl/certs/dovecot.pem"
-                                     "\'\" /etc/dovecot/conf.d/10-ssl.conf")
-                EEShellExec.cmd_exec(self, "sed -i \"s\'/etc/dovecot/"
-                                     "private/dovecot.pem\'/etc/ssl/private"
-                                     "/dovecot.pem\'\" /etc/dovecot/conf.d/"
-                                     "10-ssl.conf")
+                    # Custom Postfix configuration needed with Dovecot
+                    # Changes in master.cf
+                    # TODO: Find alternative for sed in Python
+                    EEShellExec.cmd_exec(self, "sed -i \'s/#submission/"
+                                         "submission/\'"
+                                         " /etc/postfix/master.cf")
+                    EEShellExec.cmd_exec(self, "sed -i \'s/#smtps/smtps/\'"
+                                         " /etc/postfix/master.cf")
 
-                # Custom Postfix configuration needed with Dovecot
-                # Changes in master.cf
-                # TODO: Find alternative for sed in Python
-                EEShellExec.cmd_exec(self, "sed -i \'s/#submission/submission"
-                                     "/\'"
-                                     " /etc/postfix/master.cf")
-                EEShellExec.cmd_exec(self, "sed -i \'s/#smtps/smtps/\'"
-                                     " /etc/postfix/master.cf")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_type "
+                                         "= dovecot\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_path "
+                                         "= private/auth\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \""
+                                         "smtpd_sasl_auth_enable = "
+                                         "yes\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \""
+                                         " smtpd_relay_restrictions ="
+                                         " permit_sasl_authenticated, "
+                                         " permit_mynetworks, "
+                                         " reject_unauth_destination\"")
 
-                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_type = "
-                                     "dovecot\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_sasl_path = "
-                                     "private/auth\"")
-                EEShellExec.cmd_exec(self, "postconf -e \""
-                                     "smtpd_sasl_auth_enable = "
-                                     "yes\"")
-                EEShellExec.cmd_exec(self, "postconf -e \""
-                                           " smtpd_relay_restrictions ="
-                                           " permit_sasl_authenticated, "
-                                           " permit_mynetworks, "
-                                           " reject_unauth_destination\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \""
+                                         "smtpd_tls_mandatory_"
+                                         "protocols = !SSLv2,!SSLv3\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_"
+                                         "mandatory_protocols = !SSLv2,"
+                                         "!SSLv3\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls"
+                                         "_protocols = !SSLv2,!SSLv3\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls"
+                                         "_protocols = !SSLv2,!SSLv3\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"mydestination "
+                                         "= localhost\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"virtual"
+                                         "_transport "
+                                         "= lmtp:unix:private/dovecot-lmtp\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"virtual_uid_"
+                                         "maps = static:5000\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"virtual_gid_"
+                                         "maps = static:5000\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \""
+                                         " virtual_mailbox_domains = "
+                                         "mysql:/etc/postfix/mysql/virtual_"
+                                         "domains_maps.cf\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"virtual_mailbox"
+                                         "_maps"
+                                         " = mysql:/etc/postfix/mysql/virtual_"
+                                         "mailbox_maps.cf\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"virtual_alias"
+                                         "_maps  "
+                                         "= mysql:/etc/postfix/mysql/virtual_"
+                                         "alias_maps.cf\"")
+                    EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
+                                         " 3650 -nodes -subj /commonName="
+                                         "{hostname}/emailAddress={email}"
+                                         " -out /etc/ssl/certs/postfix.pem"
+                                         " -keyout /etc/ssl/private/"
+                                         "postfix.pem"
+                                         .format(hostname=EEVariables.ee_fqdn,
+                                                 email=EEVariables.ee_email))
+                    EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
+                                         "/postfix.pem")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_cert_"
+                                         "file = /etc/ssl/certs/postfix.pem\"")
+                    EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_key_"
+                                         "file = /etc/ssl/private/"
+                                         "postfix.pem\"")
 
-                EEShellExec.cmd_exec(self, "postconf -e \""
-                                     "smtpd_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_mandatory_"
-                                     "protocols = !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_protocols "
-                                     " = !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtp_tls_protocols "
-                                     "= !SSLv2,!SSLv3\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"mydestination "
-                                     "= localhost\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"virtual_transport "
-                                     "= lmtp:unix:private/dovecot-lmtp\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"virtual_uid_maps "
-                                     "= static:5000\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"virtual_gid_maps "
-                                     "= static:5000\"")
-                EEShellExec.cmd_exec(self, "postconf -e \""
-                                     " virtual_mailbox_domains = "
-                                     "mysql:/etc/postfix/mysql/virtual_"
-                                     "domains_maps.cf\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"virtual_mailbox_maps"
-                                     " = mysql:/etc/postfix/mysql/virtual_"
-                                     "mailbox_maps.cf\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"virtual_alias_maps  "
-                                     "= mysql:/etc/postfix/mysql/virtual_"
-                                     "alias_maps.cf\"")
-                EEShellExec.cmd_exec(self, "openssl req -new -x509 -days "
-                                     " 3650 -nodes -subj /commonName="
-                                     "{HOSTNAME}/emailAddress={EMAIL}"
-                                     " -out /etc/ssl/certs/postfix.pem"
-                                     " -keyout /etc/ssl/private/postfix.pem"
-                                     .format(HOSTNAME=EEVariables.ee_fqdn,
-                                             EMAIL=EEVariables.ee_email))
-                EEShellExec.cmd_exec(self, "chmod 0600 /etc/ssl/private"
-                                     "/postfix.pem")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_cert_file "
-                                     "= /etc/ssl/certs/postfix.pem\"")
-                EEShellExec.cmd_exec(self, "postconf -e \"smtpd_tls_key_file "
-                                     "= /etc/ssl/private/postfix.pem\"")
+                except CommandExecutionError as e:
+                    Log.Error(self, "Failed to update Dovecot configuration")
 
                 # Sieve configuration
                 if not os.path.exists('/var/lib/dovecot/sieve/'):
@@ -664,8 +713,12 @@ class EEStackController(CementBaseController):
                 #                     "/dovecot")
                 EEFileUtils.chown(self, "/var/lib/dovecot", 'vmail', 'vmail',
                                   recursive=True)
-                EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/sieve/"
-                                     "default.sieve")
+                try:
+                    EEShellExec.cmd_exec(self, "sievec /var/lib/dovecot/"
+                                         "/sieve/default.sieve")
+                except CommandExecutionError as e:
+                    raise SiteError("Failed to compile default.sieve")
+
                 EEGit.add(self, ["/etc/postfix", "/etc/dovecot"],
                           msg="Installed mail server")
                 EEService.restart_service(self, 'dovecot')
@@ -698,13 +751,17 @@ class EEStackController(CementBaseController):
                     vm_config.close()
 
                 # Amavis postfix configuration
-                EEShellExec.cmd_exec(self, "postconf -e \"content_filter = "
-                                     "smtp-amavis:[127.0.0.1]:10024\"")
-                EEShellExec.cmd_exec(self, "sed -i \"s/1       pickup/1       "
-                                     "pickup"
-                                     "\\n        -o content_filter=\\n      -o"
-                                     " receive_override_options=no_header_body"
-                                     "_checks/\" /etc/postfix/master.cf")
+                try:
+                    EEShellExec.cmd_exec(self, "postconf -e \"content_filter ="
+                                         " smtp-amavis:[127.0.0.1]:10024\"")
+                    EEShellExec.cmd_exec(self, "sed -i \"s/1       pickup/1   "
+                                         "    pickup"
+                                         "\\n        -o content_filter=\\n    "
+                                         "  -o receive_override_options="
+                                         "no_header_body"
+                                         "_checks/\" /etc/postfix/master.cf")
+                except CommandExecutionError as e:
+                    raise SiteError("Failed to update Amavis-Postfix config")
 
                 amavis_master = ("""smtp-amavis unix - - n - 2 smtp
     -o smtp_data_done_timeout=1200
@@ -733,19 +790,22 @@ class EEStackController(CementBaseController):
                           encoding='utf-8', mode='a') as am_config:
                         am_config.write(amavis_master)
 
-                # Amavis ClamAV configuration
-                Log.debug(self, "Adding new user clamav amavis")
-                EEShellExec.cmd_exec(self, "adduser clamav amavis")
-                Log.debug(self, "Adding new user amavis clamav")
-                EEShellExec.cmd_exec(self, "adduser amavis clamav")
-                Log.debug(self, "Setting Privileges to /var/lib/amavis/tmp ")
-                EEShellExec.cmd_exec(self, "chmod -R 775 /var/lib/amavis/tmp")
+                try:
+                    # Amavis ClamAV configuration
+                    Log.debug(self, "Adding new user clamav amavis")
+                    EEShellExec.cmd_exec(self, "adduser clamav amavis")
+                    Log.debug(self, "Adding new user amavis clamav")
+                    EEShellExec.cmd_exec(self, "adduser amavis clamav")
+                    Log.debug(self, "Setting Privileges to /var/lib/amavis"
+                              "/tmp")
+                    EEFileUtils.chmod(self, "/var/lib/amavis/tmp", "755")
 
-                # Update ClamAV database
-                Log.debug(self, "Updating database")
-                EEShellExec.cmd_exec(self, "freshclam")
-                Log.debug(self, "Restarting clamav-daemon service")
-                EEShellExec.cmd_exec(self, "service clamav-daemon restart")
+                    # Update ClamAV database
+                    Log.debug(self, "Updating database")
+                    EEShellExec.cmd_exec(self, "freshclam")
+                except CommandExecutionError as e:
+                    raise SiteError(" Unable to update ClamAV-Amavis config")
+
                 EEGit.add(self, ["/etc/amavis"], msg="Adding Amavis into Git")
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'postfix')
@@ -754,7 +814,8 @@ class EEStackController(CementBaseController):
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
-                EEShellExec.cmd_exec(self, "chmod +x /usr/bin/wp")
+                EEFileUtils.chmod(self, "/usr/bin/wp", 007)
+
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
@@ -837,9 +898,13 @@ class EEStackController(CementBaseController):
                             '{0}22222/htdocs/db/anemometer'
                             .format(EEVariables.ee_webroot))
                 chars = ''.join(random.sample(string.ascii_letters, 8))
-                EEShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
-                                     '/anemometer/install.sql'
-                                     .format(EEVariables.ee_webroot))
+                try:
+                    EEShellExec.cmd_exec(self, 'mysql < {0}22222/htdocs/db'
+                                         '/anemometer/install.sql'
+                                         .format(EEVariables.ee_webroot))
+                except CommandExecutionError as e:
+                    raise SiteError("Unable to import Anemometer database")
+
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
                                 '@\'{0}\''.format(self.app.config.get('mysql',
                                                   'grant-host')))
@@ -866,8 +931,7 @@ class EEStackController(CementBaseController):
 
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
-                EEShellExec.cmd_exec(self, "chmod +x /usr/bin/pt-query"
-                                     "-advisor")
+                EEFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 007)
 
             if any('/tmp/vimbadmin.tar.gz' == x[1] for x in packages):
                 # Extract ViMbAdmin
@@ -889,18 +953,23 @@ class EEStackController(CementBaseController):
                 # Donwload composer and install ViMbAdmin
                 Log.debug(self, "Downloading composer "
                           "https://getcomposer.org/installer | php ")
-                EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
-                                     "/vimbadmin; curl"
-                                     " -sS https://getcomposer.org/installer |"
-                                     " php".format(EEVariables.ee_webroot))
-                Log.debug(self, "installation of composer")
-                EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
-                                     "/vimbadmin && "
-                                     "php composer.phar install --prefer-dist"
-                                     " --no-dev && rm -f {1}22222/htdocs"
-                                     "/vimbadmin/composer.phar"
-                                     .format(EEVariables.ee_webroot,
-                                             EEVariables.ee_webroot))
+                try:
+                    EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
+                                         "/vimbadmin; curl"
+                                         " -sS https://getcomposer.org/"
+                                         "installer |"
+                                         " php".format(EEVariables.ee_webroot))
+                    Log.debug(self, "Installating of composer")
+                    EEShellExec.cmd_exec(self, "cd {0}22222/htdocs"
+                                         "/vimbadmin && "
+                                         "php composer.phar install "
+                                         "--prefer-dist"
+                                         " --no-dev && rm -f {1}22222/htdocs"
+                                         "/vimbadmin/composer.phar"
+                                         .format(EEVariables.ee_webroot,
+                                                 EEVariables.ee_webroot))
+                except CommandExecutionError as e:
+                    raise SiteError("Failed to setup ViMbAdmin")
 
                 # Configure vimbadmin database
                 vm_passwd = ''.join(random.sample(string.ascii_letters, 8))
@@ -945,9 +1014,13 @@ class EEStackController(CementBaseController):
                           "{0}22222/htdocs/vimbadmin/bin"
                           "/doctrine2-cli.php orm:schema-tool:"
                           "create".format(EEVariables.ee_webroot))
-                EEShellExec.cmd_exec(self, "{0}22222/htdocs/vimbadmin"
-                                     "/bin/doctrine2-cli.php orm:schema-tool:"
-                                     "create".format(EEVariables.ee_webroot))
+                try:
+                    EEShellExec.cmd_exec(self, "{0}22222/htdocs/vimbadmin"
+                                         "/bin/doctrine2-cli.php "
+                                         "orm:schema-tool:create"
+                                         .format(EEVariables.ee_webroot))
+                except CommandExecutionError as e:
+                    raise SiteError("Unable to create ViMbAdmin schema")
 
                 EEFileUtils.chown(self, '{0}22222'
                                   .format(EEVariables.ee_webroot),
