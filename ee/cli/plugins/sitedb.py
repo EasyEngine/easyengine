@@ -117,34 +117,39 @@ def getAllsites(self):
         Log.error(self, "Unable to query database")
 
 
-# def syncdbinfo(self):
-#     sites = getAllsites(self)
-#     if not sites:
-#         pass
-#     for site in sites:
-#         if site.site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-#             ee_site_webroot = site.site_path
-#             configfiles = glob.glob(ee_site_webroot + '/*-config.php')
-#             if configfiles:
-#                 if EEFileUtils.isexist(self, configfiles[0]):
-#                     ee_db_name = (EEFileUtils.grep(self, configfiles[0],
-#                                   'DB_NAME').split(',')[1]
-#                                   .split(')')[0].strip().replace('\'', ''))
-#                     ee_db_user = (EEFileUtils.grep(self, configfiles[0],
-#                                   'DB_USER').split(',')[1]
-#                                   .split(')')[0].strip().replace('\'', ''))
-#                     ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
-#                                   'DB_PASSWORD').split(',')[1]
-#                                   .split(')')[0].strip().replace('\'', ''))
-#                     ee_db_host = (EEFileUtils.grep(self, configfiles[0],
-#                                   'DB_HOST').split(',')[1]
-#                                   .split(')')[0].strip().replace('\'', ''))
-#
-#                     if site.db_name != ee_db_name:
-#                         app.log.debug("Updating {0}"
-#                                       .format(site.sitename))
-#                         updateSiteInfo(self, site.sitename,
-#                                        db_name=ee_db_name,
-#                                        db_user=ee_db_user,
-#                                        db_password=ee_db_pass,
-#                                        db_host=ee_db_host)
+class EESync(object):
+
+    def __init__(self, app):
+        self.app = app
+
+    def syncdbinfo(self):
+        sites = getAllsites(self)
+        if not sites:
+            pass
+        for site in sites:
+            if site.site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+                ee_site_webroot = site.site_path
+                configfiles = glob.glob(ee_site_webroot + '/*-config.php')
+                if configfiles:
+                    if EEFileUtils.isexist(self, configfiles[0]):
+                        ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_NAME').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_user = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_USER').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_PASSWORD').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_host = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_HOST').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+
+                        if site.db_name != ee_db_name:
+                            Log.debug(self, "Updating {0}"
+                                      .format(site.sitename))
+                            updateSiteInfo(self, site.sitename,
+                                           db_name=ee_db_name,
+                                           db_user=ee_db_user,
+                                           db_password=ee_db_pass,
+                                           db_host=ee_db_host)
