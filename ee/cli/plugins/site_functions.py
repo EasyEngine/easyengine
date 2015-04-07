@@ -480,6 +480,7 @@ def setwebrootpermissions(self, webroot):
         EEFileUtils.chown(self, webroot, EEVariables.ee_php_user,
                           EEVariables.ee_php_user, recursive=True)
     except Exception as e:
+        Log.debug(self, str(e))
         raise SiteError("problem occured while settingup webroot permissions")
 
 
