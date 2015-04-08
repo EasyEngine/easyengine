@@ -147,8 +147,8 @@ function sync_db()
         WEBROOT="/var/www/$site"
 
         # Insert query to insert old site information into ee.db
-        echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db)
-        VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql');" | sqlite3 /var/lib/ee/ee.db
+        echo "INSERT INTO sites (sitename, site_type, cache_type, site_path, is_enabled, is_ssl, storage_fs, storage_db, is_hhvm, is_pagespeed)
+        VALUES (\"$site\", \"$EE_SITE_CURRENT\", \"$EE_SITE_CURRENT_CACHE\", \"$WEBROOT\", \"$ENABLE_STATUS\", 0, 'ext4', 'mysql', 0, 0);" | sqlite3 /var/lib/ee/ee.db
 
         done
     else
