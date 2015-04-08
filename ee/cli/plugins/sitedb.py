@@ -108,7 +108,9 @@ def deleteSiteInfo(self, site):
 
 
 def getAllsites(self):
-
+    """
+        1. returns all records from ee database
+    """
     try:
         q = SiteDB.query.all()
         return q
@@ -123,12 +125,17 @@ class EESync(object):
         self.app = app
 
     def syncdbinfo(self):
+        """
+        1. reads database information from wp/ee-config.php
+        2. updates records into ee database accordingly.
+        """
         sites = getAllsites(self)
         if not sites:
             pass
         for site in sites:
             if site.site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
                 ee_site_webroot = site.site_path
+                # Read config files
                 configfiles = glob.glob(ee_site_webroot + '/*-config.php')
                 if configfiles:
                     if EEFileUtils.isexist(self, configfiles[0]):
@@ -146,6 +153,7 @@ class EESync(object):
                                       .split(')')[0].strip().replace('\'', ''))
 
                         if site.db_name != ee_db_name:
+                            # update records if any mismatch found
                             Log.debug(self, "Updating {0}"
                                       .format(site.sitename))
                             updateSiteInfo(self, site.sitename,
