@@ -188,8 +188,8 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if ((not EEFileUtils.grep(self, "/etc/nginx", "EasyEngine"))
-                   and os.path.isfile('/etc/nginx/nginx.conf')):
+                if ((not EEShellExec.cmd_exec(self, "grep EasyEngine "
+                   "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
                     nc = NginxConfig()
                     Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
                     nc.loadf('/etc/nginx/nginx.conf')
@@ -580,7 +580,7 @@ class EEStackController(CementBaseController):
                     Log.error(self, "Unable to generate PEM key for dovecot")
                 Log.debug(self, "Setting Privileges to "
                           "/etc/ssl/private/dovecot.pem file ")
-                EEFileUtils.chmod(self, "/etc/ssl/private/dovecot.pem", "0600")
+                EEFileUtils.chmod(self, "/etc/ssl/private/dovecot.pem", 0o600)
 
                 # Custom Dovecot configuration by EasyEngine
                 data = dict()
@@ -796,7 +796,7 @@ class EEStackController(CementBaseController):
                     EEShellExec.cmd_exec(self, "adduser amavis clamav")
                     Log.debug(self, "Setting Privileges to /var/lib/amavis"
                               "/tmp")
-                    EEFileUtils.chmod(self, "/var/lib/amavis/tmp", "755")
+                    EEFileUtils.chmod(self, "/var/lib/amavis/tmp", 0o755)
 
                     # Update ClamAV database
                     Log.debug(self, "Updating database")
@@ -812,7 +812,7 @@ class EEStackController(CementBaseController):
         if len(packages):
             if any('/usr/bin/wp' == x[1] for x in packages):
                 Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
-                EEFileUtils.chmod(self, "/usr/bin/wp", 007)
+                EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
 
             if any('/tmp/pma.tar.gz' == x[1]
                     for x in packages):
@@ -929,7 +929,7 @@ class EEStackController(CementBaseController):
 
             if any('/usr/bin/pt-query-advisor' == x[1]
                     for x in packages):
-                EEFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 007)
+                EEFileUtils.chmod(self, "/usr/bin/pt-query-advisor", 0o775)
 
             if any('/tmp/vimbadmin.tar.gz' == x[1] for x in packages):
                 # Extract ViMbAdmin
