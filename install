@@ -153,7 +153,7 @@ function sync_db()
         done
     else
         ee_lib_echo "Updating EasyEngine Database"
-        echo "ALTER TABLE sites ADD COLUMN db_name varchar; ALTER TABLE sites ADD COLUMN db_user varchar; ALTER TABLE sites ADD COLUMN db_password varchar; ALTER TABLE sites ADD COLUMN db_host varchar; ALTER TABLE sites ADD COLUMN is_hhvm INT; ALTER TABLE sites ADD COLUMN is_pagespeed INT;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_name varchar; ALTER TABLE sites ADD COLUMN db_user varchar; ALTER TABLE sites ADD COLUMN db_password varchar; ALTER TABLE sites ADD COLUMN db_host varchar; ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0'; ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
     fi
 }
 
