@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.0.7"
+readonly ee_version_new="3.0.8"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -337,7 +337,7 @@ else
         read -p "Update EasyEngine to $ee_version_new (y/n): " ee_ans
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
             ee_install_dep | tee -ai $ee_install_log
-            sync_db | tee -ai $EE_INSTALL_LOG
+            ee_sync_db | tee -ai $EE_INSTALL_LOG
             secure_ee_db | tee -ai $EE_INSTALL_LOG
             ee_update_latest | tee -ai $ee_install_log
             ee_install | tee -ai $ee_install_log
