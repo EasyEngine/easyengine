@@ -38,6 +38,9 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.postfix:
             Log.debug(self, "postfix service start")
             services = services + ['postfix']
+        if self.app.pargs.hhvm:
+            services = services + ['hhvm']
+            Log.debug(self, "hhvm service start")
         if self.app.pargs.memcache:
             Log.debug(self, "memcached service start")
             services = services + ['memcached']
@@ -45,11 +48,12 @@ class EEStackStatusController(CementBaseController):
             Log.debug(self, "dovecot service start")
             services = services + ['dovecot']
         if not services and EEVariables.ee_mysql_host is "localhost":
-            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,mysql,postfix services start")
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix',
+                                   'hhvm']
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix,hhvm services start")
         elif not services:
-            services = services + ['nginx', 'php5-fpm', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,postfix services start")
+            services = services + ['nginx', 'php5-fpm', 'postfix', 'hhvm']
+            Log.debug(self, "nginx,php5-fpm,postfix,hhvm services start")
 
         for service in services:
             EEService.start_service(self, service)
@@ -74,6 +78,9 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.postfix:
             Log.debug(self, "postfix service stop")
             services = services + ['postfix']
+        if self.app.pargs.hhvm:
+            services = services + ['hhvm']
+            Log.debug(self, "hhvm service stop")
         if self.app.pargs.memcache:
             Log.debug(self, "memcached service stop")
             services = services + ['memcached']
@@ -81,11 +88,12 @@ class EEStackStatusController(CementBaseController):
             Log.debug(self, "dovecot service stop")
             services = services + ['dovecot']
         if not services and EEVariables.ee_mysql_host is "localhost":
-            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,mysql,postfix services stop")
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix',
+                                   'hhvm']
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix,hhvm services stop")
         elif not services:
-            services = services + ['nginx', 'php5-fpm', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,postfix services stop")
+            services = services + ['nginx', 'php5-fpm', 'postfix', 'hhvm']
+            Log.debug(self, "nginx,php5-fpm,postfix,hhvm services stop")
         for service in services:
             EEService.stop_service(self, service)
 
@@ -109,6 +117,9 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.postfix:
             Log.debug(self, "postfix service restart")
             services = services + ['postfix']
+        if self.app.pargs.hhvm:
+            services = services + ['hhvm']
+            Log.debug(self, "hhvm service restart")
         if self.app.pargs.memcache:
             Log.debug(self, "memcached service restart")
             services = services + ['memcached']
@@ -116,11 +127,13 @@ class EEStackStatusController(CementBaseController):
             Log.debug(self, "dovecot service restart")
             services = services + ['dovecot']
         if not services and EEVariables.ee_mysql_host is "localhost":
-            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,mysql,postfix services restart")
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix',
+                                   'hhvm']
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix,hhvm services"
+                            "restart")
         elif not services:
-            services = services + ['nginx', 'php5-fpm', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,postfix services restart")
+            services = services + ['nginx', 'php5-fpm', 'postfix', 'hhvm']
+            Log.debug(self, "nginx,php5-fpm,postfix,hhvm services restart")
         for service in services:
             EEService.restart_service(self, service)
 
@@ -144,6 +157,9 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.postfix:
             services = services + ['postfix']
             Log.debug(self, "postfix service status")
+        if self.app.pargs.hhvm:
+            services = services + ['hhvm']
+            Log.debug(self, "hhvm service status")
         if self.app.pargs.memcache:
             Log.debug(self, "memcached service status")
             services = services + ['memcached']
@@ -151,11 +167,13 @@ class EEStackStatusController(CementBaseController):
             Log.debug(self, "dovecot service status")
             services = services + ['dovecot']
         if not services and EEVariables.ee_mysql_host is "localhost":
-            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,mysql,postfix services status")
+            services = services + ['nginx', 'php5-fpm', 'mysql', 'postfix',
+                                   'hhvm']
+            Log.debug(self, "nginx,php5-fpm,mysql,postfix,hhvm services"
+                            " status")
         elif not services:
-            services = services + ['nginx', 'php5-fpm', 'postfix']
-            Log.debug(self, "nginx,php5-fpm,postfix services status")
+            services = services + ['nginx', 'php5-fpm', 'postfix', 'hhvm']
+            Log.debug(self, "nginx,php5-fpm,postfix,hhvm services status")
         for service in services:
             if EEService.get_service_status(self, service):
                 Log.info(self, "{0:10}:  {1}".format(service, "Running"))
@@ -180,6 +198,8 @@ class EEStackStatusController(CementBaseController):
         if self.app.pargs.postfix:
             Log.debug(self, "postfix service reload")
             services = services + ['postfix']
+        if self.app.pargs.hhvm:
+            Log.warn(self, "hhvm does not support to reload")
         if self.app.pargs.memcache:
             Log.debug(self, "memcached service reload")
             services = services + ['memcached']

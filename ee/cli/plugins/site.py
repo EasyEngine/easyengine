@@ -268,6 +268,10 @@ class EESiteCreateController(CementBaseController):
             (['--wpsc'],
                 dict(help="create wordpress single/multi site with wpsc cache",
                      action='store_true')),
+            (['--hhvm'],
+                dict(help="create HHVM site", action='store_true')),
+            (['--pagespeed'],
+                dict(help="create pagespeed site", action='store_true')),
             ]
 
     @expose(hide=True)
@@ -324,6 +328,20 @@ class EESiteCreateController(CementBaseController):
                     data['multisite'] = True
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
+
+        if data and self.app.pargs.hhvm:
+            data['hhvm'] = True
+            hhvm = True
+        elif data:
+            data['hhvm'] = False
+            hhvm = False
+
+        if data and self.app.pargs.pagespeed:
+            data['pagespeed'] = True
+            pagespeed = True
+        elif data:
+            data['pagespeed'] = False
+            pagespeed = False
 
         if not data:
             self.app.args.print_help()
@@ -496,6 +514,14 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
+            (['--hhvm'],
+                dict(help='Use HHVM for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
+            (['--pagespeed'],
+                dict(help='Use PageSpeed for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?'))
             ]
 
     @expose(help="Update site type or cache")
@@ -574,11 +600,84 @@ class EESiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+            if not stype:
+                stype = oldsitetype
+            if not cache:
+                cache = oldcachetype
+            if not data:
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            currsitetype=oldsitetype,
+                            currcachetype=oldcachetype,
+                            webroot=ee_site_webroot)
+
+                if stype == 'html':
+                    data['static'] = True
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif stype == 'php' or stype == 'mysql':
+                    data['static'] = False
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif stype == 'wp':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif stype == 'wpsubdir':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = True
+                elif stype == 'wpsubdomain':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = False
+
+                if cache == 'basic':
+                    data['basic'] = True
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif cache == 'w3tc':
+                    data['basic'] = False
+                    data['w3tc'] = True
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif cache == 'wpfc':
+                    data['basic'] = False
+                    data['w3tc'] = False
+                    data['wpfc'] = True
+                    data['wpsc'] = False
+                elif cache == 'wpsc':
+                    data['basic'] = False
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = True
+
+            if self.app.pargs.hhvm == 'on':
+                data['hhvm'] = True
+                hhvm = True
+            elif self.app.pargs.hhvm == 'off':
+                data['hhvm'] = False
+                hhvm = False
+
+            if self.app.pargs.pagespeed == 'on':
+                data['pagespeed'] = True
+                pagespeed = True
+            elif self.app.pargs.pagespeed == 'off':
+                data['pagespeed'] = False
+                pagespeed = False
+
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
+
         sitebackup(self, data)
 
         # setup NGINX configuration, and webroot
@@ -588,6 +687,15 @@ class EESiteUpdateController(CementBaseController):
             Log.debug(self, str(e))
             Log.error(self, "Update site failed. Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+        if stype == oldsitetype and cache == oldcachetype:
+
+            # Service Nginx Reload
+            EEService.reload_service(self, 'nginx')
+
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(ee_domain))
+            self.app.close(0)
 
         if 'ee_db_name' in data.keys() and not data['wp']:
             try:

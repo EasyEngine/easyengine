@@ -58,6 +58,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install PHP stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
+            (['--hhvm'],
+                dict(help='Install HHVM stack', action='store_true')),
             (['--postfix'],
                 dict(help='Install Postfix stack', action='store_true')),
             (['--wpcli'],
@@ -166,6 +168,16 @@ class EEStackController(CementBaseController):
                 Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
+        if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for HHVM, please wait ...")
+            if EEVariables.ee_platform_codename == 'precise':
+                Log.debug(self, 'Adding PPA for Boost')
+                EERepo.add(self, ppa=EEVariables.ee_boost_repo)
+            Log.debug(self, 'Adding ppa repo for HHVM')
+            EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
+            Log.debug(self, 'Adding HHVM GPG Key')
+            EERepo.add_key(self, '0x5a16e7281be7a449')
+
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             Log.debug(self, 'Executing the command debconf-set-selections.')
             try:
@@ -229,7 +241,7 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    data = dict(php="9000", debug="9001")
+                    data = dict(php="9000", debug="9001", hhvm="8000")
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -261,7 +273,39 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/ php.conf')
+                              'file /etc/nginx/common/php-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php.conf')
                     ee_nginx = open('/etc/nginx/common/php.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'php.mustache',
@@ -305,6 +349,25 @@ class EEStackController(CementBaseController):
                     ee_nginx = open('/etc/nginx/common/wpsubdir.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsubdir.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    # Pagespeed configuration
+                    Log.debug(self, 'Writting the Pagespeed Global '
+                              'configuration to file /etc/nginx/conf.d/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-global.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the Pagespeed common '
+                              'configuration to file /etc/nginx/common/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/common/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-common.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
@@ -526,6 +589,81 @@ class EEStackController(CementBaseController):
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.reload_service(self, 'php5-fpm')
+
+            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+                EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
+                                                "9000", "8000")
+                EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
+                                                "9000", "8000")
+
+                with open("/etc/hhvm/php.ini", "a") as hhvm_file:
+                    hhvm_file.write("hhvm.log.header = true\n"
+                                    "hhvm.log.natives_stack_trace = true\n"
+                                    "hhvm.mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.pdo_mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.mysqli.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n")
+
+                if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "fastcgi.conf",
+                                            "fastcgi_keep_conn"):
+                        with open("/etc/nginx/conf.d/fastcgi.conf",
+                                  "a") as hhvm_file:
+                            hhvm_file.write("fastcgi_keep_conn on;\n")
+
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
+                                            "hhvm"):
+                        with open("/etc/nginx/conf.d/upstream.conf",
+                                  "a") as hhvm_file:
+                            hhvm_file.write("upstream hhvm {\nserver "
+                                            "127.0.0.1:8000;\n"
+                                            "server 127.0.0.1:9000 backup;\n}"
+                                            "\n")
+
+                EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
+                EEService.restart_service(self, 'hhvm')
+                EEService.reload_service(self, 'nginx')
+
+                if os.path.isdir("/etc/nginx") and (not
+                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -1217,7 +1355,8 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-               (not self.app.pargs.phpmyadmin) and
+               (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
+               and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
@@ -1229,13 +1368,12 @@ class EEStackController(CementBaseController):
                 self.app.pargs.mail = True
 
             if self.app.pargs.web:
-                Log.debug(self, "Setting apt_packages variable for Nginx ,PHP"
-                          " ,MySQL ")
                 self.app.pargs.nginx = True
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
                 self.app.pargs.wpcli = True
                 self.app.pargs.postfix = True
+                self.app.pargs.hhvm = True
 
             if self.app.pargs.admin:
                 self.app.pargs.nginx = True
@@ -1279,7 +1417,13 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
-                if not EEAptGet.is_installed(self, 'nginx-common'):
+
+                if EEVariables.ee_platform_distro == 'Debian':
+                    check_nginx = 'nginx-extras'
+                else:
+                    check_nginx = 'nginx-custom'
+
+                if not EEAptGet.is_installed(self, check_nginx):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
                     Log.debug(self, "Nginx already installed")
@@ -1291,6 +1435,15 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
+
+            if self.app.pargs.hhvm:
+                Log.debug(self, "Setting apt packages variable for HHVM")
+                if not EEAptGet.is_installed(self, 'hhvm'):
+                    apt_packages = apt_packages + EEVariables.ee_hhvm
+                else:
+                    Log.debug(self, "HHVM already installed")
+                    Log.info(self, "HHVM already installed")
+
             if self.app.pargs.mysql:
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
@@ -1426,7 +1579,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
@@ -1440,6 +1593,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
+            self.app.pargs.hhvm = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
@@ -1470,6 +1624,11 @@ class EEStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
+
+        if self.app.pargs.hhvm:
+            Log.debug(self, "Removing apt_packages varible of HHVM")
+            apt_packages = apt_packages + EEVariables.ee_hhvm
+
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1522,7 +1681,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
            (not self.app.pargs.php) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
-           (not self.app.pargs.phpmyadmin) and
+           (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
             self.app.pargs.web = True
@@ -1539,6 +1698,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
@@ -1566,6 +1726,9 @@ class EEStackController(CementBaseController):
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
+        if self.app.pargs.hhvm:
+            Log.debug(self, "Removing apt_packages varible of HHVM")
+            apt_packages = apt_packages + EEVariables.ee_hhvm
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql

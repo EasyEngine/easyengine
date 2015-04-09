@@ -27,8 +27,9 @@ server {
     }
     {{/static}}
 
-    {{^static}}include{{/static}} {{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}}
+    {{^static}}include{{/static}} {{^hhvm}}{{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}} {{/hhvm}}{{#hhvm}}{{#basic}}common/php-hhvm.conf;{{/basic}}{{#w3tc}}common/w3tc-hhvm.conf;{{/w3tc}}{{#wpfc}}common/wpfc-hhvm.conf;{{/wpfc}} {{#wpsc}}common/wpsc-hhvm.conf;{{/wpsc}} {{/hhvm}}
     {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}
     {{#wp}}include common/wpcommon.conf;{{/wp}}
+    {{#pagespeed}}include common/pagespeed.conf;{{/pagespeed}}
     include common/locations.conf;
 }
