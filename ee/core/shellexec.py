@@ -5,6 +5,11 @@ import sys
 import subprocess
 
 
+class CommandExecutionError(Exception):
+    """custom Exception for command execution"""
+    pass
+
+
 class EEShellExec():
     """Method to run shell commands"""
     def __init__():
@@ -13,8 +18,8 @@ class EEShellExec():
     def cmd_exec(self, command, errormsg='', log=True):
         """Run shell command from Python"""
         try:
-            if log:
-                Log.debug(self, "Running command: {0}".format(command))
+            log and Log.debug(self, "Running command: {0}".format(command))
+
             with subprocess.Popen([command], stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE, shell=True) as proc:
                 (cmd_stdout_bytes, cmd_stderr_bytes) = proc.communicate()
@@ -26,25 +31,15 @@ class EEShellExec():
             if proc.returncode == 0:
                 return True
             else:
-                Log.debug(self, "Command Output: {0}, Command Error: {1}"
+                Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
                                 .format(cmd_stdout, cmd_stderr))
                 return False
         except OSError as e:
-            if errormsg:
-                Log.error(self, errormsg)
-            else:
-                Log.debug(self, "Unable to execute command {0}"
-                          .format(command))
-                Log.debug(self, "{0}".format(e))
-                Log.error(self, "Error occured while executing command")
+                Log.debug(self, str(e))
+                raise CommandExecutionError
         except Exception as e:
-            if errormsg:
-                Log.error(self, errormsg)
-            else:
-                Log.debug(self, "Unable to execute command {0}"
-                          .format(command))
-                Log.debug(self, "{0}".format(e))
-                Log.error(self, "Error occurred while executing command")
+                Log.debug(self, str(e))
+                raise CommandExecutionError
 
     def invoke_editor(self, filepath, errormsg=''):
         """
@@ -53,8 +48,5 @@ class EEShellExec():
         try:
             subprocess.call(['sensible-editor', filepath])
         except OSError as e:
-            if errormsg:
-                Log.error(self, errormsg)
-            else:
                 Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
-                Log.error(self, "Unable to edit file {0}".format(filepath))
+                raise CommandExecutionError

@@ -11,7 +11,7 @@ import os
 import glob
 
 
-def log_plugin_hook(app):
+def ee_log_hook(app):
     # do something with the ``app`` object here.
     pass
 
@@ -43,6 +43,7 @@ class EELogController(CementBaseController):
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
             ]
+        usage = "ee log [<site_name>] [options]"
 
     @expose(hide=True)
     def default(self):
@@ -137,4 +138,4 @@ def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EELogController)
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', log_plugin_hook)
+    hook.register('post_argument_parsing', ee_log_hook)

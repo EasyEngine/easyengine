@@ -17,15 +17,15 @@ ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomai
 .TP
 ee site delete example.com [--db | --files | --all | --no-prompt ]
 .TP
-ee debug [ -i | --nginx | --rewrite | --php | --fpm | --mysql ] [--stop ]
+ee debug [ -i | --all=on/off |--nginx=on/off | --rewrite=on/off | --php=on/off | --fpm=on/off | --mysql=on/off ]
 .TP
-ee debug example.com [ -i | --nginx | --rewrite | --wp ] [--stop ]
+ee debug example.com [ -i | --all=on/off | --nginx=on/off | --rewrite=on/off | --wp=on/off ]
 .TP
 ee secure [ --auth | --port | --ip ]
 .SH DESCRIPTION
 EasyEngine aka ee is the opensource project developed with the purpose to automate web-server configuration.
 .br
-EasyEngine is the collection of shell scripts that provides automation for the web-server
+EasyEngine is the collection of python script that provides automation for the web-server
 .br
 installation, site creation, services debugging & monitoring.
 .SH OPTIONS
@@ -95,7 +95,7 @@ Change directory to webroot of specified site in subshell.
 .br
 monitor access and error logs for site specified.
 .TP
-.B list [ enable | available ]
+.B list [ --enabled | --disabled ]
 .br
 Lists all available sites from /etc/nginx/sites-enabled/
 .br
@@ -143,21 +143,21 @@ Update site configuration according to specified options.
 .br
 Delete site i.e webroot, database, ad configuration permenantly.
 .TP
-.B debug [ -i | --nginx | --php | --mysql | --rewrite | --fpm ] [ --start | --stop ]
+.B debug [ -i | --nginx=on/off | --php=on/off | --mysql=on/off | --rewrite=on/off | --fpm=on/off ]
 .br
-Starts server level debugging. If used without arguments starts debugging
+Starts server level debugging. If this is used without arguments it will start debugging
 .br
-all services, else debug only service provided with argument. Stop
+all services.Else it will debug only service provided with argument.This will Stop
 .br
-Debugging if used with --stop argument.
+Debugging if used with --all=off argument.
 .TP
-.B debug example.com [ -i | --nginx | --rewrite | --wp ] [ --start | --stop ]
+.B debug example.com [ -i | --nginx=on/off | --rewrite=on/off | --wp=on/off | --all=on/off ]
 .br
-Starts site level debugging. If used without arguments starts debugging all
+Starts site level debugging. If this is used without arguments it will start debugging all
 .br
-services, else debug only service provided with argument. Stop Debugging
+services.Else it will debug only service provided with argument.This will Stop Debugging
 .br
-if used with --stop argument.
+if used with --all=off argument.
 .TP
 .B secure [ --auth | --port ]
 .br
@@ -174,35 +174,35 @@ Clean NGINX fastCGI cache if no option specified.
 .br
 setup intractive mode while used with debug.
 .TP
-.B --nginx
+.B --nginx=on/off
 .br
 used with ee debug command. used to start or stop nginx debugging.
 .TP
-.B --php
+.B --php=on/off
 .br
 used with ee debug command. used to start or stop php debugging.
 .TP
-.B --mysql
+.B --mysql=on/off
 .br
 used with ee debug command. used to start or stop mysql debugging.
 .TP
-.B --rewrite
+.B --rewrite=on/off
 .br
 used with ee debug command. used to start or stop nginx rewrite rules debugging.
 .TP
-.B --fpm
+.B --fpm=on/off
 .br
 used with ee debug command. used to start or stop fpm debugging.
 .TP
-.B --wp
+.B --wp=on/off
 .br
-used with ee debug command. used to start or stop wordpress site debugging.
+used with ee debug command. used to start or stop  wordpress site debugging.
 .TP
-.B --start
+.B --all=on/off
 .br
 used with ee debug command. used to stop debugging.
 .TP
-.B --stop
+.B --all=off
 .br
 used with ee debug command. used to stop debugging.
 .TP

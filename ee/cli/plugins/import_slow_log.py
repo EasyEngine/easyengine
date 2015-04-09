@@ -6,7 +6,7 @@ from ee.core.variables import EEVariables
 import os
 
 
-def import_slow_log_plugin_hook(app):
+def ee_import_slow_log_hook(app):
     pass
 
 
@@ -16,6 +16,7 @@ class EEImportslowlogController(CementBaseController):
         stacked_on = 'base'
         stacked_type = 'nested'
         description = 'Import MySQL slow log to Anemometer database'
+        usage = "ee import-slow-log"
 
     @expose(hide=True)
     def default(self):
@@ -67,4 +68,4 @@ def load(app):
     handler.register(EEImportslowlogController)
 
     # register a hook (function) to run after arguments are parsed.
-    hook.register('post_argument_parsing', import_slow_log_plugin_hook)
+    hook.register('post_argument_parsing', ee_import_slow_log_hook)

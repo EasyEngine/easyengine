@@ -12,12 +12,12 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.0.6"
+    ee_version = "3.0.7"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.18.0"
     ee_adminer = "4.1.0"
-    ee_roundcube = "1.1.0"
+    ee_roundcube = "1.1.1"
     ee_vimbadmin = "3.0.11"
 
     # Current date and time of System
