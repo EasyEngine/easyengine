@@ -20,7 +20,6 @@ def ee_site_hook(app):
     from ee.core.database import init_db
     import ee.cli.plugins.models
     init_db(app)
-    EESync(app).syncdbinfo()
 
 
 class EESiteController(CementBaseController):
@@ -579,7 +578,13 @@ class EESiteUpdateController(CementBaseController):
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
-        sitebackup(self, data)
+
+        try:
+            sitebackup(self, data)
+        except Exception as e:
+            Log.debug(self, str(e))
+            Log.error(self, "Check logs for reason "
+                      "`tail /var/log/ee/ee.log` & Try Again!!!")
 
         # setup NGINX configuration, and webroot
         try:
@@ -788,7 +793,7 @@ class EESiteDeleteController(CementBaseController):
 
         # Delete website database
         if self.app.pargs.db:
-            if ee_db_name != 'deleted':
+            if ee_db_name != 'deleted' and ee_db_name != '':
                 if not self.app.pargs.no_prompt:
                     ee_db_prompt = input('Are you sure, you want to delete'
                                          ' database [y/N]: ')
@@ -807,7 +812,8 @@ class EESiteDeleteController(CementBaseController):
                     Log.info(self, "Deleted Database successfully.")
             else:
                 mark_db_deleted = True
-                Log.info(self, "Database seems to be deleted.")
+                Log.info(self, "Does not seems to have database for this site."
+                         )
 
         # Delete webroot
         if self.app.pargs.files:

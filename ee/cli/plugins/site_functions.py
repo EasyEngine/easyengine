@@ -506,8 +506,11 @@ def sitebackup(self, data):
                       .split(')')[0].strip().replace('\'', ''))
         Log.info(self, 'Backing up database \t\t', end='')
         try:
-            EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
-                                 .format(ee_db_name, backup_path))
+            if not EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
+                                        .format(ee_db_name, backup_path)):
+                Log.info(self,
+                         "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+                raise SiteError("mysqldump failed to backup database")
         except CommandExecutionError as e:
             Log.info(self, "[" + Log.ENDC + "Fail" + Log.OKBLUE + "]")
             raise SiteError("mysqldump failed to backup database")

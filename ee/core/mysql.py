@@ -122,3 +122,6 @@ class EEMysql():
         except DatabaseNotExistsError as e:
             Log.debug(self, str(e))
             return False
+        except MySQLConnectionError as e:
+            Log.debug(self, str(e))
+            return False
