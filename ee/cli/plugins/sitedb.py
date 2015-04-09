@@ -4,17 +4,22 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from ee.core.logging import Log
 from ee.core.database import db_session
-from ee.core.models import SiteDB
+from ee.core.fileutils import EEFileUtils
+from ee.cli.plugins.models import SiteDB
 import sys
+import glob
 
 
 def addNewSite(self, site, stype, cache, path,
-               enabled=True, ssl=False, fs='ext4', db='mysql'):
+               enabled=True, ssl=False, fs='ext4', db='mysql',
+               db_name=None, db_user=None, db_password=None,
+               db_host='localhost'):
     """
     Add New Site record information into ee database.
     """
     try:
-        newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db)
+        newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db,
+                        db_name, db_user, db_password, db_host)
         db_session.add(newRec)
         db_session.commit()
     except Exception as e:
@@ -34,8 +39,9 @@ def getSiteInfo(self, site):
         Log.error(self, "Unable to query database for site info")
 
 
-def updateSiteInfo(self, site, stype='', cache='',
-                   enabled=True, ssl=False, fs='', db=''):
+def updateSiteInfo(self, site, stype='', cache='', webroot='',
+                   enabled=True, ssl=False, fs='', db='', db_name=None,
+                   db_user=None, db_password=None, db_host=None):
     """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
@@ -58,6 +64,21 @@ def updateSiteInfo(self, site, stype='', cache='',
 
     if ssl and q.is_ssl != ssl:
         q.is_ssl = ssl
+
+    if db_name and q.db_name != db_name:
+        q.db_name = db_name
+
+    if db_user and q.db_user != db_user:
+        q.db_user = db_user
+
+    if db_user and q.db_password != db_password:
+        q.db_password = db_password
+
+    if db_host and q.db_host != db_host:
+        q.db_host = db_host
+
+    if webroot and q.site_path != webroot:
+        q.site_path = webroot
 
     try:
         q.created_on = func.now()
@@ -87,10 +108,56 @@ def deleteSiteInfo(self, site):
 
 
 def getAllsites(self):
-
+    """
+        1. returns all records from ee database
+    """
     try:
         q = SiteDB.query.all()
         return q
     except Exception as e:
         Log.debug(self, "{0}".format(e))
         Log.error(self, "Unable to query database")
+
+
+class EESync(object):
+
+    def __init__(self, app):
+        self.app = app
+
+    def syncdbinfo(self):
+        """
+        1. reads database information from wp/ee-config.php
+        2. updates records into ee database accordingly.
+        """
+        sites = getAllsites(self)
+        if not sites:
+            pass
+        for site in sites:
+            if site.site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+                ee_site_webroot = site.site_path
+                # Read config files
+                configfiles = glob.glob(ee_site_webroot + '/*-config.php')
+                if configfiles:
+                    if EEFileUtils.isexist(self, configfiles[0]):
+                        ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_NAME').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_user = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_USER').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_pass = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_PASSWORD').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+                        ee_db_host = (EEFileUtils.grep(self, configfiles[0],
+                                      'DB_HOST').split(',')[1]
+                                      .split(')')[0].strip().replace('\'', ''))
+
+                        if site.db_name != ee_db_name:
+                            # update records if any mismatch found
+                            Log.debug(self, "Updating {0}"
+                                      .format(site.sitename))
+                            updateSiteInfo(self, site.sitename,
+                                           db_name=ee_db_name,
+                                           db_user=ee_db_user,
+                                           db_password=ee_db_pass,
+                                           db_host=ee_db_host)

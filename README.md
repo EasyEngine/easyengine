@@ -21,10 +21,16 @@ sudo ee site create example.com --wp        # Install required packages & setup 
 ## Update EasyEngine
 
 
-Update Procedure For EasyEngine to version 3.0.5
+Update procedure for EasyEngine to latest version
 
+#### For current installed version prior to 3.0.6
 ```bash
 wget -qO ee rt.cx/ee && sudo bash ee
+
+```
+#### Current version is 3.0.6
+```
+ee update
 ```
 
 ## More Site Creation Commands
@@ -85,7 +91,7 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 
 ## Careers
 
-We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team. 
+We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team.
 
 We offer work from home, so you can join EasyEngine team anywhere! _[Why Python?] (https://rtcamp.com/blog/easyengine-3-roadmap/#whypython)_
 

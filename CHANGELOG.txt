@@ -1,3 +1,9 @@
+v 3.0.7 - April 9,2015
+- Fixed #445
+- Fixed #413
+- Small bug fixes.
+- Improvements in core functionality.
+
 v 3.0.6 - April 2,2015
 - Added `update` command to update EasyEngine.
 

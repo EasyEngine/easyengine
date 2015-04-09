@@ -1,5 +1,6 @@
 """EasyEngine MySQL core classes."""
 import pymysql
+from pymysql import connections, DatabaseError, Error
 import configparser
 from os.path import expanduser
 import sys
@@ -8,59 +9,71 @@ from ee.core.logging import Log
 from ee.core.variables import EEVariables
 
 
+class MySQLConnectionError(Exception):
+    """Custom Exception when MySQL server Not Connected"""
+    pass
+
+
+class StatementExcecutionError(Exception):
+    """Custom Exception when any Query Fails to execute"""
+    pass
+
+
+class DatabaseNotExistsError(Exception):
+    """Custom Exception when Database not Exist"""
+    pass
+
+
 class EEMysql():
     """Method for MySQL connection"""
 
+    def connect(self):
+        """Makes connection with MySQL server"""
+        try:
+            connection = pymysql.connect(read_default_file='~/.my.cnf')
+            return connection
+        except ValueError as e:
+            Log.debug(self, str(e))
+            raise MySQLConnectionError
+        except pymysql.err.InternalError as e:
+            Log.debug(self, str(e))
+            raise MySQLConnectionError
+
+    def dbConnection(self, db_name):
+        try:
+            connection = pymysql.connect(db=db_name,
+                                         read_default_file='~/.my.cnf')
+            return connection
+        except DatabaseError as e:
+            if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
+                raise DatabaseNotExistsError
+            else:
+                raise MySQLConnectionError
+        except pymysql.err.InternalError as e:
+            Log.debug(self, str(e))
+            raise MySQLConnectionError
+
     def execute(self, statement, errormsg='', log=True):
         """Get login details from ~/.my.cnf & Execute MySQL query"""
-        config = configparser.RawConfigParser()
-        cnfpath = expanduser("~")+"/.my.cnf"
-        if [cnfpath] == config.read(cnfpath):
-            user = config.get('client', 'user')
-            passwd = config.get('client', 'password')
-            try:
-                host = config.get('client', 'host')
-            except configparser.NoOptionError as e:
-                host = 'localhost'
+        connection = EEMysql.connect(self)
+        log and Log.debug(self, "Exceuting MySQL Statement : {0}"
+                          .format(statement))
+        try:
+            cursor = connection.cursor()
+            sql = statement
+            cursor.execute(sql)
 
-            try:
-                port = config.get('client', 'port')
-            except configparser.NoOptionError as e:
-                port = '3306'
-
-            try:
-                conn = pymysql.connect(host=host, port=int(port),
-                                       user=user, passwd=passwd)
-                cur = conn.cursor()
-            except Exception as e:
-                if errormsg:
-                    Log.debug(self, '{0}'
-                              .format(e))
-                    Log.error(self, '{0}'
-                              .format(errormsg))
-                else:
-                    Log.debug(self, '{0}'
-                              .format(e))
-                    Log.error(self, 'Unable to connect to database: {0}'
-                              .format(e))
-
-            try:
-                if log:
-                    Log.debug(self, "Executing MySQL statement: {0}"
-                              .format(statement))
-
-                cur.execute(statement)
-                cur.close()
-                conn.close()
-
-            except Exception as e:
-                cur.close()
-                conn.close()
-                Log.debug(self, "{0}".format(e))
-                if not errormsg:
-                    Log.error(self, 'Unable to execute statement')
-                else:
-                    Log.error(self, '{0}'.format(errormsg))
+            # connection is not autocommit by default.
+            # So you must commit to save your changes.
+            connection.commit()
+        except AttributeError as e:
+            Log.debug(self, str(e))
+            raise StatementExcecutionError
+        except Error as e:
+            Log.debug(self, str(e))
+            raise StatementExcecutionError
+        finally:
+            connection.close()
 
     def backupAll(self):
         import subprocess
@@ -101,3 +114,11 @@ class EEMysql():
         except Exception as e:
             Log.error(self, "Error: process exited with status %s"
                             % e)
+
+    def check_db_exists(self, db_name):
+        try:
+            if EEMysql.dbConnection(self, db_name):
+                return True
+        except DatabaseNotExistsError as e:
+            Log.debug(self, str(e))
+            return False
