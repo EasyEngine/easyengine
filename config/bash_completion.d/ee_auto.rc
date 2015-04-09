@@ -143,7 +143,7 @@ _ee_complete()
                 ;;
             "delete")
                 COMPREPLY=( $(compgen \
-                                    -W "--db --files --all" \
+                                    -W "--db --files --all --no-prompt" \
                                  -- $cur) )
                 ;;
             *)
