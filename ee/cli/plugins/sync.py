@@ -57,6 +57,8 @@ class EESyncController(CementBaseController):
                             if not EEMysql.check_db_exists(self, ee_db_name):
                                 # Mark it as deleted if not exist
                                 ee_db_name = 'deleted'
+                                ee_db_user = 'deleted'
+                                ee_db_pass = 'deleted'
                         except StatementExcecutionError as e:
                             Log.debug(self, str(e))
                         except Exception as e:
