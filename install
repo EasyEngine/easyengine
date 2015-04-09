@@ -201,12 +201,12 @@ function ee_sync_db()
         done
     else
         ee_lib_echo "Updating EasyEngine Database"
-        echo "ALTER TABLE sites ADD COLUMN db_name varchar; \
-        ALTER TABLE sites ADD COLUMN db_user varchar; \
-        ALTER TABLE sites ADD COLUMN db_password varchar; \
-        ALTER TABLE sites ADD COLUMN db_host varchar; \
-        ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0'; \
-        ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_password varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
     fi
 }
 
@@ -320,7 +320,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
         fi
     fi
     ee_install_dep | tee -ai $ee_install_log
-    ee_sync_db | tee -ai $ee_install_log
+    ee_sync_db 2>>&1 $EE_INSTALL_LOG
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_install | tee -ai $ee_install_log
     ee_update | tee -ai $ee_install_log
@@ -337,7 +337,7 @@ else
         read -p "Update EasyEngine to $ee_version_new (y/n): " ee_ans
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
             ee_install_dep | tee -ai $ee_install_log
-            ee_sync_db | tee -ai $EE_INSTALL_LOG
+            ee_sync_db 2>>&1 $EE_INSTALL_LOG
             secure_ee_db | tee -ai $EE_INSTALL_LOG
             ee_update_latest | tee -ai $ee_install_log
             ee_install | tee -ai $ee_install_log
