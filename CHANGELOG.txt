@@ -1,3 +1,6 @@
+v 3.0.8 - April 9,2015
+- Fixed regression issue introduced in 3.0.7
+
 v 3.0.7 - April 9,2015
 - Fixed #445
 - Fixed #413
