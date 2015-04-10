@@ -601,58 +601,57 @@ class EESiteUpdateController(CementBaseController):
                         data['wpsubdir'] = True
 
         if self.app.pargs.pagespeed or self.app.pargs.hhvm:
-            if not stype:
-                stype = oldsitetype
-            if not cache:
-                cache = oldcachetype
             if not data:
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             currsitetype=oldsitetype,
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
 
-                if stype == 'html':
+                stype = oldsitetype
+                cache = oldcachetype
+
+                if oldsitetype == 'html':
                     data['static'] = True
                     data['wp'] = False
                     data['multisite'] = False
                     data['wpsubdir'] = False
-                elif stype == 'php' or stype == 'mysql':
+                elif oldsitetype == 'php' or oldsitetype == 'mysql':
                     data['static'] = False
                     data['wp'] = False
                     data['multisite'] = False
                     data['wpsubdir'] = False
-                elif stype == 'wp':
+                elif oldsitetype == 'wp':
                     data['static'] = False
                     data['wp'] = True
                     data['multisite'] = False
                     data['wpsubdir'] = False
-                elif stype == 'wpsubdir':
+                elif oldsitetype == 'wpsubdir':
                     data['static'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = True
-                elif stype == 'wpsubdomain':
+                elif oldsitetype == 'wpsubdomain':
                     data['static'] = False
                     data['wp'] = True
                     data['multisite'] = True
                     data['wpsubdir'] = False
 
-                if cache == 'basic':
+                if oldcachetype == 'basic':
                     data['basic'] = True
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
-                elif cache == 'w3tc':
+                elif oldcachetype == 'w3tc':
                     data['basic'] = False
                     data['w3tc'] = True
                     data['wpfc'] = False
                     data['wpsc'] = False
-                elif cache == 'wpfc':
+                elif oldcachetype == 'wpfc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = True
                     data['wpsc'] = False
-                elif cache == 'wpsc':
+                elif oldcachetype == 'wpsc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = False
