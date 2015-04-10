@@ -20,7 +20,7 @@ def addNewSite(self, site, stype, cache, path,
     try:
         newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db,
                         db_name, db_user, db_password, db_host, hhvm,
-                        pagespped)
+                        pagespeed)
         db_session.add(newRec)
         db_session.commit()
     except Exception as e:
