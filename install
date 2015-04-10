@@ -120,8 +120,8 @@ function ee_sync_db()
            db_user VARCHAR,
            db_password VARCHAR,
            db_host VARCHAR,
-           is_hhvm INT,
-           is_pagespeed INT
+           is_hhvm INT INT DEFAULT '0',
+           is_pagespeed INT INT DEFAULT '0'
         );" | sqlite3 /var/lib/ee/ee.db
 
         # Check site is enable/live or disable
