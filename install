@@ -115,7 +115,13 @@ function ee_sync_db()
            is_enabled INT,
            is_ssl INT,
            storage_fs CHAR,
-           storage_db CHAR
+           storage_db CHAR,
+           db_name VARCHAR,
+           db_user VARCHAR,
+           db_password VARCHAR,
+           db_host VARCHAR,
+           is_hhvm INT,
+           is_pagespeed INT
         );" | sqlite3 /var/lib/ee/ee.db
 
         # Check site is enable/live or disable
