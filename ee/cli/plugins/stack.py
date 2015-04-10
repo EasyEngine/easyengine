@@ -490,6 +490,12 @@ class EEStackController(CementBaseController):
                                  "_trigger] = on \nphp_admin_flag[xdebug."
                                  "profiler_enable] = off\n")
 
+                # Disable xdebug
+                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
+                                          "xdebug.ini",
+                                          "zend_extension",
+                                          ";zend_extension")
+
                 # PHP and Debug pull configuration
                 if not os.path.exists('{0}22222/htdocs/fpm/status/'
                                       .format(EEVariables.ee_webroot)):
