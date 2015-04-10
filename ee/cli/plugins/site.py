@@ -365,7 +365,7 @@ class EESiteCreateController(CementBaseController):
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
-                       hhvm, pagespeed)
+                       hhvm=hhvm, pagespeed=pagespeed)
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:
@@ -529,7 +529,7 @@ class EESiteUpdateController(CementBaseController):
     def default(self):
 
         hhvm = None
-        Pagespeed = None
+        pagespeed = None
 
         data = dict()
         try:
