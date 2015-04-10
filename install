@@ -290,7 +290,7 @@ function ee_update_latest()
         if [ $ee_debug_value -eq 1 ]; then
             grep -Hr ";zend_extension" /etc/php5/mods-available/xdebug.ini
             if [ $? -ne 0 ]; then
-                sed -i "s/zend_extension/;zend_extension" /etc/php5/mods-available/xdebug.ini
+                sed -i "s/zend_extension/;zend_extension/" /etc/php5/mods-available/xdebug.ini
             fi
         fi
     fi
