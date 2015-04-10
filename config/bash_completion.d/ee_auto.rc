@@ -11,7 +11,7 @@ _ee_complete()
     # SETUP THE BASE LEVEL (everything after "ee")
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $(compgen \
-                      -W "stack site debug clean secure import-slow-log log update" \
+                      -W "stack site debug clean secure import-slow-log log update sync" \
                       -- $cur) )
 
 
@@ -143,7 +143,7 @@ _ee_complete()
                 ;;
             "delete")
                 COMPREPLY=( $(compgen \
-                                    -W "--db --files --all" \
+                                    -W "--db --files --all --no-prompt" \
                                  -- $cur) )
                 ;;
             *)
