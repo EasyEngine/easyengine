@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.0.8"
+readonly ee_version_new="3.0.9"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -115,7 +115,13 @@ function ee_sync_db()
            is_enabled INT,
            is_ssl INT,
            storage_fs CHAR,
-           storage_db CHAR
+           storage_db CHAR,
+           db_name VARCHAR,
+           db_user VARCHAR,
+           db_password VARCHAR,
+           db_host VARCHAR,
+           is_hhvm INT INT DEFAULT '0',
+           is_pagespeed INT INT DEFAULT '0'
         );" | sqlite3 /var/lib/ee/ee.db
 
         # Check site is enable/live or disable
@@ -201,12 +207,12 @@ function ee_sync_db()
         done
     else
         ee_lib_echo "Updating EasyEngine Database"
-        echo "ALTER TABLE sites ADD COLUMN db_name varchar; \
-        ALTER TABLE sites ADD COLUMN db_user varchar; \
-        ALTER TABLE sites ADD COLUMN db_password varchar; \
-        ALTER TABLE sites ADD COLUMN db_host varchar; \
-        ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0'; \
-        ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_password varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
     fi
 }
 
@@ -283,6 +289,17 @@ function ee_update_latest()
     elif [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
+
+    # Disable Xdebug on old systems if and only if ee debug is off
+    if [ -f /etc/php5/mods-available/xdebug.ini ]; then
+        ee_debug_value=$(grep -Hr 9001 /etc/nginx/conf.d/upstream.conf | wc -l )
+        if [ $ee_debug_value -eq 1 ]; then
+            grep -Hr ";zend_extension" /etc/php5/mods-available/xdebug.ini &>> /dev/null
+            if [ $? -ne 0 ]; then
+                sed -i "s/zend_extension/;zend_extension/" /etc/php5/mods-available/xdebug.ini
+            fi
+        fi
+    fi
 }
 
 # Do git intialisation
@@ -320,7 +337,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
         fi
     fi
     ee_install_dep | tee -ai $ee_install_log
-    ee_sync_db | tee -ai $ee_install_log
+    ee_sync_db 2&>>1 $EE_INSTALL_LOG
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_install | tee -ai $ee_install_log
     ee_update | tee -ai $ee_install_log
@@ -337,14 +354,16 @@ else
         read -p "Update EasyEngine to $ee_version_new (y/n): " ee_ans
         if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
             ee_install_dep | tee -ai $ee_install_log
-            ee_sync_db | tee -ai $EE_INSTALL_LOG
+            ee_sync_db 2&>>1 $EE_INSTALL_LOG
             secure_ee_db | tee -ai $EE_INSTALL_LOG
             ee_update_latest | tee -ai $ee_install_log
             ee_install | tee -ai $ee_install_log
             ee_git_init | tee -ai $ee_install_log
             service nginx reload &>> /dev/null
+            service php5-fpm restart &>> /dev/null
         fi
     else
         ee_lib_echo_fail "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
     fi
 fi
+ee sync | tee -ai $EE_INSTALL_LOG

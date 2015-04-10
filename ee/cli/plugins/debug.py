@@ -8,6 +8,7 @@ from ee.core.services import EEService
 from ee.core.logging import Log
 from ee.cli.plugins.site_functions import logwatch
 from ee.core.variables import EEVariables
+from ee.core.fileutils import EEFileUtils
 import os
 import configparser
 import glob
@@ -170,6 +171,12 @@ class EEDebugController(CementBaseController):
                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
+                # Enable xdebug
+                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
+                                          "xdebug.ini",
+                                          ";zend_extension",
+                                          "zend_extension")
+
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
@@ -190,6 +197,12 @@ class EEDebugController(CementBaseController):
                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'upstream.mustache', out=ee_nginx)
                 ee_nginx.close()
+                # Disable xdebug
+                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
+                                          "xdebug.ini",
+                                          "zend_extension",
+                                          ";zend_extension")
+
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
@@ -531,7 +544,7 @@ class EEDebugController(CementBaseController):
             EEService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            EEService.reload_service(self, 'php5-fpm')
+            EEService.restart_service(self, 'php5-fpm')
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:

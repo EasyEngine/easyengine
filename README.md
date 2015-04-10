@@ -28,7 +28,7 @@ Update procedure for EasyEngine to latest version
 wget -qO ee rt.cx/ee && sudo bash ee
 
 ```
-#### Current version is 3.0.6
+#### If Current version is after than 3.0.6
 ```
 ee update
 ```
