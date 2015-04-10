@@ -13,7 +13,7 @@ import glob
 def addNewSite(self, site, stype, cache, path,
                enabled=True, ssl=False, fs='ext4', db='mysql',
                db_name=None, db_user=None, db_password=None,
-               db_host='localhost', hhvm, pagespeed):
+               db_host='localhost', hhvm=0, pagespeed=0):
     """
     Add New Site record information into ee database.
     """
@@ -42,8 +42,8 @@ def getSiteInfo(self, site):
 
 def updateSiteInfo(self, site, stype='', cache='', webroot='',
                    enabled=True, ssl=False, fs='', db='', db_name=None,
-                   db_user=None, db_password=None, db_host=None, hhvm,
-                   pagespeed):
+                   db_user=None, db_password=None, db_host=None, hhvm=None,
+                   pagespeed=None):
     """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
