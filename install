@@ -288,7 +288,7 @@ function ee_update_latest()
     if [ -f /etc/php5/mods-available/xdebug.ini ]; then
         ee_debug_value=$(grep -Hr 9001 /etc/nginx/conf.d/upstream.conf | wc -l )
         if [ $ee_debug_value -eq 1 ]; then
-            grep -Hr ";zend_extension" /etc/php5/mods-available/xdebug.ini
+            grep -Hr ";zend_extension" /etc/php5/mods-available/xdebug.ini &>> /dev/null
             if [ $? -ne 0 ]; then
                 sed -i "s/zend_extension/;zend_extension/" /etc/php5/mods-available/xdebug.ini
             fi
