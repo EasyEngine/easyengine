@@ -30,6 +30,8 @@ class EECleanController(CementBaseController):
                 dict(help='Clean MemCache', action='store_true')),
             (['--opcache'],
                 dict(help='Clean OpCache', action='store_true'))
+            (['--pagespeed'],
+                dict(help='Clean Pagespeed Cache', action='store_true'))
             ]
         usage = "ee clean [options]"
 
@@ -48,6 +50,8 @@ class EECleanController(CementBaseController):
             self.clean_memcache()
         if self.app.pargs.opcache:
             self.clean_opcache()
+        if self.app.pargs.pagespeed:
+            self.clean_pagespeed()
 
     @expose(hide=True)
     def clean_memcache(self):
@@ -81,6 +85,15 @@ class EECleanController(CementBaseController):
         except Exception as e:
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to clean OpCache")
+
+    @expose(hide=True)
+    def clean_pagespeed(self):
+        """This function clears Pagespeed cache"""
+        if(os.path.isdir("/var/ngx_pagespeed_cache")):
+            Log.info(self, "Cleaning PageSpeed cache")
+            EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
+        else:
+            Log.error(self, "Unable to clean Pagespeed cache")
 
 
 def load(app):
