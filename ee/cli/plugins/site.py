@@ -329,6 +329,9 @@ class EESiteCreateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
+        if stype == "html" and self.app.pargs.hhvm:
+            Log.error(self, "Can not create HTML site with HHVM")
+
         if data and self.app.pargs.hhvm:
             data['hhvm'] = True
             hhvm = 1
@@ -677,6 +680,22 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = 0
 
+            if pagespeed == old_pagespeed:
+                if pagespeed == 0:
+                    Log.error(self, "Pagespeed is allready disabled for given "
+                              "site")
+                elif pagespeed == 1:
+                    Log.error(self, "Pagespeed is allready enabled for given "
+                              "site")
+
+            if hhvm == old_hhvm:
+                if hhvm == 0:
+                    Log.error(self, "HHVM is allready disabled for given "
+                              "site")
+                elif hhvm == 1:
+                    Log.error(self, "HHVM is allready enabled for given "
+                              "site")
+
         if data and (not self.app.pargs.hhvm):
             if old_hhvm == 1:
                 data['hhvm'] = True
@@ -696,7 +715,7 @@ class EESiteUpdateController(CementBaseController):
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
-                      
+
         ee_auth = site_package_check(self, stype)
 
         sitebackup(self, data)
