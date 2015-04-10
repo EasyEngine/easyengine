@@ -22,7 +22,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE SECOND LEVEL NAMESPACE
             "clean")
                 COMPREPLY=( $(compgen \
-                              -W "--memcache --opcache --fastcgi --all" \
+                              -W "--memcache --opcache --fastcgi --pagespeed --all" \
                               -- $cur) )
                 ;;
 
@@ -132,13 +132,13 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
+                                    -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
+                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off" \
                                  -- $cur) )
                 ;;
             "delete")
