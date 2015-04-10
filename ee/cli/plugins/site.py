@@ -331,17 +331,17 @@ class EESiteCreateController(CementBaseController):
 
         if data and self.app.pargs.hhvm:
             data['hhvm'] = True
-            hhvm = True
+            hhvm = 1
         elif data:
             data['hhvm'] = False
-            hhvm = False
+            hhvm = 0
 
         if data and self.app.pargs.pagespeed:
             data['pagespeed'] = True
-            pagespeed = True
+            pagespeed = 1
         elif data:
             data['pagespeed'] = False
-            pagespeed = False
+            pagespeed = 0
 
         if not data:
             self.app.args.print_help()
@@ -364,7 +364,8 @@ class EESiteCreateController(CementBaseController):
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
-            addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+            addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
+                       hhvm, pagespeed)
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:
@@ -527,6 +528,9 @@ class EESiteUpdateController(CementBaseController):
     @expose(help="Update site type or cache")
     def default(self):
 
+        hhvm = None
+        Pagespeed = None
+
         data = dict()
         try:
             stype, cache = detSitePar(vars(self.app.pargs))
@@ -552,6 +556,8 @@ class EESiteUpdateController(CementBaseController):
         else:
             oldsitetype = check_site.site_type
             oldcachetype = check_site.cache_type
+            old_hhvm = check_site.is_hhvm
+            old_pagespeed = check_site.is_pagespeed
 
         if (self.app.pargs.password and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or self.app.pargs.wp or
@@ -659,17 +665,33 @@ class EESiteUpdateController(CementBaseController):
 
             if self.app.pargs.hhvm == 'on':
                 data['hhvm'] = True
-                hhvm = True
+                hhvm = 1
             elif self.app.pargs.hhvm == 'off':
                 data['hhvm'] = False
-                hhvm = False
+                hhvm = 0
 
             if self.app.pargs.pagespeed == 'on':
                 data['pagespeed'] = True
-                pagespeed = True
+                pagespeed = 1
             elif self.app.pargs.pagespeed == 'off':
                 data['pagespeed'] = False
-                pagespeed = False
+                pagespeed = 0
+
+        if data and (not hhvm):
+            if old_hhvm == 1:
+                data['hhvm'] = True
+                hhvm = 1
+            else:
+                data['hhvm'] = False
+                hhvm = 0
+
+        if data and (not pagespeed):
+            if old_pagespeed == 1:
+                data['pagespeed'] = True
+                pagespeed = 1
+            else:
+                data['pagespeed'] = False
+                pagespeed = 0
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
@@ -691,6 +713,9 @@ class EESiteUpdateController(CementBaseController):
 
             # Service Nginx Reload
             EEService.reload_service(self, 'nginx')
+
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
@@ -825,9 +850,11 @@ class EESiteUpdateController(CementBaseController):
                            db_name=data['ee_db_name'],
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
-                           db_host=data['ee_db_host'])
+                           db_host=data['ee_db_host'], hhvm=hhvm,
+                           pagespeed=pagespeed)
         else:
-            updateSiteInfo(self, ee_domain, stype=stype, cache=cache)
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
 
