@@ -663,21 +663,21 @@ class EESiteUpdateController(CementBaseController):
                     data['wpfc'] = False
                     data['wpsc'] = True
 
-            if self.app.pargs.hhvm == 'on':
+            if self.app.pargs.hhvm != 'off':
                 data['hhvm'] = True
                 hhvm = 1
             elif self.app.pargs.hhvm == 'off':
                 data['hhvm'] = False
                 hhvm = 0
 
-            if self.app.pargs.pagespeed == 'on':
+            if self.app.pargs.pagespeed != 'off':
                 data['pagespeed'] = True
                 pagespeed = 1
             elif self.app.pargs.pagespeed == 'off':
                 data['pagespeed'] = False
                 pagespeed = 0
 
-        if data and (not hhvm):
+        if data and (not self.app.pargs.hhvm):
             if old_hhvm == 1:
                 data['hhvm'] = True
                 hhvm = 1
@@ -685,7 +685,7 @@ class EESiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = 0
 
-        if data and (not pagespeed):
+        if data and (not self.app.pargs.pagespeed):
             if old_pagespeed == 1:
                 data['pagespeed'] = True
                 pagespeed = 1
@@ -696,7 +696,7 @@ class EESiteUpdateController(CementBaseController):
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
-
+                      
         ee_auth = site_package_check(self, stype)
 
         sitebackup(self, data)
