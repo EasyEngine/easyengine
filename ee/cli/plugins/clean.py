@@ -29,9 +29,9 @@ class EECleanController(CementBaseController):
             (['--memcache'],
                 dict(help='Clean MemCache', action='store_true')),
             (['--opcache'],
-                dict(help='Clean OpCache', action='store_true'))
+                dict(help='Clean OpCache', action='store_true')),
             (['--pagespeed'],
-                dict(help='Clean Pagespeed Cache', action='store_true'))
+                dict(help='Clean Pagespeed Cache', action='store_true')),
             ]
         usage = "ee clean [options]"
 
@@ -44,6 +44,7 @@ class EECleanController(CementBaseController):
             self.clean_memcache()
             self.clean_fastcgi()
             self.clean_opcache()
+            self.clean_pagespeed()
         if self.app.pargs.fastcgi:
             self.clean_fastcgi()
         if self.app.pargs.memcache:
