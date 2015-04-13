@@ -8,6 +8,7 @@ from ee.core.variables import EEVariables
 from ee.core.fileutils import EEFileUtils
 from ee.core.shellexec import EEShellExec
 from ee.core.sendmail import EESendMail
+from ee.core.mysql import EEMysql
 import os
 import glob
 import gzip
@@ -160,6 +161,9 @@ class EELogResetController(CementBaseController):
             (['--access'],
                 dict(help='Reset Nginx access log file',
                      action='store_true')),
+            (['--slow-log-db'],
+                dict(help='Drop all rows from slowlog table in database',
+                     action='store_true')),
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
             ]
@@ -175,19 +179,30 @@ class EELogResetController(CementBaseController):
 
         if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)):
+           and (not self.app.pargs.wp) and (not self.app.pargs.site_name)
+           and (not self.app.pargs.slow_log_db)):
             self.app.pargs.nginx = True
             self.app.pargs.fpm = True
             self.app.pargs.mysql = True
             self.app.pargs.access = True
+            self.app.pargs.slow_log_db = True
 
         if ((not self.app.pargs.nginx) and (not self.app.pargs.fpm)
            and (not self.app.pargs.mysql) and (not self.app.pargs.access)
-           and (not self.app.pargs.wp) and (self.app.pargs.site_name)):
+           and (not self.app.pargs.wp) and (self.app.pargs.site_name)
+           and (not self.app.pargs.slow-log-db)):
             self.app.pargs.nginx = True
             self.app.pargs.wp = True
             self.app.pargs.access = True
             self.app.pargs.mysql = True
+
+        if self.app.pargs.slow_log_db:
+            if os.path.isdir("/var/www/22222/htdocs/db/anemometer"):
+                Log.info(self, "Resetting MySQL slow_query_log database table")
+                EEMysql.execute(self, "TRUNCATE TABLE  "
+                                "slow_query_log.global_query_review_history")
+                EEMysql.execute(self, "TRUNCATE TABLE "
+                                "slow_query_log.global_query_review")
 
         if self.app.pargs.nginx and (not self.app.pargs.site_name):
             self.msg = self.msg + ["/var/log/nginx/*error.log"]
