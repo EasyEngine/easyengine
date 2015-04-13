@@ -82,10 +82,10 @@ def updateSiteInfo(self, site, stype='', cache='', webroot='',
     if webroot and q.site_path != webroot:
         q.site_path = webroot
 
-    if hhvm and q.is_hhvm != hhvm:
+    if (hhvm is not None) and (q.is_hhvm is not hhvm):
         q.is_hhvm = hhvm
 
-    if webroot and q.is_pagespeed != pagespeed:
+    if (pagespeed is not None) and (q.is_pagespeed is not pagespeed):
         q.is_pagespeed = pagespeed
 
     try:

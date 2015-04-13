@@ -668,51 +668,51 @@ class EESiteUpdateController(CementBaseController):
 
             if self.app.pargs.hhvm != 'off':
                 data['hhvm'] = True
-                hhvm = 1
+                hhvm = True
             elif self.app.pargs.hhvm == 'off':
                 data['hhvm'] = False
-                hhvm = 0
+                hhvm = False
 
             if self.app.pargs.pagespeed != 'off':
                 data['pagespeed'] = True
-                pagespeed = 1
+                pagespeed = True
             elif self.app.pargs.pagespeed == 'off':
                 data['pagespeed'] = False
-                pagespeed = 0
+                pagespeed = False
 
         if self.app.pargs.pagespeed:
             if pagespeed == old_pagespeed:
-                if pagespeed == 0:
+                if pagespeed is False:
                     Log.error(self, "Pagespeed is allready disabled for given "
                               "site")
-                elif pagespeed == 1:
+                elif pagespeed is True:
                     Log.error(self, "Pagespeed is allready enabled for given "
                               "site")
 
         if self.app.pargs.hhvm:
             if hhvm == old_hhvm:
-                if hhvm == 0:
+                if hhvm is False:
                     Log.error(self, "HHVM is allready disabled for given "
                               "site")
-                elif hhvm == 1:
+                elif hhvm is True:
                     Log.error(self, "HHVM is allready enabled for given "
                               "site")
 
         if data and (not self.app.pargs.hhvm):
-            if old_hhvm == 1:
+            if old_hhvm is True:
                 data['hhvm'] = True
-                hhvm = 1
+                hhvm = True
             else:
                 data['hhvm'] = False
-                hhvm = 0
+                hhvm = False
 
         if data and (not self.app.pargs.pagespeed):
-            if old_pagespeed == 1:
+            if old_pagespeed is True:
                 data['pagespeed'] = True
-                pagespeed = 1
+                pagespeed = True
             else:
                 data['pagespeed'] = False
-                pagespeed = 0
+                pagespeed = False
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
