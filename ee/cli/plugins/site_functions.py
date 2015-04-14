@@ -7,6 +7,7 @@ from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
 from ee.core.git import EEGit
 from ee.core.logging import Log
+from ee.core.services import EEService
 import subprocess
 from subprocess import CalledProcessError
 import os
@@ -823,6 +824,7 @@ def removeNginxConf(self, domain):
                            .format(domain))
             EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                            .format(domain))
+            EEService.reload_service(self, 'nginx')
             EEGit.add(self, ["/etc/nginx"],
                       msg="Deleted {0} "
                       .format(domain))
