@@ -1672,10 +1672,12 @@ class EEStackController(CementBaseController):
                                           ' purge  from server'
                                           '. Package configuration will remain'
                                           ' on server after this operation.'
-                                          ' packages [y/N]: ')
+                                          ' packages Any answer other than '
+                                          ' "yes" will be stop this'
+                                          ' operation  ')
             else:
-                ee_apt_pkg_prompt = 'Y'
-            if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
+                ee_apt_pkg_prompt = 'YES'
+            if ee_apt_pkg_prompt == 'YEs' or ee_apt_pkg_prompt == 'yes':
                 Log.debug(self, "Removing apt_packages")
                 Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
@@ -1686,10 +1688,12 @@ class EEStackController(CementBaseController):
                                       ' from server.'
                                       ' Package configuration will remain '
                                       'on server after this operation.'
-                                      ' packages [y/N]: ')
+                                      ' packages Any answer other than '
+                                      '"yes" will be stop this '
+                                      'operation ')
             else:
-                ee_pkg_prompt = 'Y'
-            if ee_pkg_prompt == 'Y' or ee_pkg_prompt == 'y':
+                ee_pkg_prompt = 'YES'
+            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
         Log.info(self, "Successfully removed packages")
@@ -1790,10 +1794,12 @@ class EEStackController(CementBaseController):
                 ee_apt_pkg_prompt = input('Are you sure you to want to purge '
                                           'from server '
                                           'alongwith their configuration.'
-                                          ' packages [y/N]: ')
+                                          ' packages Any answer other than '
+                                          '"yes" will be stop this '
+                                          'operation ')
             else:
-                ee_apt_pkg_prompt = 'Y'
-            if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
+                ee_apt_pkg_prompt = 'YES'
+            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
                 Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
@@ -1802,10 +1808,12 @@ class EEStackController(CementBaseController):
                 ee_pkg_prompt = input('Are you sure you to want to purge '
                                       ' from server alongwith '
                                       ' their configuration.'
-                                      ' packages [y/N]: ')
+                                      ' packages Any answer other than '
+                                      '"yes" will be stop this '
+                                      'operation ')
             else:
-                ee_pkg_prompt = 'Y'
-            if ee_pkg_prompt == 'Y' or ee_pkg_prompt == 'y':
+                ee_pkg_prompt = 'YES'
+            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
         Log.info(self, "Successfully purged packages")
