@@ -322,6 +322,11 @@ class EESiteCreateController(CementBaseController):
 
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not ee_domain.strip():
+            Log.error("Invalid domain name, "
+                      "Provide valid domain name")
+                      
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         if check_domain_exists(self, ee_domain):
