@@ -718,22 +718,27 @@ class EESiteUpdateController(CementBaseController):
                 pagespeed = False
 
         if self.app.pargs.pagespeed:
-            if pagespeed == old_pagespeed:
+            if pagespeed is old_pagespeed:
                 if pagespeed is False:
-                    Log.error(self, "Pagespeed is allready disabled for given "
-                              "site")
+                    Log.info(self, "Pagespeed is allready disabled for given "
+                             "site")
                 elif pagespeed is True:
-                    Log.error(self, "Pagespeed is allready enabled for given "
-                              "site")
+                    Log.info(self, "Pagespeed is allready enabled for given "
+                             "site")
 
         if self.app.pargs.hhvm:
-            if hhvm == old_hhvm:
+            if hhvm is old_hhvm:
                 if hhvm is False:
-                    Log.error(self, "HHVM is allready disabled for given "
-                              "site")
+                    Log.info(self, "HHVM is allready disabled for given "
+                             "site")
                 elif hhvm is True:
-                    Log.error(self, "HHVM is allready enabled for given "
-                              "site")
+                    Log.info(self, "HHVM is allready enabled for given "
+                             "site")
+
+        if self.app.pargs.pagespeed and self.app.pargs.hhvm:
+            if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+               (stype == oldsitetype and cache == oldcachetype)):
+                self.app.close(0)
 
         if data and (not self.app.pargs.hhvm):
             if old_hhvm is True:
