@@ -1677,7 +1677,7 @@ class EEStackController(CementBaseController):
                                           ' operation  ')
             else:
                 ee_apt_pkg_prompt = 'YES'
-            if ee_apt_pkg_prompt == 'YEs' or ee_apt_pkg_prompt == 'yes':
+            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
                 Log.debug(self, "Removing apt_packages")
                 Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
