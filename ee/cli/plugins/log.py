@@ -22,8 +22,21 @@ def ee_log_hook(app):
 class EELogController(CementBaseController):
     class Meta:
         label = 'log'
-        description = 'Show Nginx, PHP, MySQL log file'
+        description = 'Perform operations on Nginx, PHP, MySQL log file'
         stacked_on = 'base'
+        stacked_type = 'nested'
+        usage = "ee log [<site_name>] [options]"
+
+    @expose(hide=True)
+    def default(self):
+        self.app.args.print_help()
+
+
+class EELogShowController(CementBaseController):
+    class Meta:
+        label = 'show'
+        description = 'Show Nginx, PHP, MySQL log file'
+        stacked_on = 'log'
         stacked_type = 'nested'
         arguments = [
             (['--all'],
@@ -46,7 +59,7 @@ class EELogController(CementBaseController):
             (['site_name'],
                 dict(help='Website Name', nargs='?', default=None))
             ]
-        usage = "ee log [<site_name>] [options]"
+        usage = "ee log show [<site_name>] [options]"
 
     @expose(hide=True)
     def default(self):
@@ -529,6 +542,7 @@ class EELogMailController(CementBaseController):
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EELogController)
+    handler.register(EELogShowController)
     handler.register(EELogResetController)
     handler.register(EELogGzipController)
     handler.register(EELogMailController)
