@@ -326,7 +326,7 @@ class EESiteCreateController(CementBaseController):
         if not ee_domain.strip():
             Log.error("Invalid domain name, "
                       "Provide valid domain name")
-                      
+
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         if check_domain_exists(self, ee_domain):
@@ -756,7 +756,10 @@ class EESiteUpdateController(CementBaseController):
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
-
+        data['ee_db_name'] = check_site.db_name
+        data['ee_db_user'] = check_site.db_user
+        data['ee_db_pass'] = check_site.db_password
+        data['ee_db_host'] = check_site.db_host
         try:
             sitebackup(self, data)
         except Exception as e:
@@ -809,25 +812,25 @@ class EESiteUpdateController(CementBaseController):
                 Log.error(self, "Update site failed. Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
-        if oldsitetype == 'mysql':
-            config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
-                           .format(EEVariables.ee_date))
-            data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_NAME')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_USER')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_PASSWORD')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_HOST')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
+        # if oldsitetype == 'mysql':
+        #     # config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
+        #     #                .format(EEVariables.ee_date))
+        #     # data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_NAME')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_USER')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_PASSWORD')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_HOST')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:

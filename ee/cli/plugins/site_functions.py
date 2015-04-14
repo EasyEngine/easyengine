@@ -486,6 +486,7 @@ def setwebrootpermissions(self, webroot):
 
 
 def sitebackup(self, data):
+    print(data['ee_db_name'])
     ee_site_webroot = data['webroot']
     backup_path = ee_site_webroot + '/backup/{0}'.format(EEVariables.ee_date)
     if not EEFileUtils.isexist(self, backup_path):
@@ -500,15 +501,16 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
-
-    if configfiles and EEFileUtils.isexist(self, configfiles[0]):
-        ee_db_name = (EEFileUtils.grep(self, configfiles[0],
-                      'DB_NAME').split(',')[1]
-                      .split(')')[0].strip().replace('\'', ''))
+    # if configfiles and EEFileUtils.isexist(self, configfiles[0]):
+    #     ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+    #                   'DB_NAME').split(',')[1]
+    #                   .split(')')[0].strip().replace('\'', ''))
+    if data['ee_db_name']:
         Log.info(self, 'Backing up database \t\t', end='')
         try:
             if not EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
-                                        .format(ee_db_name, backup_path)):
+                                        .format(data['ee_db_name'],
+                                                backup_path)):
                 Log.info(self,
                          "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
                 raise SiteError("mysqldump failed to backup database")
