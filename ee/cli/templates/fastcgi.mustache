@@ -7,3 +7,4 @@ fastcgi_buffers 16 16k;
 fastcgi_buffer_size 32k;
 fastcgi_param SERVER_NAME $http_host;
 fastcgi_ignore_headers Cache-Control Expires Set-Cookie;
+fastcgi_keep_conn on;
