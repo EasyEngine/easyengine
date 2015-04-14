@@ -1676,8 +1676,8 @@ class EEStackController(CementBaseController):
                                           ' "yes" will be stop this'
                                           ' operation  ')
             else:
-                ee_apt_pkg_prompt = 'YES'
-            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
+                ee_apt_pkg_prompt = 'Y'
+            if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
                 Log.debug(self, "Removing apt_packages")
                 Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
@@ -1692,8 +1692,8 @@ class EEStackController(CementBaseController):
                                       '"yes" will be stop this '
                                       'operation ')
             else:
-                ee_pkg_prompt = 'YES'
-            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
+                ee_pkg_prompt = 'Y'
+            if ee_pkg_prompt == 'Y' or ee_pkg_prompt == 'y':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
         Log.info(self, "Successfully removed packages")
@@ -1798,8 +1798,8 @@ class EEStackController(CementBaseController):
                                           '"yes" will be stop this '
                                           'operation ')
             else:
-                ee_apt_pkg_prompt = 'YES'
-            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
+                ee_apt_pkg_prompt = 'Y'
+            if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
                 Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
@@ -1812,8 +1812,8 @@ class EEStackController(CementBaseController):
                                       '"yes" will be stop this '
                                       'operation ')
             else:
-                ee_pkg_prompt = 'YES'
-            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
+                ee_pkg_prompt = 'Y'
+            if ee_pkg_prompt == 'Y' or ee_pkg_prompt == 'y':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
         Log.info(self, "Successfully purged packages")
