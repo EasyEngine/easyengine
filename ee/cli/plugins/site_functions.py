@@ -807,6 +807,14 @@ def deleteDB(self, dbname, dbuser, dbhost):
 
 
 def deleteWebRoot(self, webroot):
+    # do some preprocessing before proceeding
+    webroot = webroot.strip()
+    if (webroot == "/var/www/" or webroot == "/var/www"
+       or webroot == "/var/www/.." or webroot == "/var/www/."):
+        Log.debug(self, "Tried to remove {0}, but didn't remove it"
+                  .format(webroot))
+        return False
+
     if os.path.isdir(webroot):
         Log.debug(self, "Removing {0}".format(webroot))
         EEFileUtils.rm(self, webroot)
