@@ -486,7 +486,6 @@ def setwebrootpermissions(self, webroot):
 
 
 def sitebackup(self, data):
-    print(data['ee_db_name'])
     ee_site_webroot = data['webroot']
     backup_path = ee_site_webroot + '/backup/{0}'.format(EEVariables.ee_date)
     if not EEFileUtils.isexist(self, backup_path):
