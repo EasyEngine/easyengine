@@ -38,7 +38,8 @@ class EECleanController(CementBaseController):
     @expose(hide=True)
     def default(self):
         if (not (self.app.pargs.all or self.app.pargs.fastcgi or
-                 self.app.pargs.memcache or self.app.pargs.opcache)):
+                 self.app.pargs.memcache or self.app.pargs.opcache or
+                 self.app.pargs.pagespeed)):
             self.clean_fastcgi()
         if self.app.pargs.all:
             self.clean_memcache()

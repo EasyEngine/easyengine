@@ -30,6 +30,7 @@ defaults['ee']['plugin_dir'] = '/var/lib/ee/plugins'
 # External templates (generally, do not ship with application code)
 defaults['ee']['template_dir'] = '/var/lib/ee/templates'
 
+
 class EEArgHandler(ArgParseArgumentHandler):
     class Meta:
         label = 'ee_args_handler'
@@ -80,6 +81,7 @@ app = EEApp()
 
 def main():
     try:
+        global sys
         # Default our exit status to 0 (non-error)
         code = 0
 
@@ -90,6 +92,9 @@ def main():
 
         # Setup the application
         app.setup()
+
+        # Dump all arguments into ee log
+        app.log.debug(sys.argv)
 
         # Run the application
         app.run()
