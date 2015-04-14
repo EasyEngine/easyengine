@@ -43,7 +43,8 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
 
@@ -77,7 +78,9 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
+
             except IOError as e:
                 Log.error(self, 'could not input site name')
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -113,7 +116,8 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
         self.app.pargs.site_name = self.app.pargs.site_name.strip()
@@ -172,7 +176,8 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'Unable to read input, Please try again')
 
@@ -203,7 +208,8 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
         # TODO Write code for ee site edit command here
@@ -231,7 +237,8 @@ class EESiteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'Unable to read input, please try again')
 
@@ -307,7 +314,8 @@ class EESiteCreateController(CementBaseController):
             try:
                 while not self.app.pargs.site_name:
                     # preprocessing before finalize site name
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "Unable to input site name, Please try again!")
@@ -566,7 +574,8 @@ class EESiteUpdateController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'Unable to input site name, Please try again!')
 
@@ -934,7 +943,8 @@ class EESiteDeleteController(CementBaseController):
         if not self.app.pargs.site_name:
             try:
                 while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = input('Enter site name : ')
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
 
