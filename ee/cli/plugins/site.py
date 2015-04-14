@@ -42,10 +42,12 @@ class EESiteController(CementBaseController):
     def enable(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         # validate domain name
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
@@ -74,9 +76,11 @@ class EESiteController(CementBaseController):
     def disable(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, ee_domain):
@@ -108,9 +112,11 @@ class EESiteController(CementBaseController):
     def info(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_db_user = ''
@@ -151,6 +157,7 @@ class EESiteController(CementBaseController):
 
     @expose(help="Monitor example.com logs")
     def log(self):
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = getSiteInfo(self, ee_domain).site_path
 
@@ -164,9 +171,12 @@ class EESiteController(CementBaseController):
     def edit(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'Unable to read input, Please try again')
+
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
         if not check_domain_exists(self, ee_domain):
@@ -192,10 +202,12 @@ class EESiteController(CementBaseController):
     def show(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
         # TODO Write code for ee site edit command here
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
         if not check_domain_exists(self, ee_domain):
@@ -218,10 +230,12 @@ class EESiteController(CementBaseController):
     def cd(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'Unable to read input, please try again')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
         if not check_domain_exists(self, ee_domain):
@@ -291,11 +305,14 @@ class EESiteCreateController(CementBaseController):
 
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    # preprocessing before finalize site name
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "Unable to input site name, Please try again!")
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
@@ -548,10 +565,12 @@ class EESiteUpdateController(CementBaseController):
 
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'Unable to input site name, Please try again!')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -914,9 +933,12 @@ class EESiteDeleteController(CementBaseController):
     def default(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = input('Enter site name : ')
             except IOError as e:
                 Log.error(self, 'could not input site name')
+
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_prompt = ''
