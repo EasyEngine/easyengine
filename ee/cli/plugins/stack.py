@@ -1668,18 +1668,24 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             if not self.app.pargs.no_prompt:
-                ee_apt_pkg_prompt = input('Are you sure, you want to remove'
+                ee_apt_pkg_prompt = input('Are you sure you to want to'
+                                          ' purge  from server'
+                                          '. Package configuration will remain'
+                                          ' on server after this operation.'
                                           ' packages [y/N]: ')
             else:
                 ee_apt_pkg_prompt = 'Y'
             if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Uninstalling packages, please wait ...")
+                Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
                 EEAptGet.auto_remove(self)
         if len(packages):
             if not self.app.pargs.no_prompt:
-                ee_pkg_prompt = input('Are you sure, you want to remove'
+                ee_pkg_prompt = input('Are you sure you to want to purge'
+                                      ' from server.'
+                                      ' Package configuration will remain '
+                                      'on server after this operation.'
                                       ' packages [y/N]: ')
             else:
                 ee_pkg_prompt = 'Y'
@@ -1781,17 +1787,21 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             if not self.app.pargs.no_prompt:
-                ee_apt_pkg_prompt = input('Are you sure, you want to remove'
+                ee_apt_pkg_prompt = input('Are you sure you to want to purge '
+                                          'from server '
+                                          'alongwith their configuration.'
                                           ' packages [y/N]: ')
             else:
                 ee_apt_pkg_prompt = 'Y'
             if ee_apt_pkg_prompt == 'Y' or ee_apt_pkg_prompt == 'y':
-                Log.info(self, "Uninstalling packages, please wait ...")
+                Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
         if len(packages):
             if not self.app.pargs.no_prompt:
-                ee_pkg_prompt = input('Are you sure, you want to remove'
+                ee_pkg_prompt = input('Are you sure you to want to purge '
+                                      ' from server alongwith '
+                                      ' their configuration.'
                                       ' packages [y/N]: ')
             else:
                 ee_pkg_prompt = 'Y'
