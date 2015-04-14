@@ -115,6 +115,7 @@ class EESiteController(CementBaseController):
         ee_db_name = ''
         ee_db_user = ''
         ee_db_pass = ''
+        hhvm = ''
 
         if not check_domain_exists(self, ee_domain):
             Log.error(self, "site {0} does not exist".format(ee_domain))
@@ -131,14 +132,18 @@ class EESiteController(CementBaseController):
             ee_db_user = siteinfo.db_user
             ee_db_pass = siteinfo.db_password
             ee_db_host = siteinfo.db_host
+            if sitetype != "html":
+                hhvm = ("enabled" if siteinfo.is_hhvm else "disabled")
+
+            pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
 
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
-                        dbpass=ee_db_pass, type=sitetype + " " + cachetype +
-                        " ({0})".format("enabled"
-                                        if siteinfo.is_enabled else
-                                        "disabled"))
+                        dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
+                        type=sitetype + " " + cachetype + " ({0})"
+                        .format("enabled" if siteinfo.is_enabled else
+                                "disabled"))
             self.app.render((data), 'siteinfo.mustache')
         else:
             Log.error(self, "nginx configuration file does not exist"
