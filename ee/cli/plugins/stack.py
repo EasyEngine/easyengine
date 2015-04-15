@@ -1789,7 +1789,7 @@ class EEStackController(CementBaseController):
             ee_apt_pkg_prompt = input('Are you sure you to want to purge '
                                       'from server '
                                       'alongwith their configuration.'
-                                      ' packages \n Any answer other than '
+                                      '\n Any answer other than '
                                       '"yes" will be stop this '
                                       'operation :')
             if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
@@ -1801,7 +1801,7 @@ class EEStackController(CementBaseController):
             ee_pkg_prompt = input('Are you sure you to want to purge '
                                   ' from server alongwith '
                                   ' their configuration.'
-                                  ' packages \n Any answer other than '
+                                  '\n Any answer other than '
                                   '"yes" will be stop this '
                                   'operation :')
 
