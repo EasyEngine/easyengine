@@ -105,9 +105,15 @@ _ee_complete()
                 fi
                 ;;
 
-            "gzip" | "mail")
+            "gzip")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
+                              -- $cur) )
+                ;;
+
+            "mail")
+                COMPREPLY=( $(compgen \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access --to=" \
                               -- $cur) )
                 ;;
 
