@@ -122,7 +122,7 @@ class EELogShowController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
                     if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
                         if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
@@ -261,7 +261,7 @@ class EELogResetController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
                     if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
                         if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
@@ -390,7 +390,7 @@ class EELogGzipController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
                     if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
                         if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
@@ -526,7 +526,7 @@ class EELogMailController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                if os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
                     if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
                         if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
