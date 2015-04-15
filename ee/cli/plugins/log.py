@@ -108,6 +108,9 @@ class EELogShowController(CementBaseController):
                          "show MySQL log file")
 
         if self.app.pargs.site_name:
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
+
             if not os.path.isdir(webroot):
                 Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
@@ -119,9 +122,6 @@ class EELogShowController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                webroot = "{0}{1}".format(EEVariables.ee_webroot,
-                                          self.app.pargs.site_name)
-
                 if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
                     if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
