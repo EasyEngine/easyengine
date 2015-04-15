@@ -1679,12 +1679,14 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
                 EEAptGet.auto_remove(self)
-                Log.info(self, "Successfully removed packages")
+
         if len(packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
-                Log.info(self, "Successfully removed packages")
+
+        if ee_prompt == 'YES' or ee_prompt == 'yes':
+            Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
     def purge(self):
@@ -1789,12 +1791,14 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
-                Log.info(self, "Successfully purged packages")
+                
         if len(packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
-                Log.info(self, "Successfully purged packages")
+
+        if ee_prompt == 'YES' or ee_prompt == 'yes':
+            Log.info(self, "Successfully purged packages")
 
 
 def load(app):
