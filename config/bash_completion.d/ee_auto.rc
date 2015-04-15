@@ -59,7 +59,7 @@ _ee_complete()
 
             "log")
                 COMPREPLY=( $(compgen \
-                              -W "show reset gzip email" \
+                              -W "show reset gzip mail" \
                               -- $cur) )
                 ;;
 
@@ -105,7 +105,7 @@ _ee_complete()
                 fi
                 ;;
 
-            "gzip" | "email")
+            "gzip" | "mail")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
                               -- $cur) )
