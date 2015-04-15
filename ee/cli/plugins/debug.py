@@ -271,21 +271,6 @@ class EEDebugController(CementBaseController):
                 EEMysql.execute(self, "set global long_query_time = 2;")
                 EEMysql.execute(self, "set global log_queries_not_using"
                                       "_indexes = \'ON\';")
-                if self.app.pargs.interval:
-                    try:
-                        cron_time = int(self.app.pargs.interval)
-                    except Exception as e:
-                        cron_time = 5
-
-                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
-                                         "2> /dev/null | {{ cat; echo -e"
-                                         " \\\"#EasyEngine start MySQL "
-                                         "slow log \\n*/{0} * * * * "
-                                         "/usr/local/bin/ee "
-                                         "import-slow-log\\n"
-                                         "#EasyEngine end MySQL slow log"
-                                         "\\\"; }} | crontab -\""
-                                         .format(cron_time))
             else:
                 Log.info(self, "MySQL slow log is already enabled")
 
@@ -488,7 +473,8 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)
-           and (not self.app.pargs.import_slow_log)):
+           and (not self.app.pargs.import_slow_log)
+           and (not self.app.pargs.interval)):
             if self.app.pargs.stop or self.app.pargs.start:
                 print("--start/stop option is deprecated since ee3.0.5")
                 self.app.args.print_help()
@@ -497,6 +483,25 @@ class EEDebugController(CementBaseController):
 
         if self.app.pargs.import_slow_log:
             self.import_slow_log()
+
+        if self.app.pargs.interval:
+            try:
+                cron_time = int(self.app.pargs.interval)
+            except Exception as e:
+                cron_time = 5
+
+            try:
+                EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
+                                     "2> /dev/null | {{ cat; echo -e"
+                                     " \\\"#EasyEngine start MySQL "
+                                     "slow log \\n*/{0} * * * * "
+                                     "/usr/local/bin/ee "
+                                     "import-slow-log\\n"
+                                     "#EasyEngine end MySQL slow log"
+                                     "\\\"; }} | crontab -\""
+                                     .format(cron_time))
+            except CommandExecutionError as e:
+                Log.debug(self, str(e))
 
         if self.app.pargs.all == 'on':
             if self.app.pargs.site_name:
