@@ -1665,31 +1665,23 @@ class EEStackController(CementBaseController):
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
+        ee_prompt = input('Are you sure you to want to'
+                          ' purge  from server'
+                          '. Package configuration will remain'
+                          ' on server after this operation. \n'
+                          ' Any answer other than '
+                          ' "yes" will be stop this'
+                          ' operation :  ')
 
         if len(apt_packages):
-            ee_apt_pkg_prompt = input('Are you sure you to want to'
-                                      ' purge  from server'
-                                      '. Package configuration will remain'
-                                      ' on server after this operation. \n'
-                                      ' Any answer other than '
-                                      ' "yes" will be stop this'
-                                      ' operation :  ')
-            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
+            if ee_prompt == 'YES' or ee_prompt == 'yes':
                 Log.debug(self, "Removing apt_packages")
                 Log.info(self, "Removing packages, please wait ...")
                 EEAptGet.remove(self, apt_packages)
                 EEAptGet.auto_remove(self)
                 Log.info(self, "Successfully removed packages")
         if len(packages):
-            ee_pkg_prompt = input('Are you sure you to want to purge'
-                                  ' from server.'
-                                  ' Package configuration will remain '
-                                  'on server after this operation.\n'
-                                  ' Any answer other than '
-                                  '"yes" will be stop this '
-                                  'operation : ')
-
-            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
+            if ee_prompt == 'YES' or ee_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
                 Log.info(self, "Successfully removed packages")
@@ -1785,27 +1777,21 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)
                                    ]
 
+        ee_prompt = input('Are you sure you to want to purge '
+                          'from server '
+                          'alongwith their configuration'
+                          ' packages,\nAny answer other than '
+                          '"yes" will be stop this '
+                          'operation :')
+
         if len(apt_packages):
-            ee_apt_pkg_prompt = input('Are you sure you to want to purge '
-                                      'from server '
-                                      'alongwith their configuration.'
-                                      '\n Any answer other than '
-                                      '"yes" will be stop this '
-                                      'operation :')
-            if ee_apt_pkg_prompt == 'YES' or ee_apt_pkg_prompt == 'yes':
+            if ee_prompt == 'YES' or ee_prompt == 'yes':
                 Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
                 Log.info(self, "Successfully purged packages")
         if len(packages):
-            ee_pkg_prompt = input('Are you sure you to want to purge '
-                                  ' from server alongwith '
-                                  ' their configuration.'
-                                  '\n Any answer other than '
-                                  '"yes" will be stop this '
-                                  'operation :')
-
-            if ee_pkg_prompt == 'YES' or ee_pkg_prompt == 'yes':
+            if ee_prompt == 'YES' or ee_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
                 EEAptGet.auto_remove(self)
                 Log.info(self, "Successfully purged packages")
