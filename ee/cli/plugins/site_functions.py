@@ -89,6 +89,8 @@ def setupdomain(self, data):
             os.makedirs('{0}/htdocs'.format(ee_site_webroot))
         if not os.path.exists('{0}/logs'.format(ee_site_webroot)):
             os.makedirs('{0}/logs'.format(ee_site_webroot))
+        if not os.path.exists('{0}/conf/nginx'.format(ee_site_webroot)):
+            os.makedirs('{0}/conf/nginx'.format(ee_site_webroot))
 
         EEFileUtils.create_symlink(self, ['/var/log/nginx/{0}.access.log'
                                           .format(ee_domain_name),
