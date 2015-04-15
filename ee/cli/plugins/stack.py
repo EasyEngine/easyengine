@@ -1666,11 +1666,11 @@ class EEStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
         ee_prompt = input('Are you sure you to want to'
-                          ' purge  from server'
-                          '. Package configuration will remain'
-                          ' on server after this operation. \n'
-                          ' Any answer other than '
-                          ' "yes" will be stop this'
+                          ' purge  from server.'
+                          'Package configuration will remain'
+                          ' on server after this operation.\n'
+                          'Any answer other than '
+                          '"yes" will be stop this'
                           ' operation :  ')
 
         if len(apt_packages):
