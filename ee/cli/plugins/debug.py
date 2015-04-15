@@ -32,6 +32,9 @@ class EEDebugController(CementBaseController):
                 dict(help='Stop debug', action='store_true')),
             (['--start'],
                 dict(help='Start debug', action='store_true')),
+            (['--import-slow-log'],
+                dict(help='Import MySQL slow log to Anemometer database',
+                     action='store_true')),
             (['--nginx'],
                 dict(help='start/stop debugging nginx server '
                      'configuration for site',
@@ -484,12 +487,16 @@ class EEDebugController(CementBaseController):
            and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and (not self.app.pargs.all)
-           and (not self.app.pargs.site_name)):
+           and (not self.app.pargs.site_name)
+           and (not self.app.pargs.import_slow_log)):
             if self.app.pargs.stop or self.app.pargs.start:
                 print("--start/stop option is deprecated since ee3.0.5")
                 self.app.args.print_help()
             else:
                 self.app.args.print_help()
+
+        if self.app.pargs.import_slow_log:
+            self.import_slow_log()
 
         if self.app.pargs.all == 'on':
             if self.app.pargs.site_name:
@@ -558,6 +565,55 @@ class EEDebugController(CementBaseController):
                     watch_list = watch_list + glob.glob(w_list)
 
                 logwatch(self, watch_list)
+
+    @expose(hide=True)
+    def import_slow_log(self):
+        """Default function for import slow log"""
+        if os.path.isdir("{0}22222/htdocs/db/anemometer"
+                         .format(EEVariables.ee_webroot)):
+            if os.path.isfile("/var/log/mysql/mysql-slow.log"):
+                # Get Anemometer user name and password
+                Log.info(self, "Importing MySQL slow log to Anemometer")
+                host = os.popen("grep -e \"\'host\'\" {0}22222/htdocs/"
+                                .format(EEVariables.ee_webroot)
+                                + "db/anemometer/conf/config.inc.php  "
+                                "| head -1 | cut -d\\\' -f4 | "
+                                "tr -d '\n'").read()
+                user = os.popen("grep -e \"\'user\'\" {0}22222/htdocs/"
+                                .format(EEVariables.ee_webroot)
+                                + "db/anemometer/conf/config.inc.php  "
+                                "| head -1 | cut -d\\\' -f4 | "
+                                "tr -d '\n'").read()
+                password = os.popen("grep -e \"\'password\'\" {0}22222/"
+                                    .format(EEVariables.ee_webroot)
+                                    + "htdocs/db/anemometer/conf"
+                                    "/config.inc.php "
+                                    "| head -1 | cut -d\\\' -f4 | "
+                                    "tr -d '\n'").read()
+
+                # Import slow log Anemometer using pt-query-digest
+                try:
+                    EEShellExec.cmd_exec(self, "pt-query-digest --user={0} "
+                                         "--password={1} "
+                                         "--review D=slow_query_log,"
+                                         "t=global_query_review "
+                                         "--history D=slow_query_log,t="
+                                         "global_query_review_history "
+                                         "--no-report --limit=0% "
+                                         "--filter=\" \\$event->{{Bytes}} = "
+                                         "length(\\$event->{{arg}}) "
+                                         "and \\$event->{{hostname}}=\\\""
+                                         "{2}\\\"\" "
+                                         "/var/log/mysql/mysql-slow.log"
+                                         .format(user, password, host))
+                except CommandExecutionError as e:
+                    Log.debug(self, str(e))
+                    Log.error(self, "MySQL slow log import failed.")
+            else:
+                Log.error(self, "MySQL slow log file not found,"
+                          " so not imported slow logs")
+        else:
+            Log.error(self, "Anemometer is not installed")
 
 
 def load(app):
