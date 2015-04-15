@@ -63,7 +63,7 @@ class EELogShowController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        """Default function of debug"""
+        """Default function of log show"""
         self.msg = []
 
         if self.app.pargs.php:
@@ -136,10 +136,6 @@ class EELogShowController(CementBaseController):
                                                            EEVariables
                                                            .ee_php_user)
                                                  )
-                else:
-                    Log.info(self, "Site is not WordPress site, skipping "
-                             "WordPress logs")
-
                     # create symbolic link for debug log
                     EEFileUtils.create_symlink(self, ["{0}/htdocs/wp-content/"
                                                       "debug.log"
@@ -147,9 +143,13 @@ class EELogShowController(CementBaseController):
                                                       '{0}/logs/debug.log'
                                                       .format(webroot)])
 
-                self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                       .format(EEVariables.ee_webroot,
-                                               self.app.pargs.site_name)]
+                    self.msg = self.msg + ["{0}/{1}/logs/debug.log"
+                                           .format(EEVariables.ee_webroot,
+                                                   self.app.pargs.site_name)]
+                else:
+                    Log.info(self, "Site is not WordPress site, skipping "
+                             "WordPress logs")
+
         watch_list = []
         for w_list in self.msg:
             watch_list = watch_list + glob.glob(w_list)
@@ -191,7 +191,7 @@ class EELogResetController(CementBaseController):
 
     @expose(hide=True)
     def default(self):
-        """Default function of debug"""
+        """Default function of log reset"""
         self.msg = []
 
         if self.app.pargs.php:
@@ -241,14 +241,17 @@ class EELogResetController(CementBaseController):
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
-                    Log.error(self, "Unable to find MySQL slow log file,"
-                              "Please generate it using commnad ee debug "
-                              "--mysql")
+                    Log.info(self, "MySQL slow-log not found, skipped")
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
 
         if self.app.pargs.site_name:
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
+
+            if not os.path.isdir(webroot):
+                Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
                                        .format(EEVariables.ee_webroot,
@@ -258,20 +261,20 @@ class EELogResetController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                webroot = "{0}{1}".format(EEVariables.ee_webroot,
-                                          self.app.pargs.site_name)
-                if not os.path.isfile('{0}/logs/debug.log'
-                                      .format(webroot)):
-                    if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                    if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
-                        open("{0}/htdocs/wp-content/debug.log".format(webroot),
-                             encoding='utf-8', mode='a').close()
-                        EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
-                                             "content/debug.log"
-                                             "".format(webroot,
-                                                       EEVariables.ee_php_user)
-                                             )
-
+                        if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                                              .format(webroot)):
+                            open("{0}/htdocs/wp-content/debug.log"
+                                 .format(webroot),
+                                 encoding='utf-8', mode='a').close()
+                            EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
+                                                 "wp-content/debug.log"
+                                                 "".format(webroot,
+                                                           EEVariables
+                                                           .ee_php_user)
+                                                 )
                     # create symbolic link for debug log
                     EEFileUtils.create_symlink(self, ["{0}/htdocs/wp-content/"
                                                       "debug.log"
@@ -279,9 +282,13 @@ class EELogResetController(CementBaseController):
                                                       '{0}/logs/debug.log'
                                                       .format(webroot)])
 
-                self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                       .format(EEVariables.ee_webroot,
-                                               self.app.pargs.site_name)]
+                    self.msg = self.msg + ["{0}/{1}/logs/debug.log"
+                                           .format(EEVariables.ee_webroot,
+                                                   self.app.pargs.site_name)]
+                else:
+                    Log.info(self, "Site is not WordPress site, skipping "
+                             "WordPress logs")
+
         reset_list = []
         for r_list in self.msg:
             reset_list = reset_list + glob.glob(r_list)
@@ -362,14 +369,18 @@ class EELogGzipController(CementBaseController):
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
-                    Log.error(self, "Unable to find MySQL slow log file,"
-                              "Please generate it using commnad ee debug "
-                              "--mysql")
+                    Log.info(self, "MySQL slow-log not found, skipped")
+
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
 
         if self.app.pargs.site_name:
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
+
+            if not os.path.isdir(webroot):
+                Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
                                        .format(EEVariables.ee_webroot,
@@ -379,20 +390,20 @@ class EELogGzipController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                webroot = "{0}{1}".format(EEVariables.ee_webroot,
-                                          self.app.pargs.site_name)
-                if not os.path.isfile('{0}/logs/debug.log'
-                                      .format(webroot)):
-                    if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                    if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
-                        open("{0}/htdocs/wp-content/debug.log".format(webroot),
-                             encoding='utf-8', mode='a').close()
-                        EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
-                                             "content/debug.log"
-                                             "".format(webroot,
-                                                       EEVariables.ee_php_user)
-                                             )
-
+                        if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                                              .format(webroot)):
+                            open("{0}/htdocs/wp-content/debug.log"
+                                 .format(webroot),
+                                 encoding='utf-8', mode='a').close()
+                            EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
+                                                 "wp-content/debug.log"
+                                                 "".format(webroot,
+                                                           EEVariables
+                                                           .ee_php_user)
+                                                 )
                     # create symbolic link for debug log
                     EEFileUtils.create_symlink(self, ["{0}/htdocs/wp-content/"
                                                       "debug.log"
@@ -400,9 +411,13 @@ class EELogGzipController(CementBaseController):
                                                       '{0}/logs/debug.log'
                                                       .format(webroot)])
 
-                self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                       .format(EEVariables.ee_webroot,
-                                               self.app.pargs.site_name)]
+                    self.msg = self.msg + ["{0}/{1}/logs/debug.log"
+                                           .format(EEVariables.ee_webroot,
+                                                   self.app.pargs.site_name)]
+                else:
+                    Log.info(self, "Site is not WordPress site, skipping "
+                             "WordPress logs")
+
         gzip_list = []
         for g_list in self.msg:
             gzip_list = gzip_list + glob.glob(g_list)
@@ -491,14 +506,17 @@ class EELogMailController(CementBaseController):
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
-                    Log.error(self, "Unable to find MySQL slow log file,"
-                              "Please generate it using commnad ee debug "
-                              "--mysql")
+                    Log.info(self, "MySQL slow-log not found, skipped")
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
 
         if self.app.pargs.site_name:
+            webroot = "{0}{1}".format(EEVariables.ee_webroot,
+                                      self.app.pargs.site_name)
+
+            if not os.path.isdir(webroot):
+                Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
                                        .format(EEVariables.ee_webroot,
@@ -508,20 +526,20 @@ class EELogMailController(CementBaseController):
                                        .format(EEVariables.ee_webroot,
                                                self.app.pargs.site_name)]
             if self.app.pargs.wp:
-                webroot = "{0}{1}".format(EEVariables.ee_webroot,
-                                          self.app.pargs.site_name)
-                if not os.path.isfile('{0}/logs/debug.log'
-                                      .format(webroot)):
-                    if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                    if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
-                        open("{0}/htdocs/wp-content/debug.log".format(webroot),
-                             encoding='utf-8', mode='a').close()
-                        EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
-                                             "content/debug.log"
-                                             "".format(webroot,
-                                                       EEVariables.ee_php_user)
-                                             )
-
+                        if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                                              .format(webroot)):
+                            open("{0}/htdocs/wp-content/debug.log"
+                                 .format(webroot),
+                                 encoding='utf-8', mode='a').close()
+                            EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
+                                                 "wp-content/debug.log"
+                                                 "".format(webroot,
+                                                           EEVariables
+                                                           .ee_php_user)
+                                                 )
                     # create symbolic link for debug log
                     EEFileUtils.create_symlink(self, ["{0}/htdocs/wp-content/"
                                                       "debug.log"
@@ -529,9 +547,13 @@ class EELogMailController(CementBaseController):
                                                       '{0}/logs/debug.log'
                                                       .format(webroot)])
 
-                self.msg = self.msg + ["{0}/{1}/logs/debug.log"
-                                       .format(EEVariables.ee_webroot,
-                                               self.app.pargs.site_name)]
+                    self.msg = self.msg + ["{0}/{1}/logs/debug.log"
+                                           .format(EEVariables.ee_webroot,
+                                                   self.app.pargs.site_name)]
+                else:
+                    Log.info(self, "Site is not WordPress site, skipping "
+                             "WordPress logs")
+
         mail_list = []
         for m_list in self.msg:
             mail_list = mail_list + glob.glob(m_list)
