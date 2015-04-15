@@ -102,12 +102,14 @@ class EELogShowController(CementBaseController):
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
-                    Log.info(self, "MySQL slow-log not found, skipepd")
+                    Log.info(self, "MySQL slow-log not found, skipped")
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
 
         if self.app.pargs.site_name:
+            if not os.path.isdir(webroot):
+                Log.error(self, "Site not present, quitting")
             if self.app.pargs.access:
                 self.msg = self.msg + ["{0}/{1}/logs/access.log"
                                        .format(EEVariables.ee_webroot,
@@ -119,17 +121,24 @@ class EELogShowController(CementBaseController):
             if self.app.pargs.wp:
                 webroot = "{0}{1}".format(EEVariables.ee_webroot,
                                           self.app.pargs.site_name)
-                if not os.path.isfile('{0}/logs/debug.log'
-                                      .format(webroot)):
-                    if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+
+                if not os.path.isdir('{0}/htdocs/wp-content'.format(webroot)):
+                    if not os.path.isfile('{0}/logs/debug.log'
                                           .format(webroot)):
-                        open("{0}/htdocs/wp-content/debug.log".format(webroot),
-                             encoding='utf-8', mode='a').close()
-                        EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/wp-"
-                                             "content/debug.log"
-                                             "".format(webroot,
-                                                       EEVariables.ee_php_user)
-                                             )
+                        if not os.path.isfile('{0}/htdocs/wp-content/debug.log'
+                                              .format(webroot)):
+                            open("{0}/htdocs/wp-content/debug.log"
+                                 .format(webroot),
+                                 encoding='utf-8', mode='a').close()
+                            EEShellExec.cmd_exec(self, "chown {1}: {0}/htdocs/"
+                                                 "wp-content/debug.log"
+                                                 "".format(webroot,
+                                                           EEVariables
+                                                           .ee_php_user)
+                                                 )
+                else:
+                    Log.info(self, "Site is not WordPress site, skipping "
+                             "WordPress logs")
 
                     # create symbolic link for debug log
                     EEFileUtils.create_symlink(self, ["{0}/htdocs/wp-content/"

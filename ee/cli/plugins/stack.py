@@ -1632,8 +1632,9 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_php
 
         if self.app.pargs.hhvm:
-            Log.debug(self, "Removing apt_packages varible of HHVM")
-            apt_packages = apt_packages + EEVariables.ee_hhvm
+            if EEAptGet.is_installed(self, 'hhvm'):
+                Log.debug(self, "Removing apt_packages varible of HHVM")
+                apt_packages = apt_packages + EEVariables.ee_hhvm
 
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
@@ -1751,8 +1752,9 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.hhvm:
-            Log.debug(self, "Removing apt_packages varible of HHVM")
-            apt_packages = apt_packages + EEVariables.ee_hhvm
+            if EEAptGet.is_installed(self, 'hhvm'):
+                Log.debug(self, "Removing apt_packages varible of HHVM")
+                apt_packages = apt_packages + EEVariables.ee_hhvm
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
