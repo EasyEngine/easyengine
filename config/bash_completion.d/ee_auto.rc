@@ -59,7 +59,7 @@ _ee_complete()
 
             "log")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --mysql --php --nginx --all" \
+                              -W "show reset gzip email" \
                               -- $cur) )
                 ;;
 
@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all --mailscanner" \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all --mailscanner --hhvm" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -96,6 +96,18 @@ _ee_complete()
             "edit" | "enable" | "info" | "log" | "show" | "cd" | "update" | "delete")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
+                              -- $cur) )
+                ;;
+
+            "show" | "gzip" | "email")
+                COMPREPLY=( $(compgen \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
+                              -- $cur) )
+                ;;
+
+            "reset")
+                COMPREPLY=( $(compgen \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access --slow-log--db" \
                               -- $cur) )
                 ;;
 

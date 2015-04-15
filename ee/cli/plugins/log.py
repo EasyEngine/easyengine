@@ -102,9 +102,7 @@ class EELogShowController(CementBaseController):
                 if os.path.isfile('/var/log/mysql/mysql-slow.log'):
                     self.msg = self.msg + ['/var/log/mysql/mysql-slow.log']
                 else:
-                    Log.error(self, "Unable to find MySQL slow log file,"
-                              "Please generate it using commnad ee debug "
-                              "--mysql")
+                    Log.info(self, "MySQL slow-log not found, skipepd")
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine is not able to"
                          "show MySQL log file")
