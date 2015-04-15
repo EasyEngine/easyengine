@@ -94,12 +94,18 @@ _ee_complete()
                 ;;
 
             "edit" | "enable" | "info" | "log" | "show" | "cd" | "update" | "delete")
-                COMPREPLY=( $(compgen \
-                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
-                              -- $cur) )
+                if [ ${COMP_WORDS[1]} == "log" ]; then
+                    COMPREPLY=( $(compgen \
+                                  -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
+                                  -- $cur) )
+                else
+                    COMPREPLY=( $(compgen \
+                                -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
+                                -- $cur) )
+                fi
                 ;;
 
-            "show" | "gzip" | "email")
+            "gzip" | "email")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
                               -- $cur) )
@@ -129,13 +135,13 @@ _ee_complete()
                               -- $cur) )
         fi
 
-        if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
-                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
-                ret="${retlist[@]/$prev}"
-                COMPREPLY=( $(compgen \
-                              -W "$(echo $ret)" \
-                              -- $cur) )
-        fi
+        #if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
+        #        retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+        #        ret="${retlist[@]/$prev}"
+        #        COMPREPLY=( $(compgen \
+        #                      -W "$(echo $ret)" \
+        #                      -- $cur) )
+        #fi
 
 
     elif [ $COMP_CWORD -eq 4 ]; then
