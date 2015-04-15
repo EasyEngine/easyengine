@@ -2,7 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from ee.core.shellexec import EEShellExec
+from ee.core.shellexec import *
 from ee.core.mysql import EEMysql
 from ee.core.services import EEService
 from ee.core.logging import Log
@@ -491,15 +491,23 @@ class EEDebugController(CementBaseController):
                 cron_time = 5
 
             try:
-                EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
-                                     "2> /dev/null | {{ cat; echo -e"
-                                     " \\\"#EasyEngine start MySQL "
-                                     "slow log \\n*/{0} * * * * "
-                                     "/usr/local/bin/ee "
-                                     "import-slow-log\\n"
-                                     "#EasyEngine end MySQL slow log"
-                                     "\\\"; }} | crontab -\""
-                                     .format(cron_time))
+                if not EEShellExec.cmd_exec(self, "crontab -l | grep "
+                                            "'ee import-slow-log'"):
+                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
+                                         "2> /dev/null | {{ cat; echo -e"
+                                         " \\\"#EasyEngine start MySQL "
+                                         "slow log \\n*/{0} * * * * "
+                                         "/usr/local/bin/ee "
+                                         "import-slow-log\\n"
+                                         "#EasyEngine end MySQL slow log"
+                                         "\\\"; }} | crontab -\""
+                                         .format(cron_time))
+                else:
+                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
+                                         " | sed 's/*ee import-slow-log*///'"
+                                         " | crontab -"
+                                         .format(cron_time))
+
             except CommandExecutionError as e:
                 Log.debug(self, str(e))
 
