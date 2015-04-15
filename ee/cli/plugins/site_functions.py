@@ -587,15 +587,6 @@ def site_package_check(self, stype):
                             out=ee_nginx)
             ee_nginx.close()
 
-            Log.debug(self, 'Writting the Pagespeed common '
-                      'configuration to file /etc/nginx/common/'
-                      'pagespeed.conf')
-            ee_nginx = open('/etc/nginx/common/pagespeed.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'pagespeed-common.mustache',
-                            out=ee_nginx)
-            ee_nginx.close()
-
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
@@ -861,3 +852,35 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
             if not dbhost:
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
+
+
+def operateOnPagespeed(self, data):
+
+    ee_domain_name = data['site_name']
+    ee_site_webroot = data['webroot']
+
+    if data['pagespeed'] is True:
+        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
+                              .format(ee_site_webroot)):
+            Log.debug(self, 'Writting the Pagespeed common '
+                      'configuration to file {0}/conf/nginx/pagespeed.conf'
+                      'pagespeed.conf'.format(ee_site_webroot))
+            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
+                            .format(ee_site_webroot), encoding='utf-8',
+                            mode='w')
+            self.app.render((data), 'pagespeed-common.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+        else:
+            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/pagespeed.conf'
+                               .format(ee_site_webroot))
+
+    elif data['pagespeed'] is False:
+        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
+                          .format(ee_site_webroot)):
+            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/pagespeed.conf.disabled'
+                               .format(ee_site_webroot))

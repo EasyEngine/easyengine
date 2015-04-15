@@ -1,19 +1,3 @@
-# PageSpeed Admin
-location /ngx_pagespeed_statistics { include common/acl.conf; }
-location /ngx_pagespeed_global_statistics { include common/acl.conf; }
-location /ngx_pagespeed_message { include common/acl.conf; }
-location /pagespeed_console { include common/acl.conf; }
-location ~ ^/pagespeed_admin { include common/acl.conf; }
-location ~ ^/pagespeed_global_admin { include common/acl.conf; }
-
-# Ensure requests for pagespeed optimized resources go to the pagespeed handler
-# and no extraneous headers get set.
-location ~ "\.pagespeed\.([a-z]\.)?[a-z]{2}\.[^.]{10}\.[^.]+" {
-  add_header "" "";
-}
-location ~ "^/pagespeed_static/" { }
-location ~ "^/ngx_pagespeed_beacon$" { }
-
 # HTTPS Support
 # pagespeed FetchHttps enable;
 
@@ -37,3 +21,24 @@ location ~ "^/ngx_pagespeed_beacon$" { }
 
 # CDN Support
 #pagespeed MapRewriteDomain cdn.example.com www.example.com;
+
+
+###########################################################################################################################
+# DO NOT EDIT AFTER THIS LINE                                                                                             #
+###########################################################################################################################
+
+# PageSpeed Admin
+location /ngx_pagespeed_statistics { include common/acl.conf; }
+location /ngx_pagespeed_global_statistics { include common/acl.conf; }
+location /ngx_pagespeed_message { include common/acl.conf; }
+location /pagespeed_console { include common/acl.conf; }
+location ~ ^/pagespeed_admin { include common/acl.conf; }
+location ~ ^/pagespeed_global_admin { include common/acl.conf; }
+
+# Ensure requests for pagespeed optimized resources go to the pagespeed handler
+# and no extraneous headers get set.
+location ~ "\.pagespeed\.([a-z]\.)?[a-z]{2}\.[^.]{10}\.[^.]+" {
+  add_header "" "";
+}
+location ~ "^/pagespeed_static/" { }
+location ~ "^/ngx_pagespeed_beacon$" { }

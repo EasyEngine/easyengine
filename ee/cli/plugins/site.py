@@ -401,6 +401,10 @@ class EESiteCreateController(CementBaseController):
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
+            # Update pagespeed config
+            if self.app.pargs.pagespeed:
+                operateOnPagespeed(self, data)
+
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
                        hhvm=hhvm, pagespeed=pagespeed)
             # Setup database for MySQL site
@@ -779,6 +783,10 @@ class EESiteUpdateController(CementBaseController):
             Log.debug(self, str(e))
             Log.error(self, "Update site failed. Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+        # Update pagespeed config
+        if self.app.pargs.pagespeed:
+            operateOnPagespeed(self, data)
 
         if stype == oldsitetype and cache == oldcachetype:
 

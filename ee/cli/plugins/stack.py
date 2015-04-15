@@ -362,15 +362,6 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    Log.debug(self, 'Writting the Pagespeed common '
-                              'configuration to file /etc/nginx/common/'
-                              'pagespeed.conf')
-                    ee_nginx = open('/etc/nginx/common/pagespeed.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'pagespeed-common.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
@@ -1793,7 +1784,7 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Purging packages, please wait ...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
-                
+
         if len(packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
                 EEFileUtils.remove(self, packages)
