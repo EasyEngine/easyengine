@@ -558,7 +558,6 @@ class EELogMailController(CementBaseController):
         for m_list in self.msg:
             mail_list = mail_list + glob.glob(m_list)
 
-        print(mail_list)
         for tomail in self.app.pargs.to:
             Log.info(self, "Sending mail to {0}".format(tomail[0]))
             EESendMail("easyengine", tomail[0], "{0} Log Files"
