@@ -98,6 +98,10 @@ _ee_complete()
                     COMPREPLY=( $(compgen \
                                   -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access" \
                                   -- $cur) )
+                elif [ ${COMP_WORDS[1]} == "edit" ]; then
+                    COMPREPLY=( $(compgen \
+                                -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --pagespeed" \
+                                -- $cur) )
                 else
                     COMPREPLY=( $(compgen \
                                 -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
@@ -119,7 +123,7 @@ _ee_complete()
 
             "reset")
                 COMPREPLY=( $(compgen \
-                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access --slow-log--db" \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access --slow-log-db" \
                               -- $cur) )
                 ;;
 
