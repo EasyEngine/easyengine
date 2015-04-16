@@ -291,7 +291,7 @@ class EESiteEditController(CementBaseController):
                    '{0}/conf/nginx/pagespeed.conf'.format(ee_site_webroot))):
                     EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
                               msg="Edit Pagespped config of site: {0}"
-                              .format(ee_site_webroot))
+                              .format(ee_domain))
                     # Reload NGINX
                     EEService.reload_service(self, 'nginx')
             else:

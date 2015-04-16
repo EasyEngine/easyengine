@@ -888,4 +888,4 @@ def operateOnPagespeed(self, data):
     # Add nginx conf folder into GIT
     EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
               msg="Adding Pagespeed config of site: {0}"
-              .format(ee_site_webroot))
+              .format(ee_domain_name))
