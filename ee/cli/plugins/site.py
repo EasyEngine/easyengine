@@ -780,11 +780,6 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "HHVM is allready enabled for given "
                              "site")
 
-        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
-            if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
-               (stype == oldsitetype and cache == oldcachetype)):
-                self.app.close(0)
-
         if data and (not self.app.pargs.hhvm):
             if old_hhvm is True:
                 data['hhvm'] = True
@@ -800,6 +795,11 @@ class EESiteUpdateController(CementBaseController):
             else:
                 data['pagespeed'] = False
                 pagespeed = False
+
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+            if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+               (stype == oldsitetype and cache == oldcachetype)):
+                self.app.close(0)
 
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
