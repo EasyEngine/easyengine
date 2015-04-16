@@ -1,3 +1,76 @@
+v 3.1.0 - April 16, 2015
+- Added HHVM  support #199
+- Added Pagespeed  support #473
+- EasyEngine log command now suppots more subcommand #448
+- Before stack purge or remove,  EasyEngine now asks confirmation #485
+- Minor fixes and improvements
+
+v 3.0.10 - April 10, 2015
+- Fixed regression issue introduced in 3.0.9
+
+v 3.0.9 - April 10, 2015
+- Fixed #483, now Xdebug is enabled during ee debug only and disabled by default
+- Introduced ee sync command to sync EasyEngine database with Site information
+- Minor fixes and improvement
+
+v 3.0.8 - April 9,2015
+- Fixed regression issue introduced in 3.0.7
+
+v 3.0.7 - April 9,2015
+- Fixed #445
+- Fixed #413
+- Small bug fixes.
+- Improvements in core functionality.
+
+v 3.0.6 - April 2,2015
+- Added `update` command to update EasyEngine.
+
+v 3.0.5 - March 18,2015
+- Changed Database from Percona MySQL to MariaDB #362
+- Better arguments for ee debug command
+- Improved installation script
+- Small bug fixes and improvements
+
+v 3.0.4 - Feb 25,2015
+- Fixed #406, install Wp Query Monitor on wp debug option
+- Fixed #429, added `log` command
+- Fixed #442
+- Fixed bug in delete command for site
+- Small bug fixes and improvements
+
+v 3.0.3 - Feb 23,2015
+- Fixed remote MySQL supports, #428, #427, thanks to @joshlyford #432
+- Fixed ascii encoding issue #414
+- Fixed bug in debug pool #426
+- Added admin tools to default stack
+- Added more MIME types,thanks to @cborgia #423
+- Small bugs fixes and improvements
+
+v 3.0.2 - Feb 14,2015
+- Fixed #413
+- Improved installation script
+- Fixed Percona key not importing
+- Small bug fixes and improvements
+
+v 3.0.1 - Feb 12,2015
+- Fixed #411, #40, #409
+- Improved installation script
+
+v 3.0.0 - Feb 11,2015
+- Refactored complete code in Python 3
+- Updated WP-CLI to 0.18
+- Update RoundCube to 1.1
+- Update ViMbAdmin to 3.0.11
+
+v 2.2.3 - Feb 01,2015
+- Fixed installation issue of Percona Mysql
+
+v 2.2.2 - Dec 03,2014
+- Fixed installation issue of Percona Mysql on Debian
+- Fixed error during ViMbAdmin installation
+- Fixed alias in ViMbAdmin are not working
+- Updated WP-CLI to 0.17.1
+
 v 2.2.1 - Oct 16,2014
 - Fixed update script issue for remote MySQL #323
 - Fixed remote MySQL delete user issue by @brennentsmith #324
@@ -6,14 +79,14 @@ v 2.2.1 - Oct 16,2014
 v 2.2.0 - Oct 13, 2014
 - Percona Mysql 5.6 support on Fresh installation. #107
 - RAM Based Optimization for PHP5-FPM,OpCache and Memcache
-- Introduced following new commands for 
+- Introduced following new commands for
   - ee site cd example.com  # Change Directory to example.com Webroot
   - ee site log example.com  # Real time log monitoring for example.com access and error logs
   - ee site update example.com <parameters> # update example.com cache and convert site
   - ee clean # Clean cache NGINX FastCGI, Memcache, OPcache.
-- Change WordPress user password easily ( ee site update example.com --password) #315 
-- Added PHP5-GeoIP Support 
-- Auto Swap creation for low RAM servers. 
+- Change WordPress user password easily ( ee site update example.com --password) #315
+- Added PHP5-GeoIP Support
+- Auto Swap creation for low RAM servers.
 - Fixed Better autocompletion feature. Fixed #311.
 - Fixed phpMyAdmin (blowfish_secret) error #301
 - Simplified way to update EasyEngine. #307
@@ -40,8 +113,8 @@ v 2.0.0 - July 14, 2014
   - Fixed MySQL stopped in ee stack status #233
   - Added WordPress SEO Yoast plugin support in wpcommon.conf #165
   - Depricated ee system command with ee stack command
-  
-  
+
+
 v 1.3.8 - May 26, 2014
   - Fixed phpMyAdmin download issue #251
   - Fixed swap issue #223 by @Swingline0
@@ -89,10 +162,10 @@ v 1.3.0 - Apr 11, 2014
   - Introduce `ee debug` command
   - Introduce `ee system [status|stop|start|restart]` command
 
-  - EasyEngine Admin Tools shifted on port `22222` with self signed SSL Certificate #124 
+  - EasyEngine Admin Tools shifted on port `22222` with self signed SSL Certificate #124
   - Setup Separate PHP5-FPM Pool on Port 9001 for debugging purpose
-  - Polish `ee site edit` command #157 
-  - Fixed MySQL Username Character Limit #113 
+  - Polish `ee site edit` command #157
+  - Fixed MySQL Username Character Limit #113
   - Nginx Settings #100
 
 
@@ -120,13 +193,13 @@ v 1.1.5 - Feb 17, 2014
 
 
 v 1.1.4 - Feb 14, 2014
-  - Fixed wp-cli issue with --allow-root error. 
-  
+  - Fixed wp-cli issue with --allow-root error.
+
 
 v 1.1.3 - Jan 28, 2014
   - Added GPL License. Ref - https://rtcamp.com/easyengine-is-gpl/
 
-  
+
 v 1.1.2 - Jan 28, 2014
   - Fix White-list IP Address
   - Fix ee info command
@@ -135,7 +208,7 @@ v 1.1.2 - Jan 28, 2014
 
 v 1.1.1 - Jan 17, 2014
   - IP-detcect issue. (#108)
-  
+
 
 v 1.1 - Jan 16, 2014
   - Handling redirects from “non-www to www” and vice-versa. (#71)
@@ -145,12 +218,12 @@ v 1.1 - Jan 16, 2014
   - Secured /ee locations (#60 and https://rtcamp.com/tutorials/nginx/ssl-pci-compliance-performance/)
   - SSL Session cache for nginx (#56)
 
-  
+
 v 1.0.1 - Dec 17, 2013
   - Fix wp-cli issue
-  
 
-v 1.0.0 - Oct 1, 2013  
+
+v 1.0.0 - Oct 1, 2013
   - First Release
   - Support for Standard WordPress and multisite WordPress
   - Support for Nginx Fastcgi-Cache, W3 Total Cache and WP Super Cache

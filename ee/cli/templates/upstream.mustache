@@ -1,0 +1,14 @@
+# Common upstream settings
+upstream php {
+# server unix:/run/php5-fpm.sock;
+server 127.0.0.1:{{php}};
+}
+upstream debug {
+# Debug Pool
+server 127.0.0.1:{{debug}};
+}
+upstream hhvm {
+# HHVM Pool
+server 127.0.0.1:{{hhvm}};
+server 127.0.0.1:{{php}} backup;
+}

@@ -1,0 +1,61 @@
+# EasyEngine admin NGINX CONFIGURATION
+
+server {
+
+  listen 22222 default_server ssl spdy;
+
+  access_log   /var/log/nginx/22222.access.log rt_cache;
+  error_log    /var/log/nginx/22222.error.log;
+
+  ssl_certificate {{webroot}}22222/cert/22222.crt;
+  ssl_certificate_key {{webroot}}22222/cert/22222.key;
+
+  # Force HTTP to HTTPS
+  error_page 497 =200 https://$host:22222$request_uri;
+
+  root {{webroot}}22222/htdocs;
+  index index.php index.htm index.html;
+
+  # Turn on directory listing
+  autoindex on;
+
+  location / {
+    include common/acl.conf;
+    try_files $uri $uri/ /index.php?$args;
+  }
+
+  location =  /fpm/status/ {}
+
+  location ~ /fpm/status/(.*) {
+    include fastcgi_params;
+    fastcgi_param  SCRIPT_NAME  /status;
+    fastcgi_pass $1;
+  }
+
+  location ~ \.php$ {
+    include common/acl.conf;
+    try_files $uri =404;
+    include fastcgi_params;
+    fastcgi_pass php;
+  }
+
+  # ViMbAdmin Rules
+  location = /vimbadmin/ {
+    return 301 $scheme://$host:22222/vimbadmin/public/;
+  }
+
+  location ~* \.(js|css|jpg|gif|png)$ {
+    root {{webroot}}22222/htdocs/;
+  }
+
+  location ~* /vimbadmin/public/(.*)/(.*) {
+    root {{webroot}}22222/htdocs/vimbadmin/public;
+    try_files $uri $uri/  /vimbadmin/public/index.php?$args;
+  }
+
+  location ~* /vimbadmin/public/(.*) {
+    root {{webroot}}22222/htdocs/vimbadmin/public;
+    try_files $uri $uri/  /vimbadmin/public/index.php?$args;
+  }
+
+}

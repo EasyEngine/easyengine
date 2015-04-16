@@ -1,0 +1,35 @@
+
+server {
+
+    {{#multisite}}
+    # Uncomment the following line for domain mapping
+    # listen 80 default_server;
+    {{/multisite}}
+
+    server_name {{^vma}}{{^rc}}{{site_name}}{{/rc}}{{/vma}} {{#vma}}vma.*{{/vma}} {{#rc}}webmail.*{{/rc}} {{^vma}}{{^rc}}{{#multisite}}*{{/multisite}}{{^multisite}}www{{/multisite}}.{{site_name}}{{/rc}}{{/vma}};
+
+    {{#multisite}}
+    # Uncomment the following line for domain mapping
+    #server_name_in_redirect off;
+    {{/multisite}}
+
+    access_log /var/log/nginx/{{site_name}}.access.log {{^static}}rt_cache{{/static}};
+    error_log /var/log/nginx/{{site_name}}.error.log;
+    {{^vma}}{{^rc}}root {{webroot}}/htdocs;{{/rc}}{{/vma}}
+    {{#vma}}root /var/www/22222/htdocs/vimbadmin/public;{{/vma}}
+    {{#rc}}root /var/www/roundcubemail/htdocs/;{{/rc}}
+
+    index {{^static}}index.php{{/static}} index.html index.htm;
+
+    {{#static}}
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    {{/static}}
+
+    {{^static}}include{{/static}} {{^hhvm}}{{#basic}}common/php.conf;{{/basic}}{{#w3tc}}common/w3tc.conf;{{/w3tc}}{{#wpfc}}common/wpfc.conf;{{/wpfc}} {{#wpsc}}common/wpsc.conf;{{/wpsc}} {{/hhvm}}{{#hhvm}}{{#basic}}common/php-hhvm.conf;{{/basic}}{{#w3tc}}common/w3tc-hhvm.conf;{{/w3tc}}{{#wpfc}}common/wpfc-hhvm.conf;{{/wpfc}} {{#wpsc}}common/wpsc-hhvm.conf;{{/wpsc}} {{/hhvm}}
+    {{#wpsubdir}}include common/wpsubdir.conf;{{/wpsubdir}}
+    {{#wp}}include common/wpcommon.conf;{{/wp}}
+    include common/locations.conf;
+    {{^vma}}{{^rc}}include {{webroot}}/conf/nginx/*.conf;{{/rc}}{{/vma}}
+}

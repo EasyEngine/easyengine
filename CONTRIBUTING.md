@@ -1,27 +1,36 @@
-## How to get support
+# Community Guidelines
 
-For FREE community support, please use  - http://community.rtcamp.com/category/easyengine/
+This guide details how to get involve in EasyEngine commmunity. Please read this carefully.
 
-For premium support, please contact - https://rtcamp.com/contact
 
-Please do NOT create a support request here on github. Github issue tracker is used for development task-tracking only.
 
-## How to report issue:
+## How to get help?
 
-Please attach the output of following command when requesting support using any chaneel.
+Please attach the output of following command when open a new support request.
 
-```
-bash
+```bash
 lsb_release -a
-ee version
+ee -v
 ee info
 wp --allow-root --info
 ```
 
-### EasyEngine chat:
+### Where to create issue?
+
+For free support, please use - http://community.rtcamp.com/c/easyengine
+
+For premium support, please check - https://rtcamp.com/products/easyengine-premium-support/
+
+Please do NOT clutter github issue tracker here with support requests. It hampers development speed of this project.
+
+
+### Pull Requests
+
+When submitting your code please follow this coding standerds - http://docs.rtcamp.com/easyengine/dev/python/
+
+
+### EasyEngine Chat
+
 Developer & contributor discussion: https://gitter.im/rtCamp/easyengine
 
-
-### Pull Requests:
-
-We love pull requests. But please make sure to add inline comments so that we can understand your code easily.
+Please do NOT use chat for technical support. Chat is limited to developer & contributor disucssion related to EasyEngine future.

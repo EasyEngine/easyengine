@@ -1,6 +1,0 @@
-- ee_mod_debug_fpm.sh -  debug PHP5-FPM
-- ee_mod_debug_mysql.sh - debug mysql
-- ee_mod_debug_nginx.sh - debug NGINX
-- ee_mod_debug_php.sh - debug PHP
-- ee_mod_debug_rewrite.sh - debug NGINX rewrite
-- ee_mod_debug_wp.sh - debug WordPress
