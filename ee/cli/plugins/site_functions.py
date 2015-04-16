@@ -884,3 +884,8 @@ def operateOnPagespeed(self, data):
                                .format(ee_site_webroot),
                                '{0}/conf/nginx/pagespeed.conf.disabled'
                                .format(ee_site_webroot))
+
+    # Add nginx conf folder into GIT
+    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+              msg="Adding Pagespeed config of site: {0}"
+              .format(ee_site_webroot))

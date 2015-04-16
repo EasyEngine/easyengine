@@ -171,38 +171,6 @@ class EESiteController(CementBaseController):
         if logfiles:
             logwatch(self, logfiles)
 
-    @expose(help="Edit Nginx configuration of example.com")
-    def edit(self):
-        if not self.app.pargs.site_name:
-            try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
-            except IOError as e:
-                Log.error(self, 'Unable to read input, Please try again')
-
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
-        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-
-        if not check_domain_exists(self, ee_domain):
-            Log.error(self, "site {0} does not exist".format(ee_domain))
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(ee_domain)):
-            try:
-                EEShellExec.invoke_editor(self, '/etc/nginx/sites-available/'
-                                          '{0}'.format(ee_domain))
-            except CommandExecutionError as e:
-                Log.error(self, "Failed invoke editor")
-            if (EEGit.checkfilestatus(self, "/etc/nginx",
-               '/etc/nginx/sites-available/{0}'.format(ee_domain))):
-                EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
-                          .format(ee_domain))
-                # Reload NGINX
-                EEService.reload_service(self, 'nginx')
-        else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(ee_domain))
-
     @expose(help="Display Nginx configuration of example.com")
     def show(self):
         if not self.app.pargs.site_name:
@@ -256,6 +224,79 @@ class EESiteController(CementBaseController):
         except OSError as e:
             Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
             Log.error(self, "unable to change directory")
+
+
+class EESiteEditController(CementBaseController):
+    class Meta:
+        label = 'edit'
+        stacked_on = 'site'
+        stacked_type = 'nested'
+        description = ('Edit Nginx configuration of site')
+        arguments = [
+            (['site_name'],
+                dict(help='domain name for the site',
+                     nargs='?')),
+            (['--pagespeed'],
+                dict(help="edit pagespeed configuration for site",
+                     action='store_true')),
+            ]
+
+    @expose(hide=True)
+    def default(self):
+        if not self.app.pargs.site_name:
+            try:
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
+            except IOError as e:
+                Log.error(self, 'Unable to read input, Please try again')
+
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
+        ee_site_webroot = EEVariables.ee_webroot + ee_domain
+
+        if not self.app.pargs.pagespeed:
+            if os.path.isfile('/etc/nginx/sites-available/{0}'
+                              .format(ee_domain)):
+                try:
+                    EEShellExec.invoke_editor(self, '/etc/nginx/sites-availa'
+                                              'ble/{0}'.format(ee_domain))
+                except CommandExecutionError as e:
+                    Log.error(self, "Failed invoke editor")
+                if (EEGit.checkfilestatus(self, "/etc/nginx",
+                   '/etc/nginx/sites-available/{0}'.format(ee_domain))):
+                    EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
+                              .format(ee_domain))
+                    # Reload NGINX
+                    EEService.reload_service(self, 'nginx')
+            else:
+                Log.error(self, "nginx configuration file does not exists"
+                          .format(ee_domain))
+
+        elif self.app.pargs.pagespeed:
+            if os.path.isfile('{0}/conf/nginx/pagespeed.conf'
+                              .format(ee_site_webroot)):
+                try:
+                    EEShellExec.invoke_editor(self, '{0}/conf/nginx/'
+                                              'pagespeed.conf'
+                                              .format(ee_site_webroot))
+                except CommandExecutionError as e:
+                    Log.error(self, "Failed invoke editor")
+                if (EEGit.checkfilestatus(self, "{0}/conf/nginx"
+                   .format(ee_site_webroot),
+                   '{0}/conf/nginx/pagespeed.conf'.format(ee_site_webroot))):
+                    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                              msg="Edit Pagespped config of site: {0}"
+                              .format(ee_site_webroot))
+                    # Reload NGINX
+                    EEService.reload_service(self, 'nginx')
+            else:
+                Log.error(self, "Pagespeed configuration file does not exists"
+                          .format(ee_domain))
 
 
 class EESiteCreateController(CementBaseController):
