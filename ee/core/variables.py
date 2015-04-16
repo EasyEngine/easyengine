@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.0.10"
+    ee_version = "3.1.0"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.18.0"
@@ -73,7 +73,7 @@ class EEVariables():
     elif ee_platform_distro == 'debian':
         ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
                          .format(codename=ee_platform_codename))
-        ee_nginx = ["nginx-full", "nginx-common"]
+        ee_nginx = ["nginx-extras", "nginx-common"]
 
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':
@@ -115,6 +115,20 @@ class EEVariables():
     ee_mailscanner = ["amavisd-new", "spamassassin", "clamav", "clamav-daemon",
                       "arj", "zoo", "nomarch", "lzop", "cabextract", "p7zip",
                       "rpm", "unrar-free"]
+
+    # HHVM repo details
+    # 12.04 requires boot repository
+    if ee_platform_distro == 'Ubuntu':
+        if ee_platform_codename == "precise":
+            ee_boost_repo = ("ppa:mapnik/boost")
+
+        ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+                        .format(codename=ee_platform_codename))
+    else:
+        ee_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
+                        .format(codename=ee_platform_codename))
+
+    ee_hhvm = ["hhvm"]
 
     # Repo path
     ee_repo_file = "ee-repo.list"

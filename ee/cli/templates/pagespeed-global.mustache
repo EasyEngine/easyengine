@@ -1,0 +1,21 @@
+# Turning the module on and off
+pagespeed on;
+
+# Configuring PageSpeed Filters
+pagespeed RewriteLevel PassThrough;
+
+# Needs to exist and be writable by nginx.  Use tmpfs for best performance.
+pagespeed MemcachedServers "127.0.0.1:11211";
+pagespeed FileCachePath /var/ngx_pagespeed_cache;
+
+# PageSpeed Admin
+pagespeed StatisticsPath /ngx_pagespeed_statistics;
+pagespeed GlobalStatisticsPath /ngx_pagespeed_global_statistics;
+pagespeed MessagesPath /ngx_pagespeed_message;
+pagespeed ConsolePath /pagespeed_console;
+pagespeed AdminPath /pagespeed_admin;
+pagespeed GlobalAdminPath /pagespeed_global_admin;
+
+# PageSpeed Cache Purge
+pagespeed EnableCachePurge on;
+pagespeed PurgeMethod PURGE;

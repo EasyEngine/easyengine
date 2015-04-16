@@ -64,6 +64,18 @@ script:
   - sudo ee site create site12.in --wpfc --wpsubdomain
   - sudo ee site create site12.net --wpfc --wpsubdomain
 
+  - sudo ee site create site.hhvm.pagespeed2.com --wpsc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed3.com --w3tc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed4.com --wpfc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed5.com --wpsubdir --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed7.com --wpsubdir --w3tc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed11.in --w3tc --wpsubdomain --hhvm --pagespeed
+  - sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm --pagespeed
+
   - sudo ee debug --all
   - sudo ee debug --all=off
   - sudo ee debug site12.net
@@ -87,6 +99,10 @@ script:
   - sudo ee site update site9.com --wpsubdomain --wpfc
   - sudo ee site update site9.com --wpsubdomain --w3tc
   - sudo ee site update site9.com --wpsubdomain --wpsc
+  - sudo ee site update site.hhvm.pagespeed12.in --pagespeed=off --hhvm=off
+  - sudo ee site update site9.com --hhvm --pagespeed
+  - sudo ee site info site.hhvm.pagespeed12.in
+  - sudo ee site info site9.com
 
   - sudo ee site create www.site-1.com --wp
   - sudo ee site create www.subsite.site-1.com --wpfc
@@ -96,6 +112,7 @@ script:
   - sudo ee site delete site12.in --all --no-prompt
   - sudo ee site delete site12.net --no-prompt
   - sudo ee site delete site12.org --no-prompt
+  - sudo ee site delete site9.com --no-prompt
 
   - sudo ee stack install --mail
   - sudo ls /var/www/

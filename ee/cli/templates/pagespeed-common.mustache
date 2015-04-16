@@ -1,0 +1,44 @@
+# HTTPS Support
+# pagespeed FetchHttps enable;
+
+# PageSpeed Filters
+# CSS Minification
+# pagespeed EnableFilters combine_css,rewrite_css;
+
+# JS Minification
+# pagespeed EnableFilters combine_javascript,rewrite_javascript;
+
+# Images Optimization
+#pagespeed EnableFilters lazyload_images;
+#pagespeed EnableFilters rewrite_images;
+#pagespeed EnableFilters convert_jpeg_to_progressive,convert_png_to_jpeg,convert_jpeg_to_webp,convert_to_webp_lossless;
+
+# Remove comments from HTML
+#pagespeed EnableFilters remove_comments;
+# Remove WHITESPACE from HTML
+#pagespeed EnableFilters collapse_whitespace;
+
+
+# CDN Support
+#pagespeed MapRewriteDomain cdn.example.com www.example.com;
+
+
+###########################################################################################################################
+# DO NOT EDIT AFTER THIS LINE                                                                                             #
+###########################################################################################################################
+
+# PageSpeed Admin
+location /ngx_pagespeed_statistics { include common/acl.conf; }
+location /ngx_pagespeed_global_statistics { include common/acl.conf; }
+location /ngx_pagespeed_message { include common/acl.conf; }
+location /pagespeed_console { include common/acl.conf; }
+location ~ ^/pagespeed_admin { include common/acl.conf; }
+location ~ ^/pagespeed_global_admin { include common/acl.conf; }
+
+# Ensure requests for pagespeed optimized resources go to the pagespeed handler
+# and no extraneous headers get set.
+location ~ "\.pagespeed\.([a-z]\.)?[a-z]{2}\.[^.]{10}\.[^.]+" {
+  add_header "" "";
+}
+location ~ "^/pagespeed_static/" { }
+location ~ "^/ngx_pagespeed_beacon$" { }

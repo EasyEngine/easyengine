@@ -12,13 +12,14 @@ import glob
 def addNewSite(self, site, stype, cache, path,
                enabled=True, ssl=False, fs='ext4', db='mysql',
                db_name=None, db_user=None, db_password=None,
-               db_host='localhost'):
+               db_host='localhost', hhvm=0, pagespeed=0):
     """
     Add New Site record information into ee database.
     """
     try:
         newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db,
-                        db_name, db_user, db_password, db_host)
+                        db_name, db_user, db_password, db_host, hhvm,
+                        pagespeed)
         db_session.add(newRec)
         db_session.commit()
     except Exception as e:
@@ -40,7 +41,8 @@ def getSiteInfo(self, site):
 
 def updateSiteInfo(self, site, stype='', cache='', webroot='',
                    enabled=True, ssl=False, fs='', db='', db_name=None,
-                   db_user=None, db_password=None, db_host=None):
+                   db_user=None, db_password=None, db_host=None, hhvm=None,
+                   pagespeed=None):
     """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
@@ -78,6 +80,12 @@ def updateSiteInfo(self, site, stype='', cache='', webroot='',
 
     if webroot and q.site_path != webroot:
         q.site_path = webroot
+
+    if (hhvm is not None) and (q.is_hhvm is not hhvm):
+        q.is_hhvm = hhvm
+
+    if (pagespeed is not None) and (q.is_pagespeed is not pagespeed):
+        q.is_pagespeed = pagespeed
 
     try:
         q.created_on = func.now()

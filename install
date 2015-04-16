@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.0.10"
+readonly ee_version_new="3.1.0"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -89,9 +89,9 @@ function ee_install_dep()
 {
     ee_lib_echo "Installing required packages, please wait..."
     if [ "$ee_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install gcc gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
+        apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
     elif [ "$ee_linux_distro" == "Debian" ]; then
-        apt-get -y install gcc gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
+        apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
 
     # Generating Locale
@@ -221,7 +221,6 @@ function secure_ee_db()
     chown -R root:root /var/lib/ee/
     chmod -R 600 /var/lib/ee/
 }
-
 
 # Install EasyEngine 3.x
 function ee_install()

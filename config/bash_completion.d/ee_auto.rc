@@ -22,7 +22,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE SECOND LEVEL NAMESPACE
             "clean")
                 COMPREPLY=( $(compgen \
-                              -W "--memcache --opcache --fastcgi --all" \
+                              -W "--memcache --opcache --fastcgi --pagespeed --all" \
                               -- $cur) )
                 ;;
 
@@ -59,7 +59,7 @@ _ee_complete()
 
             "log")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null) --mysql --php --nginx --all" \
+                              -W "show reset gzip mail" \
                               -- $cur) )
                 ;;
 
@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all --mailscanner" \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all --mailscanner --hhvm" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
@@ -94,8 +94,32 @@ _ee_complete()
                 ;;
 
             "edit" | "enable" | "info" | "log" | "show" | "cd" | "update" | "delete")
+                if [ ${COMP_WORDS[1]} == "log" ]; then
+                    COMPREPLY=( $(compgen \
+                                  -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --access" \
+                                  -- $cur) )
+                else
+                    COMPREPLY=( $(compgen \
+                                -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
+                                -- $cur) )
+                fi
+                ;;
+
+            "gzip")
                 COMPREPLY=( $(compgen \
-                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null)" \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql  --access" \
+                              -- $cur) )
+                ;;
+
+            "mail")
+                COMPREPLY=( $(compgen \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --access --to=" \
+                              -- $cur) )
+                ;;
+
+            "reset")
+                COMPREPLY=( $(compgen \
+                              -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --wp --access --slow-log-db" \
                               -- $cur) )
                 ;;
 
@@ -117,13 +141,13 @@ _ee_complete()
                               -- $cur) )
         fi
 
-        if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
-                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
-                ret="${retlist[@]/$prev}"
-                COMPREPLY=( $(compgen \
-                              -W "$(echo $ret)" \
-                              -- $cur) )
-        fi
+        #if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
+        #        retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+        #        ret="${retlist[@]/$prev}"
+        #        COMPREPLY=( $(compgen \
+        #                      -W "$(echo $ret)" \
+        #                      -- $cur) )
+        #fi
 
 
     elif [ $COMP_CWORD -eq 4 ]; then
@@ -132,19 +156,47 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
+                                    -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc" \
+                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off" \
                                  -- $cur) )
                 ;;
             "delete")
                 COMPREPLY=( $(compgen \
                                     -W "--db --files --all --no-prompt" \
                                  -- $cur) )
+                ;;
+            "show")
+                COMPREPLY=( $(compgen \
+                              -W "--wp --nginx --php --fpm --mysql  --access" \
+                              -- $cur) )
+                ;;
+
+            "gzip")
+                COMPREPLY=( $(compgen \
+                              -W "--wp --nginx --php --fpm --mysql  --access" \
+                              -- $cur) )
+                ;;
+
+            "mail")
+                COMPREPLY=( $(compgen \
+                              -W "--wp --nginx --php --fpm --mysql --access --to=" \
+                              -- $cur) )
+                ;;
+
+            "reset")
+                COMPREPLY=( $(compgen \
+                              -W "--wp --nginx --php --fpm --mysql --wp --access --slow-log-db" \
+                              -- $cur) )
+                ;;
+            edit)
+                COMPREPLY=( $(compgen \
+                              -W "--pagespeed" \
+                              -- $cur) )
                 ;;
             *)
                 ;;
@@ -175,6 +227,18 @@ _ee_complete()
                     retlist="--start --nginx --php --fpm --mysql -i --interactive --stop"
                     if [[ $prev == '--mysql' ]]; then
                         retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log"
+                    fi
+            elif [[ ${COMP_WORDS[1]} == "log" ]]; then
+                    if [ ${COMP_WORDS[2]} == "show" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp"
+
+                    elif [ ${COMP_WORDS[2]} == "reset" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
+
+
+                    elif [ ${COMP_WORDS[2]} == "mail" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp --to="
+
                     fi
             fi
             ret="${retlist[@]/$prev}"
@@ -213,6 +277,25 @@ _ee_complete()
             ;;
         "--auth" | "--port" | "--ip")
             retlist="--auth --port --ip"
+            ret="${retlist[@]/$prev}"
+            COMPREPLY=( $(compgen \
+                          -W "$(echo $ret)" \
+                          -- $cur) )
+            ;;
+        "--access" | "--fpm" | "--wp" | "--slow-log-db")
+            if [[ ${COMP_WORDS[1]} == "log" ]]; then
+                    if [ ${COMP_WORDS[2]} == "show" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp"
+
+                    elif [ ${COMP_WORDS[2]} == "reset" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
+
+
+                    elif [ ${COMP_WORDS[2]} == "mail" ]; then
+                        retlist="--access --nginx --php --mysql --fpm --wp --to="
+
+                    fi
+            fi
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \

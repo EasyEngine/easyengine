@@ -42,10 +42,13 @@ class EESiteController(CementBaseController):
     def enable(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         # validate domain name
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
@@ -74,9 +77,13 @@ class EESiteController(CementBaseController):
     def disable(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
+
             except IOError as e:
                 Log.error(self, 'could not input site name')
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         # check if site exists
         if not check_domain_exists(self, ee_domain):
@@ -108,13 +115,17 @@ class EESiteController(CementBaseController):
     def info(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_db_user = ''
         ee_db_pass = ''
+        hhvm = ''
 
         if not check_domain_exists(self, ee_domain):
             Log.error(self, "site {0} does not exist".format(ee_domain))
@@ -131,14 +142,18 @@ class EESiteController(CementBaseController):
             ee_db_user = siteinfo.db_user
             ee_db_pass = siteinfo.db_password
             ee_db_host = siteinfo.db_host
+            if sitetype != "html":
+                hhvm = ("enabled" if siteinfo.is_hhvm else "disabled")
+
+            pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
 
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
-                        dbpass=ee_db_pass, type=sitetype + " " + cachetype +
-                        " ({0})".format("enabled"
-                                        if siteinfo.is_enabled else
-                                        "disabled"))
+                        dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
+                        type=sitetype + " " + cachetype + " ({0})"
+                        .format("enabled" if siteinfo.is_enabled else
+                                "disabled"))
             self.app.render((data), 'siteinfo.mustache')
         else:
             Log.error(self, "nginx configuration file does not exist"
@@ -146,6 +161,7 @@ class EESiteController(CementBaseController):
 
     @expose(help="Monitor example.com logs")
     def log(self):
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = getSiteInfo(self, ee_domain).site_path
 
@@ -155,42 +171,17 @@ class EESiteController(CementBaseController):
         if logfiles:
             logwatch(self, logfiles)
 
-    @expose(help="Edit Nginx configuration of example.com")
-    def edit(self):
-        if not self.app.pargs.site_name:
-            try:
-                self.app.pargs.site_name = input('Enter site name : ')
-            except IOError as e:
-                Log.error(self, 'Unable to read input, Please try again')
-        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
-
-        if not check_domain_exists(self, ee_domain):
-            Log.error(self, "site {0} does not exist".format(ee_domain))
-        if os.path.isfile('/etc/nginx/sites-available/{0}'
-                          .format(ee_domain)):
-            try:
-                EEShellExec.invoke_editor(self, '/etc/nginx/sites-available/'
-                                          '{0}'.format(ee_domain))
-            except CommandExecutionError as e:
-                Log.error(self, "Failed invoke editor")
-            if (EEGit.checkfilestatus(self, "/etc/nginx",
-               '/etc/nginx/sites-available/{0}'.format(ee_domain))):
-                EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
-                          .format(ee_domain))
-                # Reload NGINX
-                EEService.reload_service(self, 'nginx')
-        else:
-            Log.error(self, "nginx configuration file does not exists"
-                      .format(ee_domain))
-
     @expose(help="Display Nginx configuration of example.com")
     def show(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
         # TODO Write code for ee site edit command here
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
         if not check_domain_exists(self, ee_domain):
@@ -213,10 +204,13 @@ class EESiteController(CementBaseController):
     def cd(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'Unable to read input, please try again')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
 
         if not check_domain_exists(self, ee_domain):
@@ -230,6 +224,79 @@ class EESiteController(CementBaseController):
         except OSError as e:
             Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
             Log.error(self, "unable to change directory")
+
+
+class EESiteEditController(CementBaseController):
+    class Meta:
+        label = 'edit'
+        stacked_on = 'site'
+        stacked_type = 'nested'
+        description = ('Edit Nginx configuration of site')
+        arguments = [
+            (['site_name'],
+                dict(help='domain name for the site',
+                     nargs='?')),
+            (['--pagespeed'],
+                dict(help="edit pagespeed configuration for site",
+                     action='store_true')),
+            ]
+
+    @expose(hide=True)
+    def default(self):
+        if not self.app.pargs.site_name:
+            try:
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
+            except IOError as e:
+                Log.error(self, 'Unable to read input, Please try again')
+
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
+        (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not check_domain_exists(self, ee_domain):
+            Log.error(self, "site {0} does not exist".format(ee_domain))
+
+        ee_site_webroot = EEVariables.ee_webroot + ee_domain
+
+        if not self.app.pargs.pagespeed:
+            if os.path.isfile('/etc/nginx/sites-available/{0}'
+                              .format(ee_domain)):
+                try:
+                    EEShellExec.invoke_editor(self, '/etc/nginx/sites-availa'
+                                              'ble/{0}'.format(ee_domain))
+                except CommandExecutionError as e:
+                    Log.error(self, "Failed invoke editor")
+                if (EEGit.checkfilestatus(self, "/etc/nginx",
+                   '/etc/nginx/sites-available/{0}'.format(ee_domain))):
+                    EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
+                              .format(ee_domain))
+                    # Reload NGINX
+                    EEService.reload_service(self, 'nginx')
+            else:
+                Log.error(self, "nginx configuration file does not exists"
+                          .format(ee_domain))
+
+        elif self.app.pargs.pagespeed:
+            if os.path.isfile('{0}/conf/nginx/pagespeed.conf'
+                              .format(ee_site_webroot)):
+                try:
+                    EEShellExec.invoke_editor(self, '{0}/conf/nginx/'
+                                              'pagespeed.conf'
+                                              .format(ee_site_webroot))
+                except CommandExecutionError as e:
+                    Log.error(self, "Failed invoke editor")
+                if (EEGit.checkfilestatus(self, "{0}/conf/nginx"
+                   .format(ee_site_webroot),
+                   '{0}/conf/nginx/pagespeed.conf'.format(ee_site_webroot))):
+                    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                              msg="Edit Pagespped config of site: {0}"
+                              .format(ee_domain))
+                    # Reload NGINX
+                    EEService.reload_service(self, 'nginx')
+            else:
+                Log.error(self, "Pagespeed configuration file does not exists"
+                          .format(ee_domain))
 
 
 class EESiteCreateController(CementBaseController):
@@ -267,6 +334,10 @@ class EESiteCreateController(CementBaseController):
             (['--wpsc'],
                 dict(help="create wordpress single/multi site with wpsc cache",
                      action='store_true')),
+            (['--hhvm'],
+                dict(help="create HHVM site", action='store_true')),
+            (['--pagespeed'],
+                dict(help="create pagespeed site", action='store_true')),
             ]
 
     @expose(hide=True)
@@ -282,12 +353,21 @@ class EESiteCreateController(CementBaseController):
 
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    # preprocessing before finalize site name
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.error(self, "Unable to input site name, Please try again!")
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
+
+        if not ee_domain.strip():
+            Log.error("Invalid domain name, "
+                      "Provide valid domain name")
+
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         if check_domain_exists(self, ee_domain):
@@ -324,6 +404,23 @@ class EESiteCreateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
+        if stype == "html" and self.app.pargs.hhvm:
+            Log.error(self, "Can not create HTML site with HHVM")
+
+        if data and self.app.pargs.hhvm:
+            data['hhvm'] = True
+            hhvm = 1
+        elif data:
+            data['hhvm'] = False
+            hhvm = 0
+
+        if data and self.app.pargs.pagespeed:
+            data['pagespeed'] = True
+            pagespeed = 1
+        elif data:
+            data['pagespeed'] = False
+            pagespeed = 0
+
         if not data:
             self.app.args.print_help()
             self.app.close(1)
@@ -345,7 +442,12 @@ class EESiteCreateController(CementBaseController):
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
-            addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+            # Update pagespeed config
+            if self.app.pargs.pagespeed:
+                operateOnPagespeed(self, data)
+
+            addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
+                       hhvm=hhvm, pagespeed=pagespeed)
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:
@@ -495,10 +597,21 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
+            (['--hhvm'],
+                dict(help='Use HHVM for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
+            (['--pagespeed'],
+                dict(help='Use PageSpeed for site',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?'))
             ]
 
     @expose(help="Update site type or cache")
     def default(self):
+
+        hhvm = None
+        pagespeed = None
 
         data = dict()
         try:
@@ -510,10 +623,13 @@ class EESiteUpdateController(CementBaseController):
 
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'Unable to input site name, Please try again!')
 
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain,
          ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
@@ -525,6 +641,8 @@ class EESiteUpdateController(CementBaseController):
         else:
             oldsitetype = check_site.site_type
             oldcachetype = check_site.cache_type
+            old_hhvm = check_site.is_hhvm
+            old_pagespeed = check_site.is_pagespeed
 
         if (self.app.pargs.password and not (self.app.pargs.html or
             self.app.pargs.php or self.app.pargs.mysql or self.app.pargs.wp or
@@ -573,12 +691,125 @@ class EESiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+            if not data:
+                data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                            currsitetype=oldsitetype,
+                            currcachetype=oldcachetype,
+                            webroot=ee_site_webroot)
+
+                stype = oldsitetype
+                cache = oldcachetype
+
+                if oldsitetype == 'html':
+                    data['static'] = True
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif oldsitetype == 'php' or oldsitetype == 'mysql':
+                    data['static'] = False
+                    data['wp'] = False
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif oldsitetype == 'wp':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = False
+                    data['wpsubdir'] = False
+                elif oldsitetype == 'wpsubdir':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = True
+                elif oldsitetype == 'wpsubdomain':
+                    data['static'] = False
+                    data['wp'] = True
+                    data['multisite'] = True
+                    data['wpsubdir'] = False
+
+                if oldcachetype == 'basic':
+                    data['basic'] = True
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif oldcachetype == 'w3tc':
+                    data['basic'] = False
+                    data['w3tc'] = True
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                elif oldcachetype == 'wpfc':
+                    data['basic'] = False
+                    data['w3tc'] = False
+                    data['wpfc'] = True
+                    data['wpsc'] = False
+                elif oldcachetype == 'wpsc':
+                    data['basic'] = False
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = True
+
+            if self.app.pargs.hhvm != 'off':
+                data['hhvm'] = True
+                hhvm = True
+            elif self.app.pargs.hhvm == 'off':
+                data['hhvm'] = False
+                hhvm = False
+
+            if self.app.pargs.pagespeed != 'off':
+                data['pagespeed'] = True
+                pagespeed = True
+            elif self.app.pargs.pagespeed == 'off':
+                data['pagespeed'] = False
+                pagespeed = False
+
+        if self.app.pargs.pagespeed:
+            if pagespeed is old_pagespeed:
+                if pagespeed is False:
+                    Log.info(self, "Pagespeed is allready disabled for given "
+                             "site")
+                elif pagespeed is True:
+                    Log.info(self, "Pagespeed is allready enabled for given "
+                             "site")
+
+        if self.app.pargs.hhvm:
+            if hhvm is old_hhvm:
+                if hhvm is False:
+                    Log.info(self, "HHVM is allready disabled for given "
+                             "site")
+                elif hhvm is True:
+                    Log.info(self, "HHVM is allready enabled for given "
+                             "site")
+
+        if data and (not self.app.pargs.hhvm):
+            if old_hhvm is True:
+                data['hhvm'] = True
+                hhvm = True
+            else:
+                data['hhvm'] = False
+                hhvm = False
+
+        if data and (not self.app.pargs.pagespeed):
+            if old_pagespeed is True:
+                data['pagespeed'] = True
+                pagespeed = True
+            else:
+                data['pagespeed'] = False
+                pagespeed = False
+
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+            if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+               (stype == oldsitetype and cache == oldcachetype)):
+                self.app.close(0)
+
         if not data:
             Log.error(self, " Cannot update {0}, Invalid Options"
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
-
+        data['ee_db_name'] = check_site.db_name
+        data['ee_db_user'] = check_site.db_user
+        data['ee_db_pass'] = check_site.db_password
+        data['ee_db_host'] = check_site.db_host
         try:
             sitebackup(self, data)
         except Exception as e:
@@ -593,6 +824,22 @@ class EESiteUpdateController(CementBaseController):
             Log.debug(self, str(e))
             Log.error(self, "Update site failed. Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+        # Update pagespeed config
+        if self.app.pargs.pagespeed:
+            operateOnPagespeed(self, data)
+
+        if stype == oldsitetype and cache == oldcachetype:
+
+            # Service Nginx Reload
+            EEService.reload_service(self, 'nginx')
+
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
+
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(ee_domain))
+            self.app.close(0)
 
         if 'ee_db_name' in data.keys() and not data['wp']:
             try:
@@ -619,25 +866,25 @@ class EESiteUpdateController(CementBaseController):
                 Log.error(self, "Update site failed. Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
-        if oldsitetype == 'mysql':
-            config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
-                           .format(EEVariables.ee_date))
-            data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_NAME')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_USER')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_PASSWORD')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
-            data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
-                                  'DB_HOST')
-                                  .split(',')[1]
-                                  .split(')')[0].strip())
+        # if oldsitetype == 'mysql':
+        #     # config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
+        #     #                .format(EEVariables.ee_date))
+        #     # data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_NAME')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_USER')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_PASSWORD')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
+        #     # data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
+        #     #                       'DB_HOST')
+        #     #                       .split(',')[1]
+        #     #                       .split(')')[0].strip())
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
@@ -723,9 +970,11 @@ class EESiteUpdateController(CementBaseController):
                            db_name=data['ee_db_name'],
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
-                           db_host=data['ee_db_host'])
+                           db_host=data['ee_db_host'], hhvm=hhvm,
+                           pagespeed=pagespeed)
         else:
-            updateSiteInfo(self, ee_domain, stype=stype, cache=cache)
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
 
@@ -755,9 +1004,13 @@ class EESiteDeleteController(CementBaseController):
     def default(self):
         if not self.app.pargs.site_name:
             try:
-                self.app.pargs.site_name = input('Enter site name : ')
+                while not self.app.pargs.site_name:
+                    self.app.pargs.site_name = (input('Enter site name : ')
+                                                .strip())
             except IOError as e:
                 Log.error(self, 'could not input site name')
+
+        self.app.pargs.site_name = self.app.pargs.site_name.strip()
         (ee_domain, ee_www_domain) = ValidateDomain(self.app.pargs.site_name)
         ee_db_name = ''
         ee_prompt = ''
@@ -883,5 +1136,6 @@ def load(app):
     handler.register(EESiteUpdateController)
     handler.register(EESiteDeleteController)
     handler.register(EESiteListController)
+    handler.register(EESiteEditController)
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_site_hook)

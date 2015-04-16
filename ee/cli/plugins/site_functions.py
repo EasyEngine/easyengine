@@ -7,6 +7,7 @@ from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
 from ee.core.git import EEGit
 from ee.core.logging import Log
+from ee.core.services import EEService
 import subprocess
 from subprocess import CalledProcessError
 import os
@@ -88,6 +89,8 @@ def setupdomain(self, data):
             os.makedirs('{0}/htdocs'.format(ee_site_webroot))
         if not os.path.exists('{0}/logs'.format(ee_site_webroot)):
             os.makedirs('{0}/logs'.format(ee_site_webroot))
+        if not os.path.exists('{0}/conf/nginx'.format(ee_site_webroot)):
+            os.makedirs('{0}/conf/nginx'.format(ee_site_webroot))
 
         EEFileUtils.create_symlink(self, ['/var/log/nginx/{0}.access.log'
                                           .format(ee_domain_name),
@@ -499,15 +502,16 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
-
-    if configfiles and EEFileUtils.isexist(self, configfiles[0]):
-        ee_db_name = (EEFileUtils.grep(self, configfiles[0],
-                      'DB_NAME').split(',')[1]
-                      .split(')')[0].strip().replace('\'', ''))
+    # if configfiles and EEFileUtils.isexist(self, configfiles[0]):
+    #     ee_db_name = (EEFileUtils.grep(self, configfiles[0],
+    #                   'DB_NAME').split(',')[1]
+    #                   .split(')')[0].strip().replace('\'', ''))
+    if data['ee_db_name']:
         Log.info(self, 'Backing up database \t\t', end='')
         try:
             if not EEShellExec.cmd_exec(self, "mysqldump {0} > {1}/{0}.sql"
-                                        .format(ee_db_name, backup_path)):
+                                        .format(data['ee_db_name'],
+                                                backup_path)):
                 Log.info(self,
                          "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
                 raise SiteError("mysqldump failed to backup database")
@@ -529,7 +533,13 @@ def site_package_check(self, stype):
     stack.app = self.app
     if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
-        if not EEAptGet.is_installed(self, 'nginx-common'):
+
+        if EEVariables.ee_platform_distro == 'Debian':
+            check_nginx = 'nginx-extras'
+        else:
+            check_nginx = 'nginx-custom'
+
+        if not EEAptGet.is_installed(self, check_nginx):
             apt_packages = apt_packages + EEVariables.ee_nginx
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
@@ -555,6 +565,28 @@ def site_package_check(self, stype):
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
+
+    if self.app.pargs.hhvm:
+        Log.debug(self, "Setting apt_packages variable for HHVM")
+        if not EEAptGet.is_installed(self, 'hhvm'):
+            apt_packages = apt_packages + EEVariables.ee_hhvm
+
+    # Check if Nginx is allready installed and Pagespeed config there or not
+    # If not then copy pagespeed config
+    if self.app.pargs.pagespeed:
+        if (os.path.isdir('/etc/nginx') and
+           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+            # Pagespeed configuration
+            data = dict()
+            Log.debug(self, 'Writting the Pagespeed Global '
+                      'configuration to file /etc/nginx/conf.d/'
+                      'pagespeed.conf')
+            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'pagespeed-global.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
 
@@ -769,6 +801,14 @@ def deleteDB(self, dbname, dbuser, dbhost):
 
 
 def deleteWebRoot(self, webroot):
+    # do some preprocessing before proceeding
+    webroot = webroot.strip()
+    if (webroot == "/var/www/" or webroot == "/var/www"
+       or webroot == "/var/www/.." or webroot == "/var/www/."):
+        Log.debug(self, "Tried to remove {0}, but didn't remove it"
+                  .format(webroot))
+        return False
+
     if os.path.isdir(webroot):
         Log.debug(self, "Removing {0}".format(webroot))
         EEFileUtils.rm(self, webroot)
@@ -786,6 +826,7 @@ def removeNginxConf(self, domain):
                            .format(domain))
             EEFileUtils.rm(self, '/etc/nginx/sites-available/{0}'
                            .format(domain))
+            EEService.reload_service(self, 'nginx')
             EEGit.add(self, ["/etc/nginx"],
                       msg="Deleted {0} "
                       .format(domain))
@@ -811,3 +852,40 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
             if not dbhost:
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
+
+
+def operateOnPagespeed(self, data):
+
+    ee_domain_name = data['site_name']
+    ee_site_webroot = data['webroot']
+
+    if data['pagespeed'] is True:
+        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
+                              .format(ee_site_webroot)):
+            Log.debug(self, 'Writting the Pagespeed common '
+                      'configuration to file {0}/conf/nginx/pagespeed.conf'
+                      'pagespeed.conf'.format(ee_site_webroot))
+            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
+                            .format(ee_site_webroot), encoding='utf-8',
+                            mode='w')
+            self.app.render((data), 'pagespeed-common.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+        else:
+            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/pagespeed.conf'
+                               .format(ee_site_webroot))
+
+    elif data['pagespeed'] is False:
+        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
+                          .format(ee_site_webroot)):
+            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/pagespeed.conf.disabled'
+                               .format(ee_site_webroot))
+
+    # Add nginx conf folder into GIT
+    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+              msg="Adding Pagespeed config of site: {0}"
+              .format(ee_domain_name))
