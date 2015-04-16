@@ -780,7 +780,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "HHVM is allready enabled for given "
                              "site")
 
-        if self.app.pargs.pagespeed and self.app.pargs.hhvm:
+        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
             if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
                (stype == oldsitetype and cache == oldcachetype)):
                 self.app.close(0)
@@ -1136,5 +1136,6 @@ def load(app):
     handler.register(EESiteUpdateController)
     handler.register(EESiteDeleteController)
     handler.register(EESiteListController)
+    handler.register(EESiteEditController)
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_site_hook)
