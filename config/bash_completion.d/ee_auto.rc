@@ -29,7 +29,7 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --fpm --mysql -i --interactive --all --nginx=off --php=off --fpm=off --mysql=off --all=off  " \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --fpm --mysql -i --interactive --all --import-slow-log --import-slow-log-interval= --nginx=off --php=off --fpm=off --mysql=off --all=off  " \
                               -- $cur) )
                 ;;
 
@@ -133,8 +133,14 @@ _ee_complete()
                 ;;
         esac
 
-        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
-                retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] && [ "$prev" != "--nginx" ] && [ "$prev" != "--php" ] && [ "$prev" != "--fpm" ] && [ "$prev" != "--mysql" ] && [ "$prev" != "-i" ] && [ "$prev" != "--interactive" ] && [ "$prev" != "--import-slow-log" ] && [ "$prev" != "--stop" ]); then
+            retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
+            ret="${retlist[@]/$prev}"
+            COMPREPLY=( $(compgen \
+                          -W "$(echo $ret)" \
+                          -- $cur) )
+        else
+            retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log --import-slow-log-interval="
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
                               -W "$(echo $ret)" \
@@ -196,10 +202,10 @@ _ee_complete()
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
                     retlist="--nginx --php --mysql --postfix --memcache --dovecot"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
-                    retlist="--start --nginx --php --fpm --mysql -i --interactive --stop"
-                    if [[ $prev == '--mysql' ]]; then
-                        retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log"
-                    fi
+                    retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log --import-slow-log-interval="
+                    #if [[ $prev == '--mysql' ]]; then
+                    #    retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log --import-slow-log-interval="
+                    #fi
             fi
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
