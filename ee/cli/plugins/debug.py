@@ -492,21 +492,27 @@ class EEDebugController(CementBaseController):
 
             try:
                 if not EEShellExec.cmd_exec(self, "crontab -l | grep "
-                                            "'ee import-slow-log'"):
+                                            "'ee debug --import-slow-log'"):
                     EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
                                          "2> /dev/null | {{ cat; echo -e"
                                          " \\\"#EasyEngine start MySQL "
                                          "slow log \\n*/{0} * * * * "
-                                         "/usr/local/bin/ee "
-                                         "import-slow-log\\n"
+                                         "/usr/local/bin/ee debug"
+                                         " --import-slow-log\\n"
                                          "#EasyEngine end MySQL slow log"
                                          "\\\"; }} | crontab -\""
                                          .format(cron_time))
                 else:
-                    EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
-                                         " | sed 's/*ee import-slow-log*///'"
-                                         " | crontab -"
-                                         .format(cron_time))
+                    if not EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab "
+                                                "-l | sed '/EasyEngine start "
+                                                "MySQL slow "
+                                                "log/!b;n;c\*\/{0} \* \* \* "
+                                                "\* \/usr"
+                                                "\/local\/bin\/ee debug "
+                                                "--import\-slow\-log' "
+                                                "| crontab -\""
+                                                .format(cron_time)):
+                        Log.error(self, "cron not updated")
 
             except CommandExecutionError as e:
                 Log.debug(self, str(e))
@@ -626,7 +632,11 @@ class EEDebugController(CementBaseController):
                 Log.error(self, "MySQL slow log file not found,"
                           " so not imported slow logs")
         else:
-            Log.error(self, "Anemometer is not installed")
+            Log.error(self, " Anemometer is not installed," +
+                      Log.ENDC + " You can install Anemometer with "
+                      "this command "
+                      + Log.BOLD + "\n `ee stack install --utils`"
+                      + Log.ENDC)
 
 
 def load(app):
