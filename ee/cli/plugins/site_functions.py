@@ -571,6 +571,40 @@ def site_package_check(self, stype):
         if not EEAptGet.is_installed(self, 'hhvm'):
             apt_packages = apt_packages + EEVariables.ee_hhvm
 
+        if os.path.isdir("/etc/nginx/common") and (not
+           os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'php-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/w3tc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'w3tc-hhvm.mustache', out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpfc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpfc-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpsc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpsc-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
