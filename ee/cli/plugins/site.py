@@ -613,18 +613,21 @@ class EESiteUpdateController(CementBaseController):
     def default(self):
         pargs = self.app.pargs
 
+        if pargs.all and pargs.site_name:
+            Log.error(self, "`--all` option cannot be used with site name")
+
         if pargs.all:
             sites = getAllsites(self)
             if not sites:
-                Log.info(self, "no sites :(")
                 pass
             else:
-                Log.info(self, "updating sites :)")
                 for site in sites:
                     pargs.site_name = site.sitename
-                    Log.info(self, "Updating site {0}, please wait ..."
+                    Log.info(self, Log.ENDC + Log.BOLD + "Updating site {0},"
+                             " please wait ..."
                              .format(pargs.site_name))
                     self.doupdatesite(pargs)
+                    print("\n")
         else:
             self.doupdatesite(pargs)
 
@@ -670,8 +673,8 @@ class EESiteUpdateController(CementBaseController):
                 updatewpuserpassword(self, ee_domain, ee_site_webroot)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Password Unchanged.")
-            self.app.close(0)
+                Log.info(self, "Password Unchanged.")
+            return 0
 
         if ((stype == 'php' and oldsitetype != 'html') or
             (stype == 'mysql' and oldsitetype not in ['html', 'php']) or
@@ -680,8 +683,9 @@ class EESiteUpdateController(CementBaseController):
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype)):
-            Log.error(self, "can not update {0} {1} to {2} {3}".
-                      format(oldsitetype, oldcachetype, stype, cache))
+            Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
+                     format(oldsitetype, oldcachetype, stype, cache))
+            return 1
 
         if stype == 'php':
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -783,7 +787,7 @@ class EESiteUpdateController(CementBaseController):
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
                 if pagespeed is False:
-                    Log.info(self, "Pagespeed is allready disabled for given "
+                    Log.info(self, "Pagespeed is already disabled for given "
                              "site")
                 elif pagespeed is True:
                     Log.info(self, "Pagespeed is allready enabled for given "
@@ -801,7 +805,7 @@ class EESiteUpdateController(CementBaseController):
         if pargs.pagespeed or pargs.hhvm:
             if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
                (stype == oldsitetype and cache == oldcachetype)):
-                self.app.close(0)
+                return 1
 
         if data and (not pargs.hhvm):
             if old_hhvm is True:
@@ -820,7 +824,7 @@ class EESiteUpdateController(CementBaseController):
                 pagespeed = False
 
         if not data:
-            Log.error(self, " Cannot update {0}, Invalid Options"
+            Log.error(self, "Cannot update {0}, Invalid Options"
                       .format(ee_domain))
 
         ee_auth = site_package_check(self, stype)
@@ -839,16 +843,19 @@ class EESiteUpdateController(CementBaseController):
             sitebackup(self, data)
         except Exception as e:
             Log.debug(self, str(e))
-            Log.error(self, "Check logs for reason "
-                      "`tail /var/log/ee/ee.log` & Try Again!!!")
+            Log.info(self, Log.FAIL + "Check logs for reason "
+                     "`tail /var/log/ee/ee.log` & Try Again!!!")
+            return 1
 
         # setup NGINX configuration, and webroot
         try:
             setupdomain(self, data)
         except SiteError as e:
             Log.debug(self, str(e))
-            Log.error(self, "Update site failed. Check logs for reason "
-                      "`tail /var/log/ee/ee.log` & Try Again!!!")
+            Log.info(self, Log.FAIL + "Update site failed."
+                     "Check logs for reason"
+                     "`tail /var/log/ee/ee.log` & Try Again!!!")
+            return 1
 
         # Update pagespeed config
         if pargs.pagespeed:
@@ -864,15 +871,17 @@ class EESiteUpdateController(CementBaseController):
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
-            self.app.close(0)
+            return 0
 
         if 'ee_db_name' in data.keys() and not data['wp']:
             try:
                 data = setupdatabase(self, data)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Update site failed. Check logs for reason "
-                          "`tail /var/log/ee/ee.log` & Try Again!!!")
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check logs for reason"
+                         "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
             try:
                 eedbconfig = open("{0}/ee-config.php".format(ee_site_webroot),
                                   encoding='utf-8', mode='w')
@@ -888,28 +897,10 @@ class EESiteUpdateController(CementBaseController):
             except IOError as e:
                 Log.debug(self, str(e))
                 Log.debug(self, "creating ee-config.php failed.")
-                Log.error(self, "Update site failed. Check logs for reason "
-                          "`tail /var/log/ee/ee.log` & Try Again!!!")
-
-        # if oldsitetype == 'mysql':
-        #     # config_file = (ee_site_webroot + '/backup/{0}/ee-config.php'
-        #     #                .format(EEVariables.ee_date))
-        #     # data['ee_db_name'] = (EEFileUtils.grep(self, config_file,
-        #     #                       'DB_NAME')
-        #     #                       .split(',')[1]
-        #     #                       .split(')')[0].strip())
-        #     # data['ee_db_user'] = (EEFileUtils.grep(self, config_file,
-        #     #                       'DB_USER')
-        #     #                       .split(',')[1]
-        #     #                       .split(')')[0].strip())
-        #     # data['ee_db_pass'] = (EEFileUtils.grep(self, config_file,
-        #     #                       'DB_PASSWORD')
-        #     #                       .split(',')[1]
-        #     #                       .split(')')[0].strip())
-        #     # data['ee_db_host'] = (EEFileUtils.grep(self, config_file,
-        #     #                       'DB_HOST')
-        #     #                       .split(',')[1]
-        #     #                       .split(')')[0].strip())
+                Log.info(self, Log.FAIL + "Update site failed. "
+                         "Check logs for reason "
+                         "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
         if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
@@ -917,8 +908,10 @@ class EESiteUpdateController(CementBaseController):
                 ee_wp_creds = setupwordpress(self, data)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Update site failed. Check logs for reason "
-                          "`tail /var/log/ee/ee.log` & Try Again!!!")
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check logs for reason "
+                         "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
 
         # Uninstall unnecessary plugins
         if oldsitetype in ['wp', 'wpsubdir', 'wpsubdomain']:
@@ -929,8 +922,10 @@ class EESiteUpdateController(CementBaseController):
                     setupwordpressnetwork(self, data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.error(self, "Update site failed. Check logs for reason"
-                              " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    Log.info(self, Log.FAIL + "Update site failed. "
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
 
             if (oldcachetype == 'w3tc' or oldcachetype == 'wpfc' and
                not (data['w3tc'] or data['wpfc'])):
@@ -938,16 +933,20 @@ class EESiteUpdateController(CementBaseController):
                     uninstallwp_plugin(self, 'w3-total-cache', data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.error(self, "Update site failed. Check logs for reason"
-                              " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    Log.info(self, Log.FAIL + "Update site failed. "
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
 
             if oldcachetype == 'wpsc' and not data['wpsc']:
                 try:
                     uninstallwp_plugin(self, 'wp-super-cache', data)
                 except SiteError as e:
                     Log.debug(self, str(e))
-                    Log.error(self, "Update site failed. Check logs for reason"
-                              " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    Log.info(self, Log.FAIL + "Update site failed."
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
 
         if (oldcachetype != 'w3tc' or oldcachetype != 'wpfc') and (data['w3tc']
            or data['wpfc']):
@@ -955,17 +954,20 @@ class EESiteUpdateController(CementBaseController):
                 installwp_plugin(self, 'w3-total-cache', data)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Update site failed. Check logs for reason"
-                          " `tail /var/log/ee/ee.log` & Try Again!!!")
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check logs for reason"
+                         " `tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
 
         if oldcachetype != 'wpsc' and data['wpsc']:
             try:
                 installwp_plugin(self, 'wp-super-cache', data)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.error(self, "Update site failed. Check logs for reason "
-                          "`tail /var/log/ee/ee.log` & Try Again!!!")
-
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check logs for reason "
+                         "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
         # Service Nginx Reload
         EEService.reload_service(self, 'nginx')
 
@@ -977,8 +979,10 @@ class EESiteUpdateController(CementBaseController):
             setwebrootpermissions(self, data['webroot'])
         except SiteError as e:
             Log.debug(self, str(e))
-            Log.error(self, "Update site failed. Check logs for reason "
-                      "`tail /var/log/ee/ee.log` & Try Again!!!")
+            Log.info(self, Log.FAIL + "Update site failed."
+                     "Check logs for reason "
+                     "`tail /var/log/ee/ee.log` & Try Again!!!")
+            return 1
 
         if ee_auth and len(ee_auth):
             for msg in ee_auth:
@@ -1002,6 +1006,7 @@ class EESiteUpdateController(CementBaseController):
                            hhvm=hhvm, pagespeed=pagespeed)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
+        return 0
 
 
 class EESiteDeleteController(CementBaseController):
