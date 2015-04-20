@@ -608,7 +608,7 @@ def site_package_check(self, stype):
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
-        if (os.path.isdir('/etc/nginx') and
+        if (os.path.isfile('/etc/nginx/nginx.conf') and
            (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
             # Pagespeed configuration
             data = dict()
