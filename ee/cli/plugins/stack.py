@@ -588,6 +588,9 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'php5-fpm')
 
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+
+                EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
+                
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
