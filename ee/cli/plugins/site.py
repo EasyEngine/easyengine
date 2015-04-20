@@ -604,34 +604,52 @@ class EESiteUpdateController(CementBaseController):
             (['--pagespeed'],
                 dict(help='Use PageSpeed for site',
                      action='store' or 'store_const',
-                     choices=('on', 'off'), const='on', nargs='?'))
+                     choices=('on', 'off'), const='on', nargs='?')),
+            (['--all'],
+                dict(help="update all sites", action='store_true')),
             ]
 
     @expose(help="Update site type or cache")
     def default(self):
+        pargs = self.app.pargs
 
+        if pargs.all:
+            sites = getAllsites(self)
+            if not sites:
+                Log.info(self, "no sites :(")
+                pass
+            else:
+                Log.info(self, "updating sites :)")
+                for site in sites:
+                    pargs.site_name = site.sitename
+                    Log.info(self, "Updating site {0}, please wait ..."
+                             .format(pargs.site_name))
+                    self.doupdatesite(pargs)
+        else:
+            self.doupdatesite(pargs)
+
+    def doupdatesite(self, pargs):
         hhvm = None
         pagespeed = None
 
         data = dict()
         try:
-            stype, cache = detSitePar(vars(self.app.pargs))
+            stype, cache = detSitePar(vars(pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
             Log.error(self, "Please provide valid options combination for"
                       " site update")
 
-        if not self.app.pargs.site_name:
+        if not pargs.site_name:
             try:
-                while not self.app.pargs.site_name:
-                    self.app.pargs.site_name = (input('Enter site name : ')
-                                                .strip())
+                while not pargs.site_name:
+                    pargs.site_name = (input('Enter site name : ').strip())
             except IOError as e:
                 Log.error(self, 'Unable to input site name, Please try again!')
 
-        self.app.pargs.site_name = self.app.pargs.site_name.strip()
+        pargs.site_name = pargs.site_name.strip()
         (ee_domain,
-         ee_www_domain, ) = ValidateDomain(self.app.pargs.site_name)
+         ee_www_domain, ) = ValidateDomain(pargs.site_name)
         ee_site_webroot = EEVariables.ee_webroot + ee_domain
 
         check_site = getSiteInfo(self, ee_domain)
@@ -644,10 +662,10 @@ class EESiteUpdateController(CementBaseController):
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
 
-        if (self.app.pargs.password and not (self.app.pargs.html or
-            self.app.pargs.php or self.app.pargs.mysql or self.app.pargs.wp or
-            self.app.pargs.w3tc or self.app.pargs.wpfc or self.app.pargs.wpsc
-           or self.app.pargs.wpsubdir or self.app.pargs.wpsubdomain)):
+        if (pargs.password and not (pargs.html or
+            pargs.php or pargs.mysql or pargs.wp or
+            pargs.w3tc or pargs.wpfc or pargs.wpsc
+           or pargs.wpsubdir or pargs.wpsubdomain)):
             try:
                 updatewpuserpassword(self, ee_domain, ee_site_webroot)
             except SiteError as e:
@@ -691,7 +709,7 @@ class EESiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+        if pargs.pagespeed or pargs.hhvm:
             if not data:
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             currsitetype=oldsitetype,
@@ -748,21 +766,21 @@ class EESiteUpdateController(CementBaseController):
                     data['wpfc'] = False
                     data['wpsc'] = True
 
-            if self.app.pargs.hhvm != 'off':
+            if pargs.hhvm != 'off':
                 data['hhvm'] = True
                 hhvm = True
-            elif self.app.pargs.hhvm == 'off':
+            elif pargs.hhvm == 'off':
                 data['hhvm'] = False
                 hhvm = False
 
-            if self.app.pargs.pagespeed != 'off':
+            if pargs.pagespeed != 'off':
                 data['pagespeed'] = True
                 pagespeed = True
-            elif self.app.pargs.pagespeed == 'off':
+            elif pargs.pagespeed == 'off':
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if self.app.pargs.pagespeed:
+        if pargs.pagespeed:
             if pagespeed is old_pagespeed:
                 if pagespeed is False:
                     Log.info(self, "Pagespeed is allready disabled for given "
@@ -771,7 +789,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is allready enabled for given "
                              "site")
 
-        if self.app.pargs.hhvm:
+        if pargs.hhvm:
             if hhvm is old_hhvm:
                 if hhvm is False:
                     Log.info(self, "HHVM is allready disabled for given "
@@ -780,12 +798,12 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "HHVM is allready enabled for given "
                              "site")
 
-        if self.app.pargs.pagespeed or self.app.pargs.hhvm:
+        if pargs.pagespeed or pargs.hhvm:
             if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
                (stype == oldsitetype and cache == oldcachetype)):
                 self.app.close(0)
 
-        if data and (not self.app.pargs.hhvm):
+        if data and (not pargs.hhvm):
             if old_hhvm is True:
                 data['hhvm'] = True
                 hhvm = True
@@ -793,7 +811,7 @@ class EESiteUpdateController(CementBaseController):
                 data['hhvm'] = False
                 hhvm = False
 
-        if data and (not self.app.pargs.pagespeed):
+        if data and (not pargs.pagespeed):
             if old_pagespeed is True:
                 data['pagespeed'] = True
                 pagespeed = True
@@ -810,6 +828,13 @@ class EESiteUpdateController(CementBaseController):
         data['ee_db_user'] = check_site.db_user
         data['ee_db_pass'] = check_site.db_password
         data['ee_db_host'] = check_site.db_host
+
+        try:
+            pre_run_checks(self)
+        except SiteError as e:
+            Log.debug(self, str(e))
+            Log.error(self, "NGINX configuration check failed.")
+
         try:
             sitebackup(self, data)
         except Exception as e:
@@ -826,7 +851,7 @@ class EESiteUpdateController(CementBaseController):
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
 
         # Update pagespeed config
-        if self.app.pargs.pagespeed:
+        if pargs.pagespeed:
             operateOnPagespeed(self, data)
 
         if stype == oldsitetype and cache == oldcachetype:
