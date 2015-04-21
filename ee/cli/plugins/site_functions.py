@@ -697,9 +697,7 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
         except CommandExecutionError as e:
             raise SiteError("wp user password update command failed")
         Log.info(self, "Password updated successfully")
-        if len(ee_wp_pass) < 8:
-            Log.warn(self, "Warning: You have provided a "
-                     "weak password")
+
     else:
         Log.error(self, "Invalid WordPress user {0} for {1}."
                   .format(ee_wp_user, ee_domain))
