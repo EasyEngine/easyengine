@@ -262,9 +262,10 @@ _ee_complete()
         "--all")
           if [ ${COMP_WORDS[1]} == "clean" ]; then
                   retlist="--memcache --opcache --fastcgi"
-          else
+          elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files"
-
+          else
+            retlist=""
           fi
           ret="${retlist[@]/$prev}"
               COMPREPLY=( $(compgen \

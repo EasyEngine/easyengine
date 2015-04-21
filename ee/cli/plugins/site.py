@@ -613,8 +613,17 @@ class EESiteUpdateController(CementBaseController):
     def default(self):
         pargs = self.app.pargs
 
-        if pargs.all and pargs.site_name:
-            Log.error(self, "`--all` option cannot be used with site name")
+        if pargs.all:
+            if pargs.site_name:
+                Log.error(self, "`--all` option cannot be used with site name"
+                          " provided")
+            if pargs.html:
+                Log.error(self, "No site can be updated to html")
+            if not (pargs.php or
+                    pargs.mysql or pargs.wp or pargs.wpsubdir or
+                    pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
+                    pargs.wpsc or pargs.hhvm or pargs.pagespeed):
+                Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
             sites = getAllsites(self)
