@@ -695,7 +695,8 @@ class EESiteUpdateController(CementBaseController):
                                                    'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
-           (stype == oldsitetype and cache == oldcachetype)):
+           (stype == oldsitetype and cache == oldcachetype) and
+           not pargs.pagespeed):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
