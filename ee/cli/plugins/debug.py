@@ -313,6 +313,11 @@ class EEDebugController(CementBaseController):
                                  self.app.pargs.site_name))
             webroot = "{0}{1}".format(EEVariables.ee_webroot,
                                       self.app.pargs.site_name)
+            # Check wp-config.php file into htdocs folder
+            if not os.path.isfile(wp_config):
+                wp_config = ("{0}/{1}/htdocs/wp-config.php"
+                             .format(EEVariables.ee_webroot,
+                                     self.app.pargs.site_name))
             if os.path.isfile(wp_config):
                 if not EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} |"
                                             " grep true".format(wp_config)):
@@ -344,7 +349,7 @@ class EEDebugController(CementBaseController):
                                                self.app.pargs.site_name)]
 
             else:
-                Log.info(self, "{0} domain not valid"
+                Log.info(self, "Unable to find wp-config.php for site: {0}"
                          .format(self.app.pargs.site_name))
 
         elif (self.app.pargs.wp == 'off' and self.app.pargs.site_name):
@@ -353,6 +358,11 @@ class EEDebugController(CementBaseController):
                                  self.app.pargs.site_name))
             webroot = "{0}{1}".format(EEVariables.ee_webroot,
                                       self.app.pargs.site_name)
+            # Check wp-config.php file into htdocs folder
+            if not os.path.isfile(wp_config):
+                wp_config = ("{0}/{1}/htdocs/wp-config.php"
+                             .format(EEVariables.ee_webroot,
+                                     self.app.pargs.site_name))
             if os.path.isfile(wp_config):
                 if EEShellExec.cmd_exec(self, "grep \"\'WP_DEBUG\'\" {0} | "
                                         "grep true".format(wp_config)):
