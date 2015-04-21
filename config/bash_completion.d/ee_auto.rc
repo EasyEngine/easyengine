@@ -239,7 +239,6 @@ _ee_complete()
                     elif [ ${COMP_WORDS[2]} == "reset" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
 
-
                     elif [ ${COMP_WORDS[2]} == "mail" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --to="
 
