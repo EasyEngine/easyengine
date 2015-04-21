@@ -660,8 +660,8 @@ class EEDebugController(CementBaseController):
                 Log.error(self, "MySQL slow log file not found,"
                           " so not imported slow logs")
         else:
-            Log.error(self, " Anemometer is not installed." +
-                      Log.ENDC + " You can install Anemometer with "
+            Log.error(self, "Anemometer is not installed." +
+                      Log.ENDC + "\nYou can install Anemometer with "
                       "this command "
                       + Log.BOLD + "\n `ee stack install --utils`"
                       + Log.ENDC)
