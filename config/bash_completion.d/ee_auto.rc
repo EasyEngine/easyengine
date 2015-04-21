@@ -143,12 +143,6 @@ _ee_complete()
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \
                           -- $cur) )
-        else
-            retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log --import-slow-log-interval="
-                ret="${retlist[@]/$prev}"
-                COMPREPLY=( $(compgen \
-                              -W "$(echo $ret)" \
-                              -- $cur) )
         fi
 
         #if [ ${COMP_WORDS[1]} == "log" ] && ([ "$prev" != "--access" ] || [ "$prev" != "--nginx" ] || [ "$prev" != "--php" ] || [ "$prev" != "--fpm" ] || [ "$prev" != "--mysql" ] || [ "$prev" != "-i" ] || ["$prev" != "--interactive" ] || ["$prev" != "--stop" ]); then
