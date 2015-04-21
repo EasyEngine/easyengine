@@ -685,7 +685,7 @@ class EESiteUpdateController(CementBaseController):
                 Log.info(self, "Password Unchanged.")
             return 0
 
-        if stype == "html" and self.app.pargs.hhvm:
+        if stype == "html" and stype == oldsitetype and self.app.pargs.hhvm:
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
