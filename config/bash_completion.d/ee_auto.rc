@@ -264,6 +264,8 @@ _ee_complete()
                   retlist="--memcache --opcache --fastcgi"
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files"
+          elif [ ${COMP_WORDS[2]} == "update" ]; then
+            retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off"
           else
             retlist=""
           fi
