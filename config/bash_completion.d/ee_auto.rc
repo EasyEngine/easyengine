@@ -93,7 +93,7 @@ _ee_complete()
                               -- $cur) )
                 ;;
 
-            "edit" | "enable" | "info" | "log" | "show" | "cd" | "update" | "delete")
+            "edit" | "enable" | "info" | "log" | "show" | "cd" | "delete")
                 if [ ${COMP_WORDS[1]} == "log" ]; then
                     COMPREPLY=( $(compgen \
                                   -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql --access" \
@@ -104,7 +104,11 @@ _ee_complete()
                                 -- $cur) )
                 fi
                 ;;
-
+            "update")
+                COMPREPLY=( $(compgen \
+                            -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --all" \
+                            -- $cur) )
+                ;;
             "gzip")
                 COMPREPLY=( $(compgen \
                               -W "$(find /etc/nginx/sites-available/ -type f -printf "%P " 2> /dev/null) --nginx --php --fpm --mysql  --access" \
@@ -235,7 +239,6 @@ _ee_complete()
                     elif [ ${COMP_WORDS[2]} == "reset" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --slow-log-db"
 
-
                     elif [ ${COMP_WORDS[2]} == "mail" ]; then
                         retlist="--access --nginx --php --mysql --fpm --wp --to="
 
@@ -258,9 +261,12 @@ _ee_complete()
         "--all")
           if [ ${COMP_WORDS[1]} == "clean" ]; then
                   retlist="--memcache --opcache --fastcgi"
-          else
+          elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files"
-
+          elif [ ${COMP_WORDS[2]} == "update" ]; then
+            retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off"
+          else
+            retlist=""
           fi
           ret="${retlist[@]/$prev}"
               COMPREPLY=( $(compgen \

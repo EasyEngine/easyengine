@@ -28,6 +28,20 @@ class SiteError(Exception):
         return repr(self.message)
 
 
+def pre_run_checks(self):
+
+    # Check nginx configuration
+    Log.info(self, "Running pre-update checks, please wait ...")
+    try:
+        Log.debug(self, "checking NGINX configuration ...")
+        FNULL = open('/dev/null', 'w')
+        ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
+                                    stderr=subprocess.STDOUT)
+    except CalledProcessError as e:
+        Log.debug(self, "{0}".format(str(e)))
+        raise SiteError("nginx configuration check failed.")
+
+
 def check_domain_exists(self, domain):
     if getSiteInfo(self, domain):
         return True
