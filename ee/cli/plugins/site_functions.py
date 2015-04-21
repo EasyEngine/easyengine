@@ -534,7 +534,7 @@ def site_package_check(self, stype):
     if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
-        if EEVariables.ee_platform_distro == 'Debian':
+        if EEVariables.ee_platform_distro == 'debian':
             check_nginx = 'nginx-extras'
         else:
             check_nginx = 'nginx-custom'
