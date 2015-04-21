@@ -28,6 +28,20 @@ class SiteError(Exception):
         return repr(self.message)
 
 
+def pre_run_checks(self):
+
+    # Check nginx configuration
+    Log.info(self, "Running pre-update checks, please wait ...")
+    try:
+        Log.debug(self, "checking NGINX configuration ...")
+        FNULL = open('/dev/null', 'w')
+        ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
+                                    stderr=subprocess.STDOUT)
+    except CalledProcessError as e:
+        Log.debug(self, "{0}".format(str(e)))
+        raise SiteError("nginx configuration check failed.")
+
+
 def check_domain_exists(self, domain):
     if getSiteInfo(self, domain):
         return True
@@ -534,7 +548,7 @@ def site_package_check(self, stype):
     if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
-        if EEVariables.ee_platform_distro == 'Debian':
+        if EEVariables.ee_platform_distro == 'debian':
             check_nginx = 'nginx-extras'
         else:
             check_nginx = 'nginx-custom'
@@ -571,10 +585,44 @@ def site_package_check(self, stype):
         if not EEAptGet.is_installed(self, 'hhvm'):
             apt_packages = apt_packages + EEVariables.ee_hhvm
 
+        if os.path.isdir("/etc/nginx/common") and (not
+           os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'php-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/w3tc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'w3tc-hhvm.mustache', out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpfc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpfc-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpsc-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpsc-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
-        if (os.path.isdir('/etc/nginx') and
+        if (os.path.isfile('/etc/nginx/nginx.conf') and
            (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
             # Pagespeed configuration
             data = dict()
@@ -649,9 +697,7 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
         except CommandExecutionError as e:
             raise SiteError("wp user password update command failed")
         Log.info(self, "Password updated successfully")
-        if len(ee_wp_pass) < 8:
-            Log.warn(self, "Warning: You have provided a "
-                     "weak password")
+
     else:
         Log.error(self, "Invalid WordPress user {0} for {1}."
                   .format(ee_wp_user, ee_domain))

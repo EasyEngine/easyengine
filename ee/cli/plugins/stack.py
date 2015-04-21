@@ -588,6 +588,9 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'php5-fpm')
 
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+
+                EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
+                
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
@@ -624,9 +627,8 @@ class EEStackController(CementBaseController):
 
                 EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
                 EEService.restart_service(self, 'hhvm')
-                EEService.reload_service(self, 'nginx')
 
-                if os.path.isdir("/etc/nginx") and (not
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
                    os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
 
                     data = dict()
@@ -661,6 +663,8 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'wpsc-hhvm.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
+
+                    EEService.reload_service(self, 'nginx')
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future

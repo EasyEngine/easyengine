@@ -1,3 +1,12 @@
+v 3.1.1 - April 21, 2015
+- Feature: update all site at once #491
+- Tweaked import-slow-log command #322
+- Fixed HHVM installation without Nginx #492
+- Fixed HHVM not running after reboot #498
+- Fixed Nginx config on Debian causing failure in site creation #499
+- Now support for existing HHVM on server
+- Minor fixes and improvements
+
 v 3.1.0 - April 16, 2015
 - Added HHVM  support #199
 - Added Pagespeed  support #473
