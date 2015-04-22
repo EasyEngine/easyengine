@@ -338,6 +338,13 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create HHVM site", action='store_true')),
             (['--pagespeed'],
                 dict(help="create pagespeed site", action='store_true')),
+            (['--user'],
+                dict(help="provide user for wordpress site")),
+            (['--email'],
+                dict(help="provide email address for wordpress site")),
+            (['--pass'],
+                dict(help="provide password for wordpress user",
+                     dest='wppass'))
             ]
 
     @expose(hide=True)
@@ -399,6 +406,9 @@ class EESiteCreateController(CementBaseController):
                 data['wp'] = True
                 data['basic'] = False
                 data[cache] = True
+                data['wp-user'] = self.app.pargs.user
+                data['wp-email'] = self.app.pargs.email
+                data['wp-pass'] = self.app.pargs.wppass
                 if stype in ['wpsubdir', 'wpsubdomain']:
                     data['multisite'] = True
                     if stype == 'wpsubdir':

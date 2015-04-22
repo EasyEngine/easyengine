@@ -235,6 +235,13 @@ def setupwordpress(self, data):
     # ee_wp_user = ''
     # ee_wp_pass = ''
 
+    if 'wp-user' in data.keys() and data['wp-user']:
+        ee_wp_user = data['wp-user']
+    if 'wp-email' in data.keys() and data['wp-email']:
+        ee_wp_email = data['wp-email']
+    if 'wp-pass' in data.keys() and data['wp-pass']:
+        ee_wp_pass = data['wp-pass']
+
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
