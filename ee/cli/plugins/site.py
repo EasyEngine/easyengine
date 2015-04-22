@@ -633,7 +633,7 @@ class EESiteUpdateController(CementBaseController):
                 for site in sites:
                     pargs.site_name = site.sitename
                     Log.info(self, Log.ENDC + Log.BOLD + "Updating site {0},"
-                             " please wait ..."
+                             " please wait..."
                              .format(pargs.site_name))
                     self.doupdatesite(pargs)
                     print("\n")

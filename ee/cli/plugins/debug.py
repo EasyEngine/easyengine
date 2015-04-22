@@ -505,7 +505,7 @@ class EEDebugController(CementBaseController):
                                             "'ee debug --import-slow-log'"):
                     if not cron_time == 0:
                         Log.info(self, "setting up crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
                                              "2> /dev/null | {{ cat; echo -e"
                                              " \\\"#EasyEngine start MySQL "
@@ -518,7 +518,7 @@ class EEDebugController(CementBaseController):
                 else:
                     if not cron_time == 0:
                         Log.info(self, "updating crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         if not EEShellExec.cmd_exec(self, "/bin/bash -c "
                                                     "\"crontab "
                                                     "-l | sed '/EasyEngine "
@@ -533,7 +533,7 @@ class EEDebugController(CementBaseController):
                             Log.error(self, "failed to update crontab entry")
                     else:
                         Log.info(self, "removing crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         if not EEShellExec.cmd_exec(self, "/bin/bash -c "
                                                     "\"crontab "
                                                     "-l | sed '/EasyEngine "
