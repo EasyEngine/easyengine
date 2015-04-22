@@ -41,8 +41,8 @@ class EEAptGet():
                                             '\"^Inst\" | wc -l'],
                                             stdout=subprocess.PIPE,
                                             shell=True).communicate()[0]
-            if check_upadte == b'0\n':
-                Log.error(self, "No package update available")
+            if check_update == b'0\n':
+                Log.error(self, "No package updates available")
             Log.info("Following package updates are available:")
             subprocess.Popen("apt-get -s dist-upgrade", shell=True,
                              executable="/bin/bash",
