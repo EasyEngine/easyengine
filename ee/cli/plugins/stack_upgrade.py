@@ -39,10 +39,10 @@ class EEStackUpgradeController(CementBaseController):
             Log.info(self, "During package update process non nginx-cached"
                      " parts of your site may remain down")
             # Check prompt
-            if (self.app.pargs.no_prompt):
+            if (not self.app.pargs.no_prompt):
                 start_upgrade = input("Do you want to continue:[y/N]")
                 if start_upgrade != "Y" and start_upgrade != "y":
                     Log.error(self, "Not starting package update")
             # Update packages
-            Log.info("Updating packages, please wait...")
+            Log.info(self, "Updating packages, please wait...")
             EEAptGet.dist_upgrade(self)
