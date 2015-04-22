@@ -95,7 +95,7 @@ class EEStackController(CementBaseController):
                 Log.error(self, "Failed to intialize postfix package")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for MySQL, please wait ...")
+            Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
                           "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
@@ -149,7 +149,7 @@ class EEStackController(CementBaseController):
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for NGINX, please wait ...")
+            Log.info(self, "Adding repository for NGINX, please wait...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
@@ -158,7 +158,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, 'Adding ppa of Nginx')
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP, please wait ...")
+            Log.info(self, "Adding repository for PHP, please wait...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding repo_url of php for debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
@@ -169,7 +169,7 @@ class EEStackController(CementBaseController):
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for HHVM, please wait ...")
+            Log.info(self, "Adding repository for HHVM, please wait...")
             if EEVariables.ee_platform_codename == 'precise':
                 Log.debug(self, 'Adding PPA for Boost')
                 EERepo.add(self, ppa=EEVariables.ee_boost_repo)
@@ -1552,9 +1552,9 @@ class EEStackController(CementBaseController):
             self.pre_pref(apt_packages)
             if len(apt_packages):
                 EESwap.add(self)
-                Log.info(self, "Updating apt-cache, please wait ...")
+                Log.info(self, "Updating apt-cache, please wait...")
                 EEAptGet.update(self)
-                Log.info(self, "Installing packages, please wait ...")
+                Log.info(self, "Installing packages, please wait...")
                 EEAptGet.install(self, apt_packages)
             if len(packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
@@ -1672,7 +1672,7 @@ class EEStackController(CementBaseController):
         if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing packages, please wait ...")
+                Log.info(self, "Removing packages, please wait...")
                 EEAptGet.remove(self, apt_packages)
                 EEAptGet.auto_remove(self)
 
@@ -1785,7 +1785,7 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.info(self, "Purging packages, please wait ...")
+                Log.info(self, "Purging packages, please wait...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
 
