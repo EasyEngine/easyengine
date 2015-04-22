@@ -477,7 +477,7 @@ class EEStackController(CementBaseController):
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = time.tzname[time.daylight]
+                config['PHP']['date.timezone'] = EEVariables.ee_timezone
                 with open('/etc/php5/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -590,7 +590,7 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
                 EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-                
+
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
