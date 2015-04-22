@@ -27,6 +27,7 @@ import grp
 import codecs
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
+from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
 from ee.core.logging import Log
 
 
@@ -590,7 +591,7 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
                 EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-                
+
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
@@ -1803,6 +1804,7 @@ def load(app):
     handler.register(EEStackController)
     handler.register(EEStackStatusController)
     handler.register(EEStackMigrateController)
+    handler.register(EEStackUpgradeController)
 
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_stack_hook)
