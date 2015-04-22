@@ -49,8 +49,7 @@ class EEAptGet():
                              stdout=sys.stdout).communicate()
 
         except Exception as e:
-            Log.error(self, "Error while installing packages, "
-                      "apt-get exited with error")
+            Log.error(self, "Unable to check for packages upgrades")
 
     def dist_upgrade(self):
         """
