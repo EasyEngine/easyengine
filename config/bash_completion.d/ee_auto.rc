@@ -160,7 +160,7 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed" \
+                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed" \
                                  -- $cur) )
                 ;;
 
@@ -211,9 +211,30 @@ _ee_complete()
     case "$prev" in
         "--wp" | "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
-                retlist="--w3tc --wpfc --wpsc"
+                if [ ${COMP_WORDS[2]} == "create" ]; then
+                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm"
+                elif [ ${COMP_WORDS[2]} == "update" ]; then
+                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off"
+                else
+                    retlist=""
+                fi
             else
                 retlist="--wp=off --rewrite --rewrite=off -i --interactive"
+            fi
+
+            ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+            ;;
+
+        "--pagespeed" | "--hhvm")
+            if [ ${COMP_WORDS[2]} == "create" ]; then
+                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed"
+            elif [ ${COMP_WORDS[2]} == "update" ]; then
+                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off"
+            else
+                retlist=""
             fi
 
             ret="${retlist[@]/$prev}"
@@ -309,6 +330,17 @@ _ee_complete()
             ;;
         *)
             ;;
+        esac
+        case "$mprev" in
+            "--user" | "--email" | "--pass")
+                if [ ${COMP_WORDS[2]} == "create" ]; then
+                    retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed"
+                fi
+                ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+                ;;
         esac
 
     return 0
