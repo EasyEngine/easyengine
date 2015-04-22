@@ -43,7 +43,7 @@ class EEAptGet():
                                             shell=True).communicate()[0]
             if check_update == b'0\n':
                 Log.error(self, "No package updates available")
-            Log.info("Following package updates are available:")
+            Log.info(self, "Following package updates are available:")
             subprocess.Popen("apt-get -s dist-upgrade", shell=True,
                              executable="/bin/bash",
                              stdout=sys.stdout).communicate()
