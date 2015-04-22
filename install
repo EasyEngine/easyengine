@@ -301,7 +301,7 @@ function ee_update_latest()
     fi
 
     # Fix HHVM autostart on reboot
-    dpkg -l | grep hhvm &>> /dev/null
+    dpkg --get-selections | grep -v deinstall | grep hhvm &>> /dev/null
     if [ $? -eq 0 ]; then
         sudo update-rc.d hhvm defaults &>> /dev/null
     fi
