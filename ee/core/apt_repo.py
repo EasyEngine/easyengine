@@ -1,6 +1,7 @@
 """EasyEngine packages repository operations"""
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+from ee.core.logging import Log
 import os
 
 
@@ -70,7 +71,7 @@ class EERepo():
                               + EEVariables().ee_repo_file)
 
             try:
-                repofile = open(path_to_file, "w+")
+                repofile = open(repo_file_path, "w+")
                 repofile.write(repofile.read().replace(repo_url, ""))
                 repofile.close()
             except IOError as e:

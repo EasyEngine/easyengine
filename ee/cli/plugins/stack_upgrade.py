@@ -55,12 +55,12 @@ class EEStackUpgradeController(CementBaseController):
             if EEVariables.ee_platform_distro == "Ubuntu":
                 if not os.path.isfile("/etc/apt/sources.list.d/"
                                       "ondrej-php5-trusty.list"):
-                    Log.error("Unable to find PHP 5.5")
+                    Log.error(self, "Unable to find PHP 5.5")
             else:
                 if not(os.path.isfile(EEVariables.ee_repo_file_path) and
                        EEFileUtils.grep(self, EEVariables.ee_repo_file_path,
                                         "php55")):
-                    Log.error("Unable to find PHP 5.5")
+                    Log.error(self, "Unable to find PHP 5.5")
 
             Log.info(self, "During PHP update process non nginx-cached"
                      " parts of your site may remain down")
