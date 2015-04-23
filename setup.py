@@ -97,13 +97,3 @@ setup(name='ee',
       """,
       namespace_packages=[],
       )
-
-print("""\033[94m
-For EasyEngine (ee) auto completion, run the following command
-\033[92m
-source /etc/bash_completion.d/ee_auto.rc
-\033[94m
-EasyEngine (ee) installed successfully
-EasyEngine (ee) help: http://docs.rtcamp.com/easyengine/
-\033[0m
-""")
