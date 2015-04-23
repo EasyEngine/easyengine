@@ -380,5 +380,3 @@ ee_lib_echo_info "source /etc/bash_completion.d/ee_auto.rc"
 echo
 ee_lib_echo "EasyEngine (ee) installed successfully"
 ee_lib_echo "EasyEngine (ee) help: http://docs.rtcamp.com/easyengine/"
-
-
