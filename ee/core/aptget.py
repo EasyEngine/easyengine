@@ -57,10 +57,14 @@ class EEAptGet():
         """
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
-                proc = subprocess.Popen("apt-get dist-upgrade -o "
-                                        "Dpkg::Options::=--force-confold -y",
-                                        shell=True,
-                                        stdin=None, stdout=f, stderr=f,
+                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
+                                        "apt-get dist-upgrade -o "
+                                        "Dpkg::Options::=\"--force-confdef\""
+                                        " -o "
+                                        "Dpkg::Options::=\"--force-confold\""
+                                        " -y ",
+                                        shell=True, stdin=None,
+                                        stdout=f, stderr=f,
                                         executable="/bin/bash")
                 proc.wait()
 
@@ -76,8 +80,12 @@ class EEAptGet():
         all_packages = ' '.join(packages)
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
-                proc = subprocess.Popen("apt-get install -o Dpkg::Options::=--"
-                                        "force-confold -y {0}"
+                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
+                                        "apt-get install -o "
+                                        "Dpkg::Options::=\"--force-confdef\""
+                                        " -o "
+                                        "Dpkg::Options::=\"--force-confold\""
+                                        " -y {0}"
                                         .format(all_packages), shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")
