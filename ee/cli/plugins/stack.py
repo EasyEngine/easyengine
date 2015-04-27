@@ -470,6 +470,21 @@ class EEStackController(CementBaseController):
                     Log.debug(self, 'Creating directory /var/log/php5/')
                     os.makedirs('/var/log/php5/')
 
+                # For debian install xdebug
+
+                if EEVariables.ee_platform_distro == "debian":
+                    EEShellExec.cmd_exec("pear install xdebug")
+
+                    with open("/etc/php5/mods-available/xdebug.ini",
+                              encoding='utf-8', mode='a') as myfile:
+                        myfile.write(";zend_extension=/usr/lib/php5/20131226/"
+                                     "xdebug.so")
+
+                    EEFileUtils.create_symlink(self, ["/etc/php5/"
+                                               "mods-available/xdebug.ini",
+                                                      "/etc/php5/fpm/conf.d"
+                                                      "/20-xedbug.ini"])
+
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file /etc/php5/fpm/php.ini")

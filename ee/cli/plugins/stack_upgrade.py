@@ -75,15 +75,27 @@ class EEStackUpgradeController(CementBaseController):
                 EERepo.remove(self, ppa="ppa:ondrej/php5")
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
             else:
-                EERepo.remove(self, repo_url="deb http://packages.dotdeb.org "
-                              "{0}-php55 all"
-                              .format(EEVariables.ee_platform_codename))
-                EERepo.add(self, repo_url=EEVariables.ee_php_repo)
+                EEAptGet.purge(self, ["php5-xdebug"])
+                EEFileUtils.searchreplace(self, EEVariables.ee_repo_file_path,
+                                          "php55", "php56")
 
             Log.info(self, "Updating apt-cache, please wait...")
             EEAptGet.update(self)
             Log.info(self, "Installing packages, please wait ...")
             EEAptGet.install(self, EEVariables.ee_php)
+
+            if EEVariables.ee_platform_distro == "debian":
+                EEShellExec.cmd_exec("pear install xdebug")
+
+                with open("/etc/php5/mods-available/xdebug.ini",
+                          encoding='utf-8', mode='a') as myfile:
+                    myfile.write(";zend_extension=/usr/lib/php5/20131226/"
+                                 "xdebug.so")
+
+                EEFileUtils.create_symlink(self, ["/etc/php5/mods-available/"
+                                           "xdebug.ini", "/etc/php5/fpm/conf.d"
+                                                         "/20-xedbug.ini"])
+
             Log.info(self, "Successfully updated from PHP 5.5 to PHP 5.6")
         else:
             self.app.args.print_help()
