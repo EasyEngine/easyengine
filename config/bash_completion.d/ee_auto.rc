@@ -160,7 +160,7 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed" \
+                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --proxy= --pagespeed" \
                                  -- $cur) )
                 ;;
 
@@ -212,7 +212,7 @@ _ee_complete()
         "--wp" | "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm"
+                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --user --email --pass"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
                     retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off"
                 else
