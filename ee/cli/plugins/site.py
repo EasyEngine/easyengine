@@ -363,13 +363,19 @@ class EESiteCreateController(CementBaseController):
 
         if stype is None and self.app.pargs.proxy:
             stype, cache = 'proxy', ''
-            proxyinfo = self.app.pargs.proxy[0].split(':')
-            host = proxyinfo[0]
-            port = '80' if len(proxyinfo) < 2 else proxyinfo[1]
+            proxyinfo = self.app.pargs.proxy[0].strip()
+            if not proxyinfo:
+                Log.error(self, "Please provide proxy server host information")
+            proxyinfo = proxyinfo.split(':')
+            host = proxyinfo[0].strip()
+            port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
         elif stype is None and not self.app.pargs.proxy:
             stype, cache = 'html', 'basic'
         elif stype and self.app.pargs.proxy:
-            Log.error("proxy should not be used with other site types")
+            Log.error(self, "proxy should not be used with other site types")
+        if (self.app.pargs.proxy and (self.app.pargs.pagespeed
+           or self.app.pargs.hhvm)):
+            Log.error(self, "Proxy site can not run on pagespeed or hhvm")
 
         if not self.app.pargs.site_name:
             try:
