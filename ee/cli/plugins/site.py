@@ -344,7 +344,9 @@ class EESiteCreateController(CementBaseController):
                 dict(help="provide email address for wordpress site")),
             (['--pass'],
                 dict(help="provide password for wordpress user",
-                     dest='wppass'))
+                     dest='wppass')),
+            (['--proxy'],
+                dict(help="create proxy for site", nargs='+'))
             ]
 
     @expose(hide=True)
@@ -352,11 +354,20 @@ class EESiteCreateController(CementBaseController):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
+        host, port = None, None
         try:
             stype, cache = detSitePar(vars(self.app.pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
             Log.error(self, "Please provide valid options to creating site")
+
+        if stype is None and self.app.pargs.proxy:
+            stype, cache = 'proxy', ''
+            proxyinfo = self.app.pargs.proxy[0].split(':')
+            host = proxyinfo[0]
+            port = '80' if len(proxyinfo) < 2 else proxyinfo[1]
+        elif stype is None and not self.app.pargs.proxy:
+            stype, cache = 'html', 'basic'
 
         if not self.app.pargs.site_name:
             try:
@@ -384,6 +395,14 @@ class EESiteCreateController(CementBaseController):
             Log.error(self, "Nginx configuration /etc/nginx/sites-available/"
                       "{0} already exists".format(ee_domain))
 
+        if stype == 'proxy':
+            data['site_name'] = ee_domain
+            data['www_domain'] = ee_www_domain
+            data['proxy'] = True
+            data['host'] = host
+            data['port'] = port
+            ee_site_webroot = ""
+
         if stype in ['html', 'php']:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
@@ -393,6 +412,7 @@ class EESiteCreateController(CementBaseController):
             if stype == 'php':
                 data['static'] = False
                 data['basic'] = True
+
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -413,6 +433,8 @@ class EESiteCreateController(CementBaseController):
                     data['multisite'] = True
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
+        else:
+            pass
 
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
@@ -431,13 +453,12 @@ class EESiteCreateController(CementBaseController):
             data['pagespeed'] = False
             pagespeed = 0
 
-        if not data:
-            self.app.args.print_help()
-            self.app.close(1)
+        # if not data:
+        #     self.app.args.print_help()
+        #     self.app.close(1)
 
         # Check rerequired packages are installed or not
         ee_auth = site_package_check(self, stype)
-
         try:
             try:
                 # setup NGINX configuration, and webroot
@@ -452,12 +473,18 @@ class EESiteCreateController(CementBaseController):
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
+            if 'proxy' in data.keys() and data['proxy']:
+                addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+                Log.info(self, "Successfully created site"
+                         " http://{0}".format(ee_domain))
+                return
             # Update pagespeed config
             if self.app.pargs.pagespeed:
                 operateOnPagespeed(self, data)
 
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
                        hhvm=hhvm, pagespeed=pagespeed)
+
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:

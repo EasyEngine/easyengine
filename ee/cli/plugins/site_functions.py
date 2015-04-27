@@ -52,7 +52,7 @@ def check_domain_exists(self, domain):
 def setupdomain(self, data):
 
     ee_domain_name = data['site_name']
-    ee_site_webroot = data['webroot']
+    ee_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
 
     # Check if nginx configuration already exists
     # if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -89,6 +89,9 @@ def setupdomain(self, data):
                      + Log.OKBLUE + "]")
             raise SiteError("created nginx configuration failed for site."
                             " check with `nginx -t`")
+
+    if 'proxy' in data.keys() and data['proxy']:
+        return
 
     # create symbolic link for
     EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
@@ -797,8 +800,8 @@ def detSitePar(opts):
         raise RuntimeError("could not determine site and cache type")
     else:
         if not typelist and not cachelist:
-            sitetype = 'html'
-            cachetype = 'basic'
+            sitetype = None
+            cachetype = None
         elif (not typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
