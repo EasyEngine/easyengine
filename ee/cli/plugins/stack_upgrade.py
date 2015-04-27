@@ -85,12 +85,12 @@ class EEStackUpgradeController(CementBaseController):
             EEAptGet.install(self, EEVariables.ee_php)
 
             if EEVariables.ee_platform_distro == "debian":
-                EEShellExec.cmd_exec(self, "pear install xdebug")
+                EEShellExec.cmd_exec(self, "pecl install xdebug")
 
                 with open("/etc/php5/mods-available/xdebug.ini",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write(";zend_extension=/usr/lib/php5/20131226/"
-                                 "xdebug.so")
+                                 "xdebug.so\n")
 
                 EEFileUtils.create_symlink(self, ["/etc/php5/mods-available/"
                                            "xdebug.ini", "/etc/php5/fpm/conf.d"
