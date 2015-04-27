@@ -368,6 +368,8 @@ class EESiteCreateController(CementBaseController):
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1]
         elif stype is None and not self.app.pargs.proxy:
             stype, cache = 'html', 'basic'
+        elif stype and self.app.pargs.proxy:
+            Log.error("proxy should not be used with other site types")
 
         if not self.app.pargs.site_name:
             try:
@@ -475,8 +477,6 @@ class EESiteCreateController(CementBaseController):
 
             if 'proxy' in data.keys() and data['proxy']:
                 addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
-                # Service Nginx Reload
-                EEService.reload_service(self, 'nginx')
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(ee_domain))
                 return
