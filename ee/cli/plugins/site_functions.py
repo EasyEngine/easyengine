@@ -555,7 +555,8 @@ def site_package_check(self, stype):
     packages = []
     stack = EEStackController()
     stack.app = self.app
-    if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
+                 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         if EEVariables.ee_platform_distro == 'debian':

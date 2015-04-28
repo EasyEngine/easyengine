@@ -144,6 +144,10 @@ class EESiteController(CementBaseController):
             ee_db_host = siteinfo.db_host
             if sitetype != "html":
                 hhvm = ("enabled" if siteinfo.is_hhvm else "disabled")
+            if sitetype == "proxy":
+                access_log = "/var/log/nginx/{0}.access.log".format(ee_domain)
+                error_log = "/var/log/nginx/{0}.error.log".format(ee_domain)
+                ee_site_webroot = ''
 
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
 
@@ -730,14 +734,21 @@ class EESiteUpdateController(CementBaseController):
                 Log.info(self, "Password Unchanged.")
             return 0
 
+        if ((stype == "proxy" and stype == oldsitetype and self.app.pargs.hhvm)
+            or (stype == "proxy" and
+                stype == oldsitetype and self.app.pargs.pagespeed)):
+                Log.info(self, Log.FAIL +
+                         "Can not update proxy site to HHVM or Pagespeed")
+                return 1
         if stype == "html" and stype == oldsitetype and self.app.pargs.hhvm:
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype != 'html') or
-            (stype == 'mysql' and oldsitetype not in ['html', 'php']) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy']) or
+            (stype == 'mysql' and oldsitetype not in ['html', 'php',
+                                                      'proxy']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'wp']) or
+                                                   'proxy', 'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
@@ -781,8 +792,7 @@ class EESiteUpdateController(CementBaseController):
 
                 stype = oldsitetype
                 cache = oldcachetype
-
-                if oldsitetype == 'html':
+                if oldsitetype == 'html' or oldsitetype == 'proxy':
                     data['static'] = True
                     data['wp'] = False
                     data['multisite'] = False
@@ -962,7 +972,7 @@ class EESiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'mysql']:
             try:
                 ee_wp_creds = setupwordpress(self, data)
             except SiteError as e:
