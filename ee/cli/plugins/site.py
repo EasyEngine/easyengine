@@ -487,6 +487,8 @@ class EESiteCreateController(CementBaseController):
 
             if 'proxy' in data.keys() and data['proxy']:
                 addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+                # Service Nginx Reload
+                EEService.reload_service(self, 'nginx')
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(ee_domain))
                 return
