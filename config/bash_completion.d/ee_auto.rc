@@ -79,7 +79,7 @@ _ee_complete()
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt" \
+                              -W "--web --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
