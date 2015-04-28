@@ -28,6 +28,15 @@ class EEVariables():
     ee_platform_version = platform.linux_distribution()[1]
     ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
 
+    # Get timezone of system
+    if os.path.isfile('/etc/timezone'):
+        with open("/etc/timezone", "r") as tzfile:
+            ee_timezone = tzfile.read().replace('\n', '')
+            if ee_timezone == "Etc/UTC":
+                ee_timezone = "UTC"
+    else:
+        ee_timezone = "UTC"
+
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
 

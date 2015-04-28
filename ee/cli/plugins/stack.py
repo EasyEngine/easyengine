@@ -493,7 +493,7 @@ class EEStackController(CementBaseController):
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = time.tzname[time.daylight]
+                config['PHP']['date.timezone'] = EEVariables.ee_timezone
                 with open('/etc/php5/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -1024,10 +1024,22 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/webgrind-master/',
                             '{0}22222/htdocs/php/webgrind'
                             .format(EEVariables.ee_webroot))
-                EEShellExec.cmd_exec(self, "sed -i \"s\'/usr/local/bin/dot\'"
-                                     "/usr/bin/dot\'\" {0}22222/htdocs/"
-                                     "php/webgrind/config.php"
-                                     .format(EEVariables.ee_webroot))
+
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "/usr/local/bin/dot", "/usr/bin/dot")
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "Europe/Copenhagen",
+                                          EEVariables.ee_timezone)
+
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "90", "100")
+
                 Log.debug(self, "Setting Privileges of webroot permission to "
                           "{0}22222/htdocs/php/webgrind/ file "
                           .format(EEVariables.ee_webroot))
