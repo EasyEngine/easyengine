@@ -70,7 +70,7 @@ class EEStackUpgradeController(CementBaseController):
             EERepo.remove(self, ppa="ppa:ondrej/php5")
             EERepo.add(self, ppa=EEVariables.ee_php_repo)
         else:
-            EEAptGet.purge(self, ["php5-xdebug"])
+            EEAptGet.remove(self, ["php5-xdebug"])
             EEFileUtils.searchreplace(self, EEVariables.ee_repo_file_path,
                                       "php55", "php56")
 
