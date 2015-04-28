@@ -654,6 +654,8 @@ class EESiteUpdateController(CementBaseController):
                 dict(help='Use PageSpeed for site',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
+            (['--proxy'],
+                dict(help="update to prxy site", nargs='+')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             ]
@@ -700,6 +702,21 @@ class EESiteUpdateController(CementBaseController):
             Log.debug(self, str(e))
             Log.error(self, "Please provide valid options combination for"
                       " site update")
+
+        if stype is None and pargs.proxy:
+            stype, cache = 'proxy', ''
+            proxyinfo = pargs.proxy[0].strip()
+            if not proxyinfo:
+                Log.error(self, "Please provide proxy server host information")
+            proxyinfo = proxyinfo.split(':')
+            host = proxyinfo[0].strip()
+            port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
+        elif stype is None and not pargs.proxy:
+            stype, cache = 'html', 'basic'
+        elif stype and pargs.proxy:
+            Log.error(self, "--proxy can not be used with other site types")
+        if (pargs.proxy and (pargs.pagespeed or pargs.hhvm)):
+            Log.error(self, "Proxy site can not run on pagespeed or hhvm")
 
         if not pargs.site_name:
             try:
@@ -756,6 +773,18 @@ class EESiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
+
+        if stype == 'proxy':
+            data['site_name'] = ee_domain
+            data['www_domain'] = ee_www_domain
+            data['proxy'] = True
+            data['host'] = host
+            data['port'] = port
+            pagespeed = False
+            hhvm = False
+            data['webroot'] = ee_site_webroot
+            data['currsitetype'] = oldsitetype
+            data['currcachetype'] = oldcachetype
 
         if stype == 'php':
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -925,6 +954,13 @@ class EESiteUpdateController(CementBaseController):
                      "Check logs for reason"
                      "`tail /var/log/ee/ee.log` & Try Again!!!")
             return 1
+
+        if 'proxy' in data.keys() and data['proxy']:
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(ee_domain))
+            return 0
 
         # Update pagespeed config
         if pargs.pagespeed:

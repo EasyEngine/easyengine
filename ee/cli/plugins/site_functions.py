@@ -520,7 +520,7 @@ def sitebackup(self, data):
     EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['site_name']), backup_path)
 
-    if data['currsitetype'] in ['html', 'php', 'mysql']:
+    if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
         Log.info(self, "Backing up Webroot \t\t", end='')
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -544,7 +544,7 @@ def sitebackup(self, data):
             raise SiteError("mysqldump failed to backup database")
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
-        if data['currsitetype'] in ['mysql']:
+        if data['currsitetype'] in ['mysql', 'proxy']:
             EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)

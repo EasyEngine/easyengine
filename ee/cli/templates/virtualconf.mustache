@@ -19,7 +19,7 @@ server {
     {{#proxy}}
     add_header X-Proxy-Cache $upstream_cache_status;
     location / {
-        proxy_pass {{host}}:{{port}};
+        proxy_pass http://{{host}}:{{port}};
         proxy_redirect      off;
         proxy_set_header    Host            $host;
         proxy_set_header    X-Real-IP       $remote_addr;
