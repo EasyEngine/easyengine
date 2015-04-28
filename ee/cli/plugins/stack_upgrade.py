@@ -49,8 +49,8 @@ class EEStackUpgradeController(CementBaseController):
     @expose(hide=True)
     def upgrade_php56(self):
         if EEVariables.ee_platform_distro == "Ubuntu":
-            if not os.path.isfile("/etc/apt/sources.list.d/"
-                                  "ondrej-php5-trusty.list"):
+            if os.path.isfile("/etc/apt/sources.list.d/ondrej-php5-5_6-{0}."
+                              "list".format(EEVariables.ee_platform_codename)):
                 Log.error(self, "Unable to find PHP 5.5")
         else:
             if not(os.path.isfile(EEVariables.ee_repo_file_path) and
@@ -69,9 +69,6 @@ class EEStackUpgradeController(CementBaseController):
 
         if EEVariables.ee_platform_distro == "Ubuntu":
             EERepo.remove(self, ppa="ppa:ondrej/php5")
-            EEFileUtils.remove(self, ['{0}/ondrej-php5-trusty.list'
-                               .format(EEVariables.ee_repo_file_path)])
-            EERepo.add(self, ppa=EEVariables.ee_php_repo)
         else:
             EEAptGet.remove(self, ["php5-xdebug"])
             EEFileUtils.searchreplace(self, EEVariables.ee_repo_file_path,
