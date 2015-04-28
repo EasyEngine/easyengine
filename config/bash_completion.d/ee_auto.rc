@@ -35,7 +35,7 @@ _ee_complete()
 
             "stack")
                 COMPREPLY=( $(compgen \
-                              -W "install purge reload remove restart start status stop migrate" \
+                              -W "upgrade install purge reload remove restart start status stop migrate" \
                               -- $cur) )
                 ;;
 
@@ -74,7 +74,12 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --all --mailscanner --hhvm" \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm" \
+                              -- $cur) )
+                ;;
+            "upgrade" )
+                COMPREPLY=( $(compgen \
+                              -W "--web --admin --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")

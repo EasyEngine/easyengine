@@ -92,7 +92,7 @@ class EEStackUpgradeController(CementBaseController):
                                        "xdebug.ini", "/etc/php5/fpm/conf.d"
                                                      "/20-xedbug.ini"])
 
-        Log.info(self, "Successfully updated from PHP 5.5 to PHP 5.6")
+        Log.info(self, "Successfully upgraded from PHP 5.5 to PHP 5.6")
 
     @expose(hide=True)
     def default(self):
