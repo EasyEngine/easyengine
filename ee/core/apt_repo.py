@@ -65,7 +65,7 @@ class EERepo():
         if ppa:
             EEShellExec.cmd_exec(self, "add-apt-repository -y "
                                  "--remove '{ppa_name}'"
-                                 .format(ppa_name=repo_url))
+                                 .format(ppa_name=ppa))
         elif repo_url:
             repo_file_path = ("/etc/apt/sources.list.d/"
                               + EEVariables().ee_repo_file)
