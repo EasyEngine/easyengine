@@ -6,6 +6,7 @@ from ee.core.aptget import EEAptGet
 from ee.core.apt_repo import EERepo
 from ee.core.services import EEService
 from ee.core.fileutils import EEFileUtils
+from ee.core.shellexec import EEShellExec
 import configparser
 import os
 
