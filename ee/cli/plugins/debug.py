@@ -180,6 +180,17 @@ class EEDebugController(CementBaseController):
                                           ";zend_extension",
                                           "zend_extension")
 
+                # Fix slow log is not enabled default in PHP5.6
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/pool.d/debug.conf')
+                config['debug']['slowlog'] = '/var/log/php5/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
+                with open('/etc/php5/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "Writting debug.conf configuration into "
+                              "/etc/php5/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
