@@ -77,14 +77,17 @@ class EEVariables():
 
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':
-        ee_php_repo = "ppa:ondrej/php5"
+        ee_php_repo = "ppa:ondrej/php5-5.6"
     elif ee_platform_codename == 'wheezy':
-        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
+        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
                        .format(codename=ee_platform_codename))
     ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
-              "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
+              "php5-mcrypt", "php5-common", "php5-readline",
               "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
-              "memcached", "graphviz"]
+              "memcached", "graphviz", "php-pear", "php5-dev"]
+
+    if ee_platform_distro == 'Ubuntu':
+        ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'Ubuntu':

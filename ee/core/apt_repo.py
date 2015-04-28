@@ -1,6 +1,7 @@
 """EasyEngine packages repository operations"""
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
+from ee.core.logging import Log
 import os
 
 
@@ -54,16 +55,31 @@ class EERepo():
                                            "'{ppa_name}'"
                                      .format(ppa_name=ppa))
 
-    def remove(self, ppa=None):
+    def remove(self, ppa=None, repo_url=None):
         """
         This function used to remove ppa's
         If ppa is provided adds repo file to
             /etc/apt/sources.list.d/
         command.
         """
-        EEShellExec.cmd_exec(self, "add-apt-repository -y "
-                             "--remove '{ppa_name}'"
-                             .format(ppa_name=repo_url))
+        if ppa:
+            EEShellExec.cmd_exec(self, "add-apt-repository -y "
+                                 "--remove '{ppa_name}'"
+                                 .format(ppa_name=repo_url))
+        elif repo_url:
+            repo_file_path = ("/etc/apt/sources.list.d/"
+                              + EEVariables().ee_repo_file)
+
+            try:
+                repofile = open(repo_file_path, "w+")
+                repofile.write(repofile.read().replace(repo_url, ""))
+                repofile.close()
+            except IOError as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "File I/O error.")
+            except Exception as e:
+                Log.debug(self, "{0}".format(e))
+                Log.error(self, "Unable to remove repo")
 
     def add_key(self, keyids, keyserver=None):
         """

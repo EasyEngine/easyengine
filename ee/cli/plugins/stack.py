@@ -27,6 +27,7 @@ import grp
 import codecs
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
+from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
 from ee.core.logging import Log
 
 
@@ -469,6 +470,21 @@ class EEStackController(CementBaseController):
                     Log.debug(self, 'Creating directory /var/log/php5/')
                     os.makedirs('/var/log/php5/')
 
+                # For debian install xdebug
+
+                if EEVariables.ee_platform_distro == "debian":
+                    EEShellExec.cmd_exec(self, "pecl install xdebug")
+
+                    with open("/etc/php5/mods-available/xdebug.ini",
+                              encoding='utf-8', mode='a') as myfile:
+                        myfile.write("zend_extension=/usr/lib/php5/20131226/"
+                                     "xdebug.so\n")
+
+                    EEFileUtils.create_symlink(self, ["/etc/php5/"
+                                               "mods-available/xdebug.ini",
+                                                      "/etc/php5/fpm/conf.d"
+                                                      "/20-xedbug.ini"])
+
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file /etc/php5/fpm/php.ini")
@@ -590,7 +606,7 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
                 EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-                
+
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
@@ -1803,6 +1819,7 @@ def load(app):
     handler.register(EEStackController)
     handler.register(EEStackStatusController)
     handler.register(EEStackMigrateController)
+    handler.register(EEStackUpgradeController)
 
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_stack_hook)
