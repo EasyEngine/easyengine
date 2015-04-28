@@ -35,6 +35,8 @@ class EEStackUpgradeController(CementBaseController):
                 dict(help='Upgrade MySQL stack', action='store_true')),
             (['--hhvm'],
                 dict(help='Upgrade HHVM stack', action='store_true')),
+            (['--postfix'],
+                dict(help='Upgrade Postfix stack', action='store_true')),
             (['--php56'],
                 dict(help="Upgrade to PHP5.6 from PHP5.5",
                      action='store_true')),
