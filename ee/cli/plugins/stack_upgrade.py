@@ -69,6 +69,8 @@ class EEStackUpgradeController(CementBaseController):
 
         if EEVariables.ee_platform_distro == "Ubuntu":
             EERepo.remove(self, ppa="ppa:ondrej/php5")
+            EEFileUtils.remove(self, ['{0}/ondrej-php5-trusty.list'
+                               .format(EEVariables.ee_repo_file_path)])
             EERepo.add(self, ppa=EEVariables.ee_php_repo)
         else:
             EEAptGet.remove(self, ["php5-xdebug"])
