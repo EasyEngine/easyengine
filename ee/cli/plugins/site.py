@@ -144,6 +144,10 @@ class EESiteController(CementBaseController):
             ee_db_host = siteinfo.db_host
             if sitetype != "html":
                 hhvm = ("enabled" if siteinfo.is_hhvm else "disabled")
+            if sitetype == "proxy":
+                access_log = "/var/log/nginx/{0}.access.log".format(ee_domain)
+                error_log = "/var/log/nginx/{0}.error.log".format(ee_domain)
+                ee_site_webroot = ''
 
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
 
@@ -338,6 +342,15 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create HHVM site", action='store_true')),
             (['--pagespeed'],
                 dict(help="create pagespeed site", action='store_true')),
+            (['--user'],
+                dict(help="provide user for wordpress site")),
+            (['--email'],
+                dict(help="provide email address for wordpress site")),
+            (['--pass'],
+                dict(help="provide password for wordpress user",
+                     dest='wppass')),
+            (['--proxy'],
+                dict(help="create proxy for site", nargs='+'))
             ]
 
     @expose(hide=True)
@@ -345,11 +358,28 @@ class EESiteCreateController(CementBaseController):
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
+        host, port = None, None
         try:
             stype, cache = detSitePar(vars(self.app.pargs))
         except RuntimeError as e:
             Log.debug(self, str(e))
             Log.error(self, "Please provide valid options to creating site")
+
+        if stype is None and self.app.pargs.proxy:
+            stype, cache = 'proxy', ''
+            proxyinfo = self.app.pargs.proxy[0].strip()
+            if not proxyinfo:
+                Log.error(self, "Please provide proxy server host information")
+            proxyinfo = proxyinfo.split(':')
+            host = proxyinfo[0].strip()
+            port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
+        elif stype is None and not self.app.pargs.proxy:
+            stype, cache = 'html', 'basic'
+        elif stype and self.app.pargs.proxy:
+            Log.error(self, "proxy should not be used with other site types")
+        if (self.app.pargs.proxy and (self.app.pargs.pagespeed
+           or self.app.pargs.hhvm)):
+            Log.error(self, "Proxy site can not run on pagespeed or hhvm")
 
         if not self.app.pargs.site_name:
             try:
@@ -377,6 +407,14 @@ class EESiteCreateController(CementBaseController):
             Log.error(self, "Nginx configuration /etc/nginx/sites-available/"
                       "{0} already exists".format(ee_domain))
 
+        if stype == 'proxy':
+            data['site_name'] = ee_domain
+            data['www_domain'] = ee_www_domain
+            data['proxy'] = True
+            data['host'] = host
+            data['port'] = port
+            ee_site_webroot = ""
+
         if stype in ['html', 'php']:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
@@ -386,6 +424,7 @@ class EESiteCreateController(CementBaseController):
             if stype == 'php':
                 data['static'] = False
                 data['basic'] = True
+
         elif stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -399,10 +438,15 @@ class EESiteCreateController(CementBaseController):
                 data['wp'] = True
                 data['basic'] = False
                 data[cache] = True
+                data['wp-user'] = self.app.pargs.user
+                data['wp-email'] = self.app.pargs.email
+                data['wp-pass'] = self.app.pargs.wppass
                 if stype in ['wpsubdir', 'wpsubdomain']:
                     data['multisite'] = True
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
+        else:
+            pass
 
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
@@ -421,13 +465,12 @@ class EESiteCreateController(CementBaseController):
             data['pagespeed'] = False
             pagespeed = 0
 
-        if not data:
-            self.app.args.print_help()
-            self.app.close(1)
+        # if not data:
+        #     self.app.args.print_help()
+        #     self.app.close(1)
 
         # Check rerequired packages are installed or not
         ee_auth = site_package_check(self, stype)
-
         try:
             try:
                 # setup NGINX configuration, and webroot
@@ -442,12 +485,23 @@ class EESiteCreateController(CementBaseController):
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
 
+            if 'proxy' in data.keys() and data['proxy']:
+                addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
+                # Service Nginx Reload
+                EEService.reload_service(self, 'nginx')
+                if ee_auth and len(ee_auth):
+                    for msg in ee_auth:
+                        Log.info(self, Log.ENDC + msg, log=False)
+                Log.info(self, "Successfully created site"
+                         " http://{0}".format(ee_domain))
+                return
             # Update pagespeed config
             if self.app.pargs.pagespeed:
                 operateOnPagespeed(self, data)
 
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
                        hhvm=hhvm, pagespeed=pagespeed)
+
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
                 try:
@@ -605,6 +659,8 @@ class EESiteUpdateController(CementBaseController):
                 dict(help='Use PageSpeed for site',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
+            (['--proxy'],
+                dict(help="update to prxy site", nargs='+')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             ]
@@ -652,6 +708,21 @@ class EESiteUpdateController(CementBaseController):
             Log.error(self, "Please provide valid options combination for"
                       " site update")
 
+        if stype is None and pargs.proxy:
+            stype, cache = 'proxy', ''
+            proxyinfo = pargs.proxy[0].strip()
+            if not proxyinfo:
+                Log.error(self, "Please provide proxy server host information")
+            proxyinfo = proxyinfo.split(':')
+            host = proxyinfo[0].strip()
+            port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
+        elif stype is None and not pargs.proxy:
+            stype, cache = 'html', 'basic'
+        elif stype and pargs.proxy:
+            Log.error(self, "--proxy can not be used with other site types")
+        if (pargs.proxy and (pargs.pagespeed or pargs.hhvm)):
+            Log.error(self, "Proxy site can not run on pagespeed or hhvm")
+
         if not pargs.site_name:
             try:
                 while not pargs.site_name:
@@ -685,14 +756,21 @@ class EESiteUpdateController(CementBaseController):
                 Log.info(self, "Password Unchanged.")
             return 0
 
+        if ((stype == "proxy" and stype == oldsitetype and self.app.pargs.hhvm)
+            or (stype == "proxy" and
+                stype == oldsitetype and self.app.pargs.pagespeed)):
+                Log.info(self, Log.FAIL +
+                         "Can not update proxy site to HHVM or Pagespeed")
+                return 1
         if stype == "html" and stype == oldsitetype and self.app.pargs.hhvm:
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype != 'html') or
-            (stype == 'mysql' and oldsitetype not in ['html', 'php']) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy']) or
+            (stype == 'mysql' and oldsitetype not in ['html', 'php',
+                                                      'proxy']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'wp']) or
+                                                   'proxy', 'wp']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
@@ -700,6 +778,18 @@ class EESiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
+
+        if stype == 'proxy':
+            data['site_name'] = ee_domain
+            data['www_domain'] = ee_www_domain
+            data['proxy'] = True
+            data['host'] = host
+            data['port'] = port
+            pagespeed = False
+            hhvm = False
+            data['webroot'] = ee_site_webroot
+            data['currsitetype'] = oldsitetype
+            data['currcachetype'] = oldcachetype
 
         if stype == 'php':
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
@@ -736,8 +826,7 @@ class EESiteUpdateController(CementBaseController):
 
                 stype = oldsitetype
                 cache = oldcachetype
-
-                if oldsitetype == 'html':
+                if oldsitetype == 'html' or oldsitetype == 'proxy':
                     data['static'] = True
                     data['wp'] = False
                     data['multisite'] = False
@@ -871,6 +960,13 @@ class EESiteUpdateController(CementBaseController):
                      "`tail /var/log/ee/ee.log` & Try Again!!!")
             return 1
 
+        if 'proxy' in data.keys() and data['proxy']:
+            updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
+                           hhvm=hhvm, pagespeed=pagespeed)
+            Log.info(self, "Successfully updated site"
+                     " http://{0}".format(ee_domain))
+            return 0
+
         # Update pagespeed config
         if pargs.pagespeed:
             operateOnPagespeed(self, data)
@@ -917,7 +1013,7 @@ class EESiteUpdateController(CementBaseController):
                 return 1
 
         # Setup WordPress if old sites are html/php/mysql sites
-        if data['wp'] and oldsitetype in ['html', 'php', 'mysql']:
+        if data['wp'] and oldsitetype in ['html', 'proxy', 'php', 'mysql']:
             try:
                 ee_wp_creds = setupwordpress(self, data)
             except SiteError as e:
