@@ -32,32 +32,60 @@ class EEAptGet():
             Log.error(self, "Error while installing packages, "
                       "apt-get exited with error")
 
-    def dist_upgrade():
+    def check_upgrade(self):
         """
         Similar to `apt-get upgrade`
         """
         try:
-            apt_cache = apt.cache.Cache()
-            apt_cache.update()
-            apt_cache.open(None)
-            apt_cache.upgrade(True)
-            success = (apt_cache.commit(
-                       apt.progress.text.AcquireProgress(),
-                       apt.progress.base.InstallProgress()))
-            # apt_cache.close()
-            return success
-        except AttributeError as e:
-            Log.error(self, 'AttributeError: ' + str(e))
-        except FetchFailedException as e:
-            Log.debug(self, 'SystemError:  ' + str(e))
-            Log.error(self, 'Unable to Fetch update')
+            check_update = subprocess.Popen(['apt-get upgrade -s | grep '
+                                            '\"^Inst\" | wc -l'],
+                                            stdout=subprocess.PIPE,
+                                            shell=True).communicate()[0]
+            if check_update == b'0\n':
+                Log.error(self, "No package updates available")
+            Log.info(self, "Following package updates are available:")
+            subprocess.Popen("apt-get -s dist-upgrade | grep \"^Inst\"",
+                             shell=True, executable="/bin/bash",
+                             stdout=sys.stdout).communicate()
+
+        except Exception as e:
+            Log.error(self, "Unable to check for packages upgrades")
+
+    def dist_upgrade(self):
+        """
+        Similar to `apt-get upgrade`
+        """
+        try:
+            with open('/var/log/ee/ee.log', 'a') as f:
+                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
+                                        "apt-get dist-upgrade -o "
+                                        "Dpkg::Options::=\"--force-confdef\""
+                                        " -o "
+                                        "Dpkg::Options::=\"--force-confold\""
+                                        " -y ",
+                                        shell=True, stdin=None,
+                                        stdout=f, stderr=f,
+                                        executable="/bin/bash")
+                proc.wait()
+
+            if proc.returncode == 0:
+                return True
+            else:
+                Log.error(self, "Unable to run apt-get dist_upgrade")
+        except Exception as e:
+            Log.error(self, "Error while installing packages, "
+                      "apt-get exited with error")
 
     def install(self, packages):
         all_packages = ' '.join(packages)
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
-                proc = subprocess.Popen("apt-get install -o Dpkg::Options::=--"
-                                        "force-confold -y {0}"
+                proc = subprocess.Popen("DEBIAN_FRONTEND=noninteractive "
+                                        "apt-get install -o "
+                                        "Dpkg::Options::=\"--force-confdef\""
+                                        " -o "
+                                        "Dpkg::Options::=\"--force-confold\""
+                                        " -y {0}"
                                         .format(all_packages), shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")

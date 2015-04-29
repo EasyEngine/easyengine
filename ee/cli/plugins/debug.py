@@ -180,6 +180,17 @@ class EEDebugController(CementBaseController):
                                           ";zend_extension",
                                           "zend_extension")
 
+                # Fix slow log is not enabled default in PHP5.6
+                config = configparser.ConfigParser()
+                config.read('/etc/php5/fpm/pool.d/debug.conf')
+                config['debug']['slowlog'] = '/var/log/php5/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
+                with open('/etc/php5/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "Writting debug.conf configuration into "
+                              "/etc/php5/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
                 self.trigger_php = True
                 self.trigger_nginx = True
             else:
@@ -505,7 +516,7 @@ class EEDebugController(CementBaseController):
                                             "'ee debug --import-slow-log'"):
                     if not cron_time == 0:
                         Log.info(self, "setting up crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
                                              "2> /dev/null | {{ cat; echo -e"
                                              " \\\"#EasyEngine start MySQL "
@@ -518,7 +529,7 @@ class EEDebugController(CementBaseController):
                 else:
                     if not cron_time == 0:
                         Log.info(self, "updating crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         if not EEShellExec.cmd_exec(self, "/bin/bash -c "
                                                     "\"crontab "
                                                     "-l | sed '/EasyEngine "
@@ -533,7 +544,7 @@ class EEDebugController(CementBaseController):
                             Log.error(self, "failed to update crontab entry")
                     else:
                         Log.info(self, "removing crontab entry,"
-                                 " please wait ...")
+                                 " please wait...")
                         if not EEShellExec.cmd_exec(self, "/bin/bash -c "
                                                     "\"crontab "
                                                     "-l | sed '/EasyEngine "

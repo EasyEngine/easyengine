@@ -31,7 +31,7 @@ class SiteError(Exception):
 def pre_run_checks(self):
 
     # Check nginx configuration
-    Log.info(self, "Running pre-update checks, please wait ...")
+    Log.info(self, "Running pre-update checks, please wait...")
     try:
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
@@ -52,7 +52,7 @@ def check_domain_exists(self, domain):
 def setupdomain(self, data):
 
     ee_domain_name = data['site_name']
-    ee_site_webroot = data['webroot']
+    ee_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
 
     # Check if nginx configuration already exists
     # if os.path.isfile('/etc/nginx/sites-available/{0}'
@@ -78,7 +78,7 @@ def setupdomain(self, data):
     finally:
         # Check nginx -t and return status over it
         try:
-            Log.debug(self, "Checking generated nginx conf, please wait ...")
+            Log.debug(self, "Checking generated nginx conf, please wait...")
             FNULL = open('/dev/null', 'w')
             ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
                                         stderr=subprocess.STDOUT)
@@ -89,6 +89,9 @@ def setupdomain(self, data):
                      + Log.OKBLUE + "]")
             raise SiteError("created nginx configuration failed for site."
                             " check with `nginx -t`")
+
+    if 'proxy' in data.keys() and data['proxy']:
+        return
 
     # create symbolic link for
     EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
@@ -234,6 +237,13 @@ def setupwordpress(self, data):
     ee_wp_prefix = ''
     # ee_wp_user = ''
     # ee_wp_pass = ''
+
+    if 'wp-user' in data.keys() and data['wp-user']:
+        ee_wp_user = data['wp-user']
+    if 'wp-email' in data.keys() and data['wp-email']:
+        ee_wp_email = data['wp-email']
+    if 'wp-pass' in data.keys() and data['wp-pass']:
+        ee_wp_pass = data['wp-pass']
 
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
@@ -456,7 +466,7 @@ def setupwordpressnetwork(self, data):
 
 def installwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    Log.info(self, "Installing plugin {0}, please wait ..."
+    Log.info(self, "Installing plugin {0}, please wait..."
              .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
@@ -480,7 +490,7 @@ def installwp_plugin(self, plugin_name, data):
 
 def uninstallwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    Log.debug(self, "Uninstalling plugin {0}, please wait ..."
+    Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
@@ -510,7 +520,7 @@ def sitebackup(self, data):
     EEFileUtils.copyfile(self, '/etc/nginx/sites-available/{0}'
                          .format(data['site_name']), backup_path)
 
-    if data['currsitetype'] in ['html', 'php', 'mysql']:
+    if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
         Log.info(self, "Backing up Webroot \t\t", end='')
         EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -534,7 +544,7 @@ def sitebackup(self, data):
             raise SiteError("mysqldump failed to backup database")
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
-        if data['currsitetype'] in ['mysql']:
+        if data['currsitetype'] in ['mysql', 'proxy']:
             EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)
@@ -545,7 +555,8 @@ def site_package_check(self, stype):
     packages = []
     stack = EEStackController()
     stack.app = self.app
-    if stype in ['html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
+                 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         if EEVariables.ee_platform_distro == 'debian':
@@ -790,8 +801,8 @@ def detSitePar(opts):
         raise RuntimeError("could not determine site and cache type")
     else:
         if not typelist and not cachelist:
-            sitetype = 'html'
-            cachetype = 'basic'
+            sitetype = None
+            cachetype = None
         elif (not typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]

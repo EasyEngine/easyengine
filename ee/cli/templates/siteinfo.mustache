@@ -5,7 +5,7 @@ Nginx configuration	 {{type}} {{enable}}
 {{#hhvm}}HHVM			 {{hhvm}}{{/hhvm}}
 access_log		 {{accesslog}}
 error_log		 {{errorlog}}
-Webroot			 {{webroot}}
+{{#webroot}}Webroot			 {{webroot}}{{/webroot}}
 {{#dbname}}DB_NAME			 {{dbname}}{{/dbname}}
 {{#dbname}}DB_USER			 {{dbuser}}{{/dbname}}
 {{#dbname}}DB_PASS			 {{dbpass}}{{/dbname}}

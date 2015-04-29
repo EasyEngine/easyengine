@@ -1,3 +1,11 @@
+v 3.1.2 - April 29, 2015
+- Updated PHP version from PHP 5.5 to PHP 5.6 #425
+- Added ee stack upgrade command for stack upgrade #458
+- Added support for Proxy site creation #389
+- Added extra parameters such as User, Password and EMail during site creation #453
+- Fixed timezone related warnings and errors #451
+
+
 v 3.1.1 - April 21, 2015
 - Feature: update all site at once #491
 - Tweaked import-slow-log command #322
