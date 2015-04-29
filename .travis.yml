@@ -118,3 +118,4 @@ script:
   - sudo ee stack install --mail
   - sudo ls /var/www/
   - sudo wp --allow-root --info
+  - sudo bash -c 'cat /var/log/ee.log'
