@@ -489,6 +489,9 @@ class EESiteCreateController(CementBaseController):
                 addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
                 # Service Nginx Reload
                 EEService.reload_service(self, 'nginx')
+                if ee_auth and len(ee_auth):
+                    for msg in ee_auth:
+                        Log.info(self, Log.ENDC + msg, log=False)
                 Log.info(self, "Successfully created site"
                          " http://{0}".format(ee_domain))
                 return
