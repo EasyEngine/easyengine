@@ -28,7 +28,7 @@ class EEUpdateController(CementBaseController):
                                     "/tmp/{0}".format(filename),
                                     "update script"]])
         try:
-            Log.info(self, "updating EasyEngine, please wait ...")
+            Log.info(self, "updating EasyEngine, please wait...")
             os.system("bash /tmp/{0}".format(filename))
         except OSError as e:
             Log.debug(self, str(e))

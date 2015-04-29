@@ -27,6 +27,7 @@ import grp
 import codecs
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
+from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
 from ee.core.logging import Log
 
 
@@ -95,7 +96,7 @@ class EEStackController(CementBaseController):
                 Log.error(self, "Failed to intialize postfix package")
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for MySQL, please wait ...")
+            Log.info(self, "Adding repository for MySQL, please wait...")
             mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
                           "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
@@ -149,7 +150,7 @@ class EEStackController(CementBaseController):
                 config.write(configfile)
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for NGINX, please wait ...")
+            Log.info(self, "Adding repository for NGINX, please wait...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding Dotdeb/nginx GPG key')
                 EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
@@ -158,7 +159,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, 'Adding ppa of Nginx')
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP, please wait ...")
+            Log.info(self, "Adding repository for PHP, please wait...")
             if EEVariables.ee_platform_distro == 'debian':
                 Log.debug(self, 'Adding repo_url of php for debian')
                 EERepo.add(self, repo_url=EEVariables.ee_php_repo)
@@ -169,7 +170,7 @@ class EEStackController(CementBaseController):
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for HHVM, please wait ...")
+            Log.info(self, "Adding repository for HHVM, please wait...")
             if EEVariables.ee_platform_codename == 'precise':
                 Log.debug(self, 'Adding PPA for Boost')
                 EERepo.add(self, ppa=EEVariables.ee_boost_repo)
@@ -469,6 +470,21 @@ class EEStackController(CementBaseController):
                     Log.debug(self, 'Creating directory /var/log/php5/')
                     os.makedirs('/var/log/php5/')
 
+                # For debian install xdebug
+
+                if EEVariables.ee_platform_distro == "debian":
+                    EEShellExec.cmd_exec(self, "pecl install xdebug")
+
+                    with open("/etc/php5/mods-available/xdebug.ini",
+                              encoding='utf-8', mode='a') as myfile:
+                        myfile.write("zend_extension=/usr/lib/php5/20131226/"
+                                     "xdebug.so\n")
+
+                    EEFileUtils.create_symlink(self, ["/etc/php5/"
+                                               "mods-available/xdebug.ini",
+                                                      "/etc/php5/fpm/conf.d"
+                                                      "/20-xedbug.ini"])
+
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file /etc/php5/fpm/php.ini")
@@ -477,7 +493,7 @@ class EEStackController(CementBaseController):
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
-                config['PHP']['date.timezone'] = time.tzname[time.daylight]
+                config['PHP']['date.timezone'] = EEVariables.ee_timezone
                 with open('/etc/php5/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
@@ -529,6 +545,8 @@ class EEStackController(CementBaseController):
                 config.read('/etc/php5/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
                 config['debug']['rlimit_core'] = 'unlimited'
+                config['debug']['slowlog'] = '/var/log/php5/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
                 with open('/etc/php5/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
@@ -590,7 +608,7 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
                 EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-                
+
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
                 EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
@@ -1008,10 +1026,22 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/webgrind-master/',
                             '{0}22222/htdocs/php/webgrind'
                             .format(EEVariables.ee_webroot))
-                EEShellExec.cmd_exec(self, "sed -i \"s\'/usr/local/bin/dot\'"
-                                     "/usr/bin/dot\'\" {0}22222/htdocs/"
-                                     "php/webgrind/config.php"
-                                     .format(EEVariables.ee_webroot))
+
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "/usr/local/bin/dot", "/usr/bin/dot")
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "Europe/Copenhagen",
+                                          EEVariables.ee_timezone)
+
+                EEFileUtils.searchreplace(self, "{0}22222/htdocs/php/webgrind/"
+                                          "config.php"
+                                          .format(EEVariables.ee_webroot),
+                                          "90", "100")
+
                 Log.debug(self, "Setting Privileges of webroot permission to "
                           "{0}22222/htdocs/php/webgrind/ file "
                           .format(EEVariables.ee_webroot))
@@ -1552,9 +1582,9 @@ class EEStackController(CementBaseController):
             self.pre_pref(apt_packages)
             if len(apt_packages):
                 EESwap.add(self)
-                Log.info(self, "Updating apt-cache, please wait ...")
+                Log.info(self, "Updating apt-cache, please wait...")
                 EEAptGet.update(self)
-                Log.info(self, "Installing packages, please wait ...")
+                Log.info(self, "Installing packages, please wait...")
                 EEAptGet.install(self, apt_packages)
             if len(packages):
                 Log.debug(self, "Downloading following: {0}".format(packages))
@@ -1672,7 +1702,7 @@ class EEStackController(CementBaseController):
         if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
                 Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing packages, please wait ...")
+                Log.info(self, "Removing packages, please wait...")
                 EEAptGet.remove(self, apt_packages)
                 EEAptGet.auto_remove(self)
 
@@ -1785,7 +1815,7 @@ class EEStackController(CementBaseController):
 
         if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.info(self, "Purging packages, please wait ...")
+                Log.info(self, "Purging packages, please wait...")
                 EEAptGet.remove(self, apt_packages, purge=True)
                 EEAptGet.auto_remove(self)
 
@@ -1803,6 +1833,7 @@ def load(app):
     handler.register(EEStackController)
     handler.register(EEStackStatusController)
     handler.register(EEStackMigrateController)
+    handler.register(EEStackUpgradeController)
 
     # register a hook (function) to run after arguments are parsed.
     hook.register('post_argument_parsing', ee_stack_hook)

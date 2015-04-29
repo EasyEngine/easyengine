@@ -31,7 +31,7 @@ class EEStackMigrateController(CementBaseController):
         EEMysql.backupAll(self)
 
         # Add MariaDB repo
-        Log.info(self, "Adding repository for MariaDB, please wait ...")
+        Log.info(self, "Adding repository for MariaDB, please wait...")
 
         mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
                       "\nPin-Priority: 1000\n")
@@ -87,9 +87,9 @@ class EEStackMigrateController(CementBaseController):
             apt_packages = apt_packages + ["dovecot-mysql", "postfix-mysql",
                                            "libclass-dbi-mysql-perl"]
 
-        Log.info(self, "Updating apt-cache, please wait ...")
+        Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
-        Log.info(self, "Installing MariaDB, please wait ...")
+        Log.info(self, "Installing MariaDB, please wait...")
         EEAptGet.remove(self, ["mysql-common", "libmysqlclient18"])
         EEAptGet.auto_remove(self)
         EEAptGet.install(self, apt_packages)

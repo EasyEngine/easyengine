@@ -31,7 +31,7 @@ class SiteError(Exception):
 def pre_run_checks(self):
 
     # Check nginx configuration
-    Log.info(self, "Running pre-update checks, please wait ...")
+    Log.info(self, "Running pre-update checks, please wait...")
     try:
         Log.debug(self, "checking NGINX configuration ...")
         FNULL = open('/dev/null', 'w')
@@ -78,7 +78,7 @@ def setupdomain(self, data):
     finally:
         # Check nginx -t and return status over it
         try:
-            Log.debug(self, "Checking generated nginx conf, please wait ...")
+            Log.debug(self, "Checking generated nginx conf, please wait...")
             FNULL = open('/dev/null', 'w')
             ret = subprocess.check_call(["nginx", "-t"], stdout=FNULL,
                                         stderr=subprocess.STDOUT)
@@ -466,7 +466,7 @@ def setupwordpressnetwork(self, data):
 
 def installwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    Log.info(self, "Installing plugin {0}, please wait ..."
+    Log.info(self, "Installing plugin {0}, please wait..."
              .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
@@ -490,7 +490,7 @@ def installwp_plugin(self, plugin_name, data):
 
 def uninstallwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
-    Log.debug(self, "Uninstalling plugin {0}, please wait ..."
+    Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:

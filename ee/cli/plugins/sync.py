@@ -28,7 +28,7 @@ class EESyncController(CementBaseController):
         1. reads database information from wp/ee-config.php
         2. updates records into ee database accordingly.
         """
-        Log.info(self, "Synchronizing ee database, please wait ....")
+        Log.info(self, "Synchronizing ee database, please wait...")
         sites = getAllsites(self)
         if not sites:
             pass

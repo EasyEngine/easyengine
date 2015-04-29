@@ -12,10 +12,10 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.1.1"
+    ee_version = "3.1.2"
 
     # EasyEngine packages versions
-    ee_wp_cli = "0.18.0"
+    ee_wp_cli = "0.19.0"
     ee_adminer = "4.2.1"
     ee_roundcube = "1.1.1"
     ee_vimbadmin = "3.0.11"
@@ -27,6 +27,15 @@ class EEVariables():
     ee_platform_distro = platform.linux_distribution()[0]
     ee_platform_version = platform.linux_distribution()[1]
     ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
+
+    # Get timezone of system
+    if os.path.isfile('/etc/timezone'):
+        with open("/etc/timezone", "r") as tzfile:
+            ee_timezone = tzfile.read().replace('\n', '')
+            if ee_timezone == "Etc/UTC":
+                ee_timezone = "UTC"
+    else:
+        ee_timezone = "UTC"
 
     # Get FQDN of system
     ee_fqdn = socket.getfqdn()
@@ -77,14 +86,17 @@ class EEVariables():
 
     # PHP repo and packages
     if ee_platform_distro == 'Ubuntu':
-        ee_php_repo = "ppa:ondrej/php5"
+        ee_php_repo = "ppa:ondrej/php5-5.6"
     elif ee_platform_codename == 'wheezy':
-        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php55 all"
+        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
                        .format(codename=ee_platform_codename))
     ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
-              "php5-mcrypt", "php5-xdebug", "php5-common", "php5-readline",
+              "php5-mcrypt", "php5-common", "php5-readline",
               "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
-              "memcached", "graphviz"]
+              "memcached", "graphviz", "php-pear", "php5-dev"]
+
+    if ee_platform_distro == 'Ubuntu':
+        ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'Ubuntu':
