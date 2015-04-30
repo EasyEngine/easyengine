@@ -49,7 +49,7 @@ def hashbucket(self):
 
         else:
             with open('/etc/nginx/conf.d/ee-nginx.conf', 'a') as conf:
-                conf.write("\tserver_names_hash_bucket_size {0};\n"
+                conf.write("server_names_hash_bucket_size {0};\n"
                            .format(ngx_hash))
     else:
         EEFileUtils.searchreplace(self, '/etc/nginx/nginx.conf',
