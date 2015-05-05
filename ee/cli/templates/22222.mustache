@@ -26,6 +26,9 @@ server {
     try_files $uri $uri/ /index.php?$args;
   }
 
+  # Display menu at location /fpm/status/
+  location =  /fpm/status/ {}
+
   location ~ /fpm/status/(.*) {
     try_files $uri =404;
     include fastcgi_params;
