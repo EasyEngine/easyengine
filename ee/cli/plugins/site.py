@@ -471,6 +471,13 @@ class EESiteCreateController(CementBaseController):
 
         # Check rerequired packages are installed or not
         ee_auth = site_package_check(self, stype)
+
+        try:
+            pre_run_checks(self)
+        except SiteError as e:
+            Log.debug(self, str(e))
+            Log.error(self, "NGINX configuration check failed.")
+
         try:
             try:
                 # setup NGINX configuration, and webroot
