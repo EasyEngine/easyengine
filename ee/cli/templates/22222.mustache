@@ -27,6 +27,8 @@ server {
   location =  /fpm/status/ {}
 
   location ~ /fpm/status/(.*) {
+    include common/acl.conf;
+    try_files $uri =404;
     include fastcgi_params;
     fastcgi_param  SCRIPT_NAME  /status;
     fastcgi_pass $1;
