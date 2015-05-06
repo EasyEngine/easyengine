@@ -4,6 +4,7 @@ import apt_pkg
 import sys
 import subprocess
 from ee.core.logging import Log
+from ee.core.apt_repo import EERepo
 from sh import apt_get
 from sh import ErrorReturnCode
 
@@ -13,24 +14,45 @@ class EEAptGet():
 
     def update(self):
         """
-        Similar to `apt-get upgrade`
+        Similar to `apt-get update`
         """
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
                 proc = subprocess.Popen('apt-get update',
                                         shell=True,
-                                        stdin=None, stdout=f, stderr=f,
+                                        stdin=None, stdout=f,
+                                        stderr=subprocess.PIPE,
                                         executable="/bin/bash")
                 proc.wait()
+                output, error_output = proc.communicate()
 
-            if proc.returncode == 0:
-                return True
-            else:
-                Log.error(self, "Unable to run apt-get update")
+                # Check what is error in error_output
+                if "NO_PUBKEY" in str(error_output):
+                    # Split the output
+                    Log.info(self, "Fixing missing GPG keys, please wait...")
+                    error_list = str(error_output).split("\\n")
+
+                    # Use a loop to add misising keys
+                    for single_error in error_list:
+                        if "NO_PUBKEY" in single_error:
+                            key = single_error.rsplit(None, 1)[-1]
+                            EERepo.add_key(self, key)
+
+                    proc = subprocess.Popen('apt-get update',
+                                            shell=True,
+                                            stdin=None, stdout=f, stderr=f,
+                                            executable="/bin/bash")
+                    proc.wait()
+
+                if proc.returncode == 0:
+                    return True
+                else:
+                    Log.info(self, Log.FAIL + "Oops Something went wrong!!")
+                    Log.error(self, "Check logs for reason "
+                              "`tail /var/log/ee/ee.log` & Try Again!!!")
 
         except Exception as e:
-            Log.error(self, "Error while installing packages, "
-                      "apt-get exited with error")
+            Log.error(self, "apt-get update exited with error")
 
     def check_upgrade(self):
         """
@@ -71,7 +93,10 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.error(self, "Unable to run apt-get dist_upgrade")
+                Log.info(self, Log.FAIL + "Oops Something went "
+                         "wrong!!")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
         except Exception as e:
             Log.error(self, "Error while installing packages, "
                       "apt-get exited with error")
@@ -94,11 +119,16 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.error(self, "Unable to run apt-get install")
+                Log.info(self, Log.FAIL + "Oops Something went "
+                         "wrong!!")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
 
         except Exception as e:
-            Log.error(self, "Error while installing packages, "
-                      "apt-get exited with error")
+            Log.info(self, Log.FAIL + "Oops Something went "
+                     "wrong!!")
+            Log.error(self, "Check logs for reason "
+                      "`tail /var/log/ee/ee.log` & Try Again!!!")
 
     def remove(self, packages, auto=False, purge=False):
         all_packages = ' '.join(packages)
@@ -118,7 +148,10 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.error(self, "Unable to run apt-get remove/purge")
+                Log.info(self, Log.FAIL + "Oops Something went "
+                         "wrong!!")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
 
         except Exception as e:
             Log.error(self, "Error while installing packages, "

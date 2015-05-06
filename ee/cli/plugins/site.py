@@ -9,6 +9,7 @@ from ee.core.services import EEService
 from ee.cli.plugins.sitedb import *
 from ee.core.git import EEGit
 from subprocess import Popen
+from ee.core.nginxhashbucket import hashbucket
 import sys
 import os
 import glob
@@ -471,10 +472,20 @@ class EESiteCreateController(CementBaseController):
 
         # Check rerequired packages are installed or not
         ee_auth = site_package_check(self, stype)
+
+        try:
+            pre_run_checks(self)
+        except SiteError as e:
+            Log.debug(self, str(e))
+            Log.error(self, "NGINX configuration check failed.")
+
         try:
             try:
                 # setup NGINX configuration, and webroot
                 setupdomain(self, data)
+
+                # Fix Nginx Hashbucket size error
+                hashbucket(self)
             except SiteError as e:
                 # call cleanup actions on failure
                 Log.info(self, Log.FAIL + "Oops Something went wrong !!")

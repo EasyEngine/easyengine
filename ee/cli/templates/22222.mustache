@@ -19,21 +19,24 @@ server {
   # Turn on directory listing
   autoindex on;
 
+  # HTTP Authentication on port 22222
+  include common/acl.conf;
+
   location / {
-    include common/acl.conf;
     try_files $uri $uri/ /index.php?$args;
   }
 
+  # Display menu at location /fpm/status/
   location =  /fpm/status/ {}
 
   location ~ /fpm/status/(.*) {
+    try_files $uri =404;
     include fastcgi_params;
     fastcgi_param  SCRIPT_NAME  /status;
     fastcgi_pass $1;
   }
 
   location ~ \.php$ {
-    include common/acl.conf;
     try_files $uri =404;
     include fastcgi_params;
     fastcgi_pass php;
