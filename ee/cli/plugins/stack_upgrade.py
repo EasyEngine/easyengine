@@ -7,6 +7,7 @@ from ee.core.apt_repo import EERepo
 from ee.core.services import EEService
 from ee.core.fileutils import EEFileUtils
 from ee.core.shellexec import EEShellExec
+from ee.core.gpgkeyfix import gpgkeyfix
 import configparser
 import os
 
@@ -76,7 +77,14 @@ class EEStackUpgradeController(CementBaseController):
                                       "php55", "php56")
 
         Log.info(self, "Updating apt-cache, please wait...")
-        EEAptGet.update(self)
+        if not EEAptGet.update(self):
+            Log.info(self, "Fixing mixing GPG keys, please wait...")
+            gpgkeyfix(self)
+            if not EEAptGet.update(self):
+                Log.info(self, Log.FAIL + "Oops Something went wrong!!")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
+
         Log.info(self, "Installing packages, please wait ...")
         EEAptGet.install(self, EEVariables.ee_php)
 

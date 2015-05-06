@@ -13,7 +13,7 @@ class EEAptGet():
 
     def update(self):
         """
-        Similar to `apt-get upgrade`
+        Similar to `apt-get update`
         """
         try:
             with open('/var/log/ee/ee.log', 'a') as f:
@@ -26,7 +26,7 @@ class EEAptGet():
             if proc.returncode == 0:
                 return True
             else:
-                Log.error(self, "Unable to run apt-get update")
+                return False
 
         except Exception as e:
             Log.error(self, "Error while installing packages, "

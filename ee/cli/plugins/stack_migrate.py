@@ -7,6 +7,7 @@ from ee.core.aptget import EEAptGet
 from ee.core.shellexec import EEShellExec
 from ee.core.apt_repo import EERepo
 from ee.core.services import EEService
+from ee.core.gpgkeyfix import gpgkeyfix
 import configparser
 import os
 
@@ -88,7 +89,15 @@ class EEStackMigrateController(CementBaseController):
                                            "libclass-dbi-mysql-perl"]
 
         Log.info(self, "Updating apt-cache, please wait...")
-        EEAptGet.update(self)
+
+        if not EEAptGet.update(self):
+            Log.info(self, "Fixing mixing GPG keys, please wait...")
+            gpgkeyfix(self)
+            if not EEAptGet.update(self):
+                Log.info(self, Log.FAIL + "Oops Something went wrong!!")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
+
         Log.info(self, "Installing MariaDB, please wait...")
         EEAptGet.remove(self, ["mysql-common", "libmysqlclient18"])
         EEAptGet.auto_remove(self)
