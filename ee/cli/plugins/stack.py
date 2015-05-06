@@ -16,7 +16,6 @@ from ee.core.checkfqdn import check_fqdn
 from pynginxconfig import NginxConfig
 from ee.core.services import EEService
 from ee.core.variables import EEVariables
-from ee.core.gpgkeyfix import gpgkeyfix
 import random
 import string
 import configparser
@@ -1584,16 +1583,7 @@ class EEStackController(CementBaseController):
             if len(apt_packages):
                 EESwap.add(self)
                 Log.info(self, "Updating apt-cache, please wait...")
-
-                if not EEAptGet.update(self):
-                    Log.info(self, "Fixing mixing GPG keys, please wait...")
-                    gpgkeyfix(self)
-                    if not EEAptGet.update(self):
-                        Log.info(self, Log.FAIL + "Oops Something went "
-                                 "wrong!!")
-                        Log.error(self, "Check logs for reason "
-                                  "`tail /var/log/ee/ee.log` & Try Again!!!")
-
+                EEAptGet.update(self)
                 Log.info(self, "Installing packages, please wait...")
                 EEAptGet.install(self, apt_packages)
             if len(packages):
