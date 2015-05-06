@@ -29,6 +29,7 @@ class EEAptGet():
                 # Check what is error in error_output
                 if "NO_PUBKEY" in str(error_output):
                     # Split the output
+                    Log.info(self, "Fixing missing GPG keys, please wait...")
                     error_list = str(error_output).split("\\n")
 
                     # Use a loop to add misising keys
