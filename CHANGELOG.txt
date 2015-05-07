@@ -1,3 +1,6 @@
+v 3.1.4 - May 7, 2015
+- Fixed XSS Vulnerability found in some WordPress themes and plugins
+
 v 3.1.3 - May 6, 2015
 - EasyEngine now fixes missing GPG keys automatically, fixes #470
 - Fixed Nginx hash bucket issue, fixes #449
