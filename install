@@ -305,6 +305,14 @@ function ee_update_latest()
     if [ $? -eq 0 ]; then
         update-rc.d hhvm defaults &>> /dev/null
     fi
+
+    # Fix WordPress example.html issue
+    # Ref: http://wptavern.com/xss-vulnerability-in-jetpack-and-the-twenty-fifteen-default-theme-affects-millions-of-wordpress-users
+    dpkg --get-selections | grep -v deinstall | grep nginx &>> /dev/null
+    if [ $? -eq 0 ]; then
+        cp /usr/lib/ee/templates/locations.mustache /etc/nginx/common/locations.conf &>> /dev/null
+    fi
+
 }
 
 # Do git intialisation
