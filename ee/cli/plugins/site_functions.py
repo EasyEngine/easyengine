@@ -630,6 +630,13 @@ def site_package_check(self, stype):
                             out=ee_nginx)
             ee_nginx.close()
 
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "hhvm"):
+                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
+                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
+                                    "server 127.0.0.1:9000 backup;\n}\n")
+
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
