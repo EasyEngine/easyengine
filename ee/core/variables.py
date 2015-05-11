@@ -107,7 +107,9 @@ class EEVariables():
         ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
                          "10.0/debian {codename} main"
                          .format(codename=ee_platform_codename))
-    ee_mysql = (["mariadb-server", "percona-toolkit"])
+
+    ee_mysql = ["mariadb-server", "percona-toolkit"]
+
 
     # Postfix repo and packages
     ee_postfix_repo = ""

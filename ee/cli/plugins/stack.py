@@ -721,6 +721,9 @@ class EEStackController(CementBaseController):
                     except CommandExecutionError as e:
                         Log.error(self, "Unable to update MySQL file")
 
+                # Set MySQLTuner permission
+                EEFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
+
                 EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
 
@@ -1488,6 +1491,13 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + EEVariables.ee_mysql
+                    packages = packages + [["https://raw."
+                                            "githubusercontent.com/"
+                                            "major/MySQLTuner-perl"
+                                            "/master/mysqltuner.pl",
+                                            "/usr/bin/mysqltuner",
+                                            "MySQLTuner"]]
+
                 else:
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
@@ -1673,6 +1683,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + ['/usr/bin/mysqltuner']
         if self.app.pargs.postfix:
             Log.debug(self, "Removing apt_packages variable of Postfix")
             apt_packages = apt_packages + EEVariables.ee_postfix
@@ -1786,6 +1797,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + ['/usr/bin/mysqltuner']
         if self.app.pargs.postfix:
             Log.debug(self, "Purge apt_packages variable PostFix")
             apt_packages = apt_packages + EEVariables.ee_postfix
