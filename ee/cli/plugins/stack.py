@@ -162,7 +162,7 @@ class EEStackController(CementBaseController):
             Log.info(self, "Adding repository for PHP, please wait...")
             # Add repository for php
             if EEVariables.ee_platform_distro == 'debian':
-                if EEVariables.ee_platform_codename is not 'jessie':
+                if EEVariables.ee_platform_codename != 'jessie':
                     Log.debug(self, 'Adding repo_url of php for debian')
                     EERepo.add(self, repo_url=EEVariables.ee_php_repo)
                     Log.debug(self, 'Adding Dotdeb/php GPG key')
