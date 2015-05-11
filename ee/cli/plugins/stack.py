@@ -720,7 +720,7 @@ class EEStackController(CementBaseController):
                         Log.error(self, "Unable to update MySQL file")
 
                 # Set MySQLTuner permission
-                EEFileUtils.chmod(self, "/usr/bin/mysqltunner", 0o775)
+                EEFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
