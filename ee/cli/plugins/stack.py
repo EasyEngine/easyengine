@@ -218,7 +218,12 @@ class EEStackController(CementBaseController):
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
-                    data = dict(version=EEVariables.ee_version)
+                    if EEVariables.ee_platform_distro == 'Ubuntu':
+                        data = dict(version=EEVariables.ee_version,
+                                    Ubuntu=True)
+                    else:
+                        data = dict(version=EEVariables.ee_version,
+                                    Debian=True)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
