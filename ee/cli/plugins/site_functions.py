@@ -576,6 +576,10 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + [["https://raw.githubusercontent.com/"
+                                    "major/MySQLTuner-perl/master/"
+                                    "mysqltuner.pl", "/usr/bin/mysqltuner",
+                                    "MySQLTuner"]]
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Postfix")
