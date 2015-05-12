@@ -95,7 +95,7 @@ class EEVariables():
               "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
               "memcached", "graphviz", "php-pear", "php5-dev"]
 
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'Ubuntu' or ee_platform_codename == 'jessie':
         ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
@@ -107,7 +107,9 @@ class EEVariables():
         ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
                          "10.0/debian {codename} main"
                          .format(codename=ee_platform_codename))
+
     ee_mysql = ["mariadb-server", "percona-toolkit"]
+
 
     # Postfix repo and packages
     ee_postfix_repo = ""
