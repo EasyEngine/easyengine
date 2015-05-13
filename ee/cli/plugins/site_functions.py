@@ -566,6 +566,14 @@ def site_package_check(self, stype):
 
         if not EEAptGet.is_installed(self, check_nginx):
             apt_packages = apt_packages + EEVariables.ee_nginx
+        else:
+            # Fix for Nginx white screen death
+            if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                    'SCRIPT_FILENAME'):
+                with open('/etc/nginx/fastcgi_params', encoding='utf-8',
+                          mode='a') as ee_nginx:
+                    ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                   '\t$request_filename;')
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")

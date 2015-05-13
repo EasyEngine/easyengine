@@ -361,6 +361,17 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    # Fix whitescreen of death beacuse of missing value
+                    # fastcgi_param SCRIPT_FILENAME $request_filename; in file
+                    # /etc/nginx/fastcgi_params
+
+                    if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                            'SCRIPT_FILENAME'):
+                        with open('/etc/nginx/fastcgi_params',
+                                  encoding='utf-8', mode='a') as ee_nginx:
+                            ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                           '\t$request_filename;')
+
                     # Pagespeed configuration
                     Log.debug(self, 'Writting the Pagespeed Global '
                               'configuration to file /etc/nginx/conf.d/'
