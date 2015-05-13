@@ -221,7 +221,7 @@ class EEStackController(CementBaseController):
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
-                    if EEVariables.ee_platform_distro == 'Ubuntu':
+                    if EEVariables.ee_platform_distro == 'ubuntu':
                         data = dict(version=EEVariables.ee_version,
                                     Ubuntu=True)
                     else:
@@ -481,7 +481,7 @@ class EEStackController(CementBaseController):
                 # For debian install xdebug
 
                 if (EEVariables.ee_platform_distro == "debian" and
-                   EEVariables.ee_platform_distro == 'wheezy'):
+                   EEVariables.ee_platform_codename == 'wheezy'):
                     EEShellExec.cmd_exec(self, "pecl install xdebug")
 
                     with open("/etc/php5/mods-available/xdebug.ini",
@@ -1463,7 +1463,7 @@ class EEStackController(CementBaseController):
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
-                if EEVariables.ee_platform_distro == 'Debian':
+                if EEVariables.ee_platform_distro == 'debian':
                     check_nginx = 'nginx-extras'
                 else:
                     check_nginx = 'nginx-custom'

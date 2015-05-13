@@ -93,7 +93,7 @@ class EESecureController(CementBaseController):
                 Log.info(self, "Please Enter valid port number :")
                 port = input("EasyEngine admin port [22222]:")
             self.app.pargs.user_input = port
-        if EEVariables.ee_platform_distro == 'Ubuntu':
+        if EEVariables.ee_platform_distro == 'ubuntu':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
                                  "{port} default_server ssl spdy;/\" "
                                  "/etc/nginx/sites-available/22222"
