@@ -691,7 +691,9 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    EEService.reload_service(self, 'nginx')
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "Failed to reload Nginx, please check "
+                                        "output of `nginx -t`")
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
