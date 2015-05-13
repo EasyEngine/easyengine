@@ -370,7 +370,7 @@ class EEStackController(CementBaseController):
                         with open('/etc/nginx/fastcgi_params',
                                   encoding='utf-8', mode='a') as ee_nginx:
                             ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
-                                           '\t$request_filename;')
+                                           '\t$request_filename;\n')
 
                     # Pagespeed configuration
                     Log.debug(self, 'Writting the Pagespeed Global '

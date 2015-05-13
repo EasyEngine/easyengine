@@ -573,7 +573,7 @@ def site_package_check(self, stype):
                 with open('/etc/nginx/fastcgi_params', encoding='utf-8',
                           mode='a') as ee_nginx:
                     ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
-                                   '\t$request_filename;')
+                                   '\t$request_filename;\n')
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
