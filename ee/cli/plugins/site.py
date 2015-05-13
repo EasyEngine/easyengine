@@ -69,7 +69,9 @@ class EESiteController(CementBaseController):
                       .format(ee_domain))
             updateSiteInfo(self, ee_domain, enabled=True)
             Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-            EEService.reload_service(self, 'nginx')
+            if not EEService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
         else:
             Log.error(self, "nginx configuration file does not exist"
                       .format(ee_domain))
@@ -107,7 +109,9 @@ class EESiteController(CementBaseController):
                           .format(ee_domain))
                 updateSiteInfo(self, ee_domain, enabled=False)
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
-                EEService.reload_service(self, 'nginx')
+                if not EEService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
         else:
             Log.error(self, "nginx configuration file does not exist"
                       .format(ee_domain))
@@ -277,7 +281,9 @@ class EESiteEditController(CementBaseController):
                     EEGit.add(self, ["/etc/nginx"], msg="Edit website: {0}"
                               .format(ee_domain))
                     # Reload NGINX
-                    EEService.reload_service(self, 'nginx')
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
             else:
                 Log.error(self, "nginx configuration file does not exists"
                           .format(ee_domain))
@@ -298,7 +304,9 @@ class EESiteEditController(CementBaseController):
                               msg="Edit Pagespped config of site: {0}"
                               .format(ee_domain))
                     # Reload NGINX
-                    EEService.reload_service(self, 'nginx')
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                                  "check issues with `nginx -t` command")
             else:
                 Log.error(self, "Pagespeed configuration file does not exists"
                           .format(ee_domain))
@@ -499,7 +507,15 @@ class EESiteCreateController(CementBaseController):
             if 'proxy' in data.keys() and data['proxy']:
                 addNewSite(self, ee_domain, stype, cache, ee_site_webroot)
                 # Service Nginx Reload
-                EEService.reload_service(self, 'nginx')
+                if not EEService.reload_service(self, 'nginx'):
+                    Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                    Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                    doCleanupAction(self, domain=ee_domain)
+                    Log.debug(self, str(e))
+                    Log.error(self, "service nginx reload failed. "
+                              "check issues with `nginx -t` command")
+                    Log.error(self, "Check logs for reason "
+                              "`tail /var/log/ee/ee.log` & Try Again!!!")
                 if ee_auth and len(ee_auth):
                     for msg in ee_auth:
                         Log.info(self, Log.ENDC + msg, log=False)
@@ -588,8 +604,22 @@ class EESiteCreateController(CementBaseController):
                     Log.error(self, "Check logs for reason "
                               "`tail /var/log/ee/ee.log` & Try Again!!!")
 
-            # Service Nginx Reload
-            EEService.reload_service(self, 'nginx')
+            # Service Nginx Reload call cleanup if failed to reload nginx
+            if not EEService.reload_service(self, 'nginx'):
+                Log.info(self, Log.FAIL + "Oops Something went wrong !!")
+                Log.info(self, Log.FAIL + "Calling cleanup actions ...")
+                doCleanupAction(self, domain=ee_domain,
+                                webroot=data['webroot'])
+                if 'ee_db_name' in data.keys():
+                    doCleanupAction(self, domain=ee_domain,
+                                    dbname=data['ee_db_name'],
+                                    dbuser=data['ee_db_user'],
+                                    dbhost=data['ee_db_host'])
+                deleteSiteInfo(self, ee_domain)
+                Log.info(self, Log.FAIL + "service nginx reload failed."
+                         " check issues with `nginx -t` command.")
+                Log.error(self, "Check logs for reason "
+                          "`tail /var/log/ee/ee.log` & Try Again!!!")
 
             EEGit.add(self, ["/etc/nginx"],
                       msg="{0} created with {1} {2}"
@@ -602,10 +632,13 @@ class EESiteCreateController(CementBaseController):
                 Log.info(self, Log.FAIL + "Oops Something went wrong !!")
                 Log.info(self, Log.FAIL + "Calling cleanup actions ...")
                 doCleanupAction(self, domain=ee_domain,
-                                webroot=data['webroot'],
-                                dbname=data['ee_db_name'],
-                                dbuser=data['ee_db_user'],
-                                dbhost=data['ee_db_host'])
+                                webroot=data['webroot'])
+                if 'ee_db_name' in data.keys():
+                    print("Inside db cleanup")
+                    doCleanupAction(self, domain=ee_domain,
+                                    dbname=data['ee_db_name'],
+                                    dbuser=data['ee_db_user'],
+                                    dbhost=data['ee_db_host'])
                 deleteSiteInfo(self, ee_domain)
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -985,7 +1018,9 @@ class EESiteUpdateController(CementBaseController):
         if stype == oldsitetype and cache == oldcachetype:
 
             # Service Nginx Reload
-            EEService.reload_service(self, 'nginx')
+            if not EEService.reload_service(self, 'nginx'):
+                Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
 
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
                            hhvm=hhvm, pagespeed=pagespeed)
@@ -1090,7 +1125,9 @@ class EESiteUpdateController(CementBaseController):
                          "`tail /var/log/ee/ee.log` & Try Again!!!")
                 return 1
         # Service Nginx Reload
-        EEService.reload_service(self, 'nginx')
+        if not EEService.reload_service(self, 'nginx'):
+            Log.error(self, "service nginx reload failed. "
+                      "check issues with `nginx -t` command")
 
         EEGit.add(self, ["/etc/nginx"],
                   msg="{0} updated with {1} {2}"
