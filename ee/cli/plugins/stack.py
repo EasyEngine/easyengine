@@ -204,7 +204,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if ((not EEShellExec.cmd_exec(self, "grep EasyEngine "
+                if ((not EEShellExec.cmd_exec(self, "grep -q -Hr EasyEngine "
                    "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
                     nc = NginxConfig()
                     Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
