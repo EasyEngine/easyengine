@@ -47,13 +47,8 @@ class EERepo():
                 Log.debug(self, "{0}".format(e))
                 Log.error(self, "Unable to add repo")
         if ppa is not None:
-            if EEVariables.ee_platform_codename == 'squeeze':
-                print("Cannot add repo for {distro}"
-                      .format(distro=EEVariables.ee_platform_distro))
-            else:
-                EEShellExec.cmd_exec(self, "add-apt-repository -y "
-                                           "'{ppa_name}'"
-                                     .format(ppa_name=ppa))
+            EEShellExec.cmd_exec(self, "add-apt-repository -y '{ppa_name}'"
+                                 .format(ppa_name=ppa))
 
     def remove(self, ppa=None, repo_url=None):
         """
