@@ -21,7 +21,9 @@ client_max_body_size 100m;
 # SSL Settings
 ssl_session_cache shared:SSL:20m;
 ssl_session_timeout 10m;
+{{#Ubuntu}}
 ssl_prefer_server_ciphers on;
+{{/Ubuntu}}
 ssl_ciphers HIGH:!aNULL:!MD5:!kEDH;
 
 # Log format Settings

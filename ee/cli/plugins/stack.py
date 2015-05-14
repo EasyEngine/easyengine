@@ -102,11 +102,12 @@ class EEStackController(CementBaseController):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
-            Log.debug(self, 'Adding key for {0}'
-                      .format(EEVariables.ee_mysql_repo))
-            EERepo.add_key(self, '0xcbcb082a1bb943db',
-                           keyserver="keyserver.ubuntu.com")
+            if EEVariables.ee_platform_codename != 'jessie':
+                EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
+                Log.debug(self, 'Adding key for {0}'
+                          .format(EEVariables.ee_mysql_repo))
+                EERepo.add_key(self, '0xcbcb082a1bb943db',
+                               keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.0 "
@@ -160,11 +161,13 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP, please wait...")
+            # Add repository for php
             if EEVariables.ee_platform_distro == 'debian':
-                Log.debug(self, 'Adding repo_url of php for debian')
-                EERepo.add(self, repo_url=EEVariables.ee_php_repo)
-                Log.debug(self, 'Adding Dotdeb/php GPG key')
-                EERepo.add_key(self, '89DF5277')
+                if EEVariables.ee_platform_codename != 'jessie':
+                    Log.debug(self, 'Adding repo_url of php for debian')
+                    EERepo.add(self, repo_url=EEVariables.ee_php_repo)
+                    Log.debug(self, 'Adding Dotdeb/php GPG key')
+                    EERepo.add_key(self, '89DF5277')
             else:
                 Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
@@ -218,7 +221,12 @@ class EEStackController(CementBaseController):
                     nc.savef('/etc/nginx/nginx.conf')
 
                     # Custom Nginx configuration by EasyEngine
-                    data = dict(version=EEVariables.ee_version)
+                    if EEVariables.ee_platform_distro == 'ubuntu':
+                        data = dict(version=EEVariables.ee_version,
+                                    Ubuntu=True)
+                    else:
+                        data = dict(version=EEVariables.ee_version,
+                                    Debian=True)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/ee-nginx.conf ')
                     ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
@@ -353,6 +361,17 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    # Fix whitescreen of death beacuse of missing value
+                    # fastcgi_param SCRIPT_FILENAME $request_filename; in file
+                    # /etc/nginx/fastcgi_params
+
+                    if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                            'SCRIPT_FILENAME'):
+                        with open('/etc/nginx/fastcgi_params',
+                                  encoding='utf-8', mode='a') as ee_nginx:
+                            ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                           '\t$request_filename;\n')
+
                     # Pagespeed configuration
                     Log.debug(self, 'Writting the Pagespeed Global '
                               'configuration to file /etc/nginx/conf.d/'
@@ -472,7 +491,8 @@ class EEStackController(CementBaseController):
 
                 # For debian install xdebug
 
-                if EEVariables.ee_platform_distro == "debian":
+                if (EEVariables.ee_platform_distro == "debian" and
+                   EEVariables.ee_platform_codename == 'wheezy'):
                     EEShellExec.cmd_exec(self, "pecl install xdebug")
 
                     with open("/etc/php5/mods-available/xdebug.ini",
@@ -682,7 +702,9 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    EEService.reload_service(self, 'nginx')
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "Failed to reload Nginx, please check "
+                                        "output of `nginx -t`")
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -711,6 +733,9 @@ class EEStackController(CementBaseController):
                                              "/etc/mysql/my.cnf")
                     except CommandExecutionError as e:
                         Log.error(self, "Unable to update MySQL file")
+
+                # Set MySQLTuner permission
+                EEFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
 
                 EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
                 EEService.reload_service(self, 'mysql')
@@ -1449,7 +1474,7 @@ class EEStackController(CementBaseController):
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
-                if EEVariables.ee_platform_distro == 'Debian':
+                if EEVariables.ee_platform_distro == 'debian':
                     check_nginx = 'nginx-extras'
                 else:
                     check_nginx = 'nginx-custom'
@@ -1479,6 +1504,13 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for MySQL")
                 if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
                     apt_packages = apt_packages + EEVariables.ee_mysql
+                    packages = packages + [["https://raw."
+                                            "githubusercontent.com/"
+                                            "major/MySQLTuner-perl"
+                                            "/master/mysqltuner.pl",
+                                            "/usr/bin/mysqltuner",
+                                            "MySQLTuner"]]
+
                 else:
                     Log.debug(self, "MySQL connection is already alive")
                     Log.info(self, "MySQL connection is already alive")
@@ -1664,6 +1696,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + ['/usr/bin/mysqltuner']
         if self.app.pargs.postfix:
             Log.debug(self, "Removing apt_packages variable of Postfix")
             apt_packages = apt_packages + EEVariables.ee_postfix
@@ -1777,6 +1810,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + ['/usr/bin/mysqltuner']
         if self.app.pargs.postfix:
             Log.debug(self, "Purge apt_packages variable PostFix")
             apt_packages = apt_packages + EEVariables.ee_postfix

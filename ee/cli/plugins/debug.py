@@ -454,21 +454,27 @@ class EEDebugController(CementBaseController):
         """Handle Ctrl+c hevent for -i option of debug"""
         self.start = False
         if self.app.pargs.nginx:
+            self.app.pargs.nginx = 'off'
             self.debug_nginx()
         if self.app.pargs.php:
+            self.app.pargs.php = 'off'
             self.debug_php()
         if self.app.pargs.fpm:
+            self.app.pargs.fpm = 'off'
             self.debug_fpm()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
+                self.app.pargs.mysql = 'off'
                 self.debug_mysql()
             else:
                 Log.warn(self, "Remote MySQL found, EasyEngine will not "
                          "enable remote debug")
         if self.app.pargs.wp:
+            self.app.pargs.wp = 'off'
             self.debug_wp()
         if self.app.pargs.rewrite:
+            self.app.pargs.rewrite = 'off'
             self.debug_rewrite()
 
         # Reload Nginx

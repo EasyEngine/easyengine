@@ -48,7 +48,7 @@ class EEStackUpgradeController(CementBaseController):
 
     @expose(hide=True)
     def upgrade_php56(self):
-        if EEVariables.ee_platform_distro == "Ubuntu":
+        if EEVariables.ee_platform_distro == "ubuntu":
             if os.path.isfile("/etc/apt/sources.list.d/ondrej-php5-5_6-{0}."
                               "list".format(EEVariables.ee_platform_codename)):
                 Log.error(self, "Unable to find PHP 5.5")
@@ -67,7 +67,7 @@ class EEStackUpgradeController(CementBaseController):
             if start_upgrade != "Y" and start_upgrade != "y":
                 Log.error(self, "Not starting PHP package update")
 
-        if EEVariables.ee_platform_distro == "Ubuntu":
+        if EEVariables.ee_platform_distro == "ubuntu":
             EERepo.remove(self, ppa="ppa:ondrej/php5")
             EERepo.add(self, ppa=EEVariables.ee_php_repo)
         else:
