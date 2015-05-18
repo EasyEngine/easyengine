@@ -12,10 +12,10 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.1.4"
+    ee_version = "3.1.5"
 
     # EasyEngine packages versions
-    ee_wp_cli = "0.19.0"
+    ee_wp_cli = "0.19.1"
     ee_adminer = "4.2.1"
     ee_roundcube = "1.1.1"
     ee_vimbadmin = "3.0.11"
@@ -24,7 +24,7 @@ class EEVariables():
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
 
     # EasyEngine core variables
-    ee_platform_distro = platform.linux_distribution()[0]
+    ee_platform_distro = platform.linux_distribution()[0].lower()
     ee_platform_version = platform.linux_distribution()[1]
     ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
 
@@ -76,7 +76,7 @@ class EEVariables():
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'ubuntu':
         ee_nginx_repo = "ppa:rtcamp/nginx"
         ee_nginx = ["nginx-custom", "nginx-common"]
     elif ee_platform_distro == 'debian':
@@ -85,7 +85,7 @@ class EEVariables():
         ee_nginx = ["nginx-extras", "nginx-common"]
 
     # PHP repo and packages
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'ubuntu':
         ee_php_repo = "ppa:ondrej/php5-5.6"
     elif ee_platform_codename == 'wheezy':
         ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
@@ -95,11 +95,11 @@ class EEVariables():
               "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
               "memcached", "graphviz", "php-pear", "php5-dev"]
 
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
         ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'ubuntu':
         ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
                          "10.0/ubuntu {codename} main"
                          .format(codename=ee_platform_codename))
@@ -107,7 +107,8 @@ class EEVariables():
         ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
                          "10.0/debian {codename} main"
                          .format(codename=ee_platform_codename))
-    ee_mysql = ["mariadb-server", "mysqltuner", "percona-toolkit"]
+
+    ee_mysql = ["mariadb-server", "percona-toolkit"]
 
     # Postfix repo and packages
     ee_postfix_repo = ""
@@ -130,7 +131,7 @@ class EEVariables():
 
     # HHVM repo details
     # 12.04 requires boot repository
-    if ee_platform_distro == 'Ubuntu':
+    if ee_platform_distro == 'ubuntu':
         if ee_platform_codename == "precise":
             ee_boost_repo = ("ppa:mapnik/boost")
 

@@ -566,6 +566,14 @@ def site_package_check(self, stype):
 
         if not EEAptGet.is_installed(self, check_nginx):
             apt_packages = apt_packages + EEVariables.ee_nginx
+        else:
+            # Fix for Nginx white screen death
+            if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                    'SCRIPT_FILENAME'):
+                with open('/etc/nginx/fastcgi_params', encoding='utf-8',
+                          mode='a') as ee_nginx:
+                    ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                   '\t$request_filename;\n')
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
@@ -576,6 +584,10 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for MySQL")
         if not EEShellExec.cmd_exec(self, "mysqladmin ping"):
             apt_packages = apt_packages + EEVariables.ee_mysql
+            packages = packages + [["https://raw.githubusercontent.com/"
+                                    "major/MySQLTuner-perl/master/"
+                                    "mysqltuner.pl", "/usr/bin/mysqltuner",
+                                    "MySQLTuner"]]
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Postfix")
@@ -629,6 +641,13 @@ def site_package_check(self, stype):
             self.app.render((data), 'wpsc-hhvm.mustache',
                             out=ee_nginx)
             ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "hhvm"):
+                with open("/etc/nginx/conf.d/upstream.conf", "a") as hhvm_file:
+                    hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
+                                    "server 127.0.0.1:9000 backup;\n}\n")
 
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config

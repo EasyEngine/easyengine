@@ -1,3 +1,8 @@
+v 3.1.5 - May 14, 2015
+- Fixed Debain 7 stack issues. see #538 #539 #540 #435 #546
+- Updated MySQLTuner see #484
+- Minor fixes and improvements.
+
 v 3.1.4 - May 7, 2015
 - Fixed XSS Vulnerability found in some WordPress themes and plugins
 
