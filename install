@@ -63,7 +63,7 @@ if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; the
 fi
 
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
-lsb_release -d | egrep -e "12.04|14.04|wheezy" &>> /dev/null
+lsb_release -d | egrep -e "12.04|14.04|wheezy|jessie" &>> /dev/null
 if [ "$?" -ne "0" ]; then
     ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x"
     exit 100
