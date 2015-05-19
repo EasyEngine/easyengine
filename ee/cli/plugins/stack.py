@@ -623,7 +623,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user, recursive=True)
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
-                EEService.reload_service(self, 'php5-fpm')
+                EEService.restart_service(self, 'php5-fpm')
 
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
