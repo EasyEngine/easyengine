@@ -483,6 +483,87 @@ class EEStackController(CementBaseController):
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
+            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+
+                EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
+
+                EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
+                                                "9000", "8000")
+                EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
+                                                "9000", "8000")
+
+                with open("/etc/hhvm/php.ini", "a") as hhvm_file:
+                    hhvm_file.write("hhvm.log.header = true\n"
+                                    "hhvm.log.natives_stack_trace = true\n"
+                                    "hhvm.mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.pdo_mysql.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n"
+                                    "hhvm.mysqli.socket = "
+                                    "/var/run/mysqld/mysqld.sock\n")
+
+                if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "fastcgi.conf",
+                                            "fastcgi_keep_conn"):
+                        with open("/etc/nginx/conf.d/fastcgi.conf",
+                                  "a") as hhvm_file:
+                            hhvm_file.write("fastcgi_keep_conn on;\n")
+
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
+                                            "hhvm"):
+                        with open("/etc/nginx/conf.d/upstream.conf",
+                                  "a") as hhvm_file:
+                            hhvm_file.write("upstream hhvm {\nserver "
+                                            "127.0.0.1:8000;\n"
+                                            "server 127.0.0.1:9000 backup;\n}"
+                                            "\n")
+
+                EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
+                EEService.restart_service(self, 'hhvm')
+
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/php-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'php-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "Failed to reload Nginx, please check "
+                                        "output of `nginx -t`")
+
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
@@ -624,87 +705,6 @@ class EEStackController(CementBaseController):
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.restart_service(self, 'php5-fpm')
-
-            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-
-                EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
-
-                EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
-                                                "9000", "8000")
-                EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
-                                                "9000", "8000")
-
-                with open("/etc/hhvm/php.ini", "a") as hhvm_file:
-                    hhvm_file.write("hhvm.log.header = true\n"
-                                    "hhvm.log.natives_stack_trace = true\n"
-                                    "hhvm.mysql.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n"
-                                    "hhvm.pdo_mysql.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n"
-                                    "hhvm.mysqli.socket = "
-                                    "/var/run/mysqld/mysqld.sock\n")
-
-                if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
-                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "fastcgi.conf",
-                                            "fastcgi_keep_conn"):
-                        with open("/etc/nginx/conf.d/fastcgi.conf",
-                                  "a") as hhvm_file:
-                            hhvm_file.write("fastcgi_keep_conn on;\n")
-
-                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
-                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
-                                            "upstream.conf",
-                                            "hhvm"):
-                        with open("/etc/nginx/conf.d/upstream.conf",
-                                  "a") as hhvm_file:
-                            hhvm_file.write("upstream hhvm {\nserver "
-                                            "127.0.0.1:8000;\n"
-                                            "server 127.0.0.1:9000 backup;\n}"
-                                            "\n")
-
-                EEGit.add(self, ["/etc/hhvm"], msg="Adding HHVM into Git")
-                EEService.restart_service(self, 'hhvm')
-
-                if os.path.isfile("/etc/nginx/nginx.conf") and (not
-                   os.path.isfile("/etc/nginx/common/php-hhvm.conf")):
-
-                    data = dict()
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/w3tc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'w3tc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    if not EEService.reload_service(self, 'nginx'):
-                        Log.error(self, "Failed to reload Nginx, please check "
-                                        "output of `nginx -t`")
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
