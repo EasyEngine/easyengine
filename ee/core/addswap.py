@@ -38,7 +38,7 @@ class EESwap():
                                               "CONF_MAXSWAP=1024")
                     EEFileUtils.searchreplace(self,  "/etc/dphys-swapfile",
                                               "#CONF_SWAPSIZE=",
-                                              "CONF_SWAPSIZE==1024")
+                                              "CONF_SWAPSIZE=1024")
                 else:
                     with open("/etc/dphys-swapfile", 'w') as conffile:
                         conffile.write("CONF_SWAPFILE=/ee-swapfile\n"
