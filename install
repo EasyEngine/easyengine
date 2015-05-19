@@ -313,6 +313,13 @@ function ee_update_latest()
         cp /usr/lib/ee/templates/locations.mustache /etc/nginx/common/locations.conf &>> /dev/null
     fi
 
+    # Fix HHVM upstream issue that was preventing from using EasyEngine for site operations
+    if [ -f /etc/nginx/conf.d/upstream.conf ]; then
+        grep -Hr hhvm /etc/nginx/conf.d/upstream.conf &>> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "upstream hhvm {\n# HHVM Pool\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n" >> /etc/nginx/conf.d/upstream.conf
+        fi
+    fi
 }
 
 # Do git intialisation
