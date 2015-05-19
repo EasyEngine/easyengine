@@ -1,3 +1,8 @@
+v 3.1.6 - May 19, 2015
+- Added Debian 8 support, see #524
+- EasyEngine now uses dphys-swapfile for swap creation, see #359
+- Minor bug fixes and improvements.
+
 v 3.1.5 - May 14, 2015
 - Fixed Debain 7 stack issues. see #538 #539 #540 #435 #546
 - Updated MySQLTuner see #484

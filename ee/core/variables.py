@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.1.5"
+    ee_version = "3.1.6"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.19.1"
@@ -93,7 +93,10 @@ class EEVariables():
     ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
               "php5-mcrypt", "php5-common", "php5-readline",
               "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
-              "memcached", "graphviz", "php-pear", "php5-dev"]
+              "memcached", "graphviz", "php-pear"]
+
+    if ee_platform_codename == 'wheezy':
+        ee_php = ee_php + ["php5-dev"]
 
     if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
         ee_php = ee_php + ["php5-xdebug"]

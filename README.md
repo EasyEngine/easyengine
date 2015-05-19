@@ -28,7 +28,7 @@ Update procedure for EasyEngine to latest version
 wget -qO ee rt.cx/ee && sudo bash ee
 
 ```
-#### If Current version is after than 3.0.6
+#### If current version is after than 3.0.6
 ```
 ee update
 ```
@@ -69,6 +69,18 @@ ee site create example.com --php      # create example.com with php support
 ee site create example.com --mysql    # create example.com with php & mysql support
 ```
 
+### HHVM Enabled Sites
+```bash
+ee site create example.com --wp --hhvm           # create example.com WordPress site with HHVM support
+ee site create example.com --php --hhvm          # create example.com php site with HHVM support
+```
+
+### PageSpeed Enabled Sites
+```bash
+ee site create example.com --wp --pagespeed      # create example.com WordPress site with PageSpeed support
+ee site create example.com --php --pagespeed     # create example.com php site with PageSpeed support
+```
+
 ## Cheatsheet - Site creation
 
 
@@ -84,6 +96,7 @@ ee site create example.com --mysql    # create example.com with php & mysql supp
 - [Documentation] (http://docs.rtcamp.com/easyengine/)
 - [FAQ] (http://docs.rtcamp.com/easyengine/faq.html)
 - [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
+- [EasyEngine Premium Support] (https://rtcamp.com/products/easyengine-premium-support/)
 
 ## Donations
 
