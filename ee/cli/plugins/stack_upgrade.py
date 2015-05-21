@@ -165,7 +165,7 @@ class EEStackUpgradeController(CementBaseController):
                 if EEAptGet.is_installed(self, 'mariadb-server'):
                     apt_packages = apt_packages + EEVariables.ee_mysql
                 else:
-                    Log.info(self, "MySQL is not installed")
+                    Log.info(self, "MariaDB is not installed")
 
             if self.app.pargs.postfix:
                 if EEAptGet.is_installed(self, 'postfix'):
@@ -187,6 +187,31 @@ class EEStackUpgradeController(CementBaseController):
                 Log.info(self, "Updating packages, please wait...")
                 EEAptGet.install(self, apt_packages)
                 Log.info(self, "Successfully updated packages")
+
+            # Post Actions after package updates
+            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+                # Fix whitescreen of death beacuse of missing value
+                # fastcgi_param SCRIPT_FILENAME $request_filename; in file
+                # /etc/nginx/fastcgi_params
+                if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                        'SCRIPT_FILENAME'):
+                    with open('/etc/nginx/fastcgi_params',
+                              encoding='utf-8', mode='a') as ee_nginx:
+                        ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                       '\t$request_filename;\n')
+
+                EEService.restart_service(self, 'nginx')
+
+            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                EEService.restart_service(self, 'php')
+            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+                EEService.restart_service(self, 'hhvm')
+            if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
+                EEService.restart_service(self, 'postfix')
+            if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
+                EEService.restart_service(self, 'hhvm')
+            if set(EEVariables.ee_mail).issubset(set(apt_packages)):
+                EEService.restart_service(self, 'dovecot')
 
         # PHP 5.6 to 5.6
         elif (self.app.pargs.php56):

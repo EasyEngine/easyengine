@@ -320,6 +320,14 @@ function ee_update_latest()
             echo -e "upstream hhvm {\n# HHVM Pool\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n" >> /etc/nginx/conf.d/upstream.conf
         fi
     fi
+
+    # Fix white screen of death as SCRIPT_FILENAME is not defined into /etc/nginx/fastcgi_params
+    if [ -f /etc/nginx/fastcgi_params ]; then
+        grep -Hr SCRIPT_FILENAME /etc/nginx/fastcgi_params &>> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "fastcgi_param \tSCRIPT_FILENAME \t\$request_filename;\n" >> /etc/nginx/fastcgi_params
+        fi
+    fi
 }
 
 # Do git intialisation
