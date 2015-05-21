@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.1.6"
+readonly ee_version_new="3.1.7"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -58,14 +58,14 @@ readonly ee_debian_version=$(lsb_release -sc)
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
     ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
     ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
     exit 100
 fi
 
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
 lsb_release -d | egrep -e "12.04|14.04|wheezy|jessie" &>> /dev/null
 if [ "$?" -ne "0" ]; then
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
     exit 100
 fi
 
@@ -320,6 +320,14 @@ function ee_update_latest()
             echo -e "upstream hhvm {\n# HHVM Pool\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n" >> /etc/nginx/conf.d/upstream.conf
         fi
     fi
+
+    # Fix white screen of death as SCRIPT_FILENAME is not defined into /etc/nginx/fastcgi_params
+    if [ -f /etc/nginx/fastcgi_params ]; then
+        grep -Hr SCRIPT_FILENAME /etc/nginx/fastcgi_params &>> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "fastcgi_param \tSCRIPT_FILENAME \t\$request_filename;\n" >> /etc/nginx/fastcgi_params
+        fi
+    fi
 }
 
 # Do git intialisation
@@ -381,9 +389,11 @@ else
             ee_git_init | tee -ai $ee_install_log
             service nginx reload &>> /dev/null
             service php5-fpm restart &>> /dev/null
+        else
+            ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
         fi
     else
-        ee_lib_echo_fail "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
+        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
     fi
 fi
 ee sync | tee -ai $EE_INSTALL_LOG
@@ -393,5 +403,5 @@ ee_lib_echo "For EasyEngine (ee) auto completion, run the following command"
 echo
 ee_lib_echo_info "source /etc/bash_completion.d/ee_auto.rc"
 echo
-ee_lib_echo "EasyEngine (ee) installed successfully"
+ee_lib_echo "EasyEngine (ee) installed/updated successfully"
 ee_lib_echo "EasyEngine (ee) help: http://docs.rtcamp.com/easyengine/"

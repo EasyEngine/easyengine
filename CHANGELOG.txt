@@ -1,3 +1,7 @@
+v 3.1.7 - May 21, 2015
+- Fixed site blank issue after nginx stack upgrade on Debian
+- Improved update script
+
 v 3.1.6 - May 19, 2015
 - Added Debian 8 support, see #524
 - EasyEngine now uses dphys-swapfile for swap creation, see #359
