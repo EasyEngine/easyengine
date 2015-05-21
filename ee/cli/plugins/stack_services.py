@@ -3,6 +3,7 @@ from cement.core import handler, hook
 from ee.core.services import EEService
 from ee.core.logging import Log
 from ee.core.variables import EEVariables
+from ee.core.aptget import EEAptGet
 
 
 class EEStackStatusController(CementBaseController):
