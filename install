@@ -390,10 +390,10 @@ else
             service nginx reload &>> /dev/null
             service php5-fpm restart &>> /dev/null
         else
-            ee_lib_echo_error "Not updating EasyEngine to $ee_version_new" 1
+            ee_lib_error "Not updating EasyEngine to $ee_version_new" 1
         fi
     else
-        ee_lib_echo_error "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
+        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
     fi
 fi
 ee sync | tee -ai $EE_INSTALL_LOG
