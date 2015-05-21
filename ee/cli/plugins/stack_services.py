@@ -23,14 +23,15 @@ class EEStackStatusController(CementBaseController):
     def start(self):
         """Start services"""
         services = []
-        if not (self.app.pargs.nginx and self.app.pargs.php
-                and self.app.pargs.mysql and self.app.pargs.postfix
-                and self.app.pargs.hhvm and self.app.pargs.memcache
-                and self.app.pargs.dovecot):
+        if not (self.app.pargs.nginx or self.app.pargs.php
+                or self.app.pargs.mysql or self.app.pargs.postfix
+                or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.dovecot):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEVariables.ee_platform_distro == 'debian':
@@ -86,14 +87,15 @@ class EEStackStatusController(CementBaseController):
     def stop(self):
         """Stop services"""
         services = []
-        if not (self.app.pargs.nginx and self.app.pargs.php
-                and self.app.pargs.mysql and self.app.pargs.postfix
-                and self.app.pargs.hhvm and self.app.pargs.memcache
-                and self.app.pargs.dovecot):
+        if not (self.app.pargs.nginx or self.app.pargs.php
+                or self.app.pargs.mysql or self.app.pargs.postfix
+                or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.dovecot):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEVariables.ee_platform_distro == 'debian':
@@ -149,14 +151,15 @@ class EEStackStatusController(CementBaseController):
     def restart(self):
         """Restart services"""
         services = []
-        if not (self.app.pargs.nginx and self.app.pargs.php
-                and self.app.pargs.mysql and self.app.pargs.postfix
-                and self.app.pargs.hhvm and self.app.pargs.memcache
-                and self.app.pargs.dovecot):
+        if not (self.app.pargs.nginx or self.app.pargs.php
+                or self.app.pargs.mysql or self.app.pargs.postfix
+                or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.dovecot):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEVariables.ee_platform_distro == 'debian':
@@ -212,14 +215,15 @@ class EEStackStatusController(CementBaseController):
     def status(self):
         """Status of services"""
         services = []
-        if not (self.app.pargs.nginx and self.app.pargs.php
-                and self.app.pargs.mysql and self.app.pargs.postfix
-                and self.app.pargs.hhvm and self.app.pargs.memcache
-                and self.app.pargs.dovecot):
+        if not (self.app.pargs.nginx or self.app.pargs.php
+                or self.app.pargs.mysql or self.app.pargs.postfix
+                or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.dovecot):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
+            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEVariables.ee_platform_distro == 'debian':
@@ -275,10 +279,10 @@ class EEStackStatusController(CementBaseController):
     def reload(self):
         """Reload service"""
         services = []
-        if not (self.app.pargs.nginx and self.app.pargs.php
-                and self.app.pargs.mysql and self.app.pargs.postfix
-                and self.app.pargs.hhvm and self.app.pargs.memcache
-                and self.app.pargs.dovecot):
+        if not (self.app.pargs.nginx or self.app.pargs.php
+                or self.app.pargs.mysql or self.app.pargs.postfix
+                or self.app.pargs.hhvm or self.app.pargs.memcache
+                or self.app.pargs.dovecot):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
