@@ -389,6 +389,8 @@ else
             ee_git_init | tee -ai $ee_install_log
             service nginx reload &>> /dev/null
             service php5-fpm restart &>> /dev/null
+        else
+            ee_lib_echo_fail "Not updating EasyEngine to $ee_version_new" 1
         fi
     else
         ee_lib_echo_fail "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
@@ -401,5 +403,5 @@ ee_lib_echo "For EasyEngine (ee) auto completion, run the following command"
 echo
 ee_lib_echo_info "source /etc/bash_completion.d/ee_auto.rc"
 echo
-ee_lib_echo "EasyEngine (ee) installed successfully"
+ee_lib_echo "EasyEngine (ee) installed/updated successfully"
 ee_lib_echo "EasyEngine (ee) help: http://docs.rtcamp.com/easyengine/"
