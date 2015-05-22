@@ -203,7 +203,7 @@ class EEStackUpgradeController(CementBaseController):
                 EEService.restart_service(self, 'nginx')
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'php')
+                EEService.restart_service(self, 'php5-fpm')
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
                 EEService.restart_service(self, 'hhvm')
             if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
