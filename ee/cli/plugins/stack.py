@@ -25,6 +25,7 @@ import os
 import pwd
 import grp
 import codecs
+import platform
 from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
 from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
@@ -1494,6 +1495,8 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.hhvm:
                 Log.debug(self, "Setting apt packages variable for HHVM")
+                if platform.architecture()[0] is '32bit':
+                    Log.error(self, "HHVM is not supported by 32bit system")
                 if not EEAptGet.is_installed(self, 'hhvm'):
                     apt_packages = apt_packages + EEVariables.ee_hhvm
                 else:
