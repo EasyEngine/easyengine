@@ -115,7 +115,10 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "PHP5-FPM is not installed")
 
         if self.app.pargs.mysql:
-            if EEVariables.ee_mysql_host is "localhost":
+            if (EEVariables.ee_mysql_host is "localhost" and
+                (EEAptGet.is_installed(self, 'mysql-server') or
+                 EEAptGet.is_installed(self, 'percona-server-server-5.6') or
+                 EEAptGet.is_installed(self, 'mariadb-server'))):
                 services = services + ['mysql']
             else:
                 Log.warn(self, "Remote MySQL found,"
@@ -179,7 +182,10 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "PHP5-FPM is not installed")
 
         if self.app.pargs.mysql:
-            if EEVariables.ee_mysql_host is "localhost":
+            if (EEVariables.ee_mysql_host is "localhost" and
+                (EEAptGet.is_installed(self, 'mysql-server') or
+                 EEAptGet.is_installed(self, 'percona-server-server-5.6') or
+                 EEAptGet.is_installed(self, 'mariadb-server'))):
                 services = services + ['mysql']
             else:
                 Log.warn(self, "Remote MySQL found,"
@@ -243,7 +249,10 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "PHP5-FPM is not installed")
 
         if self.app.pargs.mysql:
-            if EEVariables.ee_mysql_host is "localhost":
+            if (EEVariables.ee_mysql_host is "localhost" and
+                (EEAptGet.is_installed(self, 'mysql-server') or
+                 EEAptGet.is_installed(self, 'percona-server-server-5.6') or
+                 EEAptGet.is_installed(self, 'mariadb-server'))):
                 services = services + ['mysql']
             else:
                 Log.warn(self, "Remote MySQL found,"
@@ -306,7 +315,10 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "PHP5-FPM is not installed")
 
         if self.app.pargs.mysql:
-            if EEVariables.ee_mysql_host is "localhost":
+            if (EEVariables.ee_mysql_host is "localhost" and
+                (EEAptGet.is_installed(self, 'mysql-server') or
+                 EEAptGet.is_installed(self, 'percona-server-server-5.6') or
+                 EEAptGet.is_installed(self, 'mariadb-server'))):
                 services = services + ['mysql']
             else:
                 Log.warn(self, "Remote MySQL found,"
