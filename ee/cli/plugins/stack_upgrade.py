@@ -200,6 +200,19 @@ class EEStackUpgradeController(CementBaseController):
                         ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                        '\t$request_filename;\n')
 
+                # Fix "ssl_prefer_server_ciphers" directive is duplicate
+                # that is arrived in latest Debian update
+                if EEVariables.ee_platform_distro == 'ubuntu':
+                    data = dict(version=EEVariables.ee_version, Ubuntu=True)
+                else:
+                    data = dict(version=EEVariables.ee_version, Debian=True)
+                Log.debug(self, 'Writting the nginx configuration to '
+                                'file /etc/nginx/conf.d/ee-nginx.conf ')
+                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
+                ee_nginx.close()
+
                 EEService.restart_service(self, 'nginx')
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
