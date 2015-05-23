@@ -17,6 +17,7 @@ import sys
 import getpass
 import glob
 import re
+import platform
 
 
 class SiteError(Exception):
@@ -604,6 +605,8 @@ def site_package_check(self, stype):
                                     "/usr/bin/wp", "WP-CLI"]]
 
     if self.app.pargs.hhvm:
+        if platform.architecture()[0] is '32bit':
+            Log.error(self, "HHVM is not supported by 32bit system")
         Log.debug(self, "Setting apt_packages variable for HHVM")
         if not EEAptGet.is_installed(self, 'hhvm'):
             apt_packages = apt_packages + EEVariables.ee_hhvm

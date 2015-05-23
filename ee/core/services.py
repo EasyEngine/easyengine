@@ -18,9 +18,14 @@ class EEService():
             Similar to `service xyz start`
         """
         try:
+            if service_name in ['nginx', 'php5-fpm']:
+                service_cmd = ('{0} -t && service {0} start'
+                               .format(service_name))
+            else:
+                service_cmd = ('service {0} start'.format(service_name))
+
             Log.info(self, "Start : {0:10}" .format(service_name), end='')
-            retcode = subprocess.getstatusoutput('service {0} start'
-                                                 .format(service_name))
+            retcode = subprocess.getstatusoutput(service_cmd)
             if retcode[0] == 0:
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                 return True
@@ -60,9 +65,14 @@ class EEService():
             Similar to `service xyz restart`
         """
         try:
+            if service_name in ['nginx', 'php5-fpm']:
+                service_cmd = ('{0} -t && service {0} restart'
+                               .format(service_name))
+            else:
+                service_cmd = ('service {0} restart'.format(service_name))
+
             Log.info(self, "Restart : {0:10}".format(service_name), end='')
-            retcode = subprocess.getstatusoutput('service {0} restart'
-                                                 .format(service_name))
+            retcode = subprocess.getstatusoutput(service_cmd)
             if retcode[0] == 0:
                 Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                 return True
@@ -82,26 +92,13 @@ class EEService():
         """
         try:
             if service_name in ['nginx', 'php5-fpm']:
-                Log.info(self, "Reload : {0:10}".format(service_name),
-                         end='')
-                retcode = subprocess.getstatusoutput('{0} -t &&'
-                                                     ' service {0} reload'
-                                                     .format(service_name))
-                if retcode[0] == 0:
-                    # print(retcode[0])
-                    # subprocess.getstatusoutput('service {0} reload'
-                    #                            .format(service_name))
-                    Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE +
-                             "]")
-                    return True
-                else:
-                    Log.debug(self, "{0}".format(retcode[1]))
-                    Log.info(self, "[" + Log.FAIL + "Failed" +
-                             Log.OKBLUE+"]")
-                    return False
+                service_cmd = ('{0} -t && service {0} reload'
+                               .format(service_name))
+            else:
+                service_cmd = ('service {0} reload'.format(service_name))
+
             Log.info(self, "Reload : {0:10}".format(service_name), end='')
-            retcode = subprocess.getstatusoutput('service {0} reload'
-                                                 .format(service_name))
+            retcode = subprocess.getstatusoutput(service_cmd)
             if retcode[0] == 0:
                     Log.info(self, "[" + Log.ENDC + "OK" + Log.OKBLUE + "]")
                     return True
