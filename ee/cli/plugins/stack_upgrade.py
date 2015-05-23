@@ -7,6 +7,7 @@ from ee.core.apt_repo import EERepo
 from ee.core.services import EEService
 from ee.core.fileutils import EEFileUtils
 from ee.core.shellexec import EEShellExec
+from ee.core.git import EEGit
 import configparser
 import os
 
@@ -212,6 +213,8 @@ class EEStackUpgradeController(CementBaseController):
                                 encoding='utf-8', mode='w')
                 self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
                 ee_nginx.close()
+
+                EEGit.add(self, ["/etc/nginx"], msg="Updated Nginx")
 
                 EEService.restart_service(self, 'nginx')
 
