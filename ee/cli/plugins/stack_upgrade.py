@@ -7,6 +7,7 @@ from ee.core.apt_repo import EERepo
 from ee.core.services import EEService
 from ee.core.fileutils import EEFileUtils
 from ee.core.shellexec import EEShellExec
+from ee.core.git import EEGit
 import configparser
 import os
 
@@ -199,6 +200,21 @@ class EEStackUpgradeController(CementBaseController):
                               encoding='utf-8', mode='a') as ee_nginx:
                         ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                        '\t$request_filename;\n')
+
+                # Fix "ssl_prefer_server_ciphers" directive is duplicate
+                # that is arrived in latest Debian update
+                if EEVariables.ee_platform_distro == 'ubuntu':
+                    data = dict(version=EEVariables.ee_version, Ubuntu=True)
+                else:
+                    data = dict(version=EEVariables.ee_version, Debian=True)
+                Log.debug(self, 'Writting the nginx configuration to '
+                                'file /etc/nginx/conf.d/ee-nginx.conf ')
+                ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
+                                encoding='utf-8', mode='w')
+                self.app.render((data), 'nginx-core.mustache', out=ee_nginx)
+                ee_nginx.close()
+
+                EEGit.add(self, ["/etc/nginx"], msg="Updated Nginx")
 
                 EEService.restart_service(self, 'nginx')
 

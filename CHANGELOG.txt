@@ -1,3 +1,6 @@
+v 3.1.9 - May 23, 2015
+- Fixed "ssl_prefer_server_ciphers" directive is duplicate after ee stack upgrade on Debian #552
+
 v 3.1.8 - May 22, 2015
 - Fixed PHP Failed to Restart after Upgrade #550
 - Improved ee stack services command
