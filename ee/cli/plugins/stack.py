@@ -202,8 +202,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if ((not EEShellExec.cmd_exec(self, "grep -q -Hr EasyEngine "
-                   "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
+                if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
