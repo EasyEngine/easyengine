@@ -48,15 +48,10 @@ class EEInfoController(CementBaseController):
         worker_processes = nc.get('worker_processes')[1]
         worker_connections = nc.get([('events',), 'worker_connections'])[1]
         keepalive_timeout = nc.get([('http',), 'keepalive_timeout'])[1]
-        if os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf'):
-            nc.loadf('/etc/nginx/conf.d/ee-nginx.conf')
-            fastcgi_read_timeout = nc.get('fastcgi_read_timeout')[1]
-            client_max_body_size = nc.get('client_max_body_size')[1]
-        else:
-            fastcgi_read_timeout = nc.get([('http',),
-                                          'fastcgi_read_timeout'])[1]
-            client_max_body_size = nc.get([('http',),
-                                          'client_max_body_size'])[1]
+        fastcgi_read_timeout = nc.get([('http',),
+                                       'fastcgi_read_timeout'])[1]
+        client_max_body_size = nc.get([('http',),
+                                       'client_max_body_size'])[1]
         data = dict(version=version, allow=allow, user=user,
                     worker_processes=worker_processes,
                     keepalive_timeout=keepalive_timeout,

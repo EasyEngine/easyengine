@@ -153,12 +153,9 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for NGINX, please wait...")
-            if EEVariables.ee_platform_distro == 'debian':
-                Log.debug(self, 'Adding Dotdeb/nginx GPG key')
-                EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
-            else:
-                EERepo.add(self, ppa=EEVariables.ee_nginx_repo)
-                Log.debug(self, 'Adding ppa of Nginx')
+            EERepo.add(self, repo_url=EEVariables.ee_nginx_repo)
+            Log.debug(self, 'Adding ppa of Nginx')
+            EERepo.add_key(self, EEVariables.ee_nginx_key)
 
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP, please wait...")
@@ -207,35 +204,6 @@ class EEStackController(CementBaseController):
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if ((not EEShellExec.cmd_exec(self, "grep -q -Hr EasyEngine "
                    "/etc/nginx")) and os.path.isfile('/etc/nginx/nginx.conf')):
-                    nc = NginxConfig()
-                    Log.debug(self, 'Loading file /etc/nginx/nginx.conf ')
-                    nc.loadf('/etc/nginx/nginx.conf')
-                    nc.set('worker_processes', 'auto')
-                    nc.append(('worker_rlimit_nofile', '100000'), position=2)
-                    nc.remove(('events', ''))
-                    nc.append({'name': 'events', 'param': '', 'value':
-                              [('worker_connections', '4096'),
-                               ('multi_accept', 'on')]}, position=4)
-                    nc.set([('http',), 'keepalive_timeout'], '30')
-                    Log.debug(self, "Writting nginx configuration to "
-                              "file /etc/nginx/nginx.conf ")
-                    nc.savef('/etc/nginx/nginx.conf')
-
-                    # Custom Nginx configuration by EasyEngine
-                    if EEVariables.ee_platform_distro == 'ubuntu':
-                        data = dict(version=EEVariables.ee_version,
-                                    Ubuntu=True)
-                    else:
-                        data = dict(version=EEVariables.ee_version,
-                                    Debian=True)
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/ee-nginx.conf ')
-                    ee_nginx = open('/etc/nginx/conf.d/ee-nginx.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'nginx-core.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')

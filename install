@@ -283,9 +283,7 @@ function ee_update()
 function ee_update_latest()
 {
     ee_lib_echo "Updating Nginx configuration, please wait..."
-    if [ -f /etc/nginx/ee-nginx.conf ]; then
-        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
-    elif [ -f /etc/nginx/nginx.conf ]; then
+    if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
