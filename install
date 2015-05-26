@@ -323,6 +323,7 @@ function ee_update_latest()
                 mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params &>> /dev/null
             apt-get update
             apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
         fi
@@ -338,6 +339,7 @@ function ee_update_latest()
                 mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params &>> /dev/null
             apt-get update
             apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
         fi
