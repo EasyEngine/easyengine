@@ -52,7 +52,7 @@ readonly ee_version_new="3.1.9"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
-readonly ee_debian_version=$(lsb_release -sc)
+readonly ee_distro_version=$(lsb_release -sc)
 
 # Checking linux distro
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
@@ -282,6 +282,23 @@ function ee_update()
 
 function ee_update_latest()
 {
+    # From version 3.1.10 we are using Suse builder for repository
+    if [ "$ee_distro_version" == "precise" ]; then
+        if [ -f /etc/apt/sources.list.drtcamp-nginx-precise.list ]; then
+            rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
+            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            apt-get remove nginx-custom &>> /dev/null
+            if [ -f /etc/nginx/ee-nginx.conf ]; then
+                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            apt-get update &>> /dev/null
+            apt-get install nginx-custom &>> /dev/null
+        fi
+    fi
+
     ee_lib_echo "Updating Nginx configuration, please wait..."
     if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
