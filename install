@@ -289,16 +289,28 @@ function ee_update_latest()
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            apt-get remove nginx-custom &>> /dev/null
             if [ -f /etc/nginx/ee-nginx.conf ]; then
                 mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update &>> /dev/null
-            apt-get install nginx-custom &>> /dev/null
+            apt-get -o Dpkg::Options::="--force-confmiss"-y install nginx-custom &>> /dev/null
         fi
     fi
-
+    if [ "$ee_distro_version" == "trusty" ]; then
+        if [ -f /etc/apt/sources.list.drtcamp-nginx-trusty.list ]; then
+            rm -rf /etc/apt/sources.list.d/rtcamp-trusty-precise.list
+            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            if [ -f /etc/nginx/ee-nginx.conf ]; then
+                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            apt-get update &>> /dev/null
+            apt-get -o Dpkg::Options::="--force-confmiss"-y install nginx-custom &>> /dev/null
+        fi
+    fi
     ee_lib_echo "Updating Nginx configuration, please wait..."
     if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
