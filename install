@@ -282,9 +282,10 @@ function ee_update()
 
 function ee_update_latest()
 {
+    ee_lib_echo "Updating Nginx configuration, please wait..."
     # From version 3.1.10 we are using Suse builder for repository
     if [ "$ee_distro_version" == "precise" ]; then
-        if [ -f /etc/apt/sources.list.drtcamp-nginx-precise.list ]; then
+        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-precise.list ]; then
             rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
@@ -298,7 +299,7 @@ function ee_update_latest()
         fi
     fi
     if [ "$ee_distro_version" == "trusty" ]; then
-        if [ -f /etc/apt/sources.list.drtcamp-nginx-trusty.list ]; then
+        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
             rm -rf /etc/apt/sources.list.d/rtcamp-trusty-precise.list
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
@@ -311,7 +312,6 @@ function ee_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss"-y install nginx-custom &>> /dev/null
         fi
     fi
-    ee_lib_echo "Updating Nginx configuration, please wait..."
     if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
