@@ -140,12 +140,7 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Mail server is not installed")
 
             if self.app.pargs.nginx:
-                if EEVariables.ee_platform_distro == 'debian':
-                    check_nginx = 'nginx-extras'
-                else:
-                    check_nginx = 'nginx-custom'
-
-                if EEAptGet.is_installed(self, check_nginx):
+                if EEAptGet.is_installed(self, 'nginx-custom'):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
                     Log.info(self, "Nginx is not already installed")

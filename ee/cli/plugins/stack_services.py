@@ -34,12 +34,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEVariables.ee_platform_distro == 'debian':
-                check_nginx = 'nginx-extras'
-            else:
-                check_nginx = 'nginx-custom'
-
-            if EEAptGet.is_installed(self, check_nginx):
+            if EEAptGet.is_installed(self, 'nginx-custom'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -105,12 +100,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEVariables.ee_platform_distro == 'debian':
-                check_nginx = 'nginx-extras'
-            else:
-                check_nginx = 'nginx-custom'
-
-            if EEAptGet.is_installed(self, check_nginx):
+            if EEAptGet.is_installed(self, 'nginx-custom'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -176,12 +166,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEVariables.ee_platform_distro == 'debian':
-                check_nginx = 'nginx-extras'
-            else:
-                check_nginx = 'nginx-custom'
-
-            if EEAptGet.is_installed(self, check_nginx):
+            if EEAptGet.is_installed(self, 'nginx-custom'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -247,12 +232,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEVariables.ee_platform_distro == 'debian':
-                check_nginx = 'nginx-extras'
-            else:
-                check_nginx = 'nginx-custom'
-
-            if EEAptGet.is_installed(self, check_nginx):
+            if EEAptGet.is_installed(self, 'nginx-custom'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -317,12 +297,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEVariables.ee_platform_distro == 'debian':
-                check_nginx = 'nginx-extras'
-            else:
-                check_nginx = 'nginx-custom'
-
-            if EEAptGet.is_installed(self, check_nginx):
+            if EEAptGet.is_installed(self, 'nginx-custom'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
