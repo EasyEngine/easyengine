@@ -295,10 +295,9 @@ function ee_update_latest()
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
-    fi
-    if [ "$ee_distro_version" == "trusty" ]; then
+    elif [ "$ee_distro_version" == "trusty" ]; then
         if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
             rm -rf /etc/apt/sources.list.d/rtcamp-trusty-precise.list
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
@@ -309,10 +308,9 @@ function ee_update_latest()
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
-    fi
-    if [ "$ee_distro_version" == "wheezy" ]; then
+    elif [ "$ee_distro_version" == "wheezy" ]; then
         grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -eq 0 ]]; then
             sed -i "/deb http://packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
@@ -325,10 +323,9 @@ function ee_update_latest()
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
-    fi
-    if [ "$ee_distro_version" == "jessie" ]; then
+    elif [ "$ee_distro_version" == "jessie" ]; then
         grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -eq 0 ]]; then
             sed -i "/deb http://packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
@@ -341,7 +338,7 @@ function ee_update_latest()
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -y install nginx-custom
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     fi
 
