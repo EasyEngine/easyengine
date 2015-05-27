@@ -249,10 +249,6 @@ function ee_update()
     # Preserve old configuration
     ee_lib_echo "Updating EasyEngine configuration, please wait..."
 
-    if [ -f /etc/nginx/nginx.conf ]; then
-        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
-    fi
-
     ee_grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }' | head -1 )
     ee_db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     ee_db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
@@ -430,6 +426,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_install | tee -ai $ee_install_log
     ee_update | tee -ai $ee_install_log
+    ee_update_latest | tee -ai $ee_install_log
     ee_git_init | tee -ai $ee_install_log
 elif [ ! -f /usr/local/bin/ee ]; then
     ee_install_dep | tee -ai $ee_install_log
