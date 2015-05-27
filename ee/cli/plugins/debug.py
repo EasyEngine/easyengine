@@ -84,6 +84,11 @@ class EEDebugController(CementBaseController):
                                  .split())
             except Exception as e:
                 debug_address = ['0.0.0.0/0']
+
+            # Check if IP address is 127.0.0.1 then enable debug globally
+            if debug_address == ['127.0.0.1']:
+                debug_address = ['0.0.0.0/0']
+
             for ip_addr in debug_address:
                 if not ("debug_connection "+ip_addr in open('/etc/nginx/'
                    'nginx.conf', encoding='utf-8').read()):

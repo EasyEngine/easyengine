@@ -203,6 +203,11 @@ class EEStackController(CementBaseController):
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
+                    # Change EasyEngine Version in nginx.conf file
+                    EEFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
+                                              "\"EasyEngine\"",
+                                              "\"EasyEngine {0}\""
+                                              .format(EEVariables.ee_version))
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/blockips.conf')
