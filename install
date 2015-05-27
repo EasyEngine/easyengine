@@ -267,7 +267,6 @@ function ee_update()
     sed -i "s/password.*/password = ${ee_wp_password}/" /etc/ee/ee.conf && \
     sed -i "s/email.*/email = ${ee_wp_email}/" /etc/ee/ee.conf || ee_lib_error "Unable to update configuration, exit status " $?
 
-
     # Remove old EasyEngine
     ee_lib_echo "Removing EasyEngine 2.x"
     rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
@@ -378,13 +377,6 @@ function ee_update_latest()
         fi
     fi
 
-    # Fix white screen of death as SCRIPT_FILENAME is not defined into /etc/nginx/fastcgi_params
-    if [ -f /etc/nginx/fastcgi_params ]; then
-        grep -Hr SCRIPT_FILENAME /etc/nginx/fastcgi_params &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "fastcgi_param \tSCRIPT_FILENAME \t\$request_filename;\n" >> /etc/nginx/fastcgi_params
-        fi
-    fi
 }
 
 # Do git intialisation
