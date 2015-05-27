@@ -328,8 +328,8 @@ function ee_update_latest()
     elif [ "$ee_distro_version" == "jessie" ]; then
         grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -eq 0 ]]; then
-            sed -i "/deb http://packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
-            echo -e "deb http:\/\/download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
