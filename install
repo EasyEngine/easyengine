@@ -290,8 +290,8 @@ function ee_update_latest()
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/ee-nginx.conf ]; then
-                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
@@ -303,8 +303,8 @@ function ee_update_latest()
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/ee-nginx.conf ]; then
-                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
@@ -316,13 +316,13 @@ function ee_update_latest()
             if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
                 rm -rf /etc/apt/sources.list.d/dotdeb-wheezy.list
             else
-                sed -i "/deb http://packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+                sed -i "/deb http:\/\/packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
             fi
             echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/ee-nginx.conf ]; then
-                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
@@ -333,11 +333,11 @@ function ee_update_latest()
         grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -eq 0 ]]; then
             sed -i "/deb http://packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
-            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            echo -e "deb http:\/\/download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
-            if [ -f /etc/nginx/ee-nginx.conf ]; then
-                mv /etc/nginx/ee-nginx.conf /etc/nginx/ee-nginx.conf.old &>> /dev/null
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
