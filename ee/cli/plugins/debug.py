@@ -86,7 +86,7 @@ class EEDebugController(CementBaseController):
                 debug_address = ['0.0.0.0/0']
 
             # Check if IP address is 127.0.0.1 then enable debug globally
-            if debug_address == ['127.0.0.1']:
+            if debug_address == ['127.0.0.1'] or debug_address == []:
                 debug_address = ['0.0.0.0/0']
 
             for ip_addr in debug_address:
