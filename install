@@ -343,7 +343,7 @@ function ee_update_latest()
     fi
 
     if [ -f /etc/nginx/nginx.conf ]; then
-        sed -i "s/.*X-Powered-By.*/\tX-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
+        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
     # Disable Xdebug on old systems if and only if ee debug is off
