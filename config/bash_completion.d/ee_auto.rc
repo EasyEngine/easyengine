@@ -11,7 +11,7 @@ _ee_complete()
     # SETUP THE BASE LEVEL (everything after "ee")
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $(compgen \
-                      -W "stack site debug clean secure import-slow-log log update sync" \
+                      -W "stack site debug clean secure import-slow-log log update sync info" \
                       -- $cur) )
 
 
