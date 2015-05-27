@@ -396,7 +396,7 @@ function ee_git_init()
         if [ ! -d /etc/nginx/.git ]; then
             git init &>> /dev/null
         fi
-        git add .
+        git add -A .
         git commit -am "Updated Nginx" > /dev/null
     fi
     # EasyEngine under git version control
@@ -404,7 +404,7 @@ function ee_git_init()
     if [ ! -d /etc/ee/.git ]; then
         git init > /dev/null
     fi
-    git add .
+    git add -A .
     git commit -am "Installed/Updated to EasyEngine 3.x" &>> /dev/null
 
 }
