@@ -36,21 +36,6 @@ def hashbucket(self):
             else:
                 print(line, end='')
 
-    elif os.path.isfile('/etc/nginx/conf.d/ee-nginx.conf'):
-        if EEFileUtils.grep(self, "/etc/nginx/conf.d/ee-nginx.conf",
-                            "server_names_hash_bucket_size"):
-            for line in fileinput.FileInput("/etc/nginx/conf.d/ee-nginx.conf",
-                                            inplace=1):
-                if "server_names_hash_bucket_size" in line:
-                    print("server_names_hash_bucket_size {0};"
-                          .format(ngx_hash))
-                else:
-                    print(line, end='')
-
-        else:
-            with open('/etc/nginx/conf.d/ee-nginx.conf', 'a') as conf:
-                conf.write("server_names_hash_bucket_size {0};\n"
-                           .format(ngx_hash))
     else:
         EEFileUtils.searchreplace(self, '/etc/nginx/nginx.conf',
                                   "gzip_disable \"msie6\";",

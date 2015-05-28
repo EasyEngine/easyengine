@@ -84,6 +84,11 @@ class EEDebugController(CementBaseController):
                                  .split())
             except Exception as e:
                 debug_address = ['0.0.0.0/0']
+
+            # Check if IP address is 127.0.0.1 then enable debug globally
+            if debug_address == ['127.0.0.1'] or debug_address == []:
+                debug_address = ['0.0.0.0/0']
+
             for ip_addr in debug_address:
                 if not ("debug_connection "+ip_addr in open('/etc/nginx/'
                    'nginx.conf', encoding='utf-8').read()):
@@ -226,7 +231,7 @@ class EEDebugController(CementBaseController):
     def debug_fpm(self):
         """Start/Stop PHP5-FPM debug"""
         # PHP5-FPM start global debug
-        if (self.app.pargs.php == 'on'and not self.app.pargs.site_name):
+        if (self.app.pargs.fpm == 'on' and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                               "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
@@ -247,7 +252,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/php5/fpm.log']
 
         # PHP5-FPM stop global debug
-        elif (self.app.pargs.php == 'on' and not self.app.pargs.site_name):
+        elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php5/fpm/php-fpm.conf"):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
