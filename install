@@ -443,7 +443,7 @@ else
             ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
         fi
     else
-        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
+        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " 1
     fi
 fi
 ee sync | tee -ai $EE_INSTALL_LOG
