@@ -205,8 +205,8 @@ class EEStackController(CementBaseController):
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
                     # Change EasyEngine Version in nginx.conf file
                     EEFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
-                                              "\"# add_header\"",
-                                              "\"add_header\"")
+                                              "# add_header",
+                                              "add_header")
 
                     EEFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
                                               "\"EasyEngine\"",
