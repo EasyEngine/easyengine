@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.2.1"
+readonly ee_version_new="3.2.0"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -294,7 +294,7 @@ function ee_update_latest()
         fi
     elif [ "$ee_distro_version" == "trusty" ]; then
         if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
-            rm -rf /etc/apt/sources.list.d/rtcamp-trusty-precise.list
+            rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
             gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
@@ -443,7 +443,7 @@ else
             ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
         fi
     else
-        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " $? | tee -ai $ee_install_log
+        ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " 1
     fi
 fi
 ee sync | tee -ai $EE_INSTALL_LOG
