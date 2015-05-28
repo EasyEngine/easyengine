@@ -1,6 +1,3 @@
-v 3.2.1 - May 28, 2015
-- Fixed ee update branch issue
-
 v 3.2.0 - May 28, 2015
 - Now using openSuse builder to build Nginx package for both Ubuntu and Debian
 - Minor fixes and improvements
