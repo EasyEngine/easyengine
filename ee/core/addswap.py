@@ -18,7 +18,7 @@ class EESwap():
         """Swap addition with EasyEngine"""
         if EEVariables.ee_ram < 512:
             if EEVariables.ee_swap < 1000:
-                Log.info(self, "Adding SWAP")
+                Log.info(self, "Adding SWAP file, please wait...")
 
                 # Install dphys-swapfile
                 EEAptGet.update(self)

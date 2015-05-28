@@ -48,11 +48,11 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.1.9"
+readonly ee_version_new="3.2.0"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
-readonly ee_debian_version=$(lsb_release -sc)
+readonly ee_distro_version=$(lsb_release -sc)
 
 # Checking linux distro
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
@@ -249,10 +249,6 @@ function ee_update()
     # Preserve old configuration
     ee_lib_echo "Updating EasyEngine configuration, please wait..."
 
-    if [ -f /etc/nginx/nginx.conf ]; then
-        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
-    fi
-
     ee_grant_host=$(grep grant-host /etc/easyengine/ee.conf | awk '{ print $3 }' | head -1 )
     ee_db_name=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
     ee_db_user=$(grep db-name /etc/easyengine/ee.conf | awk '{ print $3 }')
@@ -271,7 +267,6 @@ function ee_update()
     sed -i "s/password.*/password = ${ee_wp_password}/" /etc/ee/ee.conf && \
     sed -i "s/email.*/email = ${ee_wp_email}/" /etc/ee/ee.conf || ee_lib_error "Unable to update configuration, exit status " $?
 
-
     # Remove old EasyEngine
     ee_lib_echo "Removing EasyEngine 2.x"
     rm -rf /etc/bash_completion.d/ee /etc/easyengine/ /usr/share/easyengine/ /usr/local/lib/easyengine /usr/local/sbin/easyengine /usr/local/sbin/ee /var/log/easyengine
@@ -283,10 +278,71 @@ function ee_update()
 function ee_update_latest()
 {
     ee_lib_echo "Updating Nginx configuration, please wait..."
-    if [ -f /etc/nginx/ee-nginx.conf ]; then
-        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
-    elif [ -f /etc/nginx/nginx.conf ]; then
-        sed -i "s/X-Powered-By.*/X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
+    # From version 3.1.10 we are using Suse builder for repository
+    if [ "$ee_distro_version" == "precise" ]; then
+        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-precise.list ]; then
+            rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
+            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            apt-get update
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+        fi
+    elif [ "$ee_distro_version" == "trusty" ]; then
+        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
+            rm -rf /etc/apt/sources.list.d/rtcamp-trusty-precise.list
+            echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            apt-get update
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+        fi
+    elif [ "$ee_distro_version" == "wheezy" ]; then
+        grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+        if [ $? -eq 0 ] || [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
+            if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
+                rm -rf /etc/apt/sources.list.d/dotdeb-wheezy.list
+            else
+                sed -i "/deb http:\/\/packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+            fi
+            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
+            apt-get update
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+        fi
+    elif [ "$ee_distro_version" == "jessie" ]; then
+        grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+        if [[ $? -eq 0 ]]; then
+            sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+            echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
+            if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
+                mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
+            fi
+            mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
+            mv /etc/nginx/fastcgi_params /etc/nginx/fastcgi_params.old &>> /dev/null
+            apt-get update
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+        fi
+    fi
+
+    if [ -f /etc/nginx/nginx.conf ]; then
+        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
     # Disable Xdebug on old systems if and only if ee debug is off
@@ -321,13 +377,6 @@ function ee_update_latest()
         fi
     fi
 
-    # Fix white screen of death as SCRIPT_FILENAME is not defined into /etc/nginx/fastcgi_params
-    if [ -f /etc/nginx/fastcgi_params ]; then
-        grep -Hr SCRIPT_FILENAME /etc/nginx/fastcgi_params &>> /dev/null
-        if [ $? -ne 0 ]; then
-            echo -e "fastcgi_param \tSCRIPT_FILENAME \t\$request_filename;\n" >> /etc/nginx/fastcgi_params
-        fi
-    fi
 }
 
 # Do git intialisation
@@ -339,7 +388,7 @@ function ee_git_init()
         if [ ! -d /etc/nginx/.git ]; then
             git init &>> /dev/null
         fi
-        git add .
+        git add -A .
         git commit -am "Updated Nginx" > /dev/null
     fi
     # EasyEngine under git version control
@@ -347,7 +396,7 @@ function ee_git_init()
     if [ ! -d /etc/ee/.git ]; then
         git init > /dev/null
     fi
-    git add .
+    git add -A .
     git commit -am "Installed/Updated to EasyEngine 3.x" &>> /dev/null
 
 }
@@ -369,6 +418,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_install | tee -ai $ee_install_log
     ee_update | tee -ai $ee_install_log
+    ee_update_latest | tee -ai $ee_install_log
     ee_git_init | tee -ai $ee_install_log
 elif [ ! -f /usr/local/bin/ee ]; then
     ee_install_dep | tee -ai $ee_install_log

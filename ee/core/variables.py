@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.1.9"
+    ee_version = "3.2.0"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.19.1"
@@ -76,13 +76,21 @@ class EEVariables():
 
     # EasyEngine stack installation varibales
     # Nginx repo and packages
-    if ee_platform_distro == 'ubuntu':
-        ee_nginx_repo = "ppa:rtcamp/nginx"
-        ee_nginx = ["nginx-custom", "nginx-common"]
-    elif ee_platform_distro == 'debian':
-        ee_nginx_repo = ("deb http://packages.dotdeb.org {codename} all"
-                         .format(codename=ee_platform_codename))
-        ee_nginx = ["nginx-extras", "nginx-common"]
+    if ee_platform_codename == 'precise':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/rtCamp:/EasyEngine/xUbuntu_12.04/ /")
+    elif ee_platform_codename == 'trusty':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
+    elif ee_platform_codename == 'wheezy':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/rtCamp:/EasyEngine/Debian_7.0/ /")
+    elif ee_platform_codename == 'jessie':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+
+    ee_nginx = ["nginx-custom", "nginx-common"]
+    ee_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
     if ee_platform_distro == 'ubuntu':
