@@ -227,9 +227,10 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000")
+                    data = dict(php="9000", debug="9001", hhvm="8000",
+                                hhvmconf=False)
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/upstream.conf ')
+                              'file /etc/nginx/conf.d/upstream.conf')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'upstream.mustache', out=ee_nginx)
@@ -255,38 +256,6 @@ class EEStackController(CementBaseController):
                     ee_nginx = open('/etc/nginx/common/locations.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'locations.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/w3tc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'w3tc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-hhvm.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
@@ -337,17 +306,6 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'wpsubdir.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
-
-                    # Fix whitescreen of death beacuse of missing value
-                    # fastcgi_param SCRIPT_FILENAME $request_filename; in file
-                    # /etc/nginx/fastcgi_params
-
-                    if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
-                                            'SCRIPT_FILENAME'):
-                        with open('/etc/nginx/fastcgi_params',
-                                  encoding='utf-8', mode='a') as ee_nginx:
-                            ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
-                                           '\t$request_filename;\n')
 
                     # Pagespeed configuration
                     Log.debug(self, 'Writting the Pagespeed Global '

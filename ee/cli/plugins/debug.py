@@ -171,8 +171,15 @@ class EEDebugController(CementBaseController):
                                                "{/,/}/p \" /etc/nginx/"
                                                "conf.d/upstream.conf "
                                                "| grep 9001")):
+
                 Log.info(self, "Enabling PHP debug")
-                data = dict(php="9001", debug="9001", hhvm="9001")
+                # Check HHVM is installed if not instlled then dont not enable
+                # it in upstream config
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
+                    hhvmconf=True
+                else:
+                    hhvmconf=False
+                data = dict(php="9001", debug="9001", hhvm="9001", hhvmconf)
                 Log.debug(self, 'Writting the Nginx debug configration to file'
                                 ' /etc/nginx/conf.d/upstream.conf ')
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -209,6 +216,15 @@ class EEDebugController(CementBaseController):
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9001"):
                 Log.info(self, "Disabling PHP debug")
+
+                # Check HHVM is installed if not instlled then dont not enable
+                # it in upstream config
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
+                    hhvmconf=True
+                else:
+                    hhvmconf=False
+                data = dict(php="9001", debug="9001", hhvm="9001", hhvmconf)
+
                 data = dict(php="9000", debug="9001", hhvm="8000")
                 Log.debug(self, 'Writting the Nginx debug configration to file'
                           ' /etc/nginx/conf.d/upstream.conf ')
