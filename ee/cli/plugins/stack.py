@@ -1406,7 +1406,6 @@ class EEStackController(CementBaseController):
                 self.app.pargs.mysql = True
                 self.app.pargs.wpcli = True
                 self.app.pargs.postfix = True
-                self.app.pargs.hhvm = True
 
             if self.app.pargs.admin:
                 self.app.pargs.nginx = True
@@ -1630,7 +1629,6 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
-            self.app.pargs.hhvm = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
@@ -1749,7 +1747,6 @@ class EEStackController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
