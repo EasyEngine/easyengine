@@ -461,15 +461,48 @@ class EESiteCreateController(CementBaseController):
             Log.error(self, "Can not create HTML site with HHVM")
 
         if data and self.app.pargs.hhvm:
-            data['hhvm'] = True
-            hhvm = 1
+            if (not self.app.pargs.experimental):
+                Log.info(self, "HHVM is experimental feature and it may not"
+                         "work with all plugins all your site.\nYou can "
+                         "disable it by passing --hhvm=off later.\nDo you wish"
+                         " to enable HHVM now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info("Not using HHVM for site.")
+                    data['hhvm'] = False
+                    hhvm = 0
+                else:
+                    data['hhvm'] = True
+                    hhvm = 1
+            else:
+                data['hhvm'] = True
+                hhvm = 1
+
         elif data:
             data['hhvm'] = False
             hhvm = 0
 
         if data and self.app.pargs.pagespeed:
-            data['pagespeed'] = True
-            pagespeed = 1
+            if (not self.app.pargs.experimental):
+                Log.info(self, "PageSpeed is experimental feature and it may not"
+                         "work with all CSS/JS/Cache of your site.\nYou can "
+                         "disable it by passing --pagespeed=off later.\nDo you wish"
+                         " to enable PageSpeed now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info("Not using PageSpeed for site.")
+                    data['pagespeed'] = False
+                    pagespeed = 0
+                else:
+                    data['pagespeed'] = True
+                    pagespeed = 1
+            else:
+                data['pagespeed'] = True
+                pagespeed = 1
         elif data:
             data['pagespeed'] = False
             pagespeed = 0
@@ -966,6 +999,46 @@ class EESiteUpdateController(CementBaseController):
                 pagespeed = False
 
         if pargs.pagespeed or pargs.hhvm:
+            if pargs.hhvm:
+                if (not self.app.pargs.experimental):
+                    Log.info(self, "HHVM is experimental feature and it may not"
+                             "work with all plugins all your site.\nYou can "
+                             "disable it by passing --hhvm=off later.\nDo you wish"
+                             " to enable HHVM now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info("Not using HHVM for site.")
+                        data['hhvm'] = False
+                        hhvm = False
+                    else:
+                        data['hhvm'] = True
+                        hhvm = True
+                else:
+                    data['hhvm'] = True
+                    hhvm = True
+
+            if pargs.pagespeed:
+                if (not self.app.pargs.experimental):
+                    Log.info(self, "PageSpeed is experimental feature and it may not"
+                             "work with all CSS/JS/Cache of your site.\nYou can "
+                             "disable it by passing --pagespeed=off later.\nDo you wish"
+                             " to enable PageSpeed now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info("Not using PageSpeed for site.")
+                        data['pagespeed'] = False
+                        pagespeed = False
+                    else:
+                        data['pagespeed'] = True
+                        pagespeed = True
+                else:
+                    data['pagespeed'] = True
+                    pagespeed = False
+
             if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
                (stype == oldsitetype and cache == oldcachetype)):
                 return 1
