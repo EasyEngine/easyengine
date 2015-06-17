@@ -179,7 +179,8 @@ class EEDebugController(CementBaseController):
                     hhvmconf=True
                 else:
                     hhvmconf=False
-                data = dict(php="9001", debug="9001", hhvm="9001", hhvmconf)
+                data = dict(php="9001", debug="9001", hhvm="9001",
+                            hhvmconf=hhvmconf)
                 Log.debug(self, 'Writting the Nginx debug configration to file'
                                 ' /etc/nginx/conf.d/upstream.conf ')
                 ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -223,7 +224,8 @@ class EEDebugController(CementBaseController):
                     hhvmconf=True
                 else:
                     hhvmconf=False
-                data = dict(php="9001", debug="9001", hhvm="9001", hhvmconf)
+                data = dict(php="9001", debug="9001", hhvm="9001",
+                            hhvmconf=hhvmcof)
 
                 data = dict(php="9000", debug="9001", hhvm="8000")
                 Log.debug(self, 'Writting the Nginx debug configration to file'

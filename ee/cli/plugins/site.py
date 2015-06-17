@@ -359,7 +359,9 @@ class EESiteCreateController(CementBaseController):
                 dict(help="provide password for wordpress user",
                      dest='wppass')),
             (['--proxy'],
-                dict(help="create proxy for site", nargs='+'))
+                dict(help="create proxy for site", nargs='+')),
+            (['--experimental'],
+                dict(help="Enable Experimenal packages without prompt")),
             ]
 
     @expose(hide=True)
@@ -470,7 +472,7 @@ class EESiteCreateController(CementBaseController):
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info("Not using HHVM for site.")
+                    Log.info(self, "Not using HHVM for site.")
                     data['hhvm'] = False
                     hhvm = 0
                 else:
@@ -494,7 +496,7 @@ class EESiteCreateController(CementBaseController):
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info("Not using PageSpeed for site.")
+                    Log.info(self, "Not using PageSpeed for site.")
                     data['pagespeed'] = False
                     pagespeed = 0
                 else:
@@ -737,7 +739,9 @@ class EESiteUpdateController(CementBaseController):
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--proxy'],
-                dict(help="update to prxy site", nargs='+')),
+                dict(help="update to proxy site", nargs='+')),
+            (['--experimental'],
+                dict(help="Enable Experimenal packages without prompt")),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             ]
@@ -1000,16 +1004,16 @@ class EESiteUpdateController(CementBaseController):
 
         if pargs.pagespeed or pargs.hhvm:
             if pargs.hhvm:
-                if (not self.app.pargs.experimental):
+                if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
-                             "work with all plugins all your site.\nYou can "
+                             " work with all plugins all your site.\nYou can "
                              "disable it by passing --hhvm=off later.\nDo you wish"
                              " to enable HHVM now for {0}?".format(ee_domain))
 
                     # Check prompt
                     check_prompt = input("Type \"y\" to continue [n]")
                     if check_prompt != "Y" and check_prompt != "y":
-                        Log.info("Not using HHVM for site.")
+                        Log.info(self, "Not using HHVM for site.")
                         data['hhvm'] = False
                         hhvm = False
                     else:
@@ -1020,7 +1024,7 @@ class EESiteUpdateController(CementBaseController):
                     hhvm = True
 
             if pargs.pagespeed:
-                if (not self.app.pargs.experimental):
+                if (not pargs.experimental):
                     Log.info(self, "PageSpeed is experimental feature and it may not"
                              "work with all CSS/JS/Cache of your site.\nYou can "
                              "disable it by passing --pagespeed=off later.\nDo you wish"
