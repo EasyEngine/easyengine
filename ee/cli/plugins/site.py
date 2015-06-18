@@ -475,6 +475,7 @@ class EESiteCreateController(CementBaseController):
                     Log.info(self, "Not using HHVM for site.")
                     data['hhvm'] = False
                     hhvm = 0
+                    self.app.pargs.hhvm = False
                 else:
                     data['hhvm'] = True
                     hhvm = 1
@@ -499,6 +500,7 @@ class EESiteCreateController(CementBaseController):
                     Log.info(self, "Not using PageSpeed for site.")
                     data['pagespeed'] = False
                     pagespeed = 0
+                    self.app.pargs.pagespeed = False
                 else:
                     data['pagespeed'] = True
                     pagespeed = 1
@@ -509,8 +511,8 @@ class EESiteCreateController(CementBaseController):
             data['pagespeed'] = False
             pagespeed = 0
 
-        # if not data:
         #     self.app.args.print_help()
+        # if not data:
         #     self.app.close(1)
 
         # Check rerequired packages are installed or not
