@@ -72,6 +72,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
+            (['--pagespeed'],
+                dict(help='Install Pagespeed', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
@@ -307,16 +309,6 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
-                    # Pagespeed configuration
-                    Log.debug(self, 'Writting the Pagespeed Global '
-                              'configuration to file /etc/nginx/conf.d/'
-                              'pagespeed.conf')
-                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'pagespeed-global.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
@@ -417,6 +409,21 @@ class EEStackController(CementBaseController):
                     EEService.reload_service(self, 'nginx')
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
+
+            # Set up pagespeed config
+            if self.app.pargs.pagespeed:
+                if (os.path.isfile('/etc/nginx/nginx.conf') and
+                    (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+                    # Pagespeed configuration
+                    data = dict()
+                    Log.debug(self, 'Writting the Pagespeed Global '
+                              'configuration to file /etc/nginx/conf.d/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-global.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
 
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
@@ -1347,7 +1354,7 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
-               and
+               and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
@@ -1404,6 +1411,12 @@ class EEStackController(CementBaseController):
                                  " automatically")
                 else:
                     Log.info(self, "Mail server is already installed")
+
+            if self.app.pargs.pagespeed:
+                if not EEAptGet.is_installed(self, 'nginx-custom'):
+                    self.app.pargs.nginx = True
+                else:
+                    Log.info(self, "Nginx already installed")
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
@@ -1575,7 +1588,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
+           (not self.app.pargs.pagespeed)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1610,6 +1624,10 @@ class EEStackController(CementBaseController):
 
         if self.app.pargs.mailscanner:
             apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
+        if self.app.pargs.pagespeed:
+            Log.debug(self, "Removing packages varible of Pagespeed")
+            packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
             Log.debug(self, "Removing apt_packages variable of Nginx")
@@ -1655,7 +1673,7 @@ class EEStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
         ee_prompt = input('Are you sure you to want to'
-                          ' purge  from server.'
+                          ' remove from server.'
                           'Package configuration will remain'
                           ' on server after this operation.\n'
                           'Any answer other than '
@@ -1690,7 +1708,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
+           (not self.app.pargs.pagespeed)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1725,6 +1744,10 @@ class EEStackController(CementBaseController):
 
         if self.app.pargs.mailscanner:
             apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
+        if self.app.pargs.pagespeed:
+            Log.debug(self, "Purge packages varible of Pagespeed")
+            packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")
