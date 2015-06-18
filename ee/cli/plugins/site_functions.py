@@ -91,14 +91,15 @@ def setupdomain(self, data):
             raise SiteError("created nginx configuration failed for site."
                             " check with `nginx -t`")
 
-    if 'proxy' in data.keys() and data['proxy']:
-        return
 
     # create symbolic link for
     EEFileUtils.create_symlink(self, ['/etc/nginx/sites-available/{0}'
                                       .format(ee_domain_name),
                                       '/etc/nginx/sites-enabled/{0}'
                                       .format(ee_domain_name)])
+
+    if 'proxy' in data.keys() and data['proxy']:
+        return
 
     # Creating htdocs & logs directory
     Log.info(self, "Setting up webroot \t\t", end='')

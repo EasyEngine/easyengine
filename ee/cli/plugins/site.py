@@ -362,7 +362,7 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create proxy for site", nargs='+')),
             (['--experimental'],
                 dict(help="Enable Experimenal packages without prompt",
-                     action='store_true'))),
+                     action='store_true')),
             ]
 
     @expose(hide=True)
@@ -1048,7 +1048,7 @@ class EESiteUpdateController(CementBaseController):
                         pagespeed = True
                 else:
                     data['pagespeed'] = True
-                    pagespeed = False
+                    pagespeed = True
 
         if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
             (stype == oldsitetype and cache == oldcachetype)):
