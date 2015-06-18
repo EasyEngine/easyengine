@@ -361,7 +361,8 @@ class EESiteCreateController(CementBaseController):
             (['--proxy'],
                 dict(help="create proxy for site", nargs='+')),
             (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt")),
+                dict(help="Enable Experimenal packages without prompt",
+                     action='store_true'))),
             ]
 
     @expose(hide=True)
@@ -743,7 +744,8 @@ class EESiteUpdateController(CementBaseController):
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
-                dict(help="Enable Experimenal packages without prompt")),
+                dict(help="Enable Experimenal packages without prompt",
+                     action='store_true')),
             (['--all'],
                 dict(help="update all sites", action='store_true')),
             ]
