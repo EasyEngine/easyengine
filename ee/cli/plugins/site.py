@@ -470,7 +470,7 @@ class EESiteCreateController(CementBaseController):
                          " to enable HHVM now for {0}?".format(ee_domain))
 
                 # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]")
+                check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.info(self, "Not using HHVM for site.")
                     data['hhvm'] = False
@@ -495,7 +495,7 @@ class EESiteCreateController(CementBaseController):
                          " to enable PageSpeed now for {0}?".format(ee_domain))
 
                 # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]")
+                check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.info(self, "Not using PageSpeed for site.")
                     data['pagespeed'] = False
@@ -978,6 +978,7 @@ class EESiteUpdateController(CementBaseController):
                 elif pagespeed is True:
                     Log.info(self, "Pagespeed is allready enabled for given "
                              "site")
+                pargs.pagespeed = False
 
         if pargs.hhvm:
             if hhvm is old_hhvm:
@@ -987,6 +988,8 @@ class EESiteUpdateController(CementBaseController):
                 elif hhvm is True:
                     Log.info(self, "HHVM is allready enabled for given "
                              "site")
+
+                pargs.hhvm = False
 
         if data and (not pargs.hhvm):
             if old_hhvm is True:
@@ -1004,8 +1007,8 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if pargs.pagespeed or pargs.hhvm:
-            if pargs.hhvm:
+        if pargs.pagespeed=="on" or pargs.hhvm=="on":
+            if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
                              " work with all plugins all your site.\nYou can "
@@ -1013,9 +1016,9 @@ class EESiteUpdateController(CementBaseController):
                              " to enable HHVM now for {0}?".format(ee_domain))
 
                     # Check prompt
-                    check_prompt = input("Type \"y\" to continue [n]")
+                    check_prompt = input("Type \"y\" to continue [n]:")
                     if check_prompt != "Y" and check_prompt != "y":
-                        Log.info(self, "Not using HHVM for site.")
+                        Log.info(self, "Not using HHVM for site")
                         data['hhvm'] = False
                         hhvm = False
                     else:
@@ -1025,17 +1028,17 @@ class EESiteUpdateController(CementBaseController):
                     data['hhvm'] = True
                     hhvm = True
 
-            if pargs.pagespeed:
+            if pargs.pagespeed=="on":
                 if (not pargs.experimental):
                     Log.info(self, "PageSpeed is experimental feature and it may not"
-                             "work with all CSS/JS/Cache of your site.\nYou can "
+                             " work with all CSS/JS/Cache of your site.\nYou can "
                              "disable it by passing --pagespeed=off later.\nDo you wish"
                              " to enable PageSpeed now for {0}?".format(ee_domain))
 
                     # Check prompt
-                    check_prompt = input("Type \"y\" to continue [n]")
+                    check_prompt = input("Type \"y\" to continue [n]:")
                     if check_prompt != "Y" and check_prompt != "y":
-                        Log.info("Not using PageSpeed for site.")
+                        Log.info(self, "Not using Pagespeed for given site")
                         data['pagespeed'] = False
                         pagespeed = False
                     else:
@@ -1045,9 +1048,9 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = False
 
-            if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
-               (stype == oldsitetype and cache == oldcachetype)):
-                return 1
+        if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+            (stype == oldsitetype and cache == oldcachetype)):
+            return 1
 
         if not data:
             Log.error(self, "Cannot update {0}, Invalid Options"
