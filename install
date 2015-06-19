@@ -377,6 +377,15 @@ function ee_update_latest()
         fi
     fi
 
+    # Fix HHVM server IP
+    if [ -f /etc/hhvm/server.ini ]; then
+        grep -Hr "hhvm.server.ip" /etc/hhvm/server.ini &>> /dev/null
+        if [ $? -ne 0 ]; then
+            echo -e "hhvm.server.ip = 127.0.0.1\n" >> /etc/hhvm/server.ini
+        fi
+    fi
+
+
 }
 
 # Do git intialisation

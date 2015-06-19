@@ -444,6 +444,9 @@ class EEStackController(CementBaseController):
                                     "hhvm.mysqli.socket = "
                                     "/var/run/mysqld/mysqld.sock\n")
 
+                with open("/etc/hhvm/server.ini", "a") as hhvm_file:
+                    hhvm_file.write("hhvm.server.ip = 127.0.0.1\n")
+
                 if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
                     if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
                                             "fastcgi.conf",
