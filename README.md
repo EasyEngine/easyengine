@@ -10,6 +10,12 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 - Ubuntu 12.04 & 14.04
 - Debian 7 & 8
 
+**Port Requirements:**
+- 22/TCP (Inbound/Outbound) : Standard SSH port
+- 80/TCP (Inbound/Outbound) : Standard HTTP port
+- 443/TCP(Inbound/Outbound) : Standard HTTPS port
+- 22222/TCP (Inbound)       : To access EasyEngine admin tools
+- 11371/TCP (Outbound)      : To connect to GPG Key Server
 
 ## Quick Start
 
