@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm" \
+                              -W "--pagespeed --web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm" \
                               -- $cur) )
                 ;;
             "upgrade" )
@@ -235,9 +235,9 @@ _ee_complete()
 
         "--pagespeed" | "--hhvm")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed"
+                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal"
             elif [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off"
+                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal"
             else
                 retlist=""
             fi

@@ -1,3 +1,8 @@
+v 3.2.1 - Jun 19, 205
+- Improved experimental HHVM and Pagespeed handling, fixes #564, #562
+- Fixed missing link for Proxy sites #571
+- Added hhvm.server.ip for HHVM config #567
+
 v 3.2.0 - May 28, 2015
 - Now using openSuse builder to build Nginx package for both Ubuntu and Debian
 - Minor fixes and improvements

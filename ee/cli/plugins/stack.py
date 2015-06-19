@@ -72,6 +72,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Adminer stack', action='store_true')),
             (['--utils'],
                 dict(help='Install Utils stack', action='store_true')),
+            (['--pagespeed'],
+                dict(help='Install Pagespeed', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
@@ -227,9 +229,10 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000")
+                    data = dict(php="9000", debug="9001", hhvm="8000",
+                                hhvmconf=False)
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/conf.d/upstream.conf ')
+                              'file /etc/nginx/conf.d/upstream.conf')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'upstream.mustache', out=ee_nginx)
@@ -255,38 +258,6 @@ class EEStackController(CementBaseController):
                     ee_nginx = open('/etc/nginx/common/locations.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'locations.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/php-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'php-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/w3tc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/w3tc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'w3tc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpfc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpfc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpfc-hhvm.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/wpsc-hhvm.conf')
-                    ee_nginx = open('/etc/nginx/common/wpsc-hhvm.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'wpsc-hhvm.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
@@ -335,27 +306,6 @@ class EEStackController(CementBaseController):
                     ee_nginx = open('/etc/nginx/common/wpsubdir.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'wpsubdir.mustache',
-                                    out=ee_nginx)
-                    ee_nginx.close()
-
-                    # Fix whitescreen of death beacuse of missing value
-                    # fastcgi_param SCRIPT_FILENAME $request_filename; in file
-                    # /etc/nginx/fastcgi_params
-
-                    if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
-                                            'SCRIPT_FILENAME'):
-                        with open('/etc/nginx/fastcgi_params',
-                                  encoding='utf-8', mode='a') as ee_nginx:
-                            ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
-                                           '\t$request_filename;\n')
-
-                    # Pagespeed configuration
-                    Log.debug(self, 'Writting the Pagespeed Global '
-                              'configuration to file /etc/nginx/conf.d/'
-                              'pagespeed.conf')
-                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
-                                    encoding='utf-8', mode='w')
-                    self.app.render((data), 'pagespeed-global.mustache',
                                     out=ee_nginx)
                     ee_nginx.close()
 
@@ -460,6 +410,21 @@ class EEStackController(CementBaseController):
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
+            # Set up pagespeed config
+            if self.app.pargs.pagespeed:
+                if (os.path.isfile('/etc/nginx/nginx.conf') and
+                    (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+                    # Pagespeed configuration
+                    data = dict()
+                    Log.debug(self, 'Writting the Pagespeed Global '
+                              'configuration to file /etc/nginx/conf.d/'
+                              'pagespeed.conf')
+                    ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'pagespeed-global.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
             if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
 
                 EEShellExec.cmd_exec(self, "update-rc.d hhvm defaults")
@@ -478,6 +443,9 @@ class EEStackController(CementBaseController):
                                     "/var/run/mysqld/mysqld.sock\n"
                                     "hhvm.mysqli.socket = "
                                     "/var/run/mysqld/mysqld.sock\n")
+
+                with open("/etc/hhvm/server.ini", "a") as hhvm_file:
+                    hhvm_file.write("hhvm.server.ip = 127.0.0.1\n")
 
                 if os.path.isfile("/etc/nginx/conf.d/fastcgi.conf"):
                     if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
@@ -1389,7 +1357,7 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
-               and
+               and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
                 self.app.pargs.web = True
@@ -1406,7 +1374,6 @@ class EEStackController(CementBaseController):
                 self.app.pargs.mysql = True
                 self.app.pargs.wpcli = True
                 self.app.pargs.postfix = True
-                self.app.pargs.hhvm = True
 
             if self.app.pargs.admin:
                 self.app.pargs.nginx = True
@@ -1447,6 +1414,12 @@ class EEStackController(CementBaseController):
                                  " automatically")
                 else:
                     Log.info(self, "Mail server is already installed")
+
+            if self.app.pargs.pagespeed:
+                if not EEAptGet.is_installed(self, 'nginx-custom'):
+                    self.app.pargs.nginx = True
+                else:
+                    Log.info(self, "Nginx already installed")
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
@@ -1618,7 +1591,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
+           (not self.app.pargs.pagespeed)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1630,7 +1604,6 @@ class EEStackController(CementBaseController):
         if self.app.pargs.web:
             self.app.pargs.nginx = True
             self.app.pargs.php = True
-            self.app.pargs.hhvm = True
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
@@ -1654,6 +1627,10 @@ class EEStackController(CementBaseController):
 
         if self.app.pargs.mailscanner:
             apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
+        if self.app.pargs.pagespeed:
+            Log.debug(self, "Removing packages varible of Pagespeed")
+            packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
             Log.debug(self, "Removing apt_packages variable of Nginx")
@@ -1699,7 +1676,7 @@ class EEStackController(CementBaseController):
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
         ee_prompt = input('Are you sure you to want to'
-                          ' purge  from server.'
+                          ' remove from server.'
                           'Package configuration will remain'
                           ' on server after this operation.\n'
                           'Any answer other than '
@@ -1734,7 +1711,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-           (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+           (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
+           (not self.app.pargs.pagespeed)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1749,7 +1727,6 @@ class EEStackController(CementBaseController):
             self.app.pargs.mysql = True
             self.app.pargs.wpcli = True
             self.app.pargs.postfix = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.admin:
             self.app.pargs.adminer = True
@@ -1770,6 +1747,10 @@ class EEStackController(CementBaseController):
 
         if self.app.pargs.mailscanner:
             apt_packages = (apt_packages + EEVariables.ee_mailscanner)
+
+        if self.app.pargs.pagespeed:
+            Log.debug(self, "Purge packages varible of Pagespeed")
+            packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")

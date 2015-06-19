@@ -7,8 +7,10 @@ upstream debug {
 # Debug Pool
 server 127.0.0.1:{{debug}};
 }
+{{#hhvmconf}}
 upstream hhvm {
 # HHVM Pool
 server 127.0.0.1:{{hhvm}};
 server 127.0.0.1:{{php}} backup;
 }
+{{/hhvmconf}}
