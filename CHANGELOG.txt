@@ -1,4 +1,7 @@
-v 3.2.1 - Jun 19, 205
+v 3.2.2 - Jun 19, 2015
+- Fixed bug that was preventing disabling debug
+
+v 3.2.1 - Jun 19, 2015
 - Improved experimental HHVM and Pagespeed handling, fixes #564, #562
 - Fixed missing link for Proxy sites #571
 - Added hhvm.server.ip for HHVM config #567
