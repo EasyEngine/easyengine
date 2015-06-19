@@ -466,7 +466,7 @@ class EESiteCreateController(CementBaseController):
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
                 Log.info(self, "HHVM is experimental feature and it may not"
-                         "work with all plugins all your site.\nYou can "
+                         "work with all plugins of your site.\nYou can "
                          "disable it by passing --hhvm=off later.\nDo you wish"
                          " to enable HHVM now for {0}?".format(ee_domain))
 
@@ -1013,7 +1013,7 @@ class EESiteUpdateController(CementBaseController):
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
-                             " work with all plugins all your site.\nYou can "
+                             " work with all plugins of your site.\nYou can "
                              "disable it by passing --hhvm=off later.\nDo you wish"
                              " to enable HHVM now for {0}?".format(ee_domain))
 
