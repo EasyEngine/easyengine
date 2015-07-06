@@ -440,6 +440,10 @@ def setupwordpress(self, data):
     if data['wpsc']:
         installwp_plugin(self, 'wp-super-cache', data)
 
+    """Install Redis Cache"""
+    if data['redis']:
+        installwp_plugin(self, 'redis-cache', data)
+
     """Install W3 Total Cache"""
     if data['w3tc'] or data['wpfc']:
         installwp_plugin(self, 'w3-total-cache', data)
@@ -812,7 +816,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'w3tc']:
+        elif val and key in ['wpfc', 'wpsc', 'w3tc', 'redis']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:

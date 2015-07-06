@@ -154,6 +154,16 @@ class EEVariables():
 
     ee_hhvm = ["hhvm"]
 
+    # Redis repo details
+    if ee_platform_distro == 'ubuntu':
+        ee_redis_repo = ("ppa:chris-lea/redis-server")
+
+    else:
+        ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
+                        .format(codename=ee_platform_codename))
+
+    ee_redis = ['redis-server', 'php5-redis']
+
     # Repo path
     ee_repo_file = "ee-repo.list"
     ee_repo_file_path = ("/etc/apt/sources.list.d/" + ee_repo_file)

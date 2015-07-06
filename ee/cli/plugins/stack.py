@@ -74,6 +74,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Utils stack', action='store_true')),
             (['--pagespeed'],
                 dict(help='Install Pagespeed', action='store_true')),
+            (['--redis'],
+                dict(help='Install Redis', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
@@ -193,6 +195,17 @@ class EEStackController(CementBaseController):
                                      " | debconf-set-selections")
             except CommandExecutionError as e:
                 Log.error("Failed to initialize dovecot packages")
+
+        if set(EEVariables.ee_redis).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for Redis, please wait...")
+            if EEVariables.ee_platform_distro == 'debian':
+                Log.debug(self, 'Adding repo_url of redis for debian')
+                EERepo.add(self, repo_url=EEVariables.ee_redis_repo)
+                Log.debug(self, 'Adding Dotdeb GPG key')
+                EERepo.add_key(self, '89DF5277')
+            else:
+                Log.debug(self, 'Adding ppa for redis')
+                EERepo.add(self, ppa=EEVariables.ee_redis_repo)
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
@@ -1359,7 +1372,8 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
+                and (not self.app.pargs.redis)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -1420,6 +1434,16 @@ class EEStackController(CementBaseController):
                     self.app.pargs.nginx = True
                 else:
                     Log.info(self, "Nginx already installed")
+
+            if self.app.pargs.redis:
+                if not EEAptGet.is_installed(self, 'redis-server'):
+                    if not EEAptGet.is_installed(self, 'nginx-custom'):
+                        self.app.pargs.nginx = True
+                    if not EEAptGet.is_installed(self, 'php5-fpm'):
+                        self.app.pargs.php = True
+                    apt_packages = apt_packages + EEVariables.ee_redis
+                else:
+                    Log.info(self, "Redis already installed")
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")

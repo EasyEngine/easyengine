@@ -347,6 +347,9 @@ class EESiteCreateController(CementBaseController):
             (['--wpsc'],
                 dict(help="create wordpress single/multi site with wpsc cache",
                      action='store_true')),
+            (['--redis'],
+                dict(help="create wordpress single/multi site with redis cache",
+                     action='store_true')),
             (['--hhvm'],
                 dict(help="create HHVM site", action='store_true')),
             (['--pagespeed'],
@@ -441,7 +444,7 @@ class EESiteCreateController(CementBaseController):
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, multisite=False,
+                        wpfc=False, wpsc=False, redis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         ee_db_name='', ee_db_user='', ee_db_pass='',
                         ee_db_host='')
@@ -511,6 +514,21 @@ class EESiteCreateController(CementBaseController):
         elif data:
             data['pagespeed'] = False
             pagespeed = 0
+
+        if (cache == 'redis' not self.app.pargs.experimental) and :
+            Log.info(self, "Redis is experimental feature and it may not"
+                     "work with all CSS/JS/Cache of your site.\nYou can "
+                     "disable it by passing --redis=off later.\nDo you wish"
+                     " to enable Redis now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info(self, "Not using Redis for site.")
+                    cache = 'basic'
+                    data['redis'] = False
+                    data['basic'] = True
+                    self.app.pargs.redis = False
 
         #     self.app.args.print_help()
         # if not data:
