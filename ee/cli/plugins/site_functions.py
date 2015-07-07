@@ -499,7 +499,13 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    Log.info(self, "Uninstalling plugin {0}, please wait..."
+             .format(plugin_name))
     try:
+        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
+                             "--allow-root deactivate "
+                             "{0}".format(plugin_name))
+
         EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
                              "--allow-root uninstall "
                              "{0}".format(plugin_name))

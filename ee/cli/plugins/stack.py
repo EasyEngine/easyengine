@@ -535,6 +535,16 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
+                                            "redis"):
+                        with open("/etc/nginx/conf.d/upstream.conf",
+                                  "a") as redis_file:
+                            redis_file.write("upstream redis {\n"
+                                             "    server 127.0.0.1:6379;\n"
+                                             "    keepalive 10;\n}")
+
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
