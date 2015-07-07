@@ -537,6 +537,18 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/redis-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
                 if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                     if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
                                             "upstream.conf",
