@@ -76,6 +76,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Pagespeed', action='store_true')),
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
+            (['--phpredisadmin'],
+                dict(help='Install Redis', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
@@ -1382,6 +1384,38 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user,
                                   recursive=True)
 
+            if any('/tmp/pra.tar.gz' == x[1]
+                    for x in packages):
+                Log.debug(self, 'Extracting file /tmp/pra.tar.gz to '
+                          'loaction /tmp/')
+                EEExtract.extract(self, '/tmp/pra.tar.gz', '/tmp/')
+                if not os.path.exists('{0}22222/htdocs/cache/redis'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, "Creating new  directory "
+                              "{0}22222/htdocs/cache/redis"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/cache/redis'
+                                .format(EEVariables.ee_webroot))
+                shutil.move('/tmp/phpRedisAdmin-master/',
+                            '{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                            .format(EEVariables.ee_webroot))
+
+                Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
+                          'loaction /tmp/')
+                EEExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
+                shutil.move('/tmp/predis-1.0.1/',
+                            '{0}22222/htdocs/cache/redis/phpRedisAdmin/vendor'
+                            .format(EEVariables.ee_webroot))
+
+                Log.debug(self, 'Setting Privileges of webroot permission to  '
+                          '{0}22222/htdocs/cache/ file '
+                          .format(EEVariables.ee_webroot))
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
+                                  recursive=True)
+
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
@@ -1396,7 +1430,8 @@ class EEStackController(CementBaseController):
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-                and (not self.app.pargs.redis)):
+               and (not self.app.pargs.redis) and
+               (not self.app.pargs.phpredisadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -1533,6 +1568,15 @@ class EEStackController(CementBaseController):
                                         "phpmyadmin/archive/STABLE.tar.gz",
                                         "/tmp/pma.tar.gz", "phpMyAdmin"]]
 
+            if self.app.pargs.phpredisadmin:
+                Log.debug(self, "Setting packages varible for phpRedisAdmin")
+                packages = packages + [["https://github.com/ErikDubbelboer/"
+                                        "phpRedisAdmin/archive/master.zip",
+                                        "/tmp/pra.tar.gz" "phpRedisAdmin"],
+                                       ["https://github.com/nrk/predis/"
+                                        "archive/v1.0.1.tar.gz",
+                                        "/tmp/predis.tar.gz", "Predis"]]
+
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
                 packages = packages + [["http://downloads.sourceforge.net/"
@@ -1639,7 +1683,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
-           (not self.app.pargs.pagespeed)):
+           (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
+           (not self.app.pargs.phpredisadmin):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1690,7 +1735,9 @@ class EEStackController(CementBaseController):
             if EEAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Removing apt_packages varible of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
-
+        if self.app.pargs.redis:
+            Log.debug(self, "Remove apt_packages variable of Redis")
+            apt_packages = apt_packages + EEVariables.ee_redis
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1704,6 +1751,10 @@ class EEStackController(CementBaseController):
         if self.app.pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
+                                   .format(EEVariables.ee_webroot)]
+        if self.app.pargs.phpredisadmin:
+            Log.debug(self, "Removing package variable of phpRedisAdmin ")
+            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
@@ -1759,7 +1810,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
-           (not self.app.pargs.pagespeed)):
+           (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1807,8 +1859,11 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Removing apt_packages varible of HHVM")
+                Log.debug(self, "Purge apt_packages varible of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
+        if self.app.pargs.redis:
+            Log.debug(self, "Purge apt_packages variable of Redis")
+            apt_packages = apt_packages + EEVariables.ee_redis
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1823,6 +1878,10 @@ class EEStackController(CementBaseController):
             packages = packages + ['{0}22222/htdocs/db/pma'.
                                    format(EEVariables.ee_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
+        if self.app.pargs.phpredisadmin:
+            Log.debug(self, "Removing package variable of phpRedisAdmin ")
+            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                                   .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
             packages = packages + ['{0}22222/htdocs/db/adminer'
