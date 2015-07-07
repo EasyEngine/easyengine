@@ -962,21 +962,31 @@ class EESiteUpdateController(CementBaseController):
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
+                    data['redis'] = False
                 elif oldcachetype == 'w3tc':
                     data['basic'] = False
                     data['w3tc'] = True
                     data['wpfc'] = False
                     data['wpsc'] = False
+                    data['redis'] = False
                 elif oldcachetype == 'wpfc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = True
                     data['wpsc'] = False
+                    data['redis'] = False
                 elif oldcachetype == 'wpsc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = True
+                    data['redis'] = False
+                elif oldcachetype == 'redis':
+                    data['basic'] = False
+                    data['w3tc'] = False
+                    data['wpfc'] = False
+                    data['wpsc'] = False
+                    data['redis'] = True
 
             if pargs.hhvm != 'off':
                 data['hhvm'] = True
