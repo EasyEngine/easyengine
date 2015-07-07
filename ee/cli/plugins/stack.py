@@ -1403,7 +1403,7 @@ class EEStackController(CementBaseController):
                 EEExtract.extract(self, '/tmp/pra.tar.gz', '/tmp/')
                 if not os.path.exists('{0}22222/htdocs/cache/redis'
                                       .format(EEVariables.ee_webroot)):
-                    Log.debug(self, "Creating new  directory "
+                    Log.debug(self, "Creating new directory "
                               "{0}22222/htdocs/cache/redis"
                               .format(EEVariables.ee_webroot))
                     os.makedirs('{0}22222/htdocs/cache/redis'
@@ -1583,8 +1583,8 @@ class EEStackController(CementBaseController):
             if self.app.pargs.phpredisadmin:
                 Log.debug(self, "Setting packages varible for phpRedisAdmin")
                 packages = packages + [["https://github.com/ErikDubbelboer/"
-                                        "phpRedisAdmin/archive/master.zip",
-                                        "/tmp/pra.tar.gz" "phpRedisAdmin"],
+                                        "phpRedisAdmin/archive/master.tar.gz",
+                                        "/tmp/pra.tar.gz","phpRedisAdmin"],
                                        ["https://github.com/nrk/predis/"
                                         "archive/v1.0.1.tar.gz",
                                         "/tmp/predis.tar.gz", "Predis"]]
@@ -1696,7 +1696,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin):
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
