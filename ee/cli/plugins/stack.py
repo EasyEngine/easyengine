@@ -522,6 +522,19 @@ class EEStackController(CementBaseController):
                         Log.error(self, "Failed to reload Nginx, please check "
                                         "output of `nginx -t`")
 
+            if set(EEVariables.ee_redis).issubset(set(apt_packages)):
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/common/redis.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis.conf')
+                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):

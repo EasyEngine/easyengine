@@ -751,6 +751,8 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
+            (['--redis'],
+                dict(help="update to redis cache", action='store_true')),
             (['--hhvm'],
                 dict(help='Use HHVM for site',
                      action='store' or 'store_const',
@@ -781,7 +783,7 @@ class EESiteUpdateController(CementBaseController):
             if not (pargs.php or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
-                    pargs.wpsc or pargs.hhvm or pargs.pagespeed):
+                    pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.redis):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -897,7 +899,7 @@ class EESiteUpdateController(CementBaseController):
         if stype == 'php':
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, multisite=False,
+                        wpfc=False, wpsc=False, redis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
 
@@ -905,7 +907,7 @@ class EESiteUpdateController(CementBaseController):
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, multisite=False,
+                        wpfc=False, wpsc=False, redis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         ee_db_name='', ee_db_user='', ee_db_pass='',
                         ee_db_host='',
@@ -1068,6 +1070,21 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = True
 
+        if data['currcachetype'] != 'redis' and pargs.redis:
+            if (not pargs.experimental):
+                Log.info(self, "Redis is experimental feature and it may not"
+                         " work with all plugins of your site.\nYou can "
+                         "disable it by changing cache type later.\nDo you wish"
+                         " to enable Redis now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info(self, "Not using Redis for site")
+                    data['redis'] = False
+                    data['basic'] = True
+                    cache = 'basic'
+
         if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
             (stype == oldsitetype and cache == oldcachetype)):
             return 1
@@ -1206,6 +1223,16 @@ class EESiteUpdateController(CementBaseController):
                              " `tail /var/log/ee/ee.log` & Try Again!!!")
                     return 1
 
+            if oldcachetype == 'redis' and not data['rediss']:
+                try:
+                    uninstallwp_plugin(self, 'redis-cache', data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update site failed."
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
+
         if (oldcachetype != 'w3tc' or oldcachetype != 'wpfc') and (data['w3tc']
            or data['wpfc']):
             try:
@@ -1226,6 +1253,17 @@ class EESiteUpdateController(CementBaseController):
                          "Check logs for reason "
                          "`tail /var/log/ee/ee.log` & Try Again!!!")
                 return 1
+
+        if oldcachetype != 'redis' and data['redis']:
+            try:
+                installwp_plugin(self, 'redis-cache', data)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Update site failed."
+                         "Check logs for reason "
+                         "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
+
         # Service Nginx Reload
         if not EEService.reload_service(self, 'nginx'):
             Log.error(self, "service nginx reload failed. "
