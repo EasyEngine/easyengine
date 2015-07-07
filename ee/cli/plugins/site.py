@@ -515,20 +515,20 @@ class EESiteCreateController(CementBaseController):
             data['pagespeed'] = False
             pagespeed = 0
 
-        if (cache == 'redis' not self.app.pargs.experimental) and :
+        if (cache == 'redis' and (not self.app.pargs.experimental)):
             Log.info(self, "Redis is experimental feature and it may not"
                      "work with all CSS/JS/Cache of your site.\nYou can "
-                     "disable it by passing --redis=off later.\nDo you wish"
+                     "disable it by changing cache later.\nDo you wish"
                      " to enable Redis now for {0}?".format(ee_domain))
 
                 # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
-                if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using Redis for site.")
-                    cache = 'basic'
-                    data['redis'] = False
-                    data['basic'] = True
-                    self.app.pargs.redis = False
+            check_prompt = input("Type \"y\" to continue [n]:")
+            if check_prompt != "Y" and check_prompt != "y":
+                Log.info(self, "Not using Redis for site.")
+                cache = 'basic'
+                data['redis'] = False
+                data['basic'] = True
+                self.app.pargs.redis = False
 
         #     self.app.args.print_help()
         # if not data:
@@ -1223,7 +1223,7 @@ class EESiteUpdateController(CementBaseController):
                              " `tail /var/log/ee/ee.log` & Try Again!!!")
                     return 1
 
-            if oldcachetype == 'redis' and not data['rediss']:
+            if oldcachetype == 'redis' and not data['redis']:
                 try:
                     uninstallwp_plugin(self, 'redis-cache', data)
                 except SiteError as e:

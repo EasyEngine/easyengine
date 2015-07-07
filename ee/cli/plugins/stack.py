@@ -529,7 +529,7 @@ class EEStackController(CementBaseController):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/redis.conf')
-                    ee_nginx = open('/etc/nginx/common/php-hhvm.conf',
+                    ee_nginx = open('/etc/nginx/common/redis.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'redis.mustache',
                                     out=ee_nginx)

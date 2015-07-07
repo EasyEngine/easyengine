@@ -603,6 +603,10 @@ def site_package_check(self, stype):
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
+    if self.app.pargs.redis:
+        Log.debug(self, "Setting apt_packages variable for redis")
+        if not EEAptGet.is_installed(self, 'redis-server'):
+            apt_packages = apt_packages + EEVariables.ee_redis
 
     if self.app.pargs.hhvm:
         if platform.architecture()[0] is '32bit':
