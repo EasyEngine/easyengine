@@ -1759,7 +1759,10 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
-            packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/bin/wp'):
+                packages = packages + ['/usr/bin/wp']
+            else:
+                Log.warn(self, "WP-CLI is not installed with EasyEngine")
         if self.app.pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
@@ -1885,7 +1888,10 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             Log.debug(self, "Purge package variable WPCLI")
-            packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/bin/wp'):
+                packages = packages + ['/usr/bin/wp']
+            else:
+                Log.warn(self, "WP-CLI is not installed with EasyEngine")
         if self.app.pargs.phpmyadmin:
             packages = packages + ['{0}22222/htdocs/db/pma'.
                                    format(EEVariables.ee_webroot)]
