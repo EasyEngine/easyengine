@@ -9,6 +9,7 @@ from ee.core.logging import Log
 from ee.cli.plugins.site_functions import logwatch
 from ee.core.variables import EEVariables
 from ee.core.fileutils import EEFileUtils
+from pynginxconfig import NginxConfig
 import os
 import configparser
 import glob
@@ -173,20 +174,15 @@ class EEDebugController(CementBaseController):
                                                "| grep 9001")):
 
                 Log.info(self, "Enabling PHP debug")
-                # Check HHVM is installed if not instlled then dont not enable
-                # it in upstream config
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    hhvmconf=True
-                else:
-                    hhvmconf=False
-                data = dict(php="9001", debug="9001", hhvm="9001",
-                            hhvmconf=hhvmconf)
-                Log.debug(self, 'Writting the Nginx debug configration to file'
-                                ' /etc/nginx/conf.d/upstream.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'upstream.mustache', out=ee_nginx)
-                ee_nginx.close()
+
+                # Change upstream.conf
+                nc = NginxConfig()
+                nc.loadf('/etc/nginx/conf.d/upstream.conf')
+                nc.set([('upstream','php',), 'server'], '127.0.0.1:9001')
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf")::
+                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9001')
+                nc.savef('/etc/nginx/conf.d/upstream.conf')
+
                 # Enable xdebug
                 EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
                                           "xdebug.ini",
@@ -218,21 +214,14 @@ class EEDebugController(CementBaseController):
                                           "| grep 9001"):
                 Log.info(self, "Disabling PHP debug")
 
-                # Check HHVM is installed if not instlled then dont not enable
-                # it in upstream config
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
-                    hhvmconf=True
-                else:
-                    hhvmconf=False
-                data = dict(php="9000", debug="9001", hhvm="8000",
-                            hhvmconf=hhvmconf)
+                # Change upstream.conf
+                nc = NginxConfig()
+                nc.loadf('/etc/nginx/conf.d/upstream.conf')
+                nc.set([('upstream','php',), 'server'], '127.0.0.1:9000')
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf")::
+                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:8000')
+                nc.savef('/etc/nginx/conf.d/upstream.conf')
 
-                Log.debug(self, 'Writting the Nginx debug configration to file'
-                          ' /etc/nginx/conf.d/upstream.conf ')
-                ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
-                                encoding='utf-8', mode='w')
-                self.app.render((data), 'upstream.mustache', out=ee_nginx)
-                ee_nginx.close()
                 # Disable xdebug
                 EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
                                           "xdebug.ini",
