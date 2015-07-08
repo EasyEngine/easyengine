@@ -39,6 +39,8 @@ class EEStackUpgradeController(CementBaseController):
                 dict(help='Upgrade HHVM stack', action='store_true')),
             (['--postfix'],
                 dict(help='Upgrade Postfix stack', action='store_true')),
+            (['--wpcli'],
+                dict(help='Upgrade WPCLI', action='store_true')),
             (['--php56'],
                 dict(help="Upgrade to PHP5.6 from PHP5.5",
                      action='store_true')),
@@ -113,7 +115,8 @@ class EEStackUpgradeController(CementBaseController):
             if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.hhvm) and
-               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
+               and (not self.app.pargs.wpcli)):
                 self.app.pargs.web = True
 
             if self.app.pargs.all:
@@ -125,12 +128,13 @@ class EEStackUpgradeController(CementBaseController):
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
                 self.app.pargs.postfix = True
-                self.app.pargs.hhvm = True
+                self.app.pargs.wpcli = True
 
             if self.app.pargs.mail:
                 self.app.pargs.nginx = True
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
+                self.app.pargs.wpcli = True
                 self.app.pargs.postfix = True
 
                 if EEAptGet.is_installed(self, 'dovecot-core'):
@@ -169,20 +173,34 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Postfix is not installed")
 
+            if self.app.pargs.wpcli:
+                if os.path.isfile('/usr/bin/wp'):
+                    EEFileUtils.remove(self,['/usr/bin/wp'])
+                    packages = packages + [["https://github.com/wp-cli/wp-cli/"
+                                            "releases/download/v{0}/"
+                                            "wp-cli-{0}.phar"
+                                            "".format(EEVariables.ee_wp_cli),
+                                            "/usr/bin/wp",
+                                            "WP-CLI"]]
+                else:
+                    Log.info(self, "WPCLI is not installed with EasyEngine")
+
             if self.app.pargs.mailscanner:
                 if EEAptGet.is_installed(self, 'amavisd-new'):
                     apt_packages = (apt_packages + EEVariables.ee_mailscanner)
                 else:
                     Log.info(self, "MailScanner is not installed")
 
+            Log.info(self, "Updating packages, please wait...")
             if len(apt_packages):
                 # apt-get update
                 EEAptGet.update(self)
-
                 # Update packages
-                Log.info(self, "Updating packages, please wait...")
                 EEAptGet.install(self, apt_packages)
-                Log.info(self, "Successfully updated packages")
+            if len(packages):
+                Log.debug(self, "Downloading following: {0}".format(packages))
+                EEDownload.download(self, packages)
+            Log.info(self, "Successfully updated packages")
 
             # Post Actions after package updates
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
@@ -197,6 +215,8 @@ class EEStackUpgradeController(CementBaseController):
                 EEService.restart_service(self, 'hhvm')
             if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                 EEService.restart_service(self, 'dovecot')
+            if self.app.pargs.wpcli:
+                EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
 
         # PHP 5.6 to 5.6
         elif (self.app.pargs.php56):
