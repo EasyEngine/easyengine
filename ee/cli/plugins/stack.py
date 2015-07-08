@@ -1788,28 +1788,28 @@ class EEStackController(CementBaseController):
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
-        ee_prompt = input('Are you sure you to want to'
-                          ' remove from server.'
-                          'Package configuration will remain'
-                          ' on server after this operation.\n'
-                          'Any answer other than '
-                          '"yes" will be stop this'
-                          ' operation :  ')
 
-        if len(apt_packages):
+        if len(packages) or len(apt_packages):
+            ee_prompt = input('Are you sure you to want to'
+                              ' remove from server.'
+                              '\nPackage configuration will remain'
+                              ' on server after this operation.\n'
+                              'Any answer other than '
+                              '"yes" will be stop this'
+                              ' operation :  ')
+
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing packages, please wait...")
-                EEAptGet.remove(self, apt_packages)
-                EEAptGet.auto_remove(self)
+                if len(packages):
+                    EEFileUtils.remove(self, packages)
+                    EEAptGet.auto_remove(self)
 
-        if len(packages):
-            if ee_prompt == 'YES' or ee_prompt == 'yes':
-                EEFileUtils.remove(self, packages)
-                EEAptGet.auto_remove(self)
+                if len(apt_packages):
+                    Log.debug(self, "Removing apt_packages")
+                    Log.info(self, "Removing packages, please wait...")
+                    EEAptGet.remove(self, apt_packages)
+                    EEAptGet.auto_remove(self)
 
-        if ee_prompt == 'YES' or ee_prompt == 'yes':
-            Log.info(self, "Successfully removed packages")
+                Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
     def purge(self):
@@ -1919,27 +1919,25 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)
                                    ]
 
-        ee_prompt = input('Are you sure you to want to purge '
-                          'from server '
-                          'alongwith their configuration'
-                          ' packages,\nAny answer other than '
-                          '"yes" will be stop this '
-                          'operation :')
+        if len(apt_packages) or len(apt_packages):
+            ee_prompt = input('Are you sure you to want to purge '
+                              'from server '
+                              'along with their configuration'
+                              ' packages,\nAny answer other than '
+                              '"yes" will be stop this '
+                              'operation :')
 
-        if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.info(self, "Purging packages, please wait...")
-                EEAptGet.remove(self, apt_packages, purge=True)
-                EEAptGet.auto_remove(self)
+                if len(apt_packages):
+                    Log.info(self, "Purging packages, please wait...")
+                    EEAptGet.remove(self, apt_packages, purge=True)
+                    EEAptGet.auto_remove(self)
 
-        if len(packages):
-            if ee_prompt == 'YES' or ee_prompt == 'yes':
-                EEFileUtils.remove(self, packages)
-                EEAptGet.auto_remove(self)
+                if len(packages):
+                    EEFileUtils.remove(self, packages)
+                    EEAptGet.auto_remove(self)
 
-        if ee_prompt == 'YES' or ee_prompt == 'yes':
-            Log.info(self, "Successfully purged packages")
-
+                Log.info(self, "Successfully purged packages")
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
