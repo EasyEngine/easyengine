@@ -103,6 +103,7 @@ class EEStackUpgradeController(CementBaseController):
         if ((not self.app.pargs.php56)):
 
             apt_packages = []
+            packages = []
 
             Log.info(self, "During package update process non nginx-cached"
                      " parts of your site may remain down")
