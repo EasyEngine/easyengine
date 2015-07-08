@@ -15,10 +15,15 @@ class EEVariables():
     ee_version = "3.2.2"
 
     # EasyEngine packages versions
-    ee_wp_cli = "0.19.1"
+    ee_wp_cli = "0.19.2s"
     ee_adminer = "4.2.1"
     ee_roundcube = "1.1.1"
     ee_vimbadmin = "3.0.11"
+
+    # Get WPCLI path
+    ee_wpcli_path = os.popen('which wp | tr "\n" " "').read()
+    if ee_wpcli_path == '':
+        ee_wpcli_path = '/usr/bin/wp '
 
     # Current date and time of System
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')

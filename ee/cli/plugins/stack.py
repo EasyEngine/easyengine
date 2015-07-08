@@ -557,7 +557,7 @@ class EEStackController(CementBaseController):
                                   "a") as redis_file:
                             redis_file.write("upstream redis {\n"
                                              "    server 127.0.0.1:6379;\n"
-                                             "    keepalive 10;\n}")
+                                             "    keepalive 10;\n}\n")
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories

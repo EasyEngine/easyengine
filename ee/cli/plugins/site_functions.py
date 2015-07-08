@@ -281,7 +281,8 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
+        Log.debug(self, "bash -c \"php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
@@ -292,7 +293,8 @@ def setupwordpress(self, data):
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root"
+            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+                                 .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                  "--dbuser=\'{2}\' --dbhost=\'{3}\' "
@@ -309,7 +311,8 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp single site")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
+        Log.debug(self, "bash -c \"php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
@@ -322,7 +325,8 @@ def setupwordpress(self, data):
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root"
+            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+                                 .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                  "--dbhost=\'{2}\' "
@@ -382,14 +386,16 @@ def setupwordpress(self, data):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "php /usr/bin/wp --allow-root core install "
-                  "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
+        Log.debug(self, "php {0} --allow-root core install "
+                  .format(EEVariables.ee_wpcli_path)
+                  + "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
                   + "--admin_password= --admin_email=\'{1}\'"
                   .format(ee_wp_pass, ee_wp_email))
         try:
-            EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core "
-                                 "install --url=\'{0}\' --title=\'{0}\' "
+            EEShellExec.cmd_exec(self, "php {0} --allow-root core "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "install --url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
                                  .format(data['www_domain'], ee_wp_user)
                                  + "--admin_password=\'{0}\' "
@@ -400,8 +406,9 @@ def setupwordpress(self, data):
             raise SiteError("setup wordpress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
-        Log.debug(self, "php /usr/bin/wp --allow-root "
-                  "core multisite-install "
+        Log.debug(self, "php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
+                  + "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
                   + "--admin_password= --admin_email=\'{1}\' "
@@ -410,8 +417,9 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
-                                 "core multisite-install "
+            EEShellExec.cmd_exec(self, "php {0} --allow-root "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "core multisite-install "
                                  "--url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
                                  .format(data['www_domain'], ee_wp_user)
@@ -427,8 +435,9 @@ def setupwordpress(self, data):
 
     Log.debug(self, "Updating WordPress permalink")
     try:
-        EEShellExec.cmd_exec(self, " php /usr/bin/wp --allow-root "
-                             "rewrite structure "
+        EEShellExec.cmd_exec(self, " php {0} --allow-root "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
     except CommandExecutionError as e:
         raise SiteError("Update wordpress permalinks failed")
@@ -476,15 +485,17 @@ def installwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root install "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root install "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin installation failed")
 
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root activate "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root activate "
                              "{0} {na}"
                              .format(plugin_name,
                                      na='--network' if data['multisite']
@@ -502,12 +513,14 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.info(self, "Uninstalling plugin {0}, please wait..."
              .format(plugin_name))
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root deactivate "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root deactivate "
                              "{0}".format(plugin_name))
 
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root uninstall "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin uninstall failed")
