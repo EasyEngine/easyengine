@@ -179,7 +179,7 @@ class EEDebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream','php',), 'server'], '127.0.0.1:9001')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf")::
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
                     nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9001')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
@@ -218,7 +218,7 @@ class EEDebugController(CementBaseController):
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
                 nc.set([('upstream','php',), 'server'], '127.0.0.1:9000')
-                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf")::
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
                     nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:8000')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
