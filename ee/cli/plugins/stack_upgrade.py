@@ -105,14 +105,6 @@ class EEStackUpgradeController(CementBaseController):
             apt_packages = []
             packages = []
 
-            Log.info(self, "During package update process non nginx-cached"
-                     " parts of your site may remain down")
-            # Check prompt
-            if (not self.app.pargs.no_prompt):
-                start_upgrade = input("Do you want to continue:[y/N]")
-                if start_upgrade != "Y" and start_upgrade != "y":
-                    Log.error(self, "Not starting package update")
-
             if ((not self.app.pargs.web) and (not self.app.pargs.nginx) and
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.hhvm) and
@@ -192,32 +184,45 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "MailScanner is not installed")
 
-            Log.info(self, "Updating packages, please wait...")
-            if len(apt_packages):
-                # apt-get update
-                EEAptGet.update(self)
-                # Update packages
-                EEAptGet.install(self, apt_packages)
-            if len(packages):
-                Log.debug(self, "Downloading following: {0}".format(packages))
-                EEDownload.download(self, packages)
-            Log.info(self, "Successfully updated packages")
+            if len(packages) or len(apt_packages):
 
-            # Post Actions after package updates
-            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'nginx')
-            if set(EEVariables.ee_php).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'php5-fpm')
-            if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'hhvm')
-            if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'postfix')
-            if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'hhvm')
-            if set(EEVariables.ee_mail).issubset(set(apt_packages)):
-                EEService.restart_service(self, 'dovecot')
-            if self.app.pargs.wpcli:
-                EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
+                Log.info(self, "During package update process non nginx-cached"
+                         " parts of your site may remain down")
+                # Check prompt
+                if (not self.app.pargs.no_prompt):
+                    start_upgrade = input("Do you want to continue:[y/N]")
+                    if start_upgrade != "Y" and start_upgrade != "y":
+                        Log.error(self, "Not starting package update")
+
+                Log.info(self, "Updating packages, please wait...")
+                if len(apt_packages):
+                    # apt-get update
+                    EEAptGet.update(self)
+                    # Update packages
+                    EEAptGet.install(self, apt_packages)
+
+                    # Post Actions after package updates
+                    if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'nginx')
+                    if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'php5-fpm')
+                    if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'hhvm')
+                    if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'postfix')
+                    if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'hhvm')
+                    if set(EEVariables.ee_mail).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'dovecot')
+
+                if len(packages):
+                    Log.debug(self, "Downloading following: {0}".format(packages))
+                    EEDownload.download(self, packages)
+
+                    if self.app.pargs.wpcli:
+                        EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
+
+                Log.info(self, "Successfully updated packages")
 
         # PHP 5.6 to 5.6
         elif (self.app.pargs.php56):
