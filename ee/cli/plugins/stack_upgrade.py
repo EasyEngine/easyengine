@@ -8,6 +8,7 @@ from ee.core.services import EEService
 from ee.core.fileutils import EEFileUtils
 from ee.core.shellexec import EEShellExec
 from ee.core.git import EEGit
+from ee.core.download import EEDownload
 import configparser
 import os
 
@@ -168,7 +169,6 @@ class EEStackUpgradeController(CementBaseController):
 
             if self.app.pargs.wpcli:
                 if os.path.isfile('/usr/bin/wp'):
-                    EEFileUtils.remove(self,['/usr/bin/wp'])
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
                                             "releases/download/v{0}/"
                                             "wp-cli-{0}.phar"
@@ -216,6 +216,9 @@ class EEStackUpgradeController(CementBaseController):
                         EEService.restart_service(self, 'dovecot')
 
                 if len(packages):
+                    if self.app.pargs.wpcli:
+                        EEFileUtils.remove(self,['/usr/bin/wp'])
+
                     Log.debug(self, "Downloading following: {0}".format(packages))
                     EEDownload.download(self, packages)
 
