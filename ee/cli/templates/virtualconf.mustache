@@ -13,7 +13,7 @@ server {
     #server_name_in_redirect off;
     {{/multisite}}
 
-    access_log /var/log/nginx/{{site_name}}.access.log {{^static}}rt_cache{{/static}};
+    access_log /var/log/nginx/{{site_name}}.access.log {{^wpredis}}{{^static}}rt_cache{{/static}}{{/wpredis}}{{#wpredis}}rt_cache_redis{{/wpredis}}; 
     error_log /var/log/nginx/{{site_name}}.error.log;
 
     {{#proxy}}
