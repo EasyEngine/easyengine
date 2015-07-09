@@ -26,7 +26,7 @@ class EEStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.dovecot):
+                or self.app.pargs.dovecot or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -97,7 +97,7 @@ class EEStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.dovecot):
+                or self.app.pargs.dovecot or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -168,7 +168,7 @@ class EEStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.dovecot):
+                or self.app.pargs.dovecot or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -239,7 +239,7 @@ class EEStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.dovecot):
+                or self.app.pargs.dovecot or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -311,7 +311,7 @@ class EEStackStatusController(CementBaseController):
         if not (self.app.pargs.nginx or self.app.pargs.php
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
-                or self.app.pargs.dovecot):
+                or self.app.pargs.dovecot or self.app.pargs.redis):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
