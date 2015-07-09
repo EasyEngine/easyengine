@@ -62,7 +62,7 @@ ee site create example.com --wpsubdir --wpfc     # install wpmu-subdirectory + n
 ### WordPress Multsite with subdomain
 
 ```bash
-ee site create example.com --wpsubdomin            # install wpmu-subdomain without any page caching
+ee site create example.com --wpsubdomain            # install wpmu-subdomain without any page caching
 ee site create example.com --wpsubdomain --w3tc     # install wpmu-subdomain with w3-total-cache plugin
 ee site create example.com --wpsubdomain --wpsc     # install wpmu-subdomain with wp-super-cache plugin
 ee site create example.com --wpsubdomain --wpfc     # install wpmu-subdomain + nginx fastcgi_cache
