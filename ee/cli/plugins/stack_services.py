@@ -31,7 +31,6 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEAptGet.is_installed(self, 'nginx-custom'):
@@ -80,6 +79,12 @@ class EEStackStatusController(CementBaseController):
                 services = services + ['dovecot']
             else:
                 Log.info(self, "Mail server is not installed")
+
+        if self.app.pargs.redis:
+            if EEAptGet.is_installed(self, 'redis-server'):
+                services = services + ['redis-server']
+            else:
+                Log.info(self, "Redis server is not installed")
 
         for service in services:
             Log.debug(self, "Starting service: {0}".format(service))
@@ -97,7 +102,6 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEAptGet.is_installed(self, 'nginx-custom'):
@@ -146,6 +150,12 @@ class EEStackStatusController(CementBaseController):
                 services = services + ['dovecot']
             else:
                 Log.info(self, "Mail server is not installed")
+
+        if self.app.pargs.redis:
+            if EEAptGet.is_installed(self, 'redis-server'):
+                services = services + ['redis-server']
+            else:
+                Log.info(self, "Redis server is not installed")
 
         for service in services:
             Log.debug(self, "Stopping service: {0}".format(service))
@@ -163,7 +173,6 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.php = True
             self.app.pargs.mysql = True
             self.app.pargs.postfix = True
-            self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
             if EEAptGet.is_installed(self, 'nginx-custom'):
@@ -212,6 +221,12 @@ class EEStackStatusController(CementBaseController):
                 services = services + ['dovecot']
             else:
                 Log.info(self, "Mail server is not installed")
+
+        if self.app.pargs.redis:
+            if EEAptGet.is_installed(self, 'redis-server'):
+                services = services + ['redis-server']
+            else:
+                Log.info(self, "Redis server is not installed")
 
         for service in services:
             Log.debug(self, "Restarting service: {0}".format(service))
@@ -279,6 +294,12 @@ class EEStackStatusController(CementBaseController):
             else:
                 Log.info(self, "Mail server is not installed")
 
+        if self.app.pargs.redis:
+            if EEAptGet.is_installed(self, 'redis-server'):
+                services = services + ['redis-server']
+            else:
+                Log.info(self, "Redis server is not installed")
+
         for service in services:
             if EEService.get_service_status(self, service):
                 Log.info(self, "{0:10}:  {1}".format(service, "Running"))
@@ -341,6 +362,12 @@ class EEStackStatusController(CementBaseController):
                 services = services + ['dovecot']
             else:
                 Log.info(self, "Mail server is not installed")
+
+        if self.app.pargs.redis:
+            if EEAptGet.is_installed(self, 'redis-server'):
+                services = services + ['redis-server']
+            else:
+                Log.info(self, "Redis server is not installed")
 
         for service in services:
             Log.debug(self, "Reloading service: {0}".format(service))
