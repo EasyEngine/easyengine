@@ -806,7 +806,7 @@ def display_cache_settings(self, data):
                      "page=wpsupercache"
                      .format(data['site_name']))
 
-    if data['wpfc']:
+    if data['wpfc'] or data['wpredis']:
         if data['multisite']:
             Log.info(self, "Configure nginx-helper:"
                      "\thttp://{0}/wp-admin/network/settings.php?"
