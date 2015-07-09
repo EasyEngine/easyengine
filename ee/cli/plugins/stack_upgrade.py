@@ -42,6 +42,8 @@ class EEStackUpgradeController(CementBaseController):
                 dict(help='Upgrade Postfix stack', action='store_true')),
             (['--wpcli'],
                 dict(help='Upgrade WPCLI', action='store_true')),
+            (['--redis'],
+                dict(help='Upgrade Redis', action='store_true')),
             (['--php56'],
                 dict(help="Upgrade to PHP5.6 from PHP5.5",
                      action='store_true')),
@@ -110,7 +112,7 @@ class EEStackUpgradeController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.hhvm) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-               and (not self.app.pargs.wpcli)):
+               and (not self.app.pargs.wpcli) and (not self.app.pargs.redis)):
                 self.app.pargs.web = True
 
             if self.app.pargs.all:
@@ -167,6 +169,12 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Postfix is not installed")
 
+            if self.app.pargs.redis:
+                if EEAptGet.is_installed(self, 'redis-server'):
+                    apt_packages = apt_packages + EEVariables.ee_redis
+                else:
+                    Log.info(self, "Redis is not installed")
+
             if self.app.pargs.wpcli:
                 if os.path.isfile('/usr/bin/wp'):
                     packages = packages + [["https://github.com/wp-cli/wp-cli/"
@@ -214,6 +222,8 @@ class EEStackUpgradeController(CementBaseController):
                         EEService.restart_service(self, 'hhvm')
                     if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'dovecot')
+                    if set(EEVariables.ee_redis).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'redis-server')
 
                 if len(packages):
                     if self.app.pargs.wpcli:
