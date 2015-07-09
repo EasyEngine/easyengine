@@ -1919,7 +1919,7 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)
                                    ]
 
-        if len(apt_packages) or len(apt_packages):
+        if len(packages) or len(apt_packages):
             ee_prompt = input('Are you sure you to want to purge '
                               'from server '
                               'along with their configuration'
