@@ -347,7 +347,7 @@ class EESiteCreateController(CementBaseController):
             (['--wpsc'],
                 dict(help="create wordpress single/multi site with wpsc cache",
                      action='store_true')),
-            (['--redis'],
+            (['--wpredis'],
                 dict(help="create wordpress single/multi site with redis cache",
                      action='store_true')),
             (['--hhvm'],
@@ -444,7 +444,7 @@ class EESiteCreateController(CementBaseController):
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, redis=False, multisite=False,
+                        wpfc=False, wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         ee_db_name='', ee_db_user='', ee_db_pass='',
                         ee_db_host='')
@@ -515,7 +515,7 @@ class EESiteCreateController(CementBaseController):
             data['pagespeed'] = False
             pagespeed = 0
 
-        if (cache == 'redis' and (not self.app.pargs.experimental)):
+        if (cache == 'wpredis' and (not self.app.pargs.experimental)):
             Log.info(self, "Redis is experimental feature and it may not"
                      "work with all CSS/JS/Cache of your site.\nYou can "
                      "disable it by changing cache later.\nDo you wish"
@@ -526,9 +526,9 @@ class EESiteCreateController(CementBaseController):
             if check_prompt != "Y" and check_prompt != "y":
                 Log.info(self, "Not using Redis for site.")
                 cache = 'basic'
-                data['redis'] = False
+                data['wpredis'] = False
                 data['basic'] = True
-                self.app.pargs.redis = False
+                self.app.pargs.wpredis = False
 
         #     self.app.args.print_help()
         # if not data:
@@ -751,7 +751,7 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to wpfc cache", action='store_true')),
             (['--wpsc'],
                 dict(help="update to wpsc cache", action='store_true')),
-            (['--redis'],
+            (['--wpredis'],
                 dict(help="update to redis cache", action='store_true')),
             (['--hhvm'],
                 dict(help='Use HHVM for site',
@@ -780,7 +780,7 @@ class EESiteUpdateController(CementBaseController):
         if not (pargs.php or
                 pargs.mysql or pargs.wp or pargs.wpsubdir or
                 pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
-                pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.redis):
+                pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis):
             Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -900,7 +900,7 @@ class EESiteUpdateController(CementBaseController):
         if stype == 'php':
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, redis=False, multisite=False,
+                        wpfc=False, wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         currsitetype=oldsitetype, currcachetype=oldcachetype)
 
@@ -908,7 +908,7 @@ class EESiteUpdateController(CementBaseController):
 
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=True, wp=False, w3tc=False,
-                        wpfc=False, wpsc=False, redis=False, multisite=False,
+                        wpfc=False, wpsc=False, wpredis=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot,
                         ee_db_name='', ee_db_user='', ee_db_pass='',
                         ee_db_host='',
@@ -963,31 +963,31 @@ class EESiteUpdateController(CementBaseController):
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
-                    data['redis'] = False
+                    data['wpredis'] = False
                 elif oldcachetype == 'w3tc':
                     data['basic'] = False
                     data['w3tc'] = True
                     data['wpfc'] = False
                     data['wpsc'] = False
-                    data['redis'] = False
+                    data['wpredis'] = False
                 elif oldcachetype == 'wpfc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = True
                     data['wpsc'] = False
-                    data['redis'] = False
+                    data['wpredis'] = False
                 elif oldcachetype == 'wpsc':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = True
-                    data['redis'] = False
-                elif oldcachetype == 'redis':
+                    data['wpredis'] = False
+                elif oldcachetype == 'wpredis':
                     data['basic'] = False
                     data['w3tc'] = False
                     data['wpfc'] = False
                     data['wpsc'] = False
-                    data['redis'] = True
+                    data['wpredis'] = True
 
             if pargs.hhvm != 'off':
                 data['hhvm'] = True
@@ -1081,7 +1081,7 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = True
 
-        if data['currcachetype'] != 'redis' and pargs.redis:
+        if data['currcachetype'] != 'wpredis' and pargs.wpredis:
             if (not pargs.experimental):
                 Log.info(self, "Redis is experimental feature and it may not"
                          " work with all plugins of your site.\nYou can "
@@ -1092,7 +1092,7 @@ class EESiteUpdateController(CementBaseController):
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.info(self, "Not using Redis for site")
-                    data['redis'] = False
+                    data['wpredis'] = False
                     data['basic'] = True
                     cache = 'basic'
 
@@ -1234,7 +1234,7 @@ class EESiteUpdateController(CementBaseController):
                              " `tail /var/log/ee/ee.log` & Try Again!!!")
                     return 1
 
-            if oldcachetype == 'redis' and not data['redis']:
+            if oldcachetype == 'wpredis' and not data['wpredis']:
                 try:
                     uninstallwp_plugin(self, 'redis-cache', data)
                 except SiteError as e:
@@ -1265,7 +1265,7 @@ class EESiteUpdateController(CementBaseController):
                          "`tail /var/log/ee/ee.log` & Try Again!!!")
                 return 1
 
-        if oldcachetype != 'redis' and data['redis']:
+        if oldcachetype != 'wpredis' and data['wpredis']:
             try:
                 installwp_plugin(self, 'redis-cache', data)
             except SiteError as e:

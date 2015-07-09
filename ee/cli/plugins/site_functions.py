@@ -450,7 +450,7 @@ def setupwordpress(self, data):
         installwp_plugin(self, 'wp-super-cache', data)
 
     """Install Redis Cache"""
-    if data['redis']:
+    if data['wpredis']:
         installwp_plugin(self, 'redis-cache', data)
 
     """Install W3 Total Cache"""
@@ -622,7 +622,7 @@ def site_package_check(self, stype):
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
-    if self.app.pargs.redis:
+    if self.app.pargs.wpredis:
         Log.debug(self, "Setting apt_packages variable for redis")
         if not EEAptGet.is_installed(self, 'redis-server'):
             apt_packages = apt_packages + EEVariables.ee_redis
@@ -873,7 +873,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'w3tc', 'redis']:
+        elif val and key in ['wpfc', 'wpsc', 'w3tc', 'wpredis']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
