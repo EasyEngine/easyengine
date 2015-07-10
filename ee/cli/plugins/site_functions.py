@@ -824,6 +824,17 @@ def display_cache_settings(self, data):
                      "\thttp://{0}/wp-admin/options-general.php?"
                      "page=nginx".format(data['site_name']))
 
+    if data['wpredis']:
+        if data['multisite']:
+            Log.info(self, "Configure redis-cache:"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=redis-cache".format(data['site_name']))
+        else:
+            Log.info(self, "Configure redis-cache:"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=redis-cache".format(data['site_name']))
+        Log.info(self, "Object Cache:\t\tEnable")
+
     if data['wpfc'] or data['w3tc']:
         if data['multisite']:
             Log.info(self, "Configure W3TC:"
