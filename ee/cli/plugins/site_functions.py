@@ -281,7 +281,8 @@ def setupwordpress(self, data):
     Log.debug(self, "Setting up wp-config file")
     if not data['multisite']:
         Log.debug(self, "Generating wp-config for WordPress Single site")
-        Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
+        Log.debug(self, "bash -c \"php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbuser=\'{2}\' "
                   "--dbhost=\'{3}\' "
@@ -292,7 +293,8 @@ def setupwordpress(self, data):
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root"
+            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+                                 .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                  "--dbuser=\'{2}\' --dbhost=\'{3}\' "
@@ -309,7 +311,8 @@ def setupwordpress(self, data):
                 raise SiteError("generate wp-config failed for wp single site")
     else:
         Log.debug(self, "Generating wp-config for WordPress multisite")
-        Log.debug(self, "bash -c \"php /usr/bin/wp --allow-root "
+        Log.debug(self, "bash -c \"php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
                   + "core config "
                   + "--dbname=\'{0}\' --dbprefix=\'{1}\' --dbhost=\'{2}\' "
                   .format(data['ee_db_name'], ee_wp_prefix, data['ee_db_host'])
@@ -322,7 +325,8 @@ def setupwordpress(self, data):
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php /usr/bin/wp --allow-root"
+            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+                                 .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
                                  "--dbhost=\'{2}\' "
@@ -382,14 +386,16 @@ def setupwordpress(self, data):
 
     if not data['multisite']:
         Log.debug(self, "Creating tables for WordPress Single site")
-        Log.debug(self, "php /usr/bin/wp --allow-root core install "
-                  "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
+        Log.debug(self, "php {0} --allow-root core install "
+                  .format(EEVariables.ee_wpcli_path)
+                  + "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
                   + "--admin_password= --admin_email=\'{1}\'"
                   .format(ee_wp_pass, ee_wp_email))
         try:
-            EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root core "
-                                 "install --url=\'{0}\' --title=\'{0}\' "
+            EEShellExec.cmd_exec(self, "php {0} --allow-root core "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "install --url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
                                  .format(data['www_domain'], ee_wp_user)
                                  + "--admin_password=\'{0}\' "
@@ -400,8 +406,9 @@ def setupwordpress(self, data):
             raise SiteError("setup wordpress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
-        Log.debug(self, "php /usr/bin/wp --allow-root "
-                  "core multisite-install "
+        Log.debug(self, "php {0} --allow-root "
+                  .format(EEVariables.ee_wpcli_path)
+                  + "core multisite-install "
                   "--url=\'{0}\' --title=\'{0}\' --admin_name=\'{1}\' "
                   .format(data['www_domain'], ee_wp_user)
                   + "--admin_password= --admin_email=\'{1}\' "
@@ -410,8 +417,9 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            EEShellExec.cmd_exec(self, "php /usr/bin/wp --allow-root "
-                                 "core multisite-install "
+            EEShellExec.cmd_exec(self, "php {0} --allow-root "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "core multisite-install "
                                  "--url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
                                  .format(data['www_domain'], ee_wp_user)
@@ -427,8 +435,9 @@ def setupwordpress(self, data):
 
     Log.debug(self, "Updating WordPress permalink")
     try:
-        EEShellExec.cmd_exec(self, " php /usr/bin/wp --allow-root "
-                             "rewrite structure "
+        EEShellExec.cmd_exec(self, " php {0} --allow-root "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "rewrite structure "
                              "/%year%/%monthnum%/%day%/%postname%/")
     except CommandExecutionError as e:
         raise SiteError("Update wordpress permalinks failed")
@@ -439,6 +448,10 @@ def setupwordpress(self, data):
     """Install Wp Super Cache"""
     if data['wpsc']:
         installwp_plugin(self, 'wp-super-cache', data)
+
+    """Install Redis Cache"""
+    if data['wpredis']:
+        installwp_plugin(self, 'redis-cache', data)
 
     """Install W3 Total Cache"""
     if data['w3tc'] or data['wpfc']:
@@ -472,15 +485,17 @@ def installwp_plugin(self, plugin_name, data):
              .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root install "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root install "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin installation failed")
 
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root activate "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root activate "
                              "{0} {na}"
                              .format(plugin_name,
                                      na='--network' if data['multisite']
@@ -495,9 +510,17 @@ def uninstallwp_plugin(self, plugin_name, data):
     Log.debug(self, "Uninstalling plugin {0}, please wait..."
               .format(plugin_name))
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+    Log.info(self, "Uninstalling plugin {0}, please wait..."
+             .format(plugin_name))
     try:
-        EEShellExec.cmd_exec(self, "php /usr/bin/wp plugin "
-                             "--allow-root uninstall "
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root deactivate "
+                             "{0}".format(plugin_name))
+
+        EEShellExec.cmd_exec(self, "php {0} plugin "
+                             .format(EEVariables.ee_wpcli_path)
+                             + "--allow-root uninstall "
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin uninstall failed")
@@ -599,6 +622,52 @@ def site_package_check(self, stype):
                                     "wp-cli-{0}.phar"
                                     .format(EEVariables.ee_wp_cli),
                                     "/usr/bin/wp", "WP-CLI"]]
+    if self.app.pargs.wpredis:
+        Log.debug(self, "Setting apt_packages variable for redis")
+        if not EEAptGet.is_installed(self, 'redis-server'):
+            apt_packages = apt_packages + EEVariables.ee_redis
+
+        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+           os.path.isfile("/etc/nginx/common/redis.conf")):
+
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/redis.conf')
+            ee_nginx = open('/etc/nginx/common/redis.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'redis.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+           os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/redis-hhvm.conf')
+            ee_nginx = open('/etc/nginx/common/redis-hhvm.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'redis-hhvm.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                    "upstream.conf",
+                                    "redis"):
+                with open("/etc/nginx/conf.d/upstream.conf",
+                          "a") as redis_file:
+                    redis_file.write("upstream redis {\n"
+                                     "    server 127.0.0.1:6379;\n"
+                                     "    keepalive 10;\n}")
+
+        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+           os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+            with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                redis_file.write("# Log format Settings\n"
+                                 "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
+                                 "'$http_host \"$request\" $status $body_bytes_sent '\n"
+                                 "'\"$http_referer\" \"$http_user_agent\"';\n")
 
     if self.app.pargs.hhvm:
         if platform.architecture()[0] is '32bit':
@@ -745,7 +814,7 @@ def display_cache_settings(self, data):
                      "page=wpsupercache"
                      .format(data['site_name']))
 
-    if data['wpfc']:
+    if data['wpfc'] or data['wpredis']:
         if data['multisite']:
             Log.info(self, "Configure nginx-helper:"
                      "\thttp://{0}/wp-admin/network/settings.php?"
@@ -754,6 +823,17 @@ def display_cache_settings(self, data):
             Log.info(self, "Configure nginx-helper:"
                      "\thttp://{0}/wp-admin/options-general.php?"
                      "page=nginx".format(data['site_name']))
+
+    if data['wpredis']:
+        if data['multisite']:
+            Log.info(self, "Configure redis-cache:"
+                     "\thttp://{0}/wp-admin/network/settings.php?"
+                     "page=redis-cache".format(data['site_name']))
+        else:
+            Log.info(self, "Configure redis-cache:"
+                     "\thttp://{0}/wp-admin/options-general.php?"
+                     "page=redis-cache".format(data['site_name']))
+        Log.info(self, "Object Cache:\t\tEnable")
 
     if data['wpfc'] or data['w3tc']:
         if data['multisite']:
@@ -812,7 +892,7 @@ def detSitePar(opts):
         if val and key in ['html', 'php', 'mysql', 'wp',
                            'wpsubdir', 'wpsubdomain']:
             typelist.append(key)
-        elif val and key in ['wpfc', 'wpsc', 'w3tc']:
+        elif val and key in ['wpfc', 'wpsc', 'w3tc', 'wpredis']:
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
