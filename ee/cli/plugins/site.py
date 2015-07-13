@@ -524,7 +524,7 @@ class EESiteCreateController(CementBaseController):
                 # Check prompt
             check_prompt = input("Type \"y\" to continue [n]:")
             if check_prompt != "Y" and check_prompt != "y":
-                Log.info(self, "Not using Redis for site.")
+                Log.error(self, "Not using Redis for site")
                 cache = 'basic'
                 data['wpredis'] = False
                 data['basic'] = True
@@ -1095,7 +1095,7 @@ class EESiteUpdateController(CementBaseController):
                 # Check prompt
                 check_prompt = input("Type \"y\" to continue [n]:")
                 if check_prompt != "Y" and check_prompt != "y":
-                    Log.info(self, "Not using Redis for site")
+                    Log.error(self, "Not using Redis for site")
                     data['wpredis'] = False
                     data['basic'] = True
                     cache = 'basic'
