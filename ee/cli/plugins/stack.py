@@ -425,6 +425,49 @@ class EEStackController(CementBaseController):
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
+                if EEAptGet.is_installed(self,'redis-server'):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/common/redis.conf")):
+
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis.conf')
+                        ee_nginx = open('/etc/nginx/common/redis.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-hhvm.conf')
+                        ee_nginx = open('/etc/nginx/common/redis-hhvm.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis-hhvm.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                    if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                        if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                                "upstream.conf",
+                                                "redis"):
+                            with open("/etc/nginx/conf.d/upstream.conf",
+                                      "a") as redis_file:
+                                redis_file.write("upstream redis {\n"
+                                                 "    server 127.0.0.1:6379;\n"
+                                                 "    keepalive 10;\n}\n")
+
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                        with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                            redis_file.write("# Log format Settings\n"
+                                             "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
+                                             "'$http_host \"$request\" $status $body_bytes_sent '\n"
+                                             "'\"$http_referer\" \"$http_user_agent\"';\n")
+
             # Set up pagespeed config
             if self.app.pargs.pagespeed:
                 if (os.path.isfile('/etc/nginx/nginx.conf') and
