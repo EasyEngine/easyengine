@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--pagespeed --web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis" \
+                              -W "--pagespeed --web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
                               -- $cur) )
                 ;;
             "upgrade" )
@@ -248,9 +248,9 @@ _ee_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot" | "--redis")
+        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot" | "--redis | --phpredisadmin")
             if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
-                retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --redis"
+                retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --redis --phpredisadmin"
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
                     retlist="--nginx --php --mysql --postfix --memcache --dovecot --redis"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
