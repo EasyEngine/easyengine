@@ -1517,8 +1517,6 @@ class EEStackController(CementBaseController):
                 if not EEAptGet.is_installed(self, 'redis-server'):
                     if not EEAptGet.is_installed(self, 'nginx-custom'):
                         self.app.pargs.nginx = True
-                    if not EEAptGet.is_installed(self, 'php5-fpm'):
-                        self.app.pargs.php = True
                     apt_packages = apt_packages + EEVariables.ee_redis
                 else:
                     Log.info(self, "Redis already installed")
