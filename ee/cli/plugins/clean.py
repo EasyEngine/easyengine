@@ -47,8 +47,8 @@ class EECleanController(CementBaseController):
             self.clean_memcache()
             self.clean_fastcgi()
             self.clean_opcache()
-            self.clean_pagespeed()
             self.clean_redis()
+            self.clean_pagespeed()
         if self.app.pargs.fastcgi:
             self.clean_fastcgi()
         if self.app.pargs.memcache:
@@ -100,7 +100,12 @@ class EECleanController(CementBaseController):
                                         "/opcache/opgui.php?page=reset").read()
         except Exception as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to clean OpCache")
+                Log.debug(self, "Unable hit url, "
+                          " https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset,"
+                          " please check you have admin tools installed")
+                Log.debug(self, "please check you have admin tools installed,"
+                         " or install them with `ee stack install --admin`")
+                Log.error(self, "Unable to clean opcache")
 
     @expose(hide=True)
     def clean_pagespeed(self):
@@ -109,7 +114,9 @@ class EECleanController(CementBaseController):
             Log.info(self, "Cleaning PageSpeed cache")
             EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
         else:
-            Log.error(self, "Unable to clean Pagespeed cache")
+            Log.debug(self, "/var/ngx_pagespeed_cache does not exist," 
+                            " so cache not cleared")
+            Log.error(self, "Unable to clean pagespeed cache")
 
 
 def load(app):
