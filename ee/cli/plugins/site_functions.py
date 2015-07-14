@@ -444,6 +444,12 @@ def setupwordpress(self, data):
 
     """Install nginx-helper plugin """
     installwp_plugin(self, 'nginx-helper', data)
+    if data['wpfc']:
+        plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+        setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+    elif data['wpredis']:
+        plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+        setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
 
     """Install Wp Super Cache"""
     if data['wpsc']:
@@ -524,6 +530,31 @@ def uninstallwp_plugin(self, plugin_name, data):
                              "{0}".format(plugin_name))
     except CommandExecutionError as e:
         raise SiteError("plugin uninstall failed")
+
+def setupwp_plugin(self, plugin_name, plugin_option, plugin_data, data):
+    ee_site_webroot = data['webroot']
+    Log.info(self, "Setting plugin {0}, please wait..."
+             .format(plugin_name))
+    EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
+
+    if not data['multisite']:
+        try:
+            EEShellExec.cmd_exec(self, "php {0} "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "--allow-root option update "
+                                 "{0} \'{1}\' --format=json".format(plugin_option, plugin_data))
+        except CommandExecutionError as e:
+            raise SiteError("plugin setup failed")
+    else:
+        try:
+            EEShellExec.cmd_exec(self, "php {0} "
+                                 .format(EEVariables.ee_wpcli_path)
+                                 + "--allow-root network meta update 1 "
+                                  "{0} \'{1}\' --format=json"
+                                 .format(plugin_option, plugin_data
+                                         ))
+        except CommandExecutionError as e:
+            raise SiteError("plugin setup failed")
 
 
 def setwebrootpermissions(self, webroot):
@@ -813,16 +844,6 @@ def display_cache_settings(self, data):
                      "\t\thttp://{0}/wp-admin/options-general.php?"
                      "page=wpsupercache"
                      .format(data['site_name']))
-
-    if data['wpfc'] or data['wpredis']:
-        if data['multisite']:
-            Log.info(self, "Configure nginx-helper:"
-                     "\thttp://{0}/wp-admin/network/settings.php?"
-                     "page=nginx".format(data['site_name']))
-        else:
-            Log.info(self, "Configure nginx-helper:"
-                     "\thttp://{0}/wp-admin/options-general.php?"
-                     "page=nginx".format(data['site_name']))
 
     if data['wpredis']:
         if data['multisite']:

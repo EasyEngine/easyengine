@@ -30,7 +30,7 @@ location /redis-store {
     internal  ;
     set_unescape_uri $key $arg_key ;
     redis2_query  set $key $echo_request_body;
-    redis2_query expire $key 6h;
+    redis2_query expire $key 14400;
     redis2_pass  redis;
 
 }
