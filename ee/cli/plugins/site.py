@@ -1093,7 +1093,7 @@ class EESiteUpdateController(CementBaseController):
                          " to enable Redis now for {0}?".format(ee_domain))
 
                 # Check prompt
-                check_prompt = input("Type \"y\" to continue [n]:")
+                check_prompt = input("Type \"y\" to continue [n]: ")
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.error(self, "Not using Redis for site")
                     data['wpredis'] = False
@@ -1224,6 +1224,40 @@ class EESiteUpdateController(CementBaseController):
                 except SiteError as e:
                     Log.debug(self, str(e))
                     Log.info(self, Log.FAIL + "Update site failed. "
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
+
+            if ((oldcachetype in ['w3tc', 'wpsc', 'basic', 'wpredis'] and
+                (data['wpfc'])) or (oldsitetype == 'wp' and data['multisite'] and data['wpfc'])):
+                try:
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
+
+            elif ((oldcachetype in ['w3tc', 'wpsc', 'basic', 'wpfc'] and
+               (data['wpredis'])) or (oldsitetype == 'wp' and data['multisite'] and data['wpredis'])):
+                try:
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
+                             "Check logs for reason"
+                             " `tail /var/log/ee/ee.log` & Try Again!!!")
+                    return 1
+            else:
+                try:
+                    plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":0,"enable_map":0,"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}'
+                    setupwp_plugin(self, 'nginx-helper', 'rt_wp_nginx_helper_options', plugin_data, data)
+                except SiteError as e:
+                    Log.debug(self, str(e))
+                    Log.info(self, Log.FAIL + "Update nginx-helper settings failed. "
                              "Check logs for reason"
                              " `tail /var/log/ee/ee.log` & Try Again!!!")
                     return 1
