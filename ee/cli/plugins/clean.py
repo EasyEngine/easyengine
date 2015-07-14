@@ -32,6 +32,8 @@ class EECleanController(CementBaseController):
                 dict(help='Clean OpCache', action='store_true')),
             (['--pagespeed'],
                 dict(help='Clean Pagespeed Cache', action='store_true')),
+            (['--redis'],
+                dict(help='Clean Redis Cache', action='store_true')),
             ]
         usage = "ee clean [options]"
 
@@ -39,12 +41,13 @@ class EECleanController(CementBaseController):
     def default(self):
         if (not (self.app.pargs.all or self.app.pargs.fastcgi or
                  self.app.pargs.memcache or self.app.pargs.opcache or
-                 self.app.pargs.pagespeed)):
+                 self.app.pargs.pagespeed or self.app.pargs.redis)):
             self.clean_fastcgi()
         if self.app.pargs.all:
             self.clean_memcache()
             self.clean_fastcgi()
             self.clean_opcache()
+            self.clean_redis()
             self.clean_pagespeed()
         if self.app.pargs.fastcgi:
             self.clean_fastcgi()
@@ -54,6 +57,17 @@ class EECleanController(CementBaseController):
             self.clean_opcache()
         if self.app.pargs.pagespeed:
             self.clean_pagespeed()
+        if self.app.pargs.redis:
+            self.clean_redis()
+
+    @expose(hide=True)
+    def clean_redis(self):
+        """This function clears Redis cache"""
+        if(EEAptGet.is_installed(self, "redis-server")):
+            Log.info(self, "Cleaning Redis cache")
+            EEShellExec.cmd_exec(self, "redis-cli flushall")
+        else:
+            Log.info(self, "Redis is not installed")
 
     @expose(hide=True)
     def clean_memcache(self):
@@ -63,7 +77,7 @@ class EECleanController(CementBaseController):
                 EEService.restart_service(self, "memcached")
                 Log.info(self, "Cleaning MemCache")
             else:
-                Log.error(self, "Memcache not installed")
+                Log.info(self, "Memcache not installed")
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to restart Memcached")
@@ -86,7 +100,12 @@ class EECleanController(CementBaseController):
                                         "/opcache/opgui.php?page=reset").read()
         except Exception as e:
                 Log.debug(self, "{0}".format(e))
-                Log.error(self, "Unable to clean OpCache")
+                Log.debug(self, "Unable hit url, "
+                          " https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset,"
+                          " please check you have admin tools installed")
+                Log.debug(self, "please check you have admin tools installed,"
+                         " or install them with `ee stack install --admin`")
+                Log.error(self, "Unable to clean opcache")
 
     @expose(hide=True)
     def clean_pagespeed(self):
@@ -95,7 +114,9 @@ class EECleanController(CementBaseController):
             Log.info(self, "Cleaning PageSpeed cache")
             EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
         else:
-            Log.error(self, "Unable to clean Pagespeed cache")
+            Log.debug(self, "/var/ngx_pagespeed_cache does not exist," 
+                            " so cache not cleared")
+            Log.error(self, "Unable to clean pagespeed cache")
 
 
 def load(app):
