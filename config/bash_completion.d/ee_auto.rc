@@ -74,17 +74,17 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--pagespeed --web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm" \
+                              -W "--pagespeed --web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt" \
+                              -W "--web --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt --wpcli" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --mysql --postfix --memcache --dovecot" \
+                              -W "--nginx --php --mysql --postfix --memcache --dovecot --redis" \
                               -- $cur) )
                 ;;
             "migrate")
@@ -165,13 +165,13 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --proxy= --pagespeed" \
+                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --proxy= --pagespeed --wpredis" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off" \
+                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis" \
                                  -- $cur) )
                 ;;
             "delete")
@@ -217,9 +217,9 @@ _ee_complete()
         "--wp" | "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --user --email --pass"
+                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --user --email --pass --wpredis"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off"
+                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis"
                 else
                     retlist=""
                 fi
@@ -233,11 +233,11 @@ _ee_complete()
                               -- $cur) )
             ;;
 
-        "--pagespeed" | "--hhvm")
+        "--pagespeed" | "--hhvm" | "--wpredis" )
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal"
+                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal  --wpredis"
             elif [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal"
+                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal --wpredis"
             else
                 retlist=""
             fi
@@ -248,11 +248,11 @@ _ee_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot")
+        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot" | "--redis | --phpredisadmin")
             if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
-                retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot"
+                retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --redis --phpredisadmin"
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
-                    retlist="--nginx --php --mysql --postfix --memcache --dovecot"
+                    retlist="--nginx --php --mysql --postfix --memcache --dovecot --redis"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
                     retlist="--start --nginx --php --fpm --mysql -i --interactive  -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then
@@ -290,7 +290,7 @@ _ee_complete()
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
               retlist="--db --files"
           elif [ ${COMP_WORDS[2]} == "update" ]; then
-            retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off"
+            retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis"
           else
             retlist=""
           fi
@@ -339,7 +339,7 @@ _ee_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed"
+                    retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --wpredis"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \

@@ -16,6 +16,6 @@ class EEExtract():
             os.remove(file)
             return True
         except tarfile.TarError as e:
-            Log.debug(self, "{0}{1}".format(e.errno, e.strerror))
+            Log.debug(self, "{0}".format(e))
             Log.error(self, 'Unable to extract file \{0}'.format(file))
             return False

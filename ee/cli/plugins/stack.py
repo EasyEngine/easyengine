@@ -74,6 +74,10 @@ class EEStackController(CementBaseController):
                 dict(help='Install Utils stack', action='store_true')),
             (['--pagespeed'],
                 dict(help='Install Pagespeed', action='store_true')),
+            (['--redis'],
+                dict(help='Install Redis', action='store_true')),
+            (['--phpredisadmin'],
+                dict(help='Install Redis', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
@@ -193,6 +197,17 @@ class EEStackController(CementBaseController):
                                      " | debconf-set-selections")
             except CommandExecutionError as e:
                 Log.error("Failed to initialize dovecot packages")
+
+        if set(EEVariables.ee_redis).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for Redis, please wait...")
+            if EEVariables.ee_platform_distro == 'debian':
+                Log.debug(self, 'Adding repo_url of redis for debian')
+                EERepo.add(self, repo_url=EEVariables.ee_redis_repo)
+                Log.debug(self, 'Adding Dotdeb GPG key')
+                EERepo.add_key(self, '89DF5277')
+            else:
+                Log.debug(self, 'Adding ppa for redis')
+                EERepo.add(self, ppa=EEVariables.ee_redis_repo)
 
     @expose(hide=True)
     def post_pref(self, apt_packages, packages):
@@ -410,6 +425,49 @@ class EEStackController(CementBaseController):
                     self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
+                if EEAptGet.is_installed(self,'redis-server'):
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/common/redis.conf")):
+
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis.conf')
+                        ee_nginx = open('/etc/nginx/common/redis.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-hhvm.conf')
+                        ee_nginx = open('/etc/nginx/common/redis-hhvm.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis-hhvm.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                    if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                        if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                                "upstream.conf",
+                                                "redis"):
+                            with open("/etc/nginx/conf.d/upstream.conf",
+                                      "a") as redis_file:
+                                redis_file.write("upstream redis {\n"
+                                                 "    server 127.0.0.1:6379;\n"
+                                                 "    keepalive 10;\n}\n")
+
+                    if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                       os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                        with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                            redis_file.write("# Log format Settings\n"
+                                             "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
+                                             "'$http_host \"$request\" $status $body_bytes_sent '\n"
+                                             "'\"$http_referer\" \"$http_user_agent\"';\n")
+
             # Set up pagespeed config
             if self.app.pargs.pagespeed:
                 if (os.path.isfile('/etc/nginx/nginx.conf') and
@@ -508,6 +566,49 @@ class EEStackController(CementBaseController):
                     if not EEService.reload_service(self, 'nginx'):
                         Log.error(self, "Failed to reload Nginx, please check "
                                         "output of `nginx -t`")
+
+            if set(EEVariables.ee_redis).issubset(set(apt_packages)):
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/common/redis.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis.conf')
+                    ee_nginx = open('/etc/nginx/common/redis.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
+
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/redis-hhvm.conf')
+                    ee_nginx = open('/etc/nginx/common/redis-hhvm.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-hhvm.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
+                                            "upstream.conf",
+                                            "redis"):
+                        with open("/etc/nginx/conf.d/upstream.conf",
+                                  "a") as redis_file:
+                            redis_file.write("upstream redis {\n"
+                                             "    server 127.0.0.1:6379;\n"
+                                             "    keepalive 10;\n}\n")
+
+                if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                   os.path.isfile("/etc/nginx/conf.d/redis.conf")):
+                    with open("/etc/nginx/conf.d/redis.conf", "a") as redis_file:
+                        redis_file.write("# Log format Settings\n"
+                                         "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
+                                         "'$http_host \"$request\" $status $body_bytes_sent '\n"
+                                         "'\"$http_referer\" \"$http_user_agent\"';\n")
 
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
@@ -1346,6 +1447,38 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user,
                                   recursive=True)
 
+            if any('/tmp/pra.tar.gz' == x[1]
+                    for x in packages):
+                Log.debug(self, 'Extracting file /tmp/pra.tar.gz to '
+                          'loaction /tmp/')
+                EEExtract.extract(self, '/tmp/pra.tar.gz', '/tmp/')
+                if not os.path.exists('{0}22222/htdocs/cache/redis'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, "Creating new directory "
+                              "{0}22222/htdocs/cache/redis"
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/cache/redis'
+                                .format(EEVariables.ee_webroot))
+                shutil.move('/tmp/phpRedisAdmin-master/',
+                            '{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                            .format(EEVariables.ee_webroot))
+
+                Log.debug(self, 'Extracting file /tmp/predis.tar.gz to '
+                          'loaction /tmp/')
+                EEExtract.extract(self, '/tmp/predis.tar.gz', '/tmp/')
+                shutil.move('/tmp/predis-1.0.1/',
+                            '{0}22222/htdocs/cache/redis/phpRedisAdmin/vendor'
+                            .format(EEVariables.ee_webroot))
+
+                Log.debug(self, 'Setting Privileges of webroot permission to  '
+                          '{0}22222/htdocs/cache/ file '
+                          .format(EEVariables.ee_webroot))
+                EEFileUtils.chown(self, '{0}22222'
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user,
+                                  recursive=True)
+
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
@@ -1359,7 +1492,9 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm)
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
-               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)):
+               (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
+               and (not self.app.pargs.redis) and
+               (not self.app.pargs.phpredisadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -1420,6 +1555,12 @@ class EEStackController(CementBaseController):
                     self.app.pargs.nginx = True
                 else:
                     Log.info(self, "Nginx already installed")
+
+            if self.app.pargs.redis:
+                if not EEAptGet.is_installed(self, 'redis-server'):
+                    apt_packages = apt_packages + EEVariables.ee_redis
+                else:
+                    Log.info(self, "Redis already installed")
 
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
@@ -1485,6 +1626,15 @@ class EEStackController(CementBaseController):
                 packages = packages + [["https://github.com/phpmyadmin/"
                                         "phpmyadmin/archive/STABLE.tar.gz",
                                         "/tmp/pma.tar.gz", "phpMyAdmin"]]
+
+            if self.app.pargs.phpredisadmin:
+                Log.debug(self, "Setting packages varible for phpRedisAdmin")
+                packages = packages + [["https://github.com/ErikDubbelboer/"
+                                        "phpRedisAdmin/archive/master.tar.gz",
+                                        "/tmp/pra.tar.gz","phpRedisAdmin"],
+                                       ["https://github.com/nrk/predis/"
+                                        "archive/v1.0.1.tar.gz",
+                                        "/tmp/predis.tar.gz", "Predis"]]
 
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
@@ -1592,7 +1742,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
-           (not self.app.pargs.pagespeed)):
+           (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1643,7 +1794,9 @@ class EEStackController(CementBaseController):
             if EEAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Removing apt_packages varible of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
-
+        if self.app.pargs.redis:
+            Log.debug(self, "Remove apt_packages variable of Redis")
+            apt_packages = apt_packages + EEVariables.ee_redis
         if self.app.pargs.mysql:
             Log.debug(self, "Removing apt_packages variable of MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1653,10 +1806,17 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             Log.debug(self, "Removing package variable of WPCLI ")
-            packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/bin/wp'):
+                packages = packages + ['/usr/bin/wp']
+            else:
+                Log.warn(self, "WP-CLI is not installed with EasyEngine")
         if self.app.pargs.phpmyadmin:
             Log.debug(self, "Removing package variable of phpMyAdmin ")
             packages = packages + ['{0}22222/htdocs/db/pma'
+                                   .format(EEVariables.ee_webroot)]
+        if self.app.pargs.phpredisadmin:
+            Log.debug(self, "Removing package variable of phpRedisAdmin ")
+            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
                                    .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Removing package variable of Adminer ")
@@ -1675,28 +1835,28 @@ class EEStackController(CementBaseController):
                                    '/usr/bin/pt-query-advisor',
                                    '{0}22222/htdocs/db/anemometer'
                                    .format(EEVariables.ee_webroot)]
-        ee_prompt = input('Are you sure you to want to'
-                          ' remove from server.'
-                          'Package configuration will remain'
-                          ' on server after this operation.\n'
-                          'Any answer other than '
-                          '"yes" will be stop this'
-                          ' operation :  ')
 
-        if len(apt_packages):
+        if len(packages) or len(apt_packages):
+            ee_prompt = input('Are you sure you to want to'
+                              ' remove from server.'
+                              '\nPackage configuration will remain'
+                              ' on server after this operation.\n'
+                              'Any answer other than '
+                              '"yes" will be stop this'
+                              ' operation :  ')
+
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.debug(self, "Removing apt_packages")
-                Log.info(self, "Removing packages, please wait...")
-                EEAptGet.remove(self, apt_packages)
-                EEAptGet.auto_remove(self)
+                if len(packages):
+                    EEFileUtils.remove(self, packages)
+                    EEAptGet.auto_remove(self)
 
-        if len(packages):
-            if ee_prompt == 'YES' or ee_prompt == 'yes':
-                EEFileUtils.remove(self, packages)
-                EEAptGet.auto_remove(self)
+                if len(apt_packages):
+                    Log.debug(self, "Removing apt_packages")
+                    Log.info(self, "Removing packages, please wait...")
+                    EEAptGet.remove(self, apt_packages)
+                    EEAptGet.auto_remove(self)
 
-        if ee_prompt == 'YES' or ee_prompt == 'yes':
-            Log.info(self, "Successfully removed packages")
+                Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
     def purge(self):
@@ -1712,7 +1872,8 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
-           (not self.app.pargs.pagespeed)):
+           (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1760,8 +1921,11 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Removing apt_packages varible of HHVM")
+                Log.debug(self, "Purge apt_packages varible of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
+        if self.app.pargs.redis:
+            Log.debug(self, "Purge apt_packages variable of Redis")
+            apt_packages = apt_packages + EEVariables.ee_redis
         if self.app.pargs.mysql:
             Log.debug(self, "Purge apt_packages variable MySQL")
             apt_packages = apt_packages + EEVariables.ee_mysql
@@ -1771,11 +1935,18 @@ class EEStackController(CementBaseController):
             apt_packages = apt_packages + EEVariables.ee_postfix
         if self.app.pargs.wpcli:
             Log.debug(self, "Purge package variable WPCLI")
-            packages = packages + ['/usr/bin/wp']
+            if os.path.isfile('/usr/bin/wp'):
+                packages = packages + ['/usr/bin/wp']
+            else:
+                Log.warn(self, "WP-CLI is not installed with EasyEngine")
         if self.app.pargs.phpmyadmin:
             packages = packages + ['{0}22222/htdocs/db/pma'.
                                    format(EEVariables.ee_webroot)]
             Log.debug(self, "Purge package variable phpMyAdmin")
+        if self.app.pargs.phpredisadmin:
+            Log.debug(self, "Removing package variable of phpRedisAdmin ")
+            packages = packages + ['{0}22222/htdocs/cache/redis/phpRedisAdmin'
+                                   .format(EEVariables.ee_webroot)]
         if self.app.pargs.adminer:
             Log.debug(self, "Purge  package variable Adminer")
             packages = packages + ['{0}22222/htdocs/db/adminer'
@@ -1795,27 +1966,25 @@ class EEStackController(CementBaseController):
                                    .format(EEVariables.ee_webroot)
                                    ]
 
-        ee_prompt = input('Are you sure you to want to purge '
-                          'from server '
-                          'alongwith their configuration'
-                          ' packages,\nAny answer other than '
-                          '"yes" will be stop this '
-                          'operation :')
+        if len(packages) or len(apt_packages):
+            ee_prompt = input('Are you sure you to want to purge '
+                              'from server '
+                              'along with their configuration'
+                              ' packages,\nAny answer other than '
+                              '"yes" will be stop this '
+                              'operation :')
 
-        if len(apt_packages):
             if ee_prompt == 'YES' or ee_prompt == 'yes':
-                Log.info(self, "Purging packages, please wait...")
-                EEAptGet.remove(self, apt_packages, purge=True)
-                EEAptGet.auto_remove(self)
+                if len(apt_packages):
+                    Log.info(self, "Purging packages, please wait...")
+                    EEAptGet.remove(self, apt_packages, purge=True)
+                    EEAptGet.auto_remove(self)
 
-        if len(packages):
-            if ee_prompt == 'YES' or ee_prompt == 'yes':
-                EEFileUtils.remove(self, packages)
-                EEAptGet.auto_remove(self)
+                if len(packages):
+                    EEFileUtils.remove(self, packages)
+                    EEAptGet.auto_remove(self)
 
-        if ee_prompt == 'YES' or ee_prompt == 'yes':
-            Log.info(self, "Successfully purged packages")
-
+                Log.info(self, "Successfully purged packages")
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled

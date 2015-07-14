@@ -12,13 +12,18 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.2.2"
+    ee_version = "3.3.0"
 
     # EasyEngine packages versions
-    ee_wp_cli = "0.19.1"
+    ee_wp_cli = "0.19.2"
     ee_adminer = "4.2.1"
     ee_roundcube = "1.1.1"
     ee_vimbadmin = "3.0.11"
+
+    # Get WPCLI path
+    ee_wpcli_path = os.popen('which wp | tr "\n" " "').read()
+    if ee_wpcli_path == '':
+        ee_wpcli_path = '/usr/bin/wp '
 
     # Current date and time of System
     ee_date = datetime.datetime.now().strftime('%d%b%Y%H%M%S')
@@ -153,6 +158,16 @@ class EEVariables():
                         .format(codename=ee_platform_codename))
 
     ee_hhvm = ["hhvm"]
+
+    # Redis repo details
+    if ee_platform_distro == 'ubuntu':
+        ee_redis_repo = ("ppa:chris-lea/redis-server")
+
+    else:
+        ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
+                        .format(codename=ee_platform_codename))
+
+    ee_redis = ['redis-server', 'php5-redis']
 
     # Repo path
     ee_repo_file = "ee-repo.list"
