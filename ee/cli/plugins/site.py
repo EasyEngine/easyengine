@@ -709,7 +709,7 @@ class EESiteCreateController(CementBaseController):
                 Log.info(self, Log.ENDC + "WordPress admin user password : {0}"
                          .format(ee_wp_creds['wp_pass']), log=False)
 
-            display_cache_settings(self, data)
+                display_cache_settings(self, data)
 
             Log.info(self, "Successfully created site"
                      " http://{0}".format(ee_domain))
