@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.3.0"
+readonly ee_version_new="3.3.1"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -383,6 +383,18 @@ function ee_update_latest()
         if [ $? -ne 0 ]; then
             echo -e "hhvm.server.ip = 127.0.0.1\n" >> /etc/hhvm/server.ini
         fi
+    fi
+
+
+    # Rename Redis Header
+    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
+      sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+    fi
+
+    if [ -f /etc/nginx/common/redis.conf ]; then
+      sed -i "s/X-Cache /X-SRCache-Fetch-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
+      sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
     fi
 
 
