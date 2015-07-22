@@ -516,7 +516,7 @@ class EESiteCreateController(CementBaseController):
             pagespeed = 0
 
         if (cache == 'wpredis' and (not self.app.pargs.experimental)):
-            Log.info(self, "Redis is experimental feature and it may not"
+            Log.info(self, "Redis is experimental feature and it may not "
                      "work with all CSS/JS/Cache of your site.\nYou can "
                      "disable it by changing cache later.\nDo you wish"
                      " to enable Redis now for {0}?".format(ee_domain))
