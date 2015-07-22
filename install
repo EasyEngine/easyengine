@@ -397,6 +397,13 @@ function ee_update_latest()
       sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
     fi
 
+  # Update Timeout redis-hhvm.conf
+    if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
+      grep -0 'redis2_query expire $key 6h' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      if [ $? -eq 0 ]; then
+        sed -i 's/redis2_query expire $key 6h/redis2_query expire $key 14400/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      fi
+    fi
 
 }
 
