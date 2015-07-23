@@ -49,8 +49,8 @@ location ~ \.php$ {
   srcache_fetch GET /redis-fetch $key;
   srcache_store PUT /redis-store key=$escaped_key;
 
-  more_set_headers 'X-Cache $srcache_fetch_status';
-  more_set_headers 'X-Cache-2 $srcache_store_status';
+  more_set_headers 'X-SRCache-Fetch-Status $srcache_fetch_status';
+  more_set_headers 'X-SRCache-Store-Status $srcache_store_status';
 
   include fastcgi_params;
   fastcgi_pass php;
