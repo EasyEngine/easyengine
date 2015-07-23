@@ -1,6 +1,6 @@
 v 3.3.1 - Jul 23, 2015
 - Fixed redis query expiration timeout limit
-- Updated redis cache header
+- Updated redis cache header to more informative
 
 v 3.3.0 - Jul 13, 2015
 - Added support for Redis full page cache
