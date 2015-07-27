@@ -1,3 +1,9 @@
+v 3.3.2 - Jul 27, 2015
+- Bug Fix #593 
+- Fix package authentication problems
+- Version update roundcube 1.1.2
+- Version update vimbadmin to 3.0.12
+
 v 3.3.1 - Jul 23, 2015
 - Fixed redis query expiration timeout limit
 - Updated redis cache header to more informative
