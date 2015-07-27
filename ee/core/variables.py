@@ -12,13 +12,13 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.3.1"
+    ee_version = "3.3.2"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.19.2"
     ee_adminer = "4.2.1"
-    ee_roundcube = "1.1.1"
-    ee_vimbadmin = "3.0.11"
+    ee_roundcube = "1.1.2"
+    ee_vimbadmin = "3.0.12"
 
     # Get WPCLI path
     ee_wpcli_path = os.popen('which wp | tr "\n" " "').read()
