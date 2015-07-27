@@ -302,9 +302,12 @@ def setupwordpress(self, data):
                                          data['ee_db_user'], data['ee_db_host']
                                          )
                                  + "--dbpass=\'{0}\' "
-                                   "--extra-php<<PHP \n {1}\nPHP\""
+                                   "--extra-php<<PHP \n {1} {redissalt}\nPHP\""
                                    .format(data['ee_db_pass'],
-                                           "\n\ndefine(\'WP_DEBUG\', false);"),
+                                           "\n\ndefine(\'WP_DEBUG\', false);",
+                                           redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                                      .format(ee_domain_name) if data['wpredis'] 
+                                                      else ''),
                                    log=False
                                  )
         except CommandExecutionError as e:
@@ -333,14 +336,17 @@ def setupwordpress(self, data):
                                  .format(data['ee_db_name'], ee_wp_prefix,
                                          data['ee_db_host'])
                                  + "--dbuser=\'{0}\' --dbpass=\'{1}\' "
-                                   "--extra-php<<PHP \n {2} {3} {4}\nPHP\""
+                                   "--extra-php<<PHP \n {2} {3} {4} {redissalt}\nPHP\""
                                  .format(data['ee_db_user'],
                                          data['ee_db_pass'],
                                          "\ndefine(\'WP_ALLOW_MULTISITE\', "
                                          "true);",
                                          "\ndefine(\'WPMU_ACCEL_REDIRECT\',"
                                          " true);",
-                                         "\n\ndefine(\'WP_DEBUG\', false);"),
+                                         "\n\ndefine(\'WP_DEBUG\', false);",
+                                         redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                                      .format(ee_domain_name) if data['wpredis'] 
+                                                      else ''),
                                  log=False
                                  )
         except CommandExecutionError as e:
