@@ -36,7 +36,7 @@ class EEAptGet():
                     for single_error in error_list:
                         if "NO_PUBKEY" in single_error:
                             key = single_error.rsplit(None, 1)[-1]
-                            EERepo.add_key(self, key)
+                            EERepo.add_key(self, key, keyserver="hkp://pgp.mit.edu")
 
                     proc = subprocess.Popen('apt-get update',
                                             shell=True,
