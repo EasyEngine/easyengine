@@ -280,7 +280,7 @@ function ee_update_latest()
     ee_lib_echo "Updating Nginx configuration, please wait..."
     # From version 3.1.10 we are using Suse builder for repository
     if [ "$ee_distro_version" == "precise" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
         if [[ $? -ne 0 ]]; then
             if [ -f /etc/apt/sources.list.d/rtcamp-nginx-precise.list ]; then
                 rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
@@ -297,7 +297,7 @@ function ee_update_latest()
             
         fi
     elif [ "$ee_distro_version" == "trusty" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
         if [[ $? -ne 0 ]]; then
             if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
                 rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
@@ -313,7 +313,7 @@ function ee_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom   
         fi
     elif [ "$ee_distro_version" == "wheezy" ]; then
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
         #grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -ne 0 ]]; then
             # if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
