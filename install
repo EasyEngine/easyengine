@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.3.2"
+readonly ee_version_new="3.3.3"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -280,10 +280,13 @@ function ee_update_latest()
     ee_lib_echo "Updating Nginx configuration, please wait..."
     # From version 3.1.10 we are using Suse builder for repository
     if [ "$ee_distro_version" == "precise" ]; then
-        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-precise.list ]; then
-            rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        if [[ $? -ne 0 ]]; then
+            if [ -f /etc/apt/sources.list.d/rtcamp-nginx-precise.list ]; then
+                rm -rf /etc/apt/sources.list.d/rtcamp-nginx-precise.list
+            fi
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
-            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
@@ -291,30 +294,35 @@ function ee_update_latest()
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+            
         fi
     elif [ "$ee_distro_version" == "trusty" ]; then
-        if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
-            rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        if [[ $? -ne 0 ]]; then
+            if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
+                rm -rf /etc/apt/sources.list.d/rtcamp-nginx-trusty.list
+            fi
             echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
-            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom   
         fi
     elif [ "$ee_distro_version" == "wheezy" ]; then
-        grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
-        if [ $? -eq 0 ] || [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
-            if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
-                rm -rf /etc/apt/sources.list.d/dotdeb-wheezy.list
-            else
-                sed -i "/deb http:\/\/packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
-            fi
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
+        #grep -Hr "deb http://packages.dotdeb.org wheezy all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+        if [[ $? -ne 0 ]]; then
+            # if [ -f /etc/apt/sources.list.d/dotdeb-wheezy.list ]; then
+            #     rm -rf /etc/apt/sources.list.d/dotdeb-wheezy.list
+            # else
+            #     sed -i "/deb http:\/\/packages.dotdeb.org wheezy all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+            # fi
             echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
-            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
@@ -325,11 +333,13 @@ function ee_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     elif [ "$ee_distro_version" == "jessie" ]; then
-        grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
-        if [[ $? -eq 0 ]]; then
-            sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+        
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null       
+        #grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
+        if [[ $? -ne 0 ]]; then
+            #sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
             echo -e "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
-            gpg --keyserver "hkp://keys.gnupg.net" --recv-keys '3050AC3CD2AE6F03'
+            gpg --keyserver "hkp://pgp.mit.edu" --recv-keys '3050AC3CD2AE6F03'
             gpg -a --export --armor '3050AC3CD2AE6F03' | apt-key add -
             if [ -f /etc/nginx/conf.d/ee-nginx.conf ]; then
                 mv /etc/nginx/conf.d/ee-nginx.conf /etc/nginx/conf.d/ee-nginx.conf.old &>> /dev/null
@@ -405,6 +415,27 @@ function ee_update_latest()
       fi
     fi
 
+    # Fix for 3.3.2 renamed nginx.conf
+    nginx -V 2>&1 &>>/dev/null 
+    if [[ $? -eq 0 ]]; then 
+        nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
+        if [[ $? -eq 0 ]]; then
+            if [ -f /etc/nginx/nginx.conf.old ]; then
+                if [ ! -f /etc/nginx/nginx.conf ]; then
+                    cp /etc/nginx/nginx.conf.old /etc/nginx/nginx.conf
+                fi
+            fi
+        fi
+        # Fix for 3.3.2 renamed fastcgi_param
+        nginx -t 2>&1 | grep 'open() "/etc/nginx/fastcgi_params" failed' &>>/dev/null
+        if [[ $? -eq 0 ]]; then
+            if [ -f /etc/nginx/fastcgi_params.old ]; then
+                if [ ! -f /etc/nginx/fastcgi_params ]; then
+                    cp /etc/nginx/fastcgi_params.old /etc/nginx/fastcgi_params
+                fi
+            fi
+        fi
+    fi
 }
 
 # Do git intialisation
