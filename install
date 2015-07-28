@@ -416,9 +416,9 @@ function ee_update_latest()
     fi
 
     # Fix for 3.3.2 renamed nginx.conf
-    nginx -V 2&>> /dev/null 
+    nginx -V 2>&1 &>>/dev/null 
     if [[ $? -eq 0 ]]; then 
-        nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>> /dev/null
+        nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
             if [ -f /etc/nginx/nginx.conf.old ]; then
                 if [ ! -f /etc/nginx/nginx.conf ]; then
@@ -427,7 +427,7 @@ function ee_update_latest()
             fi
         fi
         # Fix for 3.3.2 renamed fastcgi_param
-        nginx -t 2>&1 | grep 'open() "/etc/nginx/fastcgi_params" failed'
+        nginx -t 2>&1 | grep 'open() "/etc/nginx/fastcgi_params" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
             if [ -f /etc/nginx/fastcgi_params.old ]; then
                 if [ ! -f /etc/nginx/fastcgi_params ]; then
