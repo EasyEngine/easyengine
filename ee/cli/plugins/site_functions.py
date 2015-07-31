@@ -946,7 +946,7 @@ def generate_random():
     return ee_random10
 
 
-def deleteDB(self, dbname, dbuser, dbhost):
+def deleteDB(self, dbname, dbuser, dbhost, exit=True):
     try:
         # Check if Database exists
         try:
@@ -979,7 +979,7 @@ def deleteDB(self, dbname, dbuser, dbhost):
                 Log.debug(self, "drop database failed")
                 Log.info(self, "Database {0} not dropped".format(dbname))
     except Exception as e:
-        Log.error(self, "Error occured while deleting database")
+        Log.error(self, "Error occured while deleting database", exit)
 
 
 def deleteWebRoot(self, webroot):
