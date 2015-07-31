@@ -468,7 +468,7 @@ class EESiteCreateController(CementBaseController):
 
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
-                Log.info(self, "HHVM is experimental feature and it may not"
+                Log.info(self, "HHVM is experimental feature and it may not "
                          "work with all plugins of your site.\nYou can "
                          "disable it by passing --hhvm=off later.\nDo you wish"
                          " to enable HHVM now for {0}?".format(ee_domain))
@@ -493,7 +493,7 @@ class EESiteCreateController(CementBaseController):
 
         if data and self.app.pargs.pagespeed:
             if (not self.app.pargs.experimental):
-                Log.info(self, "PageSpeed is experimental feature and it may not"
+                Log.info(self, "PageSpeed is experimental feature and it may not "
                          "work with all CSS/JS/Cache of your site.\nYou can "
                          "disable it by passing --pagespeed=off later.\nDo you wish"
                          " to enable PageSpeed now for {0}?".format(ee_domain))
