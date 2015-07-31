@@ -1368,6 +1368,9 @@ class EESiteDeleteController(CementBaseController):
             (['--no-prompt'],
                 dict(help="doesnt ask permission for delete",
                      action='store_true')),
+            (['-f','--force'],
+                dict(help="forcefully delete site and configuration",
+                     action='store_true')),
             (['--all'],
                 dict(help="delete all", action='store_true')),
             (['--db'],
@@ -1392,6 +1395,8 @@ class EESiteDeleteController(CementBaseController):
         ee_db_name = ''
         ee_prompt = ''
         ee_nginx_prompt = ''
+        mark_db_delete_prompt = False
+        mark_webroot_delete_prompt = False
         mark_db_deleted = False
         mark_webroot_deleted = False
         if not check_domain_exists(self, ee_domain):
@@ -1429,8 +1434,10 @@ class EESiteDeleteController(CementBaseController):
                                          ' database [y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
+                    mark_db_delete_prompt = True
 
                 if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
+                    mark_db_delete_prompt = True
                     Log.info(self, "Deleting Database, {0}, user {1}"
                              .format(ee_db_name, ee_db_user))
                     deleteDB(self, ee_db_name, ee_db_user, ee_db_host)
@@ -1453,8 +1460,10 @@ class EESiteDeleteController(CementBaseController):
                                           'webroot [y/N]: ')
                 else:
                     ee_web_prompt = 'Y'
+                    mark_webroot_delete_prompt = True
 
                 if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
+                    mark_webroot_delete_prompt = True
                     Log.info(self, "Deleting Webroot, {0}"
                              .format(ee_site_webroot))
                     deleteWebRoot(self, ee_site_webroot)
@@ -1465,13 +1474,20 @@ class EESiteDeleteController(CementBaseController):
                 mark_webroot_deleted = True
                 Log.info(self, "Webroot seems to be already deleted")
 
-        if (mark_webroot_deleted and mark_db_deleted):
+        if not self.app.pargs.force:
+            if (mark_webroot_deleted and mark_db_deleted):
                 # TODO Delete nginx conf
                 removeNginxConf(self, ee_domain)
                 deleteSiteInfo(self, ee_domain)
                 Log.info(self, "Deleted site {0}".format(ee_domain))
-        # else:
-        #     Log.error(self, " site {0} does not exists".format(ee_domain))
+             # else:
+                # Log.error(self, " site {0} does not exists".format(ee_domain))
+        else:
+            if (mark_db_delete_prompt or mark_webroot_delete_prompt or (mark_webroot_deleted and mark_db_deleted)):
+                # TODO Delete nginx conf
+                removeNginxConf(self, ee_domain)
+                deleteSiteInfo(self, ee_domain)
+                Log.info(self, "Deleted site {0}".format(ee_domain))
 
 
 class EESiteListController(CementBaseController):
