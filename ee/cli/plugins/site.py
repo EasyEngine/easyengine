@@ -1440,7 +1440,7 @@ class EESiteDeleteController(CementBaseController):
                     mark_db_delete_prompt = True
                     Log.info(self, "Deleting Database, {0}, user {1}"
                              .format(ee_db_name, ee_db_user))
-                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host)
+                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host, False)
                     updateSiteInfo(self, ee_domain,
                                    db_name='deleted',
                                    db_user='deleted',
