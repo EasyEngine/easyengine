@@ -52,6 +52,9 @@ class EEMysql():
         except pymysql.err.InternalError as e:
             Log.debug(self, str(e))
             raise MySQLConnectionError
+        except Exception as e :
+            Log.debug(self, "[Error]Setting up database: \'" + str(e) + "\'")
+            raise MySQLConnectionError
 
     def execute(self, statement, errormsg='', log=True):
         """Get login details from ~/.my.cnf & Execute MySQL query"""
@@ -124,4 +127,5 @@ class EEMysql():
             return False
         except MySQLConnectionError as e:
             Log.debug(self, str(e))
-            return False
+            raise MySQLConnectionError
+            #return False
