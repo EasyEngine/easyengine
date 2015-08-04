@@ -1163,7 +1163,8 @@ class EESiteUpdateController(CementBaseController):
                      " http://{0}".format(ee_domain))
             return 0
 
-        if data['ee_db_name'] and not data['wp']:
+        #if data['ee_db_name'] and not data['wp']:
+        if 'ee_db_name' in data.keys() and not data['wp']:
             try:
                 data = setupdatabase(self, data)
             except SiteError as e:
