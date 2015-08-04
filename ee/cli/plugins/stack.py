@@ -153,9 +153,14 @@ class EEStackController(CementBaseController):
             config = configparser.ConfigParser()
             config.read_string(mysql_config)
             Log.debug(self, 'Writting configuration into MySQL file')
-            with open(os.path.expanduser("~")+'/.my.cnf', encoding='utf-8',
+            conf_path = "/etc/mysql/conf.d/my.cnf"
+            os.makedirs(os.path.dirname(conf_path), exist_ok=True)
+            with open(conf_path, encoding='utf-8',
                       mode='w') as configfile:
                 config.write(configfile)
+            Log.debug(self, 'Setting my.cnf permission')
+            EEFileUtils.chmod(self, "/etc/mysql/conf.d/my.cnf", 0o600)
+
 
         if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for NGINX, please wait...")

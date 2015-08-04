@@ -70,7 +70,7 @@ class EEVariables():
     # MySQL hostname
     ee_mysql_host = ""
     config = configparser.RawConfigParser()
-    cnfpath = os.path.expanduser("~")+"/.my.cnf"
+    cnfpath = "/etc/mysql/conf.d/my.cnf"
     if [cnfpath] == config.read(cnfpath):
         try:
             ee_mysql_host = config.get('client', 'host')

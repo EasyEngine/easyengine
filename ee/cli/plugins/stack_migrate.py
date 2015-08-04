@@ -46,7 +46,7 @@ class EEStackMigrateController(CementBaseController):
                        keyserver="keyserver.ubuntu.com")
 
         config = configparser.ConfigParser()
-        config.read(os.path.expanduser("~")+'/.my.cnf')
+        config.read('/etc/mysql/conf.d/my.cnf')
         try:
             chars = config['client']['password']
         except Exception as e:

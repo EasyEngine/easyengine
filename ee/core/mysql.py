@@ -30,7 +30,7 @@ class EEMysql():
     def connect(self):
         """Makes connection with MySQL server"""
         try:
-            connection = pymysql.connect(read_default_file='~/.my.cnf')
+            connection = pymysql.connect(read_default_file='/etc/mysql/conf.d/my.cnf')
             return connection
         except ValueError as e:
             Log.debug(self, str(e))
@@ -42,7 +42,7 @@ class EEMysql():
     def dbConnection(self, db_name):
         try:
             connection = pymysql.connect(db=db_name,
-                                         read_default_file='~/.my.cnf')
+                                         read_default_file='/etc/mysql/conf.d/my.cnf')
             return connection
         except DatabaseError as e:
             if e.args[1] == '#42000Unknown database \'{0}\''.format(db_name):
@@ -57,7 +57,7 @@ class EEMysql():
             raise MySQLConnectionError
 
     def execute(self, statement, errormsg='', log=True):
-        """Get login details from ~/.my.cnf & Execute MySQL query"""
+        """Get login details from /etc/mysql/conf.d/my.cnf & Execute MySQL query"""
         connection = EEMysql.connect(self)
         log and Log.debug(self, "Exceuting MySQL Statement : {0}"
                           .format(statement))
