@@ -277,6 +277,22 @@ function ee_update()
 
 function ee_update_latest()
 {
+
+    if [ ! -f /etc/mysql/conf.d/my.cnf ]
+    then
+        if [ -f ~/.my.cnf ]
+	    then
+	        cp -rf ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+        else
+	        if [ -f /root/.my.cnf ]
+	        then
+		        cp -rf /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+	        else
+		        echo ".my.cnf cannot be located in your current user or root. Exiting easyengine update process"
+		        exit 100
+	        fi
+        fi
+    fi
     ee_lib_echo "Updating Nginx configuration, please wait..."
     # From version 3.1.10 we are using Suse builder for repository
     if [ "$ee_distro_version" == "precise" ]; then
