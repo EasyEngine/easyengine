@@ -923,7 +923,47 @@ def detSitePar(opts):
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
-        raise RuntimeError("could not determine site and cache type")
+        if len(cachelist) > 1:
+            raise RuntimeError("Could not determine cache type.Multiple cache parameter entered")
+        elif False not in [x in ('php','mysql','html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('html','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php','html') for x in typelist]:
+            sitetype = 'php'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wp','wpsubdir') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wp','wpsubdomain') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        else:
+            raise RuntimeError("could not determine site and cache type")
+
     else:
         if not typelist and not cachelist:
             sitetype = None
