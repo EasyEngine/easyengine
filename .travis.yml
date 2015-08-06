@@ -77,6 +77,13 @@ script:
   - yes | sudo ee site create site.hhvm.pagespeed11.in --w3tc --wpsubdomain --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm --pagespeed
 
+  - sudo ee site create site.localtest.me --php --mysql --html
+  - sudo ee site create site1.localtest.me --php --mysql
+  - sudo ee site create site2.localtest.me --mysql --html
+  - sudo ee site create site3.localtest.me --php --html
+  - sudo ee site create site.localtest.me --wp --wpsubdomain
+  - sudo ee site create site.localtest.me --wp --wpsubdir --wpfc
+
   - sudo ee debug --all
   - sudo ee debug --all=off
   - sudo ee debug site12.net
