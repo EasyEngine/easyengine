@@ -290,9 +290,8 @@ function ee_update_latest()
 		        cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null || ee_lib_error "Unable to copy ~/.my.cnf, exit status " 1
 		        chmod 600 /etc/mysql/conf.d/my.cnf || ee_lib_error "Unable to change permissions for /etc/mysql/conf.d/my.cnf, exit status " 1
 	        else
-		        echo ".my.cnf cannot be located in your current user or root. Exiting easyengine update process"
-		        exit 100
-	        fi
+		        ee_lib_error ".my.cnf cannot be located in your current user or root. Exiting easyengine update process, exit status " 1
+		    fi
         fi
     fi
     ee_lib_echo "Updating Nginx configuration, please wait..."
