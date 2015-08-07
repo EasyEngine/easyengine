@@ -30,7 +30,10 @@ class EEMysql():
     def connect(self):
         """Makes connection with MySQL server"""
         try:
-            connection = pymysql.connect(read_default_file='/etc/mysql/conf.d/my.cnf')
+            if os.path.exists('/etc/mysql/conf.d/my.cnf'):
+                connection = pymysql.connect(read_default_file='/etc/mysql/conf.d/my.cnf')
+            else:
+                connection = pymysql.connect(read_default_file='~/.my.cnf')
             return connection
         except ValueError as e:
             Log.debug(self, str(e))

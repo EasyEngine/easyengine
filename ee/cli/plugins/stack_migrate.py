@@ -46,7 +46,11 @@ class EEStackMigrateController(CementBaseController):
                        keyserver="keyserver.ubuntu.com")
 
         config = configparser.ConfigParser()
-        config.read('/etc/mysql/conf.d/my.cnf')
+        if os.path.exists('/etc/mysql/conf.d/my.cnf'):
+            config.read('/etc/mysql/conf.d/my.cnf')
+        else:
+            config.read(os.path.expanduser("~")+'/.my.cnf')
+
         try:
             chars = config['client']['password']
         except Exception as e:
