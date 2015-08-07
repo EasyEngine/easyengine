@@ -486,7 +486,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
         ee_lib_echo "Updating your EasyEngine to $ee_version_old for compability" | tee -ai $ee_install_log
         wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update | tee -ai $ee_install_log
         if [[ $? -ne 0 ]]; then
-            ee_lib_echo_fail "Unbale to update EasyEngine to $ee_version_old, exit status = " $?
+            ee_lib_echo_fail "Unable to update EasyEngine to $ee_version_old, exit status = " $?
         fi
     fi
     ee_install_dep | tee -ai $ee_install_log
