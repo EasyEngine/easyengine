@@ -176,7 +176,7 @@ _ee_complete()
                 ;;
             "delete")
                 COMPREPLY=( $(compgen \
-                                    -W "--db --files --all --no-prompt" \
+                                    -W "--db --files --all --no-prompt --force" \
                                  -- $cur) )
                 ;;
             "show")
@@ -276,8 +276,8 @@ _ee_complete()
                         -- $cur) )
             ;;
 
-        "--db" | "--files" )
-            retlist="--db --files --all"
+        "--db" | "--files" | "--force")
+            retlist="--db --files --all --force"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \
@@ -288,7 +288,7 @@ _ee_complete()
           if [ ${COMP_WORDS[1]} == "clean" ]; then
                   retlist="--memcache --opcache --fastcgi"
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
-              retlist="--db --files"
+              retlist="--db --files --force"
           elif [ ${COMP_WORDS[2]} == "update" ]; then
             retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis"
           else
