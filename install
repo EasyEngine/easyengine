@@ -417,7 +417,7 @@ function ee_update_latest()
 
     #Fix for 3.3.4 redis-hhvm issue
       grep -0 'HTTP_ACCEPT_ENCODING' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
-      if [ $? -nq 0 ]; then
+      if [ $? -ne 0 ]; then
         sed -i 's/fastcgi_params;/fastcgi_params;\n  fastcgi_param HTTP_ACCEPT_ENCODING "";/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
       fi
     fi
