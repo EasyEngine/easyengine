@@ -20,7 +20,7 @@ class EECleanController(CementBaseController):
         label = 'clean'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Clean NGINX FastCGI cache, Opcacache, Memcache')
+        description = ('Clean NGINX FastCGI cache, Opcacache, Memcache, Pagespeed Cache, Redis Cache')
         arguments = [
             (['--all'],
                 dict(help='Clean all cache', action='store_true')),
