@@ -294,7 +294,7 @@ function ee_update_latest()
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-            
+
         fi
     elif [ "$ee_distro_version" == "trusty" ]; then
         grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -310,7 +310,7 @@ function ee_update_latest()
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom   
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     elif [ "$ee_distro_version" == "wheezy" ]; then
         grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -333,8 +333,8 @@ function ee_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     elif [ "$ee_distro_version" == "jessie" ]; then
-        
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null       
+
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
         #grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -ne 0 ]]; then
             #sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
@@ -407,17 +407,24 @@ function ee_update_latest()
       sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
     fi
 
-  # Update Timeout redis-hhvm.conf
+
     if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
+    # Update Timeout redis-hhvm.conf
       grep -0 'redis2_query expire $key 6h' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
       if [ $? -eq 0 ]; then
         sed -i 's/redis2_query expire $key 6h/redis2_query expire $key 14400/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
       fi
+
+    #Fix for 3.3.4 redis-hhvm issue
+      grep -0 'HTTP_ACCEPT_ENCODING' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      if [ $? -nq 0 ]; then
+        sed -i 's/fastcgi_params;/fastcgi_params;\n  fastcgi_param HTTP_ACCEPT_ENCODING "";/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      fi
     fi
 
     # Fix for 3.3.2 renamed nginx.conf
-    nginx -V 2>&1 &>>/dev/null 
-    if [[ $? -eq 0 ]]; then 
+    nginx -V 2>&1 &>>/dev/null
+    if [[ $? -eq 0 ]]; then
         nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
             if [ -f /etc/nginx/nginx.conf.old ]; then
@@ -436,6 +443,8 @@ function ee_update_latest()
             fi
         fi
     fi
+
+    
 }
 
 # Do git intialisation
