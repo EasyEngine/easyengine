@@ -425,7 +425,7 @@ def setupwordpress(self, data):
                                  "--admin_email=\'{1}\'"
                                  .format(ee_wp_pass, ee_wp_email),
                                  log=False)
-        except CommandExceutionError as e:
+        except CommandExecutionError as e:
             raise SiteError("setup wordpress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
