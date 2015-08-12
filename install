@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.3.3"
+readonly ee_version_new="3.3.5"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -311,7 +311,7 @@ function ee_update_latest()
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-            
+
         fi
     elif [ "$ee_distro_version" == "trusty" ]; then
         grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -327,7 +327,7 @@ function ee_update_latest()
             fi
             mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
             apt-get update
-            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom   
+            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     elif [ "$ee_distro_version" == "wheezy" ]; then
         grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -350,8 +350,8 @@ function ee_update_latest()
             apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
         fi
     elif [ "$ee_distro_version" == "jessie" ]; then
-        
-        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null       
+
+        grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
         #grep -Hr "deb http://packages.dotdeb.org jessie all" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
         if [[ $? -ne 0 ]]; then
             #sed -i "/deb http:\/\/packages.dotdeb.org jessie all/d" /etc/apt/sources.list.d/ee-repo.list &>> /dev/null
@@ -433,8 +433,8 @@ function ee_update_latest()
     fi
 
     # Fix for 3.3.2 renamed nginx.conf
-    nginx -V 2>&1 &>>/dev/null 
-    if [[ $? -eq 0 ]]; then 
+    nginx -V 2>&1 &>>/dev/null
+    if [[ $? -eq 0 ]]; then
         nginx -t 2>&1 | grep 'open() "/etc/nginx/nginx.conf" failed' &>>/dev/null
         if [[ $? -eq 0 ]]; then
             if [ -f /etc/nginx/nginx.conf.old ]; then
