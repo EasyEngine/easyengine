@@ -250,8 +250,12 @@ def setupwordpress(self, data):
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
-        EEShellExec.cmd_exec(self, "wp --allow-root core"
-                             " download")
+        if EEShellExec.cmd_exec(self, "wp --allow-root core"
+                             " download"):
+            pass
+        else:
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            raise SiteError("download wordpress core failed")
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError(self, "download wordpress core failed")
