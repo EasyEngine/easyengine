@@ -1,8 +1,11 @@
+v 3.3.4 - Aug 12, 2015
+- Bug Fix for https://github.com/rtCamp/easyengine/issues/598#issue-98354466
+
 v 3.3.3 - Jul 28, 2015
 - Bug Fix for https://github.com/rtCamp/easyengine/issues/593#issuecomment-125274633
 
 v 3.3.2 - Jul 27, 2015
-- Bug Fix #593 
+- Bug Fix #593
 - Fix package authentication problems
 - Version update roundcube 1.1.2
 - Version update vimbadmin to 3.0.12
