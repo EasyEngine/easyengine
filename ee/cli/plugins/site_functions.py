@@ -352,8 +352,19 @@ def setupwordpress(self, data):
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp multi site")
 
-    EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
-                       os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+    #EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
+    #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
+    try:
+        import shutil
+
+        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
+        shutil.move(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+    except Exception as e:
+        Log.error(self, 'Unable to move file from {0} to {1}'
+                      .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))),False)
+        raise SiteError("Unable to move wp-config.php")
+
 
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
