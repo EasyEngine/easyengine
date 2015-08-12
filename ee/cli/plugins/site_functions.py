@@ -420,7 +420,7 @@ def setupwordpress(self, data):
                   + "--admin_password= --admin_email=\'{1}\'"
                   .format(ee_wp_pass, ee_wp_email))
         try:
-            EEShellExec.cmd_exec(self, "php {0} --allow-root core "
+            if EEShellExec.cmd_exec(self, "php {0} --allow-root core "
                                  .format(EEVariables.ee_wpcli_path)
                                  + "install --url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
@@ -428,7 +428,10 @@ def setupwordpress(self, data):
                                  + "--admin_password=\'{0}\' "
                                  "--admin_email=\'{1}\'"
                                  .format(ee_wp_pass, ee_wp_email),
-                                 log=False)
+                                 log=False):
+                pass
+            else:
+                raise SiteError("setup wordpress tables failed for single site")
         except CommandExecutionError as e:
             raise SiteError("setup wordpress tables failed for single site")
     else:
@@ -444,7 +447,7 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            EEShellExec.cmd_exec(self, "php {0} --allow-root "
+            if EEShellExec.cmd_exec(self, "php {0} --allow-root "
                                  .format(EEVariables.ee_wpcli_path)
                                  + "core multisite-install "
                                  "--url=\'{0}\' --title=\'{0}\' "
@@ -456,7 +459,10 @@ def setupwordpress(self, data):
                                  .format(ee_wp_pass, ee_wp_email,
                                          subdomains='--subdomains'
                                          if not data['wpsubdir'] else ''),
-                                 log=False)
+                                 log=False):
+                pass
+            else:
+                raise SiteError("setup wordpress tables failed for wp multi site")
         except CommandExecutionError as e:
             raise SiteError("setup wordpress tables failed for wp multi site")
 
