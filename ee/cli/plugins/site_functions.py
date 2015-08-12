@@ -293,7 +293,7 @@ def setupwordpress(self, data):
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                  .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -309,7 +309,10 @@ def setupwordpress(self, data):
                                                       .format(ee_domain_name) if data['wpredis'] 
                                                       else ''),
                                    log=False
-                                 )
+                                 ):
+                pass
+            else :
+                raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp single site")
     else:
@@ -328,7 +331,7 @@ def setupwordpress(self, data):
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                  .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -348,7 +351,10 @@ def setupwordpress(self, data):
                                                       .format(ee_domain_name) if data['wpredis'] 
                                                       else ''),
                                  log=False
-                                 )
+                                 ):
+                pass
+            else:
+                raise SiteError("generate wp-config failed for wp multi site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp multi site")
 
