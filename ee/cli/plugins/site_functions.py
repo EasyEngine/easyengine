@@ -507,11 +507,16 @@ def setupwordpressnetwork(self, data):
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     Log.info(self, "Setting up WordPress Network \t", end='')
     try:
-        EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
+        if EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                              ' --title=\'{0}\' {subdomains}'
                              .format(data['www_domain'],
                                      subdomains='--subdomains'
-                                     if not data['wpsubdir'] else ''))
+                                     if not data['wpsubdir'] else '')):
+            pass
+        else:
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            raise SiteError("setup wordpress network failed")
+
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError("setup wordpress network failed")
