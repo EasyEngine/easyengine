@@ -1,4 +1,4 @@
-v 3.3.5 - Aug 14, 2015
+v 3.3.5 - Aug 17, 2015
 - Introduced new support of --force/-f in delete command of site
   - Removes database entry or nginx configuration of site for system
   - ee site delete example.com --force/-f
@@ -13,6 +13,7 @@ v 3.3.5 - Aug 14, 2015
 - Bug Fix #486
 - Bug Fix #555
 - Update man page
+- Fixed Autocompletion Issue #519
 - Minor fix and improvements
 
 v 3.3.4 - Aug 12, 2015
