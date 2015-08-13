@@ -424,11 +424,18 @@ function ee_update_latest()
       sed -i "s/X-Cache-2 /X-SRCache-Store-Status /g" /etc/nginx/common/redis.conf &>> /dev/null
     fi
 
-  # Update Timeout redis-hhvm.conf
+
     if [ -f /etc/nginx/common/redis-hhvm.conf ]; then
+    # Update Timeout redis-hhvm.conf
       grep -0 'redis2_query expire $key 6h' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
       if [ $? -eq 0 ]; then
         sed -i 's/redis2_query expire $key 6h/redis2_query expire $key 14400/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      fi
+
+    #Fix for 3.3.4 redis-hhvm issue
+      grep -0 'HTTP_ACCEPT_ENCODING' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
+      if [ $? -ne 0 ]; then
+        sed -i 's/fastcgi_params;/fastcgi_params;\n  fastcgi_param HTTP_ACCEPT_ENCODING "";/g' /etc/nginx/common/redis-hhvm.conf &>> /dev/null
       fi
     fi
 
@@ -453,6 +460,8 @@ function ee_update_latest()
             fi
         fi
     fi
+
+
 }
 
 # Do git intialisation
