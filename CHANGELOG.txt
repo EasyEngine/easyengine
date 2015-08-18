@@ -14,6 +14,7 @@ v 3.3.5 - Aug 17, 2015
 - Bug Fix #555
 - Update man page
 - Fixed Autocompletion Issue #519
+- Fixed minor bug in update --password
 - Minor fix and improvements
 
 v 3.3.4 - Aug 12, 2015
