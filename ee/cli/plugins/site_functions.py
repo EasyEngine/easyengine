@@ -855,10 +855,9 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
                                          .format(ee_wp_user))
 
             while not ee_wp_pass:
-	            ee_wp_pass = getpass.getpass(prompt="Provide password for "
-                                         "{0} user: "
-                                         .format(ee_wp_user))
-
+                ee_wp_pass = getpass.getpass(prompt="Provide password for "
+                                             "{0} user: "
+                                             .format(ee_wp_user))
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             raise SiteError("failed to read password input ")
