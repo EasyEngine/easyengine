@@ -5,7 +5,7 @@ from cement.core import handler, hook
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
-from ee.core.shellexec import EEShellExec
+from ee.core.shellexec import EEShellExec, CommandExecutionError
 from ee.core.fileutils import EEFileUtils
 from ee.core.apt_repo import EERepo
 from ee.core.extract import EEExtract
