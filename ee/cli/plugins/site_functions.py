@@ -548,6 +548,8 @@ def installwp_plugin(self, plugin_name, data):
     except CommandExecutionError as e:
         raise SiteError("plugin activation failed")
 
+    return 1
+
 
 def uninstallwp_plugin(self, plugin_name, data):
     ee_site_webroot = data['webroot']
