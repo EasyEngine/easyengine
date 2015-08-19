@@ -1,4 +1,4 @@
-.TH ee 8 "EasyEngine (ee) version: 3.3.3" "Aug 11,2015" "EasyEngine"
+.TH ee 8 "EasyEngine (ee) version: 3.3.5" "Aug 11,2015" "EasyEngine"
 .SH NAME
 .B EasyEngine (ee)
 \- Manage Nginx Based Websites.
@@ -11,9 +11,9 @@ ee stack [ status | start | stop | reload | restart ] [--all | --nginx | --php |
 .TP
 ee site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ]]
+ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ]]
 .TP
-ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ]]
+ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password]]
 .TP
 ee site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP
@@ -129,19 +129,19 @@ Disable site by Destroying softlink with site file in
 .br
 Edit NGINX configuration of site.
 .TP
-.B create [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm]]
+.B create [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ]]
 .br
 Create new site according to given options. If no options provided
 .br
 create static site with html only.
 .TP
-.B update [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm]]
+.B update [ example.com ] [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password]]
 .br
 Update site configuration according to specified options.
 .TP
-.B delete [ example.com ] [--no-prompt ] [ --db | --files ]
+.B delete [ example.com ] [--no-prompt ] [--force/-f] [ --db | --files | --all ]
 .br
-Delete site i.e webroot, database, ad configuration permenantly.
+Delete site i.e webroot, database, ad configuration permanently.
 .TP
 .B debug [ -i | --nginx=on/off | --php=on/off | --mysql=on/off | --rewrite=on/off | --fpm=on/off ]
 .br
