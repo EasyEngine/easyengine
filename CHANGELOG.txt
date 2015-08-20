@@ -13,6 +13,7 @@ v 3.3.5 - Aug 17, 2015
 - Bug Fix #486
 - Bug Fix #555
 - Update man page
+- Fixed bug in ee update site to --wpredis
 - Fixed Autocompletion Issue #519
 - Fixed minor bug in update --password
 - Minor fix and improvements
