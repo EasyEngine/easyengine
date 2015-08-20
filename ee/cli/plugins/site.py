@@ -863,7 +863,7 @@ class EESiteUpdateController(CementBaseController):
                 updatewpuserpassword(self, ee_domain, ee_site_webroot)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.info(self, "Password Unchanged.")
+                Log.info(self, "\nPassword Unchanged.")
             return 0
 
         if ((stype == "proxy" and stype == oldsitetype and self.app.pargs.hhvm)
