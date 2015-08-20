@@ -1307,22 +1307,23 @@ class EESiteUpdateController(CementBaseController):
         if oldcachetype != 'wpredis' and data['wpredis']:
             try:
                 if installwp_plugin(self, 'redis-cache', data):
-                    if EEShellExec.cmd_exec(self, "grep -r \"WP_CACHE_KEY_SALT\" {0}/wp-config.php".format(ee_site_webroot)):
+                    if EEShellExec.cmd_exec(self, "grep -r \"WP_CACHE_KEY_SALT\" {0}/wp-config.php"
+                                                  .format(ee_site_webroot)):
                         pass
                     else:
                         try:
                             wpconfig = open("{0}/wp-config.php".format(ee_site_webroot),
                                                encoding='utf-8', mode='a')
                             wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                             .format(ee_domain))
+                                           .format(ee_domain))
                             wpconfig.close()
                         except IOError as e:
                             Log.debug(self, str(e))
-                            Log.debug(self, "Editing wp-config.php failed.")
-                            Log.info(self, Log.FAIL + "Editing wp-config failed. "
-                                             "Could not append:"
-                                             " define( \'WP_CACHE_KEY_SALT\', \'{0}:\' );".format(ee_domain))
-
+                            Log.debug(self, "Updating wp-config.php failed.")
+                            Log.warn(self, "Updating wp-config.php failed. "
+                                           "Could not append:"
+                                           "\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );".format(ee_domain) +
+                                           "\nPlease add manually")
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, Log.FAIL + "Update site failed."
