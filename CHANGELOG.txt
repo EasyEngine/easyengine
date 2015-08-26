@@ -12,7 +12,7 @@ v 3.3.5 - Aug 26, 2015
 - Improved ee sync command https://github.com/rtCamp/easyengine/issues/575#issuecomment-126293815
 - Bug Fix #486
 - Bug Fix #555
-- Update man page
+- Updated man page
 - Fixed bug in ee update site to --wpredis
 - Fixed Autocompletion Issue #519
 - Fixed minor bug in update --password
