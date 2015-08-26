@@ -282,10 +282,10 @@ function ee_update_latest()
     then
         if [ -d /etc/mysql/conf.d ]
         then
-           if [ -f ~/.my.cnf ]
-	        then
-	            cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
-	            chmod 600 /etc/mysql/conf.d/my.cnf
+            if [ -f ~/.my.cnf ]
+            then
+                cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+                chmod 600 /etc/mysql/conf.d/my.cnf
             else
                 if [ -f /root/.my.cnf ]
                 then
