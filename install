@@ -280,18 +280,21 @@ function ee_update_latest()
     #Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
     if [ ! -f /etc/mysql/conf.d/my.cnf ]
     then
-        if [ -f ~/.my.cnf ]
-	    then
-	        cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
-	        chmod 600 /etc/mysql/conf.d/my.cnf
-        else
-	        if [ -f /root/.my.cnf ]
+        if [ -d /etc/mysql/conf.d ]
+        then
+           if [ -f ~/.my.cnf ]
 	        then
-		        cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
-		        chmod 600 /etc/mysql/conf.d/my.cnf
-	        else
-		        ee_lib_echo_fail ".my.cnf cannot be located in your current user or root."
-		    fi
+	            cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+	            chmod 600 /etc/mysql/conf.d/my.cnf
+            else
+	            if [ -f /root/.my.cnf ]
+	            then
+		            cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+		            chmod 600 /etc/mysql/conf.d/my.cnf
+	            else
+		            ee_lib_echo_fail ".my.cnf cannot be located in your current user or root."
+		        fi
+            fi
         fi
     fi
     ee_lib_echo "Updating Nginx configuration, please wait..."
