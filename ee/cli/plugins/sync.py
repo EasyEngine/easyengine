@@ -83,6 +83,9 @@ class EESyncController(CementBaseController):
                                            db_user=ee_db_user,
                                            db_password=ee_db_pass,
                                            db_host=ee_db_host)
+                else:
+                    Log.debug(self, "Config files not found for {0} "
+                                      .format(site.sitename))
 
 
 def load(app):
