@@ -1,6 +1,6 @@
-v 3.3.5 - Aug 17, 2015
+v 3.3.5 - Aug 26, 2015
 - Introduced new support of --force/-f in delete command of site
-  - Removes database entry or nginx configuration of site for system
+  - Removes database entry or nginx configuration of site from system
   - ee site delete example.com --force/-f
   - ee site delete example.com --force/-f --db/--files
 - Moved ~/.my.cnf to /etc/mysql/conf.d/my.cnf
