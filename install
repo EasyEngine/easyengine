@@ -287,13 +287,13 @@ function ee_update_latest()
 	            cp ~/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
 	            chmod 600 /etc/mysql/conf.d/my.cnf
             else
-	            if [ -f /root/.my.cnf ]
-	            then
-		            cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
-		            chmod 600 /etc/mysql/conf.d/my.cnf
-	            else
-		            ee_lib_echo_fail ".my.cnf cannot be located in your current user or root."
-		        fi
+                if [ -f /root/.my.cnf ]
+                then
+                    cp /root/.my.cnf /etc/mysql/conf.d/my.cnf &>> /dev/null
+                    chmod 600 /etc/mysql/conf.d/my.cnf
+                else
+                    ee_lib_echo_fail ".my.cnf cannot be located in your current user or root."
+                fi
             fi
         fi
     fi
