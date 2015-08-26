@@ -1307,7 +1307,7 @@ class EESiteUpdateController(CementBaseController):
         if oldcachetype != 'wpredis' and data['wpredis']:
             try:
                 if installwp_plugin(self, 'redis-cache', data):
-                    if EEShellExec.cmd_exec(self, "grep -r \"WP_CACHE_KEY_SALT\" {0}/wp-config.php"
+                    if EEShellExec.cmd_exec(self, "grep -q \"WP_CACHE_KEY_SALT\" {0}/wp-config.php"
                                                   .format(ee_site_webroot)):
                         pass
                     else:
