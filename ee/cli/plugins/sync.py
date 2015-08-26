@@ -37,7 +37,8 @@ class EESyncController(CementBaseController):
                 ee_site_webroot = site.site_path
                 # Read config files
                 configfiles = glob.glob(ee_site_webroot + '/*-config.php')
-
+                
+                #search for wp-config.php inside htdocs/
                 if not configfiles:
                     if site.site_type != 'mysql':
                         configfiles = glob.glob(ee_site_webroot + '/htdocs/wp-config.php')
