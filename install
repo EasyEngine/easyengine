@@ -281,7 +281,7 @@ function ee_update_latest()
     if [ ! -f /etc/mysql/conf.d/my.cnf ]
     then
         #create conf.d folder if not exist
-        if [! -d /etc/mysql/conf.d ]; then
+        if [ ! -d /etc/mysql/conf.d ]; then
             mkdir -p /etc/mysql/conf.d
             chmod 755 /etc/mysql/conf.d
         fi
