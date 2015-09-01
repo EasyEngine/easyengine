@@ -501,7 +501,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     if [[ $? -ne 0 ]]; then
         ee_lib_echo "EasyEngine $ee_version_old not found on your system" | tee -ai $ee_install_log
         ee_lib_echo "Updating your EasyEngine to $ee_version_old for compability" | tee -ai $ee_install_log
-        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update | tee -ai $ee_install_log
+        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
         if [[ $? -ne 0 ]]; then
             ee_lib_echo_fail "Unable to update EasyEngine to $ee_version_old, exit status = " $?
             exit 100
