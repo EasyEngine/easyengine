@@ -504,15 +504,21 @@ if [ -f /usr/local/sbin/easyengine ]; then
         wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update | tee -ai $ee_install_log
         if [[ $? -ne 0 ]]; then
             ee_lib_echo_fail "Unable to update EasyEngine to $ee_version_old, exit status = " $?
+            exit 100
         fi
     fi
-    ee_install_dep | tee -ai $ee_install_log
-    ee_sync_db 2&>>1 $EE_INSTALL_LOG
-    secure_ee_db | tee -ai $EE_INSTALL_LOG
-    ee_install | tee -ai $ee_install_log
-    ee_update | tee -ai $ee_install_log
-    ee_update_latest | tee -ai $ee_install_log
-    ee_git_init | tee -ai $ee_install_log
+    read -p "Update EasyEngine to $ee_version_new (y/n): " ee_ans
+    if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
+        ee_install_dep | tee -ai $ee_install_log
+        ee_sync_db 2&>>1 $EE_INSTALL_LOG
+        secure_ee_db | tee -ai $EE_INSTALL_LOG
+        ee_install | tee -ai $ee_install_log
+        ee_update | tee -ai $ee_install_log
+        ee_update_latest | tee -ai $ee_install_log
+        ee_git_init | tee -ai $ee_install_log
+    else
+        ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
+    fi
 elif [ ! -f /usr/local/bin/ee ]; then
     ee_install_dep | tee -ai $ee_install_log
     ee_install | tee -ai $ee_install_log
