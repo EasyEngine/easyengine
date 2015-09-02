@@ -250,8 +250,12 @@ def setupwordpress(self, data):
     Log.info(self, "Downloading Wordpress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
-        EEShellExec.cmd_exec(self, "wp --allow-root core"
-                             " download")
+        if EEShellExec.cmd_exec(self, "wp --allow-root core"
+                             " download"):
+            pass
+        else:
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            raise SiteError("download wordpress core failed")
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError(self, "download wordpress core failed")
@@ -293,7 +297,7 @@ def setupwordpress(self, data):
                   .format(data['ee_db_pass'],
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                  .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -309,7 +313,10 @@ def setupwordpress(self, data):
                                                       .format(ee_domain_name) if data['wpredis'] 
                                                       else ''),
                                    log=False
-                                 )
+                                 ):
+                pass
+            else :
+                raise SiteError("generate wp-config failed for wp single site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp single site")
     else:
@@ -328,7 +335,7 @@ def setupwordpress(self, data):
                           " true);",
                           "\n\ndefine(\'WP_DEBUG\', false);"))
         try:
-            EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
+            if EEShellExec.cmd_exec(self, "bash -c \"php {0} --allow-root"
                                  .format(EEVariables.ee_wpcli_path)
                                  + " core config "
                                  + "--dbname=\'{0}\' --dbprefix=\'{1}\' "
@@ -348,12 +355,26 @@ def setupwordpress(self, data):
                                                       .format(ee_domain_name) if data['wpredis'] 
                                                       else ''),
                                  log=False
-                                 )
+                                 ):
+                pass
+            else:
+                raise SiteError("generate wp-config failed for wp multi site")
         except CommandExecutionError as e:
                 raise SiteError("generate wp-config failed for wp multi site")
 
-    EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
-                       os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+    #EEFileUtils.mvfile(self, os.getcwd()+'/wp-config.php',
+    #                   os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+
+    try:
+        import shutil
+
+        Log.debug(self, "Moving file from {0} to {1}".format(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir))))
+        shutil.move(os.getcwd()+'/wp-config.php',os.path.abspath(os.path.join(os.getcwd(), os.pardir)))
+    except Exception as e:
+        Log.error(self, 'Unable to move file from {0} to {1}'
+                      .format(os.getcwd()+'/wp-config.php', os.path.abspath(os.path.join(os.getcwd(), os.pardir))),False)
+        raise SiteError("Unable to move wp-config.php")
+
 
     if not ee_wp_user:
         ee_wp_user = EEVariables.ee_user
@@ -399,7 +420,7 @@ def setupwordpress(self, data):
                   + "--admin_password= --admin_email=\'{1}\'"
                   .format(ee_wp_pass, ee_wp_email))
         try:
-            EEShellExec.cmd_exec(self, "php {0} --allow-root core "
+            if EEShellExec.cmd_exec(self, "php {0} --allow-root core "
                                  .format(EEVariables.ee_wpcli_path)
                                  + "install --url=\'{0}\' --title=\'{0}\' "
                                  "--admin_name=\'{1}\' "
@@ -407,8 +428,11 @@ def setupwordpress(self, data):
                                  + "--admin_password=\'{0}\' "
                                  "--admin_email=\'{1}\'"
                                  .format(ee_wp_pass, ee_wp_email),
-                                 log=False)
-        except CommandExceutionError as e:
+                                 log=False):
+                pass
+            else:
+                raise SiteError("setup wordpress tables failed for single site")
+        except CommandExecutionError as e:
             raise SiteError("setup wordpress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
@@ -423,7 +447,7 @@ def setupwordpress(self, data):
                           subdomains='--subdomains'
                           if not data['wpsubdir'] else ''))
         try:
-            EEShellExec.cmd_exec(self, "php {0} --allow-root "
+            if EEShellExec.cmd_exec(self, "php {0} --allow-root "
                                  .format(EEVariables.ee_wpcli_path)
                                  + "core multisite-install "
                                  "--url=\'{0}\' --title=\'{0}\' "
@@ -435,7 +459,10 @@ def setupwordpress(self, data):
                                  .format(ee_wp_pass, ee_wp_email,
                                          subdomains='--subdomains'
                                          if not data['wpsubdir'] else ''),
-                                 log=False)
+                                 log=False):
+                pass
+            else:
+                raise SiteError("setup wordpress tables failed for wp multi site")
         except CommandExecutionError as e:
             raise SiteError("setup wordpress tables failed for wp multi site")
 
@@ -480,11 +507,16 @@ def setupwordpressnetwork(self, data):
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     Log.info(self, "Setting up WordPress Network \t", end='')
     try:
-        EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
+        if EEShellExec.cmd_exec(self, 'wp --allow-root core multisite-convert'
                              ' --title=\'{0}\' {subdomains}'
                              .format(data['www_domain'],
                                      subdomains='--subdomains'
-                                     if not data['wpsubdir'] else ''))
+                                     if not data['wpsubdir'] else '')):
+            pass
+        else:
+            Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
+            raise SiteError("setup wordpress network failed")
+
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
         raise SiteError("setup wordpress network failed")
@@ -515,6 +547,8 @@ def installwp_plugin(self, plugin_name, data):
                                      ))
     except CommandExecutionError as e:
         raise SiteError("plugin activation failed")
+
+    return 1
 
 
 def uninstallwp_plugin(self, plugin_name, data):
@@ -821,6 +855,11 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
             ee_wp_pass = getpass.getpass(prompt="Provide password for "
                                          "{0} user: "
                                          .format(ee_wp_user))
+
+            while not ee_wp_pass:
+                ee_wp_pass = getpass.getpass(prompt="Provide password for "
+                                             "{0} user: "
+                                             .format(ee_wp_user))
         except Exception as e:
             Log.debug(self, "{0}".format(e))
             raise SiteError("failed to read password input ")
@@ -923,7 +962,47 @@ def detSitePar(opts):
             cachelist.append(key)
 
     if len(typelist) > 1 or len(cachelist) > 1:
-        raise RuntimeError("could not determine site and cache type")
+        if len(cachelist) > 1:
+            raise RuntimeError("Could not determine cache type.Multiple cache parameter entered")
+        elif False not in [x in ('php','mysql','html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('html','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php','html') for x in typelist]:
+            sitetype = 'php'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wp','wpsubdir') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wp','wpsubdomain') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        else:
+            raise RuntimeError("could not determine site and cache type")
+
     else:
         if not typelist and not cachelist:
             sitetype = None
@@ -946,7 +1025,7 @@ def generate_random():
     return ee_random10
 
 
-def deleteDB(self, dbname, dbuser, dbhost):
+def deleteDB(self, dbname, dbuser, dbhost, exit=True):
     try:
         # Check if Database exists
         try:
@@ -979,7 +1058,7 @@ def deleteDB(self, dbname, dbuser, dbhost):
                 Log.debug(self, "drop database failed")
                 Log.info(self, "Database {0} not dropped".format(dbname))
     except Exception as e:
-        Log.error(self, "Error occured while deleting database")
+        Log.error(self, "Error occured while deleting database", exit)
 
 
 def deleteWebRoot(self, webroot):

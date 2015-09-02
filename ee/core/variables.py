@@ -12,7 +12,8 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.3.4"
+    ee_version = "3.3.5"
+
 
     # EasyEngine packages versions
     ee_wp_cli = "0.19.2"
@@ -70,7 +71,10 @@ class EEVariables():
     # MySQL hostname
     ee_mysql_host = ""
     config = configparser.RawConfigParser()
-    cnfpath = os.path.expanduser("~")+"/.my.cnf"
+    if os.path.exists('/etc/mysql/conf.d/my.cnf'):
+      cnfpath = "/etc/mysql/conf.d/my.cnf"
+    else:
+      cnfpath = os.path.expanduser("~")+"/.my.cnf"
     if [cnfpath] == config.read(cnfpath):
         try:
             ee_mysql_host = config.get('client', 'host')

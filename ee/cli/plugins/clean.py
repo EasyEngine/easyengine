@@ -20,7 +20,7 @@ class EECleanController(CementBaseController):
         label = 'clean'
         stacked_on = 'base'
         stacked_type = 'nested'
-        description = ('Clean NGINX FastCGI cache, Opcacache, Memcache')
+        description = ('Clean NGINX FastCGI cache, Opcacache, Memcache, Pagespeed Cache, Redis Cache')
         arguments = [
             (['--all'],
                 dict(help='Clean all cache', action='store_true')),
@@ -80,7 +80,7 @@ class EECleanController(CementBaseController):
                 Log.info(self, "Memcache not installed")
         except Exception as e:
             Log.debug(self, "{0}".format(e))
-            Log.error(self, "Unable to restart Memcached")
+            Log.error(self, "Unable to restart Memcached", False)
 
     @expose(hide=True)
     def clean_fastcgi(self):
@@ -89,7 +89,7 @@ class EECleanController(CementBaseController):
             Log.info(self, "Cleaning NGINX FastCGI cache")
             EEShellExec.cmd_exec(self, "rm -rf /var/run/nginx-cache/*")
         else:
-            Log.error(self, "Unable to clean FastCGI cache")
+            Log.error(self, "Unable to clean FastCGI cache", False)
 
     @expose(hide=True)
     def clean_opcache(self):
@@ -105,7 +105,7 @@ class EECleanController(CementBaseController):
                           " please check you have admin tools installed")
                 Log.debug(self, "please check you have admin tools installed,"
                          " or install them with `ee stack install --admin`")
-                Log.error(self, "Unable to clean opcache")
+                Log.error(self, "Unable to clean opcache", False)
 
     @expose(hide=True)
     def clean_pagespeed(self):
@@ -116,7 +116,7 @@ class EECleanController(CementBaseController):
         else:
             Log.debug(self, "/var/ngx_pagespeed_cache does not exist," 
                             " so cache not cleared")
-            Log.error(self, "Unable to clean pagespeed cache")
+            Log.error(self, "Unable to clean pagespeed cache", False)
 
 
 def load(app):

@@ -33,4 +33,5 @@ location ~ \.php$ {
 }
 location ~ /purge(/.*) {
   fastcgi_cache_purge WORDPRESS "$scheme$request_method$host$1";
+  access_log off;
 }
