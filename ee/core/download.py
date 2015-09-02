@@ -27,7 +27,7 @@ class EEDownload():
                                             + Log.OKBLUE + "]"))
             except urllib.error.URLError as e:
                 Log.debug(self, "[{err}]".format(err=str(e.reason)))
-                Log.error(self, "Unable to donwload file, {0}"
+                Log.error(self, "Unable to download file, {0}"
                           .format(filename))
                 return False
             except urllib.error.HTTPError as e:

@@ -468,7 +468,7 @@ class EESiteCreateController(CementBaseController):
 
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
-                Log.info(self, "HHVM is experimental feature and it may not"
+                Log.info(self, "HHVM is experimental feature and it may not "
                          "work with all plugins of your site.\nYou can "
                          "disable it by passing --hhvm=off later.\nDo you wish"
                          " to enable HHVM now for {0}?".format(ee_domain))
@@ -493,7 +493,7 @@ class EESiteCreateController(CementBaseController):
 
         if data and self.app.pargs.pagespeed:
             if (not self.app.pargs.experimental):
-                Log.info(self, "PageSpeed is experimental feature and it may not"
+                Log.info(self, "PageSpeed is experimental feature and it may not "
                          "work with all CSS/JS/Cache of your site.\nYou can "
                          "disable it by passing --pagespeed=off later.\nDo you wish"
                          " to enable PageSpeed now for {0}?".format(ee_domain))
@@ -863,7 +863,7 @@ class EESiteUpdateController(CementBaseController):
                 updatewpuserpassword(self, ee_domain, ee_site_webroot)
             except SiteError as e:
                 Log.debug(self, str(e))
-                Log.info(self, "Password Unchanged.")
+                Log.info(self, "\nPassword Unchanged.")
             return 0
 
         if ((stype == "proxy" and stype == oldsitetype and self.app.pargs.hhvm)
@@ -1163,7 +1163,8 @@ class EESiteUpdateController(CementBaseController):
                      " http://{0}".format(ee_domain))
             return 0
 
-        if data['ee_db_name'] and not data['wp']:
+        #if data['ee_db_name'] and not data['wp']:
+        if 'ee_db_name' in data.keys() and not data['wp']:
             try:
                 data = setupdatabase(self, data)
             except SiteError as e:
@@ -1305,7 +1306,24 @@ class EESiteUpdateController(CementBaseController):
 
         if oldcachetype != 'wpredis' and data['wpredis']:
             try:
-                installwp_plugin(self, 'redis-cache', data)
+                if installwp_plugin(self, 'redis-cache', data):
+                    if EEShellExec.cmd_exec(self, "grep -q \"WP_CACHE_KEY_SALT\" {0}/wp-config.php"
+                                                  .format(ee_site_webroot)):
+                        pass
+                    else:
+                        try:
+                            wpconfig = open("{0}/wp-config.php".format(ee_site_webroot),
+                                               encoding='utf-8', mode='a')
+                            wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
+                                           .format(ee_domain))
+                            wpconfig.close()
+                        except IOError as e:
+                            Log.debug(self, str(e))
+                            Log.debug(self, "Updating wp-config.php failed.")
+                            Log.warn(self, "Updating wp-config.php failed. "
+                                           "Could not append:"
+                                           "\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );".format(ee_domain) +
+                                           "\nPlease add manually")
             except SiteError as e:
                 Log.debug(self, str(e))
                 Log.info(self, Log.FAIL + "Update site failed."
@@ -1368,6 +1386,9 @@ class EESiteDeleteController(CementBaseController):
             (['--no-prompt'],
                 dict(help="doesnt ask permission for delete",
                      action='store_true')),
+            (['-f','--force'],
+                dict(help="forcefully delete site and configuration",
+                     action='store_true')),
             (['--all'],
                 dict(help="delete all", action='store_true')),
             (['--db'],
@@ -1392,6 +1413,8 @@ class EESiteDeleteController(CementBaseController):
         ee_db_name = ''
         ee_prompt = ''
         ee_nginx_prompt = ''
+        mark_db_delete_prompt = False
+        mark_webroot_delete_prompt = False
         mark_db_deleted = False
         mark_webroot_deleted = False
         if not check_domain_exists(self, ee_domain):
@@ -1429,11 +1452,13 @@ class EESiteDeleteController(CementBaseController):
                                          ' database [y/N]: ')
                 else:
                     ee_db_prompt = 'Y'
+                    mark_db_delete_prompt = True
 
                 if ee_db_prompt == 'Y' or ee_db_prompt == 'y':
+                    mark_db_delete_prompt = True
                     Log.info(self, "Deleting Database, {0}, user {1}"
                              .format(ee_db_name, ee_db_user))
-                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host)
+                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host, False)
                     updateSiteInfo(self, ee_domain,
                                    db_name='deleted',
                                    db_user='deleted',
@@ -1453,8 +1478,10 @@ class EESiteDeleteController(CementBaseController):
                                           'webroot [y/N]: ')
                 else:
                     ee_web_prompt = 'Y'
+                    mark_webroot_delete_prompt = True
 
                 if ee_web_prompt == 'Y' or ee_web_prompt == 'y':
+                    mark_webroot_delete_prompt = True
                     Log.info(self, "Deleting Webroot, {0}"
                              .format(ee_site_webroot))
                     deleteWebRoot(self, ee_site_webroot)
@@ -1465,13 +1492,20 @@ class EESiteDeleteController(CementBaseController):
                 mark_webroot_deleted = True
                 Log.info(self, "Webroot seems to be already deleted")
 
-        if (mark_webroot_deleted and mark_db_deleted):
+        if not self.app.pargs.force:
+            if (mark_webroot_deleted and mark_db_deleted):
                 # TODO Delete nginx conf
                 removeNginxConf(self, ee_domain)
                 deleteSiteInfo(self, ee_domain)
                 Log.info(self, "Deleted site {0}".format(ee_domain))
-        # else:
-        #     Log.error(self, " site {0} does not exists".format(ee_domain))
+             # else:
+                # Log.error(self, " site {0} does not exists".format(ee_domain))
+        else:
+            if (mark_db_delete_prompt or mark_webroot_delete_prompt or (mark_webroot_deleted and mark_db_deleted)):
+                # TODO Delete nginx conf
+                removeNginxConf(self, ee_domain)
+                deleteSiteInfo(self, ee_domain)
+                Log.info(self, "Deleted site {0}".format(ee_domain))
 
 
 class EESiteListController(CementBaseController):

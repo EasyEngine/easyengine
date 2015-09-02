@@ -11,7 +11,7 @@ _ee_complete()
     # SETUP THE BASE LEVEL (everything after "ee")
     if [ $COMP_CWORD -eq 1 ]; then
         COMPREPLY=( $(compgen \
-                      -W "stack site debug clean secure import-slow-log log update sync info" \
+                      -W "stack site debug clean secure import-slow-log log update sync info --version --help --quiet" \
                       -- $cur) )
 
 
@@ -22,7 +22,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE SECOND LEVEL NAMESPACE
             "clean")
                 COMPREPLY=( $(compgen \
-                              -W "--memcache --opcache --fastcgi --pagespeed --all" \
+                              -W "--memcache --opcache --fastcgi --pagespeed --redis --all" \
                               -- $cur) )
                 ;;
 
@@ -176,7 +176,7 @@ _ee_complete()
                 ;;
             "delete")
                 COMPREPLY=( $(compgen \
-                                    -W "--db --files --all --no-prompt" \
+                                    -W "--db --files --all --no-prompt --force -f" \
                                  -- $cur) )
                 ;;
             "show")
@@ -214,10 +214,29 @@ _ee_complete()
     fi
 
     case "$prev" in
-        "--wp" | "--wpsubdir" | "--wpsubdomain")
+        "--wp")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --user --email --pass --wpredis"
+                    retlist="--wp --wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis"
+                elif [ ${COMP_WORDS[2]} == "update" ]; then
+                    retlist="--wp --w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis"
+                else
+                    retlist=""
+                fi
+            else
+                retlist="--wp --wp=off --rewrite --rewrite=off -i --interactive"
+            fi
+
+            ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+            ;;
+
+        "--wpsubdir" | "--wpsubdomain")
+            if [ ${COMP_WORDS[1]} != "debug" ]; then
+                if [ ${COMP_WORDS[2]} == "create" ]; then
+                    retlist="--wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
                     retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis"
                 else
@@ -233,10 +252,21 @@ _ee_complete()
                               -- $cur) )
             ;;
 
-        "--pagespeed" | "--hhvm" | "--wpredis" )
+        "--pagespeed" | "--hhvm" | "--wpredis" | "--w3tc" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal  --wpredis"
-            elif [ ${COMP_WORDS[2]} == "update" ]; then
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal  --wpredis"
+            else
+                retlist=""
+            fi
+
+            ret="${retlist[@]/$prev}"
+                COMPREPLY=( $(compgen \
+                              -W "$(echo $ret)" \
+                              -- $cur) )
+            ;;
+
+        "--pagespeed" | "--hhvm" | "--wpredis" | "--w3tc" | "--wpfc")
+            if [ ${COMP_WORDS[2]} == "update" ]; then
                 retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal --wpredis"
             else
                 retlist=""
@@ -276,8 +306,8 @@ _ee_complete()
                         -- $cur) )
             ;;
 
-        "--db" | "--files" )
-            retlist="--db --files --all"
+        "--db" | "--files" | "--force")
+            retlist="--db --files --all --force"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \
@@ -286,9 +316,9 @@ _ee_complete()
 
         "--all")
           if [ ${COMP_WORDS[1]} == "clean" ]; then
-                  retlist="--memcache --opcache --fastcgi"
+                  retlist="--memcache --opcache --fastcgi --redis"
           elif [ ${COMP_WORDS[2]} == "delete" ]; then
-              retlist="--db --files"
+              retlist="--db --files --force"
           elif [ ${COMP_WORDS[2]} == "update" ]; then
             retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis"
           else
@@ -300,8 +330,8 @@ _ee_complete()
                             -- $cur) )
           ;;
 
-        "--memcache" | "--opcache" | "--fastcgi" | "--all")
-            retlist="--memcache --opcache --fastcgi --all"
+        "--memcache" | "--opcache" | "--fastcgi" | "--all" | "--redis" | "--pagespeed")
+            retlist="--memcache --opcache --fastcgi --pagespeed --redis --all"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
                           -W "$(echo $ret)" \

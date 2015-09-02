@@ -1,3 +1,23 @@
+v 3.3.5 - Sep 2, 2015
+- Introduced new support of --force/-f in delete command of site
+  - Removes database entry or nginx configuration of site from system
+  - ee site delete example.com --force/-f
+  - ee site delete example.com --force/-f --db/--files
+- Moved ~/.my.cnf to /etc/mysql/conf.d/my.cnf
+  - Fixed MySQL credential issue
+- Fixed Bug in cache clean --all command
+- Improved 404 handling for static HTML sites #561
+- Improved cleanup action while site create command fail
+- Updated wpfc config #543
+- Improved ee sync command https://github.com/rtCamp/easyengine/issues/575#issuecomment-126293815
+- Bug Fix #486
+- Bug Fix #555
+- Updated man page
+- Fixed bug in ee update site to --wpredis
+- Fixed Autocompletion Issue #519
+- Fixed minor bug in update --password
+- Minor fix and improvements
+
 v 3.3.4 - Aug 12, 2015
 - Bug Fix for https://github.com/rtCamp/easyengine/issues/598#issue-98354466
 

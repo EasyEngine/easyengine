@@ -15,13 +15,14 @@ class Log:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-    def error(self, msg):
+    def error(self, msg, exit=True):
         """
         Logs error into log file
         """
         print(Log.FAIL + msg + Log.ENDC)
         self.app.log.error(Log.FAIL + msg + Log.ENDC)
-        self.app.close(1)
+        if exit:
+            self.app.close(1)
 
     def info(self, msg, end='\n', log=True):
         """
