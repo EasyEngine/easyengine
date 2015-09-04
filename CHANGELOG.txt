@@ -1,3 +1,6 @@
+v 3.3.6 - Sep 4, 2015
+- Fix #611
+
 v 3.3.5 - Sep 2, 2015
 - Introduced new support of --force/-f in delete command of site
   - Removes database entry or nginx configuration of site from system
