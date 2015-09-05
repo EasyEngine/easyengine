@@ -55,17 +55,17 @@ readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
 readonly ee_distro_version=$(lsb_release -sc)
 
 # Checking linux distro
-if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
-    ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
+if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ] && [ "$ee_linux_distro" != "elementary" ]; then
+    ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu, Debian, Elementary OS only as of now"
     ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04, Debian 7.x/8.x, Elementary Freya"
     exit 100
 fi
 
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
-lsb_release -d | egrep -e "12.04|14.04|wheezy|jessie" &>> /dev/null
+lsb_release -d | egrep -e "12.04|14.04|wheezy|jessie|Freya" &>> /dev/null
 if [ "$?" -ne "0" ]; then
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04, Debian 7.x/8.x and Elementary OS Freya"
     exit 100
 fi
 
@@ -88,7 +88,7 @@ fi
 function ee_install_dep()
 {
     ee_lib_echo "Installing required packages, please wait..."
-    if [ "$ee_linux_distro" == "Ubuntu" ]; then
+    if [ "$ee_linux_distro" == "Ubuntu" ] || [ "$ee_linux_distro" == "elementary" ] ; then
         apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
     elif [ "$ee_linux_distro" == "Debian" ]; then
         apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
@@ -323,7 +323,7 @@ function ee_update_latest()
                 apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
 
             fi
-        elif [ "$ee_distro_version" == "trusty" ]; then
+        elif [ "$ee_distro_version" == "trusty" ] || [ "$ee_distro_version" == "freya"]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
             if [[ $? -ne 0 ]]; then
                 if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
