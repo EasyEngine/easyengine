@@ -442,7 +442,25 @@ class EEStackController(CementBaseController):
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
-                    self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
+                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                        EEShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
+                                            " -e '/^#user/a user"
+                                            "\ www-data\;'"
+                                            " /etc/nginx/nginx.conf")
+
+                        # EasyEngine config for NGINX plus
+                        Log.debug(self, 'Writting for nginx plus configuration'
+                                  ' to file /etc/nginx/conf.d/ee-plus.conf')
+                        ee_nginx = open('/etc/nginx/conf.d/ee-plus.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'ee-plus.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                        print("HTTP Auth User Name: easyengine"
+                                    + "\nHTTP Auth Password : {0}".format(passwd))
+                    else:
+                        self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
                 if EEAptGet.is_installed(self,'redis-server'):

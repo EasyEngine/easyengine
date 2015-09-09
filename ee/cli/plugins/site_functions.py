@@ -661,10 +661,11 @@ def site_package_check(self, stype):
             if EEAptGet.is_installed(self, 'nginx-plus'):
                 # do something
                 # do post nginx installation configuration
-                apt_packages = ["nginx-plus"]
+                print("NGINX-PLUS detected ...")
+                apt = ["nginx-plus"] + EEVariables.ee_nginx
                 packages = []
-                apt_packages = apt_packages + EEVariables.ee_nginx
-                stack.post_pref(apt_packages , packages)
+                #apt_packages = apt_packages + EEVariables.ee_nginx
+                stack.post_pref(apt, packages)
 
             else:
                 apt_packages = apt_packages + EEVariables.ee_nginx
