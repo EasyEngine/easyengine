@@ -332,6 +332,8 @@ class EEStackController(CementBaseController):
                     # Nginx-Plus does not have nginx package structure like this
                     # So craeting directories
                     if set(["nginx-plus"]).issubset(set(apt_packages)):
+                        Log.info(self,
+                                 "Installing EasyEngine Configurations for" "NGINX PLUS")
                         if not os.path.exists('/etc/nginx/sites-available'):
                             Log.debug(self, 'Creating directory'
                                       '/etc/nginx/sites-available')
@@ -1609,8 +1611,6 @@ class EEStackController(CementBaseController):
                         apt_packages = apt_packages + EEVariables.ee_nginx
                     else:
                         Log.info(self, "NGINX PLUS Detected ...")
-                        Log.info(self,
-                                 "Installing EasyEngine Configurations for NGINX PLUS")
                         apt = ["nginx-plus"] + EEVariables.ee_nginx
                         #apt_packages = apt_packages + EEVariables.ee_nginx
                         self.post_pref(apt, packages)
