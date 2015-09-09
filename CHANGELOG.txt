@@ -1,3 +1,6 @@
+v 3.3.8 - Sep 9, 2015
+- # Fix White screen for NGINX PLUS users
+
 v 3.3.7 - Sep 9, 2015
 - EasyEngine + NGINX PLUS (http://docs.rtcamp.com/easyengine/nginx-plus/)
 
