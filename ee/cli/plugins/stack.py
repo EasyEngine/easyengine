@@ -470,6 +470,7 @@ class EEStackController(CementBaseController):
 
                         print("HTTP Auth User Name: easyengine"
                                     + "\nHTTP Auth Password : {0}".format(passwd))
+                        EEService.reload_service(self, 'nginx')
                     else:
                         self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
