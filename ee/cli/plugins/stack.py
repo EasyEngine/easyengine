@@ -224,6 +224,15 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+                if set(["nginx-plus"]).issubset(set(apt_packages)):
+                    # Fix for white screen death with NGINX PLUS
+                    if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
+                                            'SCRIPT_FILENAME'):
+                        with open('/etc/nginx/fastcgi_params', encoding='utf-8',
+                                  mode='a') as ee_nginx:
+                            ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
+                                           '\t$request_filename;\n')
+
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
                     # Change EasyEngine Version in nginx.conf file
                     EEFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
