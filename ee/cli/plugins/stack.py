@@ -449,7 +449,7 @@ class EEStackController(CementBaseController):
                                             " /etc/nginx/nginx.conf")
 
                         # EasyEngine config for NGINX plus
-                        data['version'] = EEVariables.ee_version 
+                        data['version'] = EEVariables.ee_version
                         Log.debug(self, 'Writting for nginx plus configuration'
                                   ' to file /etc/nginx/conf.d/ee-plus.conf')
                         ee_nginx = open('/etc/nginx/conf.d/ee-plus.conf',
@@ -1605,7 +1605,15 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
                 if not EEAptGet.is_installed(self, 'nginx-custom'):
-                    apt_packages = apt_packages + EEVariables.ee_nginx
+                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+                        apt_packages = apt_packages + EEVariables.ee_nginx
+                    else:
+                        Log.info(self, "NGINX PLUS Detected ...")
+                        Log.info(self,
+                                 "Installing EasyEngine Configurations for NGINX PLUS")
+                        apt = ["nginx-plus"] + EEVariables.ee_nginx
+                        #apt_packages = apt_packages + EEVariables.ee_nginx
+                        self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
                     Log.info(self, "Nginx already installed")
