@@ -310,7 +310,7 @@ def setupwordpress(self, data):
                                    .format(data['ee_db_pass'],
                                            "\n\ndefine(\'WP_DEBUG\', false);",
                                            redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                                      .format(ee_domain_name) if data['wpredis'] 
+                                                      .format(ee_domain_name) if data['wpredis']
                                                       else ''),
                                    log=False
                                  ):
@@ -352,7 +352,7 @@ def setupwordpress(self, data):
                                          " true);",
                                          "\n\ndefine(\'WP_DEBUG\', false);",
                                          redissalt="\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
-                                                      .format(ee_domain_name) if data['wpredis'] 
+                                                      .format(ee_domain_name) if data['wpredis']
                                                       else ''),
                                  log=False
                                  ):
@@ -655,8 +655,18 @@ def site_package_check(self, stype):
                  'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
+        # Check if server has nginx-custom package
         if not EEAptGet.is_installed(self, 'nginx-custom'):
-            apt_packages = apt_packages + EEVariables.ee_nginx
+            # check if Server has nginx-plus installed
+            if EEAptGet.is_installed(self, 'nginx-plus'):
+                # do something
+                # do post nginx installation configuration
+                packages = []
+                apt_packages = apt_packages + EEVariables.ee_nginx
+                stack.post_pref(apt_packages , packages)
+
+            else:
+                apt_packages = apt_packages + EEVariables.ee_nginx
         else:
             # Fix for Nginx white screen death
             if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
