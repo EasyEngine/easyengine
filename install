@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.3.7"
+readonly ee_version_new="3.3.8"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -381,6 +381,10 @@ function ee_update_latest()
 
     if [ -f /etc/nginx/nginx.conf ]; then
         sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
+    fi
+
+    if [ -f /etc/nginx/conf.d/ee-plus.conf ]; then
+        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/conf.d/ee-plus.conf &>> /dev/null
     fi
 
     # Disable Xdebug on old systems if and only if ee debug is off
