@@ -329,6 +329,23 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    # Nginx-Plus does not have nginx package structure like this
+                    # So craeting directories
+                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                        Log.info(self,
+                                 "Installing EasyEngine Configurations for" "NGINX PLUS")
+                        if not os.path.exists('/etc/nginx/sites-available'):
+                            Log.debug(self, 'Creating directory'
+                                      '/etc/nginx/sites-available')
+                            os.makedirs('/etc/nginx/sites-available')
+
+                        if not os.path.exists('/etc/nginx/sites-enabled'):
+                            Log.debug(self, 'Creating directory'
+                                      '/etc/nginx/sites-available')
+                            os.makedirs('/etc/nginx/sites-enabled')
+
+
+
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
@@ -427,7 +444,35 @@ class EEStackController(CementBaseController):
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
-                    self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
+                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                        EEShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
+                                            " -e '/^#user/a user"
+                                            "\ www-data\;'"
+                                            " /etc/nginx/nginx.conf")
+                        if not EEShellExec.cmd_exec(self, "cat /etc/nginx/"
+                                                "nginx.conf | grep -q "
+                                                "'/etc/nginx/sites-enabled'"):
+                            EEShellExec.cmd_exec(self, "sed -i '/\/etc\/"
+                                                 "nginx\/conf\.d\/\*"
+                                                 "\.conf/a \    include"
+                                                 "\ \/etc\/nginx\/sites-enabled"
+                                                 "\/*;' /etc/nginx/nginx.conf")
+
+                        # EasyEngine config for NGINX plus
+                        data['version'] = EEVariables.ee_version
+                        Log.debug(self, 'Writting for nginx plus configuration'
+                                  ' to file /etc/nginx/conf.d/ee-plus.conf')
+                        ee_nginx = open('/etc/nginx/conf.d/ee-plus.conf',
+                                        encoding='utf-8', mode='w')
+                        self.app.render((data), 'ee-plus.mustache',
+                                        out=ee_nginx)
+                        ee_nginx.close()
+
+                        print("HTTP Auth User Name: easyengine"
+                                    + "\nHTTP Auth Password : {0}".format(passwd))
+                        EEService.reload_service(self, 'nginx')
+                    else:
+                        self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
 
                 if EEAptGet.is_installed(self,'redis-server'):
@@ -1571,7 +1616,13 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
                 if not EEAptGet.is_installed(self, 'nginx-custom'):
-                    apt_packages = apt_packages + EEVariables.ee_nginx
+                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+                        apt_packages = apt_packages + EEVariables.ee_nginx
+                    else:
+                        Log.info(self, "NGINX PLUS Detected ...")
+                        apt = ["nginx-plus"] + EEVariables.ee_nginx
+                        #apt_packages = apt_packages + EEVariables.ee_nginx
+                        self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
                     Log.info(self, "Nginx already installed")

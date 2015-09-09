@@ -1,3 +1,6 @@
+v 3.3.7 - Sep 9, 2015
+- EasyEngine + NGINX PLUS (http://docs.rtcamp.com/easyengine/nginx-plus/)
+
 v 3.3.6 - Sep 4, 2015
 - Fix #611
 
