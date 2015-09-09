@@ -329,6 +329,21 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    # Nginx-Plus does not have nginx package structure like this
+                    # So craeting directories
+                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                        if not os.path.exists('/etc/nginx/sites-available'):
+                            Log.debug(self, 'Creating directory'
+                                      '/etc/nginx/sites-available')
+                            os.makedirs('/etc/nginx/sites-available')
+
+                        if not os.path.exists('/etc/nginx/sites-enabled'):
+                            Log.debug(self, 'Creating directory'
+                                      '/etc/nginx/sites-available')
+                            os.makedirs('/etc/nginx/sites-enabled')
+
+
+
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'
