@@ -449,6 +449,14 @@ class EEStackController(CementBaseController):
                                             " -e '/^#user/a user"
                                             "\ www-data\;'"
                                             " /etc/nginx/nginx.conf")
+                        if not EEShellExec.cmd_exec(self, "cat /etc/nginx/"
+                                                "nginx.conf | grep -q "
+                                                "'/etc/nginx/sites-enabled'"):
+                            EEShellExec.cmd_exec(self, "sed -i '/\/etc\/"
+                                                 "nginx\/conf\.d\/\*"
+                                                 "\.conf/a \    include"
+                                                 "\ \/etc\/nginx\/sites-enabled"
+                                                 "\/*;' /etc/nginx/nginx.conf")
 
                         # EasyEngine config for NGINX plus
                         data['version'] = EEVariables.ee_version
