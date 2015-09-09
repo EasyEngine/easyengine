@@ -449,6 +449,7 @@ class EEStackController(CementBaseController):
                                             " /etc/nginx/nginx.conf")
 
                         # EasyEngine config for NGINX plus
+                        data['version'] = EEVariables.ee_version 
                         Log.debug(self, 'Writting for nginx plus configuration'
                                   ' to file /etc/nginx/conf.d/ee-plus.conf')
                         ee_nginx = open('/etc/nginx/conf.d/ee-plus.conf',
