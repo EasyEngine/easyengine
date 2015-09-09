@@ -662,8 +662,6 @@ def site_package_check(self, stype):
                 # do something
                 # do post nginx installation configuration
                 Log.info(self, "NGINX PLUS Detected ...")
-                Log.info(self,
-                         "Installing EasyEngine Configurations for NGINX PLUS")
                 apt = ["nginx-plus"] + EEVariables.ee_nginx
                 #apt_packages = apt_packages + EEVariables.ee_nginx
                 stack.post_pref(apt, packages)
