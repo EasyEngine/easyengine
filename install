@@ -383,6 +383,10 @@ function ee_update_latest()
         sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/nginx.conf &>> /dev/null
     fi
 
+    if [ -f /etc/nginx/conf.d/ee-plus.conf ]; then
+        sed -i "s/.*X-Powered-By.*/\tadd_header X-Powered-By \"EasyEngine $ee_version_new\";/" /etc/nginx/conf.d/ee-plus.conf &>> /dev/null
+    fi
+
     # Disable Xdebug on old systems if and only if ee debug is off
     if [ -f /etc/php5/mods-available/xdebug.ini ]; then
         ee_debug_value=$(grep -Hr 9001 /etc/nginx/conf.d/upstream.conf | wc -l )
