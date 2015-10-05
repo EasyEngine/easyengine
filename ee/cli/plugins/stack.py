@@ -1105,7 +1105,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
                 Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
-                          'loaction /tmp/')
+                          'location /tmp/')
                 if not os.path.exists('{0}22222/htdocs/db'
                                       .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating new  directory "
