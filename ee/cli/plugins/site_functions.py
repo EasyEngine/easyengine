@@ -223,6 +223,7 @@ def setupdatabase(self, data):
     data['ee_db_user'] = ee_db_username
     data['ee_db_pass'] = ee_db_password
     data['ee_db_host'] = EEVariables.ee_mysql_host
+    data['ee_mysql_grant_host'] = ee_mysql_grant_host
     return(data)
 
 
