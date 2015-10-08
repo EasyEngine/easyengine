@@ -1,3 +1,7 @@
+v 3.3.9 - Oct 8, 2015
+- Fix #625
+- Fix #627
+
 v 3.3.8 - Sep 9, 2015
 - # Fix White screen for NGINX PLUS users
 
