@@ -1105,7 +1105,7 @@ class EEStackController(CementBaseController):
                     for x in packages):
                 EEExtract.extract(self, '/tmp/pma.tar.gz', '/tmp/')
                 Log.debug(self, 'Extracting file /tmp/pma.tar.gz to '
-                          'loaction /tmp/')
+                          'location /tmp/')
                 if not os.path.exists('{0}22222/htdocs/db'
                                       .format(EEVariables.ee_webroot)):
                     Log.debug(self, "Creating new  directory "
@@ -1116,6 +1116,29 @@ class EEStackController(CementBaseController):
                 shutil.move('/tmp/phpmyadmin-STABLE/',
                             '{0}22222/htdocs/db/pma/'
                             .format(EEVariables.ee_webroot))
+                shutil.copyfile('{0}22222/htdocs/db/pma/config.sample.inc.php'
+                                .format(EEVariables.ee_webroot),
+                                '{0}22222/htdocs/db/pma/config.inc.php'
+                                .format(EEVariables.ee_webroot))
+                Log.debug(self, 'Setting Blowfish Secret Key FOR COOKIE AUTH to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(EEVariables.ee_webroot))
+                blowfish_key = ''.join([random.choice
+                         (string.ascii_letters + string.digits)
+                         for n in range(10)])
+                EEFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma/config.inc.php'
+                                          .format(EEVariables.ee_webroot),
+                                          "$cfg[\'blowfish_secret\'] = \'\';","$cfg[\'blowfish_secret\'] = \'{0}\';"
+                                          .format(blowfish_key))
+                Log.debug(self, 'Setting HOST Server For Mysql to  '
+                          '{0}22222/htdocs/db/pma/config.inc.php file '
+                          .format(EEVariables.ee_webroot))
+                EEFileUtils.searchreplace(self,
+                                          '{0}22222/htdocs/db/pma/config.inc.php'
+                                          .format(EEVariables.ee_webroot),
+                                          "$cfg[\'Servers\'][$i][\'host\'] = \'localhost\';","$cfg[\'Servers\'][$i][\'host\'] = \'{0}\';"
+                                          .format(EEVariables.ee_mysql_host))
                 Log.debug(self, 'Setting Privileges of webroot permission to  '
                           '{0}22222/htdocs/db/pma file '
                           .format(EEVariables.ee_webroot))

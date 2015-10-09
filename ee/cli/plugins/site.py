@@ -655,7 +655,7 @@ class EESiteCreateController(CementBaseController):
                                     webroot=data['webroot'],
                                     dbname=data['ee_db_name'],
                                     dbuser=data['ee_db_user'],
-                                    dbhost=data['ee_db_host'])
+                                    dbhost=data['ee_mysql_grant_host'])
                     deleteSiteInfo(self, ee_domain)
                     Log.error(self, "Check logs for reason "
                               "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -670,7 +670,7 @@ class EESiteCreateController(CementBaseController):
                     doCleanupAction(self, domain=ee_domain,
                                     dbname=data['ee_db_name'],
                                     dbuser=data['ee_db_user'],
-                                    dbhost=data['ee_db_host'])
+                                    dbhost=data['ee_mysql_grant_host'])
                 deleteSiteInfo(self, ee_domain)
                 Log.info(self, Log.FAIL + "service nginx reload failed."
                          " check issues with `nginx -t` command.")
@@ -694,7 +694,7 @@ class EESiteCreateController(CementBaseController):
                     doCleanupAction(self, domain=ee_domain,
                                     dbname=data['ee_db_name'],
                                     dbuser=data['ee_db_user'],
-                                    dbhost=data['ee_db_host'])
+                                    dbhost=data['ee_mysql_grant_host'])
                 deleteSiteInfo(self, ee_domain)
                 Log.error(self, "Check logs for reason "
                           "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -1433,7 +1433,7 @@ class EESiteDeleteController(CementBaseController):
         if ee_site_type in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
             ee_db_name = check_site.db_name
             ee_db_user = check_site.db_user
-            ee_db_host = check_site.db_host
+            ee_mysql_grant_host = self.app.config.get('mysql', 'grant-host')
             if ee_db_name == 'deleted':
                 mark_db_deleted = True
             if self.app.pargs.all:
@@ -1458,7 +1458,7 @@ class EESiteDeleteController(CementBaseController):
                     mark_db_delete_prompt = True
                     Log.info(self, "Deleting Database, {0}, user {1}"
                              .format(ee_db_name, ee_db_user))
-                    deleteDB(self, ee_db_name, ee_db_user, ee_db_host, False)
+                    deleteDB(self, ee_db_name, ee_db_user, ee_mysql_grant_host, False)
                     updateSiteInfo(self, ee_domain,
                                    db_name='deleted',
                                    db_user='deleted',
