@@ -1131,7 +1131,7 @@ class EEStackController(CementBaseController):
                                           .format(EEVariables.ee_webroot),
                                           "$cfg[\'blowfish_secret\'] = \'\';","$cfg[\'blowfish_secret\'] = \'{0}\';"
                                           .format(blowfish_key))
-                Log.debug(self, 'Setting HOST Server For Remote Mysql to  '
+                Log.debug(self, 'Setting HOST Server For Mysql to  '
                           '{0}22222/htdocs/db/pma/config.inc.php file '
                           .format(EEVariables.ee_webroot))
                 EEFileUtils.searchreplace(self,
