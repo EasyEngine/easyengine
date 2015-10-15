@@ -1824,17 +1824,24 @@ class EEStackController(CementBaseController):
             if redis_install_flag:
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if EEVariables.ee_ram < 512:
+                        Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
+                                            .format(int(EEVariables.ee_ram*1024*1024*0.1)))
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory <bytes>",
                                               "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.1)))
+
+                        Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory-policy volatile-lru",
                                               "maxmemory-policy volatile-lru")
                         EEService.restart_service(self, 'redis-server')
                     else:
+                        Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
+                                            .format(int(EEVariables.ee_ram*1024*1024*0.2)))
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory <bytes>",
                                               "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.2)))
+                        Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory-policy volatile-lru",
                                               "maxmemory-policy volatile-lru")
