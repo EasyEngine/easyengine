@@ -1641,6 +1641,8 @@ class EEStackController(CementBaseController):
             if self.app.pargs.redis:
                 if not EEAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + EEVariables.ee_redis
+                    self.app.pargs.php = True
+                    redis_install_flag = True
                 else:
                     Log.info(self, "Redis already installed")
 
@@ -1815,6 +1817,25 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Successfully installed packages")
             else:
                 return self.msg
+
+            if redis_install_flag:
+                if os.path.isfile("/etc/redis/redis.conf"):
+                    if EEVariables.ee_ram < 512:
+                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
+                                              "# maxmemory <bytes>",
+                                              "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.1)))
+                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
+                                              "# maxmemory-policy volatile-lru",
+                                              "maxmemory-policy volatile-lru")
+                        EEService.restart_service(self, 'redis-server')
+                    else:
+                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
+                                              "# maxmemory <bytes>",
+                                              "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.2)))
+                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
+                                              "# maxmemory-policy volatile-lru",
+                                              "maxmemory-policy volatile-lru")
+                        EEService.restart_service(self, 'redis-server')
 
     @expose(help="Remove packages")
     def remove(self):
