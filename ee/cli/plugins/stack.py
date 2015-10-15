@@ -1818,6 +1818,9 @@ class EEStackController(CementBaseController):
             else:
                 return self.msg
 
+            # set redis.conf parameter
+            # set maxmemory 10% for ram below 512MB and 20% for others
+            # set maxmemory-policy volatile-lru
             if redis_install_flag:
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if EEVariables.ee_ram < 512:
