@@ -1642,7 +1642,6 @@ class EEStackController(CementBaseController):
                 if not EEAptGet.is_installed(self, 'redis-server'):
                     apt_packages = apt_packages + EEVariables.ee_redis
                     self.app.pargs.php = True
-                    redis_install_flag = True
                 else:
                     Log.info(self, "Redis already installed")
 
@@ -1810,18 +1809,10 @@ class EEStackController(CementBaseController):
                 EEDownload.download(self, packages)
             Log.debug(self, "Calling post_pref")
             self.post_pref(apt_packages, packages)
-            if disp_msg:
-                if len(self.msg):
-                    for msg in self.msg:
-                        Log.info(self, Log.ENDC + msg)
-                Log.info(self, "Successfully installed packages")
-            else:
-                return self.msg
-
-            # set redis.conf parameter
-            # set maxmemory 10% for ram below 512MB and 20% for others
-            # set maxmemory-policy volatile-lru
-            if redis_install_flag:
+            if 'redis-server' in apt_packages:
+                # set redis.conf parameter
+                # set maxmemory 10% for ram below 512MB and 20% for others
+                # set maxmemory-policy volatile-lru
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if EEVariables.ee_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
@@ -1829,7 +1820,6 @@ class EEStackController(CementBaseController):
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory <bytes>",
                                               "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.1)))
-
                         Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
                         EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
                                               "# maxmemory-policy volatile-lru",
@@ -1846,6 +1836,13 @@ class EEStackController(CementBaseController):
                                               "# maxmemory-policy volatile-lru",
                                               "maxmemory-policy volatile-lru")
                         EEService.restart_service(self, 'redis-server')
+            if disp_msg:
+                if len(self.msg):
+                    for msg in self.msg:
+                        Log.info(self, Log.ENDC + msg)
+                Log.info(self, "Successfully installed packages")
+            else:
+                return self.msg
 
     @expose(help="Remove packages")
     def remove(self):
