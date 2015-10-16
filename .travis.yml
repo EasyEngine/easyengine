@@ -83,6 +83,10 @@ script:
   - sudo ee site create site3.localtest.me --php --html
   - sudo ee site create site4.localtest.me --wp --wpsubdomain
   - sudo ee site create site5.localtest.me --wp --wpsubdir --wpfc
+  - yes | sudo ee site create site6.localtest.me --wpredis
+  - yes | sudo ee site create site6.localtest.me --wpsubdomain --wpredis
+  - yes | sudo ee site create site6.localtest.me --wpsubdir --wpredis
+
 
   - sudo ee debug --all
   - sudo ee debug --all=off
@@ -99,6 +103,7 @@ script:
   - sudo ee site update site1.com --wp --wpfc
   - sudo ee site update site1.com --wp --w3tc
   - sudo ee site update site1.com --wp --wpsc
+  - yes | sudo ee site update site1.com --wpredis
 
   - sudo ee site update site5.com --wpsubdir --wpfc
   - sudo ee site update site5.com --wpsubdir --w3tc
