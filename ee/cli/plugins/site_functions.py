@@ -623,6 +623,17 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
+    if not configfiles:
+        #search for wp-config.php inside htdocs/
+        Log.debug(self, "Config files not found in {0}/ "
+                          .format(ee_site_webroot))
+        if data['currsitetype'] in ['mysql']:
+            pass
+        else:
+            Log.debug(self, "Searching wp-config.php in {0}/htdocs/ "
+                                   .format(ee_site_webroot))
+            configfiles = glob.glob(ee_site_webroot + '/htdocs/wp-config.php')
+
     # if configfiles and EEFileUtils.isexist(self, configfiles[0]):
     #     ee_db_name = (EEFileUtils.grep(self, configfiles[0],
     #                   'DB_NAME').split(',')[1]

@@ -1307,12 +1307,22 @@ class EESiteUpdateController(CementBaseController):
         if oldcachetype != 'wpredis' and data['wpredis']:
             try:
                 if installwp_plugin(self, 'redis-cache', data):
-                    if EEShellExec.cmd_exec(self, "grep -q \"WP_CACHE_KEY_SALT\" {0}/wp-config.php"
-                                                  .format(ee_site_webroot)):
+                    #search for wp-config.php
+                    if EEFileUtils.isexist(self,"{0}/wp-config.php".format(ee_site_webroot)):
+                        config_path = '{0}/wp-config.php'.format(ee_site_webroot)
+                    elif EEFileUtils.isexist(self,"{0}/htdocs/wp-config.php".format(ee_site_webroot)):
+                        config_path = '{0}/htdocs/wp-config.php'.format(ee_site_webroot)
+                    else:
+                        Log.debug(self, "Updating wp-config.php failed. File could not be located.")
+                        Log.error(self,"wp-config.php could not be located !!")
+                        raise SiteError
+
+                    if EEShellExec.cmd_exec(self, "grep -q \"WP_CACHE_KEY_SALT\" {0}"
+                                                  .format(config_path)):
                         pass
                     else:
                         try:
-                            wpconfig = open("{0}/wp-config.php".format(ee_site_webroot),
+                            wpconfig = open("{0}".format(config_path),
                                                encoding='utf-8', mode='a')
                             wpconfig.write("\n\ndefine( \'WP_CACHE_KEY_SALT\', \'{0}:\' );"
                                            .format(ee_domain))
