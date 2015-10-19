@@ -1,0 +1,20 @@
+# This file is for unifying the coding style for different editors and IDEs
+# editorconfig.org
+
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Matches project php files the composer.json and .travis.yml
+[php/**/*.php, php/**/*.php]
+indent_style = space
+indent_size = 4
+
+# Matches the composer.json and .travis.yml
+[{composer.json,.travis.yml}]
+indent_style = space
+indent_size = 2
