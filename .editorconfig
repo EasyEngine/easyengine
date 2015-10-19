@@ -8,9 +8,6 @@ end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
-
-# Matches project php files the composer.json and .travis.yml
-[php/**/*.php, php/**/*.php]
 indent_style = space
 indent_size = 4
 
