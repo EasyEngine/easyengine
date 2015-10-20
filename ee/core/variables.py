@@ -120,12 +120,12 @@ class EEVariables():
 
     # MySQL repo and packages
     if ee_platform_distro == 'ubuntu':
-        ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
-                         "10.0/ubuntu {codename} main"
+        ee_mysql_repo = ("deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "10.1/ubuntu {codename} main"
                          .format(codename=ee_platform_codename))
     elif ee_platform_distro == 'debian':
-        ee_mysql_repo = ("deb http://mirror.aarnet.edu.au/pub/MariaDB/repo/"
-                         "10.0/debian {codename} main"
+        ee_mysql_repo = ("deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/"
+                         "10.1/debian {codename} main"
                          .format(codename=ee_platform_codename))
 
     ee_mysql = ["mariadb-server", "percona-toolkit"]
