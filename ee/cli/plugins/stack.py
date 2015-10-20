@@ -117,12 +117,12 @@ class EEStackController(CementBaseController):
                                keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"mariadb-server-10.0 "
+            Log.debug(self, "echo \"mariadb-server-10.1 "
                       "mysql-server/root_password "
                       "password \" | "
                       "debconf-set-selections")
             try:
-                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
                                      "mysql-server/root_password "
                                      "password {chars}\" | "
                                      "debconf-set-selections"
@@ -131,12 +131,12 @@ class EEStackController(CementBaseController):
             except CommandExecutionError as e:
                 Log.error("Failed to initialize MySQL package")
 
-            Log.debug(self, "echo \"mariadb-server-10.0 "
+            Log.debug(self, "echo \"mariadb-server-10.1 "
                       "mysql-server/root_password_again "
                       "password \" | "
                       "debconf-set-selections")
             try:
-                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
                                      "mysql-server/root_password_again "
                                      "password {chars}\" | "
                                      "debconf-set-selections"
