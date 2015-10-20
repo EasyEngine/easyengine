@@ -109,11 +109,11 @@ class EEStackController(CementBaseController):
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            if EEVariables.ee_platform_codename != 'jessie':
-                EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
-                Log.debug(self, 'Adding key for {0}'
-                          .format(EEVariables.ee_mysql_repo))
-                EERepo.add_key(self, '0xcbcb082a1bb943db',
+        #    if EEVariables.ee_platform_codename != 'jessie':
+            EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
+            Log.debug(self, 'Adding key for {0}'
+                        .format(EEVariables.ee_mysql_repo))
+            EERepo.add_key(self, '0xcbcb082a1bb943db',
                                keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
