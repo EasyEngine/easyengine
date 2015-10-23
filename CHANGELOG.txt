@@ -1,3 +1,8 @@
+v 3.3.11 - Oct 23, 2015
+- Updated MySql version
+- Added new repository for MySql
+- Minor fix for redis cache in debian jessie
+
 v 3.3.10 - Oct 19, 2015
 - Fix #630
 - Fix #631
