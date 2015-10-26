@@ -1236,7 +1236,7 @@ class EEStackController(CementBaseController):
                                 ' BY \'{1}\''.format(self.app.config.get(
                                                      'mysql', 'grant-host'),
                                                      chars),
-                                errormsg="cannot grant privillages", log=False)
+                                errormsg="cannot grant priviledges", log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
