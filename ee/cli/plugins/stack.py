@@ -1226,8 +1226,9 @@ class EEStackController(CementBaseController):
                     raise SiteError("Unable to import Anemometer database")
 
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'{0}\''.format(self.app.config.get('mysql',
-                                                  'grant-host')))
+                                '@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get('mysql',
+                                                  'grant-host'),chars))
                 Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user IDENTIFIED BY password ")
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
