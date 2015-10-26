@@ -454,6 +454,14 @@ function ee_update_latest()
       fi
     fi
 
+    #Fix Security Issue. commit #c64f28e
+    if [ -f /etc/nginx/common/locations.conf ]; then
+       grep -0 '$request_uri ~\* \"^.+(readme|license|example)\\.(txt|html)$\"' /etc/nginx/common/locations.conf &>> /dev/null
+       if [ $? -eq 0 ]; then
+        sed -i 's/$request_uri ~\* \"^.+(readme|license|example)\\.(txt|html)$\"/$uri ~\* \"^.+(readme|license|example)\\.(txt|html)$\"/g' /etc/nginx/common/locations.conf &>> /dev/null
+       fi
+    fi
+
     # Fix for 3.3.2 renamed nginx.conf
     nginx -V 2>&1 &>>/dev/null
     if [[ $? -eq 0 ]]; then
