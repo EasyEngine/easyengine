@@ -34,7 +34,7 @@ location ~* ^.+\.(bak|log|old|orig|original|php#|php~|php_bak|save|swo|swp|sql)$
   log_not_found off;
 }
 # Return 403 forbidden for readme.(txt|html) or license.(txt|html) or example.(txt|html)
-if ($request_uri ~* "^.+(readme|license|example)\.(txt|html)$") {
+if ($uri ~* "^.+(readme|license|example)\.(txt|html)$") {
   return 403;
 }
 # Status pages
