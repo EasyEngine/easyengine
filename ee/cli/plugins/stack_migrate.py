@@ -33,7 +33,7 @@ class EEStackMigrateController(CementBaseController):
         # Add MariaDB repo
         Log.info(self, "Adding repository for MariaDB, please wait...")
 
-        mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
+        mysql_pref = ("Package: *\nPin: origin sfo1.mirrors.digitalocean.com"
                       "\nPin-Priority: 1000\n")
         with open('/etc/apt/preferences.d/'
                   'MariaDB.pref', 'w') as mysql_pref_file:

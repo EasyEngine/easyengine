@@ -104,25 +104,25 @@ class EEStackController(CementBaseController):
 
         if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for MySQL, please wait...")
-            mysql_pref = ("Package: *\nPin: origin mirror.aarnet.edu.au"
+            mysql_pref = ("Package: *\nPin: origin sfo1.mirrors.digitalocean.com"
                           "\nPin-Priority: 1000\n")
             with open('/etc/apt/preferences.d/'
                       'MariaDB.pref', 'w') as mysql_pref_file:
                 mysql_pref_file.write(mysql_pref)
-            if EEVariables.ee_platform_codename != 'jessie':
-                EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
-                Log.debug(self, 'Adding key for {0}'
-                          .format(EEVariables.ee_mysql_repo))
-                EERepo.add_key(self, '0xcbcb082a1bb943db',
+        #    if EEVariables.ee_platform_codename != 'jessie':
+            EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
+            Log.debug(self, 'Adding key for {0}'
+                        .format(EEVariables.ee_mysql_repo))
+            EERepo.add_key(self, '0xcbcb082a1bb943db',
                                keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
-            Log.debug(self, "echo \"mariadb-server-10.0 "
+            Log.debug(self, "echo \"mariadb-server-10.1 "
                       "mysql-server/root_password "
                       "password \" | "
                       "debconf-set-selections")
             try:
-                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
                                      "mysql-server/root_password "
                                      "password {chars}\" | "
                                      "debconf-set-selections"
@@ -131,12 +131,12 @@ class EEStackController(CementBaseController):
             except CommandExecutionError as e:
                 Log.error("Failed to initialize MySQL package")
 
-            Log.debug(self, "echo \"mariadb-server-10.0 "
+            Log.debug(self, "echo \"mariadb-server-10.1 "
                       "mysql-server/root_password_again "
                       "password \" | "
                       "debconf-set-selections")
             try:
-                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.0 "
+                EEShellExec.cmd_exec(self, "echo \"mariadb-server-10.1 "
                                      "mysql-server/root_password_again "
                                      "password {chars}\" | "
                                      "debconf-set-selections"
@@ -1226,8 +1226,9 @@ class EEStackController(CementBaseController):
                     raise SiteError("Unable to import Anemometer database")
 
                 EEMysql.execute(self, 'grant select on *.* to \'anemometer\''
-                                '@\'{0}\''.format(self.app.config.get('mysql',
-                                                  'grant-host')))
+                                '@\'{0}\' IDENTIFIED'
+                                ' BY \'{1}\''.format(self.app.config.get('mysql',
+                                                  'grant-host'),chars))
                 Log.debug(self, "grant all on slow-query-log.*"
                           " to anemometer@root_user IDENTIFIED BY password ")
                 EEMysql.execute(self, 'grant all on slow_query_log.* to'
@@ -1235,7 +1236,7 @@ class EEStackController(CementBaseController):
                                 ' BY \'{1}\''.format(self.app.config.get(
                                                      'mysql', 'grant-host'),
                                                      chars),
-                                errormsg="cannot grant privillages", log=False)
+                                errormsg="cannot grant priviledges", log=False)
 
                 # Custom Anemometer configuration
                 Log.debug(self, "configration Anemometer")
@@ -1817,24 +1818,20 @@ class EEStackController(CementBaseController):
                     if EEVariables.ee_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
                                             .format(int(EEVariables.ee_ram*1024*1024*0.1)))
-                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.1)))
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
+                                             .format(int(EEVariables.ee_ram*1024*1024*0.1)))
                         Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
-                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
-                                              "# maxmemory-policy volatile-lru",
-                                              "maxmemory-policy volatile-lru")
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy volatile-lru/' "
+                                                   "/etc/redis/redis.conf")
                         EEService.restart_service(self, 'redis-server')
                     else:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
                                             .format(int(EEVariables.ee_ram*1024*1024*0.2)))
-                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
-                                              "# maxmemory <bytes>",
-                                              "maxmemory {0}".format(int(EEVariables.ee_ram*1024*1024*0.2)))
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
+                                             .format(int(EEVariables.ee_ram*1024*1024*0.2)))
                         Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
-                        EEFileUtils.searchreplace(self, "/etc/redis/redis.conf",
-                                              "# maxmemory-policy volatile-lru",
-                                              "maxmemory-policy volatile-lru")
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy volatile-lru/' "
+                                                   "/etc/redis/redis.conf")
                         EEService.restart_service(self, 'redis-server')
             if disp_msg:
                 if len(self.msg):
