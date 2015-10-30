@@ -442,68 +442,7 @@ class Runner {
 			$this->_run_command();
 		}
 
-		// Handle --url parameter
-		$url = self::guess_url( $this->config );
-		if ( $url )
-			\EE_CLI::set_url( $url );
-
-		$this->do_early_invoke( 'before_wp_load' );
-
 		//$this->check_wp_version();
-
-		if ( $this->cmd_starts_with( array( 'core', 'config' ) ) ) {
-			$this->_run_command();
-			exit;
-		}
-
-		//if ( !Utils\locate_wp_config() ) {
-		//	EE_CLI::error(
-		//		"wp-config.php not found.\n" .
-		//		"Either create one manually or use `wp core config`." );
-		//}
-
-		if ( $this->cmd_starts_with( array( 'db' ) ) && !$this->cmd_starts_with( array( 'db', 'tables' ) ) ) {
-			eval( $this->get_wp_config_code() );
-			$this->_run_command();
-			exit;
-		}
-
-		if ( $this->cmd_starts_with( array( 'core', 'is-installed' ) ) ) {
-			define( 'WP_INSTALLING', true );
-		}
-
-		if (
-			count( $this->arguments ) >= 2 &&
-			$this->arguments[0] == 'core' &&
-			in_array( $this->arguments[1], array( 'install', 'multisite-install' ) )
-		) {
-			define( 'WP_INSTALLING', true );
-
-			// We really need a URL here
-			if ( !isset( $_SERVER['HTTP_HOST'] ) ) {
-				$url = 'http://example.com';
-				\EE_CLI::set_url( $url );
-			}
-
-			if ( 'multisite-install' == $this->arguments[1] ) {
-				// need to fake some globals to skip the checks in wp-includes/ms-settings.php
-				$url_parts = Utils\parse_url( $url );
-				self::fake_current_site_blog( $url_parts );
-
-				if ( !defined( 'COOKIEHASH' ) ) {
-					define( 'COOKIEHASH', md5( $url_parts['host'] ) );
-				}
-			}
-		}
-
-		if ( $this->cmd_starts_with( array( 'import') ) ) {
-			define( 'WP_LOAD_IMPORTERS', true );
-			define( 'WP_IMPORTING', true );
-		}
-
-		if ( $this->cmd_starts_with( array( 'plugin' ) ) ) {
-			$GLOBALS['pagenow'] = 'plugins.php';
-		}
 
 		$this->_run_command();
 
