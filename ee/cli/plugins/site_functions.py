@@ -618,7 +618,7 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if data['pagespeed'] is True:
+        if data['pagespeed'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -658,7 +658,7 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            if data['pagespeed'] is True:
+            if data['pagespeed'] is True and not data['wp']:
                 EEFileUtils.copyfile(self, configfiles[0], backup_path)
             else:
                 EEFileUtils.mvfile(self, configfiles[0], backup_path)
