@@ -77,7 +77,7 @@ class EEFileUtils():
             Log.error(self, 'Unable to copy file from {0} to {1}'
                       .format(src, dest))
         except IOError as e:
-            Log.debug(self, "{e}".format(e.strerror))
+            Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to copy file from {0} to {1}"
                       .format(src, dest))
 
