@@ -658,7 +658,10 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            EEFileUtils.mvfile(self, configfiles[0], backup_path)
+            if data['pagespeed'] is True:
+                EEFileUtils.copyfile(self, configfiles[0], backup_path)
+            else:
+                EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)
 
