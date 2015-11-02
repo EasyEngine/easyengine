@@ -620,7 +620,7 @@ def sitebackup(self, data):
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
         if data['pagespeed'] is True:
             Log.info(self, "Backing up Webroot \t\t", end='')
-            EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path)
+            EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         else:
             Log.info(self, "Backing up Webroot \t\t", end='')
