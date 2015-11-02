@@ -855,6 +855,12 @@ class EESiteUpdateController(CementBaseController):
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
 
+        if pagespeed is old_pagespeed:
+            if pagespeed is False:
+                data['old_pagespeed'] = False
+            elif pagespeed is True:
+                data['old_pagespeed'] = True
+
         if (pargs.password and not (pargs.html or
             pargs.php or pargs.mysql or pargs.wp or
             pargs.w3tc or pargs.wpfc or pargs.wpsc
