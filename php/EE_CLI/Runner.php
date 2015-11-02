@@ -192,14 +192,14 @@ class Runner {
 					$child = array_pop( $cmd_path );
 					$parent_name = implode( ' ', $cmd_path );
 					return sprintf(
-						"'%s' is not a registered subcommand of '%s'. See 'wp help %s'.",
+						"'%s' is not a registered subcommand of '%s'. See 'ee help %s'.",
 						$child,
 						$parent_name,
 						$parent_name
 					);
 				} else {
 					return sprintf(
-						"'%s' is not a registered wp command. See 'wp help'.",
+						"'%s' is not a registered ee command. See 'ee help'.",
 						$full_name
 					);
 				}
