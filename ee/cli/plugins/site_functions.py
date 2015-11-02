@@ -618,9 +618,14 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        Log.info(self, "Backing up Webroot \t\t", end='')
-        EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
-        Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        if data['pagespeed'] is True:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.copyfile(self, ee_site_webroot + '/htdocs', backup_path)
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        else:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
     if not configfiles:
