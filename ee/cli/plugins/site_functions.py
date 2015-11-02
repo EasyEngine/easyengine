@@ -605,7 +605,7 @@ def setwebrootpermissions(self, webroot):
                           EEVariables.ee_php_user, recursive=True)
     except Exception as e:
         Log.debug(self, str(e))
-        raise SiteError("problem occured while settingup webroot permissions")
+        raise SiteError("problem occured while setting up webroot permissions")
 
 
 def sitebackup(self, data):
