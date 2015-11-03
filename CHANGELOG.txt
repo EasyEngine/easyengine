@@ -1,4 +1,4 @@
-v 3.3.12 - Nov 2, 2015
+v 3.3.12 - Nov 3, 2015
 - Fix #637
 - Updated wp-cli version
 
