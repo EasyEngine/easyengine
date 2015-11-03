@@ -1013,7 +1013,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already disabled for given "
                              "site")
                 elif pagespeed is True:
-                    Log.info(self, "Pagespeed is allready enabled for given "
+                    Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
 
@@ -1119,6 +1119,8 @@ class EESiteUpdateController(CementBaseController):
         except SiteError as e:
             Log.debug(self, str(e))
             Log.error(self, "NGINX configuration check failed.")
+
+        data['old_pagespeed_status'] = check_site.is_pagespeed
 
         try:
             sitebackup(self, data)

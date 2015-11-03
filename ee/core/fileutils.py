@@ -62,9 +62,32 @@ class EEFileUtils():
             Log.debug(self, "{0}".format(e))
             Log.error(self, "Unable to reomove symbolic link ...\n")
 
-    def copyfile(self, src, dest):
+    def copyfiles(self, src, dest):
         """
         Copies files:
+            src : source path
+            dest : destination path
+
+            Recursively copy an entire directory tree rooted at src.
+            The destination directory, named by dst, must not already exist;
+            it will be created as well as missing parent directories.
+        """
+        try:
+            Log.debug(self, "Copying files, Source:{0}, Dest:{1}"
+                      .format(src, dest))
+            shutil.copytree(src, dest)
+        except shutil.Error as e:
+            Log.debug(self, "{0}".format(e))
+            Log.error(self, 'Unable to copy files from {0} to {1}'
+                      .format(src, dest))
+        except IOError as e:
+            Log.debug(self, "{0}".format(e.strerror))
+            Log.error(self, "Unable to copy files from {0} to {1}"
+                      .format(src, dest))
+
+    def copyfile(self, src, dest):
+        """
+        Copy file:
             src : source path
             dest : destination path
         """
@@ -77,7 +100,7 @@ class EEFileUtils():
             Log.error(self, 'Unable to copy file from {0} to {1}'
                       .format(src, dest))
         except IOError as e:
-            Log.debug(self, "{e}".format(e.strerror))
+            Log.debug(self, "{0}".format(e.strerror))
             Log.error(self, "Unable to copy file from {0} to {1}"
                       .format(src, dest))
 
