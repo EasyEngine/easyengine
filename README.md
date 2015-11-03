@@ -17,7 +17,7 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 |SSH    |22           | ✓       |✓          |
 |HTTP    |80           | ✓       |✓          |
 |HTTPS/SSL    |443           | ✓       |✓          |
-|EE Admin    |2222           | ✓       |          |
+|EE Admin    |22222           | ✓       |          |
 |GPG Key Server    |11371           |        |✓          |
 
 ## Quick Start

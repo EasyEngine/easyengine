@@ -1,3 +1,7 @@
+v 3.3.12 - Nov 3, 2015
+- Fix #637
+- Updated wp-cli version
+
 v 3.3.11 - Oct 26, 2015
 - Updated MySql version
 - Added new repository for MySql

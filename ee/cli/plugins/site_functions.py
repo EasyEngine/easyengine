@@ -605,7 +605,7 @@ def setwebrootpermissions(self, webroot):
                           EEVariables.ee_php_user, recursive=True)
     except Exception as e:
         Log.debug(self, str(e))
-        raise SiteError("problem occured while settingup webroot permissions")
+        raise SiteError("problem occured while setting up webroot permissions")
 
 
 def sitebackup(self, data):
@@ -618,9 +618,14 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        Log.info(self, "Backing up Webroot \t\t", end='')
-        EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
-        Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        if (data['pagespeed'] is True or data['old_pagespeed_status'] is True) and not data['wp']:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        else:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
     if not configfiles:
@@ -653,7 +658,10 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            EEFileUtils.mvfile(self, configfiles[0], backup_path)
+            if (data['pagespeed'] is True or data['old_pagespeed_status'] is True) and not data['wp']:
+                EEFileUtils.copyfile(self, configfiles[0], backup_path)
+            else:
+                EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)
 

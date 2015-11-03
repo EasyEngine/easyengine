@@ -77,7 +77,7 @@ class EEStackController(CementBaseController):
             (['--redis'],
                 dict(help='Install Redis', action='store_true')),
             (['--phpredisadmin'],
-                dict(help='Install Redis', action='store_true')),
+                dict(help='Install phpRedisAdmin', action='store_true')),
             ]
         usage = "ee stack (command) [options]"
 
