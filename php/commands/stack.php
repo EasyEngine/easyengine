@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Manage EasyEngine sites.
+ * Manage EasyEngine stack.
  *
  * ## EXAMPLES
  *
- *     ee site create my_domain
+ *     ee stack install
  *
- *     ee site delete my_domain
+ *     ee stack install --package
  */
 class Stack_Command extends EE_CLI_Command {
 
@@ -19,14 +19,14 @@ class Stack_Command extends EE_CLI_Command {
 	 *[--package=<package>]
 	 *
 	 *
-	 * : Method for grouping data within the cache which allows the same key to be used across groups.
+	 *
 	 */
 
 	public function install( $args, $assoc_args ) {
 
 		if (isset($assoc_args['package'])){
 
-			EE_CLI::success( 'Site Successfully created with ' . $assoc_args['package'] . ' cache.' );
+			EE_CLI::success( 'Package succesfully installed : ' . $assoc_args['package']  );
 		}
 
 
@@ -42,13 +42,13 @@ class Stack_Command extends EE_CLI_Command {
 	}
 
 	public function purge( $args, $assoc_args ) {
-
+		//purging packages
 
 	}
 
 	public function start( $args, $assoc_args ) {
 
-		//removing packages
+		//start service
 
 
 	}
@@ -56,7 +56,7 @@ class Stack_Command extends EE_CLI_Command {
 
 	public function stop( $args, $assoc_args ) {
 
-		//removing packages
+		//stop service
 
 
 	}
