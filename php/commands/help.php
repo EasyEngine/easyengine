@@ -39,7 +39,7 @@ class Help_Command extends EE_CLI_Command {
 		// WordPress is already loaded, so there's no chance we'll find the command
 		if ( function_exists( 'add_filter' ) ) {
 			$command_string = implode( ' ', $args );
-			\EE_CLI::error( sprintf( "'%s' is not a registered wp command.", $command_string ) );
+			\EE_CLI::error( sprintf( "'%s' is not a registered ee command.", $command_string ) );
 		}
 	}
 
