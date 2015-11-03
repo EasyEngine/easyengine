@@ -49,17 +49,6 @@ class Site_Command extends EE_CLI_Command {
 		EE_CLI::success( 'Object deleted.' );
 	}
 
-	/**
-	 * create site with domain name.
-	 *
-	 * <sitename>
-	 * : Site domain name.
-	 *[--wp]
-	 * : Site type
-	 */
-	public function create( $args, $assoc_args ) {
-		EE_CLI::success( 'Object created.' );
-	}
 
 	/**
 	 * Display site information domain name.

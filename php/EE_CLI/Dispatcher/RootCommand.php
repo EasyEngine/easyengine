@@ -14,7 +14,7 @@ class RootCommand extends CompositeCommand {
 	public function __construct() {
 		$this->parent = false;
 
-		$this->name = 'wp';
+		$this->name = 'EE';
 
 		$this->shortdesc = 'Manage WordPress through the command-line.';
 	}
