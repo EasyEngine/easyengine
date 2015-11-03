@@ -1013,7 +1013,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already disabled for given "
                              "site")
                 elif pagespeed is True:
-                    Log.info(self, "Pagespeed is allready enabled for given "
+                    Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
 
