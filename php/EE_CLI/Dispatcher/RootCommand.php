@@ -16,7 +16,7 @@ class RootCommand extends CompositeCommand {
 
 		$this->name = 'EE';
 
-		$this->shortdesc = 'Manage WordPress through the command-line.';
+		$this->shortdesc = 'Command-line control panel for Nginx Server to manage WordPress sites.';
 	}
 
 	/**
