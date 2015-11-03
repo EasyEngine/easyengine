@@ -73,7 +73,7 @@ class Runner {
 			$config_path = getenv( 'EE_CLI_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CLI_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = getenv( 'HOME' ) . '/.wp-cli/config.yml';
+			$config_path = getenv( 'HOME' ) . '/.ee-cli/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -88,14 +88,14 @@ class Runner {
 	/**
 	 * Get the path to the project-specific configuration
 	 * YAML file.
-	 * wp-cli.local.yml takes priority over wp-cli.yml.
+	 * ee-cli.local.yml takes priority over ee-cli.yml.
 	 *
 	 * @return string|false
 	 */
 	private function get_project_config_path() {
 		$config_files = array(
-			'wp-cli.local.yml',
-			'wp-cli.yml'
+			'ee-cli.local.yml',
+			'ee-cli.yml'
 		);
 
 		// Stop looking upward when we find we have emerged from a subdirectory
@@ -114,56 +114,6 @@ class Runner {
 			$this->_project_config_path_debug = 'No project config found';
 		}
 		return $project_config_path;
-	}
-
-	/**
-	 * Attempts to find the path to the WP install inside index.php
-	 *
-	 * @param string $index_path
-	 * @return string|false
-	 */
-	private static function extract_subdir_path( $index_path ) {
-		$index_code = file_get_contents( $index_path );
-
-		if ( !preg_match( '|^\s*require\s*\(?\s*(.+?)/wp-blog-header\.php([\'"])|m', $index_code, $matches ) ) {
-			return false;
-		}
-
-		$wp_path_src = $matches[1] . $matches[2];
-		$wp_path_src = Utils\replace_path_consts( $wp_path_src, $index_path );
-		$wp_path = eval( "return $wp_path_src;" );
-
-		if ( !Utils\is_path_absolute( $wp_path ) ) {
-			$wp_path = dirname( $index_path ) . "/$wp_path";
-		}
-
-		return $wp_path;
-	}
-
-
-	/**
-	 * Guess which URL context WP-CLI has been invoked under.
-	 *
-	 * @param array $assoc_args
-	 * @return string|false
-	 */
-	private static function guess_url( $assoc_args ) {
-		if ( isset( $assoc_args['blog'] ) ) {
-			$assoc_args['url'] = $assoc_args['blog'];
-		}
-
-		if ( isset( $assoc_args['url'] ) ) {
-			$url = $assoc_args['url'];
-			if ( true === $url ) {
-				EE_CLI::warning( 'The --url parameter expects a value.' );
-			}
-		}
-
-		if ( isset( $url ) ) {
-			return $url;
-		}
-
-		return false;
 	}
 
 	private function cmd_starts_with( $prefix ) {
@@ -192,14 +142,14 @@ class Runner {
 					$child = array_pop( $cmd_path );
 					$parent_name = implode( ' ', $cmd_path );
 					return sprintf(
-						"'%s' is not a registered subcommand of '%s'. See 'wp help %s'.",
+						"'%s' is not a registered subcommand of '%s'. See 'ee help %s'.",
 						$child,
 						$parent_name,
 						$parent_name
 					);
 				} else {
 					return sprintf(
-						"'%s' is not a registered wp command. See 'wp help'.",
+						"'%s' is not a registered ee command. See 'ee help'.",
 						$full_name
 					);
 				}
@@ -263,40 +213,6 @@ class Runner {
 		$path = implode( ' ', array_slice( \EE_CLI\Dispatcher\get_path( $command ), 1 ) );
 		return in_array( $path, $this->config['disabled_commands'] );
 	}*/
-
-	/**
-	 * Returns wp-config.php code, skipping the loading of wp-settings.php
-	 *
-	 * @return string
-	 */
-
-
-	public function get_wp_config_code() {
-		$wp_config_path = Utils\locate_wp_config();
-
-	//	$wp_config_code = explode( "\n", file_get_contents( $wp_config_path ) );
-
-		$found_wp_settings = false;
-
-	//	$lines_to_run = array();
-
-	//	foreach ( $wp_config_code as $line ) {
-	//		if ( preg_match( '/^\s*require.+wp-settings\.php/', $line ) ) {
-	//			$found_wp_settings = true;
-	//			continue;
-	//		}
-
-			$lines_to_run[] = $line;
-		}
-
-	//	if ( !$found_wp_settings ) {
-	//		EE_CLI::error( 'Strange wp-config.php file: wp-settings.php is not loaded directly.' );
-	//	}
-
-	//	$source = implode( "\n", $lines_to_run );
-	//	$source = Utils\replace_path_consts( $source, $wp_config_path );
-	//	return preg_replace( '|^\s*\<\?php\s*|', '', $source );
-	//}
 
 	/**
 	 * Transparently convert deprecated syntaxes
@@ -438,72 +354,11 @@ class Runner {
 		}
 
 		// First try at showing man page
-		if ( 'help' === $this->arguments[0] && ! $this->wp_exists() ) {
+		if ( 'help' === $this->arguments[0] ) {
 			$this->_run_command();
 		}
-
-		// Handle --url parameter
-		$url = self::guess_url( $this->config );
-		if ( $url )
-			\EE_CLI::set_url( $url );
-
-		$this->do_early_invoke( 'before_wp_load' );
 
 		//$this->check_wp_version();
-
-		if ( $this->cmd_starts_with( array( 'core', 'config' ) ) ) {
-			$this->_run_command();
-			exit;
-		}
-
-		//if ( !Utils\locate_wp_config() ) {
-		//	EE_CLI::error(
-		//		"wp-config.php not found.\n" .
-		//		"Either create one manually or use `wp core config`." );
-		//}
-
-		if ( $this->cmd_starts_with( array( 'db' ) ) && !$this->cmd_starts_with( array( 'db', 'tables' ) ) ) {
-			eval( $this->get_wp_config_code() );
-			$this->_run_command();
-			exit;
-		}
-
-		if ( $this->cmd_starts_with( array( 'core', 'is-installed' ) ) ) {
-			define( 'WP_INSTALLING', true );
-		}
-
-		if (
-			count( $this->arguments ) >= 2 &&
-			$this->arguments[0] == 'core' &&
-			in_array( $this->arguments[1], array( 'install', 'multisite-install' ) )
-		) {
-			define( 'WP_INSTALLING', true );
-
-			// We really need a URL here
-			if ( !isset( $_SERVER['HTTP_HOST'] ) ) {
-				$url = 'http://example.com';
-				\EE_CLI::set_url( $url );
-			}
-
-			if ( 'multisite-install' == $this->arguments[1] ) {
-				// need to fake some globals to skip the checks in wp-includes/ms-settings.php
-				$url_parts = Utils\parse_url( $url );
-				self::fake_current_site_blog( $url_parts );
-
-				if ( !defined( 'COOKIEHASH' ) ) {
-					define( 'COOKIEHASH', md5( $url_parts['host'] ) );
-				}
-			}
-		}
-
-		if ( $this->cmd_starts_with( array( 'import') ) ) {
-			define( 'WP_LOAD_IMPORTERS', true );
-			define( 'WP_IMPORTING', true );
-		}
-
-		if ( $this->cmd_starts_with( array( 'plugin' ) ) ) {
-			$GLOBALS['pagenow'] = 'plugins.php';
-		}
 
 		$this->_run_command();
 
