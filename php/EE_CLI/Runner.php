@@ -33,7 +33,7 @@ class Runner {
 	}
 
 	/**
-	 * Register a command for early invocation, generally before WordPress loads.
+	 * Register a command for early invocation.
 	 *
 	 * @param string $when Named execution hook
 	 * @param EE_CLI\Dispatcher\Subcommand $command
