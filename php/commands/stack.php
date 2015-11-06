@@ -45,7 +45,7 @@ class Stack_Command extends EE_CLI_Command {
 		/** Check if stack configuration and system matches. for example.
 			if stack_type is apt and system supports yum then error must be thrown.
 		*/
-		// else If configuration matches the system then Installation process should be
+		// else If configuration matches the system then Removal process should be
 		// carried out accordingly.
 	}
 
@@ -86,8 +86,11 @@ class Stack_Command extends EE_CLI_Command {
 	 */
 	public function stop( $args, $assoc_args ) {
 
-		//stop service
 		EE_CLI::success( 'Service succesfully stopped : ' . $assoc_args['package']  );
+		// Read service name from command arguments.
+		//Check if service exists in that stack config.
+		//start service
+
 	}
 
 	/**
@@ -100,6 +103,18 @@ class Stack_Command extends EE_CLI_Command {
 
 		//upgraded packages
 		EE_CLI::success( 'Package succesfully upgraded : ' . $assoc_args['package']  );
+		//Read stack name to be removed from optional arguments
+		//Check if stack configuration for provided arguments list exists.
+		//If stack exists parse configuration for stack.
+		/** Check if stack configuration and system matches. for example.
+			if stack_type is apt and system supports yum then error must be thrown.
+		*/
+		// else If configuration matches the system then upgrade process should be
+		// carried out.
+			// upgrade process will need to be decided on stack_type.
+			//If stack_type is apt then it can be done via `apt-get upgrade`
+			//If stack_type is composer then it should be done via composer update.
+			//Like wise for other stack types.
 	}
 
 }
