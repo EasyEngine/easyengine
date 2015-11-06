@@ -19,6 +19,14 @@ class Stack_Command extends EE_CLI_Command {
 	 */
 	public function install( $args, $assoc_args ) {
 		EE_CLI::success( 'Package succesfully installed : ' . $assoc_args['package']  );
+		//Read stack name to be installed from optional arguments
+		//Check if stack configuration for provided arguments list exists.
+		//If stack exists parse configuration for stack.
+		/** Check if stack configuration and system matches. for example.
+			if stack_type is apt and system supports yum then error must be thrown.
+		*/
+		// else If configuration matches the system then Installation process should be
+		// carried out accordingly.
 	}
 
 	/**
@@ -31,7 +39,14 @@ class Stack_Command extends EE_CLI_Command {
 
 		//removing packages
 		EE_CLI::success( 'Package succesfully removed : ' . $assoc_args['package']  );
-
+		//Read stack name to be removed from optional arguments
+		//Check if stack configuration for provided arguments list exists.
+		//If stack exists parse configuration for stack.
+		/** Check if stack configuration and system matches. for example.
+			if stack_type is apt and system supports yum then error must be thrown.
+		*/
+		// else If configuration matches the system then Installation process should be
+		// carried out accordingly.
 	}
 
 	/**
@@ -43,6 +58,8 @@ class Stack_Command extends EE_CLI_Command {
 	public function purge( $args, $assoc_args ) {
 		//purging packages
 		EE_CLI::success( 'Package succesfully purged : ' . $assoc_args['package']  );
+		//Purge command is alias for the remove command.
+		// so we must add alias of this command for remove.
 
 	}
 
@@ -56,6 +73,9 @@ class Stack_Command extends EE_CLI_Command {
 
 		//start service
 		EE_CLI::success( 'Service succesfully started : ' . $assoc_args['package']  );
+		// Read service name from command arguments.
+		//Check if service exists in that stack config.
+		//start service
 	}
 
 	/**
