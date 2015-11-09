@@ -13,12 +13,24 @@ class Stack_Command extends EE_CLI_Command {
 
 	/**
 	 * Install package into system.
-	 *[--package=<package>]
+	 * [<packages>]
+	 * : install single packages
+	 *[--categories=<categories>]
 	 * : Install packages
 	 *
 	 */
 	public function install( $args, $assoc_args ) {
-		EE_CLI::success( 'Package succesfully installed : ' . $assoc_args['package']  );
+
+		if ( isset( $assoc_args['categories']) ) {
+			$install = $this->install_categories($assoc_args);
+			EE_CLI::success('Package succesfully installed : ' . $assoc_args['categories']);
+
+		}
+		elseif (isset($args[0])) {
+			$install = $this->install_package($args);
+			EE_CLI::success('Package succesfully installed : ' . $args[0]);
+
+		}
 		//Read stack name to be installed from optional arguments
 		//Check if stack configuration for provided arguments list exists.
 		//If stack exists parse configuration for stack.
@@ -27,7 +39,46 @@ class Stack_Command extends EE_CLI_Command {
 		*/
 		// else If configuration matches the system then Installation process should be
 		// carried out accordingly.
+
+
 	}
+
+	 private function install_categories( $assoc_args )
+	 {
+
+		 //check
+		 $Data = Spyc::YAMLLoad('/home/rtcamp/Desktop/developments/ee-cli.yml');
+		 //print_r($Data);
+
+		 foreach ($Data as $key => $value) {
+
+			 foreach ($value as $key_inner => $values_inner) {
+				 if ($key_inner == 'category' and $values_inner = $assoc_args['categories']) {
+					 $arg[0]= $key;
+					 $install = $this->install_package( $arg );
+
+				 }
+			 }
+		 }
+	 }
+
+	private function install_package( $args ){
+		print_r($args[0]);
+
+		$Data = Spyc::YAMLLoad('/home/rtcamp/Desktop/developments/ee-cli.yml');
+		//print_r($Data);
+
+		if (isset($Data[$args[0]])) {
+			EE_CLI::success('installing packages from ee-config.cli: ' . $args[0]);
+			EE_CLI::success('installing package_name: ' . $Data[$args[0]]['package_name']);
+			EE_CLI::success('Adding repository: ' . $Data[$args[0]]['apt_repository']);
+
+		}
+
+
+
+		}
+
 
 	/**
 	 * Install package into system.
