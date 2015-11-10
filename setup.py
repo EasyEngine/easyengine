@@ -54,7 +54,7 @@ except Exception as e:
     os.system("git config --global user.email {0}".format(ee_email))
 
 setup(name='ee',
-      version='3.3.12',
+      version='3.3.13',
       description=long_description,
       long_description=long_description,
       classifiers=[],
