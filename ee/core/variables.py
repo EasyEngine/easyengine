@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.3.12"
+    ee_version = "3.3.13"
 
 
     # EasyEngine packages versions
