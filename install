@@ -462,6 +462,16 @@ function ee_update_latest()
        fi
     fi
 
+    #Fix Redis-server security issue
+    #http://redis.io/topics/security
+     if [ -f /etc/redis/redis.conf  ]; then
+       grep -0 -v "#" /etc/redis/redis.conf | grep 'bind' &>> /dev/null
+       if [ $? -ne 0 ]; then
+            sed -i '$ a bind 127.0.0.1' /etc/redis/redis.conf &>> /dev/null
+            service redis-server restart &>> /dev/null
+       fi
+     fi
+
     # Fix for 3.3.2 renamed nginx.conf
     nginx -V 2>&1 &>>/dev/null
     if [[ $? -eq 0 ]]; then
