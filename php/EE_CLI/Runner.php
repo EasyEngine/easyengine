@@ -256,6 +256,26 @@ class Runner {
 		return array( $args, $assoc_args );
 	}
 
+	/*
+		Dynamic arguments for stack to be checked before parsing
+	*/
+	private static function stack_work($args, $assoc_args)
+	{
+		print_r($args);
+		print_r($assoc_args);
+		foreach ( $assoc_args as $key => $value) {
+			if ($args[0] === 'stack') {
+				if ($args[1] === 'install'){
+					// check if key matches any stack config
+					// otherwise throw error if not exists
+					unset( $assoc_args[ $key ] );
+				}
+			}
+		}
+
+		return array( $args, $assoc_args );
+	}
+
 	/**
 	 * Whether or not the output should be rendered in color
 	 *
@@ -303,17 +323,22 @@ class Runner {
 			list( $this->arguments, $this->assoc_args ) = self::back_compat_conversions(
 				$args, $assoc_args );
 
+			list( $this->arguments, $this->assoc_args ) = self::stack_work(
+				$args, $assoc_args );
+
 			$configurator->merge_array( $runtime_config );
 		}
 
 		list( $this->config, $this->extra_config ) = $configurator->to_array();
 	}
 
+
 	public function start() {
 		$this->init_config();
 		$this->init_colorization();
 		$this->init_logger();
 
+		print_r($this->assoc_args);
 		EE_CLI::debug( $this->_global_config_path_debug );
 		EE_CLI::debug( $this->_project_config_path_debug );
 
@@ -359,6 +384,8 @@ class Runner {
 		}
 
 		//$this->check_wp_version();
+
+
 
 		$this->_run_command();
 
