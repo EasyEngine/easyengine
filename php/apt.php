@@ -2,7 +2,7 @@
 
 
 
-class APT
+class APT extends PKG_MANAGER
 {
 
 	function install() {
@@ -22,3 +22,5 @@ class APT
 
 
 }
+
+
