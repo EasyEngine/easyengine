@@ -259,8 +259,9 @@ class Runner {
 	/*
 		Dynamic arguments for stack to be checked before parsing
 	*/
-	private static function stack_work($args, $assoc_args)
+	private function stack_work($args, $assoc_args)
 	{
+		$configurator = \EE_CLI::get_configurator();
 		print_r($args);
 		print_r($assoc_args);
 		foreach ( $assoc_args as $key => $value) {
@@ -268,7 +269,12 @@ class Runner {
 				if ($args[1] === 'install'){
 					// check if key matches any stack config
 					// otherwise throw error if not exists
-					unset( $assoc_args[ $key ] );
+					if($configurator->check_stack_exists($this->global_config_path, $key)){
+						unset( $assoc_args[ $key ] );
+					}
+					else {
+						print("Error:");
+					}
 				}
 			}
 		}

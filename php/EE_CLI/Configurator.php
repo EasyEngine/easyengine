@@ -170,6 +170,19 @@ class Configurator {
 	}
 
 	/**
+	 * Check if stack exists in YAML file.
+	 *
+	 * @param string $yml_file Path to the YAML file
+	 * @return boolean if stack exists
+	**/
+	public function check_stack_exists($path, $stack){
+		if (array_key_exists($stack, self::load_yml( $path ))){
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Load values from a YAML file.
 	 *
 	 * @param string $yml_file Path to the YAML file
@@ -219,5 +232,6 @@ class Configurator {
 			$path = $base . DIRECTORY_SEPARATOR . $path;
 		}
 	}
+
 
 }
