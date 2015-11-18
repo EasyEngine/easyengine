@@ -1,12 +1,21 @@
 <?php
 
+//EasyEngine package installation using apt module.
 
 
 class APT extends PKG_MANAGER {
 
+	private $pkg = array();
+	public function __construct($data=array())
+	{
+		$this->pkg = $data;
+
+		print_r($this->pkg);  //debugging purpose only
+
+	}
 
 	function install() {
-		$this->cmd = 'apt-get install  '.$this->pkg ;
+		$this->cmd = 'apt-get install  '.$this->pkg['package_name'] ;
 		$this->execute_local();
 
 	}
@@ -84,7 +93,7 @@ class APT extends PKG_MANAGER {
     is_installed
     auto_remove
     auto_clean
-    update
+
     */
 
 
