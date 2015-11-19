@@ -7,6 +7,8 @@
 
 abstract class PKG_MANAGER {
 
+	protected $stack_os_scope ;
+
 	public function __construct() {}
 
 

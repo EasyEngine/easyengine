@@ -1,10 +1,12 @@
 <?php
 
 //EasyEngine package installation using apt module.
+use  EE_CLI\Process;
 
 
 class APT extends PKG_MANAGER {
 
+	protected $stack_os_scope = array('UBUNTU','DEBIAN');
 	private $pkg = array();
 	public function __construct($data=array())
 	{
@@ -14,15 +16,37 @@ class APT extends PKG_MANAGER {
 
 	}
 
+	function validate_stack_type($stacktype){
+		$os_type = EE_CLI\Utils\get_OS();
+
+		$flag = false;
+		foreach ($this->stack_os_scope as $value) {
+
+				if ($value == $os_type['DISTRIB_ID']) {
+					$flag = true;
+					return $flag;
+				}
+			}
+
+		if (!$flag) die("Configuration doesnot match with system status");
+		}
+
+
+
 	function install() {
-		$this->cmd = 'apt-get install  '.$this->pkg['package_name'] ;
-		$this->execute_local();
+
+		$process = EE_CLI\Process::create( "apt-get install {$this->pkg['package_name']}" );
+		$result = $process->run();
+
+		if ( 0 !== $result->return_code ) {
+			//logging part here if installation fail
+		}
 
 	}
 
 	private function update(){
-		$this->cmd = 'apt-get update  ';
-		$this->execute_local();
+		$process = EE_CLI\Process::create( "apt-get update" );
+		$result = $process->run();
 	}
 
 
