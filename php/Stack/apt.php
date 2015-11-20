@@ -12,28 +12,12 @@ class APT extends PKG_MANAGER {
 
 	function __construct($data=array())
 	{
+		parent::__construct($this->stack_os_scope);
 		$this->pkg = $data;
 
-		print_r($this->pkg);  //debugging purpose only
+		//print_r($this->pkg);  //debugging purpose only
 
 	}
-
-	public function validate_stack_type($stacktype){
-		$os_type = EE_CLI\Utils\get_OS();
-		$flag = false;
-		foreach ($this->stack_os_scope as $value) {
-
-				if ($value == trim($os_type['DISTRIB_ID'])) {
-					$flag = true;
-					print_r($os_type['DISTRIB_ID']);
-					return $flag;
-				}
-			}
-
-		if (!$flag) die("Configuration doesnot match with system status \n");
-		}
-
-
 
 	public function install() {
 
