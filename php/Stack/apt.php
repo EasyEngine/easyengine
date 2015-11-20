@@ -1,14 +1,16 @@
 <?php
 
 //EasyEngine package installation using apt module.
+include EE_CLI_ROOT . '/php/Stack/package_manager.php';
 use  EE_CLI\Process;
 
 
 class APT extends PKG_MANAGER {
 
-	protected $stack_os_scope = array('UBUNTU','DEBIAN');
+	protected $stack_os_scope = array('Ubuntu','Debian');
 	private $pkg = array();
-	public function __construct($data=array())
+
+	function __construct($data=array())
 	{
 		$this->pkg = $data;
 
@@ -16,24 +18,24 @@ class APT extends PKG_MANAGER {
 
 	}
 
-	function validate_stack_type($stacktype){
+	public function validate_stack_type($stacktype){
 		$os_type = EE_CLI\Utils\get_OS();
-
 		$flag = false;
 		foreach ($this->stack_os_scope as $value) {
 
-				if ($value == $os_type['DISTRIB_ID']) {
+				if ($value == trim($os_type['DISTRIB_ID'])) {
 					$flag = true;
+					print_r($os_type['DISTRIB_ID']);
 					return $flag;
 				}
 			}
 
-		if (!$flag) die("Configuration doesnot match with system status");
+		if (!$flag) die("Configuration doesnot match with system status \n");
 		}
 
 
 
-	function install() {
+	public function install() {
 
 		$process = EE_CLI\Process::create( "apt-get install {$this->pkg['package_name']}" );
 		$result = $process->run();
@@ -57,7 +59,7 @@ class APT extends PKG_MANAGER {
 		print_r( $this->res );
 	}
 
-	function repo_add($repo_url){
+	public function repo_add($repo_url){
 
 		if (isset($repo_url)) {
 			$repo_file_path = "/etc/apt/sources.list.d/" . ee_repo_file ;
@@ -92,7 +94,7 @@ class APT extends PKG_MANAGER {
 
 	}
 
-	function repo_add_key($keyids, $keyserver) {
+	public function repo_add_key($keyids, $keyserver) {
 
     	if (isset($keyserver)){
 			$this->cmd = 'gpg --keyserver  ' . $keyserver . '--recv-keys ' . $keyids ;

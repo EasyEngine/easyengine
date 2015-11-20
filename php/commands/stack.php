@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * Manage EasyEngine stack.
  *
@@ -65,14 +66,26 @@ class Stack_Command extends EE_CLI_Command {
 	private function install_package( $args ){
 		print_r($args[0]);
 
-		$Data = Spyc::YAMLLoad('/home/rtcamp/Desktop/developments/ee-cli.yml');
+		$Data = Spyc::YAMLLoad('/home/prabuddha/Desktop/ee4.4.0.0/ee-cli.yml');
 		//print_r($Data);
+		print_r($Data[$args[0]]);
 
 		if (isset($Data[$args[0]])) {
 			EE_CLI::success('installing packages from ee-config.cli: ' . $args[0]);
 			EE_CLI::success('installing package_name: ' . $Data[$args[0]]['package_name']);
 			EE_CLI::success('Adding repository: ' . $Data[$args[0]]['apt_repository']);
 
+		}
+		include EE_CLI_ROOT . '/php/Stack/apt.php';
+
+		$apt = new APT($Data[$args[0]]);
+
+
+		if($apt->validate_stack_type($Data[$args[0]]['stack_type'])){
+			$apt->install();
+		}
+		else {
+			echo "please check config";
 		}
 
 
