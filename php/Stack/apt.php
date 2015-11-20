@@ -21,16 +21,17 @@ class APT extends PKG_MANAGER {
 
 	public function install() {
 
-		$process = EE_CLI\Process::create( "sudo apt-get install {$this->pkg['package_name']}" );
+		$process = EE_CLI\Process::create( "sudo apt-get -y --force-yes install {$this->pkg['package_name']}" );
 		$result = $process->run();
 
 		if ( 0 !== $result->return_code ) {
 			//logging part here if installation fail
+			//print_r($result);
 		}
 
 	}
 
-	private function update(){
+	function update(){
 		$process = EE_CLI\Process::create( "sudo apt-get update" );
 		$result = $process->run();
 	}
