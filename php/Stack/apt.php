@@ -37,7 +37,7 @@ class APT extends PKG_MANAGER {
 
 	public function install() {
 
-		$process = EE_CLI\Process::create( "apt-get install {$this->pkg['package_name']}" );
+		$process = EE_CLI\Process::create( "sudo apt-get install {$this->pkg['package_name']}" );
 		$result = $process->run();
 
 		if ( 0 !== $result->return_code ) {
@@ -47,7 +47,7 @@ class APT extends PKG_MANAGER {
 	}
 
 	private function update(){
-		$process = EE_CLI\Process::create( "apt-get update" );
+		$process = EE_CLI\Process::create( "sudo apt-get update" );
 		$result = $process->run();
 	}
 
@@ -106,7 +106,7 @@ class APT extends PKG_MANAGER {
 			$this->execute_local();
 		}
 
-		$this->cmd = 'gpg -a --export --armor  ' . $keyids . ' | apt-key add - ' ;
+		$this->cmd = 'gpg -a --export --armor  ' . $keyids . ' | sudo apt-key add - ' ;
 		$this->execute_local();
 
 
