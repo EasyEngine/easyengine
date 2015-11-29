@@ -1,3 +1,6 @@
+v 3.3.14 - Nov 10, 2015
+- Fix EasyEngine installation issue
+
 v 3.3.13 - Nov 10, 2015
 - Security Fix in redis.conf
 - Update wp-cli version
