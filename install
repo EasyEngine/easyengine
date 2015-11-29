@@ -234,7 +234,7 @@ function ee_install()
         ee_branch=master
     fi
 
-    git clone -b $ee_branch https://github.com/rtCamp/easyengine.git /tmp/easyengine --quiet > /dev/null \
+    git clone -b $ee_branch https://github.com/EasyEngine/easyengine.git /tmp/easyengine --quiet > /dev/null \
     || ee_lib_error "Unable to clone EasyEngine, exit status" $?
 
     cd /tmp/easyengine
