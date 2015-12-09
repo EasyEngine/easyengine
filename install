@@ -490,6 +490,14 @@ function ee_update_latest()
        fi
      fi
 
+    #Fix For --letsencrypt
+    if [ -f /etc/nginx/common/locations.conf ]; then
+       grep -0 'location ~ \/\\.well-known' /etc/nginx/common/locations.conf &>> /dev/null
+       if [ $? -ne 0 ]; then
+        sed -i 's/# Deny hidden files/# Deny hidden files\nlocation ~ \/\\.well-known {\n  allow all;\n}\n /g' /etc/nginx/common/locations.conf &>> /dev/null
+       fi
+    fi
+
     # Fix for 3.3.2 renamed nginx.conf
     nginx -V 2>&1 &>>/dev/null
     if [[ $? -eq 0 ]]; then
