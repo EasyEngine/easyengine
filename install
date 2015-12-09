@@ -216,10 +216,26 @@ function ee_sync_db()
     fi
 }
 
+
 function secure_ee_db()
 {
     chown -R root:root /var/lib/ee/
     chmod -R 600 /var/lib/ee/
+}
+
+function ee_update_wp_cli()
+{
+    ee_lib_echo "Updating WP-CLI version to resolve compatibility issue."
+    PHP_PATH=$(which php)
+    WP_CLI_PATH=$(which wp)
+
+    if [ "${WP_CLI_PATH}" != "" ]; then
+        # Get WP-CLI version
+        WP_CLI_VERSION=$(${PHP_PATH} ${WP_CLI_PATH} --allow-root cli version | awk '{ print $2 }')
+        if [ "${WP_CLI_VERSION}" -lt "0.21.1" ]; then
+            echo "y" | ee stack upgrade --wpcli
+        fi
+    fi
 }
 
 # Install EasyEngine 3.x
@@ -563,6 +579,7 @@ else
             ee_git_init | tee -ai $ee_install_log
             service nginx reload &>> /dev/null
             service php5-fpm restart &>> /dev/null
+            ee_update_wp_cli | tee -ai $ee_install_log
         else
             ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
         fi
