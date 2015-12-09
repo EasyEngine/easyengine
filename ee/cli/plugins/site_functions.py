@@ -1181,3 +1181,23 @@ def operateOnPagespeed(self, data):
     EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
               msg="Adding Pagespeed config of site: {0}"
               .format(ee_domain_name))
+
+def cloneLetsEncrypt(self, data):
+    letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
+
+    try:
+        if not os.path.isdir("/tmp/letsencrypt"):
+          Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
+          EEFileUtils.chdir(self, '/tmp/')
+          EEShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
+          Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
+                                            + Log.OKBLUE + "]"))
+          return True
+    except Exception as e:
+        Log.debug(self, "[{err}]".format(err=str(e.reason)))
+        Log.error(self, "Unable to download file, LetsEncrypt")
+        return False
+
+
+
+
