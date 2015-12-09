@@ -228,12 +228,14 @@ function ee_update_wp_cli()
     ee_lib_echo "Updating WP-CLI version to resolve compatibility issue."
     PHP_PATH=$(which php)
     WP_CLI_PATH=$(which wp)
-
     if [ "${WP_CLI_PATH}" != "" ]; then
         # Get WP-CLI version
         WP_CLI_VERSION=$(${PHP_PATH} ${WP_CLI_PATH} --allow-root cli version | awk '{ print $2 }')
-        if [ "${WP_CLI_VERSION}" -lt "0.21.1" ]; then
-            echo "y" | ee stack upgrade --wpcli
+        dpkg --compare-versions ${WP_CLI_VERSION} lt 0.21.1
+        # Update WP-CLI version
+        if [ "$?" == "0" ]; then
+           wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+           chmod +x ${WP_CLI_PATH}
         fi
     fi
 }
