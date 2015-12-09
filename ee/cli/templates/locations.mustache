@@ -22,6 +22,9 @@ location ~* \.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gi
 }
 # Security settings for better privacy
 # Deny hidden files
+location ~ /\.well-known {
+  allow all;
+}
 location ~ /\. {
   deny all;
   access_log off;
