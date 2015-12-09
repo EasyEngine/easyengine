@@ -1182,22 +1182,31 @@ def operateOnPagespeed(self, data):
               msg="Adding Pagespeed config of site: {0}"
               .format(ee_domain_name))
 
-def cloneLetsEncrypt(self, data):
+def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
 
     try:
-        if not os.path.isdir("/tmp/letsencrypt"):
-          Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
-          EEFileUtils.chdir(self, '/tmp/')
-          EEShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
-          Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
+        Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
+        EEFileUtils.chdir(self, '/tmp/')
+        EEShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
+        Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
                                             + Log.OKBLUE + "]"))
-          return True
+        return True
     except Exception as e:
         Log.debug(self, "[{err}]".format(err=str(e.reason)))
         Log.error(self, "Unable to download file, LetsEncrypt")
         return False
 
+def setupLetsEncrypt(self,data):
+    ee_domain_name = data['site_name']
+    ee_wp_email = self.app.config.get('wordpress', 'email')
 
+    if not os.path.isdir("/tmp/letsencrypt"):
+        cloneLetsEncrypt()
+    EEFileUtils.chdir(self, '/tmp/letsencrypt')
+    EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(ee_domain_name)
+                               + "--email {0} --text --agree-tos".format(ee_wp_email))
 
+    
 
