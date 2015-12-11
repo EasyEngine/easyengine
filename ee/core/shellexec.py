@@ -29,6 +29,8 @@ class EEShellExec():
                                             "replace"))
 
             if proc.returncode == 0:
+                Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
+                                .format(cmd_stdout, cmd_stderr))
                 return True
             else:
                 Log.debug(self, "Command Output: {0}, \nCommand Error: {1}"
