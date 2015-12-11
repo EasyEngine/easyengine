@@ -1197,16 +1197,40 @@ def cloneLetsEncrypt(self):
         Log.error(self, "Unable to download file, LetsEncrypt")
         return False
 
-def setupLetsEncrypt(self,data):
-    ee_domain_name = data['site_name']
-    ee_wp_email = self.app.config.get('wordpress', 'email')
+def setupLetsEncrypt(self, ee_domain_name):
+    #ee_domain_name = data['site_name']
+    ee_wp_email = EEVariables.ee_email
+    while not ee_wp_email:
+        try:
+            ee_wp_email = input('Enter WordPress email: ')
+        except EOFError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("input wordpress username failed")
 
     if not os.path.isdir("/tmp/letsencrypt"):
-        cloneLetsEncrypt()
+        cloneLetsEncrypt(self)
     EEFileUtils.chdir(self, '/tmp/letsencrypt')
-    EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    if ssl :
 
-    
+        try:
+            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                                      .format(ee_domain_name),
+                                      encoding='utf-8', mode='w')
+            sslconf.write("    listen 443 ssl spdy;"
+                                     "    ssl on;"
+                                     "    ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;"
+                                     "    ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;"
+                                     .format(ee_domain_name))
+            sslconf.close()
+            EEService.reload_service(self, 'nginx')
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
+                              "ssl.conf")
+    else:
+        Log.error(self, "Unable to setup, LetsEncrypt")
+
 
