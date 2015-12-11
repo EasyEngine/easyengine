@@ -1137,7 +1137,7 @@ class EESiteUpdateController(CementBaseController):
 
 
         if pargs.letsencrypt:
-            if data['pagespeed'] is True:
+            if data['letsencrypt'] is True:
                 setupLetsEncrypt(self, ee_domain)
                 updateSiteInfo(self, ee_domain, ssl=True)
             elif data['letsencrypt'] is False:
