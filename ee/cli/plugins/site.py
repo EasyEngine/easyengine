@@ -1091,7 +1091,7 @@ class EESiteUpdateController(CementBaseController):
         if pargs.letsencrypt:
            setupLetsEncrypt(self, ee_domain)
 
-        if data['currcachetype'] != 'wpredis' and pargs.wpredis:
+        if pargs.wpredis and data['currcachetype'] != 'wpredis':
             if (not pargs.experimental):
                 Log.info(self, "Redis is experimental feature and it may not"
                          " work with all plugins of your site.\nYou can "
