@@ -1212,17 +1212,20 @@ def setupLetsEncrypt(self, ee_domain_name):
     EEFileUtils.chdir(self, '/tmp/letsencrypt')
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
-                               + "--email {0} --text --agree-tos".format(ee_wp_email))
-    if ssl :
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+
+    if ssl:
+        Log.info(self, "Letsencrypt succesfully configured for your site")
+        Log.info(self, "configuring nginx config")
 
         try:
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("    listen 443 ssl spdy;"
-                                     "    ssl on;"
-                                     "    ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;"
-                                     "    ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;"
+            sslconf.write("listen 443 ssl spdy;\n"
+                                     "ssl on;\n"
+                                     "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
+                                     "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
                                      .format(ee_domain_name))
             sslconf.close()
             EEService.reload_service(self, 'nginx')
