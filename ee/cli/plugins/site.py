@@ -761,6 +761,9 @@ class EESiteUpdateController(CementBaseController):
                 dict(help='Use PageSpeed for site',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
+            (['--letsencrypt'],
+                dict(help="configure letsencrypt ssl for the site",
+                     action='store_true')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1085,6 +1088,9 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = True
 
+        if pargs.letsencrypt:
+           setupLetsEncrypt(self, ee_domain)
+
         if data['currcachetype'] != 'wpredis' and pargs.wpredis:
             if (not pargs.experimental):
                 Log.info(self, "Redis is experimental feature and it may not"
@@ -1150,6 +1156,7 @@ class EESiteUpdateController(CementBaseController):
         # Update pagespeed config
         if pargs.pagespeed:
             operateOnPagespeed(self, data)
+
 
         if stype == oldsitetype and cache == oldcachetype:
 
