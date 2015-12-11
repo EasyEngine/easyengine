@@ -763,7 +763,8 @@ class EESiteUpdateController(CementBaseController):
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
-                     action='store_true')),
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -787,7 +788,7 @@ class EESiteUpdateController(CementBaseController):
             if not (pargs.php or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
-                    pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis):
+                    pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis or pargs.letsencrypt):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -812,6 +813,7 @@ class EESiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         hhvm = None
         pagespeed = None
+        letsencrypt = None
 
         data = dict()
         try:
@@ -857,6 +859,7 @@ class EESiteUpdateController(CementBaseController):
             oldcachetype = check_site.cache_type
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
+            check_ssl = check_site.is_ssl
 
         if (pargs.password and not (pargs.html or
             pargs.php or pargs.mysql or pargs.wp or
@@ -1010,6 +1013,13 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
+            if pargs.letsencrypt != 'off':
+                data['letsencrypt'] = True
+                letsencrypt = True
+            elif pargs.letsencrypt == 'off':
+                data['letsencrypt'] = False
+                letsencrypt = False
+
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
                 if pagespeed is False:
@@ -1019,6 +1029,16 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
+
+        if pargs.letsencrypt:
+            if letsencrypt is check_ssl:
+                if letsencrypt is False:
+                    Log.info(self, "SSl is not configured for given "
+                             "site")
+                elif letsencrypt is True:
+                    Log.info(self, "SSl is already configured for given "
+                             "site")
+                pargs.letsencrypt = False
 
         if pargs.hhvm:
             if hhvm is old_hhvm:
@@ -1047,7 +1067,15 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if pargs.pagespeed=="on" or pargs.hhvm=="on":
+        if data and (not pargs.letsencrypt):
+            if check_ssl is True:
+                data['letsencrypt'] = True
+                letsencrypt = True
+            else:
+                data['letsencrypt'] = False
+                letsencrypt = False
+
+        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on":
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
@@ -1088,8 +1116,33 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = True
 
+            if pargs.letsencrypt == "on":
+                if (not pargs.experimental):
+                    Log.info(self, "Letsencrypt is currently in beta phase."
+                             " \nDo you wish"
+                             " to enable SSl now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]:")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info(self, "Not using letsencrypt for site")
+                        data['letsencrypt'] = False
+                        letsencrypt = False
+                    else:
+                        data['letsencrypt'] = True
+                        letsencrypt = True
+                else:
+                    data['letsencrypt'] = True
+                    letsencrypt = True
+
+
         if pargs.letsencrypt:
-           setupLetsEncrypt(self, ee_domain)
+            if data['pagespeed'] is True:
+                setupLetsEncrypt(self, ee_domain)
+                updateSiteInfo(self, ee_domain, ssl=True)
+            elif data['letsencrypt'] is False:
+                pass
+            #--letsencrypt=off code here
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             if (not pargs.experimental):
