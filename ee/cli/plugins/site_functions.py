@@ -1198,7 +1198,6 @@ def cloneLetsEncrypt(self):
         return False
 
 def setupLetsEncrypt(self, ee_domain_name):
-    #ee_domain_name = data['site_name']
     ee_wp_email = EEVariables.ee_email
     while not ee_wp_email:
         try:
@@ -1213,7 +1212,7 @@ def setupLetsEncrypt(self, ee_domain_name):
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
-
+    ssl = True
     if ssl:
         Log.info(self, "Letsencrypt succesfully configured for your site")
         Log.info(self, "configuring nginx config")
@@ -1228,7 +1227,11 @@ def setupLetsEncrypt(self, ee_domain_name):
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
                                      .format(ee_domain_name))
             sslconf.close()
-            EEService.reload_service(self, 'nginx')
+            # updateSiteInfo(self, ee_domain_name, ssl=True)
+
+            EEGit.add(self, ["/etc/letsencrypt"],
+              msg="Adding letsencrypt folder")
+
         except IOError as e:
             Log.debug(self, str(e))
             Log.debug(self, "Error occured while generating "
