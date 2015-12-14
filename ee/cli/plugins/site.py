@@ -813,7 +813,7 @@ class EESiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         hhvm = None
         pagespeed = None
-        letsencrypt = None
+        letsencrypt = False
 
         data = dict()
         try:
@@ -1013,12 +1013,6 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-            if pargs.letsencrypt != 'off':
-                data['letsencrypt'] = True
-                letsencrypt = True
-            elif pargs.letsencrypt == 'off':
-                data['letsencrypt'] = False
-                letsencrypt = False
 
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
@@ -1031,6 +1025,13 @@ class EESiteUpdateController(CementBaseController):
                 pargs.pagespeed = False
 
         if pargs.letsencrypt:
+            if pargs.letsencrypt != 'off':
+                data['letsencrypt'] = True
+                letsencrypt = True
+            elif pargs.letsencrypt == 'off':
+                data['letsencrypt'] = False
+                letsencrypt = False
+
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
                     Log.info(self, "SSl is not configured for given "
@@ -1066,14 +1067,6 @@ class EESiteUpdateController(CementBaseController):
             else:
                 data['pagespeed'] = False
                 pagespeed = False
-
-        if data and (not pargs.letsencrypt):
-            if check_ssl is True:
-                data['letsencrypt'] = True
-                letsencrypt = True
-            else:
-                data['letsencrypt'] = False
-                letsencrypt = False
 
         if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on":
             if pargs.hhvm == "on":
@@ -1117,6 +1110,7 @@ class EESiteUpdateController(CementBaseController):
                     pagespeed = True
 
             if pargs.letsencrypt == "on":
+
                 if (not pargs.experimental):
                     Log.info(self, "Letsencrypt is currently in beta phase."
                              " \nDo you wish"
@@ -1136,13 +1130,6 @@ class EESiteUpdateController(CementBaseController):
                     letsencrypt = True
 
 
-        if pargs.letsencrypt:
-            if data['letsencrypt'] is True:
-                setupLetsEncrypt(self, ee_domain)
-                updateSiteInfo(self, ee_domain, ssl=True)
-            elif data['letsencrypt'] is False:
-                pass
-            #--letsencrypt=off code here
 
         if pargs.wpredis and data['currcachetype'] != 'wpredis':
             if (not pargs.experimental):
@@ -1172,32 +1159,32 @@ class EESiteUpdateController(CementBaseController):
         data['ee_db_user'] = check_site.db_user
         data['ee_db_pass'] = check_site.db_password
         data['ee_db_host'] = check_site.db_host
-
-        try:
-            pre_run_checks(self)
-        except SiteError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "NGINX configuration check failed.")
-
         data['old_pagespeed_status'] = check_site.is_pagespeed
 
-        try:
-            sitebackup(self, data)
-        except Exception as e:
-            Log.debug(self, str(e))
-            Log.info(self, Log.FAIL + "Check logs for reason "
-                     "`tail /var/log/ee/ee.log` & Try Again!!!")
-            return 1
+        if not pargs.letsencrypt:
+            try:
+                pre_run_checks(self)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "NGINX configuration check failed.")
 
-        # setup NGINX configuration, and webroot
-        try:
-            setupdomain(self, data)
-        except SiteError as e:
-            Log.debug(self, str(e))
-            Log.info(self, Log.FAIL + "Update site failed."
+            try:
+                sitebackup(self, data)
+            except Exception as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Check logs for reason "
+                     "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
+
+            # setup NGINX configuration, and webroot
+            try:
+                setupdomain(self, data)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Update site failed."
                      "Check logs for reason"
                      "`tail /var/log/ee/ee.log` & Try Again!!!")
-            return 1
+                return 1
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
@@ -1209,6 +1196,47 @@ class EESiteUpdateController(CementBaseController):
         # Update pagespeed config
         if pargs.pagespeed:
             operateOnPagespeed(self, data)
+
+        if pargs.letsencrypt:
+            if data['letsencrypt'] is True:
+                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
+                              .format(ee_site_webroot)):
+                    setupLetsEncrypt(self, ee_domain)
+                    Log.info(self,'letsencrypts is installed ')
+                    if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+
+                   # updateSiteInfo(self, ee_domain, ssl=letsencrypt)
+                    Log.info(self, "Successfully Configured SSl for Site "
+                         " https://{0}".format(ee_domain))
+
+                    # return 0
+                else:
+                    EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/ssl.conf'
+                               .format(ee_site_webroot))
+
+            elif data['letsencrypt'] is False:
+                Log.info(self,'letsencrypts disabled')
+                if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                          .format(ee_site_webroot)):
+                        EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
+                                  .format(ee_site_webroot),
+                                  '{0}/conf/nginx/ssl.conf.disabled'
+                                  .format(ee_site_webroot))
+
+            # Add nginx conf folder into GIT
+            EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                          msg="Adding letsencrypts config of site: {0}"
+                        .format(ee_domain))
+            updateSiteInfo(self, ee_domain, ssl=letsencrypt)
+            return 0
+
+                #updateSiteInfo(self, ee_domain, ssl=False)
+                #pass
+            #--letsencrypt=off code here
 
 
         if stype == oldsitetype and cache == oldcachetype:
