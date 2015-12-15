@@ -1216,7 +1216,7 @@ def setupLetsEncrypt(self, ee_domain_name):
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if ssl:
         Log.info(self, "Let's Encrypt succesfully setup for your site")
-        Log.info(self, "Congratulations! Your certificate and chain have been saved at "
+        Log.info(self, "Your certificate and chain have been saved at "
                             "/etc/letsencrypt/live/{0}/fullchain.pem".format(ee_domain_name))
         Log.info(self, "Configuring Nginx SSL configuration")
 
