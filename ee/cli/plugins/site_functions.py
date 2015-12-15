@@ -1212,7 +1212,6 @@ def setupLetsEncrypt(self, ee_domain_name):
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
-    ssl = True
     if ssl:
         Log.info(self, "Letsencrypt succesfully configured for your site")
         Log.info(self, "configuring nginx config")
