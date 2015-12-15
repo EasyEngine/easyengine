@@ -1187,7 +1187,7 @@ def cloneLetsEncrypt(self):
 
     try:
         Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
-        EEFileUtils.chdir(self, '/tmp/')
+        EEFileUtils.chdir(self, '/opt/')
         EEShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
         Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
                                             + Log.OKBLUE + "]"))
@@ -1206,17 +1206,23 @@ def setupLetsEncrypt(self, ee_domain_name):
             Log.debug(self, "{0}".format(e))
             raise SiteError("input wordpress username failed")
 
-    if not os.path.isdir("/tmp/letsencrypt"):
+    if not os.path.isdir("/opt/letsencrypt"):
         cloneLetsEncrypt(self)
-    EEFileUtils.chdir(self, '/tmp/letsencrypt')
+    EEFileUtils.chdir(self, '/opt/letsencrypt')
+    EEShellExec.cmd_exec(self, "git pull")
+
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if ssl:
-        Log.info(self, "Letsencrypt succesfully configured for your site")
-        Log.info(self, "configuring nginx config")
+        Log.info(self, "Let's Encrypt succesfully setup for your site")
+        Log.info(self, "Congratulations! Your certificate and chain have been saved at "
+                            "/etc/letsencrypt/live/{0}/fullchain.pem".format(ee_domain_name))
+        Log.info(self, "Configuring Nginx SSL configuration")
 
         try:
+            Log.info(self, "Adding /var/www/{0}/conf/nginx/ssl.conf".format(ee_domain_name))
+
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
