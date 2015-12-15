@@ -1202,14 +1202,6 @@ class EESiteUpdateController(CementBaseController):
                 if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
                               .format(ee_site_webroot)):
                     setupLetsEncrypt(self, ee_domain)
-                    Log.info(self,'letsencrypts is installed ')
-                    if not EEService.reload_service(self, 'nginx'):
-                        Log.error(self, "service nginx reload failed. "
-                          "check issues with `nginx -t` command")
-
-                   # updateSiteInfo(self, ee_domain, ssl=letsencrypt)
-                    Log.info(self, "Successfully Configured SSl for Site "
-                         " https://{0}".format(ee_domain))
 
                     # return 0
                 else:
@@ -1218,14 +1210,27 @@ class EESiteUpdateController(CementBaseController):
                                '{0}/conf/nginx/ssl.conf'
                                .format(ee_site_webroot))
 
+                if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+
+                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(ee_domain))
+
             elif data['letsencrypt'] is False:
-                Log.info(self,'letsencrypts disabled')
+                Log.info(self,'Setting Nginx configuration')
                 if os.path.isfile("{0}/conf/nginx/ssl.conf"
                           .format(ee_site_webroot)):
                         EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                   .format(ee_site_webroot),
                                   '{0}/conf/nginx/ssl.conf.disabled'
                                   .format(ee_site_webroot))
+                        if not EEService.reload_service(self, 'nginx'):
+                            Log.error(self, "service nginx reload failed. "
+                                 "check issues with `nginx -t` command")
+                        Log.info(self, "Successfully Disabled SSl for Site "
+                         " http://{0}".format(ee_domain))
+
 
             # Add nginx conf folder into GIT
             EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
