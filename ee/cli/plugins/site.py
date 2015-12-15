@@ -1234,11 +1234,6 @@ class EESiteUpdateController(CementBaseController):
             updateSiteInfo(self, ee_domain, ssl=letsencrypt)
             return 0
 
-                #updateSiteInfo(self, ee_domain, ssl=False)
-                #pass
-            #--letsencrypt=off code here
-
-
         if stype == oldsitetype and cache == oldcachetype:
 
             # Service Nginx Reload
