@@ -20,4 +20,3 @@ class SSL:
                                            " -text -noout|grep \"Not After\"|cut -c 25-`\" ".format(domain))
         return expiration_date
 
-   
