@@ -2,6 +2,7 @@ from ee.cli.plugins.stack import EEStackController
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import *
 from ee.core.shellexec import *
+from ee.core.sslutils import SSL
 from ee.core.variables import EEVariables
 from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
@@ -1243,5 +1244,40 @@ def setupLetsEncrypt(self, ee_domain_name):
                               "ssl.conf")
     else:
         Log.error(self, "Unable to setup, LetsEncrypt")
+
+def renewLetsEncrypt(self, ee_domain_name):
+
+    ee_wp_email = EEVariables.ee_email
+    while not ee_wp_email:
+        try:
+            ee_wp_email = input('Enter email address: ')
+        except EOFError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("Input wordpress email failed")
+
+    if not os.path.isdir("/opt/letsencrypt"):
+        cloneLetsEncrypt(self)
+    EEFileUtils.chdir(self, '/opt/letsencrypt')
+    EEShellExec.cmd_exec(self, "git pull")
+
+    Log.info(self, "Renewing SSl cert for https://{0}".format(ee_domain_name))
+
+    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(ee_domain_name)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    if not ssl:
+        Log.error(self,"ERROR : Cannot RENEW SSL cert !",False)
+        if (SSL.getExpirationDays(ee_domain_name)>0):
+                    Log.error(self, "Your current cert will expire within " + SSL.getExpirationDays(ee_domain_name) + " days.",False)
+        else:
+                    Log.error(self, "Your current cert already EXPIRED !",False)
+
+        Log.error(self, "Check logs for reason "
+                      "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+    EEGit.add(self, ["/etc/letsencrypt"],
+              msg="Adding letsencrypt folder")
+
+
 
 
