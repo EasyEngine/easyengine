@@ -1,6 +1,7 @@
 # """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.sslutils import SSL
 from ee.core.variables import EEVariables
 from ee.core.domainvalidate import ValidateDomain
 from ee.core.fileutils import EEFileUtils
@@ -1216,6 +1217,14 @@ class EESiteUpdateController(CementBaseController):
 
                 Log.info(self, "Congratulations! Successfully Configured SSl for Site "
                          " https://{0}".format(ee_domain))
+
+                if (SSL.getExpirationDays(ee_domain)>0):
+                    Log.info(self, "Your certification will expire within " + SSL.getExpirationDays() + " days.")
+                else:
+                    Log.warn(self, "Your certification already EXPIRED ! . PLEASE renew soon . ")
+
+
+
 
             elif data['letsencrypt'] is False:
                 Log.info(self,'Setting Nginx configuration')
