@@ -1267,8 +1267,8 @@ def renewLetsEncrypt(self, ee_domain_name):
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if not ssl:
         Log.error(self,"ERROR : Cannot RENEW SSL cert !",False)
-        if (SSL.getExpirationDays(ee_domain_name)>0):
-                    Log.error(self, "Your current cert will expire within " + SSL.getExpirationDays(ee_domain_name) + " days.",False)
+        if (SSL.getExpirationDays(self,ee_domain_name)>0):
+                    Log.error(self, "Your current cert will expire within " + str(SSL.getExpirationDays(self,ee_domain_name)) + " days.",False)
         else:
                     Log.error(self, "Your current cert already EXPIRED !",False)
 

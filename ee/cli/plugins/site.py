@@ -765,7 +765,7 @@ class EESiteUpdateController(CementBaseController):
             (['--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew'), const='on', nargs='?')),
+                     choices=('on', 'off', 'renew', 'status'), const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1025,6 +1025,8 @@ class EESiteUpdateController(CementBaseController):
                              "site")
                 pargs.pagespeed = False
 
+        #--letsencrypt=status code here
+        #if pargs.letsencrypt == "renew":
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew":
@@ -1036,8 +1038,8 @@ class EESiteUpdateController(CementBaseController):
             Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                            " https://{0}".format(ee_domain))
             if (SSL.getExpirationDays(ee_domain)>0):
-                    Log.info(self, "Your cert will expire within " + SSL.getExpirationDays(ee_domain) + " days.")
-                    Log.info(self, "Expiration DATE: " + SSL.getExpirationDate(ee_domain))
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                    Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
 
             else:
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
@@ -1236,8 +1238,8 @@ class EESiteUpdateController(CementBaseController):
                 Log.info(self, "Congratulations! Successfully Configured SSl for Site "
                          " https://{0}".format(ee_domain))
 
-                if (SSL.getExpirationDays(ee_domain)>0):
-                    Log.info(self, "Your cert will expire within " + SSL.getExpirationDays() + " days.")
+                if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
                 else:
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
 
