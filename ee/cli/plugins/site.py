@@ -1219,9 +1219,9 @@ class EESiteUpdateController(CementBaseController):
                          " https://{0}".format(ee_domain))
 
                 if (SSL.getExpirationDays(ee_domain)>0):
-                    Log.info(self, "Your certification will expire within " + SSL.getExpirationDays() + " days.")
+                    Log.info(self, "Your cert will expire within " + SSL.getExpirationDays() + " days.")
                 else:
-                    Log.warn(self, "Your certification already EXPIRED ! . PLEASE renew soon . ")
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
 
 
 
