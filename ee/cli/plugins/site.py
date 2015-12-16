@@ -765,7 +765,7 @@ class EESiteUpdateController(CementBaseController):
             (['--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off'), const='on', nargs='?')),
+                     choices=('on', 'off', 'renew'), const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1025,8 +1025,26 @@ class EESiteUpdateController(CementBaseController):
                              "site")
                 pargs.pagespeed = False
 
+
+        #--letsencrypt=renew code goes here
+        if pargs.letsencrypt == "renew":
+            if check_ssl:
+                renewLetsEncrypt(self,ee_domain)
+            else:
+                Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
+
+            Log.info(self, "SUCCESS: Certificate was successfully renewed For"
+                           " https://{0}".format(ee_domain))
+            if (SSL.getExpirationDays(ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + SSL.getExpirationDays() + " days.")
+                    Log.info(self, "Expiration DATE: " + SSL.getExpirationDate(ee_domain))
+
+            else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+
         if pargs.letsencrypt:
-            if pargs.letsencrypt != 'off':
+            if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
                 letsencrypt = True
             elif pargs.letsencrypt == 'off':
@@ -1222,9 +1240,6 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Your cert will expire within " + SSL.getExpirationDays() + " days.")
                 else:
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
-
-
-
 
             elif data['letsencrypt'] is False:
                 Log.info(self,'Setting Nginx configuration')
