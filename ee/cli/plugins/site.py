@@ -765,7 +765,7 @@ class EESiteUpdateController(CementBaseController):
             (['--letsencrypt'],
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
-                     choices=('on', 'off', 'renew', 'status'), const='on', nargs='?')),
+                     choices=('on', 'off', 'renew'), const='on', nargs='?')),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1024,9 +1024,6 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
-
-        #--letsencrypt=status code here
-        #if pargs.letsencrypt == "renew":
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew":
