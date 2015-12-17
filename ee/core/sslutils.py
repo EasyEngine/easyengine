@@ -29,9 +29,9 @@ class SSL:
    def getExpirationDate(self,domain):
         # check if exist
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
-                      .format(domain),False):
+                      .format(domain)):
             Log.error(self,'File Not Found : /etc/letsencrypt/live/{0}/cert.pem'
-                      .format(domain))
+                      .format(domain),False)
             Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
 

@@ -156,11 +156,15 @@ class EESiteController(CementBaseController):
                 ee_site_webroot = ''
 
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
-
+            ssl = ("enabled" if siteinfo.is_ssl else "disabled")
+            if (ssl == "enabled"):
+                sslprovider = "Lets Encrypt"
+                sslexpiry = str(SSL.getExpirationDate(self,ee_domain))
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
                         dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
+                        ssl=ssl, sslprovider=sslprovider,  sslexpiry= sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
                                 "disabled"))
