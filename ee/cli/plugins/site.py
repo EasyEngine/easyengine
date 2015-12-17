@@ -160,6 +160,9 @@ class EESiteController(CementBaseController):
             if (ssl == "enabled"):
                 sslprovider = "Lets Encrypt"
                 sslexpiry = str(SSL.getExpirationDate(self,ee_domain))
+            else:
+                sslprovider = ''
+                sslexpiry = ''
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
