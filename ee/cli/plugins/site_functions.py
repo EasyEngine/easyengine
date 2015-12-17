@@ -1306,16 +1306,16 @@ def httpsRedirect(self,ee_domain_name,redirect=True):
                 Log.debug(self, str(e))
                 Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+
+        Log.info(self, "Added HTTPS Force Redirection for Site "
+                         " http://{0}".format(ee_domain_name))
         EEGit.add(self,
                   ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
     else:
         if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name)):
              EEFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name),
                                   "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name))
-             if not EEService.reload_service(self, 'nginx'):
-                 Log.error(self, "service nginx reload failed. "
-                                 "check issues with `nginx -t` command")
-             Log.info(self, "Successfully Disabled HTTPS Force Redirection for Site "
+             Log.info(self, "Disabled HTTPS Force Redirection for Site "
                          " http://{0}".format(ee_domain_name))
 
 

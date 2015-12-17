@@ -747,6 +747,7 @@ class EESiteCreateController(CementBaseController):
 
             if data['letsencrypt'] is True:
                  setupLetsEncrypt(self, ee_domain)
+                 httpsRedirect(self,ee_domain)
 
                  if not EEService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -767,7 +768,7 @@ class EESiteCreateController(CementBaseController):
                  updateSiteInfo(self, ee_domain, ssl=letsencrypt)
 
             elif data['letsencrypt'] is False:
-                Log.info(self, "Not using Let's encrypt for Site "
+                Log.info(self, "Not using Let\'s encrypt for Site "
                          " http://{0}".format(ee_domain))
 
 
@@ -1275,12 +1276,13 @@ class EESiteUpdateController(CementBaseController):
                               .format(ee_site_webroot)):
                     setupLetsEncrypt(self, ee_domain)
 
-                    # return 0
                 else:
                     EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
                                .format(ee_site_webroot),
                                '{0}/conf/nginx/ssl.conf'
                                .format(ee_site_webroot))
+
+                httpsRedirect(self,ee_domain)
 
                 if not EEService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
@@ -1302,6 +1304,7 @@ class EESiteUpdateController(CementBaseController):
                                   .format(ee_site_webroot),
                                   '{0}/conf/nginx/ssl.conf.disabled'
                                   .format(ee_site_webroot))
+                        httpsRedirect(self,ee_domain,False)
                         if not EEService.reload_service(self, 'nginx'):
                             Log.error(self, "service nginx reload failed. "
                                  "check issues with `nginx -t` command")
