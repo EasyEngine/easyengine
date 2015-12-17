@@ -1284,26 +1284,39 @@ def renewLetsEncrypt(self, ee_domain_name):
 #redirect= False to disable https redirection
 def httpsRedirect(self,ee_domain_name,redirect=True):
     if redirect:
-        try:
-            Log.info(self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name)):
+                EEFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name),
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+        else:
+            try:
+                Log.info(self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
 
-            sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("server {\n"
+                sslconf.write("server {\n"
                                      "\tlisten 80;\n"
                                      "\tserver_name www.{0} {0};\n"
                                      "\treturn 301 https://{0}$request_uri;\n"
                                      "}\n"
                                      .format(ee_domain_name))
-            sslconf.close()
-            # Nginx Configation into GIT
-            EEGit.add(self,
-                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
-        except IOError as e:
-            Log.debug(self, str(e))
-            Log.debug(self, "Error occured while generating "
+                sslconf.close()
+                # Nginx Configation into GIT
+            except IOError as e:
+                Log.debug(self, str(e))
+                Log.debug(self, "Error occured while generating "
                               "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+        EEGit.add(self,
+                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+    else:
+        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name)):
+             EEFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name),
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name))
+             if not EEService.reload_service(self, 'nginx'):
+                 Log.error(self, "service nginx reload failed. "
+                                 "check issues with `nginx -t` command")
+             Log.info(self, "Successfully Disabled HTTPS Force Redirection for Site "
+                         " http://{0}".format(ee_domain_name))
 
 
 
