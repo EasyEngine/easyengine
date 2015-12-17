@@ -1227,8 +1227,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("listen 80;\n"
-                                     "listen 443 ssl spdy;\n"
+            sslconf.write("listen 443 ssl spdy;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
@@ -1281,6 +1280,32 @@ def renewLetsEncrypt(self, ee_domain_name):
 
     EEGit.add(self, ["/etc/letsencrypt"],
               msg="Adding letsencrypt folder")
+
+#redirect= False to disable https redirection
+def httpsRedirect(self,ee_domain_name,redirect=True):
+    if redirect:
+        try:
+            Log.info(self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+
+            sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                      .format(ee_domain_name),
+                                      encoding='utf-8', mode='w')
+            sslconf.write("server {\n"
+                                     "\tlisten 80;\n"
+                                     "\tserver_name www.{0} {0};\n"
+                                     "\treturn 301 https://{0}$request_uri;\n"
+                                     "}\n"
+                                     .format(ee_domain_name))
+            sslconf.close()
+            # Nginx Configation into GIT
+            EEGit.add(self,
+                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+
+
 
 
 
