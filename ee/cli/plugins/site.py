@@ -362,6 +362,8 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create HHVM site", action='store_true')),
             (['--pagespeed'],
                 dict(help="create pagespeed site", action='store_true')),
+            (['-le','--letsencrypt'],
+                dict(help="configure letsencrypt ssl for the site", action='store_true')),
             (['--user'],
                 dict(help="provide user for wordpress site")),
             (['--email'],
@@ -724,6 +726,51 @@ class EESiteCreateController(CementBaseController):
         except SiteError as e:
             Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+        if self.app.pargs.letsencrypt :
+            if (not self.app.pargs.experimental):
+                Log.info(self, "Letsencrypt is currently in beta phase."
+                             " \nDo you wish"
+                             " to enable SSl now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    data['letsencrypt'] = False
+                    letsencrypt = False
+                else:
+                    data['letsencrypt'] = True
+                    letsencrypt = True
+            else:
+                 data['letsencrypt'] = True
+                 letsencrypt = True
+
+            if data['letsencrypt'] is True:
+                 setupLetsEncrypt(self, ee_domain)
+
+                 if not EEService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+
+                 Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(ee_domain))
+
+                 if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                 else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+                 # Add nginx conf folder into GIT
+                 EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                          msg="Adding letsencrypts config of site: {0}"
+                        .format(ee_domain))
+                 updateSiteInfo(self, ee_domain, ssl=letsencrypt)
+
+            elif data['letsencrypt'] is False:
+                Log.info(self, "Not using Let's encrypt for Site "
+                         " http://{0}".format(ee_domain))
+
+
 
 
 class EESiteUpdateController(CementBaseController):
