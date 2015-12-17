@@ -1244,7 +1244,10 @@ def setupLetsEncrypt(self, ee_domain_name):
             Log.debug(self, "Error occured while generating "
                               "ssl.conf")
     else:
-        Log.error(self, "Unable to setup, LetsEncrypt")
+        Log.error(self, "Unable to setup, Let's Encrypt", False)
+        Log.error(self, "Please make sure that your site is live and\n"
+                        "running on same server on which you are running Let’s Encrypt Client "
+                        "\nto allow it to verify the site automatically.")
 
 def renewLetsEncrypt(self, ee_domain_name):
 
