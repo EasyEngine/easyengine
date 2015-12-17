@@ -1227,7 +1227,8 @@ def setupLetsEncrypt(self, ee_domain_name):
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl spdy;\n"
+            sslconf.write("listen 80;\n"
+                                     "listen 443 ssl spdy;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
