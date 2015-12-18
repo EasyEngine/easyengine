@@ -1,6 +1,7 @@
 # """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.cron import EECron
 from ee.core.sslutils import SSL
 from ee.core.variables import EEVariables
 from ee.core.domainvalidate import ValidateDomain
@@ -748,6 +749,9 @@ class EESiteCreateController(CementBaseController):
             if data['letsencrypt'] is True:
                  setupLetsEncrypt(self, ee_domain)
                  httpsRedirect(self,ee_domain)
+                 Log.info(self,"Creating Cron Job for cert auto-renewal")
+                 EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30'.format(ee_domain),'Renew '
+                                                                     'letsencrypt SSL cert. Set by EasyEngine')
 
                  if not EEService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -1311,6 +1315,9 @@ class EESiteUpdateController(CementBaseController):
                                .format(ee_site_webroot))
 
                 httpsRedirect(self,ee_domain)
+                Log.info(self,"Creating Cron Job for cert auto-renewal")
+                EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30'.format(ee_domain),'Renew'
+                                                                ' letsencrypt SSL cert. Set by EasyEngine')
 
                 if not EEService.reload_service(self, 'nginx'):
                         Log.error(self, "service nginx reload failed. "
