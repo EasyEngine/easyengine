@@ -1228,7 +1228,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl spdy;\n"
+            sslconf.write("listen 80;\nlisten 443 ssl spdy;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
@@ -1277,7 +1277,7 @@ def renewLetsEncrypt(self, ee_domain_name):
                     Log.error(self, "Your current cert already EXPIRED !",False)
 
         EESendMail("easyengine", ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n  SSL Cert renewal for http://{0} was unsuccesful.".format(ee_domain_name) +
+                       "Hey Hi,\n  SSL Cert renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
                        "\nPlease check log for reason. Your SSL Expiry date : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
                        "\n\n\nYour's faithfully,\nEasyEngine",
