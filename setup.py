@@ -5,6 +5,7 @@ import os
 import glob
 import configparser
 import re
+import shutil
 
 conf = []
 templates = []
@@ -53,6 +54,9 @@ except Exception as e:
     os.system("git config --global user.name {0}".format(ee_user))
     os.system("git config --global user.email {0}".format(ee_email))
 
+if not os.path.isfile('/root/.gitconfig'):
+      shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
+
 setup(name='ee',
       version='3.3.15',
       description=long_description,
@@ -83,6 +87,7 @@ setup(name='ee',
           'psutil == 3.1.1',
           'sh',
           'sqlalchemy',
+          'python-crontab'
           ],
       data_files=[('/etc/ee', ['config/ee.conf']),
                   ('/etc/ee/plugins.d', conf),
