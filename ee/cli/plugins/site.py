@@ -1089,7 +1089,7 @@ class EESiteUpdateController(CementBaseController):
 
             Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                            " https://{0}".format(ee_domain))
-            if (SSL.getExpirationDays(ee_domain)>0):
+            if (SSL.getExpirationDays(self,ee_domain)>0):
                     Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
                     Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
 
