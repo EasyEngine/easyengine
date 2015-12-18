@@ -8,6 +8,7 @@ from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
 from ee.core.git import EEGit
 from ee.core.logging import Log
+from ee.core.sendmail import EESendMail
 from ee.core.services import EEService
 import subprocess
 from subprocess import CalledProcessError
@@ -1275,11 +1276,23 @@ def renewLetsEncrypt(self, ee_domain_name):
         else:
                     Log.error(self, "Your current cert already EXPIRED !",False)
 
+        EESendMail("easyengine", ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
+                       "Hey Hi,\n  SSL Cert renewal for http://{0} was unsuccesful.".format(ee_domain_name) +
+                       "\nPlease check log for reason. Your SSL Expiry date : " +
+                            str(SSL.getExpirationDate(self,ee_domain_name)) +
+                       "\n\n\nYour's faithfully,\nEasyEngine",
+                        port=25, isTls=False)
         Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
 
     EEGit.add(self, ["/etc/letsencrypt"],
               msg="Adding letsencrypt folder")
+    EESendMail("easyengine", ee_wp_email, "[SUCCESS] SSL cert renewal {0}".format(ee_domain_name),
+                       "Hey Hi,\n  Your SSL Cert has been renewed for https://{0} .".format(ee_domain_name) +
+                       "\nYour SSL will Expire on : " +
+                            str(SSL.getExpirationDate(self,ee_domain_name)) +
+                       "\n\n\nYour's faithfully,\nEasyEngine",
+                        port=25, isTls=False)
 
 #redirect= False to disable https redirection
 def httpsRedirect(self,ee_domain_name,redirect=True):
