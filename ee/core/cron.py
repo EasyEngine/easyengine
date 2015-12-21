@@ -21,3 +21,14 @@ class EECron():
             Log.debug(self, "Cron already exist")
 
 
+    def remove_cron(self,cmd):
+        if EEShellExec.cmd_exec(self, "crontab -l | grep -q \'{0}\'".format(cmd)):
+    #root@e:~# crontab -l | sed '/ee site update example.com --le/d' | crontab -
+            if not EEShellExec.cmd_exec(self, "/bin/bash -c "
+                                                    "\"crontab "
+                                                    "-l | sed '/{0}/d'"
+                                                    "| crontab -\""
+                                                    .format(cmd)):
+                            Log.error(self, "Failed to remove crontab entry",False)
+        else:
+            Log.debug(self, "Cron not found")

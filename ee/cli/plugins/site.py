@@ -750,7 +750,7 @@ class EESiteCreateController(CementBaseController):
                  setupLetsEncrypt(self, ee_domain)
                  httpsRedirect(self,ee_domain)
                  Log.info(self,"Creating Cron Job for cert auto-renewal")
-                 EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30'.format(ee_domain),'Renew '
+                 EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew '
                                                                      'letsencrypt SSL cert. Set by EasyEngine')
 
                  if not EEService.reload_service(self, 'nginx'):
@@ -1316,7 +1316,7 @@ class EESiteUpdateController(CementBaseController):
 
                 httpsRedirect(self,ee_domain)
                 Log.info(self,"Creating Cron Job for cert auto-renewal")
-                EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30'.format(ee_domain),'Renew'
+                EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew'
                                                                 ' letsencrypt SSL cert. Set by EasyEngine')
 
                 if not EEService.reload_service(self, 'nginx'):
@@ -1343,6 +1343,8 @@ class EESiteUpdateController(CementBaseController):
                         if not EEService.reload_service(self, 'nginx'):
                             Log.error(self, "service nginx reload failed. "
                                  "check issues with `nginx -t` command")
+                        Log.info(self,"Removing Cron Job set for cert auto-renewal")
+                        EECron.remove_cron(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain))
                         Log.info(self, "Successfully Disabled SSl for Site "
                          " http://{0}".format(ee_domain))
 
