@@ -87,7 +87,7 @@ setup(name='ee',
           'psutil == 3.1.1',
           'sh',
           'sqlalchemy',
-          'python-crontab'
+          'python-crontab == 1.9'
           ],
       data_files=[('/etc/ee', ['config/ee.conf']),
                   ('/etc/ee/plugins.d', conf),
