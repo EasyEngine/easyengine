@@ -1269,6 +1269,7 @@ def renewLetsEncrypt(self, ee_domain_name):
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
+    mail_list = ''
     if not ssl:
         Log.error(self,"ERROR : Cannot RENEW SSL cert !",False)
         if (SSL.getExpirationDays(self,ee_domain_name)>0):
@@ -1280,7 +1281,7 @@ def renewLetsEncrypt(self, ee_domain_name):
                        "Hey Hi,\n  SSL Cert renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
                        "\nPlease check log for reason. Your SSL Expiry date : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\n\n\nYour's faithfully,\nEasyEngine",
+                       "\n\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
         Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -1291,7 +1292,7 @@ def renewLetsEncrypt(self, ee_domain_name):
                        "Hey Hi,\n  Your SSL Cert has been renewed for https://{0} .".format(ee_domain_name) +
                        "\nYour SSL will Expire on : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\n\n\nYour's faithfully,\nEasyEngine",
+                       "\n\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
 
 #redirect= False to disable https redirection
