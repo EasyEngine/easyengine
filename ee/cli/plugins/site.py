@@ -1127,6 +1127,7 @@ class EESiteUpdateController(CementBaseController):
 
             else:
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+            return 0
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
