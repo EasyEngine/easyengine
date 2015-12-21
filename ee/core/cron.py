@@ -1,4 +1,3 @@
-from crontab import *
 from ee.core.shellexec import EEShellExec
 from ee.core.logging import Log
 
@@ -14,10 +13,10 @@ class EECron():
             EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
                                              "2> /dev/null | {{ cat; echo -e"
                                              " \\\""
-                                             "\\n*/0 12 * * * "
+                                             "\\n0 12 * * * "
                                              "{0}".format(cmd) +
                                              " # {0}".format(comment)+
-                                             "\\\"; }} | crontab -\"")
+                                             "\\\"; } | crontab -\"")
             Log.debug(self, "Cron set")
 
 
