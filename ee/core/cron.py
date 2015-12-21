@@ -29,6 +29,6 @@ class EECron():
                                                     "-l | sed '/{0}/d'"
                                                     "| crontab -\""
                                                     .format(cmd)):
-                            Log.error(self, "Failed to remove crontab entry",False)
+                Log.error(self, "Failed to remove crontab entry",False)
         else:
             Log.debug(self, "Cron not found")
