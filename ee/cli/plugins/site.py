@@ -1103,8 +1103,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
 
         if pargs.min_expiry_limit:
-            if not isinstance(pargs.min_expiry_limit,int) or not pargs.min_expiry_limit>0 \
-                    or not pargs.min_expiry_limit< 90:
+            if not pargs.min_expiry_limit>0 or not pargs.min_expiry_limit< 90:
                 Log.error(self,'INVALID --min_expiry_limit argument provided. Please use range 1-89 .')
 
             if not pargs.letsencrypt == "renew":
@@ -1139,10 +1138,10 @@ class EESiteUpdateController(CementBaseController):
 
             if letsencrypt is check_ssl:
                 if letsencrypt is False:
-                    Log.info(self, "SSl is not configured for given "
+                    Log.error(self, "SSl is not configured for given "
                              "site")
                 elif letsencrypt is True:
-                    Log.info(self, "SSl is already configured for given "
+                    Log.error(self, "SSl is already configured for given "
                              "site")
                 pargs.letsencrypt = False
 
