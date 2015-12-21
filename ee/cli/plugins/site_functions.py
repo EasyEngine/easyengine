@@ -1278,10 +1278,10 @@ def renewLetsEncrypt(self, ee_domain_name):
                     Log.error(self, "Your current cert already EXPIRED !",False)
 
         EESendMail("easyengine", ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n  SSL Cert renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
+                       "Hey Hi,\n\nSSL Cert renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
                        "\nPlease check log for reason. Your SSL Expiry date : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\n\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                       "\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
         Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -1289,10 +1289,10 @@ def renewLetsEncrypt(self, ee_domain_name):
     EEGit.add(self, ["/etc/letsencrypt"],
               msg="Adding letsencrypt folder")
     EESendMail("easyengine", ee_wp_email, "[SUCCESS] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n  Your SSL Cert has been renewed for https://{0} .".format(ee_domain_name) +
+                       "Hey Hi,\n\nYour SSL Cert has been renewed for https://{0} .".format(ee_domain_name) +
                        "\nYour SSL will Expire on : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\n\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                       "\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
 
 #redirect= False to disable https redirection
