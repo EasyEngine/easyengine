@@ -83,7 +83,7 @@ class EEVariables():
     else:
         ee_mysql_host = "localhost"
 
-    # EasyEngine stack installation varibales
+    # EasyEngine stack installation variables
     # Nginx repo and packages
     if ee_platform_codename == 'precise':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
