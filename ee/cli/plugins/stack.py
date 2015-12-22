@@ -339,7 +339,7 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     # Nginx-Plus does not have nginx package structure like this
-                    # So craeting directories
+                    # So creating directories
                     if set(["nginx-plus"]).issubset(set(apt_packages)):
                         Log.info(self,
                                  "Installing EasyEngine Configurations for" "NGINX PLUS")
