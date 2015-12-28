@@ -56,6 +56,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
+            (['-nm','--nginxmainline'],
+                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
             (['--mysql'],
@@ -168,6 +170,12 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
+        if set(["nginx-mainline"]).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for NGINX MAINLINE, please wait...")
+            EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+            Log.debug(self, 'Adding ppa of Nginx-mainline')
+            EERepo.add_key(self, EEVariables.ee_nginx_key)
+
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP, please wait...")
             # Add repository for php
@@ -223,7 +231,8 @@ class EEStackController(CementBaseController):
                           msg="Adding Postfix into Git")
                 EEService.reload_service(self, 'postfix')
 
-            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+            if set(EEVariables.ee_nginx).issubset(set(apt_packages)) or set(EEVariables.ee_nginx_dev)\
+                                                                                .issubset(set(apt_packages)) :
                 if set(["nginx-plus"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -273,7 +282,8 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    data = dict(webroot=EEVariables.ee_webroot)
+                    http2 = ("http2" if set('nginx-mainline').issubset(set(apt_packages)) else "spdy")
+                    data = dict(webroot=EEVariables.ee_webroot,http2=http2)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf',
@@ -1576,7 +1586,7 @@ class EEStackController(CementBaseController):
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-               and (not self.app.pargs.redis) and
+               and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline) and
                (not self.app.pargs.phpredisadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
@@ -1660,6 +1670,25 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "Nginx already installed")
                     Log.info(self, "Nginx already installed")
+
+            if self.app.pargs.nginxmainline:
+                if EEVariables.ee_nginx_dev_repo == None:
+                    Log.error(self, "NGINX Mainline Version is not supported in wheezy")
+
+                Log.debug(self, "Setting apt_packages variable for Nginx")
+
+                if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
+                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+                        apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                    else:
+                        Log.info(self, "NGINX PLUS Detected ...")
+                        apt = ["nginx-plus"] + EEVariables.ee_nginx
+                        #apt_packages = apt_packages + EEVariables.ee_nginx
+                        self.post_pref(apt, packages)
+                else:
+                    Log.debug(self, "Nginx already installed")
+                    Log.info(self, "Nginx already installed")
+
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not EEAptGet.is_installed(self, 'php5-fpm'):

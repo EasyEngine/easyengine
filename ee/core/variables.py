@@ -102,10 +102,12 @@ class EEVariables():
     elif ee_platform_codename == 'jessie':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_8.0/ /")
-        ee_nginx_dev_repo = None
+        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
+                             "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
 
 
     ee_nginx = ["nginx-custom", "nginx-common"]
+    ee_nginx_dev = ["nginx-mainline", "nginx-common"]
     ee_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
