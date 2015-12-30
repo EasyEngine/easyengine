@@ -678,7 +678,7 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
-        if not EEAptGet.is_installed(self, 'nginx-custom'):
+        if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
             # check if Server has nginx-plus installed
             if EEAptGet.is_installed(self, 'nginx-plus'):
                 # do something
