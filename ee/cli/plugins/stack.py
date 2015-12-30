@@ -2063,7 +2063,7 @@ class EEStackController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
-        if self.app.pargs.nginx:
+        if self.app.pargs.nginxmainline:
             Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
             apt_packages = apt_packages + EEVariables.ee_nginx_dev
         if self.app.pargs.php:
