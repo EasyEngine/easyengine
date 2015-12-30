@@ -2003,6 +2003,11 @@ class EEStackController(CementBaseController):
                     EEAptGet.remove(self, apt_packages)
                     EEAptGet.auto_remove(self)
 
+                if set(["nginx-mainline"]).issubset(set(apt_packages)):
+                    Log.info(self, "Removing repository for NGINX MAINLINE,")
+                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+
+
                 Log.info(self, "Successfully removed packages")
 
     @expose(help="Purge packages")
@@ -2133,6 +2138,11 @@ class EEStackController(CementBaseController):
                 if len(packages):
                     EEFileUtils.remove(self, packages)
                     EEAptGet.auto_remove(self)
+
+                if set(["nginx-mainline"]).issubset(set(apt_packages)):
+                    Log.info(self, "Removing repository for NGINX MAINLINE,")
+                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+                
 
                 Log.info(self, "Successfully purged packages")
 
