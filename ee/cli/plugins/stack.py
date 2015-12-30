@@ -282,7 +282,7 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    http2 = ("http2" if set('nginx-mainline').issubset(set(apt_packages)) else "spdy")
+                    http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
                     data = dict(webroot=EEVariables.ee_webroot,http2=http2)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
