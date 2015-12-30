@@ -1885,7 +1885,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin)):
+           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1928,6 +1928,11 @@ class EEStackController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
+
+        if self.app.pargs.nginxmainline:
+            Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
+            apt_packages = apt_packages + EEVariables.ee_nginx_dev
+
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
@@ -2015,7 +2020,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin)):
+           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -2058,6 +2063,9 @@ class EEStackController(CementBaseController):
         if self.app.pargs.nginx:
             Log.debug(self, "Purge apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
+        if self.app.pargs.nginx:
+            Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
+            apt_packages = apt_packages + EEVariables.ee_nginx_dev
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
