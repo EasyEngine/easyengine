@@ -4,7 +4,7 @@ v3.4.0 - Dec 31, 2015
    - ee site update example.com --letsencrypt=on/off/renew
    - Automatic renew of certs through cron
    - Mail notification added on certs renew
-   - Alias command: -le
+   - Alias command: --le
 - Added HTTP/2 support
    - ee stack install/remove/purge --nginxmainline
    - Alias command: -nm
