@@ -1217,7 +1217,7 @@ def setupLetsEncrypt(self, ee_domain_name):
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if ssl:
-        Log.info(self, "Let's Encrypt succesfully setup for your site")
+        Log.info(self, "Let's Encrypt successfully setup for your site")
         Log.info(self, "Your certificate and chain have been saved at "
                             "/etc/letsencrypt/live/{0}/fullchain.pem".format(ee_domain_name))
         Log.info(self, "Configuring Nginx SSL configuration")
@@ -1279,10 +1279,10 @@ def renewLetsEncrypt(self, ee_domain_name):
                     Log.error(self, "Your current cert already EXPIRED !",False)
 
         EESendMail("easyengine@{0}".format(ee_domain_name), ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n\nSSL Certificate renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
+                       "Hey Hi,\n\nSSL Certificate renewal for https://{0} was unsuccessful.".format(ee_domain_name) +
                        "\nPlease check easyengine log for reason. Your SSL Expiry date : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\nFor support visit https://easyengine.io/support/ .\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                       "\n\nFor support visit https://easyengine.io/support/ .\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
         Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
