@@ -1279,10 +1279,10 @@ def renewLetsEncrypt(self, ee_domain_name):
                     Log.error(self, "Your current cert already EXPIRED !",False)
 
         EESendMail("easyengine@{0}".format(ee_domain_name), ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n\nSSL Cert renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
-                       "\nPlease check log for reason. Your SSL Expiry date : " +
+                       "Hey Hi,\n\nSSL Certificate renewal for https://{0} was unsuccesful.".format(ee_domain_name) +
+                       "\nPlease check easyengine log for reason. Your SSL Expiry date : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
-                       "\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                       "\nFor support visit https://easyengine.io/support/ .\n\nYour's faithfully,\nEasyEngine",files=mail_list,
                         port=25, isTls=False)
         Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
@@ -1290,7 +1290,7 @@ def renewLetsEncrypt(self, ee_domain_name):
     EEGit.add(self, ["/etc/letsencrypt"],
               msg="Adding letsencrypt folder")
     EESendMail("easyengine@{0}".format(ee_domain_name), ee_wp_email, "[SUCCESS] SSL cert renewal {0}".format(ee_domain_name),
-                       "Hey Hi,\n\nYour SSL Cert has been renewed for https://{0} .".format(ee_domain_name) +
+                       "Hey Hi,\n\nYour SSL Certificate has been renewed for https://{0} .".format(ee_domain_name) +
                        "\nYour SSL will Expire on : " +
                             str(SSL.getExpirationDate(self,ee_domain_name)) +
                        "\n\nYour's faithfully,\nEasyEngine",files=mail_list,
