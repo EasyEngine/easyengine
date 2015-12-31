@@ -8,6 +8,8 @@ v3.4.0 - Dec 31, 2015
 - Added HTTP/2 support
    - ee stack install/remove/purge --nginxmainline
    - Alias command: -nm
+- Check SSL cert status/expiry date in site info
+   - ee site info example.com
 - Update autocompletion and man page
 
 v3.3.15 - Dec 9, 2015
