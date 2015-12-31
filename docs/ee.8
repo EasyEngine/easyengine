@@ -5,15 +5,15 @@
 .SH SYNOPSIS
 ee [ --version | --help | info | stack | site | debug | update | clean | import_slow_log | log | secure | sync]
 .TP
-ee stack [ install | remove | purge | migrate | upgrade] [ --web | --mail | --all | --nginx | --php | --mysql | --admin | --postfix | --mailscanner | --adminer | --redis | --hhvm | --phpmyadmin | --phpredisadmin | --wpcli | --utils ]
+ee stack [ install | remove | purge | migrate | upgrade] [ --web | --mail | --all | --nginx | --nginxmainline | --php | --mysql | --admin | --postfix | --mailscanner | --adminer | --redis | --hhvm | --phpmyadmin | --phpredisadmin | --wpcli | --utils ]
 .TP
 ee stack [ status | start | stop | reload | restart ] [--all | --nginx | --php | --mysql | --devcot | --web | --postfix | --memcache | --redis]
 .TP
 ee site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ]]
+ee site create example.com [ --html | --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed | --letsencrypt/-le]]
 .TP
-ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password]]
+ee site update example.com [ --php | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password] [--letsencrypt=on/off/renew]]
 .TP
 ee site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP
