@@ -1332,9 +1332,9 @@ class EESiteUpdateController(CementBaseController):
                     Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
 
             elif data['letsencrypt'] is False:
-                Log.info(self,'Setting Nginx configuration')
                 if os.path.isfile("{0}/conf/nginx/ssl.conf"
                           .format(ee_site_webroot)):
+                        Log.info(self,'Setting Nginx configuration')
                         EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
                                   .format(ee_site_webroot),
                                   '{0}/conf/nginx/ssl.conf.disabled'
