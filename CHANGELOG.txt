@@ -1,3 +1,15 @@
+v3.4.0 - Dec 31, 2015
+- Added Let's Encrypt support
+    - ee site create example.com [--wp/..] --letsencrypt
+    - ee site update example.com --letsencrypt=on/off/renew
+    - Automatic renew of certs through cron
+    - Mail notification added on certs renew
+    - Alias command: -le
+- Added HTTP/2 support
+    - ee stack install/remove/purge --nginxmainline
+    - Alias command: -nm
+- Update autocompletion and man page
+
 v3.3.15 - Dec 9, 2015
 - Upgrade wp-cli version to 0.21.1
 
