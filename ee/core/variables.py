@@ -18,7 +18,7 @@ class EEVariables():
     # EasyEngine packages versions
     ee_wp_cli = "0.21.1"
     ee_adminer = "4.2.1"
-    ee_roundcube = "1.1.3"
+    ee_roundcube = "1.1.4"
     ee_vimbadmin = "3.0.12"
 
     # Get WPCLI path
