@@ -2,7 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
-from ee.cli.plugins.site_functions import SiteError
+from ee.cli.plugins.site_functions import *
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
@@ -1927,10 +1927,12 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
+            EEService.stop_service(self, 'nginx')
             Log.debug(self, "Removing apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
 
         if self.app.pargs.nginxmainline:
+            EEService.stop_service(self, 'nginx')
             Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
             apt_packages = apt_packages + EEVariables.ee_nginx_dev
 
@@ -2067,9 +2069,11 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
+            EEService.stop_service(self, 'nginx')
             Log.debug(self, "Purge apt_packages variable of Nginx")
             apt_packages = apt_packages + EEVariables.ee_nginx
         if self.app.pargs.nginxmainline:
+            EEService.stop_service(self, 'nginx')
             Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
             apt_packages = apt_packages + EEVariables.ee_nginx_dev
         if self.app.pargs.php:
