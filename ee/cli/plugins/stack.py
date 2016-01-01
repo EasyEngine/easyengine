@@ -500,6 +500,8 @@ class EEStackController(CementBaseController):
                     else:
                         self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
+                else:
+                    EEService.restart_service(self, 'nginx')
 
                 if EEAptGet.is_installed(self,'redis-server'):
                     if os.path.isfile("/etc/nginx/nginx.conf") and (not
