@@ -243,6 +243,12 @@ class EEStackController(CementBaseController):
                             ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
+                if os.path.isfile('/etc/nginx/sites-available/22222'):
+                    http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
+                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
+                            Log.debug(self, 'Setting http2/spdy in 22222')
+                            EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
+
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
                     # Change EasyEngine Version in nginx.conf file
                     EEFileUtils.searchreplace(self, "/etc/nginx/nginx.conf",
