@@ -1927,15 +1927,17 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
-            EEService.stop_service(self, 'nginx')
-            Log.debug(self, "Removing apt_packages variable of Nginx")
-            apt_packages = apt_packages + EEVariables.ee_nginx
-
+            if EEAptGet.is_installed(self, 'nginx-custom'):
+                Log.debug(self, "Removing apt_packages variable of Nginx")
+                apt_packages = apt_packages + EEVariables.ee_nginx
+            else:
+                Log.error(self,"Cannot Remove! Nginx Stable version not found.")
         if self.app.pargs.nginxmainline:
-            EEService.stop_service(self, 'nginx')
-            Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
-            apt_packages = apt_packages + EEVariables.ee_nginx_dev
-
+            if EEAptGet.is_installed(self, 'nginx-mainline'):
+                Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
+                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+            else:
+                Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
@@ -1996,6 +1998,11 @@ class EEStackController(CementBaseController):
                               ' operation :  ')
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
+
+                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
+                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                    EEService.stop_service(self, 'nginx')
+
                 if len(packages):
                     EEFileUtils.remove(self, packages)
                     EEAptGet.auto_remove(self)
@@ -2069,13 +2076,17 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
-            EEService.stop_service(self, 'nginx')
-            Log.debug(self, "Purge apt_packages variable of Nginx")
-            apt_packages = apt_packages + EEVariables.ee_nginx
+            if EEAptGet.is_installed(self, 'nginx-custom'):
+                Log.debug(self, "Purge apt_packages variable of Nginx")
+                apt_packages = apt_packages + EEVariables.ee_nginx
+            else:
+                Log.error(self,"Cannot Purge! Nginx Stable version not found.")
         if self.app.pargs.nginxmainline:
-            EEService.stop_service(self, 'nginx')
-            Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
-            apt_packages = apt_packages + EEVariables.ee_nginx_dev
+            if EEAptGet.is_installed(self, 'nginx-mainline'):
+                Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
+                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+            else:
+                Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
@@ -2135,6 +2146,11 @@ class EEStackController(CementBaseController):
                               'operation :')
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
+
+                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
+                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                    EEService.stop_service(self, 'nginx')
+
                 if len(apt_packages):
                     Log.info(self, "Purging packages, please wait...")
                     EEAptGet.remove(self, apt_packages, purge=True)
