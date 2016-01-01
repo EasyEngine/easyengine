@@ -2,6 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.cli.plugins.site_functions import SiteError
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
@@ -2142,7 +2143,7 @@ class EEStackController(CementBaseController):
                 if set(["nginx-mainline"]).issubset(set(apt_packages)):
                     Log.info(self, "Removing repository for NGINX MAINLINE,")
                     EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
-                
+
 
                 Log.info(self, "Successfully purged packages")
 
