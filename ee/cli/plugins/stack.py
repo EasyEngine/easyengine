@@ -31,6 +31,7 @@ from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
 from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
 from ee.core.logging import Log
+from ee.cli.plugins.sitedb import *
 
 
 def ee_stack_hook(app):
