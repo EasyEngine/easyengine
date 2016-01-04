@@ -58,7 +58,7 @@ class EEStackController(CementBaseController):
                 dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
-            (['-nm','--nginxmainline'],
+            (['--nginxmainline'],
                 dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
