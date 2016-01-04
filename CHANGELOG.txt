@@ -1,4 +1,4 @@
-v3.4.0 - Dec 31, 2015
+v3.4.0beta - Jan 4, 2015
 - Added Let's Encrypt support
    - ee site create example.com [--wp/..] --letsencrypt
    - ee site update example.com --letsencrypt=on/off/renew
