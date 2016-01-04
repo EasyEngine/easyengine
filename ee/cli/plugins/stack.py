@@ -260,7 +260,7 @@ class EEStackController(CementBaseController):
                             if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
                                 http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
                                 if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
-                                    Log.debug(self, 'Setting http2/spdy in ssl.conf')
+                                    Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
                                     EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
 
 
