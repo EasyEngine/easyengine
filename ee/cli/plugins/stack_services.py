@@ -33,7 +33,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -104,7 +104,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -175,7 +175,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -247,7 +247,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
@@ -318,7 +318,7 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
