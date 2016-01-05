@@ -1668,7 +1668,7 @@ class EEStackController(CementBaseController):
                     Log.info(self, "Mail server is already installed")
 
             if self.app.pargs.pagespeed:
-                if not EEAptGet.is_installed(self, 'nginx-custom'):
+                if not (EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-mainline')):
                     self.app.pargs.nginx = True
                 else:
                     Log.info(self, "Nginx already installed")

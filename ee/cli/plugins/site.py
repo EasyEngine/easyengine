@@ -1266,7 +1266,7 @@ class EESiteUpdateController(CementBaseController):
         data['ee_db_host'] = check_site.db_host
         data['old_pagespeed_status'] = check_site.is_pagespeed
 
-        if not (pargs.letsencrypt or pargs.letsencrypt == "off"):
+        if not pargs.letsencrypt:
             try:
                 pre_run_checks(self)
             except SiteError as e:
