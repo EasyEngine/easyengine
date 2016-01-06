@@ -1217,6 +1217,10 @@ class EESiteUpdateController(CementBaseController):
             if pargs.letsencrypt == "on":
 
                 if (not pargs.experimental):
+
+                    if stype in ['wpsubdomain']:
+	                    Log.warn(self, "Wildcard domains are not supported.\nWP SUBDOMAIN sites may not be compatible with Lets Encrypt.")
+
                     Log.info(self, "Letsencrypt is currently in beta phase."
                              " \nDo you wish"
                              " to enable SSl now for {0}?".format(ee_domain))
