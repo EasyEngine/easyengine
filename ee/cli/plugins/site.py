@@ -893,7 +893,7 @@ class EESiteUpdateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy:
+        elif stype is None and not (pargs.proxy or pargs.letsencrypt):
             stype, cache = 'html', 'basic'
         elif stype and pargs.proxy:
             Log.error(self, "--proxy can not be used with other site types")
