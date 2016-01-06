@@ -5,6 +5,7 @@ import os
 import glob
 import configparser
 import re
+import shutil
 
 conf = []
 templates = []
@@ -53,8 +54,11 @@ except Exception as e:
     os.system("git config --global user.name {0}".format(ee_user))
     os.system("git config --global user.email {0}".format(ee_email))
 
+if not os.path.isfile('/root/.gitconfig'):
+      shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
+
 setup(name='ee',
-      version='3.3.15',
+      version='3.4.0',
       description=long_description,
       long_description=long_description,
       classifiers=[],

@@ -63,7 +63,7 @@ def updateSiteInfo(self, site, stype='', cache='', webroot='',
     if q.is_enabled != enabled:
         q.is_enabled = enabled
 
-    if ssl and q.is_ssl != ssl:
+    if q.is_ssl != ssl:
         q.is_ssl = ssl
 
     if db_name and q.db_name != db_name:
