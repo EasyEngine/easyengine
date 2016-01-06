@@ -1,5 +1,5 @@
 notifications:
-  slack: rtcamp:MGteQ7CA6kFIsNbMIarkeWxa
+  slack: easyengine:76AI30tP8P8AcNTaWaQ9ZAT7
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/bd77a26eab56de803949

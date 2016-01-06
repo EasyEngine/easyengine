@@ -1,6 +1,8 @@
 # """EasyEngine site controller."""
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.cron import EECron
+from ee.core.sslutils import SSL
 from ee.core.variables import EEVariables
 from ee.core.domainvalidate import ValidateDomain
 from ee.core.fileutils import EEFileUtils
@@ -155,11 +157,18 @@ class EESiteController(CementBaseController):
                 ee_site_webroot = ''
 
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
-
+            ssl = ("enabled" if siteinfo.is_ssl else "disabled")
+            if (ssl == "enabled"):
+                sslprovider = "Lets Encrypt"
+                sslexpiry = str(SSL.getExpirationDate(self,ee_domain))
+            else:
+                sslprovider = ''
+                sslexpiry = ''
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
                         dbname=ee_db_name, dbuser=ee_db_user,
                         dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
+                        ssl=ssl, sslprovider=sslprovider,  sslexpiry= sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
                         .format("enabled" if siteinfo.is_enabled else
                                 "disabled"))
@@ -354,6 +363,8 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create HHVM site", action='store_true')),
             (['--pagespeed'],
                 dict(help="create pagespeed site", action='store_true')),
+            (['-le','--letsencrypt'],
+                dict(help="configure letsencrypt ssl for the site", action='store_true')),
             (['--user'],
                 dict(help="provide user for wordpress site")),
             (['--email'],
@@ -717,6 +728,58 @@ class EESiteCreateController(CementBaseController):
             Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
 
+        if self.app.pargs.letsencrypt :
+            if (not self.app.pargs.experimental):
+                if stype in ['wpsubdomain']:
+	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
+
+                Log.info(self, "Letsencrypt is currently in beta phase."
+                             " \nDo you wish"
+                             " to enable SSl now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    data['letsencrypt'] = False
+                    letsencrypt = False
+                else:
+                    data['letsencrypt'] = True
+                    letsencrypt = True
+            else:
+                 data['letsencrypt'] = True
+                 letsencrypt = True
+
+            if data['letsencrypt'] is True:
+                 setupLetsEncrypt(self, ee_domain)
+                 httpsRedirect(self,ee_domain)
+                 Log.info(self,"Creating Cron Job for cert auto-renewal")
+                 EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew '
+                                                                     'letsencrypt SSL cert. Set by EasyEngine')
+
+                 if not EEService.reload_service(self, 'nginx'):
+                    Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+
+                 Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(ee_domain))
+
+                 if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                 else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+                 # Add nginx conf folder into GIT
+                 EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                          msg="Adding letsencrypts config of site: {0}"
+                        .format(ee_domain))
+                 updateSiteInfo(self, ee_domain, ssl=letsencrypt)
+
+            elif data['letsencrypt'] is False:
+                Log.info(self, "Not using Let\'s encrypt for Site "
+                         " http://{0}".format(ee_domain))
+
+
+
 
 class EESiteUpdateController(CementBaseController):
     class Meta:
@@ -761,6 +824,12 @@ class EESiteUpdateController(CementBaseController):
                 dict(help='Use PageSpeed for site',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
+            (['-le','--letsencrypt'],
+                dict(help="configure letsencrypt ssl for the site",
+                     action='store' or 'store_const',
+                     choices=('on', 'off', 'renew'), const='on', nargs='?')),
+            (['--min_expiry_limit'],
+                dict(help="pass minimum expiry days to renew let's encrypt cert")),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -784,7 +853,7 @@ class EESiteUpdateController(CementBaseController):
             if not (pargs.php or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
-                    pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis):
+                    pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis or pargs.letsencrypt):
                 Log.error(self, "Please provide options to update sites.")
 
         if pargs.all:
@@ -809,6 +878,7 @@ class EESiteUpdateController(CementBaseController):
     def doupdatesite(self, pargs):
         hhvm = None
         pagespeed = None
+        letsencrypt = False
 
         data = dict()
         try:
@@ -826,7 +896,7 @@ class EESiteUpdateController(CementBaseController):
             proxyinfo = proxyinfo.split(':')
             host = proxyinfo[0].strip()
             port = '80' if len(proxyinfo) < 2 else proxyinfo[1].strip()
-        elif stype is None and not pargs.proxy:
+        elif stype is None and not (pargs.proxy or pargs.letsencrypt):
             stype, cache = 'html', 'basic'
         elif stype and pargs.proxy:
             Log.error(self, "--proxy can not be used with other site types")
@@ -854,6 +924,7 @@ class EESiteUpdateController(CementBaseController):
             oldcachetype = check_site.cache_type
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
+            check_ssl = check_site.is_ssl
 
         if (pargs.password and not (pargs.html or
             pargs.php or pargs.mysql or pargs.wp or
@@ -1007,6 +1078,7 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
+
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
                 if pagespeed is False:
@@ -1016,6 +1088,66 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
+
+        #--letsencrypt=renew code goes here
+        if pargs.letsencrypt == "renew" and not pargs.min_expiry_limit:
+            if check_ssl:
+                renewLetsEncrypt(self,ee_domain)
+            else:
+                Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
+
+            Log.info(self, "SUCCESS: Certificate was successfully renewed For"
+                           " https://{0}".format(ee_domain))
+            if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                    Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
+
+            else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+        if pargs.min_expiry_limit:
+            if not int(pargs.min_expiry_limit)>0 or not int(pargs.min_expiry_limit)< 90:
+                Log.error(self,'INVALID --min_expiry_limit argument provided. Please use range 1-89 .')
+
+            if not pargs.letsencrypt == "renew":
+                Log.error(self,'--min_expiry_limit parameter cannot be used as a standalone. Provide --le=renew')
+
+            if not check_ssl:
+                Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
+
+            expiry_days = SSL.getExpirationDays(self,ee_domain)
+            min_expiry_days = int(pargs.min_expiry_limit)
+            if (expiry_days <= min_expiry_days):
+                renewLetsEncrypt(self,ee_domain)
+                Log.info(self, "SUCCESS: Certificate was successfully renewed For"
+                           " https://{0}".format(ee_domain))
+            else:
+                Log.info(self, "Not renewing SSL .")
+
+            if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                    Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
+
+            else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+            return 0
+
+        if pargs.letsencrypt:
+            if pargs.letsencrypt == 'on':
+                data['letsencrypt'] = True
+                letsencrypt = True
+            elif pargs.letsencrypt == 'off':
+                data['letsencrypt'] = False
+                letsencrypt = False
+
+            if letsencrypt is check_ssl:
+                if letsencrypt is False:
+                    Log.error(self, "SSl is not configured for given "
+                             "site")
+                elif letsencrypt is True:
+                    Log.error(self, "SSl is already configured for given "
+                             "site")
+                pargs.letsencrypt = False
 
         if pargs.hhvm:
             if hhvm is old_hhvm:
@@ -1044,7 +1176,7 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if pargs.pagespeed=="on" or pargs.hhvm=="on":
+        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on":
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
@@ -1085,7 +1217,33 @@ class EESiteUpdateController(CementBaseController):
                     data['pagespeed'] = True
                     pagespeed = True
 
-        if data['currcachetype'] != 'wpredis' and pargs.wpredis:
+            if pargs.letsencrypt == "on":
+
+                if (not pargs.experimental):
+
+                    if oldsitetype in ['wpsubdomain']:
+	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
+
+                    Log.info(self, "Letsencrypt is currently in beta phase."
+                             " \nDo you wish"
+                             " to enable SSl now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]:")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info(self, "Not using letsencrypt for site")
+                        data['letsencrypt'] = False
+                        letsencrypt = False
+                    else:
+                        data['letsencrypt'] = True
+                        letsencrypt = True
+                else:
+                    data['letsencrypt'] = True
+                    letsencrypt = True
+
+
+
+        if pargs.wpredis and data['currcachetype'] != 'wpredis':
             if (not pargs.experimental):
                 Log.info(self, "Redis is experimental feature and it may not"
                          " work with all plugins of your site.\nYou can "
@@ -1113,32 +1271,32 @@ class EESiteUpdateController(CementBaseController):
         data['ee_db_user'] = check_site.db_user
         data['ee_db_pass'] = check_site.db_password
         data['ee_db_host'] = check_site.db_host
-
-        try:
-            pre_run_checks(self)
-        except SiteError as e:
-            Log.debug(self, str(e))
-            Log.error(self, "NGINX configuration check failed.")
-
         data['old_pagespeed_status'] = check_site.is_pagespeed
 
-        try:
-            sitebackup(self, data)
-        except Exception as e:
-            Log.debug(self, str(e))
-            Log.info(self, Log.FAIL + "Check logs for reason "
-                     "`tail /var/log/ee/ee.log` & Try Again!!!")
-            return 1
+        if not pargs.letsencrypt:
+            try:
+                pre_run_checks(self)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.error(self, "NGINX configuration check failed.")
 
-        # setup NGINX configuration, and webroot
-        try:
-            setupdomain(self, data)
-        except SiteError as e:
-            Log.debug(self, str(e))
-            Log.info(self, Log.FAIL + "Update site failed."
+            try:
+                sitebackup(self, data)
+            except Exception as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Check logs for reason "
+                     "`tail /var/log/ee/ee.log` & Try Again!!!")
+                return 1
+
+            # setup NGINX configuration, and webroot
+            try:
+                setupdomain(self, data)
+            except SiteError as e:
+                Log.debug(self, str(e))
+                Log.info(self, Log.FAIL + "Update site failed."
                      "Check logs for reason"
                      "`tail /var/log/ee/ee.log` & Try Again!!!")
-            return 1
+                return 1
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
@@ -1150,6 +1308,60 @@ class EESiteUpdateController(CementBaseController):
         # Update pagespeed config
         if pargs.pagespeed:
             operateOnPagespeed(self, data)
+
+        if pargs.letsencrypt:
+            if data['letsencrypt'] is True:
+                if not os.path.isfile("{0}/conf/nginx/ssl.conf.disabled"
+                              .format(ee_site_webroot)):
+                    setupLetsEncrypt(self, ee_domain)
+
+                else:
+                    EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf.disabled"
+                               .format(ee_site_webroot),
+                               '{0}/conf/nginx/ssl.conf'
+                               .format(ee_site_webroot))
+
+                httpsRedirect(self,ee_domain)
+                Log.info(self,"Creating Cron Job for cert auto-renewal")
+                EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew'
+                                                                ' letsencrypt SSL cert. Set by EasyEngine')
+
+                if not EEService.reload_service(self, 'nginx'):
+                        Log.error(self, "service nginx reload failed. "
+                          "check issues with `nginx -t` command")
+
+                Log.info(self, "Congratulations! Successfully Configured SSl for Site "
+                         " https://{0}".format(ee_domain))
+
+                if (SSL.getExpirationDays(self,ee_domain)>0):
+                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                else:
+                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+
+            elif data['letsencrypt'] is False:
+                if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                          .format(ee_site_webroot)):
+                        Log.info(self,'Setting Nginx configuration')
+                        EEFileUtils.mvfile(self, "{0}/conf/nginx/ssl.conf"
+                                  .format(ee_site_webroot),
+                                  '{0}/conf/nginx/ssl.conf.disabled'
+                                  .format(ee_site_webroot))
+                        httpsRedirect(self,ee_domain,False)
+                        if not EEService.reload_service(self, 'nginx'):
+                            Log.error(self, "service nginx reload failed. "
+                                 "check issues with `nginx -t` command")
+                        Log.info(self,"Removing Cron Job set for cert auto-renewal")
+                        EECron.remove_cron(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> \/dev\/null'.format(ee_domain))
+                        Log.info(self, "Successfully Disabled SSl for Site "
+                         " http://{0}".format(ee_domain))
+
+
+            # Add nginx conf folder into GIT
+            EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+                          msg="Adding letsencrypts config of site: {0}"
+                        .format(ee_domain))
+            updateSiteInfo(self, ee_domain, ssl=letsencrypt)
+            return 0
 
         if stype == oldsitetype and cache == oldcachetype:
 
