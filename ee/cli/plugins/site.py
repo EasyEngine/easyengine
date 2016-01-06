@@ -730,6 +730,9 @@ class EESiteCreateController(CementBaseController):
 
         if self.app.pargs.letsencrypt :
             if (not self.app.pargs.experimental):
+                if stype in ['wpsubdomain']:
+	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
+
                 Log.info(self, "Letsencrypt is currently in beta phase."
                              " \nDo you wish"
                              " to enable SSl now for {0}?".format(ee_domain))
@@ -1218,8 +1221,8 @@ class EESiteUpdateController(CementBaseController):
 
                 if (not pargs.experimental):
 
-                    if stype in ['wpsubdomain']:
-	                    Log.warn(self, "Wildcard domains are not supported.\nWP SUBDOMAIN sites may not be compatible with Lets Encrypt.")
+                    if oldsitetype in ['wpsubdomain']:
+	                    Log.warn(self, "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only.")
 
                     Log.info(self, "Letsencrypt is currently in beta phase."
                              " \nDo you wish"
