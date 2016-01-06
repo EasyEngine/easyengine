@@ -1,4 +1,4 @@
-v3.4.0beta - Jan 4, 2015
+v3.4.0 - Jan 6, 2015
 - Added Let's Encrypt support
    - ee site create example.com [--wp/..] --letsencrypt
    - ee site update example.com --letsencrypt=on/off/renew
@@ -7,7 +7,6 @@ v3.4.0beta - Jan 4, 2015
    - Alias command: --le
 - Added HTTP/2 support
    - ee stack install/remove/purge --nginxmainline
-   - Alias command: -nm
 - Check SSL cert status/expiry date in site info
    - ee site info example.com
 - Update autocompletion and man page
