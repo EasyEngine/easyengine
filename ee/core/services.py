@@ -18,7 +18,7 @@ class EEService():
             Similar to `service xyz start`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
+            if service_name in ['nginx', 'php7.0-fpm']:
                 service_cmd = ('{0} -t && service {0} start'
                                .format(service_name))
             else:
@@ -65,7 +65,7 @@ class EEService():
             Similar to `service xyz restart`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
+            if service_name in ['nginx', 'php7.0-fpm']:
                 service_cmd = ('{0} -t && service {0} restart'
                                .format(service_name))
             else:
@@ -91,7 +91,7 @@ class EEService():
             Similar to `service xyz stop`
         """
         try:
-            if service_name in ['nginx', 'php5-fpm']:
+            if service_name in ['nginx', 'php7.0-fpm']:
                 service_cmd = ('{0} -t && service {0} reload'
                                .format(service_name))
             else:

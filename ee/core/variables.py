@@ -12,13 +12,13 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.3.11"
+    ee_version = "3.4.0"
 
 
     # EasyEngine packages versions
-    ee_wp_cli = "0.20.2"
+    ee_wp_cli = "0.21.1"
     ee_adminer = "4.2.1"
-    ee_roundcube = "1.1.3"
+    ee_roundcube = "1.1.4"
     ee_vimbadmin = "3.0.12"
 
     # Get WPCLI path
@@ -83,40 +83,49 @@ class EEVariables():
     else:
         ee_mysql_host = "localhost"
 
-    # EasyEngine stack installation varibales
+    # EasyEngine stack installation variables
     # Nginx repo and packages
     if ee_platform_codename == 'precise':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/xUbuntu_12.04/ /")
+        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
+                             "/rtCamp:/EasyEngine-dev/xUbuntu_12.04/ /")
     elif ee_platform_codename == 'trusty':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
+        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
+                             "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
     elif ee_platform_codename == 'wheezy':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_7.0/ /")
+        ee_nginx_dev_repo = None
     elif ee_platform_codename == 'jessie':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_8.0/ /")
+        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
+                             "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
+
 
     ee_nginx = ["nginx-custom", "nginx-common"]
+    ee_nginx_dev = ["nginx-mainline", "nginx-common"]
     ee_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
     if ee_platform_distro == 'ubuntu':
-        ee_php_repo = "ppa:ondrej/php5-5.6"
+        ee_php_repo = "ppa:ondrej/php"
     elif ee_platform_codename == 'wheezy':
-        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
+        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php all"
                        .format(codename=ee_platform_codename))
-    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
-              "php5-mcrypt", "php5-common", "php5-readline",
-              "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+    ee_php = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
+              "php7.0-mcrypt", "php7.0-common", "php7.0-readline",
+              "php7.0-mysql", "php7.0-cli", "php-memcache", "php-imagick",
               "memcached", "graphviz", "php-pear"]
 
     if ee_platform_codename == 'wheezy':
-        ee_php = ee_php + ["php5-dev"]
+        ee_php = ee_php + ["php7.0-dev"]
 
     if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
-        ee_php = ee_php + ["php5-xdebug"]
+        ee_php = ee_php + ["php7.0-xdebug"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'ubuntu':
@@ -140,7 +149,7 @@ class EEVariables():
 
     ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-               "dovecot-managesieved", "postfix-mysql", "php5-cgi",
+               "dovecot-managesieved", "postfix-mysql", "php7.0-cgi",
                "php-gettext", "php-pear"]
 
     # Mailscanner repo and packages
@@ -171,7 +180,7 @@ class EEVariables():
         ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
                         .format(codename=ee_platform_codename))
 
-    ee_redis = ['redis-server', 'php5-redis']
+    ee_redis = ['redis-server', 'php-redis']
 
     # Repo path
     ee_repo_file = "ee-repo.list"

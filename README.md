@@ -1,5 +1,6 @@
-[![Travis Build Status](https://travis-ci.org/rtCamp/easyengine.svg "Travis Build Status")] (https://travis-ci.org/rtCamp/easyengine)
-[![Join the chat at https://gitter.im/rtCamp/easyengine](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rtCamp/easyengine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+#[EasyEngine](https://easyengine.io/)
+[![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg "Travis Build Status")] (https://travis-ci.org/EasyEngine/easyengine)
+[Join EasyEngine Slack Channel](https://easyengine.io/slack/)
 
 <img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1-240x184.png" alt="EasyEngine Logo" align="right" />
 
@@ -17,7 +18,7 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 |SSH    |22           | ✓       |✓          |
 |HTTP    |80           | ✓       |✓          |
 |HTTPS/SSL    |443           | ✓       |✓          |
-|EE Admin    |2222           | ✓       |          |
+|EE Admin    |22222           | ✓       |          |
 |GPG Key Server    |11371           |        |✓          |
 
 ## Quick Start
@@ -32,12 +33,12 @@ sudo ee site create example.com --wp     # Install required packages & setup Wor
 
 Update procedure for EasyEngine to latest version
 
-#### For current installed version prior to 3.0.6
+#### For current installed version prior to 4.0.0
 ```bash
 wget -qO ee rt.cx/ee && sudo bash ee
 
 ```
-#### If current version is after than 3.0.6
+#### If current version is after than 4.0.0
 ```
 ee update
 ```
@@ -113,12 +114,6 @@ ee site create example.com --php --pagespeed     # create example.com php site w
 ## Donations
 
 [![Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
-
-## Careers
-
-We are looking for [Python Developers] (https://rtcamp.com/careers/python-developer/) to join our team.
-
-We offer work from home, so you can join EasyEngine team anywhere! _[Why Python?] (https://rtcamp.com/blog/easyengine-3-roadmap/#whypython)_
 
 ---
 

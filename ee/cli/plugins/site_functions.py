@@ -2,11 +2,13 @@ from ee.cli.plugins.stack import EEStackController
 from ee.core.fileutils import EEFileUtils
 from ee.core.mysql import *
 from ee.core.shellexec import *
+from ee.core.sslutils import SSL
 from ee.core.variables import EEVariables
 from ee.cli.plugins.sitedb import *
 from ee.core.aptget import EEAptGet
 from ee.core.git import EEGit
 from ee.core.logging import Log
+from ee.core.sendmail import EESendMail
 from ee.core.services import EEService
 import subprocess
 from subprocess import CalledProcessError
@@ -605,7 +607,7 @@ def setwebrootpermissions(self, webroot):
                           EEVariables.ee_php_user, recursive=True)
     except Exception as e:
         Log.debug(self, str(e))
-        raise SiteError("problem occured while settingup webroot permissions")
+        raise SiteError("problem occured while setting up webroot permissions")
 
 
 def sitebackup(self, data):
@@ -618,9 +620,14 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        Log.info(self, "Backing up Webroot \t\t", end='')
-        EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
-        Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        if (data['pagespeed'] is True or data['old_pagespeed_status'] is True) and not data['wp']:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
+        else:
+            Log.info(self, "Backing up Webroot \t\t", end='')
+            EEFileUtils.mvfile(self, ee_site_webroot + '/htdocs', backup_path)
+            Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
     configfiles = glob.glob(ee_site_webroot + '/*-config.php')
     if not configfiles:
@@ -653,7 +660,10 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            EEFileUtils.mvfile(self, configfiles[0], backup_path)
+            if (data['pagespeed'] is True or data['old_pagespeed_status'] is True) and not data['wp']:
+                EEFileUtils.copyfile(self, configfiles[0], backup_path)
+            else:
+                EEFileUtils.mvfile(self, configfiles[0], backup_path)
         else:
             EEFileUtils.copyfile(self, configfiles[0], backup_path)
 
@@ -668,7 +678,7 @@ def site_package_check(self, stype):
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
-        if not EEAptGet.is_installed(self, 'nginx-custom'):
+        if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
             # check if Server has nginx-plus installed
             if EEAptGet.is_installed(self, 'nginx-plus'):
                 # do something
@@ -691,7 +701,7 @@ def site_package_check(self, stype):
 
     if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if not EEAptGet.is_installed(self, 'php5-fpm'):
+        if not EEAptGet.is_installed(self, 'php7.0-fpm'):
             apt_packages = apt_packages + EEVariables.ee_php
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
@@ -1173,3 +1183,156 @@ def operateOnPagespeed(self, data):
     EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
               msg="Adding Pagespeed config of site: {0}"
               .format(ee_domain_name))
+
+def cloneLetsEncrypt(self):
+    letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
+
+    try:
+        Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
+        EEFileUtils.chdir(self, '/opt/')
+        EEShellExec.cmd_exec(self, "git clone {0}".format(letsencrypt_repo))
+        Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
+                                            + Log.OKBLUE + "]"))
+        return True
+    except Exception as e:
+        Log.debug(self, "[{err}]".format(err=str(e.reason)))
+        Log.error(self, "Unable to download file, LetsEncrypt")
+        return False
+
+def setupLetsEncrypt(self, ee_domain_name):
+    ee_wp_email = EEVariables.ee_email
+    while not ee_wp_email:
+        try:
+            ee_wp_email = input('Enter WordPress email: ')
+        except EOFError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("input wordpress username failed")
+
+    if not os.path.isdir("/opt/letsencrypt"):
+        cloneLetsEncrypt(self)
+    EEFileUtils.chdir(self, '/opt/letsencrypt')
+    EEShellExec.cmd_exec(self, "git pull")
+
+    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(ee_domain_name)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    if ssl:
+        Log.info(self, "Let's Encrypt successfully setup for your site")
+        Log.info(self, "Your certificate and chain have been saved at "
+                            "/etc/letsencrypt/live/{0}/fullchain.pem".format(ee_domain_name))
+        Log.info(self, "Configuring Nginx SSL configuration")
+
+        try:
+            Log.info(self, "Adding /var/www/{0}/conf/nginx/ssl.conf".format(ee_domain_name))
+
+            sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
+                                      .format(ee_domain_name),
+                                      encoding='utf-8', mode='w')
+            sslconf.write("listen 443 ssl {http2};\n".format(http2=("http2" if
+                                                           EEAptGet.is_installed(self,'nginx-mainline') else "spdy")) +
+                                     "ssl on;\n"
+                                     "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
+                                     "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
+                                     .format(ee_domain_name))
+            sslconf.close()
+            # updateSiteInfo(self, ee_domain_name, ssl=True)
+
+            EEGit.add(self, ["/etc/letsencrypt"],
+              msg="Adding letsencrypt folder")
+
+        except IOError as e:
+            Log.debug(self, str(e))
+            Log.debug(self, "Error occured while generating "
+                              "ssl.conf")
+    else:
+        Log.error(self, "Unable to setup, Let\'s Encrypt", False)
+        Log.error(self, "Please make sure that your site is pointed to \n"
+                        "same server on which you are running Let\'s Encrypt Client "
+                        "\n to allow it to verify the site automatically.")
+
+def renewLetsEncrypt(self, ee_domain_name):
+
+    ee_wp_email = EEVariables.ee_email
+    while not ee_wp_email:
+        try:
+            ee_wp_email = input('Enter email address: ')
+        except EOFError as e:
+            Log.debug(self, "{0}".format(e))
+            raise SiteError("Input wordpress email failed")
+
+    if not os.path.isdir("/opt/letsencrypt"):
+        cloneLetsEncrypt(self)
+    EEFileUtils.chdir(self, '/opt/letsencrypt')
+    EEShellExec.cmd_exec(self, "git pull")
+
+    Log.info(self, "Renewing SSl cert for https://{0}".format(ee_domain_name))
+
+    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(ee_domain_name)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    mail_list = ''
+    if not ssl:
+        Log.error(self,"ERROR : Cannot RENEW SSL cert !",False)
+        if (SSL.getExpirationDays(self,ee_domain_name)>0):
+                    Log.error(self, "Your current cert will expire within " + str(SSL.getExpirationDays(self,ee_domain_name)) + " days.",False)
+        else:
+                    Log.error(self, "Your current cert already EXPIRED !",False)
+
+        EESendMail("easyengine@{0}".format(ee_domain_name), ee_wp_email, "[FAIL] SSL cert renewal {0}".format(ee_domain_name),
+                       "Hey Hi,\n\nSSL Certificate renewal for https://{0} was unsuccessful.".format(ee_domain_name) +
+                       "\nPlease check easyengine log for reason. Your SSL Expiry date : " +
+                            str(SSL.getExpirationDate(self,ee_domain_name)) +
+                       "\n\nFor support visit https://easyengine.io/support/ .\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                        port=25, isTls=False)
+        Log.error(self, "Check logs for reason "
+                      "`tail /var/log/ee/ee.log` & Try Again!!!")
+
+    EEGit.add(self, ["/etc/letsencrypt"],
+              msg="Adding letsencrypt folder")
+    EESendMail("easyengine@{0}".format(ee_domain_name), ee_wp_email, "[SUCCESS] SSL cert renewal {0}".format(ee_domain_name),
+                       "Hey Hi,\n\nYour SSL Certificate has been renewed for https://{0} .".format(ee_domain_name) +
+                       "\nYour SSL will Expire on : " +
+                            str(SSL.getExpirationDate(self,ee_domain_name)) +
+                       "\n\nYour's faithfully,\nEasyEngine",files=mail_list,
+                        port=25, isTls=False)
+
+#redirect= False to disable https redirection
+def httpsRedirect(self,ee_domain_name,redirect=True):
+    if redirect:
+        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name)):
+                EEFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name),
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+        else:
+            try:
+                Log.info(self, "Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+
+                sslconf = open("/etc/nginx/conf.d/force-ssl-{0}.conf"
+                                      .format(ee_domain_name),
+                                      encoding='utf-8', mode='w')
+                sslconf.write("server {\n"
+                                     "\tlisten 80;\n" +
+                                     "\tserver_name www.{0} {0};\n".format(ee_domain_name) +
+                                     "\treturn 301 https://{0}".format(ee_domain_name)+"$request_uri;\n}" )
+                sslconf.close()
+                # Nginx Configation into GIT
+            except IOError as e:
+                Log.debug(self, str(e))
+                Log.debug(self, "Error occured while generating "
+                              "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+
+        Log.info(self, "Added HTTPS Force Redirection for Site "
+                         " http://{0}".format(ee_domain_name))
+        EEGit.add(self,
+                  ["/etc/nginx"], msg="Adding /etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name))
+    else:
+        if os.path.isfile("/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name)):
+             EEFileUtils.mvfile(self, "/etc/nginx/conf.d/force-ssl-{0}.conf".format(ee_domain_name),
+                                  "/etc/nginx/conf.d/force-ssl-{0}.conf.disabled".format(ee_domain_name))
+             Log.info(self, "Disabled HTTPS Force Redirection for Site "
+                         " http://{0}".format(ee_domain_name))
+
+
+
+
+
+

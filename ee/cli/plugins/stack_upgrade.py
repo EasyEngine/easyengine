@@ -44,8 +44,8 @@ class EEStackUpgradeController(CementBaseController):
                 dict(help='Upgrade WPCLI', action='store_true')),
             (['--redis'],
                 dict(help='Upgrade Redis', action='store_true')),
-            (['--php56'],
-                dict(help="Upgrade to PHP5.6 from PHP5.5",
+            (['--php7.0'],
+                dict(help="Upgrade to PHP7.0 from PHP5.*",
                      action='store_true')),
             (['--no-prompt'],
                 dict(help="Upgrade Packages without any prompt",
@@ -53,16 +53,16 @@ class EEStackUpgradeController(CementBaseController):
             ]
 
     @expose(hide=True)
-    def upgrade_php56(self):
+    def upgrade_php7.0(self):
         if EEVariables.ee_platform_distro == "ubuntu":
-            if os.path.isfile("/etc/apt/sources.list.d/ondrej-php5-5_6-{0}."
+            if os.path.isfile("/etc/apt/sources.list.d/ondrej-php-{0}."
                               "list".format(EEVariables.ee_platform_codename)):
-                Log.error(self, "Unable to find PHP 5.5")
+                Log.error(self, "Unable to find PHP 5.*")
         else:
             if not(os.path.isfile(EEVariables.ee_repo_file_path) and
                    EEFileUtils.grep(self, EEVariables.ee_repo_file_path,
                                     "php55")):
-                Log.error(self, "Unable to find PHP 5.5")
+                Log.error(self, "Unable to find PHP 5.*")
 
         Log.info(self, "During PHP update process non nginx-cached"
                  " parts of your site may remain down")
@@ -79,7 +79,7 @@ class EEStackUpgradeController(CementBaseController):
         else:
             EEAptGet.remove(self, ["php5-xdebug"])
             EEFileUtils.searchreplace(self, EEVariables.ee_repo_file_path,
-                                      "php55", "php56")
+                                      "php55", "php7.0")
 
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
@@ -89,21 +89,21 @@ class EEStackUpgradeController(CementBaseController):
         if EEVariables.ee_platform_distro == "debian":
             EEShellExec.cmd_exec(self, "pecl install xdebug")
 
-            with open("/etc/php5/mods-available/xdebug.ini",
+            with open("/etc/php/mods-available/xdebug.ini",
                       encoding='utf-8', mode='a') as myfile:
-                myfile.write(";zend_extension=/usr/lib/php5/20131226/"
+                myfile.write(";zend_extension=/usr/lib/php/7.0/20131226/"
                              "xdebug.so\n")
 
-            EEFileUtils.create_symlink(self, ["/etc/php5/mods-available/"
-                                       "xdebug.ini", "/etc/php5/fpm/conf.d"
+            EEFileUtils.create_symlink(self, ["/etc/php/mods-available/"
+                                       "xdebug.ini", "/etc/php/7.0/fpm/conf.d"
                                                      "/20-xedbug.ini"])
 
-        Log.info(self, "Successfully upgraded from PHP 5.5 to PHP 5.6")
+        Log.info(self, "Successfully upgraded from PHP 5.* to PHP 5.6")
 
     @expose(hide=True)
     def default(self):
         # All package update
-        if ((not self.app.pargs.php56)):
+        if ((not self.app.pargs.php7.0)):
 
             apt_packages = []
             packages = []
@@ -146,7 +146,7 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx is not already installed")
 
             if self.app.pargs.php:
-                if EEAptGet.is_installed(self, 'php5-fpm'):
+                if EEAptGet.is_installed(self, 'php7.0-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.info(self, "PHP is not installed")
@@ -213,7 +213,7 @@ class EEStackUpgradeController(CementBaseController):
                     if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'nginx')
                     if set(EEVariables.ee_php).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'php5-fpm')
+                        EEService.restart_service(self, 'php7.0-fpm')
                     if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'hhvm')
                     if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
@@ -238,7 +238,7 @@ class EEStackUpgradeController(CementBaseController):
                 Log.info(self, "Successfully updated packages")
 
         # PHP 5.6 to 5.6
-        elif (self.app.pargs.php56):
-            self.upgrade_php56()
+        elif (self.app.pargs.php7.0):
+            self.upgrade_php7.0()
         else:
             self.app.args.print_help()

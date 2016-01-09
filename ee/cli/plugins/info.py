@@ -66,14 +66,14 @@ class EEInfoController(CementBaseController):
         version = os.popen("php -v | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
-        config.read('/etc/php5/fpm/php.ini')
+        config.read('/etc/php/7.0/fpm/php.ini')
         expose_php = config['PHP']['expose_php']
         memory_limit = config['PHP']['memory_limit']
         post_max_size = config['PHP']['post_max_size']
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/php5/fpm/pool.d/www.conf')
+        config.read('/etc/php/7.0/fpm/pool.d/www.conf')
         www_listen = config['www']['listen']
         www_ping_path = config['www']['ping.path']
         www_pm_status_path = config['www']['pm.status_path']
@@ -91,7 +91,7 @@ class EEInfoController(CementBaseController):
         except Exception as e:
             www_xdebug = 'off'
 
-        config.read('/etc/php5/fpm/pool.d/debug.conf')
+        config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
         debug_pm_status_path = config['debug']['pm.status_path']
@@ -178,10 +178,10 @@ class EEInfoController(CementBaseController):
                 Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
                 self.info_php()
             else:
-                Log.error(self, "PHP5 is not installed")
+                Log.error(self, "PHP7.0 is not installed")
 
         if self.app.pargs.mysql:
             if EEShellExec.cmd_exec(self, "mysqladmin ping"):

@@ -2,6 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.cli.plugins.site_functions import *
 from ee.core.variables import EEVariables
 from ee.core.aptget import EEAptGet
 from ee.core.download import EEDownload
@@ -30,6 +31,7 @@ from ee.cli.plugins.stack_services import EEStackStatusController
 from ee.cli.plugins.stack_migrate import EEStackMigrateController
 from ee.cli.plugins.stack_upgrade import EEStackUpgradeController
 from ee.core.logging import Log
+from ee.cli.plugins.sitedb import *
 
 
 def ee_stack_hook(app):
@@ -56,6 +58,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
+            (['--nginxmainline'],
+                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
             (['--mysql'],
@@ -168,6 +172,12 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
+        if set(["nginx-mainline"]).issubset(set(apt_packages)):
+            Log.info(self, "Adding repository for NGINX MAINLINE, please wait...")
+            EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+            Log.debug(self, 'Adding ppa of Nginx-mainline')
+            EERepo.add_key(self, EEVariables.ee_nginx_key)
+
         if set(EEVariables.ee_php).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP, please wait...")
             # Add repository for php
@@ -223,7 +233,8 @@ class EEStackController(CementBaseController):
                           msg="Adding Postfix into Git")
                 EEService.reload_service(self, 'postfix')
 
-            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
+            if set(EEVariables.ee_nginx).issubset(set(apt_packages)) or set(EEVariables.ee_nginx_dev)\
+                                                                                .issubset(set(apt_packages)) :
                 if set(["nginx-plus"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -232,6 +243,26 @@ class EEStackController(CementBaseController):
                                   mode='a') as ee_nginx:
                             ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
+
+                if os.path.isfile('/etc/nginx/sites-available/22222'):
+                    http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
+                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
+                            Log.debug(self, 'Setting http2/spdy in 22222')
+                            EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
+
+                sites = getAllsites(self)
+                if sites:
+                    for site in sites:
+                        site_name = site.sitename
+                        siteinfo = getSiteInfo(self, site_name)
+                        ssl = ("enabled" if siteinfo.is_ssl else "disabled")
+                        if (ssl == "enabled"):
+                            if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
+                                http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
+                                if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
+                                    Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
+                                    EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
+
 
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
                     # Change EasyEngine Version in nginx.conf file
@@ -273,7 +304,8 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    data = dict(webroot=EEVariables.ee_webroot)
+                    http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
+                    data = dict(webroot=EEVariables.ee_webroot,http2=http2)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf',
@@ -339,7 +371,7 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     # Nginx-Plus does not have nginx package structure like this
-                    # So craeting directories
+                    # So creating directories
                     if set(["nginx-plus"]).issubset(set(apt_packages)):
                         Log.info(self,
                                  "Installing EasyEngine Configurations for" "NGINX PLUS")
@@ -483,6 +515,8 @@ class EEStackController(CementBaseController):
                     else:
                         self.msg = (self.msg + ["HTTP Auth User Name: easyengine"]
                                 + ["HTTP Auth Password : {0}".format(passwd)])
+                else:
+                    EEService.restart_service(self, 'nginx')
 
                 if EEAptGet.is_installed(self,'redis-server'):
                     if os.path.isfile("/etc/nginx/nginx.conf") and (not
@@ -681,50 +715,50 @@ class EEStackController(CementBaseController):
                    EEVariables.ee_platform_codename == 'wheezy'):
                     EEShellExec.cmd_exec(self, "pecl install xdebug")
 
-                    with open("/etc/php5/mods-available/xdebug.ini",
+                    with open("/etc/php/mods-available/xdebug.ini",
                               encoding='utf-8', mode='a') as myfile:
                         myfile.write("zend_extension=/usr/lib/php5/20131226/"
                                      "xdebug.so\n")
 
                     EEFileUtils.create_symlink(self, ["/etc/php5/"
                                                "mods-available/xdebug.ini",
-                                                      "/etc/php5/fpm/conf.d"
+                                                      "/etc/php/7.0/fpm/conf.d"
                                                       "/20-xedbug.ini"])
 
                 # Parse etc/php5/fpm/php.ini
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file /etc/php5/fpm/php.ini")
-                config.read('/etc/php5/fpm/php.ini')
+                Log.debug(self, "configuring php file /etc/php/7.0/fpm/php.ini")
+                config.read('/etc/php/7.0/fpm/php.ini')
                 config['PHP']['expose_php'] = 'Off'
                 config['PHP']['post_max_size'] = '100M'
                 config['PHP']['upload_max_filesize'] = '100M'
                 config['PHP']['max_execution_time'] = '300'
                 config['PHP']['date.timezone'] = EEVariables.ee_timezone
-                with open('/etc/php5/fpm/php.ini',
+                with open('/etc/php/7.0/fpm/php.ini',
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php configuration into "
-                              "/etc/php5/fpm/php.ini")
+                              "/etc/php/7.0/fpm/php.ini")
                     config.write(configfile)
 
-                # Prase /etc/php5/fpm/php-fpm.conf
+                # Prase /etc/php/7.0/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file"
-                          "/etc/php5/fpm/php-fpm.conf")
-                config.read_file(codecs.open("/etc/php5/fpm/php-fpm.conf",
+                          "/etc/php/7.0/fpm/php-fpm.conf")
+                config.read_file(codecs.open("/etc/php/7.0/fpm/php-fpm.conf",
                                              "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php5/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with codecs.open('/etc/php5/fpm/php-fpm.conf',
+                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                with codecs.open('/etc/php/7.0/fpm/php-fpm.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
-                              "/etc/php5/fpm/php-fpm.conf")
+                              "/etc/php/7.0/fpm/php-fpm.conf")
                     config.write(configfile)
 
-                # Parse /etc/php5/fpm/pool.d/www.conf
+                # Parse /etc/php/7.0/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
-                config.read_file(codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                config.read_file(codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
                                              "r", "utf8"))
                 config['www']['ping.path'] = '/ping'
                 config['www']['pm.status_path'] = '/status'
@@ -736,30 +770,30 @@ class EEStackController(CementBaseController):
                 config['www']['request_terminate_timeout'] = '300'
                 config['www']['pm'] = 'ondemand'
                 config['www']['listen'] = '127.0.0.1:9000'
-                with codecs.open('/etc/php5/fpm/pool.d/www.conf',
+                with codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php5/fpm/pool.d/www.conf")
+                              "/etc/php/7.0/fpm/pool.d/www.conf")
                     config.write(configfile)
 
-                # Generate /etc/php5/fpm/pool.d/debug.conf
-                EEFileUtils.copyfile(self, "/etc/php5/fpm/pool.d/www.conf",
-                                     "/etc/php5/fpm/pool.d/debug.conf")
-                EEFileUtils.searchreplace(self, "/etc/php5/fpm/pool.d/"
+                # Generate /etc/php/7.0/fpm/pool.d/debug.conf
+                EEFileUtils.copyfile(self, "/etc/php/7.0/fpm/pool.d/www.conf",
+                                     "/etc/php/7.0/fpm/pool.d/debug.conf")
+                EEFileUtils.searchreplace(self, "/etc/php/7.0/fpm/pool.d/"
                                           "debug.conf", "[www]", "[debug]")
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/pool.d/debug.conf')
+                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
                 config['debug']['listen'] = '127.0.0.1:9001'
                 config['debug']['rlimit_core'] = 'unlimited'
                 config['debug']['slowlog'] = '/var/log/php5/slow.log'
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php5/fpm/pool.d/debug.conf',
+                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "writting PHP5 configuration into "
-                              "/etc/php5/fpm/pool.d/debug.conf")
+                              "/etc/php/7.0/fpm/pool.d/debug.conf")
                     config.write(confifile)
 
-                with open("/etc/php5/fpm/pool.d/debug.conf",
+                with open("/etc/php/7.0/fpm/pool.d/debug.conf",
                           encoding='utf-8', mode='a') as myfile:
                     myfile.write("php_admin_value[xdebug.profiler_output_dir] "
                                  "= /tmp/ \nphp_admin_value[xdebug.profiler_"
@@ -769,7 +803,7 @@ class EEStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
+                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -809,7 +843,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user, recursive=True)
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
-                EEService.restart_service(self, 'php5-fpm')
+                EEService.restart_service(self, 'php7.0-fpm')
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -1405,7 +1439,7 @@ class EEStackController(CementBaseController):
                     vm_config.close()
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
-                EEService.reload_service(self, 'php5-fpm')
+                EEService.reload_service(self, 'php7.0-fpm')
                 self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
                             "22222/vimbadmin".format(EEVariables.ee_fqdn)]
                             + ["Security Salt: {0}".format(vm_salt)])
@@ -1576,7 +1610,7 @@ class EEStackController(CementBaseController):
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-               and (not self.app.pargs.redis) and
+               and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline) and
                (not self.app.pargs.phpredisadmin)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
@@ -1634,7 +1668,7 @@ class EEStackController(CementBaseController):
                     Log.info(self, "Mail server is already installed")
 
             if self.app.pargs.pagespeed:
-                if not EEAptGet.is_installed(self, 'nginx-custom'):
+                if not (EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-mainline')):
                     self.app.pargs.nginx = True
                 else:
                     Log.info(self, "Nginx already installed")
@@ -1649,7 +1683,7 @@ class EEStackController(CementBaseController):
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
-                if not EEAptGet.is_installed(self, 'nginx-custom'):
+                if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
                     if not EEAptGet.is_installed(self, 'nginx-plus'):
                         apt_packages = apt_packages + EEVariables.ee_nginx
                     else:
@@ -1660,9 +1694,28 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "Nginx already installed")
                     Log.info(self, "Nginx already installed")
+
+            if self.app.pargs.nginxmainline:
+                if EEVariables.ee_nginx_dev_repo == None:
+                    Log.error(self, "NGINX Mainline Version is not supported in wheezy")
+
+                Log.debug(self, "Setting apt_packages variable for Nginx")
+
+                if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
+                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+                        apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                    else:
+                        Log.info(self, "NGINX PLUS Detected ...")
+                        apt = ["nginx-plus"] + EEVariables.ee_nginx
+                        #apt_packages = apt_packages + EEVariables.ee_nginx
+                        self.post_pref(apt, packages)
+                else:
+                    Log.debug(self, "Nginx already installed")
+                    Log.info(self, "Nginx already installed")
+
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
-                if not EEAptGet.is_installed(self, 'php5-fpm'):
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.debug(self, "PHP already installed")
@@ -1856,7 +1909,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin)):
+           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -1897,8 +1950,17 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
-            Log.debug(self, "Removing apt_packages variable of Nginx")
-            apt_packages = apt_packages + EEVariables.ee_nginx
+            if EEAptGet.is_installed(self, 'nginx-custom'):
+                Log.debug(self, "Removing apt_packages variable of Nginx")
+                apt_packages = apt_packages + EEVariables.ee_nginx
+            else:
+                Log.error(self,"Cannot Remove! Nginx Stable version not found.")
+        if self.app.pargs.nginxmainline:
+            if EEAptGet.is_installed(self, 'nginx-mainline'):
+                Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
+                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+            else:
+                Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
             apt_packages = apt_packages + EEVariables.ee_php
@@ -1959,6 +2021,11 @@ class EEStackController(CementBaseController):
                               ' operation :  ')
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
+
+                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
+                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                    EEService.stop_service(self, 'nginx')
+
                 if len(packages):
                     EEFileUtils.remove(self, packages)
                     EEAptGet.auto_remove(self)
@@ -1968,6 +2035,11 @@ class EEStackController(CementBaseController):
                     Log.info(self, "Removing packages, please wait...")
                     EEAptGet.remove(self, apt_packages)
                     EEAptGet.auto_remove(self)
+
+                if set(["nginx-mainline"]).issubset(set(apt_packages)):
+                    Log.info(self, "Removing repository for NGINX MAINLINE,")
+                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+
 
                 Log.info(self, "Successfully removed packages")
 
@@ -1986,7 +2058,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin)):
+           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -2027,8 +2099,17 @@ class EEStackController(CementBaseController):
             packages = packages + ['/etc/nginx/conf.d/pagespeed.conf']
 
         if self.app.pargs.nginx:
-            Log.debug(self, "Purge apt_packages variable of Nginx")
-            apt_packages = apt_packages + EEVariables.ee_nginx
+            if EEAptGet.is_installed(self, 'nginx-custom'):
+                Log.debug(self, "Purge apt_packages variable of Nginx")
+                apt_packages = apt_packages + EEVariables.ee_nginx
+            else:
+                Log.error(self,"Cannot Purge! Nginx Stable version not found.")
+        if self.app.pargs.nginxmainline:
+            if EEAptGet.is_installed(self, 'nginx-mainline'):
+                Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
+                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+            else:
+                Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
             apt_packages = apt_packages + EEVariables.ee_php
@@ -2088,6 +2169,11 @@ class EEStackController(CementBaseController):
                               'operation :')
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
+
+                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
+                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                    EEService.stop_service(self, 'nginx')
+
                 if len(apt_packages):
                     Log.info(self, "Purging packages, please wait...")
                     EEAptGet.remove(self, apt_packages, purge=True)
@@ -2096,6 +2182,11 @@ class EEStackController(CementBaseController):
                 if len(packages):
                     EEFileUtils.remove(self, packages)
                     EEAptGet.auto_remove(self)
+
+                if set(["nginx-mainline"]).issubset(set(apt_packages)):
+                    Log.info(self, "Removing repository for NGINX MAINLINE,")
+                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+
 
                 Log.info(self, "Successfully purged packages")
 

@@ -1,5 +1,6 @@
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.aptget import EEAptGet
 from ee.core.shellexec import EEShellExec
 from ee.core.variables import EEVariables
 from ee.core.logging import Log
@@ -95,14 +96,16 @@ class EESecureController(CementBaseController):
             self.app.pargs.user_input = port
         if EEVariables.ee_platform_distro == 'ubuntu':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
-                                 "{port} default_server ssl spdy;/\" "
+                                 "{port} default_server ssl {http2};/\" "
                                  "/etc/nginx/sites-available/22222"
-                                 .format(port=self.app.pargs.user_input))
+                                 .format(port=self.app.pargs.user_input,http2=("http2" if
+                                                           EEAptGet.is_installed(self,'nginx-mainline') else "spdy")))
         if EEVariables.ee_platform_distro == 'debian':
             EEShellExec.cmd_exec(self, "sed -i \"s/listen.*/listen "
-                                 "{port} default_server ssl;/\" "
+                                 "{port} default_server ssl {http2};/\" "
                                  "/etc/nginx/sites-available/22222"
-                                 .format(port=self.app.pargs.user_input))
+                                 .format(port=self.app.pargs.user_input,http2=("http2" if
+                                                           EEAptGet.is_installed(self,'nginx-mainline') else "spdy")))
         EEGit.add(self, ["/etc/nginx"],
                   msg="Adding changed secure port into Git")
         if not EEService.reload_service(self, 'nginx'):

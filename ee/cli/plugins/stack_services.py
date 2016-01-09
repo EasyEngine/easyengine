@@ -33,16 +33,16 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                services = services + ['php7.0-fpm']
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                Log.info(self, "PHP7.0-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
@@ -104,16 +104,16 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                services = services + ['php7.0-fpm']
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                Log.info(self, "PHP7.0-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
@@ -175,16 +175,16 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                services = services + ['php7.0-fpm']
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                Log.info(self, "PHP7.0-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
@@ -247,16 +247,16 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.hhvm = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                services = services + ['php7.0-fpm']
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                Log.info(self, "PHP7.0-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
@@ -318,16 +318,16 @@ class EEStackStatusController(CementBaseController):
             self.app.pargs.postfix = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-custom'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self,'nginx-mainline'):
                 services = services + ['nginx']
             else:
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                services = services + ['php7.0-fpm']
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                Log.info(self, "PHP7.0-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
