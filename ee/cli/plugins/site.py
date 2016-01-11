@@ -1120,6 +1120,8 @@ class EESiteUpdateController(CementBaseController):
                     renewLetsEncrypt(self,ee_domain)
                     Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                                " https://{0}".format(ee_domain))
+                else:
+                    Log.info(self,"More than 60 days left for certificate Expiry. Not renewing now.\n")
 
                 if (SSL.getExpirationDays(self,ee_domain)>0):
                         Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
