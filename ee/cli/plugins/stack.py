@@ -1693,11 +1693,21 @@ class EEStackController(CementBaseController):
                         self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
-                    Log.info(self, "Nginx already installed")
+                    if EEAptGet.is_installed(self, 'nginx-mainline'):
+                        ee_prompt = input('Nginx Stable already found on your system.\nDo you want to remove Nginx mainline '
+                                          'and install Nginx Stable.,\nAny answer other than "yes" will be stop this '
+                                          'operation :')
+                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+                            EEService.stop_service(self, 'nginx')
+                            Log.debug(self, "Removing apt_packages variable of Nginx")
+                            EEFileUtils.remove(self, EEVariables.ee_nginx_dev)
+                            EEAptGet.auto_remove(self)
+                            Log.info(self, "Removing repository for NGINX MAINLINE,")
+                            EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
 
             if self.app.pargs.nginxmainline:
                 if EEVariables.ee_nginx_dev_repo == None:
-                    Log.error(self, "NGINX Mainline Version is not supported in wheezy")
+                    Log.error(self, "NGINX Mainline Version is not supported in your platform")
 
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
@@ -1711,7 +1721,17 @@ class EEStackController(CementBaseController):
                         self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
-                    Log.info(self, "Nginx already installed")
+                    if EEAptGet.is_installed(self, 'nginx-custom'):
+                        ee_prompt = input('Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
+                                          'and install Nginx Mainline.,\nAny answer other than "yes" will be stop this '
+                                          'operation :')
+                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+                            EEService.stop_service(self, 'nginx')
+                            Log.debug(self, "Removing apt_packages variable of Nginx")
+                            EEFileUtils.remove(self, EEVariables.ee_nginx)
+                            EEAptGet.auto_remove(self)
+
+
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
