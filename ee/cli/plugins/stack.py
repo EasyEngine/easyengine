@@ -1704,6 +1704,7 @@ class EEStackController(CementBaseController):
                             EEAptGet.auto_remove(self)
                             Log.info(self, "Removing repository for NGINX MAINLINE,")
                             EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+                            apt_packages = apt_packages + EEVariables.ee_nginx
 
             if self.app.pargs.nginxmainline:
                 if EEVariables.ee_nginx_dev_repo == None:
@@ -1730,6 +1731,7 @@ class EEStackController(CementBaseController):
                             Log.debug(self, "Removing apt_packages variable of Nginx")
                             EEFileUtils.remove(self, EEVariables.ee_nginx)
                             EEAptGet.auto_remove(self)
+                            apt_packages = apt_packages + EEVariables.ee_nginx_dev
 
 
 
