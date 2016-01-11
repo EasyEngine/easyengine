@@ -1700,7 +1700,8 @@ class EEStackController(CementBaseController):
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
                             EEService.stop_service(self, 'nginx')
                             Log.debug(self, "Removing apt_packages variable of Nginx")
-                            EEFileUtils.remove(self, EEVariables.ee_nginx_dev)
+                            Log.info(self, "Removing packages, please wait...")
+                            EEAptGet.remove(self, EEVariables.ee_nginx_dev)
                             EEAptGet.auto_remove(self)
                             Log.info(self, "Removing repository for NGINX MAINLINE,")
                             EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
@@ -1729,11 +1730,10 @@ class EEStackController(CementBaseController):
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
                             EEService.stop_service(self, 'nginx')
                             Log.debug(self, "Removing apt_packages variable of Nginx")
-                            EEFileUtils.remove(self, EEVariables.ee_nginx)
+                            Log.info(self, "Removing packages, please wait...")
+                            EEAptGet.remove(self, EEVariables.ee_nginx)
                             EEAptGet.auto_remove(self)
                             apt_packages = apt_packages + EEVariables.ee_nginx_dev
-
-
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
