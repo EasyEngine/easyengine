@@ -753,7 +753,7 @@ class EESiteCreateController(CementBaseController):
                  setupLetsEncrypt(self, ee_domain)
                  httpsRedirect(self,ee_domain)
                  Log.info(self,"Creating Cron Job for cert auto-renewal")
-                 EECron.setcron_daily(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
+                 EECron.setcron_weekly(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
                                                                      ' letsencrypt SSL cert. Set by EasyEngine')
 
                  if not EEService.reload_service(self, 'nginx'):
@@ -1322,7 +1322,7 @@ class EESiteUpdateController(CementBaseController):
 
                 httpsRedirect(self,ee_domain)
                 Log.info(self,"Creating Cron Job for cert auto-renewal")
-                EECron.setcron_daily(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
+                EECron.setcron_weekly(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
                                                                 ' letsencrypt SSL cert. Set by EasyEngine')
 
                 if not EEService.reload_service(self, 'nginx'):
