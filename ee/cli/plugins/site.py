@@ -1112,7 +1112,9 @@ class EESiteUpdateController(CementBaseController):
         if pargs.all and pargs.letsencrypt == "renew":
 
             if check_ssl:
-                expiry_days = SSL.getExpirationDays(self,ee_domain)
+                expiry_days = SSL.getExpirationDays(self,ee_domain,True)
+                if expiry_days < 0:
+                    return 0
                 min_expiry_days = 30
                 if (expiry_days <= min_expiry_days):
                     renewLetsEncrypt(self,ee_domain)
@@ -1122,10 +1124,12 @@ class EESiteUpdateController(CementBaseController):
                 if (SSL.getExpirationDays(self,ee_domain)>0):
                         Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
                         Log.info(self, "Expiration DATE: \n\n" + str(SSL.getExpirationDate(self,ee_domain)))
-
+                return 0
                 #else:
                  #       Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
-                #return 0
+            else:
+                Log.info(self,"SSL not configured for site http://{0}".format(ee_domain))
+                return 0
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':

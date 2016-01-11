@@ -1212,6 +1212,7 @@ def setupLetsEncrypt(self, ee_domain_name):
         cloneLetsEncrypt(self)
     EEFileUtils.chdir(self, '/opt/letsencrypt')
     EEShellExec.cmd_exec(self, "git pull")
+    Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
 
     ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
