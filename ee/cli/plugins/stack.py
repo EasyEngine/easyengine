@@ -1699,15 +1699,21 @@ class EEStackController(CementBaseController):
                                           'operation.')
                         ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
-                            EEService.stop_service(self, 'nginx')
-                            Log.debug(self, "Removing apt_packages variable of Nginx")
-                            Log.info(self, "Removing packages, please wait...")
-                            EEAptGet.remove(self, EEVariables.ee_nginx_dev)
-                            EEAptGet.auto_remove(self)
-                            Log.info(self, "Removing repository for NGINX MAINLINE,")
+                            Log.info(self,"Initializing... Please Wait")
                             EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
-                            Log.info(self, "Successfully removed packages")
-                            apt_packages = apt_packages + EEVariables.ee_nginx
+                            if EEAptGet.download_only(self,EEVariables.ee_nginx,EEVariables.ee_nginx_repo,EEVariables.ee_nginx_key):
+                                EEService.stop_service(self, 'nginx')
+                                Log.debug(self, "Removing apt_packages variable of NGINX")
+                                Log.info(self, "Removing packages, please wait...")
+                                EEAptGet.remove(self, EEVariables.ee_nginx_dev)
+                                EEAptGet.auto_remove(self)
+                                Log.info(self, "Removing repository for NGINX MAINLINE,")
+                                Log.info(self, "Successfully removed packages")
+                                apt_packages = apt_packages + EEVariables.ee_nginx
+                            else:
+                                #revert the changes
+                                EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+                                Log.error(self,"Skipped installing NGINX Stable")
 
             if self.app.pargs.nginxmainline:
                 if EEVariables.ee_nginx_dev_repo == None:
@@ -1731,13 +1737,17 @@ class EEStackController(CementBaseController):
                                           'operation.')
                         ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
-                            EEService.stop_service(self, 'nginx')
-                            Log.debug(self, "Removing apt_packages variable of Nginx")
-                            Log.info(self, "Removing packages, please wait...")
-                            EEAptGet.remove(self, EEVariables.ee_nginx)
-                            EEAptGet.auto_remove(self)
-                            Log.info(self, "Successfully removed packages")
-                            apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                            Log.info(self,"Initializing... Please Wait")
+                            if EEAptGet.download_only(self,EEVariables.ee_nginx_dev,EEVariables.ee_nginx_dev_repo,EEVariables.ee_nginx_key):
+                                EEService.stop_service(self, 'nginx')
+                                Log.debug(self, "Removing apt_packages variable of Nginx")
+                                Log.info(self, "Removing packages, please wait...")
+                                EEAptGet.remove(self, EEVariables.ee_nginx)
+                                EEAptGet.auto_remove(self)
+                                Log.info(self, "Successfully removed packages")
+                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                            else:
+                                Log.error(self,"Skipped installing NGINX Mainline")
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
