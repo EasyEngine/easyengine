@@ -1694,9 +1694,10 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "Nginx already installed")
                     if EEAptGet.is_installed(self, 'nginx-mainline'):
-                        ee_prompt = input('Nginx Stable already found on your system.\nDo you want to remove Nginx mainline '
+                        Log.warn(self,'Nginx Mainline already found on your system.\nDo you want to remove Nginx mainline '
                                           'and install Nginx Stable.,\nAny answer other than "yes" will be stop this '
-                                          'operation :')
+                                          'operation.')
+                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
                             EEService.stop_service(self, 'nginx')
                             Log.debug(self, "Removing apt_packages variable of Nginx")
@@ -1725,9 +1726,10 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, "Nginx already installed")
                     if EEAptGet.is_installed(self, 'nginx-custom'):
-                        ee_prompt = input('Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
+                        Log.warn(self,'Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
                                           'and install Nginx Mainline.,\nAny answer other than "yes" will be stop this '
-                                          'operation :')
+                                          'operation.')
+                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
                         if ee_prompt == 'YES' or ee_prompt == 'yes':
                             EEService.stop_service(self, 'nginx')
                             Log.debug(self, "Removing apt_packages variable of Nginx")
