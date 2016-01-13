@@ -1360,6 +1360,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
             Log.error(self,"Certificate files not found. Skipping.\n"
                            "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
                            "/etc/letsencrypt/live/{0}/privkey.pem".format(domain))
+        ssl = True
 
     elif check_prompt == "3":
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
