@@ -1347,14 +1347,20 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
                     "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
                         "")
 
-    check_prompt = input("\nType any other key to cancel: ")
+    check_prompt = input("\nType the appropriate number [1-3] or any other key to cancel: ")
 
     if check_prompt == "1":
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
                                 + "--email {0} --text --agree-tos --renew-by-default".format(ee_wp_email))
     elif check_prompt == "2" :
-        Log.info(self,"Using Existing Certificates")
+        Log.info(self,"Using Existing Certificate files")
+        if not (os.path.isfile("/etc/letsencrypt/live/{0}/fullchain.pem".format(domain)) or
+                    os.path.isfile("/etc/letsencrypt/live/{0}/privkey.pem".format(domain))):
+            Log.error(self,"Certificate files not found. Skipping.\n"
+                           "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
+                           "/etc/letsencrypt/live/{0}/privkey.pem".format(domain))
+
     elif check_prompt == "3":
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
