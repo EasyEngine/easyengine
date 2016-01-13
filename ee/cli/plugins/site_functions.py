@@ -1186,7 +1186,8 @@ def operateOnPagespeed(self, data):
 
 def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
-
+    if not os.path.isdir("/opt"):
+        EEFileUtils.mkdir(self,"/opt")
     try:
         Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
         EEFileUtils.chdir(self, '/opt/')

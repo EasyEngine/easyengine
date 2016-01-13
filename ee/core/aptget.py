@@ -198,7 +198,7 @@ class EEAptGet():
 
     def download_only(self,package_name,repo_url=None,repo_key=None):
         """
-        Similar to `apt-get install  --download-only`
+        Similar to `apt-get install --download-only PACKAGE_NAME`
         """
         packages = ' '.join(package_name)
         try:
