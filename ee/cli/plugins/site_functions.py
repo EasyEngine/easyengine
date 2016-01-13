@@ -1215,7 +1215,7 @@ def setupLetsEncrypt(self, ee_domain_name):
     EEShellExec.cmd_exec(self, "git pull")
     Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
 
-    if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf"):
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf".format(ee_domain_name)):
         Log.debug(self, "LetsEncrypt SSL Certificate found for the domain {0}"
                  .format(ee_domain_name))
         ssl= archivedCertificateHandle(self,ee_domain_name,ee_wp_email)
