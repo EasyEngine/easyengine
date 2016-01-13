@@ -1215,7 +1215,12 @@ def setupLetsEncrypt(self, ee_domain_name):
     EEShellExec.cmd_exec(self, "git pull")
     Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
 
-    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf"):
+        Log.debug(self, "LetsEncrypt SSL Certificate found for the domain {0}"
+                 .format(ee_domain_name))
+        ssl= archivedCertificateHandle(self,ee_domain_name,ee_wp_email)
+    else:
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if ssl:
@@ -1333,7 +1338,39 @@ def httpsRedirect(self,ee_domain_name,redirect=True):
              Log.info(self, "Disabled HTTPS Force Redirection for Site "
                          " http://{0}".format(ee_domain_name))
 
+def archivedCertificateHandle(self,domain,ee_wp_email):
+    Log.warn(self,"You already have an existing certificate for the domain requested.\n"
+                        "(ref: /etc/letsencrypt/renewal/{0}.conf)".format(domain) +
+                        "\nPlease select an option from below?"
+                    "\n\t1: Reinstall existing certificate [RECOMMENDED]"
+                    "\n\t2: Keep the existing certificate for now"
+                    "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
+                        "")
 
+    check_prompt = input("\nType any other key to cancel: ")
+
+    if check_prompt == "1":
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(domain)
+                                + "--email {0} --text --agree-tos --renew-by-default".format(ee_wp_email))
+    elif check_prompt == "2" :
+        Log.info(self,"Using Existing Certificates")
+    elif check_prompt == "3":
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(domain)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    else:
+        Log.error(self,"Operation cancelled by user.")
+
+    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                              .format(domain)):
+        Log.info(self, "Existing ssl.conf . Backing it up ..")
+        EEFileUtils.mvfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                             .format(domain),
+                             '/var/www/{0}/conf/nginx/ssl.conf.bak'
+                             .format(domain))
+
+    return ssl
 
 
 
