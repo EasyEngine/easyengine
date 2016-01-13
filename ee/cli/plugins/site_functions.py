@@ -1346,9 +1346,9 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
                     "\n\t2: Keep the existing certificate for now"
                     "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
                         "")
-
     check_prompt = input("\nType the appropriate number [1-3] or any other key to cancel: ")
-
+    if not os.path.isfile("/etc/letsencrypt/live/{0}/cert.pem".format(domain)):
+            Log.error(self,"/etc/letsencrypt/live/{0}/cert.pem file is missing.".format(domain))
     if check_prompt == "1":
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
