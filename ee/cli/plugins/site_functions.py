@@ -1342,7 +1342,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
     Log.warn(self,"You already have an existing certificate for the domain requested.\n"
                         "(ref: /etc/letsencrypt/renewal/{0}.conf)".format(domain) +
                         "\nPlease select an option from below?"
-                    "\n\t1: Reinstall existing certificate [RECOMMENDED]"
+                    "\n\t1: Reinstall existing certificate"
                     "\n\t2: Keep the existing certificate for now"
                     "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
                         "")
@@ -1353,7 +1353,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
         Log.info(self,"Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network.")
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
-                                + "--email {0} --text --agree-tos --renew-by-default".format(ee_wp_email))
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
     elif check_prompt == "2" :
         Log.info(self,"Using Existing Certificate files")
         if not (os.path.isfile("/etc/letsencrypt/live/{0}/fullchain.pem".format(domain)) or
