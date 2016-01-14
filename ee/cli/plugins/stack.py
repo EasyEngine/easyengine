@@ -1715,6 +1715,8 @@ class EEStackController(CementBaseController):
                                 EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
                                 Log.error(self,"Error installing NGINX Stable\nReverting back to NGINX Mainline ..",False)
                                 apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                    else:
+                        Log.info(self, "NGINX Stable already installed")
 
             if self.app.pargs.nginxmainline:
                 if EEVariables.ee_nginx_dev_repo == None:
@@ -1749,6 +1751,8 @@ class EEStackController(CementBaseController):
                                 apt_packages = apt_packages + EEVariables.ee_nginx_dev
                             else:
                                 Log.error(self,"Skipped installing NGINX Mainline",False)
+                    else:
+                        Log.info(self, "NGINX Mainline already installed")
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
