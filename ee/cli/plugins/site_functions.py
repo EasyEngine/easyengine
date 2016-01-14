@@ -1213,13 +1213,13 @@ def setupLetsEncrypt(self, ee_domain_name):
         cloneLetsEncrypt(self)
     EEFileUtils.chdir(self, '/opt/letsencrypt')
     EEShellExec.cmd_exec(self, "git pull")
-    Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
 
     if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf".format(ee_domain_name)):
         Log.debug(self, "LetsEncrypt SSL Certificate found for the domain {0}"
                  .format(ee_domain_name))
         ssl= archivedCertificateHandle(self,ee_domain_name,ee_wp_email)
     else:
+        Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
@@ -1350,6 +1350,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
     if not os.path.isfile("/etc/letsencrypt/live/{0}/cert.pem".format(domain)):
             Log.error(self,"/etc/letsencrypt/live/{0}/cert.pem file is missing.".format(domain))
     if check_prompt == "1":
+        Log.info(self,"Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network.")
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
                                 + "--email {0} --text --agree-tos --renew-by-default".format(ee_wp_email))
@@ -1363,6 +1364,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
         ssl = True
 
     elif check_prompt == "3":
+        Log.info(self,"Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network.")
         ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
