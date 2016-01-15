@@ -32,6 +32,8 @@ script:
   - sudo ee stack install --web
   - sudo ee stack install --admin
 
+  - yes | sudo ee stack install --nginxmainline
+
   - sudo ee site create html.net --html
   - sudo ee site create php.com --php
   - sudo ee site create mysql.com --mysql
