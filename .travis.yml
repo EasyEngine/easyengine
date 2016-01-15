@@ -108,7 +108,6 @@ script:
   - sudo ee site delete www.subsite.site-1.com --all --no-prompt
 
   - sudo ee site delete site12.in --all --no-prompt
-  - sudo ee site delete site12.net --no-prompt
 
   - echo "yes" | sudo ee stack install --nginxmainline
   - nginx -v
