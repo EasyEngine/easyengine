@@ -37,44 +37,31 @@ script:
   - sudo ee site create mysql.com --mysql
   - sudo ee site create site1.com --wp
 
-  - sudo ee site create site2.com --wpsc
   - sudo ee site create site2.net --wp --wpsc
-  - sudo ee site create site2.org --wpsc --wp
-  - sudo ee site create site3.com --w3tc
   - sudo ee site create site3.net --wp --w3tc
-  - sudo ee site create site3.org --w3tc --wp
   - sudo ee site create site4.com --wpfc
   - sudo ee site create site4.net --wp --wpfc
   - sudo ee site create site4.org --wpfc --wp
   - sudo ee site create site5.com --wpsubdir
-  - sudo ee site create site5.net --wpsubdir
 
   - sudo ee site create site6.com --wpsubdir --wpsc
-  - sudo ee site create site6.net --wpsc --wpsubdir
   - sudo ee site create site7.com --wpsubdir --w3tc
-  - sudo ee site create site7.net --w3tc --wpsubdir
   - sudo ee site create site8.com --wpsubdir --wpfc
   - sudo ee site create site8.net --wpfc --wpsubdir
   - sudo ee site create site9.com --wpsubdomain
 
   - sudo ee site create site10.org --wpsubdomain --wpsc
-  - sudo ee site create site10.in --wpsc --wpsubdomain
   - sudo ee site create site11.org --wpsubdomain --w3tc
-  - sudo ee site create site11.in --w3tc --wpsubdomain
   - sudo ee site create site12.org --wpsubdomain --wpfc
   - sudo ee site create site12.in --wpfc --wpsubdomain
-  - sudo ee site create site12.net --wpfc --wpsubdomain
 
   - yes | sudo ee site create site.hhvm.pagespeed2.com --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed3.com --w3tc --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed4.com --wpfc --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed5.com --wpsubdir --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed7.com --wpsubdir --w3tc --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed11.in --w3tc --wpsubdomain --hhvm --pagespeed
   - yes | sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm --pagespeed
 
   - sudo ee site create site.localtest.me --php --mysql --html
@@ -106,11 +93,9 @@ script:
   - yes | sudo ee site update site1.com --wpredis
 
   - sudo ee site update site5.com --wpsubdir --wpfc
-  - sudo ee site update site5.com --wpsubdir --w3tc
   - sudo ee site update site5.com --wpsubdir --wpsc
 
   - sudo ee site update site9.com --wpsubdomain --wpfc
-  - sudo ee site update site9.com --wpsubdomain --w3tc
   - sudo ee site update site9.com --wpsubdomain --wpsc
   - yes | sudo ee site update site.hhvm.pagespeed12.in --pagespeed=off --hhvm=off
   - yes | sudo ee site update site9.com --hhvm --pagespeed
@@ -124,7 +109,6 @@ script:
 
   - sudo ee site delete site12.in --all --no-prompt
   - sudo ee site delete site12.net --no-prompt
-  - sudo ee site delete site9.com --no-prompt
 
   - echo "yes" | sudo ee stack install --nginxmainline
   - nginx -v
