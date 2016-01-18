@@ -528,6 +528,7 @@ function ee_update_latest()
    #Fix for SSL cert --all
    crontab -l | grep -q '\-\-min_expiry_limit'
    if [[ $? -eq 0 ]]; then
+        crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
         crontab -l | sed '/--min_expiry_limit/d' | crontab -
         crontab -l 2> /dev/null | ( cat; echo -e "\n0 0 * * 0 ee site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine "; ) | crontab -
    fi
