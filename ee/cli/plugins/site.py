@@ -1301,7 +1301,7 @@ class EESiteUpdateController(CementBaseController):
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
             return 0
@@ -1372,7 +1372,7 @@ class EESiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
@@ -1590,10 +1590,10 @@ class EESiteUpdateController(CementBaseController):
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
                            db_host=data['ee_db_host'], hhvm=hhvm,
-                           pagespeed=pagespeed)
+                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
         else:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
         return 0
