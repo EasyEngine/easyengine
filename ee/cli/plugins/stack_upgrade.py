@@ -32,6 +32,8 @@ class EEStackUpgradeController(CementBaseController):
                 dict(help='Upgrade mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Upgrade Nginx stack', action='store_true')),
+            (['--nginxmainline'],
+                dict(help='Upgrade Nginx Mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Upgrade PHP stack', action='store_true')),
             (['--mysql'],
@@ -139,9 +141,11 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Mail server is not installed")
 
-            if self.app.pargs.nginx:
+            if self.app.pargs.nginx or self.app.pargs.nginxmainline:
                 if EEAptGet.is_installed(self, 'nginx-custom'):
                     apt_packages = apt_packages + EEVariables.ee_nginx
+                elif EEAptGet.is_installed(self, 'nginx-mainline'):
+                    apt_packages = apt_packages + EEVariables.ee_nginx_dev
                 else:
                     Log.info(self, "Nginx is not already installed")
 
