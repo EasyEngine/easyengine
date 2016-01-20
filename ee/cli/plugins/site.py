@@ -753,8 +753,8 @@ class EESiteCreateController(CementBaseController):
                  setupLetsEncrypt(self, ee_domain)
                  httpsRedirect(self,ee_domain)
                  Log.info(self,"Creating Cron Job for cert auto-renewal")
-                 EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew '
-                                                                     'letsencrypt SSL cert. Set by EasyEngine')
+                 EECron.setcron_weekly(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
+                                                                     ' letsencrypt SSL cert. Set by EasyEngine')
 
                  if not EEService.reload_service(self, 'nginx'):
                     Log.error(self, "service nginx reload failed. "
@@ -828,8 +828,6 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="configure letsencrypt ssl for the site",
                      action='store' or 'store_const',
                      choices=('on', 'off', 'renew'), const='on', nargs='?')),
-            (['--min_expiry_limit'],
-                dict(help="pass minimum expiry days to renew let's encrypt cert")),
             (['--proxy'],
                 dict(help="update to proxy site", nargs='+')),
             (['--experimental'],
@@ -1090,9 +1088,15 @@ class EESiteUpdateController(CementBaseController):
                 pargs.pagespeed = False
 
         #--letsencrypt=renew code goes here
-        if pargs.letsencrypt == "renew" and not pargs.min_expiry_limit:
+        if pargs.letsencrypt == "renew" and not pargs.all:
+            expiry_days = SSL.getExpirationDays(self,ee_domain)
+            min_expiry_days = 30
             if check_ssl:
-                renewLetsEncrypt(self,ee_domain)
+                if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self,ee_domain)
+                else:
+                    Log.error(self,"More than 60 days left for certificate Expiry. Not renewing now.")
+
             else:
                 Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
 
@@ -1103,34 +1107,31 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
 
             else:
-                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
+                    Log.warn(self, "Your cert already EXPIRED !. PLEASE renew soon . ")
 
-        if pargs.min_expiry_limit:
-            if not int(pargs.min_expiry_limit)>0 or not int(pargs.min_expiry_limit)< 90:
-                Log.error(self,'INVALID --min_expiry_limit argument provided. Please use range 1-89 .')
+        if pargs.all and pargs.letsencrypt == "renew":
 
-            if not pargs.letsencrypt == "renew":
-                Log.error(self,'--min_expiry_limit parameter cannot be used as a standalone. Provide --le=renew')
+            if check_ssl:
+                expiry_days = SSL.getExpirationDays(self,ee_domain,True)
+                if expiry_days < 0:
+                    return 0
+                min_expiry_days = 30
+                if (expiry_days <= min_expiry_days):
+                    renewLetsEncrypt(self,ee_domain)
+                    Log.info(self, "SUCCESS: Certificate was successfully renewed For"
+                               " https://{0}".format(ee_domain))
+                else:
+                    Log.info(self,"More than 60 days left for certificate Expiry. Not renewing now.\n")
 
-            if not check_ssl:
-                Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
-
-            expiry_days = SSL.getExpirationDays(self,ee_domain)
-            min_expiry_days = int(pargs.min_expiry_limit)
-            if (expiry_days <= min_expiry_days):
-                renewLetsEncrypt(self,ee_domain)
-                Log.info(self, "SUCCESS: Certificate was successfully renewed For"
-                           " https://{0}".format(ee_domain))
+                if (SSL.getExpirationDays(self,ee_domain)>0):
+                        Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
+                        Log.info(self, "Expiration DATE: \n\n" + str(SSL.getExpirationDate(self,ee_domain)))
+                return 0
+                #else:
+                 #       Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
             else:
-                Log.info(self, "Not renewing SSL .")
-
-            if (SSL.getExpirationDays(self,ee_domain)>0):
-                    Log.info(self, "Your cert will expire within " + str(SSL.getExpirationDays(self,ee_domain)) + " days.")
-                    Log.info(self, "Expiration DATE: " + str(SSL.getExpirationDate(self,ee_domain)))
-
-            else:
-                    Log.warn(self, "Your cert already EXPIRED ! .PLEASE renew soon . ")
-            return 0
+                Log.info(self,"SSL not configured for site http://{0}".format(ee_domain))
+                return 0
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
@@ -1300,7 +1301,7 @@ class EESiteUpdateController(CementBaseController):
 
         if 'proxy' in data.keys() and data['proxy']:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
             return 0
@@ -1323,7 +1324,7 @@ class EESiteUpdateController(CementBaseController):
 
                 httpsRedirect(self,ee_domain)
                 Log.info(self,"Creating Cron Job for cert auto-renewal")
-                EECron.setcron_daily(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> /dev/null'.format(ee_domain),'Renew'
+                EECron.setcron_weekly(self,'ee site update --le=renew --all 2> /dev/null'.format(ee_domain),'Renew all'
                                                                 ' letsencrypt SSL cert. Set by EasyEngine')
 
                 if not EEService.reload_service(self, 'nginx'):
@@ -1350,8 +1351,8 @@ class EESiteUpdateController(CementBaseController):
                         if not EEService.reload_service(self, 'nginx'):
                             Log.error(self, "service nginx reload failed. "
                                  "check issues with `nginx -t` command")
-                        Log.info(self,"Removing Cron Job set for cert auto-renewal")
-                        EECron.remove_cron(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> \/dev\/null'.format(ee_domain))
+                        #Log.info(self,"Removing Cron Job set for cert auto-renewal")
+                        #EECron.remove_cron(self,'ee site update {0} --le=renew --min_expiry_limit 30 2> \/dev\/null'.format(ee_domain))
                         Log.info(self, "Successfully Disabled SSl for Site "
                          " http://{0}".format(ee_domain))
 
@@ -1371,7 +1372,7 @@ class EESiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
@@ -1589,10 +1590,10 @@ class EESiteUpdateController(CementBaseController):
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
                            db_host=data['ee_db_host'], hhvm=hhvm,
-                           pagespeed=pagespeed)
+                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
         else:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
         return 0

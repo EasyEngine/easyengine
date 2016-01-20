@@ -5,12 +5,14 @@ from ee.core.logging import Log
 
 class SSL:
 
-   def getExpirationDays(self,domain):
+   def getExpirationDays(self,domain,returnonerror=False):
         # check if exist
         if not os.path.isfile('/etc/letsencrypt/live/{0}/cert.pem'
                       .format(domain)):
             Log.error(self,'File Not Found : /etc/letsencrypt/live/{0}/cert.pem'
                       .format(domain),False)
+            if returnonerror:
+                return -1
             Log.error(self, "Check logs for reason "
                       "`tail /var/log/ee/ee.log` & Try Again!!!")
 

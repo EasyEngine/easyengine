@@ -1186,7 +1186,8 @@ def operateOnPagespeed(self, data):
 
 def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
-
+    if not os.path.isdir("/opt"):
+        EEFileUtils.mkdir(self,"/opt")
     try:
         Log.info(self, "Downloading {0:20}".format("LetsEncrypt"), end=' ')
         EEFileUtils.chdir(self, '/opt/')
@@ -1213,7 +1214,13 @@ def setupLetsEncrypt(self, ee_domain_name):
     EEFileUtils.chdir(self, '/opt/letsencrypt')
     EEShellExec.cmd_exec(self, "git pull")
 
-    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+    if os.path.isfile("/etc/letsencrypt/renewal/{0}.conf".format(ee_domain_name)):
+        Log.debug(self, "LetsEncrypt SSL Certificate found for the domain {0}"
+                 .format(ee_domain_name))
+        ssl= archivedCertificateHandle(self,ee_domain_name,ee_wp_email)
+    else:
+        Log.warn(self,"Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network.")
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     if ssl:
@@ -1331,7 +1338,48 @@ def httpsRedirect(self,ee_domain_name,redirect=True):
              Log.info(self, "Disabled HTTPS Force Redirection for Site "
                          " http://{0}".format(ee_domain_name))
 
+def archivedCertificateHandle(self,domain,ee_wp_email):
+    Log.warn(self,"You already have an existing certificate for the domain requested.\n"
+                        "(ref: /etc/letsencrypt/renewal/{0}.conf)".format(domain) +
+                        "\nPlease select an option from below?"
+                    "\n\t1: Reinstall existing certificate"
+                    "\n\t2: Keep the existing certificate for now"
+                    "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)"
+                        "")
+    check_prompt = input("\nType the appropriate number [1-3] or any other key to cancel: ")
+    if not os.path.isfile("/etc/letsencrypt/live/{0}/cert.pem".format(domain)):
+            Log.error(self,"/etc/letsencrypt/live/{0}/cert.pem file is missing.".format(domain))
+    if check_prompt == "1":
+        Log.info(self,"Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network.")
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(domain)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    elif check_prompt == "2" :
+        Log.info(self,"Using Existing Certificate files")
+        if not (os.path.isfile("/etc/letsencrypt/live/{0}/fullchain.pem".format(domain)) or
+                    os.path.isfile("/etc/letsencrypt/live/{0}/privkey.pem".format(domain))):
+            Log.error(self,"Certificate files not found. Skipping.\n"
+                           "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t"
+                           "/etc/letsencrypt/live/{0}/privkey.pem".format(domain))
+        ssl = True
 
+    elif check_prompt == "3":
+        Log.info(self,"Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network.")
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+                                .format(domain)
+                                + "--email {0} --text --agree-tos".format(ee_wp_email))
+    else:
+        Log.error(self,"Operation cancelled by user.")
+
+    if os.path.isfile("{0}/conf/nginx/ssl.conf"
+                              .format(domain)):
+        Log.info(self, "Existing ssl.conf . Backing it up ..")
+        EEFileUtils.mvfile(self, "/var/www/{0}/conf/nginx/ssl.conf"
+                             .format(domain),
+                             '/var/www/{0}/conf/nginx/ssl.conf.bak'
+                             .format(domain))
+
+    return ssl
 
 
 

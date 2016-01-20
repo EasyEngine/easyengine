@@ -1693,11 +1693,34 @@ class EEStackController(CementBaseController):
                         self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
-                    Log.info(self, "Nginx already installed")
+                    if EEAptGet.is_installed(self, 'nginx-mainline'):
+                        Log.warn(self,'Nginx Mainline already found on your system.\nDo you want to remove Nginx mainline '
+                                          'and install Nginx Stable.,\nAny answer other than "yes" will be stop this '
+                                          'operation.')
+                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
+                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+                            EEService.stop_service(self, 'nginx')
+                            Log.debug(self, "Removing apt_packages variable of NGINX")
+                            Log.info(self, "Removing packages, please wait...")
+                            EEAptGet.remove(self, EEVariables.ee_nginx_dev)
+                            EEAptGet.auto_remove(self)
+                            Log.info(self, "Removing repository for NGINX MAINLINE,")
+                            EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+                            Log.info(self, "Successfully removed packages")
+                            Log.info(self,"Initializing NGINX Mainline Packages... Please Wait")
+                            if EEAptGet.download_only(self,EEVariables.ee_nginx,EEVariables.ee_nginx_repo,EEVariables.ee_nginx_key):
+                                apt_packages = apt_packages + EEVariables.ee_nginx
+                            else:
+                                #revert the changes
+                                EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+                                Log.error(self,"Error installing NGINX Stable\nReverting back to NGINX Mainline ..",False)
+                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                    else:
+                        Log.info(self, "NGINX Stable already installed")
 
             if self.app.pargs.nginxmainline:
                 if EEVariables.ee_nginx_dev_repo == None:
-                    Log.error(self, "NGINX Mainline Version is not supported in wheezy")
+                    Log.error(self, "NGINX Mainline Version is not supported in your platform")
 
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
@@ -1711,7 +1734,25 @@ class EEStackController(CementBaseController):
                         self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx already installed")
-                    Log.info(self, "Nginx already installed")
+                    if EEAptGet.is_installed(self, 'nginx-custom'):
+                        Log.warn(self,'Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
+                                          'and install Nginx Mainline.,\nAny answer other than "yes" will be stop this '
+                                          'operation.')
+                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
+                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+                            Log.info(self,"Initializing... Please Wait")
+                            if EEAptGet.download_only(self,EEVariables.ee_nginx_dev,EEVariables.ee_nginx_dev_repo,EEVariables.ee_nginx_key):
+                                EEService.stop_service(self, 'nginx')
+                                Log.debug(self, "Removing apt_packages variable of Nginx")
+                                Log.info(self, "Removing packages, please wait...")
+                                EEAptGet.remove(self, EEVariables.ee_nginx)
+                                EEAptGet.auto_remove(self)
+                                Log.info(self, "Successfully removed packages")
+                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+                            else:
+                                Log.error(self,"Skipped installing NGINX Mainline",False)
+                    else:
+                        Log.info(self, "NGINX Mainline already installed")
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
