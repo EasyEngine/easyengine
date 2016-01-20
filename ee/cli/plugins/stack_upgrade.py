@@ -114,7 +114,7 @@ class EEStackUpgradeController(CementBaseController):
                (not self.app.pargs.php) and (not self.app.pargs.mysql) and
                (not self.app.pargs.postfix) and (not self.app.pargs.hhvm) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-               and (not self.app.pargs.wpcli) and (not self.app.pargs.redis)):
+               and (not self.app.pargs.wpcli) and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline)):
                 self.app.pargs.web = True
 
             if self.app.pargs.all:
