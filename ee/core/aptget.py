@@ -195,3 +195,37 @@ class EEAptGet():
             return True
         # apt_cache.close()
         return False
+
+    def download_only(self,package_name,repo_url=None,repo_key=None):
+        """
+        Similar to `apt-get install --download-only PACKAGE_NAME`
+        """
+        packages = ' '.join(package_name)
+        try:
+            with open('/var/log/ee/ee.log', 'a') as f:
+                if repo_url is not None:
+                    EERepo.add(self, repo_url=repo_url)
+                if repo_key is not None:
+                    EERepo.add_key(self, repo_key)
+                proc = subprocess.Popen("apt-get update && DEBIAN_FRONTEND=noninteractive "
+                                        "apt-get install -o "
+                                        "Dpkg::Options::=\"--force-confdef\""
+                                        " -o "
+                                        "Dpkg::Options::=\"--force-confold\""
+                                        " -y  --download-only {0}"
+                                        .format(packages), shell=True,
+                                        stdin=None, stdout=f, stderr=f,
+                                        executable="/bin/bash")
+                proc.wait()
+
+            if proc.returncode == 0:
+                return True
+            else:
+                Log.error(self,"Error in fetching dpkg package.\nReverting changes ..",False)
+                if repo_url is not None:
+                    EERepo.remove(self, repo_url=repo_url)
+                return False
+        except Exception as e:
+            Log.error(self, "Error while downloading packages, "
+                      "apt-get exited with error")
+

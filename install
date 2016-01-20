@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.4.0"
+readonly ee_version_new="3.4.1"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -524,6 +524,15 @@ function ee_update_latest()
     if [ -f /etc/nginx/nginx.conf ]; then
        sed -i 's/HIGH:!aNULL:!MD5:!kEDH;/ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:ECDHE-RSA-DES-CBC3-SHA:ECDHE-ECDSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA;/' /etc/nginx/nginx.conf
     fi
+
+   #Fix for SSL cert --all
+   crontab -l | grep -q '\-\-min_expiry_limit'
+   if [[ $? -eq 0 ]]; then
+        crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
+        crontab -l | sed '/--min_expiry_limit/d' | crontab -
+        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 ee site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine\"; } | crontab -"
+   fi
+
 
 
 }

@@ -1,4 +1,10 @@
-v3.4.0 - Jan 6, 2015
+v3.4.1 - Jan 20, 2016
+- Fixed and update ee stack install --nginx/--nginxmainline
+- Fixed --letsencrypt minor issues
+- Fixed #665 #659
+- Fixed other minor bug
+
+v3.4.0 - Jan 6, 2016
 - Added Let's Encrypt support
    - ee site create example.com [--wp/..] --letsencrypt
    - ee site update example.com --letsencrypt=on/off/renew

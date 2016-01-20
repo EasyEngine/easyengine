@@ -6,13 +6,13 @@ Set CRON on LINUX system.
 """
 
 class EECron():
-    def setcron_daily(self,cmd,comment='Cron set by EasyEngine',user='root',min=0,hour=12):
+    def setcron_weekly(self,cmd,comment='Cron set by EasyEngine',user='root',min=0,hour=12):
         if not EEShellExec.cmd_exec(self, "crontab -l | grep -q \'{0}\'".format(cmd)):
 
             EEShellExec.cmd_exec(self, "/bin/bash -c \"crontab -l "
                                              "2> /dev/null | {{ cat; echo -e"
                                              " \\\""
-                                             "\\n0 12 * * * "
+                                             "\\n0 0 * * 0 "
                                              "{0}".format(cmd) +
                                              " # {0}".format(comment)+
                                              "\\\"; } | crontab -\"")
