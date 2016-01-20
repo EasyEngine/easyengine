@@ -122,7 +122,12 @@ class EEStackUpgradeController(CementBaseController):
                 self.app.pargs.mail = True
 
             if self.app.pargs.web:
-                self.app.pargs.nginx = True
+                if EEAptGet.is_installed(self, 'nginx-custom'):
+                    self.app.pargs.nginx = True
+                elif EEAptGet.is_installed(self, 'nginx-mainline'):
+                    self.app.pargs.nginxmainline = True
+                else:
+                    Log.info(self, "Nginx is not already installed")
                 self.app.pargs.php = True
                 self.app.pargs.mysql = True
                 self.app.pargs.postfix = True
@@ -141,13 +146,17 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Mail server is not installed")
 
-            if self.app.pargs.nginx or self.app.pargs.nginxmainline:
+            if self.app.pargs.nginx :
                 if EEAptGet.is_installed(self, 'nginx-custom'):
                     apt_packages = apt_packages + EEVariables.ee_nginx
-                elif EEAptGet.is_installed(self, 'nginx-mainline'):
+                else:
+                    Log.info(self, "Nginx Stable is not already installed")
+
+            if self.app.pargs.nginxmainline:
+                if EEAptGet.is_installed(self, 'nginx-mainline'):
                     apt_packages = apt_packages + EEVariables.ee_nginx_dev
                 else:
-                    Log.info(self, "Nginx is not already installed")
+                    Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
                 if EEAptGet.is_installed(self, 'php5-fpm'):
