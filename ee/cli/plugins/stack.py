@@ -1858,6 +1858,7 @@ class EEStackController(CementBaseController):
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
+        ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
         self.msg = []
         try:
             # Default action for stack installation
@@ -1870,7 +1871,7 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
                and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline) and
-               (not self.app.pargs.phpredisadmin)):
+               (not self.app.pargs.phpredisadmin) and (not self.app.pargs.php7)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -2015,11 +2016,25 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
-                if not EEAptGet.is_installed(self, 'php5-fpm'):
+                if not (EEAptGet.is_installed(self, 'php5-fpm') and EEAptGet.is_installed(self, 'php5.6-fpm')):
                     apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
+
+
+            if self.app.pargs.php7:
+                if ee_platform_codename == 'trusty':
+                    Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+                    if not EEAptGet.is_installed(self, 'php7.0-fpm') :
+                        apt_packages = apt_packages + EEVariables.ee_php7_0
+                    else:
+                        Log.debug(self, "PHP already installed")
+                        Log.info(self, "PHP already installed")
+                else:
+                    Log.debug(self, "PHP 7.0  Not Available for your Distribution")
+                    Log.info(self, "PHP 7.0  Not Available for your Distribution")
+
 
             if self.app.pargs.hhvm:
                 Log.debug(self, "Setting apt packages variable for HHVM")
