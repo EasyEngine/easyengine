@@ -180,8 +180,8 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx-mainline')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if (set(EEVariables.ee_php).issubset(set(apt_packages)) or set(EEVariables.ee_php7_0).issubset(set(apt_packages))\
-                or set(EEVariables.ee_php5_6).issubset(set(apt_packages))):
+        if set(EEVariables.ee_php).issubset(set(apt_packages)) or set(EEVariables.ee_php7_0).issubset(set(apt_packages))\
+                or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for PHP, please wait...")
             # Add repository for php
             if EEVariables.ee_platform_distro == 'debian':
