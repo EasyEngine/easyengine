@@ -141,7 +141,11 @@ class EEVariables():
         ee_php = ee_php + ["php5-dev"]
 
     if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
-        ee_php = ee_php + ["php5-xdebug"]
+        if ee_platform_codename == 'trusty':
+            ee_php = ee_php5_6 + ["php-xdebug"]
+            ee_php = ee_php7_0 + ["php-xdebug"]
+        else:
+            ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'ubuntu':
