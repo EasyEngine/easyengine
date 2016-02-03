@@ -180,17 +180,23 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx-mainline')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if set(EEVariables.ee_php).issubset(set(apt_packages)) or set(EEVariables.ee_php7_0).issubset(set(apt_packages))\
-                or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP, please wait...")
-            # Add repository for php
-            if EEVariables.ee_platform_distro == 'debian':
-                if EEVariables.ee_platform_codename != 'jessie':
-                    Log.debug(self, 'Adding repo_url of php for debian')
-                    EERepo.add(self, repo_url=EEVariables.ee_php_repo)
-                    Log.debug(self, 'Adding Dotdeb/php GPG key')
-                    EERepo.add_key(self, '89DF5277')
-            else:
+        if EEVariables.ee_platform_codename != 'trusty':
+            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                # Add repository for php
+                if EEVariables.ee_platform_distro == 'debian':
+                    if EEVariables.ee_platform_codename != 'jessie':
+                        Log.debug(self, 'Adding repo_url of php for debian')
+                        EERepo.add(self, repo_url=EEVariables.ee_php_repo)
+                        Log.debug(self, 'Adding Dotdeb/php GPG key')
+                        EERepo.add_key(self, '89DF5277')
+                else:
+                    Log.debug(self, 'Adding ppa for PHP')
+                    EERepo.add(self, ppa=EEVariables.ee_php_repo)
+        else:
+            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
+                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
@@ -1858,7 +1864,6 @@ class EEStackController(CementBaseController):
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
-        ee_platform_codename = os.popen("lsb_release -sc | tr -d \'\\n\'").read()
         self.msg = []
         try:
             # Default action for stack installation
@@ -2024,7 +2029,7 @@ class EEStackController(CementBaseController):
 
 
             if self.app.pargs.php7:
-                if ee_platform_codename == 'trusty':
+                if EEVariables.ee_platform_codename == 'trusty':
                     Log.debug(self, "Setting apt_packages variable for PHP 7.0")
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
                         apt_packages = apt_packages + EEVariables.ee_php7_0
