@@ -253,10 +253,16 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEVariables.ee_platform_codename != 'trusty':
+                if EEAptGet.is_installed(self, 'php5-fpm'):
+                    services = services + ['php5-fpm']
+                else:
+                    Log.info(self, "PHP5-FPM is not installed")
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    services = services + ['php5.6-fpm']
+                else:
+                    Log.info(self, "PHP5.6-FPM is not installed")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
