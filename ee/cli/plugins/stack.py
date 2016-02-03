@@ -712,7 +712,7 @@ class EEStackController(CementBaseController):
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                          "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+            if EEVariables.ee_platform_codename != 'trusty' and set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
                     Log.debug(self, 'Creating directory /var/log/php5/')
@@ -2022,7 +2022,10 @@ class EEStackController(CementBaseController):
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not (EEAptGet.is_installed(self, 'php5-fpm') and EEAptGet.is_installed(self, 'php5.6-fpm')):
-                    apt_packages = apt_packages + EEVariables.ee_php
+                    if EEVariables.ee_platform_codename == 'trusty':
+                        apt_packages = apt_packages + EEVariables.ee_php5_6
+                    else:
+                        apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
@@ -2283,7 +2286,10 @@ class EEStackController(CementBaseController):
                 Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            apt_packages = apt_packages + EEVariables.ee_php
+            if EEVariables.ee_platform_codename == 'trusty':
+                apt_packages = apt_packages + EEVariables.ee_php5_6
+            else:
+                apt_packages = apt_packages + EEVariables.ee_php
 
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
@@ -2432,7 +2438,10 @@ class EEStackController(CementBaseController):
                 Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            apt_packages = apt_packages + EEVariables.ee_php
+            if EEVariables.ee_platform_codename == 'trusty':
+                apt_packages = apt_packages + EEVariables.ee_php5_6
+            else:
+                apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")
