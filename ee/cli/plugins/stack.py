@@ -749,7 +749,9 @@ class EEStackController(CementBaseController):
                               "/etc/php5/fpm/php.ini")
                     config.write(configfile)
 
-                # Prase /etc/php5/fpm/php-fpm.conf
+                '''
+                #Code depreciated. Mustache version applied
+                # Parse /etc/php5/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file"
                           "/etc/php5/fpm/php-fpm.conf")
@@ -764,6 +766,17 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
+                '''
+                #configure /etc/php5/fpm/php-fpm.conf
+                data = dict(pid="/run/php5-fpm.pid", error_log="/var/log/php5/fpm.log",
+                              include="/etc/php5/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php configuration into "
+                              "/etc/php5/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php5/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
+
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
@@ -877,6 +890,9 @@ class EEStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/5.6/fpm/php-fpm.conf
+                '''
+                #Depreciated code. Mustache version Applied.
+
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file "
                           "/etc/php/5.6/fpm/php-fpm.conf")
@@ -891,6 +907,19 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php/5.6/fpm/php-fpm.conf")
                     config.write(configfile)
+                '''
+                data = dict(pid="/run/php/php5.6-fpm.pid", error_log="/var/log/php/5.6/fpm.log",
+                              include="/etc/php/5.6/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php5 configuration into "
+                              "/etc/php/5.6/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php/5.6/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
+
+
+
+
 
                 # Parse /etc/php/5.6/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
@@ -1005,6 +1034,8 @@ class EEStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.0/fpm/php-fpm.conf
+                '''
+                #Depreciated code. Mustache version applied
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file"
                           "/etc/php/7.0/fpm/php-fpm.conf")
@@ -1019,6 +1050,15 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php/7.0/fpm/php-fpm.conf")
                     config.write(configfile)
+                '''
+                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.0/fpm.log",
+                              include="/etc/php/7.0/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php 7.0 configuration into "
+                              "/etc/php/7.0/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php/7.0/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
 
                 # Parse /etc/php/7.0/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
