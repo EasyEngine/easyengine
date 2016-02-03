@@ -2063,7 +2063,7 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
-                if not (EEAptGet.is_installed(self, 'php5-fpm') and EEAptGet.is_installed(self, 'php5.6-fpm')):
+                if not (EEAptGet.is_installed(self, 'php5-fpm') or EEAptGet.is_installed(self, 'php5.6-fpm')):
                     if EEVariables.ee_platform_codename == 'trusty':
                         apt_packages = apt_packages + EEVariables.ee_php5_6
                     else:
