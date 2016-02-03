@@ -878,14 +878,14 @@ class EEStackController(CementBaseController):
 
                 # Parse /etc/php/5.6/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file"
+                Log.debug(self, "configuring php file "
                           "/etc/php/5.6/fpm/php-fpm.conf")
                 config.read_file(codecs.open("/etc/php/5.6/fpm/php-fpm.conf",
                                              "r", "utf8"))
                 config['global']['error_log'] = '/var/log/php/5.6/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-              #  config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
+                config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
                 with codecs.open('/etc/php/5.6/fpm/php-fpm.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
@@ -1013,7 +1013,7 @@ class EEStackController(CementBaseController):
                 config['global']['error_log'] = '/var/log/php/7.0/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                #config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
                 with codecs.open('/etc/php/7.0/fpm/php-fpm.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
@@ -2039,8 +2039,8 @@ class EEStackController(CementBaseController):
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
                         apt_packages = apt_packages + EEVariables.ee_php7_0
                     else:
-                        Log.debug(self, "PHP already installed")
-                        Log.info(self, "PHP already installed")
+                        Log.debug(self, "PHP 7.0 already installed")
+                        Log.info(self, "PHP 7.0 already installed")
                 else:
                     Log.debug(self, "PHP 7.0  Not Available for your Distribution")
                     Log.info(self, "PHP 7.0  Not Available for your Distribution")
