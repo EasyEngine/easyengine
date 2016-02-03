@@ -264,6 +264,11 @@ class EEStackStatusController(CementBaseController):
                 else:
                     Log.info(self, "PHP5.6-FPM is not installed")
 
+                if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    services = services + ['php7.0-fpm']
+                else:
+                    Log.info(self, "PHP7.0-FPM is not installed")
+
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
                (EEVariables.ee_mysql_host is "127.0.0.1")):
