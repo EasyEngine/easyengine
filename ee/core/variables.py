@@ -123,11 +123,11 @@ class EEVariables():
             ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
                         "php5.6-mcrypt", "php5.6-common", "php5.6-readline",
                         "php5.6-mysql", "php5.6-cli", "php-memcached", "php-imagick",
-                        "memcached", "graphviz", "php-pear"]
+                        "memcached", "graphviz", "php-pear", "php-xdebug"]
             ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
                           "php7.0-mcrypt", "php7.0-common", "php7.0-readline",
                           "php7.0-mysql", "php7.0-cli", "php-memcached", "php-imagick",
-                          "memcached", "graphviz", "php-pear"]
+                          "memcached", "graphviz", "php-pear", "php-xdebug"]
     elif ee_platform_distro == 'debian':
         if ee_platform_codename == 'wheezy':
             ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
@@ -140,12 +140,8 @@ class EEVariables():
     if ee_platform_codename == 'wheezy':
         ee_php = ee_php + ["php5-dev"]
 
-    if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
-        if ee_platform_codename == 'trusty':
-            ee_php = ee_php5_6 + ["php-xdebug"]
-            ee_php = ee_php7_0 + ["php-xdebug"]
-        else:
-            ee_php = ee_php + ["php5-xdebug"]
+    if ee_platform_codename == 'precise' or ee_platform_codename == 'jessie':
+        ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
     if ee_platform_distro == 'ubuntu':

@@ -885,7 +885,7 @@ class EEStackController(CementBaseController):
                 config['global']['error_log'] = '/var/log/php/5.6/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
+              #  config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
                 with codecs.open('/etc/php/5.6/fpm/php-fpm.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
@@ -939,7 +939,8 @@ class EEStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/mods-available/xdebug.ini"):
+                    EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -1012,7 +1013,7 @@ class EEStackController(CementBaseController):
                 config['global']['error_log'] = '/var/log/php/7.0/fpm.log'
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                #config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
                 with codecs.open('/etc/php/7.0/fpm/php-fpm.conf',
                                  encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
@@ -1066,7 +1067,8 @@ class EEStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/mods-available/xdebug.ini"):
+                    EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
