@@ -165,7 +165,7 @@ class EEStackStatusController(CementBaseController):
     def restart(self):
         """Restart services"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php
+        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
                 or self.app.pargs.dovecot or self.app.pargs.redis):
@@ -181,10 +181,31 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                services = services + ['php5-fpm']
+            if EEVariables.ee_platform_codename != 'trusty':
+                if EEAptGet.is_installed(self, 'php5-fpm'):
+                    services = services + ['php5-fpm']
+                else:
+                    Log.info(self, "PHP5-FPM is not installed")
             else:
-                Log.info(self, "PHP5-FPM is not installed")
+                if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    services = services + ['php5.6-fpm']
+                else:
+                    Log.info(self, "PHP5.6-FPM is not installed")
+
+                if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    services = services + ['php7.0-fpm']
+                else:
+                    Log.info(self, "PHP7.0-FPM is not installed")
+
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    services = services + ['php7.0-fpm']
+                else:
+                    Log.info(self, "PHP7.0-FPM is not installed")
+            else:
+                Log.info(self, "Your platform does not support PHP 7")
+
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
@@ -236,7 +257,7 @@ class EEStackStatusController(CementBaseController):
     def status(self):
         """Status of services"""
         services = []
-        if not (self.app.pargs.nginx or self.app.pargs.php
+        if not (self.app.pargs.nginx or self.app.pargs.php or self.app.pargs.php7
                 or self.app.pargs.mysql or self.app.pargs.postfix
                 or self.app.pargs.hhvm or self.app.pargs.memcache
                 or self.app.pargs.dovecot or self.app.pargs.redis):
@@ -268,6 +289,15 @@ class EEStackStatusController(CementBaseController):
                     services = services + ['php7.0-fpm']
                 else:
                     Log.info(self, "PHP7.0-FPM is not installed")
+
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    services = services + ['php7.0-fpm']
+                else:
+                    Log.info(self, "PHP7.0-FPM is not installed")
+            else:
+                Log.info(self, "Your platform does not support PHP 7")
 
         if self.app.pargs.mysql:
             if ((EEVariables.ee_mysql_host is "localhost") or
