@@ -336,6 +336,8 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create html site", action='store_true')),
             (['--php'],
                 dict(help="create php site", action='store_true')),
+            (['--php7'],
+                dict(help="create php site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -441,13 +443,13 @@ class EESiteCreateController(CementBaseController):
             data['port'] = port
             ee_site_webroot = ""
 
-        if stype in ['html', 'php']:
+        if stype in ['html', 'php' , 'php7']:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=True,  basic=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
 
-            if stype == 'php':
+            if stype == 'php' or stype == 'php7':
                 data['static'] = False
                 data['basic'] = True
 
@@ -476,6 +478,29 @@ class EESiteCreateController(CementBaseController):
 
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
+
+        if data and self.app.pargs.php7:
+            if (not self.app.pargs.experimental):
+                Log.info(self, "PHP7.0 is experimental feature and it may not "
+                         "work with all CSS/JS/Cache of your site.\nDo you wish"
+                         " to install PHP 7.0 now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info(self, "Not using PHP 7.0 for site.")
+                    data['php7'] = False
+                    php7 = 0
+                    self.app.pargs.php7 = False
+                else:
+                    data['php7'] = True
+                    php7 = 1
+            else:
+                data['php7'] = True
+                php7 = 1
+        elif data:
+            data['php7'] = False
+            php7 = 0
 
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):

@@ -699,10 +699,29 @@ def site_package_check(self, stype):
                     ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if self.app.pargs.php and self.app.pargs.php7:
+        Log.error(self,"INVALID OPTION: PHP 7.0 provided with PHP 5.0")
+
+    if not self.app.pargs.php7 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if not EEAptGet.is_installed(self, 'php5-fpm'):
-            apt_packages = apt_packages + EEVariables.ee_php
+        if EEVariables.ee_platform_codename != 'trusty':
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php
+        else:
+            if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php5_6
+
+    if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        if EEVariables.ee_platform_codename == 'trusty':
+            Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+            if not EEAptGet.is_installed(self, 'php7-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+        else:
+            Log.warn(self, "PHP 7.0 not available for your system.")
+            Log.info(self, "Setting apt_packages variable for PHP 5.0")
+            Log.debug(self, "Setting apt_packages variable for PHP 5.0")
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php5_6
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
