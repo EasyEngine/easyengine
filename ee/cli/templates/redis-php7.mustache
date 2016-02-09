@@ -32,7 +32,6 @@ location /redis-store {
     redis2_query  set $key $echo_request_body;
     redis2_query expire $key 14400;
     redis2_pass  redis;
-
 }
 
 location ~ \.php$ {
