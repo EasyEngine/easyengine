@@ -840,6 +840,56 @@ def site_package_check(self, stype):
                     hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
+    if self.app.pargs.php7:
+        if EEVariables.ee_platform_codename != 'trusty':
+            Log.error(self,"PHP 7.0 is not supported in your Platform")
+
+        Log.debug(self, "Setting apt_packages variable for HHVM")
+        if not EEAptGet.is_installed(self, 'php7-fpm'):
+            apt_packages = apt_packages + EEVariables.php7
+
+        if os.path.isdir("/etc/nginx/common") and (not
+           os.path.isfile("/etc/nginx/common/php7.conf")):
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php7.conf')
+            ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/w3tc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpfc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpsc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpsc-php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "php7"):
+                with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
+                    php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
+                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
+
+
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
