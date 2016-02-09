@@ -394,8 +394,6 @@ class EEStackController(CementBaseController):
                                       '/etc/nginx/sites-available')
                             os.makedirs('/etc/nginx/sites-enabled')
 
-
-
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/sites-available/'

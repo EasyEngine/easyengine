@@ -490,6 +490,7 @@ class EESiteCreateController(CementBaseController):
                 if check_prompt != "Y" and check_prompt != "y":
                     Log.info(self, "Not using PHP 7.0 for site.")
                     data['php7'] = False
+                    data['basic'] = True
                     php7 = 0
                     self.app.pargs.php7 = False
                 else:
