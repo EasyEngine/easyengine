@@ -714,7 +714,7 @@ def site_package_check(self, stype):
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if EEVariables.ee_platform_codename == 'trusty':
             Log.debug(self, "Setting apt_packages variable for PHP 7.0")
-            if not EEAptGet.is_installed(self, 'php7-fpm'):
+            if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php7_0
         else:
             Log.warn(self, "PHP 7.0 not available for your system.")
@@ -845,7 +845,7 @@ def site_package_check(self, stype):
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
         Log.debug(self, "Setting apt_packages variable for HHVM")
-        if not EEAptGet.is_installed(self, 'php7-fpm'):
+        if not EEAptGet.is_installed(self, 'php7.0-fpm'):
             apt_packages = apt_packages + EEVariables.php7
 
         if os.path.isdir("/etc/nginx/common") and (not
