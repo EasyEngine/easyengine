@@ -1,0 +1,10 @@
+# PHP NGINX CONFIGURATION
+# DO NOT MODIFY, ALL CHANGES LOST AFTER UPDATE EasyEngine (ee)
+location / {
+  try_files $uri $uri/ /index.php?$args;
+}
+location ~ \.php$ {
+  try_files $uri =404;
+  include fastcgi_params;
+  fastcgi_pass php7;
+}
