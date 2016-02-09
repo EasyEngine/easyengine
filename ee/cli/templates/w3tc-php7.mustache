@@ -1,0 +1,31 @@
+
+# W3TC NGINX CONFIGURATION
+# DO NOT MODIFY, ALL CHANGES LOST AFTER UPDATE EasyEngine (ee)
+set $cache_uri $request_uri;
+# POST requests and URL with a query string should always go to php
+if ($request_method = POST) {
+  set $cache_uri 'null cache';
+}
+if ($query_string != "") {
+  set $cache_uri 'null cache';
+}
+# Don't cache URL containing the following segments
+if ($request_uri ~* "(/wp-admin/|/xmlrpc.php|wp-.*.php|index.php|/feed/|sitemap(_index)?.xml|[a-z0-9_-]+-sitemap([0-9]+)?.xml)") {
+  set $cache_uri 'null cache';
+}
+# Don't use the cache for logged in users or recent commenter
+if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_logged_in") {
+  set $cache_uri 'null cache';
+}
+# Use cached or actual file if they exists, Otherwise pass request to WordPress
+location / {
+  try_files /wp-content/cache/page_enhanced/${host}${cache_uri}_index.html $uri $uri/ /index.php?$args;
+}
+location ~ ^/wp-content/cache/minify/(.+\.(css|js))$ {
+  try_files $uri /wp-content/plugins/w3-total-cache/pub/minify.php?file=$1;
+}
+location ~ \.php$ {
+  try_files $uri =404;
+  include fastcgi_params;
+  fastcgi_pass php7;
+}
