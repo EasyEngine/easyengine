@@ -824,6 +824,8 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to html site", action='store_true')),
             (['--php'],
                 dict(help="update to php site", action='store_true')),
+            (['--php7'],
+                dict(help="update to php site", action='store_true')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -873,7 +875,7 @@ class EESiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or
+            if not (pargs.php or pargs.php7 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
                     pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis or pargs.letsencrypt):
