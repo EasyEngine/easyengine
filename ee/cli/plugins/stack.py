@@ -414,6 +414,13 @@ class EEStackController(CementBaseController):
                                 out=ee_nginx)
                         ee_nginx.close()
 
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                                     encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis-php7.mustache',
+                                      out=ee_nginx)
+                        ee_nginx.close()
 
                     # Nginx-Plus does not have nginx package structure like this
                     # So creating directories
@@ -589,7 +596,6 @@ class EEStackController(CementBaseController):
                     if EEVariables.ee_platform_codename == 'trusty':
                         if os.path.isfile("/etc/nginx/nginx.conf") and (not
                             os.path.isfile("/etc/nginx/common/redis-php7.conf")):
-
                             data = dict()
                             Log.debug(self, 'Writting the nginx configuration to '
                                   'file /etc/nginx/common/redis-php7.conf')

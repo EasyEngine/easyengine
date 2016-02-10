@@ -503,6 +503,12 @@ class EESiteCreateController(CementBaseController):
             data['php7'] = False
             php7 = 0
 
+        if (self.app.pargs.php7) and (not self.app.pargs.w3tc) and\
+                (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis) \
+                and (not self.app.pargs.hhvm):
+            data['basic'] = True
+
+
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
                 Log.info(self, "HHVM is experimental feature and it may not "
