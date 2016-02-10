@@ -762,6 +762,18 @@ def site_package_check(self, stype):
                             out=ee_nginx)
             ee_nginx.close()
 
+        if EEVariables.ee_platform_codename == 'trusty':
+            if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                  os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+                data = dict()
+                Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/redis-php7.conf')
+                ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                            encoding='utf-8', mode='w')
+                self.app.render((data), 'redis-php7.mustache',
+                            out=ee_nginx)
+                ee_nginx.close()
+
         if os.path.isfile("/etc/nginx/nginx.conf") and (not
            os.path.isfile("/etc/nginx/common/redis-hhvm.conf")):
 
