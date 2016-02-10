@@ -379,6 +379,42 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    #php7 conf
+                    if EEVariables.ee_platform_codename == 'trusty' and (not
+                        os.path.isfile("/etc/nginx/common/php7.conf")):
+                        data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                        'file /etc/nginx/common/php7.conf')
+                        ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+                        self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpsc-php7.mustache',
+                                out=ee_nginx)
+                        ee_nginx.close()
+
+
                     # Nginx-Plus does not have nginx package structure like this
                     # So creating directories
                     if set(["nginx-plus"]).issubset(set(apt_packages)):
@@ -616,7 +652,7 @@ class EEStackController(CementBaseController):
                                 out=ee_nginx)
                     ee_nginx.close()
 
-                if not os.path.isfile("/etc/nginx/common/redis-php7.conf"):
+                if os.path.isdir("/etc/nginx/common") and (not os.path.isfile("/etc/nginx/common/redis-php7.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
                          'file /etc/nginx/common/redis-php7.conf')
