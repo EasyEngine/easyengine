@@ -550,6 +550,19 @@ class EEStackController(CementBaseController):
                                         out=ee_nginx)
                         ee_nginx.close()
 
+                    if EEVariables.ee_platform_codename == 'trusty':
+                        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                            os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+
+                            data = dict()
+                            Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-php7.conf')
+                            ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                                        encoding='utf-8', mode='w')
+                            self.app.render((data), 'redis-php7.mustache',
+                                        out=ee_nginx)
+                            ee_nginx.close()
+
                     if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                         if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
                                                 "upstream.conf",
@@ -567,6 +580,58 @@ class EEStackController(CementBaseController):
                                              "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
                                              "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                              "'\"$http_referer\" \"$http_user_agent\"';\n")
+            #setup nginx common folder for php7
+            if self.app.pargs.php7:
+                if os.path.isdir("/etc/nginx/common") and (not
+                    os.path.isfile("/etc/nginx/common/php7.conf")):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php7.conf')
+                    ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/w3tc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpfc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                                encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpsc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                                encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-php7.mustache',
+                                out=ee_nginx)
+                    ee_nginx.close()
+
+                if not os.path.isfile("/etc/nginx/common/redis-php7.conf"):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                         'file /etc/nginx/common/redis-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "php7"):
+                        with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
+                            php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
+                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
 
             # Set up pagespeed config
             if self.app.pargs.pagespeed:
