@@ -846,7 +846,7 @@ def site_package_check(self, stype):
 
         Log.debug(self, "Setting apt_packages variable for HHVM")
         if not EEAptGet.is_installed(self, 'php7.0-fpm'):
-            apt_packages = apt_packages + EEVariables.php7
+            apt_packages = apt_packages + EEVariables.ee_php7_0
 
         if os.path.isdir("/etc/nginx/common") and (not
            os.path.isfile("/etc/nginx/common/php7.conf")):
@@ -1460,7 +1460,3 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
                              .format(domain))
 
     return ssl
-
-
-
-
