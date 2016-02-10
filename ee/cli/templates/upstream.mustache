@@ -9,7 +9,6 @@ server 127.0.0.1:{{debug}};
 }
 {{#php7conf}}
 upstream php7 {
-# server unix:/run/php5-fpm.sock;
 server 127.0.0.1:{{php7}};
 }
 upstream debug7 {
@@ -17,6 +16,7 @@ upstream debug7 {
 server 127.0.0.1:{{debug7}};
 }
 {{/php7conf}}
+
 {{#hhvmconf}}
 upstream hhvm {
 # HHVM Pool

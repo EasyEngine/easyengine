@@ -844,7 +844,7 @@ def site_package_check(self, stype):
         if EEVariables.ee_platform_codename != 'trusty':
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
-        Log.debug(self, "Setting apt_packages variable for HHVM")
+        Log.debug(self, "Setting apt_packages variable for PHP 7.0")
         if not EEAptGet.is_installed(self, 'php7.0-fpm'):
             apt_packages = apt_packages + EEVariables.ee_php7_0
 
