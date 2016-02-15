@@ -382,7 +382,7 @@ class EEStackController(CementBaseController):
                     #php7 conf
                     if EEVariables.ee_platform_codename == 'trusty' and (not
                         os.path.isfile("/etc/nginx/common/php7.conf")):
-                        data = dict()
+                        #data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
                         'file /etc/nginx/common/php7.conf')
                         ee_nginx = open('/etc/nginx/common/php7.conf',
