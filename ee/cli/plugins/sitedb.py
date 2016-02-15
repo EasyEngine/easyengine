@@ -12,7 +12,7 @@ import glob
 def addNewSite(self, site, stype, cache, path,
                enabled=True, ssl=False, fs='ext4', db='mysql',
                db_name=None, db_user=None, db_password=None,
-               db_host='localhost', hhvm=0, pagespeed=0, php_version=''):
+               db_host='localhost', hhvm=0, pagespeed=0, php_version='5.5'):
     """
     Add New Site record information into ee database.
     """
