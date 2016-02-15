@@ -12,14 +12,14 @@ import glob
 def addNewSite(self, site, stype, cache, path,
                enabled=True, ssl=False, fs='ext4', db='mysql',
                db_name=None, db_user=None, db_password=None,
-               db_host='localhost', hhvm=0, pagespeed=0):
+               db_host='localhost', hhvm=0, pagespeed=0, php_version=''):
     """
     Add New Site record information into ee database.
     """
     try:
         newRec = SiteDB(site, stype, cache, path, enabled, ssl, fs, db,
                         db_name, db_user, db_password, db_host, hhvm,
-                        pagespeed)
+                        pagespeed,php_version)
         db_session.add(newRec)
         db_session.commit()
     except Exception as e:
@@ -42,7 +42,7 @@ def getSiteInfo(self, site):
 def updateSiteInfo(self, site, stype='', cache='', webroot='',
                    enabled=True, ssl=False, fs='', db='', db_name=None,
                    db_user=None, db_password=None, db_host=None, hhvm=None,
-                   pagespeed=None):
+                   pagespeed=None,php_version=''):
     """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()
@@ -86,6 +86,9 @@ def updateSiteInfo(self, site, stype='', cache='', webroot='',
 
     if (pagespeed is not None) and (q.is_pagespeed is not pagespeed):
         q.is_pagespeed = pagespeed
+
+    if php_version and q.php_version != php_version:
+        q.is_php7 = php_version
 
     try:
         q.created_on = func.now()

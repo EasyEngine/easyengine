@@ -832,7 +832,7 @@ class EESiteUpdateController(CementBaseController):
             (['--php'],
                 dict(help="update to php site", action='store_true')),
             (['--php7'],
-                dict(help="update to php site", action='store_true')),
+                dict(help="update to php7 site", action='store_true')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -957,9 +957,10 @@ class EESiteUpdateController(CementBaseController):
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
             check_ssl = check_site.is_ssl
+            check_php_version = check_site.php_version
 
         if (pargs.password and not (pargs.html or
-            pargs.php or pargs.mysql or pargs.wp or
+            pargs.php or pargs.php7 or pargs.mysql or pargs.wp or
             pargs.w3tc or pargs.wpfc or pargs.wpsc
            or pargs.wpsubdir or pargs.wpsubdomain)):
             try:
@@ -1030,7 +1031,7 @@ class EESiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.pagespeed or pargs.hhvm:
+        if pargs.pagespeed or pargs.hhvm or pargs.php7:
             if not data:
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             currsitetype=oldsitetype,
@@ -1110,6 +1111,14 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
+            if pargs.php7 != 'off':
+                data['php7'] = True
+                php7 = True
+            elif pargs.php7 == 'off':
+                data['php7'] = False
+                php7 = False
+
+
 
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
@@ -1120,6 +1129,32 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
+
+
+
+        if pargs.php7:
+            old_php7 = None
+            if check_php_version == "7.0":
+                old_php7 == True
+            else:
+                old_php7 == False
+
+            if php7 is old_php7:
+                if php7 is False:
+                    Log.info(self, "PHP 7.0 is already disabled for given "
+                             "site")
+                elif pagespeed is True:
+                    Log.info(self, "PHP 7.0 is already enabled for given "
+                             "site")
+                pargs.php7 = False
+
+            if data and (not pargs.pagespeed):
+                if old_php7 is True:
+                    data['php7'] = True
+                    php7 = True
+                else:
+                    data['php7'] = False
+                    php7 = False
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
