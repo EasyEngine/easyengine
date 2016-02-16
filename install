@@ -121,7 +121,8 @@ function ee_sync_db()
            db_password VARCHAR,
            db_host VARCHAR,
            is_hhvm INT INT DEFAULT '0',
-           is_pagespeed INT INT DEFAULT '0'
+           is_pagespeed INT INT DEFAULT '0',
+           php_version VARCHAR
         );" | sqlite3 /var/lib/ee/ee.db
 
         # Check site is enable/live or disable
@@ -213,6 +214,7 @@ function ee_sync_db()
         echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/ee/ee.db
         echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
         echo "ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT '5.5';" | sqlite3 /var/lib/ee/ee.db
     fi
 }
 
