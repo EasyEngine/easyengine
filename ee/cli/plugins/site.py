@@ -1127,7 +1127,7 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-            if pargs.php7 or pargs.php7 == 'on' :
+            if pargs.php7 != 'off' :
                 data['php7'] = True
                 php7 = True
             elif pargs.php7 == 'off':
