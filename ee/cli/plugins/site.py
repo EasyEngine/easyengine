@@ -1159,13 +1159,7 @@ class EESiteUpdateController(CementBaseController):
                              "site")
                 pargs.php7 = False
 
-            if data and (not pargs.php7):
-                if old_php7 is True:
-                    data['php7'] = True
-                    php7 = True
-                else:
-                    data['php7'] = False
-                    php7 = False
+
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
@@ -1256,6 +1250,14 @@ class EESiteUpdateController(CementBaseController):
             else:
                 data['pagespeed'] = False
                 pagespeed = False
+
+        if data and (not pargs.php7):
+            if old_php7 is True:
+                data['php7'] = True
+                php7 = True
+            else:
+                data['php7'] = False
+                php7 = False
 
         if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php7=="on":
             if pargs.php7 == "on":
