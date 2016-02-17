@@ -1,3 +1,6 @@
+v3.5.0 - Feb 17, 2016
+- Added PHP 7.0 support for UBUNTU(Trusty)
+
 v3.4.1 - Jan 20, 2016
 - Fixed and update ee stack install --nginx/--nginxmainline
 - Fixed --letsencrypt minor issues
