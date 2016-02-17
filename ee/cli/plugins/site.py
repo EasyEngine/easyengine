@@ -921,6 +921,7 @@ class EESiteUpdateController(CementBaseController):
         hhvm = None
         pagespeed = None
         letsencrypt = False
+        php7 = None
 
         data = dict()
         try:
@@ -1358,7 +1359,7 @@ class EESiteUpdateController(CementBaseController):
                     data['basic'] = True
                     cache = 'basic'
 
-        if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+        if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and (php7 is old_php7) and
             (stype == oldsitetype and cache == oldcachetype)):
             return 1
 
