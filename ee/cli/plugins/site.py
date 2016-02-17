@@ -832,7 +832,9 @@ class EESiteUpdateController(CementBaseController):
             (['--php'],
                 dict(help="update to php site", action='store_true')),
             (['--php7'],
-                dict(help="update to php7 site", action='store_true')),
+                dict(help="update to php7 site",
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -1111,7 +1113,7 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-            if pargs.php7 != 'off':
+            if pargs.php7 or pargs.php7 == 'on' :
                 data['php7'] = True
                 php7 = True
             elif pargs.php7 == 'off':
@@ -1148,7 +1150,7 @@ class EESiteUpdateController(CementBaseController):
                              "site")
                 pargs.php7 = False
 
-            if data and (not pargs.pagespeed):
+            if data and (not pargs.php7):
                 if old_php7 is True:
                     data['php7'] = True
                     php7 = True
