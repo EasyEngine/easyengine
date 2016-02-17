@@ -970,6 +970,11 @@ class EESiteUpdateController(CementBaseController):
             check_ssl = check_site.is_ssl
             check_php_version = check_site.php_version
 
+            if check_php_version == "7.0":
+                old_php7 = True
+            else:
+                old_php7 = False
+
         if (pargs.password and not (pargs.html or
             pargs.php or pargs.php7 or pargs.mysql or pargs.wp or
             pargs.w3tc or pargs.wpfc or pargs.wpsc
@@ -1144,11 +1149,6 @@ class EESiteUpdateController(CementBaseController):
 
 
         if pargs.php7:
-            old_php7 = None
-            if check_php_version == "7.0":
-                old_php7 == True
-            else:
-                old_php7 == False
 
             if php7 is old_php7:
                 if php7 is False:
