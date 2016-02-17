@@ -1256,7 +1256,27 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on":
+        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php7=="on":
+            if pargs.php7 == "on":
+                if (not pargs.experimental):
+                    Log.info(self, "PHP7.0 is experimental feature and it may not"
+                             " work with all plugins of your site.\nYou can "
+                             "disable it by passing --php7=off later.\nDo you wish"
+                             " to enable PHP now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]:")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info(self, "Not using PHP 7.0 for site")
+                        data['php7'] = False
+                        php7 = False
+                    else:
+                        data['php7'] = True
+                        php7 = True
+                else:
+                    data['php7'] = True
+                    php7 = True
+
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
