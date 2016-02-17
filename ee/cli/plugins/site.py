@@ -625,8 +625,16 @@ class EESiteCreateController(CementBaseController):
             if self.app.pargs.pagespeed:
                 operateOnPagespeed(self, data)
 
+            if data['php7']:
+                php_version = "7.0"
+            else:
+                if EEVariables.ee_platform_codename == 'trusty':
+                    php_version = "5.6"
+                else:
+                    php_version = "5.5"
+
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
-                       hhvm=hhvm, pagespeed=pagespeed)
+                       hhvm=hhvm, pagespeed=pagespeed, php_version=php_version)
 
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
