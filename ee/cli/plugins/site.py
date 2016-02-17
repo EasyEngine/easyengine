@@ -1149,17 +1149,14 @@ class EESiteUpdateController(CementBaseController):
 
 
         if pargs.php7:
-
             if php7 is old_php7:
                 if php7 is False:
                     Log.info(self, "PHP 7.0 is already disabled for given "
                              "site")
-                elif pagespeed is True:
+                elif php7 is True:
                     Log.info(self, "PHP 7.0 is already enabled for given "
                              "site")
                 pargs.php7 = False
-
-
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
