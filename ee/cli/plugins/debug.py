@@ -2,6 +2,7 @@
 
 from cement.core.controller import CementBaseController, expose
 from cement.core import handler, hook
+from ee.core.aptget import EEAptGet
 from ee.core.shellexec import *
 from ee.core.mysql import EEMysql
 from ee.core.services import EEService
@@ -47,6 +48,14 @@ class EEDebugController(CementBaseController):
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--fpm'],
                 dict(help='start/stop debugging fastcgi configuration',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
+            (['--php7'],
+                dict(help='start/stop debugging server php 7.0 configuration',
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
+            (['--fpm7'],
+                dict(help='start/stop debugging fastcgi 7.0 configuration',
                      action='store' or 'store_const',
                      choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
@@ -118,7 +127,7 @@ class EEDebugController(CementBaseController):
                 Log.info(self, "Nginx debug connection already disabled")
 
         # start site specific debug
-        elif (self.app.pargs.nginx == 'on'and self.app.pargs.site_name):
+        elif (self.app.pargs.nginx == 'on' and self.app.pargs.site_name):
             config_path = ("/etc/nginx/sites-available/{0}"
                            .format(self.app.pargs.site_name))
             if os.path.isfile(config_path):
@@ -167,6 +176,7 @@ class EEDebugController(CementBaseController):
     def debug_php(self):
         """Start/Stop PHP debug"""
         # PHP global debug start
+
         if (self.app.pargs.php == 'on' and not self.app.pargs.site_name):
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php"
                                                "{/,/}/p \" /etc/nginx/"
@@ -184,20 +194,20 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
-                                          "xdebug.ini",
-                                          ";zend_extension",
-                                          "zend_extension")
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
+                                              "xdebug.ini",
+                                              ";zend_extension",
+                                              "zend_extension")
 
                 # Fix slow log is not enabled default in PHP5.6
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/pool.d/debug.conf')
-                config['debug']['slowlog'] = '/var/log/php5/slow.log'
+                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/php5/fpm/pool.d/debug.conf',
+                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "Writting debug.conf configuration into "
-                              "/etc/php5/fpm/pool.d/debug.conf")
+                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
                     config.write(confifile)
 
                 self.trigger_php = True
@@ -205,7 +215,7 @@ class EEDebugController(CementBaseController):
             else:
                 Log.info(self, "PHP debug is already enabled")
 
-            self.msg = self.msg + ['/var/log/php5/slow.log']
+            self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")]
 
         # PHP global debug stop
         elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
@@ -223,7 +233,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php5/mods-available/"
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -239,43 +249,159 @@ class EEDebugController(CementBaseController):
         # PHP5-FPM start global debug
         if (self.app.pargs.fpm == 'on' and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                              "/etc/php5/fpm/php-fpm.conf"):
+                                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/php-fpm.conf')
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
-                config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf',
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php5-FPM configuration into "
-                              "/etc/php5/fpm/php-fpm.conf")
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
                     config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
 
-            self.msg = self.msg + ['/var/log/php5/fpm.log']
+            self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")]
 
         # PHP5-FPM stop global debug
         elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                          "/etc/php5/fpm/php-fpm.conf"):
+                                          "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/php5/fpm/php-fpm.conf')
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php5/fpm/pool.d/*.conf'
-                with open('/etc/php5/fpm/php-fpm.conf',
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
-                              "/etc/php5/fpm/php-fpm.conf")
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
                     config.write(configfile)
 
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug  already disabled")
+
+    @expose(hide=True)
+    def debug_php7(self):
+        """Start/Stop PHP debug"""
+        # PHP global debug start
+
+        if (self.app.pargs.php7 == 'on' and not self.app.pargs.site_name):
+            if EEVariables.ee_platform_codename != 'trusty':
+                Log.error(self,"PHP 7.0 not supported.")
+            if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php7"
+                                               "{/,/}/p \" /etc/nginx/"
+                                               "conf.d/upstream.conf "
+                                               "| grep 9170")):
+
+                Log.info(self, "Enabling PHP 7.0 debug")
+
+                # Change upstream.conf
+                nc = NginxConfig()
+                nc.loadf('/etc/nginx/conf.d/upstream.conf')
+                nc.set([('upstream','php',), 'server'], '127.0.0.1:9170')
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
+                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9170')
+                nc.savef('/etc/nginx/conf.d/upstream.conf')
+
+                # Enable xdebug
+                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                                              "xdebug.ini",
+                                              ";zend_extension",
+                                              "zend_extension")
+
+                # Fix slow log is not enabled default in PHP5.6
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
+                config['debug']['slowlog'] = '/var/log/php/7.0/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
+                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "Writting debug.conf configuration into "
+                              "/etc/php/7.0/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
+                self.trigger_php = True
+                self.trigger_nginx = True
+            else:
+                Log.info(self, "PHP debug is already enabled")
+
+            self.msg = self.msg + ['/var/log/php/7.0/slow.log']
+
+        # PHP global debug stop
+        elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
+            if EEShellExec.cmd_exec(self, " sed -n \"/upstream php {/,/}/p\" "
+                                          "/etc/nginx/conf.d/upstream.conf "
+                                          "| grep 9170"):
+                Log.info(self, "Disabling PHP 7.0 debug")
+
+                # Change upstream.conf
+                nc = NginxConfig()
+                nc.loadf('/etc/nginx/conf.d/upstream.conf')
+                nc.set([('upstream','php',), 'server'], '127.0.0.1:9070')
+                if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
+                    nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:8000')
+                nc.savef('/etc/nginx/conf.d/upstream.conf')
+
+                # Disable xdebug
+                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                                          "xdebug.ini",
+                                          "zend_extension",
+                                          ";zend_extension")
+
+                self.trigger_php = True
+                self.trigger_nginx = True
+            else:
+                Log.info(self, "PHP 7.0 debug is already disabled")
+
+    @expose(hide=True)
+    def debug_fpm7(self):
+        """Start/Stop PHP5-FPM debug"""
+        # PHP5-FPM start global debug
+        if (self.app.pargs.fpm7 == 'on' and not self.app.pargs.site_name):
+            if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
+                                              "/etc/php/7.0/fpm/php-fpm.conf"):
+                Log.info(self, "Setting up PHP7.0-FPM log_level = debug")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.0/fpm/php-fpm.conf')
+                config.remove_option('global', 'include')
+                config['global']['log_level'] = 'debug'
+                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                with open('/etc/php/7.0/fpm/php-fpm.conf',
+                          encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "Writting php7.0-FPM configuration into "
+                              "/etc/php/7.0/fpm/php-fpm.conf")
+                    config.write(configfile)
+                self.trigger_php = True
+            else:
+                Log.info(self, "PHP7.0-FPM log_level = debug already setup")
+
+            self.msg = self.msg + ['/var/log/php/7.0/fpm.log']
+
+        # PHP5-FPM stop global debug
+        elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
+            if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
+                                          "/etc/php/7.0/fpm/php-fpm.conf"):
+                Log.info(self, "Disabling PHP7.0-FPM log_level = debug")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.0/fpm/php-fpm.conf')
+                config.remove_option('global', 'include')
+                config['global']['log_level'] = 'notice'
+                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                with open('/etc/php/7.0/fpm/php-fpm.conf',
+                          encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "writting php7.0 configuration into "
+                              "/etc/php/7.0/fpm/php-fpm.conf")
+                    config.write(configfile)
+                self.trigger_php = True
+            else:
+                Log.info(self, "PHP7.0-FPM log_level = debug  already disabled")
 
     @expose(hide=True)
     def debug_mysql(self):
@@ -470,9 +596,15 @@ class EEDebugController(CementBaseController):
         if self.app.pargs.php:
             self.app.pargs.php = 'off'
             self.debug_php()
+        if self.app.pargs.php7:
+            self.app.pargs.php7 = 'off'
+            self.debug_php7()
         if self.app.pargs.fpm:
             self.app.pargs.fpm = 'off'
             self.debug_fpm()
+        if self.app.pargs.fpm7:
+            self.app.pargs.fpm7 = 'off'
+            self.debug_fpm7()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
@@ -494,7 +626,12 @@ class EEDebugController(CementBaseController):
 
         # Reload PHP
         if self.trigger_php:
-            EEService.reload_service(self, 'php5-fpm')
+            if EEVariables.ee_platform_codename == 'trusty':
+                EEService.reload_service(self, 'php5.6-fpm')
+                if EEAptGet.is_installed(self,'php7.0-fpm'):
+                    EEService.reload_service(self, 'php7.0-fpm')
+            else:
+                EEService.reload_service(self, 'php5-fpm')
         self.app.close(0)
 
     @expose(hide=True)
@@ -506,8 +643,8 @@ class EEDebugController(CementBaseController):
         self.trigger_nginx = False
         self.trigger_php = False
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
-           and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.php) and (not self.app.pargs.php7)
+           and (not self.app.pargs.fpm) and (not self.app.pargs.fpm7) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and (not self.app.pargs.all)
            and (not self.app.pargs.site_name)
@@ -579,6 +716,9 @@ class EEDebugController(CementBaseController):
             self.app.pargs.nginx = 'on'
             self.app.pargs.php = 'on'
             self.app.pargs.fpm = 'on'
+            if EEVariables.ee_platform_codename == 'trusty' and EEAptGet.is_installed(self,'php7.0-fpm'):
+                self.app.pargs.php7 = 'on'
+                self.app.pargs.fpm7 = 'on'
             self.app.pargs.mysql = 'on'
             self.app.pargs.rewrite = 'on'
 
@@ -588,11 +728,14 @@ class EEDebugController(CementBaseController):
             self.app.pargs.nginx = 'off'
             self.app.pargs.php = 'off'
             self.app.pargs.fpm = 'off'
+            if EEVariables.ee_platform_codename == 'trusty' and EEAptGet.is_installed(self,'php7.0-fpm'):
+                self.app.pargs.php7 = 'off'
+                self.app.pargs.fpm7 = 'off'
             self.app.pargs.mysql = 'off'
             self.app.pargs.rewrite = 'off'
 
-        if ((not self.app.pargs.nginx) and (not self.app.pargs.php)
-           and (not self.app.pargs.fpm) and (not self.app.pargs.mysql)
+        if ((not self.app.pargs.nginx) and (not self.app.pargs.php) and (not self.app.pargs.php7)
+           and (not self.app.pargs.fpm) and (not self.app.pargs.fpm7) and (not self.app.pargs.mysql)
            and (not self.app.pargs.wp) and (not self.app.pargs.rewrite)
            and self.app.pargs.site_name):
             self.app.args.print_help()
@@ -606,6 +749,10 @@ class EEDebugController(CementBaseController):
             self.debug_php()
         if self.app.pargs.fpm:
             self.debug_fpm()
+        if self.app.pargs.php7:
+            self.debug_php7()
+        if self.app.pargs.fpm7:
+            self.debug_fpm7()
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
@@ -626,7 +773,12 @@ class EEDebugController(CementBaseController):
             EEService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            EEService.restart_service(self, 'php5-fpm')
+            if EEVariables.ee_platform_codename == 'trusty':
+                EEService.restart_service(self, 'php5.6-fpm')
+                if EEAptGet.is_installed(self,'php7.0-fpm'):
+                    EEService.restart_service(self, 'php7.0-fpm')
+            else:
+                EEService.restart_service(self, 'php5-fpm')
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:
