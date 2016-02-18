@@ -337,7 +337,7 @@ class EESiteCreateController(CementBaseController):
             (['--php'],
                 dict(help="create php site", action='store_true')),
             (['--php7'],
-                dict(help="create php site", action='store_true')),
+                dict(help="create php 7.0 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -442,6 +442,13 @@ class EESiteCreateController(CementBaseController):
             data['host'] = host
             data['port'] = port
             ee_site_webroot = ""
+
+        if stype in ['php7']:
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                        static=False,  basic=False, php7=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=ee_site_webroot)
+            data['basic'] = True
 
         if stype in ['html', 'php' ]:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
