@@ -2387,7 +2387,8 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
-            self.app.pargs.php7 = True
+            if EEVariables.ee_platform_codename == 'trusty':
+                self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -2547,7 +2548,8 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
-            self.app.pargs.php7 = True
+            if EEVariables.ee_platform_codename == 'trusty':
+                self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True

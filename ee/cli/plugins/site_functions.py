@@ -68,8 +68,11 @@ def setupdomain(self, data):
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(ee_domain_name), encoding='utf-8',
                                   mode='w')
-
-        self.app.render((data), 'virtualconf.mustache',
+        if not data['php7']:
+            self.app.render((data), 'virtualconf.mustache',
+                        out=ee_site_nginx_conf)
+        else:
+            self.app.render((data), 'virtualconf-php7.mustache',
                         out=ee_site_nginx_conf)
         ee_site_nginx_conf.close()
     except IOError as e:
