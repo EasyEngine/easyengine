@@ -2183,6 +2183,8 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.0")
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
                         apt_packages = apt_packages + EEVariables.ee_php7_0
+                        if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                            apt_packages = apt_packages + EEVariables.ee_php5_6
                     else:
                         Log.debug(self, "PHP 7.0 already installed")
                         Log.info(self, "PHP 7.0 already installed")

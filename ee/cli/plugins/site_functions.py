@@ -1072,7 +1072,7 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain']:
+                           'wpsubdir', 'wpsubdomain','php7']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'w3tc', 'wpredis']:
             cachelist.append(key)
