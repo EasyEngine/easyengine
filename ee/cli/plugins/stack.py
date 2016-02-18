@@ -2373,7 +2373,7 @@ class EEStackController(CementBaseController):
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
-           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.php) and (not self.app.pargs.php7) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
@@ -2387,6 +2387,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
+            self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -2437,6 +2438,13 @@ class EEStackController(CementBaseController):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
+
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                Log.debug(self, "Removing apt_packages variable of PHP 7.0")
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+            else:
+                Log.info(self,"PHP 7.0 not supported.")
 
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
@@ -2525,7 +2533,7 @@ class EEStackController(CementBaseController):
         # Default action for stack purge
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
-           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.php) and (not self.app.pargs.php7) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
@@ -2539,6 +2547,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
+            self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -2589,6 +2598,12 @@ class EEStackController(CementBaseController):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                Log.debug(self, "Removing apt_packages variable of PHP 7.0")
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+            else:
+                Log.info(self,"PHP 7.0 not supported.")
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")
