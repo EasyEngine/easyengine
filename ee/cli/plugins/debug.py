@@ -335,7 +335,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/php/7.0/slow.log']
 
         # PHP global debug stop
-        elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
+        elif (self.app.pargs.php7 == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, " sed -n \"/upstream php {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9170"):
@@ -385,7 +385,7 @@ class EEDebugController(CementBaseController):
             self.msg = self.msg + ['/var/log/php/7.0/fpm.log']
 
         # PHP5-FPM stop global debug
-        elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
+        elif (self.app.pargs.fpm7 == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
                                           "/etc/php/7.0/fpm/php-fpm.conf"):
                 Log.info(self, "Disabling PHP7.0-FPM log_level = debug")
@@ -627,7 +627,8 @@ class EEDebugController(CementBaseController):
         # Reload PHP
         if self.trigger_php:
             if EEVariables.ee_platform_codename == 'trusty':
-                EEService.reload_service(self, 'php5.6-fpm')
+                if EEAptGet.is_installed(self,'php5.6-fpm'):
+                    EEService.reload_service(self, 'php5.6-fpm')
                 if EEAptGet.is_installed(self,'php7.0-fpm'):
                     EEService.reload_service(self, 'php7.0-fpm')
             else:
@@ -774,7 +775,8 @@ class EEDebugController(CementBaseController):
         # Reload PHP
         if self.trigger_php:
             if EEVariables.ee_platform_codename == 'trusty':
-                EEService.restart_service(self, 'php5.6-fpm')
+                if EEAptGet.is_installed(self,'php5.6-fpm'):
+                    EEService.restart_service(self, 'php5.6-fpm')
                 if EEAptGet.is_installed(self,'php7.0-fpm'):
                     EEService.restart_service(self, 'php7.0-fpm')
             else:
