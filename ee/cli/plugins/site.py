@@ -443,7 +443,7 @@ class EESiteCreateController(CementBaseController):
             data['port'] = port
             ee_site_webroot = ""
 
-        if stype in ['php7']:
+        if self.app.pargs.php7:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                         static=False,  basic=False, php7=True, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
