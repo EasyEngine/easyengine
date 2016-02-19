@@ -674,7 +674,7 @@ def site_package_check(self, stype):
     stack = EEStackController()
     stack.app = self.app
     if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain']:
+                 'wpsubdomain', 'php7']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -1083,7 +1083,19 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php7','mysql','html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('php','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php7','mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1096,6 +1108,12 @@ def detSitePar(opts):
             else:
                 cachetype = cachelist[0]
         elif False not in [x in ('php','html') for x in typelist]:
+            sitetype = 'php'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php7','html') for x in typelist]:
             sitetype = 'php'
             if not cachelist:
                 cachetype = 'basic'
@@ -1119,22 +1137,33 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdir','php7') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdomain','php7') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         else:
             raise RuntimeError("could not determine site and cache type")
 
+    if not typelist and not cachelist:
+        sitetype = None
+        cachetype = None
+    elif (not typelist) and cachelist:
+        sitetype = 'wp'
+        cachetype = cachelist[0]
+    elif typelist and (not cachelist):
+        sitetype = typelist[0]
+        cachetype = 'basic'
     else:
-        if not typelist and not cachelist:
-            sitetype = None
-            cachetype = None
-        elif (not typelist) and cachelist:
-            sitetype = 'wp'
-            cachetype = cachelist[0]
-        elif typelist and (not cachelist):
-            sitetype = typelist[0]
-            cachetype = 'basic'
-        else:
-            sitetype = typelist[0]
-            cachetype = cachelist[0]
+        sitetype = typelist[0]
+        cachetype = cachelist[0]
     return (sitetype, cachetype)
 
 

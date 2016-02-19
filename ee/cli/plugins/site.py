@@ -156,6 +156,7 @@ class EESiteController(CementBaseController):
                 error_log = "/var/log/nginx/{0}.error.log".format(ee_domain)
                 ee_site_webroot = ''
 
+            php_version = siteinfo.php_version
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
             ssl = ("enabled" if siteinfo.is_ssl else "disabled")
             if (ssl == "enabled"):
@@ -166,7 +167,7 @@ class EESiteController(CementBaseController):
                 sslexpiry = ''
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
-                        dbname=ee_db_name, dbuser=ee_db_user,
+                        dbname=ee_db_name, dbuser=ee_db_user,php_version=php_version,
                         dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
                         ssl=ssl, sslprovider=sslprovider,  sslexpiry= sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
