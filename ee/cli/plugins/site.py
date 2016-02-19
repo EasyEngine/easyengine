@@ -931,6 +931,7 @@ class EESiteUpdateController(CementBaseController):
         letsencrypt = False
         php7 = None
 
+
         data = dict()
         try:
             stype, cache = detSitePar(vars(pargs))
@@ -1061,7 +1062,6 @@ class EESiteUpdateController(CementBaseController):
                             currsitetype=oldsitetype,
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
-
                 stype = oldsitetype
                 cache = oldcachetype
                 if oldsitetype == 'html' or oldsitetype == 'proxy':
@@ -1135,12 +1135,14 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-            if pargs.php7 != 'off' :
+            if pargs.php7 == 'on' :
                 data['php7'] = True
                 php7 = True
+                check_php_version= '7.0'
             elif pargs.php7 == 'off':
                 data['php7'] = False
                 php7 = False
+                check_php_version = '5.6'
 
 
 
@@ -1479,7 +1481,7 @@ class EESiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False, php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
@@ -1697,10 +1699,10 @@ class EESiteUpdateController(CementBaseController):
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
                            db_host=data['ee_db_host'], hhvm=hhvm,
-                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False,php_version=check_php_version)
         else:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False,php_version=check_php_version)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
         return 0

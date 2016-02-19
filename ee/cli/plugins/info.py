@@ -67,7 +67,7 @@ class EEInfoController(CementBaseController):
     @expose(hide=True)
     def info_php(self):
         """Display PHP information"""
-        version = os.popen("php -v | head -n1 | cut -d' ' -f2 |"
+        version = os.popen("{0} -v 2>/dev/null | head -n1 | cut -d' ' -f2 |".format("php5.6" if EEVariables.ee_platform_codename == 'trusty' else "php") +
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
         config.read('/etc/{0}/fpm/php.ini'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
@@ -141,7 +141,7 @@ class EEInfoController(CementBaseController):
     @expose(hide=True)
     def info_php7(self):
         """Display PHP information"""
-        version = os.popen("php -v | head -n1 | cut -d' ' -f2 |"
+        version = os.popen("php7.0 -v 2>/dev/null | head -n1 | cut -d' ' -f2 |"
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
         config.read('/etc/php/7.0/fpm/php.ini')
@@ -248,6 +248,8 @@ class EEInfoController(CementBaseController):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
+            if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    self.app.pargs.php = True
 
         if self.app.pargs.nginx:
             if EEAptGet.is_installed(self, 'nginx-common'):
