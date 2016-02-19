@@ -42,7 +42,7 @@ def getSiteInfo(self, site):
 def updateSiteInfo(self, site, stype='', cache='', webroot='',
                    enabled=True, ssl=False, fs='', db='', db_name=None,
                    db_user=None, db_password=None, db_host=None, hhvm=None,
-                   pagespeed=None, php_version='5.5'):
+                   pagespeed=None, php_version=''):
     """updates site record in database"""
     try:
         q = SiteDB.query.filter(SiteDB.sitename == site).first()

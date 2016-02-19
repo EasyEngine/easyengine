@@ -244,7 +244,7 @@ class EEInfoController(CementBaseController):
     def default(self):
         """default function for info"""
         if (not self.app.pargs.nginx and not self.app.pargs.php
-           and not self.app.pargs.mysql):
+           and not self.app.pargs.mysql and not self.app.pargs.php7):
             self.app.pargs.nginx = True
             self.app.pargs.php = True
             self.app.pargs.mysql = True
@@ -256,10 +256,16 @@ class EEInfoController(CementBaseController):
                 Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEAptGet.is_installed(self, 'php5-fpm'):
-                self.info_php()
+            if EEVariables.ee_platform_codename != 'trusty':
+                if EEAptGet.is_installed(self, 'php5-fpm'):
+                    self.info_php()
+                else:
+                    Log.error(self, "PHP5 is not installed")
             else:
-                Log.error(self, "PHP5 is not installed")
+                if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    self.info_php()
+                else:
+                    Log.error(self, "PHP5.6 is not installed")
 
         if self.app.pargs.php7:
             if EEAptGet.is_installed(self, 'php7.0-fpm'):
