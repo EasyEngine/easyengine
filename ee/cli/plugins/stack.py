@@ -2182,7 +2182,7 @@ class EEStackController(CementBaseController):
                 if EEVariables.ee_platform_codename == 'trusty':
                     Log.debug(self, "Setting apt_packages variable for PHP 7.0")
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
-                        apt_packages = apt_packages + EEVariables.ee_php7_0
+                        apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
                         if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                             apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
                     else:
@@ -2604,12 +2604,16 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Purge apt_packages variable PHP")
             if EEVariables.ee_platform_codename == 'trusty':
                 apt_packages = apt_packages + EEVariables.ee_php5_6
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.php7:
             if EEVariables.ee_platform_codename == 'trusty':
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + EEVariables.ee_php7_0
+                if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 Log.info(self,"PHP 7.0 not supported.")
         if self.app.pargs.hhvm:

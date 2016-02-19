@@ -715,13 +715,13 @@ def site_package_check(self, stype):
         if EEVariables.ee_platform_codename == 'trusty':
             Log.debug(self, "Setting apt_packages variable for PHP 7.0")
             if not EEAptGet.is_installed(self, 'php7.0-fpm'):
-                apt_packages = apt_packages + EEVariables.ee_php7_0
+                apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
         else:
             Log.warn(self, "PHP 7.0 not available for your system.")
             if not EEAptGet.is_installed(self, 'php5-fpm'):
                 Log.info(self, "Setting apt_packages variable for PHP 5.0")
                 Log.debug(self, "Setting apt_packages variable for PHP 5.0")
-                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                apt_packages = apt_packages + EEVariables.ee_php
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -846,7 +846,7 @@ def site_package_check(self, stype):
 
         Log.debug(self, "Setting apt_packages variable for PHP 7.0")
         if not EEAptGet.is_installed(self, 'php7.0-fpm'):
-            apt_packages = apt_packages + EEVariables.ee_php7_0
+            apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
 
         if os.path.isdir("/etc/nginx/common") and (not
            os.path.isfile("/etc/nginx/common/php7.conf")):
