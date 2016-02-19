@@ -1005,11 +1005,11 @@ class EESiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy']) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php7']) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
-                                                      'proxy']) or
+                                                      'proxy','php7']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'proxy', 'wp']) or
+                                                   'proxy', 'wp', 'php7']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
