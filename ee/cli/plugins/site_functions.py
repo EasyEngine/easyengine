@@ -68,11 +68,8 @@ def setupdomain(self, data):
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(ee_domain_name), encoding='utf-8',
                                   mode='w')
-        if not data['php7']:
-            self.app.render((data), 'virtualconf.mustache',
-                        out=ee_site_nginx_conf)
-        else:
-            self.app.render((data), 'virtualconf-php7.mustache',
+
+        self.app.render((data), 'virtualconf.mustache',
                         out=ee_site_nginx_conf)
         ee_site_nginx_conf.close()
     except IOError as e:
@@ -712,7 +709,7 @@ def site_package_check(self, stype):
                 apt_packages = apt_packages + EEVariables.ee_php
         else:
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
-                apt_packages = apt_packages + EEVariables.ee_php5_6
+                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
 
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         if EEVariables.ee_platform_codename == 'trusty':
@@ -724,7 +721,7 @@ def site_package_check(self, stype):
             if not EEAptGet.is_installed(self, 'php5-fpm'):
                 Log.info(self, "Setting apt_packages variable for PHP 5.0")
                 Log.debug(self, "Setting apt_packages variable for PHP 5.0")
-                apt_packages = apt_packages + EEVariables.ee_php5_6
+                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")

@@ -2170,7 +2170,7 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not (EEAptGet.is_installed(self, 'php5-fpm') or EEAptGet.is_installed(self, 'php5.6-fpm')):
                     if EEVariables.ee_platform_codename == 'trusty':
-                        apt_packages = apt_packages + EEVariables.ee_php5_6
+                        apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
                     else:
                         apt_packages = apt_packages + EEVariables.ee_php
                 else:
@@ -2184,7 +2184,7 @@ class EEStackController(CementBaseController):
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
                         apt_packages = apt_packages + EEVariables.ee_php7_0
                         if not EEAptGet.is_installed(self, 'php5.6-fpm'):
-                            apt_packages = apt_packages + EEVariables.ee_php5_6
+                            apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
                     else:
                         Log.debug(self, "PHP 7.0 already installed")
                         Log.info(self, "PHP 7.0 already installed")
@@ -2439,6 +2439,8 @@ class EEStackController(CementBaseController):
             Log.debug(self, "Removing apt_packages variable of PHP")
             if EEVariables.ee_platform_codename == 'trusty':
                 apt_packages = apt_packages + EEVariables.ee_php5_6
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
 
@@ -2446,12 +2448,14 @@ class EEStackController(CementBaseController):
             if EEVariables.ee_platform_codename == 'trusty':
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + EEVariables.ee_php7_0
+                if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 Log.info(self,"PHP 7.0 not supported.")
 
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Removing apt_packages varible of HHVM")
+                Log.debug(self, "Removing apt_packages variable of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
         if self.app.pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
