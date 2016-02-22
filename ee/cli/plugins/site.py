@@ -1008,6 +1008,7 @@ class EESiteUpdateController(CementBaseController):
             return 1
 
         if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php7']) or
+          #  (stype == 'php7' and oldsitetype not in ['html', 'mysql', 'php', 'php7', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
                                                       'proxy','php7']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
@@ -1015,7 +1016,7 @@ class EESiteUpdateController(CementBaseController):
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
-           not pargs.pagespeed):
+                    not (pargs.pagespeed or pargs.php7)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
