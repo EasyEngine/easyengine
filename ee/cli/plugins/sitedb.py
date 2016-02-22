@@ -88,7 +88,7 @@ def updateSiteInfo(self, site, stype='', cache='', webroot='',
         q.is_pagespeed = pagespeed
 
     if php_version and q.php_version != php_version:
-        q.is_php7 = php_version
+        q.php_version = php_version
 
     try:
         q.created_on = func.now()
