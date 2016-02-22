@@ -636,10 +636,8 @@ class EESiteCreateController(CementBaseController):
             if data['php7']:
                 php_version = "7.0"
             else:
-                if EEVariables.ee_platform_codename == 'trusty':
-                    php_version = "5.6"
-                else:
-                    php_version = "5.5"
+                php_version = "5.6"
+
 
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
                        hhvm=hhvm, pagespeed=pagespeed, php_version=php_version)
@@ -1144,8 +1142,6 @@ class EESiteUpdateController(CementBaseController):
                 php7 = False
                 check_php_version = '5.6'
 
-
-
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
                 if pagespeed is False:
@@ -1155,8 +1151,6 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
-
-
 
         if pargs.php7:
             if php7 is old_php7:
