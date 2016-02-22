@@ -1161,7 +1161,7 @@ def detSitePar(opts):
         if not typelist and not cachelist:
             sitetype = None
             cachetype = None
-        elif (not typelist) and cachelist:
+        elif (not typelist or "php7" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):
