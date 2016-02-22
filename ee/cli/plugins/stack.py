@@ -384,8 +384,8 @@ class EEStackController(CementBaseController):
                         os.path.isfile("/etc/nginx/common/php7.conf")):
                         #data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations.conf')
-                        ee_nginx = open('/etc/nginx/common/locations.conf',
+                              'file /etc/nginx/common/locations-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/locations-php7.conf',
                                     encoding='utf-8', mode='w')
                         self.app.render((data), 'locations-php7.mustache',
                                     out=ee_nginx)
@@ -407,7 +407,7 @@ class EEStackController(CementBaseController):
                         ee_nginx.close()
 
                         Log.debug(self, 'Writting the nginx configuration to '
-                                'file /etc/nginx/common/wpcommon.conf')
+                                'file /etc/nginx/common/wpcommon-php7.conf')
                         ee_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
                                     encoding='utf-8', mode='w')
                         self.app.render((data), 'wpcommon-php7.mustache',
@@ -644,8 +644,8 @@ class EEStackController(CementBaseController):
                     os.path.isfile("/etc/nginx/common/php7.conf")):
                     data = dict()
                     Log.debug(self, 'Writting the nginx configuration to '
-                              'file /etc/nginx/common/locations.conf')
-                    ee_nginx = open('/etc/nginx/common/locations.conf',
+                              'file /etc/nginx/common/locations-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/locations-php7.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'locations-php7.mustache',
                                     out=ee_nginx)
@@ -667,7 +667,7 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     Log.debug(self, 'Writting the nginx configuration to '
-                                'file /etc/nginx/common/wpcommon.conf')
+                                'file /etc/nginx/common/wpcommon-php7.conf')
                     ee_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
                                     encoding='utf-8', mode='w')
                     self.app.render((data), 'wpcommon-php7.mustache',
