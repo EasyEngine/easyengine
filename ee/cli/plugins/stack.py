@@ -384,6 +384,14 @@ class EEStackController(CementBaseController):
                         os.path.isfile("/etc/nginx/common/php7.conf")):
                         #data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations.conf')
+                        ee_nginx = open('/etc/nginx/common/locations.conf',
+                                    encoding='utf-8', mode='w')
+                        self.app.render((data), 'locations-php7.mustache',
+                                    out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
                         'file /etc/nginx/common/php7.conf')
                         ee_nginx = open('/etc/nginx/common/php7.conf',
                             encoding='utf-8', mode='w')
@@ -635,6 +643,14 @@ class EEStackController(CementBaseController):
                 if os.path.isdir("/etc/nginx/common") and (not
                     os.path.isfile("/etc/nginx/common/php7.conf")):
                     data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations.conf')
+                    ee_nginx = open('/etc/nginx/common/locations.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations-php7.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
                     Log.debug(self, 'Writting the nginx configuration to '
                       'file /etc/nginx/common/php7.conf')
                     ee_nginx = open('/etc/nginx/common/php7.conf',
