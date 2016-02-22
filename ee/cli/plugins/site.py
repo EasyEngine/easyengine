@@ -516,6 +516,10 @@ class EESiteCreateController(CementBaseController):
               and (not self.app.pargs.hhvm):
             data['basic'] = True
 
+        for key, value in data.items() :
+            print("in site.py")
+            print (key, value)
+
 
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):

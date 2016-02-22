@@ -54,6 +54,9 @@ def check_domain_exists(self, domain):
 
 def setupdomain(self, data):
 
+    for key, value in data.items() :
+        print (key, value)
+
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
 
