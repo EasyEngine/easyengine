@@ -112,10 +112,12 @@ class EEService():
                       .format(service_name))
 
     def get_service_status(self, service_name):
+
+
         try:
             is_exist = subprocess.getstatusoutput('which {0}'
                                                   .format(service_name))
-            if is_exist[0] == 0:
+            if is_exist[0] == 0 or service_name in ['php7.0-fpm', 'php5.6-fpm']:
                 retcode = subprocess.getstatusoutput('service {0} status'
                                                      .format(service_name))
                 if retcode[0] == 0:
