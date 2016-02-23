@@ -329,12 +329,16 @@ function ee_update_latest()
         if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
             add-apt-repository -y -remove 'ppa:ondrej/php5-5.6'
             add-apt-repository -y 'ppa:ondrej/php'
-            mv /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list.old &>> /dev/null
+            rm /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
             apt-get update
 		    apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php7.0-common php-memcached php-imagick memcached graphviz php-pear php-xdebug
+            cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf
+            cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf
+            cp -f /etc/php5/fpm/php.ini /etc/php/5.6/fpm/php.ini
+            cp -f /etc/php5/fpm/php-fpm.conf /etc/php5/fpm/php-fpm.conf
             service php5-fpm stop &>> /dev/null
             service php5.6-fpm restart &>> /dev/null
-            apt-get -y remove php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
+            apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
         fi
     fi
 
@@ -573,6 +577,16 @@ function ee_git_init()
     fi
     git add -A .
     git commit -am "Installed/Updated to EasyEngine 3.x" &>> /dev/null
+
+    #PHP under git version control
+    if [ -d /etc/php ];then
+        cd /etc/php
+        if [ ! -d /etc/php/.git ]; then
+            git init &>> /dev/null
+        fi
+        git add -A .
+        git commit -am "Updated PHP" > /dev/null
+    fi
 
 }
 

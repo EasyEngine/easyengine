@@ -1145,7 +1145,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user, recursive=True)
 
-                EEGit.add(self, ["/etc/php5.6"], msg="Adding PHP into Git")
+                EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 EEService.restart_service(self, 'php5.6-fpm')
 
             #preconfiguration for php7.0
@@ -1284,7 +1284,7 @@ class EEStackController(CementBaseController):
                                   EEVariables.ee_php_user,
                                   EEVariables.ee_php_user, recursive=True)
 
-                EEGit.add(self, ["/etc/php7.0"], msg="Adding PHP into Git")
+                EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 EEService.restart_service(self, 'php7.0-fpm')
 
 
