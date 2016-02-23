@@ -327,7 +327,7 @@ function ee_update_latest()
     if [ "$ee_distro_version" == "trusty" ]; then
 
         if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
-            add-apt-repository -y -remove 'ppa:ondrej/php5-5.6'
+            add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
             add-apt-repository -y 'ppa:ondrej/php'
             rm /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
             apt-get update
