@@ -317,7 +317,7 @@ function ee_upgrade_php(){
             sed -i "s/error_log.*/error_log = \/var\/log\/php\/5.6\/fpm.log/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/log_level.*/log_level = notice/" /etc/php/5.6/fpm/php-fpm.conf && \
             sed -i "s/include.*/include = \/etc\/php\/5.6\/fpm\/pool.d\/*.conf/" /etc/php/5.6/fpm/php-fpm.conf && \
-            sed -i "s/slowlog.*/slowlog = \/var\/log\/php\/5.6\/slow.log" /etc/php/5.6/fpm/pool.d/debug.conf || ee_lib_error "Unable to update configuration, exit status " $?
+            sed -i "s/slowlog.*/slowlog = \/var\/log\/php\/5.6\/slow.log/" /etc/php/5.6/fpm/pool.d/debug.conf || ee_lib_error "Unable to update configuration, exit status " $?
             mkdir -p /var/log/php/5.6/
             touch /var/log/php/5.6/slow.log /var/log/php/5.6/fpm.log
             service php5-fpm stop &>> /dev/null
