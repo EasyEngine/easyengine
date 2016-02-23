@@ -296,6 +296,31 @@ function ee_update()
     ln -s /usr/local/bin/ee /usr/local/sbin/ee || ee_lib_error "Unable to create softlink to old EasyEngine, exit status " $?
 }
 
+function ee_upgrade_php(){
+    #Upgrade PHP5.6 to a new repo supporting PHP 7.0
+   if [ "$ee_distro_version" == "trusty" ]; then
+        if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
+           # add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
+            add-apt-repository -y 'ppa:ondrej/php'
+            apt-get update 2&>>1 $EE_INSTALL_LOG
+            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php7.0-common php-memcached php-imagick memcached graphviz php-pear php-xdebug || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+            if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
+                cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
+                cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
+                cp -f /etc/php5/fpm/php.ini /etc/php/5.6/fpm/php.ini &>> /dev/null
+                cp -f /etc/php5/fpm/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf &>> /dev/null
+            else
+                echo "Some files are missing." || ee_lib_error "Unable to configure PHP5.6 packages, exit status " 1
+            fi
+            service php5-fpm stop &>> /dev/null
+            service php5.6-fpm restart &>> /dev/null
+            rm -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
+            apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
+        fi
+    fi
+
+}
+
 function ee_update_latest()
 {
     #Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
@@ -324,26 +349,6 @@ function ee_update_latest()
         fi
     fi
 
-    if [ "$ee_distro_version" == "trusty" ]; then
-        if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
-           # add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
-            add-apt-repository -y 'ppa:ondrej/php'
-            apt-get update 2&>>1 $EE_INSTALL_LOG
-		    apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php7.0-common php-memcached php-imagick memcached graphviz php-pear php-xdebug || ee_lib_error "Unable to install depedencies, exit status " 1
-            if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
-                cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
-                cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
-                cp -f /etc/php5/fpm/php.ini /etc/php/5.6/fpm/php.ini &>> /dev/null
-                cp -f /etc/php5/fpm/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf &>> /dev/null
-            else
-                echo "Some files are missing." || ee_lib_error "Unable to configure PHP5.6 packages, exit status " 1
-            fi
-            service php5-fpm stop &>> /dev/null
-            service php5.6-fpm restart &>> /dev/null
-            rm -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
-            apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
-        fi
-    fi
 
     if [ -f /etc/nginx/nginx.conf ]; then
         ee_lib_echo "Updating Nginx configuration, please wait..."
@@ -611,6 +616,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
         ee_install_dep | tee -ai $ee_install_log
         ee_sync_db 2&>>1 $EE_INSTALL_LOG
         secure_ee_db | tee -ai $EE_INSTALL_LOG
+        ee_upgrade_php | tee -ai $ee_install_log
         ee_install | tee -ai $ee_install_log
         ee_update | tee -ai $ee_install_log
         ee_update_latest | tee -ai $ee_install_log
@@ -632,6 +638,7 @@ else
             ee_install_dep | tee -ai $ee_install_log
             ee_sync_db 2&>>1 $EE_INSTALL_LOG
             secure_ee_db | tee -ai $EE_INSTALL_LOG
+            ee_upgrade_php | tee -ai $ee_install_log
             ee_install | tee -ai $ee_install_log
             ee_update_latest | tee -ai $ee_install_log
             ee_git_init | tee -ai $ee_install_log

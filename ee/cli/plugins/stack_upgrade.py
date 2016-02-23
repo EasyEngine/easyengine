@@ -159,10 +159,21 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
-                if EEAptGet.is_installed(self, 'php5-fpm'):
-                    apt_packages = apt_packages + EEVariables.ee_php
+                if EEVariables.ee_platform_codename != 'trusty':
+                    if EEAptGet.is_installed(self, 'php5-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php
+                    else:
+                        Log.info(self, "PHP is not installed")
                 else:
-                    Log.info(self, "PHP is not installed")
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                    else:
+                        Log.info(self, "PHP 5.6 is not installed")
+
+                    if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+                    else:
+                        Log.info(self, "PHP 7.0 is not installed")
 
             if self.app.pargs.hhvm:
                 if EEAptGet.is_installed(self, 'hhvm'):
