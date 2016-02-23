@@ -304,7 +304,7 @@ function ee_upgrade_php(){
             add-apt-repository -y 'ppa:ondrej/php'
             ee_lib_echo "Updating required packages, please wait..."
             apt-get update &>> /dev/null
-            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php7.0-common php-memcached php-imagick memcached graphviz php-pear php-xdebug || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-zlib php7.0-common php-memcached php-imagick memcached graphviz php-pear php-xdebug || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
             if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
                 cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
                 cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null

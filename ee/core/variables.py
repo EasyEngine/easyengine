@@ -121,10 +121,10 @@ class EEVariables():
         elif ee_platform_codename == 'trusty':
             ee_php_repo = "ppa:ondrej/php"
             ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
-                        "php5.6-mcrypt", "php5.6-readline",
+                        "php5.6-mcrypt", "php5.6-readline", "php5.6-zlib", "php5.6-zip",
                         "php5.6-mysql", "php5.6-cli"]
             ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
-                          "php7.0-mcrypt", "php7.0-readline",
+                          "php7.0-mcrypt", "php7.0-readline", "php7.0-zlib", "php7.0-zip",
                           "php7.0-mysql", "php7.0-cli"]
             ee_php_extra = ["php5.6-common", "php7.0-common", "php-memcached", "php-imagick", "memcached",
                             "graphviz", "php-pear", "php-xdebug"]
