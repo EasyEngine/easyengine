@@ -54,6 +54,10 @@ def check_domain_exists(self, domain):
 
 def setupdomain(self, data):
 
+    #for debug purpose
+   # for key, value in data.items() :
+   #     print (key, value)
+
     ee_domain_name = data['site_name']
     ee_site_webroot = data['webroot'] if 'webroot' in data.keys() else ''
 
@@ -68,9 +72,12 @@ def setupdomain(self, data):
         ee_site_nginx_conf = open('/etc/nginx/sites-available/{0}'
                                   .format(ee_domain_name), encoding='utf-8',
                                   mode='w')
-
-        self.app.render((data), 'virtualconf.mustache',
-                        out=ee_site_nginx_conf)
+        if not data['php7']:
+            self.app.render((data), 'virtualconf.mustache',
+                          out=ee_site_nginx_conf)
+        else:
+            self.app.render((data), 'virtualconf-php7.mustache',
+                          out=ee_site_nginx_conf)
         ee_site_nginx_conf.close()
     except IOError as e:
         Log.debug(self, "{0}".format(e))
@@ -250,7 +257,7 @@ def setupwordpress(self, data):
     if 'wp-pass' in data.keys() and data['wp-pass']:
         ee_wp_pass = data['wp-pass']
 
-    Log.info(self, "Downloading Wordpress \t\t", end='')
+    Log.info(self, "Downloading WordPress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
         if EEShellExec.cmd_exec(self, "wp --allow-root core"
@@ -258,10 +265,10 @@ def setupwordpress(self, data):
             pass
         else:
             Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-            raise SiteError("download wordpress core failed")
+            raise SiteError("download WordPress core failed")
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-        raise SiteError(self, "download wordpress core failed")
+        raise SiteError(self, "download WordPress core failed")
 
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
@@ -389,7 +396,7 @@ def setupwordpress(self, data):
                 ee_wp_user = input('Enter WordPress username: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                raise SiteError("input wordpress username failed")
+                raise SiteError("input WordPress username failed")
     if not ee_wp_pass:
         ee_wp_pass = ee_random
 
@@ -400,7 +407,7 @@ def setupwordpress(self, data):
                 ee_wp_email = input('Enter WordPress email: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                raise SiteError("input wordpress username failed")
+                raise SiteError("input WordPress username failed")
 
     try:
         while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
@@ -434,9 +441,9 @@ def setupwordpress(self, data):
                                  log=False):
                 pass
             else:
-                raise SiteError("setup wordpress tables failed for single site")
+                raise SiteError("setup WordPress tables failed for single site")
         except CommandExecutionError as e:
-            raise SiteError("setup wordpress tables failed for single site")
+            raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
         Log.debug(self, "php {0} --allow-root "
@@ -465,9 +472,9 @@ def setupwordpress(self, data):
                                  log=False):
                 pass
             else:
-                raise SiteError("setup wordpress tables failed for wp multi site")
+                raise SiteError("setup WordPress tables failed for wp multi site")
         except CommandExecutionError as e:
-            raise SiteError("setup wordpress tables failed for wp multi site")
+            raise SiteError("setup WordPress tables failed for wp multi site")
 
     Log.debug(self, "Updating WordPress permalink")
     try:
@@ -518,11 +525,11 @@ def setupwordpressnetwork(self, data):
             pass
         else:
             Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-            raise SiteError("setup wordpress network failed")
+            raise SiteError("setup WordPress network failed")
 
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-        raise SiteError("setup wordpress network failed")
+        raise SiteError("setup WordPress network failed")
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
 
@@ -674,7 +681,7 @@ def site_package_check(self, stype):
     stack = EEStackController()
     stack.app = self.app
     if stype in ['html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir',
-                 'wpsubdomain']:
+                 'wpsubdomain', 'php7']:
         Log.debug(self, "Setting apt_packages variable for Nginx")
 
         # Check if server has nginx-custom package
@@ -699,10 +706,29 @@ def site_package_check(self, stype):
                     ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                    '\t$request_filename;\n')
 
-    if stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+    if self.app.pargs.php and self.app.pargs.php7:
+        Log.error(self,"INVALID OPTION: PHP 7.0 provided with PHP 5.0")
+
+    if not self.app.pargs.php7 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if not EEAptGet.is_installed(self, 'php5-fpm'):
-            apt_packages = apt_packages + EEVariables.ee_php
+        if EEVariables.ee_platform_codename != 'trusty':
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php
+        else:
+            if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+
+    if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
+        if EEVariables.ee_platform_codename == 'trusty':
+            Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+            if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+        else:
+            Log.warn(self, "PHP 7.0 not available for your system.")
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
+                Log.info(self, "Setting apt_packages variable for PHP 5.0")
+                Log.debug(self, "Setting apt_packages variable for PHP 5.0")
+                apt_packages = apt_packages + EEVariables.ee_php
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -821,6 +847,83 @@ def site_package_check(self, stype):
                     hhvm_file.write("upstream hhvm {\nserver 127.0.0.1:8000;\n"
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
+    if self.app.pargs.php7:
+        if EEVariables.ee_platform_codename != 'trusty':
+            Log.error(self,"PHP 7.0 is not supported in your Platform")
+
+        Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+        if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+            apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+
+        if os.path.isdir("/etc/nginx/common") and (not
+           os.path.isfile("/etc/nginx/common/php7.conf")):
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-php7.conf')
+            ee_nginx = open('/etc/nginx/common/locations-php7.conf',
+                                    encoding='utf-8', mode='w')
+            self.app.render((data), 'locations-php7.mustache',
+                                    out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php7.conf')
+            ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/w3tc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                                'file /etc/nginx/common/wpcommon-php7.conf')
+            ee_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
+                                    encoding='utf-8', mode='w')
+            self.app.render((data), 'wpcommon-php7.mustache',
+                                    out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpfc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+            Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/wpsc-php7.conf')
+            ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'wpsc-php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+            os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+            data = dict()
+            Log.debug(self, 'Writting the nginx configuration to '
+                     'file /etc/nginx/common/redis-php7.conf')
+            ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                            encoding='utf-8', mode='w')
+            self.app.render((data), 'redis-php7.mustache',
+                            out=ee_nginx)
+            ee_nginx.close()
+
+        if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+            if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "php7"):
+                with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
+                    php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
+                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
+
+
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
     if self.app.pargs.pagespeed:
@@ -852,7 +955,7 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
         is_wp = EEShellExec.cmd_exec(self, "wp --allow-root core"
                                      " version")
     except CommandExecutionError as e:
-        raise SiteError("is wordpress site? check command failed ")
+        raise SiteError("is WordPress site? check command failed ")
 
     # Exit if ee_domain is not wordpress install
     if not is_wp:
@@ -989,7 +1092,7 @@ def detSitePar(opts):
     cachelist = list()
     for key, val in opts.items():
         if val and key in ['html', 'php', 'mysql', 'wp',
-                           'wpsubdir', 'wpsubdomain']:
+                           'wpsubdir', 'wpsubdomain','php7']:
             typelist.append(key)
         elif val and key in ['wpfc', 'wpsc', 'w3tc', 'wpredis']:
             cachelist.append(key)
@@ -1003,7 +1106,19 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php7','mysql','html') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('php','mysql') for x in typelist]:
+            sitetype = 'mysql'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('php7','mysql') for x in typelist]:
             sitetype = 'mysql'
             if not cachelist:
                 cachetype = 'basic'
@@ -1021,6 +1136,12 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('php7','html') for x in typelist]:
+            sitetype = 'php7'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         elif False not in [x in ('wp','wpsubdir') for x in typelist]:
             sitetype = 'wpsubdir'
             if not cachelist:
@@ -1033,14 +1154,31 @@ def detSitePar(opts):
                 cachetype = 'basic'
             else:
                 cachetype = cachelist[0]
+        elif False not in [x in ('wp','php7') for x in typelist]:
+            sitetype = 'wp'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdir','php7') for x in typelist]:
+            sitetype = 'wpsubdir'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
+        elif False not in [x in ('wpsubdomain','php7') for x in typelist]:
+            sitetype = 'wpsubdomain'
+            if not cachelist:
+                cachetype = 'basic'
+            else:
+                cachetype = cachelist[0]
         else:
             raise RuntimeError("could not determine site and cache type")
-
     else:
         if not typelist and not cachelist:
             sitetype = None
             cachetype = None
-        elif (not typelist) and cachelist:
+        elif (not typelist or "php7" in typelist) and cachelist:
             sitetype = 'wp'
             cachetype = cachelist[0]
         elif typelist and (not cachelist):
@@ -1049,6 +1187,7 @@ def detSitePar(opts):
         else:
             sitetype = typelist[0]
             cachetype = cachelist[0]
+
     return (sitetype, cachetype)
 
 
@@ -1207,7 +1346,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             ee_wp_email = input('Enter WordPress email: ')
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
-            raise SiteError("input wordpress username failed")
+            raise SiteError("input WordPress username failed")
 
     if not os.path.isdir("/opt/letsencrypt"):
         cloneLetsEncrypt(self)
@@ -1265,7 +1404,7 @@ def renewLetsEncrypt(self, ee_domain_name):
             ee_wp_email = input('Enter email address: ')
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
-            raise SiteError("Input wordpress email failed")
+            raise SiteError("Input WordPress email failed")
 
     if not os.path.isdir("/opt/letsencrypt"):
         cloneLetsEncrypt(self)
@@ -1380,7 +1519,3 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
                              .format(domain))
 
     return ssl
-
-
-
-

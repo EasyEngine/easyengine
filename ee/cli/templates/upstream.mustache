@@ -7,6 +7,16 @@ upstream debug {
 # Debug Pool
 server 127.0.0.1:{{debug}};
 }
+{{#php7conf}}
+upstream php7 {
+server 127.0.0.1:{{php7}};
+}
+upstream debug7 {
+# Debug Pool
+server 127.0.0.1:{{debug7}};
+}
+{{/php7conf}}
+
 {{#hhvmconf}}
 upstream hhvm {
 # HHVM Pool

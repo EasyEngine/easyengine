@@ -67,7 +67,7 @@ class EEStackUpgradeController(CementBaseController):
                 Log.error(self, "Unable to find PHP 5.5")
 
         Log.info(self, "During PHP update process non nginx-cached"
-                 " parts of your site may remain down")
+                 " parts of your site may remain down.")
 
         # Check prompt
         if (not self.app.pargs.no_prompt):
@@ -86,7 +86,10 @@ class EEStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        EEAptGet.install(self, EEVariables.ee_php)
+        if EEVariables.ee_platform_codename == 'trusty':
+            EEAptGet.install(self, EEVariables.ee_php5_6 + EEVariables.ee_php_extra)
+        else:
+            EEAptGet.install(self, EEVariables.ee_php)
 
         if EEVariables.ee_platform_distro == "debian":
             EEShellExec.cmd_exec(self, "pecl install xdebug")
@@ -159,10 +162,21 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
-                if EEAptGet.is_installed(self, 'php5-fpm'):
-                    apt_packages = apt_packages + EEVariables.ee_php
+                if EEVariables.ee_platform_codename != 'trusty':
+                    if EEAptGet.is_installed(self, 'php5-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php
+                    else:
+                        Log.info(self, "PHP is not installed")
                 else:
-                    Log.info(self, "PHP is not installed")
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                    else:
+                        Log.info(self, "PHP 5.6 is not installed")
+
+                    if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+                    else:
+                        Log.info(self, "PHP 7.0 is not installed")
 
             if self.app.pargs.hhvm:
                 if EEAptGet.is_installed(self, 'hhvm'):
@@ -226,8 +240,14 @@ class EEStackUpgradeController(CementBaseController):
                     if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
                             set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
-                    if set(EEVariables.ee_php).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'php5-fpm')
+                    if EEVariables.ee_platform_codename != 'trusty':
+                        if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php5-fpm')
+                    else:
+                        if set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php5.6-fpm')
+                        if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php7.0-fpm')
                     if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'hhvm')
                     if set(EEVariables.ee_postfix).issubset(set(apt_packages)):

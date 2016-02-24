@@ -29,7 +29,7 @@ _ee_complete()
             # IF YOU HAD ANOTHER CONTROLLER, YOU'D HANDLE THAT HERE
             "debug")
                 COMPREPLY=( $(compgen \
-                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --fpm --mysql -i --interactive --all --import-slow-log --import-slow-log-interval= --nginx=off --php=off --fpm=off --mysql=off --all=off  " \
+                              -W "$(command find /etc/nginx/sites-enabled/ -type l -printf "%P " 2> /dev/null)  --nginx --php --php7 --fpm --fpm7 --mysql -i --interactive --all --import-slow-log --import-slow-log-interval= --nginx=off --php=off --php7=off --fpm=off --fpm7=off --mysql=off --all=off  " \
                               -- $cur) )
                 ;;
 
@@ -53,7 +53,7 @@ _ee_complete()
 
             "info")
                 COMPREPLY=( $(compgen \
-                              -W "--mysql --php --nginx" \
+                              -W "--mysql --php --php7 --nginx" \
                               -- $cur) )
                 ;;
 
@@ -74,17 +74,17 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--pagespeed --web --admin --mail --nginx --nginxmainline --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
+                              -W "--pagespeed --web --admin --mail --nginx --nginxmainline --php --php7 --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
                               -- $cur) )
                 ;;
             "upgrade" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --mail --nginx --php --mysql --postfix --all --hhvm --php56 --no-prompt --wpcli" \
+                              -W "--web --mail --nginx --php --php7 --mysql --postfix --all --hhvm --php56 --no-prompt --wpcli" \
                               -- $cur) )
                 ;;
             "start" | "stop" | "reload" | "restart" | "status")
                 COMPREPLY=( $(compgen \
-                              -W "--nginx --php --mysql --postfix --memcache --dovecot --redis" \
+                              -W "--nginx --php --php7 --mysql --postfix --memcache --dovecot --redis" \
                               -- $cur) )
                 ;;
             "migrate")
@@ -142,7 +142,7 @@ _ee_complete()
                 ;;
         esac
 
-        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] && [ "$prev" != "--nginx" ] && [ "$prev" != "--php" ] && [ "$prev" != "--fpm" ] && [ "$prev" != "--mysql" ] && [ "$prev" != "-i" ] && [ "$prev" != "--interactive" ] && [ "$prev" != "--import-slow-log" ] && [ "$prev" != "--stop" ]); then
+        if [ ${COMP_WORDS[1]} == "debug" ] && ([ "$prev" != "--start" ] && [ "$prev" != "--nginx" ] && [ "$prev" != "--php" ] && [ "$prev" != "--php7" ] && [ "$prev" != "--fpm" ] && [ "$prev" != "--fpm7" ] && [ "$prev" != "--mysql" ] && [ "$prev" != "-i" ] && [ "$prev" != "--interactive" ] && [ "$prev" != "--import-slow-log" ] && [ "$prev" != "--stop" ]); then
             retlist="--all --wp --rewrite -i --all=off --wp=off --rewrite=off"
             ret="${retlist[@]/$prev}"
             COMPREPLY=( $(compgen \
@@ -165,13 +165,13 @@ _ee_complete()
 
             "create")
                 COMPREPLY=( $(compgen \
-                                    -W "--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --proxy= --pagespeed --wpredis --letsencrypt -le" \
+                                    -W "--user --pass --email --html --php --php7 --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --proxy= --pagespeed --wpredis --letsencrypt -le" \
                                  -- $cur) )
                 ;;
 
             "update")
                 COMPREPLY=( $(compgen \
-                                    -W "--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew" \
+                                    -W "--password --php --php7 --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew" \
                                  -- $cur) )
                 ;;
             "delete")
@@ -217,9 +217,9 @@ _ee_complete()
         "--wp")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wp --wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis --letsencrypt"
+                    retlist="--wp --wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis --letsencrypt --php7"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--wp --w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                    retlist="--wp --w3tc --wpfc --wpsc --php7 --php7=off --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
                 else
                     retlist=""
                 fi
@@ -236,9 +236,9 @@ _ee_complete()
         "--wpsubdir" | "--wpsubdomain")
             if [ ${COMP_WORDS[1]} != "debug" ]; then
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis --letsencrypt"
+                    retlist="--wpsc --w3tc --wpfc --pagespeed --hhvm --user --email --pass --wpredis --letsencrypt --php7"
                 elif [ ${COMP_WORDS[2]} == "update" ]; then
-                    retlist="--w3tc --wpfc --wpsc --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                    retlist="--w3tc --wpfc --wpsc --php7 --php7=off --pagespeed --hhvm --pagespeed=off --hhvm=off --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
                 else
                     retlist=""
                 fi
@@ -254,7 +254,7 @@ _ee_complete()
 
         "--pagespeed" | "--hhvm" | "--wpredis" | "--w3tc" | "--wpfc" | "--wpsc" | "--wpsubdir" | "--wpsubdomain" | "--user" | "--pass" | "--email" | "--wp")
             if [ ${COMP_WORDS[2]} == "create" ]; then
-                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal  --wpredis --letsencrypt"
+                retlist="--user --pass --email --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --experimenal  --wpredis --php7 --letsencrypt "
             else
                 retlist=""
             fi
@@ -267,7 +267,7 @@ _ee_complete()
 
         "--pagespeed" | "--hhvm" | "--wpredis" | "--w3tc" | "--wpfc")
             if [ ${COMP_WORDS[2]} == "update" ]; then
-                retlist="--password --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
+                retlist="--password --php --php7 --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --hhvm=off --pagespeed --pagespeed=off --experimenal --wpredis --letsencrypt --letsencrypt=off --letsencrypt=renew"
             else
                 retlist=""
             fi
@@ -278,15 +278,15 @@ _ee_complete()
                               -- $cur) )
             ;;
 
-        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot" | "--redis | --phpredisadmin")
+        "--web" | "--admin" | "--mail" | "--nginx" | "--php" | "--php7" | "--mysql" | "--postfix" | "--wpcli" | "--phpmyadmin" | "--adminer" | "--utils" | "--memcache" | "--dovecot" | "--redis | --phpredisadmin")
             if [[ ${COMP_WORDS[2]} == "install" || ${COMP_WORDS[2]} == "purge" || ${COMP_WORDS[2]} == "remove" ]]; then
-                retlist="--web --admin --mail --nginx --php --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --redis --phpredisadmin"
+                retlist="--web --admin --mail --nginx --php --php7 --mysql --postfix --wpcli --phpmyadmin --adminer --utils --memcache --dovecot --redis --phpredisadmin"
             elif [[ ${COMP_WORDS[2]} == "start" || ${COMP_WORDS[2]} == "reload" || ${COMP_WORDS[2]} == "restart" || ${COMP_WORDS[2]} == "stop" ]]; then
-                    retlist="--nginx --php --mysql --postfix --memcache --dovecot --redis"
+                    retlist="--nginx --php --php7 --mysql --postfix --memcache --dovecot --redis"
             elif [[ ${COMP_WORDS[1]} == "debug" ]]; then
-                    retlist="--start --nginx --php --fpm --mysql -i --interactive  -stop --import-slow-log --import-slow-log-interval= -"
+                    retlist="--start --nginx --php --php7 --fpm --fpm7 --mysql -i --interactive  -stop --import-slow-log --import-slow-log-interval= -"
                     if [[ $prev == '--mysql' ]]; then
-                        retlist="--start --nginx --php --fpm --mysql -i --interactive --stop --import-slow-log"
+                        retlist="--start --nginx --php --php7 --fpm --fpm7 --mysql -i --interactive --stop --import-slow-log"
                     fi
             elif [[ ${COMP_WORDS[1]} == "log" ]]; then
                     if [ ${COMP_WORDS[2]} == "show" ]; then
@@ -369,7 +369,7 @@ _ee_complete()
         case "$mprev" in
             "--user" | "--email" | "--pass")
                 if [ ${COMP_WORDS[2]} == "create" ]; then
-                    retlist="--user --pass --email --html --php --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --wpredis --letsencrypt"
+                    retlist="--user --pass --email --html --php --php7 --mysql --wp  --wpsubdir --wpsubdomain --w3tc --wpfc --wpsc --hhvm --pagespeed --wpredis --letsencrypt"
                 fi
                 ret="${retlist[@]/$prev}"
                 COMPREPLY=( $(compgen \
