@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.4.1"
+readonly ee_version_new="3.5.0"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -121,7 +121,8 @@ function ee_sync_db()
            db_password VARCHAR,
            db_host VARCHAR,
            is_hhvm INT INT DEFAULT '0',
-           is_pagespeed INT INT DEFAULT '0'
+           is_pagespeed INT INT DEFAULT '0',
+           php_version VARCHAR
         );" | sqlite3 /var/lib/ee/ee.db
 
         # Check site is enable/live or disable
@@ -206,6 +207,7 @@ function ee_sync_db()
 
         done
     else
+        ee_php_version=$(php -v | head -n1 | cut -d' ' -f2 |cut -c1-3)
         ee_lib_echo "Updating EasyEngine Database"
         echo "ALTER TABLE sites ADD COLUMN db_name varchar;" | sqlite3 /var/lib/ee/ee.db
         echo "ALTER TABLE sites ADD COLUMN db_user varchar; " | sqlite3 /var/lib/ee/ee.db
@@ -213,6 +215,7 @@ function ee_sync_db()
         echo "ALTER TABLE sites ADD COLUMN db_host varchar;" | sqlite3 /var/lib/ee/ee.db
         echo "ALTER TABLE sites ADD COLUMN is_hhvm INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
         echo "ALTER TABLE sites ADD COLUMN is_pagespeed INT DEFAULT '0';" | sqlite3 /var/lib/ee/ee.db
+        echo "ALTER TABLE sites ADD COLUMN php_version varchar DEFAULT \"$ee_php_version\";" | sqlite3 /var/lib/ee/ee.db
     fi
 }
 
@@ -293,6 +296,39 @@ function ee_update()
     ln -s /usr/local/bin/ee /usr/local/sbin/ee || ee_lib_error "Unable to create softlink to old EasyEngine, exit status " $?
 }
 
+function ee_upgrade_php(){
+    #Upgrade PHP5.6 to a new repo supporting PHP 7.0
+   if [ "$ee_distro_version" == "trusty" ]; then
+        if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
+           # add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
+            add-apt-repository -y 'ppa:ondrej/php'
+            ee_lib_echo "Upgrading required packages, please wait..."
+            apt-get update &>> /dev/null
+            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+            if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
+                cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
+                cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
+                cp -f /etc/php5/fpm/php.ini /etc/php/5.6/fpm/php.ini &>> /dev/null
+                cp -f /etc/php5/fpm/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf &>> /dev/null
+            else
+                echo "Some files are missing." || ee_lib_error "Unable to configure PHP5.6 packages, exit status " 1
+            fi
+            sed -i "s/pid.*/pid = \/run\/php\/php5.6-fpm.pid/" /etc/php/5.6/fpm/php-fpm.conf && \
+            sed -i "s/error_log.*/error_log = \/var\/log\/php\/5.6\/fpm.log/" /etc/php/5.6/fpm/php-fpm.conf && \
+            sed -i "s/log_level.*/log_level = notice/" /etc/php/5.6/fpm/php-fpm.conf && \
+            sed -i "s/include.*/include = \/etc\/php\/5.6\/fpm\/pool.d\/*.conf/" /etc/php/5.6/fpm/php-fpm.conf && \
+            sed -i "s/slowlog =.*/slowlog = \/var\/log\/php\/5.6\/slow.log/" /etc/php/5.6/fpm/pool.d/debug.conf || ee_lib_error "Unable to update configuration, exit status " $?
+            mkdir -p /var/log/php/5.6/
+            touch /var/log/php/5.6/slow.log /var/log/php/5.6/fpm.log
+            service php5-fpm stop &>> /dev/null
+            service php5.6-fpm restart &>> /dev/null
+            rm -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list &>> /dev/null
+            apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
+        fi
+    fi
+
+}
+
 function ee_update_latest()
 {
     #Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
@@ -320,6 +356,7 @@ function ee_update_latest()
             fi
         fi
     fi
+
 
     if [ -f /etc/nginx/nginx.conf ]; then
         ee_lib_echo "Updating Nginx configuration, please wait..."
@@ -557,6 +594,16 @@ function ee_git_init()
     git add -A .
     git commit -am "Installed/Updated to EasyEngine 3.x" &>> /dev/null
 
+    #PHP under git version control
+    if [ -d /etc/php ];then
+        cd /etc/php
+        if [ ! -d /etc/php/.git ]; then
+            git init &>> /dev/null
+        fi
+        git add -A .
+        git commit -am "Updated PHP" > /dev/null
+    fi
+
 }
 
 # Update EasyEngine
@@ -577,6 +624,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
         ee_install_dep | tee -ai $ee_install_log
         ee_sync_db 2&>>1 $EE_INSTALL_LOG
         secure_ee_db | tee -ai $EE_INSTALL_LOG
+        ee_upgrade_php | tee -ai $ee_install_log
         ee_install | tee -ai $ee_install_log
         ee_update | tee -ai $ee_install_log
         ee_update_latest | tee -ai $ee_install_log
@@ -598,11 +646,16 @@ else
             ee_install_dep | tee -ai $ee_install_log
             ee_sync_db 2&>>1 $EE_INSTALL_LOG
             secure_ee_db | tee -ai $EE_INSTALL_LOG
+            ee_upgrade_php | tee -ai $ee_install_log
             ee_install | tee -ai $ee_install_log
             ee_update_latest | tee -ai $ee_install_log
             ee_git_init | tee -ai $ee_install_log
             service nginx reload &>> /dev/null
-            service php5-fpm restart &>> /dev/null
+            if [ "$ee_distro_version" == "trusty" ]; then
+                service php5.6-fpm restart &>> /dev/null
+            else
+                service php5-fpm restart &>> /dev/null
+            fi
             ee_update_wp_cli | tee -ai $ee_install_log
         else
             ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1

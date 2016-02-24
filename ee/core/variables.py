@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.4.1"
+    ee_version = "3.5.0"
 
 
     # EasyEngine packages versions
@@ -112,19 +112,35 @@ class EEVariables():
 
     # PHP repo and packages
     if ee_platform_distro == 'ubuntu':
-        ee_php_repo = "ppa:ondrej/php5-5.6"
-    elif ee_platform_codename == 'wheezy':
-        ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
+        if ee_platform_codename == 'precise':
+            ee_php_repo = "ppa:ondrej/php5-5.6"
+            ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
+                    "php5-mcrypt", "php5-common", "php5-readline",
+                     "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+                     "memcached", "graphviz", "php-pear"]
+        elif ee_platform_codename == 'trusty':
+            ee_php_repo = "ppa:ondrej/php"
+            ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
+                        "php5.6-mcrypt", "php5.6-readline", "php5.6-common",
+                        "php5.6-mysql", "php5.6-cli"]
+            ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
+                          "php7.0-mcrypt", "php7.0-readline", "php7.0-common",
+                          "php7.0-mysql", "php7.0-cli"]
+            ee_php_extra = ["php-memcached", "php-imagick", "memcached",
+                            "graphviz", "php-pear", "php-xdebug", "php-msgpack"]
+    elif ee_platform_distro == 'debian':
+        if ee_platform_codename == 'wheezy':
+            ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
                        .format(codename=ee_platform_codename))
-    ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
-              "php5-mcrypt", "php5-common", "php5-readline",
-              "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
-              "memcached", "graphviz", "php-pear"]
+        ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
+                  "php5-mcrypt", "php5-common", "php5-readline",
+                  "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+                 "memcached", "graphviz", "php-pear"]
 
     if ee_platform_codename == 'wheezy':
         ee_php = ee_php + ["php5-dev"]
 
-    if ee_platform_distro == 'ubuntu' or ee_platform_codename == 'jessie':
+    if ee_platform_codename == 'precise' or ee_platform_codename == 'jessie':
         ee_php = ee_php + ["php5-xdebug"]
 
     # MySQL repo and packages
@@ -180,7 +196,10 @@ class EEVariables():
         ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
                         .format(codename=ee_platform_codename))
 
-    ee_redis = ['redis-server', 'php5-redis']
+    if ee_platform_codename == 'trusty':
+        ee_redis = ['redis-server', 'php-redis']
+    else:
+        ee_redis = ['redis-server', 'php5-redis']
 
     # Repo path
     ee_repo_file = "ee-repo.list"
