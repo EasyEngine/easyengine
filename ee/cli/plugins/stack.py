@@ -62,6 +62,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
+            (['--php7'],
+                dict(help='Install PHP 7.0 stack', action='store_true')),
             (['--mysql'],
                 dict(help='Install MySQL stack', action='store_true')),
             (['--hhvm'],
@@ -178,16 +180,23 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx-mainline')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if set(EEVariables.ee_php).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for PHP, please wait...")
-            # Add repository for php
-            if EEVariables.ee_platform_distro == 'debian':
-                if EEVariables.ee_platform_codename != 'jessie':
-                    Log.debug(self, 'Adding repo_url of php for debian')
-                    EERepo.add(self, repo_url=EEVariables.ee_php_repo)
-                    Log.debug(self, 'Adding Dotdeb/php GPG key')
-                    EERepo.add_key(self, '89DF5277')
-            else:
+        if EEVariables.ee_platform_codename != 'trusty':
+            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                # Add repository for php
+                if EEVariables.ee_platform_distro == 'debian':
+                    if EEVariables.ee_platform_codename != 'jessie':
+                        Log.debug(self, 'Adding repo_url of php for debian')
+                        EERepo.add(self, repo_url=EEVariables.ee_php_repo)
+                        Log.debug(self, 'Adding Dotdeb/php GPG key')
+                        EERepo.add_key(self, '89DF5277')
+                else:
+                    Log.debug(self, 'Adding ppa for PHP')
+                    EERepo.add(self, ppa=EEVariables.ee_php_repo)
+        else:
+            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
+                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
                 Log.debug(self, 'Adding ppa for PHP')
                 EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
@@ -289,8 +298,8 @@ class EEStackController(CementBaseController):
                     self.app.render((data), 'fastcgi.mustache', out=ee_nginx)
                     ee_nginx.close()
 
-                    data = dict(php="9000", debug="9001", hhvm="8000",
-                                hhvmconf=False)
+                    data = dict(php="9000", debug="9001", hhvm="8000",php7="9070",debug7="9170",
+                                hhvmconf=False, php7conf= True if EEAptGet.is_installed(self,'php7.0-fpm') else False )
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/conf.d/upstream.conf')
                     ee_nginx = open('/etc/nginx/conf.d/upstream.conf',
@@ -370,6 +379,65 @@ class EEStackController(CementBaseController):
                                     out=ee_nginx)
                     ee_nginx.close()
 
+                    #php7 conf
+                    if EEVariables.ee_platform_codename == 'trusty' and (not
+                        os.path.isfile("/etc/nginx/common/php7.conf")):
+                        #data = dict()
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/locations-php7.conf',
+                                    encoding='utf-8', mode='w')
+                        self.app.render((data), 'locations-php7.mustache',
+                                    out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                        'file /etc/nginx/common/php7.conf')
+                        ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+                        self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/w3tc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                'file /etc/nginx/common/wpcommon-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
+                                    encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpcommon-php7.mustache',
+                                    out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpfc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/wpsc-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                                encoding='utf-8', mode='w')
+                        self.app.render((data), 'wpsc-php7.mustache',
+                                out=ee_nginx)
+                        ee_nginx.close()
+
+                        Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-php7.conf')
+                        ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                                     encoding='utf-8', mode='w')
+                        self.app.render((data), 'redis-php7.mustache',
+                                      out=ee_nginx)
+                        ee_nginx.close()
+
                     # Nginx-Plus does not have nginx package structure like this
                     # So creating directories
                     if set(["nginx-plus"]).issubset(set(apt_packages)):
@@ -384,8 +452,6 @@ class EEStackController(CementBaseController):
                             Log.debug(self, 'Creating directory'
                                       '/etc/nginx/sites-available')
                             os.makedirs('/etc/nginx/sites-enabled')
-
-
 
                     # 22222 port settings
                     Log.debug(self, 'Writting the nginx configuration to '
@@ -543,6 +609,18 @@ class EEStackController(CementBaseController):
                                         out=ee_nginx)
                         ee_nginx.close()
 
+                    if EEVariables.ee_platform_codename == 'trusty':
+                        if os.path.isfile("/etc/nginx/nginx.conf") and (not
+                            os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+                            data = dict()
+                            Log.debug(self, 'Writting the nginx configuration to '
+                                  'file /etc/nginx/common/redis-php7.conf')
+                            ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                                        encoding='utf-8', mode='w')
+                            self.app.render((data), 'redis-php7.mustache',
+                                        out=ee_nginx)
+                            ee_nginx.close()
+
                     if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
                         if not EEFileUtils.grep(self, "/etc/nginx/conf.d/"
                                                 "upstream.conf",
@@ -560,6 +638,74 @@ class EEStackController(CementBaseController):
                                              "log_format rt_cache_redis '$remote_addr $upstream_response_time $srcache_fetch_status [$time_local] '\n"
                                              "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                              "'\"$http_referer\" \"$http_user_agent\"';\n")
+            #setup nginx common folder for php7
+            if self.app.pargs.php7:
+                if os.path.isdir("/etc/nginx/common") and (not
+                    os.path.isfile("/etc/nginx/common/php7.conf")):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                              'file /etc/nginx/common/locations-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/locations-php7.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'locations-php7.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                      'file /etc/nginx/common/php7.conf')
+                    ee_nginx = open('/etc/nginx/common/php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/w3tc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/w3tc-php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'w3tc-php7.mustache', out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                                'file /etc/nginx/common/wpcommon-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/wpcommon-php7.conf',
+                                    encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpcommon-php7.mustache',
+                                    out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpfc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/wpfc-php7.conf',
+                                encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpfc-php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                    Log.debug(self, 'Writting the nginx configuration to '
+                          'file /etc/nginx/common/wpsc-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/wpsc-php7.conf',
+                                encoding='utf-8', mode='w')
+                    self.app.render((data), 'wpsc-php7.mustache',
+                                out=ee_nginx)
+                    ee_nginx.close()
+
+                if os.path.isdir("/etc/nginx/common") and (not os.path.isfile("/etc/nginx/common/redis-php7.conf")):
+                    data = dict()
+                    Log.debug(self, 'Writting the nginx configuration to '
+                         'file /etc/nginx/common/redis-php7.conf')
+                    ee_nginx = open('/etc/nginx/common/redis-php7.conf',
+                            encoding='utf-8', mode='w')
+                    self.app.render((data), 'redis-php7.mustache',
+                            out=ee_nginx)
+                    ee_nginx.close()
+
+                if os.path.isfile("/etc/nginx/conf.d/upstream.conf"):
+                    if not EEFileUtils.grep(self, "/etc/nginx/conf.d/upstream.conf",
+                                          "php7"):
+                        with open("/etc/nginx/conf.d/upstream.conf", "a") as php_file:
+                            php_file.write("upstream php7 {\nserver 127.0.0.1:9070;\n}\n"
+                                    "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n")
 
             # Set up pagespeed config
             if self.app.pargs.pagespeed:
@@ -703,7 +849,7 @@ class EEStackController(CementBaseController):
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                          "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-            if set(EEVariables.ee_php).issubset(set(apt_packages)):
+            if EEVariables.ee_platform_codename != 'trusty' and set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
                     Log.debug(self, 'Creating directory /var/log/php5/')
@@ -740,7 +886,9 @@ class EEStackController(CementBaseController):
                               "/etc/php5/fpm/php.ini")
                     config.write(configfile)
 
-                # Prase /etc/php5/fpm/php-fpm.conf
+                '''
+                #Code depreciated. Mustache version applied
+                # Parse /etc/php5/fpm/php-fpm.conf
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file"
                           "/etc/php5/fpm/php-fpm.conf")
@@ -755,6 +903,17 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "writting php5 configuration into "
                               "/etc/php5/fpm/php-fpm.conf")
                     config.write(configfile)
+                '''
+                #configure /etc/php5/fpm/php-fpm.conf
+                data = dict(pid="/run/php5-fpm.pid", error_log="/var/log/php5/fpm.log",
+                              include="/etc/php5/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php configuration into "
+                              "/etc/php5/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php5/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
+
 
                 # Parse /etc/php5/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
@@ -844,6 +1003,291 @@ class EEStackController(CementBaseController):
 
                 EEGit.add(self, ["/etc/php5"], msg="Adding PHP into Git")
                 EEService.restart_service(self, 'php5-fpm')
+
+
+            if EEVariables.ee_platform_codename == 'trusty' and set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                # Create log directories
+                if not os.path.exists('/var/log/php/5.6/'):
+                    Log.debug(self, 'Creating directory /var/log/php/5.6/')
+                    os.makedirs('/var/log/php/5.6/')
+
+                # Parse etc/php/5.6/fpm/php.ini
+                config = configparser.ConfigParser()
+                Log.debug(self, "configuring php file /etc/php/5.6/fpm/php.ini")
+                config.read('/etc/php/5.6/fpm/php.ini')
+                config['PHP']['expose_php'] = 'Off'
+                config['PHP']['post_max_size'] = '100M'
+                config['PHP']['upload_max_filesize'] = '100M'
+                config['PHP']['max_execution_time'] = '300'
+                config['PHP']['date.timezone'] = EEVariables.ee_timezone
+                with open('/etc/php/5.6/fpm/php.ini',
+                          encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "Writting php configuration into "
+                              "/etc/php/5.6/fpm/php.ini")
+                    config.write(configfile)
+
+                # Parse /etc/php/5.6/fpm/php-fpm.conf
+                '''
+                #Depreciated code. Mustache version Applied.
+
+                config = configparser.ConfigParser()
+                Log.debug(self, "configuring php file "
+                          "/etc/php/5.6/fpm/php-fpm.conf")
+                config.read_file(codecs.open("/etc/php/5.6/fpm/php-fpm.conf",
+                                             "r", "utf8"))
+                config['global']['error_log'] = '/var/log/php/5.6/fpm.log'
+                config.remove_option('global', 'include')
+                config['global']['log_level'] = 'notice'
+                config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
+                with codecs.open('/etc/php/5.6/fpm/php-fpm.conf',
+                                 encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "writting php5 configuration into "
+                              "/etc/php/5.6/fpm/php-fpm.conf")
+                    config.write(configfile)
+                '''
+                data = dict(pid="/run/php/php5.6-fpm.pid", error_log="/var/log/php/5.6/fpm.log",
+                              include="/etc/php/5.6/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php5 configuration into "
+                              "/etc/php/5.6/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php/5.6/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
+
+
+
+
+
+                # Parse /etc/php/5.6/fpm/pool.d/www.conf
+                config = configparser.ConfigParser()
+                config.read_file(codecs.open('/etc/php/5.6/fpm/pool.d/www.conf',
+                                             "r", "utf8"))
+                config['www']['ping.path'] = '/ping'
+                config['www']['pm.status_path'] = '/status'
+                config['www']['pm.max_requests'] = '500'
+                config['www']['pm.max_children'] = '100'
+                config['www']['pm.start_servers'] = '20'
+                config['www']['pm.min_spare_servers'] = '10'
+                config['www']['pm.max_spare_servers'] = '30'
+                config['www']['request_terminate_timeout'] = '300'
+                config['www']['pm'] = 'ondemand'
+                config['www']['listen'] = '127.0.0.1:9000'
+                with codecs.open('/etc/php/5.6/fpm/pool.d/www.conf',
+                                 encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php/5.6/fpm/pool.d/www.conf")
+                    config.write(configfile)
+
+                # Generate /etc/php/5.6/fpm/pool.d/debug.conf
+                EEFileUtils.copyfile(self, "/etc/php/5.6/fpm/pool.d/www.conf",
+                                     "/etc/php/5.6/fpm/pool.d/debug.conf")
+                EEFileUtils.searchreplace(self, "/etc/php/5.6/fpm/pool.d/"
+                                          "debug.conf", "[www]", "[debug]")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/5.6/fpm/pool.d/debug.conf')
+                config['debug']['listen'] = '127.0.0.1:9001'
+                config['debug']['rlimit_core'] = 'unlimited'
+                config['debug']['slowlog'] = '/var/log/php/5.6/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
+                with open('/etc/php/5.6/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php/5.6/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
+                with open("/etc/php/5.6/fpm/pool.d/debug.conf",
+                          encoding='utf-8', mode='a') as myfile:
+                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
+                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
+                                 "output_name] = cachegrind.out.%p-%H-%R "
+                                 "\nphp_admin_flag[xdebug.profiler_enable"
+                                 "_trigger] = on \nphp_admin_flag[xdebug."
+                                 "profiler_enable] = off\n")
+
+                # Disable xdebug
+                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/mods-available/xdebug.ini"):
+                    EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                                          "xdebug.ini",
+                                          "zend_extension",
+                                          ";zend_extension")
+
+                # PHP and Debug pull configuration
+                if not os.path.exists('{0}22222/htdocs/fpm/status/'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, 'Creating directory '
+                              '{0}22222/htdocs/fpm/status/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/fpm/status/'
+                                .format(EEVariables.ee_webroot))
+                open('{0}22222/htdocs/fpm/status/debug'
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/php'
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
+
+                # Write info.php
+                if not os.path.exists('{0}22222/htdocs/php/'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, 'Creating directory '
+                              '{0}22222/htdocs/php/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/php'
+                                .format(EEVariables.ee_webroot))
+
+                with open("{0}22222/htdocs/php/info.php"
+                          .format(EEVariables.ee_webroot),
+                          encoding='utf-8', mode='w') as myfile:
+                    myfile.write("<?php\nphpinfo();\n?>")
+
+                EEFileUtils.chown(self, "{0}22222"
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
+
+                EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+                EEService.restart_service(self, 'php5.6-fpm')
+
+            #preconfiguration for php7.0
+            if EEVariables.ee_platform_codename == 'trusty' and set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+                # Create log directories
+                if not os.path.exists('/var/log/php/7.0/'):
+                    Log.debug(self, 'Creating directory /var/log/php/7.0/')
+                    os.makedirs('/var/log/php/7.0/')
+
+                # Parse etc/php/7.0/fpm/php.ini
+                config = configparser.ConfigParser()
+                Log.debug(self, "configuring php file /etc/php/7.0/fpm/php.ini")
+                config.read('/etc/php/7.0/fpm/php.ini')
+                config['PHP']['expose_php'] = 'Off'
+                config['PHP']['post_max_size'] = '100M'
+                config['PHP']['upload_max_filesize'] = '100M'
+                config['PHP']['max_execution_time'] = '300'
+                config['PHP']['date.timezone'] = EEVariables.ee_timezone
+                with open('/etc/php/7.0/fpm/php.ini',
+                          encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "Writting php configuration into "
+                              "/etc/php/7.0/fpm/php.ini")
+                    config.write(configfile)
+
+                # Parse /etc/php/7.0/fpm/php-fpm.conf
+                '''
+                #Depreciated code. Mustache version applied
+                config = configparser.ConfigParser()
+                Log.debug(self, "configuring php file"
+                          "/etc/php/7.0/fpm/php-fpm.conf")
+                config.read_file(codecs.open("/etc/php/7.0/fpm/php-fpm.conf",
+                                             "r", "utf8"))
+                config['global']['error_log'] = '/var/log/php/7.0/fpm.log'
+                config.remove_option('global', 'include')
+                config['global']['log_level'] = 'notice'
+                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
+                with codecs.open('/etc/php/7.0/fpm/php-fpm.conf',
+                                 encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "writting php5 configuration into "
+                              "/etc/php/7.0/fpm/php-fpm.conf")
+                    config.write(configfile)
+                '''
+                data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.0/fpm.log",
+                              include="/etc/php/7.0/fpm/pool.d/*.conf")
+                Log.debug(self, "writting php 7.0 configuration into "
+                              "/etc/php/7.0/fpm/php-fpm.conf")
+                ee_php_fpm = open('/etc/php/7.0/fpm/php-fpm.conf',
+                                   encoding='utf-8', mode='w')
+                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
+                ee_php_fpm.close()
+
+                # Parse /etc/php/7.0/fpm/pool.d/www.conf
+                config = configparser.ConfigParser()
+                config.read_file(codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                                             "r", "utf8"))
+                config['www']['ping.path'] = '/ping'
+                config['www']['pm.status_path'] = '/status'
+                config['www']['pm.max_requests'] = '500'
+                config['www']['pm.max_children'] = '100'
+                config['www']['pm.start_servers'] = '20'
+                config['www']['pm.min_spare_servers'] = '10'
+                config['www']['pm.max_spare_servers'] = '30'
+                config['www']['request_terminate_timeout'] = '300'
+                config['www']['pm'] = 'ondemand'
+                config['www']['listen'] = '127.0.0.1:9070'
+                with codecs.open('/etc/php/7.0/fpm/pool.d/www.conf',
+                                 encoding='utf-8', mode='w') as configfile:
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php/7.0/fpm/pool.d/www.conf")
+                    config.write(configfile)
+
+                # Generate /etc/php/7.0/fpm/pool.d/debug.conf
+                EEFileUtils.copyfile(self, "/etc/php/7.0/fpm/pool.d/www.conf",
+                                     "/etc/php/7.0/fpm/pool.d/debug.conf")
+                EEFileUtils.searchreplace(self, "/etc/php/7.0/fpm/pool.d/"
+                                          "debug.conf", "[www]", "[debug]")
+                config = configparser.ConfigParser()
+                config.read('/etc/php/7.0/fpm/pool.d/debug.conf')
+                config['debug']['listen'] = '127.0.0.1:9170'
+                config['debug']['rlimit_core'] = 'unlimited'
+                config['debug']['slowlog'] = '/var/log/php/7.0/slow.log'
+                config['debug']['request_slowlog_timeout'] = '10s'
+                with open('/etc/php/7.0/fpm/pool.d/debug.conf',
+                          encoding='utf-8', mode='w') as confifile:
+                    Log.debug(self, "writting PHP5 configuration into "
+                              "/etc/php/7.0/fpm/pool.d/debug.conf")
+                    config.write(confifile)
+
+                with open("/etc/php/7.0/fpm/pool.d/debug.conf",
+                          encoding='utf-8', mode='a') as myfile:
+                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
+                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
+                                 "output_name] = cachegrind.out.%p-%H-%R "
+                                 "\nphp_admin_flag[xdebug.profiler_enable"
+                                 "_trigger] = on \nphp_admin_flag[xdebug."
+                                 "profiler_enable] = off\n")
+
+                # Disable xdebug
+                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/mods-available/xdebug.ini"):
+                    EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                                          "xdebug.ini",
+                                          "zend_extension",
+                                          ";zend_extension")
+
+                # PHP and Debug pull configuration
+                if not os.path.exists('{0}22222/htdocs/fpm/status/'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, 'Creating directory '
+                              '{0}22222/htdocs/fpm/status/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/fpm/status/'
+                                .format(EEVariables.ee_webroot))
+                open('{0}22222/htdocs/fpm/status/debug'
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
+                open('{0}22222/htdocs/fpm/status/php'
+                     .format(EEVariables.ee_webroot),
+                     encoding='utf-8', mode='a').close()
+
+                # Write info.php
+                if not os.path.exists('{0}22222/htdocs/php/'
+                                      .format(EEVariables.ee_webroot)):
+                    Log.debug(self, 'Creating directory '
+                              '{0}22222/htdocs/php/ '
+                              .format(EEVariables.ee_webroot))
+                    os.makedirs('{0}22222/htdocs/php'
+                                .format(EEVariables.ee_webroot))
+
+                with open("{0}22222/htdocs/php/info.php"
+                          .format(EEVariables.ee_webroot),
+                          encoding='utf-8', mode='w') as myfile:
+                    myfile.write("<?php\nphpinfo();\n?>")
+
+                EEFileUtils.chown(self, "{0}22222"
+                                  .format(EEVariables.ee_webroot),
+                                  EEVariables.ee_php_user,
+                                  EEVariables.ee_php_user, recursive=True)
+
+                EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+                EEService.restart_service(self, 'php7.0-fpm')
+
+
 
             if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
                 # TODO: Currently we are using, we need to remove it in future
@@ -1611,7 +2055,7 @@ class EEStackController(CementBaseController):
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
                and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline) and
-               (not self.app.pargs.phpredisadmin)):
+               (not self.app.pargs.phpredisadmin) and (not self.app.pargs.php7)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
 
@@ -1756,11 +2200,30 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
-                if not EEAptGet.is_installed(self, 'php5-fpm'):
-                    apt_packages = apt_packages + EEVariables.ee_php
+                if not (EEAptGet.is_installed(self, 'php5-fpm') or EEAptGet.is_installed(self, 'php5.6-fpm')):
+                    if EEVariables.ee_platform_codename == 'trusty':
+                        apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                    else:
+                        apt_packages = apt_packages + EEVariables.ee_php
                 else:
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
+
+
+            if self.app.pargs.php7:
+                if EEVariables.ee_platform_codename == 'trusty':
+                    Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+                    if not EEAptGet.is_installed(self, 'php7.0-fpm') :
+                        apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+                        if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                            apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                    else:
+                        Log.debug(self, "PHP 7.0 already installed")
+                        Log.info(self, "PHP 7.0 already installed")
+                else:
+                    Log.debug(self, "PHP 7.0  Not Available for your Distribution")
+                    Log.info(self, "PHP 7.0  Not Available for your Distribution")
+
 
             if self.app.pargs.hhvm:
                 Log.debug(self, "Setting apt packages variable for HHVM")
@@ -1944,7 +2407,7 @@ class EEStackController(CementBaseController):
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
-           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.php) and (not self.app.pargs.php7) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
@@ -1958,6 +2421,8 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
+            if EEVariables.ee_platform_codename == 'trusty':
+                self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -2004,11 +2469,25 @@ class EEStackController(CementBaseController):
                 Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            apt_packages = apt_packages + EEVariables.ee_php
+            if EEVariables.ee_platform_codename == 'trusty':
+                apt_packages = apt_packages + EEVariables.ee_php5_6
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
+            else:
+                apt_packages = apt_packages + EEVariables.ee_php
+
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                Log.debug(self, "Removing apt_packages variable of PHP 7.0")
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+                if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
+            else:
+                Log.info(self,"PHP 7.0 not supported.")
 
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
-                Log.debug(self, "Removing apt_packages varible of HHVM")
+                Log.debug(self, "Removing apt_packages variable of HHVM")
                 apt_packages = apt_packages + EEVariables.ee_hhvm
         if self.app.pargs.redis:
             Log.debug(self, "Remove apt_packages variable of Redis")
@@ -2093,7 +2572,7 @@ class EEStackController(CementBaseController):
         # Default action for stack purge
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
-           (not self.app.pargs.php) and (not self.app.pargs.mysql) and
+           (not self.app.pargs.php) and (not self.app.pargs.php7) and (not self.app.pargs.mysql) and
            (not self.app.pargs.postfix) and (not self.app.pargs.wpcli) and
            (not self.app.pargs.phpmyadmin) and (not self.app.pargs.hhvm) and
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
@@ -2107,6 +2586,8 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
+            if EEVariables.ee_platform_codename == 'trusty':
+                self.app.pargs.php7 = True
 
         if self.app.pargs.web:
             self.app.pargs.nginx = True
@@ -2153,7 +2634,20 @@ class EEStackController(CementBaseController):
                 Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            apt_packages = apt_packages + EEVariables.ee_php
+            if EEVariables.ee_platform_codename == 'trusty':
+                apt_packages = apt_packages + EEVariables.ee_php5_6
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
+            else:
+                apt_packages = apt_packages + EEVariables.ee_php
+        if self.app.pargs.php7:
+            if EEVariables.ee_platform_codename == 'trusty':
+                Log.debug(self, "Removing apt_packages variable of PHP 7.0")
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+                if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
+            else:
+                Log.info(self,"PHP 7.0 not supported.")
         if self.app.pargs.hhvm:
             if EEAptGet.is_installed(self, 'hhvm'):
                 Log.debug(self, "Purge apt_packages varible of HHVM")

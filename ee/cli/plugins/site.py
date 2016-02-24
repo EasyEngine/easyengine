@@ -156,6 +156,7 @@ class EESiteController(CementBaseController):
                 error_log = "/var/log/nginx/{0}.error.log".format(ee_domain)
                 ee_site_webroot = ''
 
+            php_version = siteinfo.php_version
             pagespeed = ("enabled" if siteinfo.is_pagespeed else "disabled")
             ssl = ("enabled" if siteinfo.is_ssl else "disabled")
             if (ssl == "enabled"):
@@ -166,7 +167,7 @@ class EESiteController(CementBaseController):
                 sslexpiry = ''
             data = dict(domain=ee_domain, webroot=ee_site_webroot,
                         accesslog=access_log, errorlog=error_log,
-                        dbname=ee_db_name, dbuser=ee_db_user,
+                        dbname=ee_db_name, dbuser=ee_db_user,php_version=php_version,
                         dbpass=ee_db_pass, hhvm=hhvm, pagespeed=pagespeed,
                         ssl=ssl, sslprovider=sslprovider,  sslexpiry= sslexpiry,
                         type=sitetype + " " + cachetype + " ({0})"
@@ -336,6 +337,8 @@ class EESiteCreateController(CementBaseController):
                 dict(help="create html site", action='store_true')),
             (['--php'],
                 dict(help="create php site", action='store_true')),
+            (['--php7'],
+                dict(help="create php 7.0 site", action='store_true')),
             (['--mysql'],
                 dict(help="create mysql site", action='store_true')),
             (['--wp'],
@@ -441,9 +444,16 @@ class EESiteCreateController(CementBaseController):
             data['port'] = port
             ee_site_webroot = ""
 
-        if stype in ['html', 'php']:
+        if self.app.pargs.php7:
             data = dict(site_name=ee_domain, www_domain=ee_www_domain,
-                        static=True,  basic=False, wp=False, w3tc=False,
+                        static=False,  basic=False, php7=True, wp=False, w3tc=False,
+                        wpfc=False, wpsc=False, multisite=False,
+                        wpsubdir=False, webroot=ee_site_webroot)
+            data['basic'] = True
+
+        if stype in ['html', 'php' ]:
+            data = dict(site_name=ee_domain, www_domain=ee_www_domain,
+                        static=True,  basic=False, php7=False, wp=False, w3tc=False,
                         wpfc=False, wpsc=False, multisite=False,
                         wpsubdir=False, webroot=ee_site_webroot)
 
@@ -476,6 +486,40 @@ class EESiteCreateController(CementBaseController):
 
         if stype == "html" and self.app.pargs.hhvm:
             Log.error(self, "Can not create HTML site with HHVM")
+
+        if data and self.app.pargs.php7:
+            if (not self.app.pargs.experimental):
+                Log.info(self, "PHP7.0 is experimental feature and it may not "
+                         "work with all CSS/JS/Cache of your site.\nDo you wish"
+                         " to install PHP 7.0 now for {0}?".format(ee_domain))
+
+                # Check prompt
+                check_prompt = input("Type \"y\" to continue [n]:")
+                if check_prompt != "Y" and check_prompt != "y":
+                    Log.info(self, "Not using PHP 7.0 for site.")
+                    data['php7'] = False
+                    data['basic'] = True
+                    php7 = 0
+                    self.app.pargs.php7 = False
+                else:
+                    data['php7'] = True
+                    php7 = 1
+            else:
+                data['php7'] = True
+                php7 = 1
+        elif data:
+            data['php7'] = False
+            php7 = 0
+
+        if (not self.app.pargs.w3tc) and\
+            (not self.app.pargs.wpfc) and (not self.app.pargs.wpsc) and (not self.app.pargs.wpredis) \
+              and (not self.app.pargs.hhvm):
+            data['basic'] = True
+
+        #for debug purpose
+        #for key, value in data.items() :
+         #   print (key, value)
+
 
         if data and self.app.pargs.hhvm:
             if (not self.app.pargs.experimental):
@@ -593,8 +637,14 @@ class EESiteCreateController(CementBaseController):
             if self.app.pargs.pagespeed:
                 operateOnPagespeed(self, data)
 
+            if data['php7']:
+                php_version = "7.0"
+            else:
+                php_version = "5.6"
+
+
             addNewSite(self, ee_domain, stype, cache, ee_site_webroot,
-                       hhvm=hhvm, pagespeed=pagespeed)
+                       hhvm=hhvm, pagespeed=pagespeed, php_version=php_version)
 
             # Setup database for MySQL site
             if 'ee_db_name' in data.keys() and not data['wp']:
@@ -799,6 +849,10 @@ class EESiteUpdateController(CementBaseController):
                 dict(help="update to html site", action='store_true')),
             (['--php'],
                 dict(help="update to php site", action='store_true')),
+            (['--php7'],
+                dict(help="update to php7 site",
+                     action='store' or 'store_const',
+                     choices=('on', 'off'), const='on', nargs='?')),
             (['--mysql'],
                 dict(help="update to mysql site", action='store_true')),
             (['--wp'],
@@ -848,7 +902,7 @@ class EESiteUpdateController(CementBaseController):
             if pargs.html:
                 Log.error(self, "No site can be updated to html")
 
-            if not (pargs.php or
+            if not (pargs.php or pargs.php7 or
                     pargs.mysql or pargs.wp or pargs.wpsubdir or
                     pargs.wpsubdomain or pargs.w3tc or pargs.wpfc or
                     pargs.wpsc or pargs.hhvm or pargs.pagespeed or pargs.wpredis or pargs.letsencrypt):
@@ -877,6 +931,8 @@ class EESiteUpdateController(CementBaseController):
         hhvm = None
         pagespeed = None
         letsencrypt = False
+        php7 = None
+
 
         data = dict()
         try:
@@ -923,9 +979,15 @@ class EESiteUpdateController(CementBaseController):
             old_hhvm = check_site.is_hhvm
             old_pagespeed = check_site.is_pagespeed
             check_ssl = check_site.is_ssl
+            check_php_version = check_site.php_version
+
+            if check_php_version == "7.0":
+                old_php7 = True
+            else:
+                old_php7 = False
 
         if (pargs.password and not (pargs.html or
-            pargs.php or pargs.mysql or pargs.wp or
+            pargs.php or pargs.php7 or pargs.mysql or pargs.wp or
             pargs.w3tc or pargs.wpfc or pargs.wpsc
            or pargs.wpsubdir or pargs.wpsubdomain)):
             try:
@@ -945,15 +1007,16 @@ class EESiteUpdateController(CementBaseController):
             Log.info(self, Log.FAIL + "Can not update HTML site to HHVM")
             return 1
 
-        if ((stype == 'php' and oldsitetype not in ['html', 'proxy']) or
+        if ((stype == 'php' and oldsitetype not in ['html', 'proxy', 'php7']) or
+          #  (stype == 'php7' and oldsitetype not in ['html', 'mysql', 'php', 'php7', 'wp', 'wpsubdir', 'wpsubdomain', ]) or
             (stype == 'mysql' and oldsitetype not in ['html', 'php',
-                                                      'proxy']) or
+                                                      'proxy','php7']) or
             (stype == 'wp' and oldsitetype not in ['html', 'php', 'mysql',
-                                                   'proxy', 'wp']) or
+                                                   'proxy', 'wp', 'php7']) or
             (stype == 'wpsubdir' and oldsitetype in ['wpsubdomain']) or
             (stype == 'wpsubdomain' and oldsitetype in ['wpsubdir']) or
            (stype == oldsitetype and cache == oldcachetype) and
-           not pargs.pagespeed):
+                    not (pargs.pagespeed or pargs.php7)):
             Log.info(self, Log.FAIL + "can not update {0} {1} to {2} {3}".
                      format(oldsitetype, oldcachetype, stype, cache))
             return 1
@@ -996,13 +1059,12 @@ class EESiteUpdateController(CementBaseController):
                     if stype == 'wpsubdir':
                         data['wpsubdir'] = True
 
-        if pargs.pagespeed or pargs.hhvm:
+        if pargs.pagespeed or pargs.hhvm or pargs.php7:
             if not data:
                 data = dict(site_name=ee_domain, www_domain=ee_www_domain,
                             currsitetype=oldsitetype,
                             currcachetype=oldcachetype,
                             webroot=ee_site_webroot)
-
                 stype = oldsitetype
                 cache = oldcachetype
                 if oldsitetype == 'html' or oldsitetype == 'proxy':
@@ -1076,6 +1138,14 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
+            if pargs.php7 == 'on' :
+                data['php7'] = True
+                php7 = True
+                check_php_version= '7.0'
+            elif pargs.php7 == 'off':
+                data['php7'] = False
+                php7 = False
+                check_php_version = '5.6'
 
         if pargs.pagespeed:
             if pagespeed is old_pagespeed:
@@ -1086,6 +1156,16 @@ class EESiteUpdateController(CementBaseController):
                     Log.info(self, "Pagespeed is already enabled for given "
                              "site")
                 pargs.pagespeed = False
+
+        if pargs.php7:
+            if php7 is old_php7:
+                if php7 is False:
+                    Log.info(self, "PHP 7.0 is already disabled for given "
+                             "site")
+                elif php7 is True:
+                    Log.info(self, "PHP 7.0 is already enabled for given "
+                             "site")
+                pargs.php7 = False
 
         #--letsencrypt=renew code goes here
         if pargs.letsencrypt == "renew" and not pargs.all:
@@ -1177,7 +1257,35 @@ class EESiteUpdateController(CementBaseController):
                 data['pagespeed'] = False
                 pagespeed = False
 
-        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on":
+        if data and (not pargs.php7):
+            if old_php7 is True:
+                data['php7'] = True
+                php7 = True
+            else:
+                data['php7'] = False
+                php7 = False
+
+        if pargs.pagespeed=="on" or pargs.hhvm=="on" or pargs.letsencrypt=="on" or pargs.php7=="on":
+            if pargs.php7 == "on":
+                if (not pargs.experimental):
+                    Log.info(self, "PHP7.0 is experimental feature and it may not"
+                             " work with all plugins of your site.\nYou can "
+                             "disable it by passing --php7=off later.\nDo you wish"
+                             " to enable PHP now for {0}?".format(ee_domain))
+
+                    # Check prompt
+                    check_prompt = input("Type \"y\" to continue [n]:")
+                    if check_prompt != "Y" and check_prompt != "y":
+                        Log.info(self, "Not using PHP 7.0 for site")
+                        data['php7'] = False
+                        php7 = False
+                    else:
+                        data['php7'] = True
+                        php7 = True
+                else:
+                    data['php7'] = True
+                    php7 = True
+
             if pargs.hhvm == "on":
                 if (not pargs.experimental):
                     Log.info(self, "HHVM is experimental feature and it may not"
@@ -1259,7 +1367,7 @@ class EESiteUpdateController(CementBaseController):
                     data['basic'] = True
                     cache = 'basic'
 
-        if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and
+        if ((hhvm is old_hhvm) and (pagespeed is old_pagespeed) and (php7 is old_php7) and
             (stype == oldsitetype and cache == oldcachetype)):
             return 1
 
@@ -1372,7 +1480,7 @@ class EESiteUpdateController(CementBaseController):
                           "check issues with `nginx -t` command")
 
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False, php_version=check_php_version)
 
             Log.info(self, "Successfully updated site"
                      " http://{0}".format(ee_domain))
@@ -1590,10 +1698,10 @@ class EESiteUpdateController(CementBaseController):
                            db_user=data['ee_db_user'],
                            db_password=data['ee_db_pass'],
                            db_host=data['ee_db_host'], hhvm=hhvm,
-                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           pagespeed=pagespeed,ssl=True if check_site.is_ssl else False,php_version=check_php_version)
         else:
             updateSiteInfo(self, ee_domain, stype=stype, cache=cache,
-                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False)
+                           hhvm=hhvm, pagespeed=pagespeed,ssl=True if check_site.is_ssl else False,php_version=check_php_version)
         Log.info(self, "Successfully updated site"
                  " http://{0}".format(ee_domain))
         return 0
