@@ -67,7 +67,7 @@ class EEStackUpgradeController(CementBaseController):
                 Log.error(self, "Unable to find PHP 5.5")
 
         Log.info(self, "During PHP update process non nginx-cached"
-                 " parts of your site may remain down")
+                 " parts of your site may remain down.")
 
         # Check prompt
         if (not self.app.pargs.no_prompt):
@@ -86,7 +86,10 @@ class EEStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        EEAptGet.install(self, EEVariables.ee_php)
+        if EEVariables.ee_platform_codename == 'trusty':
+            EEAptGet.install(self, EEVariables.ee_php5_6 + EEVariables.ee_php_extra)
+        else:
+            EEAptGet.install(self, EEVariables.ee_php)
 
         if EEVariables.ee_platform_distro == "debian":
             EEShellExec.cmd_exec(self, "pecl install xdebug")
@@ -239,6 +242,10 @@ class EEStackUpgradeController(CementBaseController):
                         EEService.restart_service(self, 'nginx')
                     if set(EEVariables.ee_php).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'php5-fpm')
+                    if set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'php5.6-fpm')
+                    if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+                        EEService.restart_service(self, 'php7.0-fpm')
                     if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'hhvm')
                     if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
