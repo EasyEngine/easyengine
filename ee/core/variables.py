@@ -127,7 +127,7 @@ class EEVariables():
                           "php7.0-mcrypt", "php7.0-readline", "php7.0-common",
                           "php7.0-mysql", "php7.0-cli"]
             ee_php_extra = ["php-memcached", "php-imagick", "memcached",
-                            "graphviz", "php-pear", "php-xdebug"]
+                            "graphviz", "php-pear", "php-xdebug", "php-msgpack"]
     elif ee_platform_distro == 'debian':
         if ee_platform_codename == 'wheezy':
             ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
