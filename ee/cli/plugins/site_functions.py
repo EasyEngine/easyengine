@@ -257,7 +257,7 @@ def setupwordpress(self, data):
     if 'wp-pass' in data.keys() and data['wp-pass']:
         ee_wp_pass = data['wp-pass']
 
-    Log.info(self, "Downloading Wordpress \t\t", end='')
+    Log.info(self, "Downloading WordPress \t\t", end='')
     EEFileUtils.chdir(self, '{0}/htdocs/'.format(ee_site_webroot))
     try:
         if EEShellExec.cmd_exec(self, "wp --allow-root core"
@@ -265,10 +265,10 @@ def setupwordpress(self, data):
             pass
         else:
             Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-            raise SiteError("download wordpress core failed")
+            raise SiteError("download WordPress core failed")
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-        raise SiteError(self, "download wordpress core failed")
+        raise SiteError(self, "download WordPress core failed")
 
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
@@ -396,7 +396,7 @@ def setupwordpress(self, data):
                 ee_wp_user = input('Enter WordPress username: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                raise SiteError("input wordpress username failed")
+                raise SiteError("input WordPress username failed")
     if not ee_wp_pass:
         ee_wp_pass = ee_random
 
@@ -407,7 +407,7 @@ def setupwordpress(self, data):
                 ee_wp_email = input('Enter WordPress email: ')
             except EOFError as e:
                 Log.debug(self, "{0}".format(e))
-                raise SiteError("input wordpress username failed")
+                raise SiteError("input WordPress username failed")
 
     try:
         while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
@@ -441,9 +441,9 @@ def setupwordpress(self, data):
                                  log=False):
                 pass
             else:
-                raise SiteError("setup wordpress tables failed for single site")
+                raise SiteError("setup WordPress tables failed for single site")
         except CommandExecutionError as e:
-            raise SiteError("setup wordpress tables failed for single site")
+            raise SiteError("setup WordPress tables failed for single site")
     else:
         Log.debug(self, "Creating tables for WordPress multisite")
         Log.debug(self, "php {0} --allow-root "
@@ -472,9 +472,9 @@ def setupwordpress(self, data):
                                  log=False):
                 pass
             else:
-                raise SiteError("setup wordpress tables failed for wp multi site")
+                raise SiteError("setup WordPress tables failed for wp multi site")
         except CommandExecutionError as e:
-            raise SiteError("setup wordpress tables failed for wp multi site")
+            raise SiteError("setup WordPress tables failed for wp multi site")
 
     Log.debug(self, "Updating WordPress permalink")
     try:
@@ -525,11 +525,11 @@ def setupwordpressnetwork(self, data):
             pass
         else:
             Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-            raise SiteError("setup wordpress network failed")
+            raise SiteError("setup WordPress network failed")
 
     except CommandExecutionError as e:
         Log.info(self, "[" + Log.ENDC + Log.FAIL + "Fail" + Log.OKBLUE + "]")
-        raise SiteError("setup wordpress network failed")
+        raise SiteError("setup WordPress network failed")
     Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
 
 
@@ -955,7 +955,7 @@ def updatewpuserpassword(self, ee_domain, ee_site_webroot):
         is_wp = EEShellExec.cmd_exec(self, "wp --allow-root core"
                                      " version")
     except CommandExecutionError as e:
-        raise SiteError("is wordpress site? check command failed ")
+        raise SiteError("is WordPress site? check command failed ")
 
     # Exit if ee_domain is not wordpress install
     if not is_wp:
@@ -1346,7 +1346,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             ee_wp_email = input('Enter WordPress email: ')
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
-            raise SiteError("input wordpress username failed")
+            raise SiteError("input WordPress username failed")
 
     if not os.path.isdir("/opt/letsencrypt"):
         cloneLetsEncrypt(self)
@@ -1404,7 +1404,7 @@ def renewLetsEncrypt(self, ee_domain_name):
             ee_wp_email = input('Enter email address: ')
         except EOFError as e:
             Log.debug(self, "{0}".format(e))
-            raise SiteError("Input wordpress email failed")
+            raise SiteError("Input WordPress email failed")
 
     if not os.path.isdir("/opt/letsencrypt"):
         cloneLetsEncrypt(self)
