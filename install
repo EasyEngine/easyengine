@@ -302,7 +302,7 @@ function ee_upgrade_php(){
         if [ -f /etc/apt/sources.list.d/ondrej-php5-5_6-trusty.list ]; then
            # add-apt-repository -y --remove 'ppa:ondrej/php5-5.6'
             add-apt-repository -y 'ppa:ondrej/php'
-            ee_lib_echo "Updating required packages, please wait..."
+            ee_lib_echo "Upgrading required packages, please wait..."
             apt-get update &>> /dev/null
             apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
             if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then

@@ -240,12 +240,14 @@ class EEStackUpgradeController(CementBaseController):
                     if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
                             set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
-                    if set(EEVariables.ee_php).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'php5-fpm')
-                    if set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'php5.6-fpm')
-                    if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'php7.0-fpm')
+                    if EEVariables.ee_platform_codename != 'trusty':
+                        if set(EEVariables.ee_php).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php5-fpm')
+                    else:
+                        if set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php5.6-fpm')
+                        if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+                            EEService.restart_service(self, 'php7.0-fpm')
                     if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'hhvm')
                     if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
