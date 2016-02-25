@@ -1910,6 +1910,14 @@ class EEStackController(CementBaseController):
                             '{0}roundcubemail/htdocs'
                             .format(EEVariables.ee_webroot))
 
+                #Fix pear install config for trusty
+                if EEVariables.ee_platform_codename == 'trusty':
+                    EEShellExec.cmd_exec(self, "pear config-set php_dir /lib/php/pear")
+                    EEShellExec.cmd_exec(self, "pear config-set doc_dir /lib/php/pear/docs")
+                    EEShellExec.cmd_exec(self, "pear config-set cfg_dir /lib/php/pear/cfg")
+                    EEShellExec.cmd_exec(self, "pear config-set data_dir /lib/php/pear/data")
+                    EEShellExec.cmd_exec(self, "pear config-set test_dir /lib/php/pear/tests")
+                    EEShellExec.cmd_exec(self, "pear config-set www_dir /lib/php/pear/www")
                 # Install Roundcube depednet pear packages
                 EEShellExec.cmd_exec(self, "pear install Mail_Mime Net_SMTP"
                                      " Mail_mimeDecode Net_IDNA2-beta "
