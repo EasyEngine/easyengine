@@ -622,6 +622,7 @@ class EESiteCreateController(CementBaseController):
                     Log.info(self, Log.FAIL + "Oops Something went wrong !!")
                     Log.info(self, Log.FAIL + "Calling cleanup actions ...")
                     doCleanupAction(self, domain=ee_domain)
+                    deleteSiteInfo(self, ee_domain)
                     Log.debug(self, str(e))
                     Log.error(self, "service nginx reload failed. "
                               "check issues with `nginx -t` command")

@@ -1883,7 +1883,12 @@ class EEStackController(CementBaseController):
                     vm_config.close()
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
-                EEService.reload_service(self, 'php5-fpm')
+                if EEVariables.ee_platform_codename != 'trusty':
+                    EEService.reload_service(self, 'php5-fpm')
+                else:
+                    EEService.reload_service(self, 'php5.6-fpm')
+                    if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                        EEService.reload_service(self, 'php7.0-fpm')
                 self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
                             "22222/vimbadmin".format(EEVariables.ee_fqdn)]
                             + ["Security Salt: {0}".format(vm_salt)])
