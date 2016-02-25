@@ -164,11 +164,16 @@ class EEVariables():
     # Mail repo and packages
     ee_mail_repo = ("deb http://http.debian.net/debian-backports {codename}"
                     "-backports main".format(codename=ee_platform_codename))
-
-    ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
-               "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-               "dovecot-managesieved", "postfix-mysql", "php5-cgi",
-               "php-gettext", "php-pear"]
+    if ee_platform_codename != 'trusty':
+        ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
+                 "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
+                "dovecot-managesieved", "postfix-mysql", "php5-cgi",
+                "php-gettext", "php-pear", "subversion"]
+    else:
+        ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
+                 "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
+                "dovecot-managesieved", "postfix-mysql", "php5.6-cgi",
+                "php-gettext", "php-pear"]
 
     # Mailscanner repo and packages
     ee_mailscanner_repo = ()
