@@ -1883,7 +1883,12 @@ class EEStackController(CementBaseController):
                     vm_config.close()
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
-                EEService.reload_service(self, 'php5-fpm')
+                if EEVariables.ee_platform_codename != 'trusty':
+                    EEService.reload_service(self, 'php5-fpm')
+                else:
+                    EEService.reload_service(self, 'php5.6-fpm')
+                    if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                        EEService.reload_service(self, 'php7.0-fpm')
                 self.msg = (self.msg + ["Configure ViMbAdmin:\thttps://{0}:"
                             "22222/vimbadmin".format(EEVariables.ee_fqdn)]
                             + ["Security Salt: {0}".format(vm_salt)])
@@ -1905,10 +1910,20 @@ class EEStackController(CementBaseController):
                             '{0}roundcubemail/htdocs'
                             .format(EEVariables.ee_webroot))
 
+                #Fix pear install config for trusty
+                if EEVariables.ee_platform_codename == 'trusty':
+                    EEShellExec.cmd_exec(self, "pear config-set php_dir /usr/share/php")
+                    EEShellExec.cmd_exec(self, "pear config-set doc_dir /lib/php/pear/docs")
+                    EEShellExec.cmd_exec(self, "pear config-set cfg_dir /lib/php/pear/cfg")
+                    EEShellExec.cmd_exec(self, "pear config-set data_dir /lib/php/pear/data")
+                    EEShellExec.cmd_exec(self, "pear config-set test_dir /lib/php/pear/tests")
+                    EEShellExec.cmd_exec(self, "pear config-set www_dir /lib/php/pear/www")
                 # Install Roundcube depednet pear packages
                 EEShellExec.cmd_exec(self, "pear install Mail_Mime Net_SMTP"
                                      " Mail_mimeDecode Net_IDNA2-beta "
                                      "Auth_SASL Net_Sieve Crypt_GPG")
+
+               # pear install Mail_Mime Net_SMTP Mail_mimeDecode Net_IDNA2-beta Auth_SASL Net_Sieve Crypt_GPG
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))
