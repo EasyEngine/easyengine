@@ -128,7 +128,7 @@ class EEVariables():
                           "php7.0-mcrypt", "php7.0-readline", "php7.0-common", "php7.0-recode",
                           "php7.0-mysql", "php7.0-cli", "php7.0-curl", "php7.0-mbstring",
                          "php7.0-bcmath", "php7.0-mysql", "php7.0-opcache", "php7.0-zip", "php7.0-xml"]
-            ee_php_extra = ["php-memcached", "php-imagick", "memcached",
+            ee_php_extra = ["php-memcached", "php-imagick", "php-memcache", "memcached",
                             "graphviz", "php-pear", "php-xdebug", "php-msgpack"]
     elif ee_platform_distro == 'debian':
         if ee_platform_codename == 'wheezy':
