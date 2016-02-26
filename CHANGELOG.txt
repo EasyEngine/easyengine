@@ -1,4 +1,4 @@
-v3.5.1 - Feb 25, 2016
+v3.5.2 - Feb 25, 2016
 - Fixed PHP package dependency (Trusty)
 
 v3.5.1 - Feb 25, 2016
