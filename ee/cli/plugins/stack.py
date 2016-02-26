@@ -1912,7 +1912,7 @@ class EEStackController(CementBaseController):
 
                 #Fix pear install config for trusty
                 if EEVariables.ee_platform_codename == 'trusty':
-                    EEShellExec.cmd_exec(self, "pear config-set php_dir /lib/php/pear")
+                    EEShellExec.cmd_exec(self, "pear config-set php_dir /usr/share/php")
                     EEShellExec.cmd_exec(self, "pear config-set doc_dir /lib/php/pear/docs")
                     EEShellExec.cmd_exec(self, "pear config-set cfg_dir /lib/php/pear/cfg")
                     EEShellExec.cmd_exec(self, "pear config-set data_dir /lib/php/pear/data")
@@ -1922,6 +1922,8 @@ class EEStackController(CementBaseController):
                 EEShellExec.cmd_exec(self, "pear install Mail_Mime Net_SMTP"
                                      " Mail_mimeDecode Net_IDNA2-beta "
                                      "Auth_SASL Net_Sieve Crypt_GPG")
+
+               # pear install Mail_Mime Net_SMTP Mail_mimeDecode Net_IDNA2-beta Auth_SASL Net_Sieve Crypt_GPG
 
                 # Configure roundcube database
                 rc_passwd = ''.join(random.sample(string.ascii_letters, 8))

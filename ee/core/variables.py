@@ -168,12 +168,12 @@ class EEVariables():
         ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                 "dovecot-managesieved", "postfix-mysql", "php5-cgi",
-                "php-gettext", "php-pear", "subversion"]
+                "php-gettext", "php-pear"]
     else:
         ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                 "dovecot-managesieved", "postfix-mysql", "php5.6-cgi",
-                "php-gettext", "php-pear"]
+                "php-gettext", "php-pear", "subversion"]
 
     # Mailscanner repo and packages
     ee_mailscanner_repo = ()
