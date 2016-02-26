@@ -4,6 +4,7 @@ import socket
 import configparser
 import os
 import sys
+from ee.core.aptget import EEAptGet
 import psutil
 import datetime
 
@@ -172,7 +173,7 @@ class EEVariables():
     else:
         ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
-                "dovecot-managesieved", "postfix-mysql", "php5.6-cgi",
+                "dovecot-managesieved", "postfix-mysql", "php5.6-cgi", "php7.0-cgi",
                 "php-gettext", "php-pear", "subversion"]
 
     # Mailscanner repo and packages
