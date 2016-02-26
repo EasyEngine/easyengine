@@ -4,7 +4,6 @@ import socket
 import configparser
 import os
 import sys
-from ee.core.aptget import EEAptGet
 import psutil
 import datetime
 
