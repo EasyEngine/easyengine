@@ -1,5 +1,6 @@
 v3.5.3 - Feb 25, 2016
 - Fixed #650
+- Fixed #681
 
 v3.5.2 - Feb 25, 2016
 - Fixed PHP package dependency (Trusty)
