@@ -253,7 +253,7 @@ class EEStackUpgradeController(CementBaseController):
                     if set(EEVariables.ee_postfix).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'postfix')
                     if set(EEVariables.ee_mysql).issubset(set(apt_packages)):
-                        EEService.restart_service(self, 'hhvm')
+                        EEService.restart_service(self, 'mysql')
                     if set(EEVariables.ee_mail).issubset(set(apt_packages)):
                         EEService.restart_service(self, 'dovecot')
                     if set(EEVariables.ee_redis).issubset(set(apt_packages)):
