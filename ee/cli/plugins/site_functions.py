@@ -722,7 +722,7 @@ def site_package_check(self, stype):
         if EEVariables.ee_platform_codename == 'trusty':
             Log.debug(self, "Setting apt_packages variable for PHP 5.6")
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
-                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+                apt_packages = apt_packages + EEVariables.ee_php5_6
             Log.debug(self, "Setting apt_packages variable for PHP 7.0")
             if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
