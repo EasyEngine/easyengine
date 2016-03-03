@@ -723,11 +723,15 @@ def site_package_check(self, stype):
             Log.debug(self, "Setting apt_packages variable for PHP 7.0")
             if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
+            Log.debug(self, "Setting apt_packages variable for PHP 5.6")
+            if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
         else:
             Log.warn(self, "PHP 7.0 not available for your system.")
+            Log.info(self,"Creating site with PHP 5.6")
             if not EEAptGet.is_installed(self, 'php5-fpm'):
-                Log.info(self, "Setting apt_packages variable for PHP 5.0")
-                Log.debug(self, "Setting apt_packages variable for PHP 5.0")
+                Log.info(self, "Setting apt_packages variable for PHP")
+                Log.debug(self, "Setting apt_packages variable for PHP")
                 apt_packages = apt_packages + EEVariables.ee_php
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
