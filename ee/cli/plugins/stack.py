@@ -1907,15 +1907,15 @@ class EEStackController(CementBaseController):
             if 'redis-server' in apt_packages:
                 # set redis.conf parameter
                 # set maxmemory 10% for ram below 512MB and 20% for others
-                # set maxmemory-policy volatile-lru
+                # set maxmemory-policy allkeys-lru
                 if os.path.isfile("/etc/redis/redis.conf"):
                     if EEVariables.ee_ram < 512:
                         Log.debug(self, "Setting maxmemory variable to {0} in redis.conf"
                                             .format(int(EEVariables.ee_ram*1024*1024*0.1)))
                         EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
                                              .format(int(EEVariables.ee_ram*1024*1024*0.1)))
-                        Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
-                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy volatile-lru/' "
+                        Log.debug(self, "Setting maxmemory-policy variable to allkeys-lru in redis.conf")
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
                         EEService.restart_service(self, 'redis-server')
                     else:
@@ -1923,8 +1923,8 @@ class EEStackController(CementBaseController):
                                             .format(int(EEVariables.ee_ram*1024*1024*0.2)))
                         EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory <bytes>/maxmemory {0}/' /etc/redis/redis.conf"
                                              .format(int(EEVariables.ee_ram*1024*1024*0.2)))
-                        Log.debug(self, "Setting maxmemory-policy variable to volatile-lru in redis.conf")
-                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy volatile-lru/' "
+                        Log.debug(self, "Setting maxmemory-policy variable to allkeys-lru in redis.conf")
+                        EEShellExec.cmd_exec(self, "sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' "
                                                    "/etc/redis/redis.conf")
                         EEService.restart_service(self, 'redis-server')
             if disp_msg:
