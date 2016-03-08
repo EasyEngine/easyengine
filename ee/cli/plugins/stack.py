@@ -2105,9 +2105,24 @@ class EEStackController(CementBaseController):
                                os.popen("hostname -f | tr -d '\n'").read())
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
-                    packages = packages + [["https://github.com/opensolutions/"
-                                            "ViMbAdmin/archive/{0}.tar.gz"
-                                            .format(EEVariables.ee_vimbadmin),
+
+                    #Backup before changing repo to private
+    #                packages = packages + [["https://github.com/opensolutions/"
+    #                                        "ViMbAdmin/archive/{0}.tar.gz"
+    #                                        .format(EEVariables.ee_vimbadmin),
+    #                                        "/tmp/vimbadmin.tar.gz",
+    #                                        "ViMbAdmin"],
+    #                                       ["https://github.com/roundcube/"
+    #                                        "roundcubemail/releases/download/"
+    #                                        "{0}/roundcubemail-{0}.tar.gz"
+    #                                         .format(EEVariables.ee_roundcube),
+    #                                         "/tmp/roundcube.tar.gz",
+    #                                         "Roundcube"]]
+
+
+#https://github.com/iam404/ViMbAdmin/archive/3.0.13.tar.gz
+                    packages = packages + [["https://github.com/iam404/"
+                                            "ViMbAdmin/archive/3.0.13.tar.gz",
                                             "/tmp/vimbadmin.tar.gz",
                                             "ViMbAdmin"],
                                            ["https://github.com/roundcube/"
