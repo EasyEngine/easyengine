@@ -2595,7 +2595,7 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Successfully removed packages")
 
                 if self.app.pargs.php7:
-                    if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
                         Log.info(self, "PHP5.6-fpm found on system.")
                         Log.info(self, "Verifying and installing missing packages,")
                         EEShellExec.cmd_exec(self, "apt-get install -y php-memcached php-igbinary")
@@ -2764,7 +2764,7 @@ class EEStackController(CementBaseController):
                 Log.info(self, "Successfully purged packages")
 
                 if self.app.pargs.php7:
-                    if not EEAptGet.is_installed(self, 'php5.6-fpm'):
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
                         Log.info(self, "PHP5.6-fpm found on system.")
                         Log.info(self, "Verifying and installing missing packages,")
                         EEShellExec.cmd_exec(self, "apt-get install -y php-memcached php-igbinary")
