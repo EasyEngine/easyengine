@@ -20,7 +20,7 @@ class EEVariables():
     ee_adminer = "4.2.1"
     ee_roundcube = "1.1.4"
    # ee_vimbadmin = "3.0.12"
-    ee_vimbadmin = "3.0.13"
+    ee_vimbadmin = "master"
 
     # Get WPCLI path
     ee_wpcli_path = os.popen('which wp | tr "\n" " "').read()

@@ -2122,7 +2122,8 @@ class EEStackController(CementBaseController):
 
     #   https://github.com/EasyEngine/ViMbAdmin/archive/3.0.13.tar.gz
                     packages = packages + [["https://github.com/EasyEngine/"
-                                            "ViMbAdmin/archive/master.tar.gz"
+                                            "ViMbAdmin/archive/{0}.tar.gz"
+                                             .format(EEVariables.ee_vimbadmin),
                                             "/tmp/vimbadmin.tar.gz",
                                             "ViMbAdmin"],
                                            ["https://github.com/roundcube/"
