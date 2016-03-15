@@ -2105,9 +2105,25 @@ class EEStackController(CementBaseController):
                                os.popen("hostname -f | tr -d '\n'").read())
                     Log.debug(self, "Setting apt_packages variable for mail")
                     apt_packages = apt_packages + EEVariables.ee_mail
-                    packages = packages + [["https://github.com/opensolutions/"
+
+                    #Backup before changing repo to private
+    #                packages = packages + [["https://github.com/opensolutions/"
+    #                                        "ViMbAdmin/archive/{0}.tar.gz"
+    #                                        .format(EEVariables.ee_vimbadmin),
+    #                                        "/tmp/vimbadmin.tar.gz",
+    #                                        "ViMbAdmin"],
+    #                                       ["https://github.com/roundcube/"
+    #                                        "roundcubemail/releases/download/"
+    #                                        "{0}/roundcubemail-{0}.tar.gz"
+    #                                         .format(EEVariables.ee_roundcube),
+    #                                         "/tmp/roundcube.tar.gz",
+    #                                         "Roundcube"]]
+
+
+    #   https://github.com/EasyEngine/ViMbAdmin/archive/3.0.13.tar.gz
+                    packages = packages + [["https://github.com/EasyEngine/"
                                             "ViMbAdmin/archive/{0}.tar.gz"
-                                            .format(EEVariables.ee_vimbadmin),
+                                             .format(EEVariables.ee_vimbadmin),
                                             "/tmp/vimbadmin.tar.gz",
                                             "ViMbAdmin"],
                                            ["https://github.com/roundcube/"
@@ -2578,6 +2594,13 @@ class EEStackController(CementBaseController):
 
                 Log.info(self, "Successfully removed packages")
 
+                if self.app.pargs.php7:
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                        Log.info(self, "PHP5.6-fpm found on system.")
+                        Log.info(self, "Verifying and installing missing packages,")
+                        EEShellExec.cmd_exec(self, "apt-get install -y php-memcached php-igbinary")
+
+
     @expose(help="Purge packages")
     def purge(self):
         """Start purging of packages"""
@@ -2739,6 +2762,14 @@ class EEStackController(CementBaseController):
 
 
                 Log.info(self, "Successfully purged packages")
+
+                if self.app.pargs.php7:
+                    if EEAptGet.is_installed(self, 'php5.6-fpm'):
+                        Log.info(self, "PHP5.6-fpm found on system.")
+                        Log.info(self, "Verifying and installing missing packages,")
+                        EEShellExec.cmd_exec(self, "apt-get install -y php-memcached php-igbinary")
+
+
 
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
