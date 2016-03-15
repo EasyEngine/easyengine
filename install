@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.5.3"
+readonly ee_version_new="3.5.4"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -304,7 +304,7 @@ function ee_upgrade_php(){
             add-apt-repository -y 'ppa:ondrej/php'
             ee_lib_echo "Upgrading required packages, please wait..."
             apt-get update &>> /dev/null
-            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
             if [ -e /etc/php5/fpm/pool.d/www.conf -a -e /etc/php5/fpm/pool.d/debug.conf -a -e /etc/php5/fpm/php.ini -a -e /etc/php5/fpm/php-fpm.conf ]; then
                 cp -f /etc/php5/fpm/pool.d/www.conf /etc/php/5.6/fpm/pool.d/www.conf &>> /dev/null
                 cp -f /etc/php5/fpm/pool.d/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
@@ -326,14 +326,38 @@ function ee_upgrade_php(){
             apt-get remove -y php5-fpm php5-curl php5-gd php5-imap php5-mcrypt php5-common php5-readline php5-mysql php5-cli php5-memcache php5-imagick memcached graphviz php-pear
 
           #Fix for PHP 5.6 + 7.0 missed packages
-        elif [ -f /etc/apt/sources.list.d/ondrej-php-trusty.list ]; then
-            apt-get -y install php5.6-zip php5.6-xml php5.6-curl php5.6-mbstring php5.6-recode php5.6-bcmath php5.6-mysql php5.6-opcache php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+        elif [ -f /etc/php/mods-available/readline.ini ]; then
+              mkdir -p /tmp/php-conf/5.6
+              mkdir -p /tmp/php-conf/7.0
+              cp -f /etc/php/5.6/fpm/pool.d/www.conf /tmp/php-conf/5.6 &>> /dev/null
+              cp -f /etc/php/5.6/fpm/pool.d/debug.conf /tmp/php-conf/5.6 &>> /dev/null
+              cp -f /etc/php/5.6/fpm/php.ini /tmp/php-conf/5.6 &>> /dev/null
+              cp -f /etc/php/5.6/fpm/php-fpm.conf /tmp/php-conf/5.6 &>> /dev/null
+
+              cp -f /etc/php/7.0/fpm/pool.d/www.conf /tmp/php-conf/7.0 &>> /dev/null
+              cp -f /etc/php/7.0/fpm/pool.d/debug.conf /tmp/php-conf/7.0 &>> /dev/null
+              cp -f /etc/php/7.0/fpm/php.ini /tmp/php-conf/7.0 &>> /dev/null
+              cp -f /etc/php/7.0/fpm/php-fpm.conf /tmp/php-conf/7.0 &>> /dev/null
+
+
+            apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
             dpkg-query -W -f='${Status} ${Version}\n' php7.0-fpm 2>/dev/null | grep installed
             if [ "$?" -eq "0" ]; then
-                apt-get -y install php7.0-zip php7.0-xml php7.0-curl php7.0-mbstring php7.0-recode php7.0-bcmath php7.0-mysql php7.0-opcache php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+                apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-common php7.0-recode php7.0-mysql php7.0-cli php7.0-curl php7.0-mbstring php7.0-bcmath php7.0-mysql php7.0-opcache php7.0-zip php7.0-xml php-memcached php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack  php7.0-soap || ee_lib_error "Unable to install PHP 7.0 packages, exit status " 1
+                mv -f /tmp/php-conf/7.0/www.conf /etc/php/7.0/fpm/pool.d/www.conf  &>> /dev/null
+                mv -f /tmp/php-conf/7.0/debug.conf /etc/php/7.0/fpm/pool.d/debug.conf &>> /dev/null
+                mv -f /tmp/php-conf/7.0/php.ini /etc/php/7.0/fpm/php.ini  &>> /dev/null
+                mv -f /tmp/php-conf/7.0/php-fpm.conf /etc/php/7.0/fpm/php-fpm.conf  &>> /dev/null
                 service php7.0-fpm restart &>> /dev/null
             fi
+
+            mv -f /tmp/php-conf/5.6/www.conf /etc/php/5.6/fpm/pool.d/www.conf  &>> /dev/null
+            mv -f /tmp/php-conf/5.6/debug.conf /etc/php/5.6/fpm/pool.d/debug.conf &>> /dev/null
+            mv -f /tmp/php-conf/5.6/php.ini /etc/php/5.6/fpm/php.ini  &>> /dev/null
+            mv -f /tmp/php-conf/5.6/php-fpm.conf /etc/php/5.6/fpm/php-fpm.conf  &>> /dev/null
+
             service php5.6-fpm restart &>> /dev/null
+            rm -rf /tmp/php-conf
         fi
    fi
 

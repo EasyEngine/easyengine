@@ -194,7 +194,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
                                               "xdebug.ini",
                                               ";zend_extension",
                                               "zend_extension")
@@ -233,7 +233,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -311,7 +311,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                EEFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
                                               "xdebug.ini",
                                               ";zend_extension",
                                               "zend_extension")
@@ -350,7 +350,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
+                EEFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
