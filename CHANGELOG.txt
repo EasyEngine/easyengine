@@ -1,3 +1,9 @@
+v3.5.5 - Apr 13, 2016
+- WP-CLI support for wordpress v4.5, PR #701
+- PR #686
+- Fix #702
+- Minor Fixes
+
 v3.5.4 - Mar 15, 2016
 - Fixed Vimbadmin installation issue
 - PR #684
