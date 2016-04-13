@@ -234,7 +234,7 @@ function ee_update_wp_cli()
     if [ "${WP_CLI_PATH}" != "" ]; then
         # Get WP-CLI version
         WP_CLI_VERSION=$(${PHP_PATH} ${WP_CLI_PATH} --allow-root cli version | awk '{ print $2 }')
-        dpkg --compare-versions ${WP_CLI_VERSION} lt 0.21.1
+        dpkg --compare-versions ${WP_CLI_VERSION} lt 0.23.0
         # Update WP-CLI version
         if [ "$?" == "0" ]; then
            wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
