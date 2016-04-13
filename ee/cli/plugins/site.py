@@ -1213,6 +1213,13 @@ class EESiteUpdateController(CementBaseController):
                 Log.info(self,"SSL not configured for site http://{0}".format(ee_domain))
                 return 0
 
+        if pargs.all and pargs.letsencrypt == "off":
+            if letsencrypt is check_ssl:
+                if letsencrypt is False:
+                    Log.error(self, "SSl is not configured for given "
+                             "site",False)
+                    return 0
+
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
                 data['letsencrypt'] = True
