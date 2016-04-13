@@ -1417,7 +1417,7 @@ def renewLetsEncrypt(self, ee_domain_name):
 
     Log.info(self, "Renewing SSl cert for https://{0}".format(ee_domain_name))
 
-    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+    ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(ee_domain_name)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     mail_list = ''
@@ -1508,7 +1508,7 @@ def archivedCertificateHandle(self,domain,ee_wp_email):
 
     elif check_prompt == "3":
         Log.info(self,"Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network.")
-        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
+        ssl = EEShellExec.cmd_exec(self, "./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{0}/htdocs/ -d {0} -d www.{0} "
                                 .format(domain)
                                 + "--email {0} --text --agree-tos".format(ee_wp_email))
     else:
