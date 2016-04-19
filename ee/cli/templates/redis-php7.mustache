@@ -35,7 +35,7 @@ location /redis-store {
 }
 
 location ~ \.php$ {
-  set $key "nginx-cache:$scheme$request_method$host$request_uri";
+  set $key "nginx-cache:$scheme$request_method$http_host$request_uri";
   try_files $uri =404;
 
   srcache_fetch_skip $skip_cache;
