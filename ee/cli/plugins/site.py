@@ -1175,7 +1175,7 @@ class EESiteUpdateController(CementBaseController):
                 if (expiry_days <= min_expiry_days):
                     renewLetsEncrypt(self,ee_domain)
                 else:
-                    Log.error(self,"More than 60 days left for certificate Expiry. Not renewing now.")
+                    Log.error(self,"More than 30 days left for certificate Expiry. Not renewing now.")
 
             else:
                 Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
@@ -1219,6 +1219,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.error(self, "SSl is not configured for given "
                              "site",False)
                     return 0
+            pass
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
