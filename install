@@ -365,6 +365,14 @@ function ee_upgrade_php(){
 
 function ee_update_latest()
 {
+  if [ -f /etc/ImageMagick/policy.xml  ]
+  then
+    if [ ! -f /etc/ImageMagick/patch.txt  ]
+      echo -e "\t<policy domain="coder" rights="none" pattern="EPHEMERAL" />\n\t<policy domain="coder" rights="none" pattern="URL" />\n\t<policy domain="coder" rights="none" pattern="HTTPS" />\n\t<policy domain="coder" rights="none" pattern="MVG" />\n\t<policy domain="coder" rights="none" pattern="MSL" />" >> /etc/ImageMagick/patch.txt
+      sed -i '/<policymap>/r /etc/ImageMagick/patch.txt' /etc/ImageMagick/policy.xml
+    fi
+  fi
+
     #Move ~/.my.cnf to /etc/mysql/conf.d/my.cnf
     if [ ! -f /etc/mysql/conf.d/my.cnf ]
     then
