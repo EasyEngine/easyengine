@@ -365,7 +365,7 @@ function ee_upgrade_php(){
 function ee_update_latest()
 {
 
-    if [-f /etc/nginx/conf.d/pagespeed.conf]
+    if [ -f /etc/nginx/conf.d/pagespeed.conf ]
     then
 
         PAGESPEEDSITE="$(echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lob/ee/ee.db | wc -l)"
