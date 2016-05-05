@@ -1219,6 +1219,7 @@ class EESiteUpdateController(CementBaseController):
                     Log.error(self, "SSl is not configured for given "
                              "site",False)
                     return 0
+            pass
 
         if pargs.letsencrypt:
             if pargs.letsencrypt == 'on':
