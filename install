@@ -364,6 +364,21 @@ function ee_upgrade_php(){
 
 function ee_update_latest()
 {
+
+    if [-f /etc/nginx/conf.d/pagespeed.conf]
+    then
+
+        PAGESPEEDSITE="$(echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lob/ee/ee.db | wc -l)"
+
+        if [ ${PAGESPEEDSITE} -ge 0 ]; then
+
+            ee_lib_echo_fail "Pagespeed is installed on your system.\nWe have removed pagespeed from current version of our nginx\nPlease remove pagespeed from following site"
+            echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lob/ee/ee.db
+            ee_lib_error "Try again ee update later"
+
+        fi
+    fi
+
   if [ -f /etc/ImageMagick/policy.xml  ]
   then
     if [ ! -f /etc/ImageMagick/patch.txt  ]
