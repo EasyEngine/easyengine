@@ -242,6 +242,27 @@ function ee_update_wp_cli()
     fi
 }
 
+function check_pagespeed()
+{
+   if [ -f /etc/nginx/conf.d/pagespeed.conf ]
+   then
+
+        PAGESPEEDSITE="$(echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lib/ee/ee.db | wc -l)"
+
+        if [ ${PAGESPEEDSITE} -ge 0 ]; then
+
+            ee_lib_echo_info "Checking for any Pagespeed Version"
+            ee_lib_echo_fail "Pagespeed Found on your system."
+            ee_lib_echo_fail "Please Note: We have removed pagespeed from current version of our nginx build."
+            ee_lib_echo_fail "Please remove pagespeed from following site"
+            echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lib/ee/ee.db
+            ee_lib_error "Try again ee update later"
+
+        fi
+    fi
+
+}
+
 # Install EasyEngine 3.x
 function ee_install()
 {
@@ -364,20 +385,6 @@ function ee_upgrade_php(){
 
 function ee_update_latest()
 {
-
-    if [ -f /etc/nginx/conf.d/pagespeed.conf ]
-    then
-
-        PAGESPEEDSITE="$(echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lob/ee/ee.db | wc -l)"
-
-        if [ ${PAGESPEEDSITE} -ge 0 ]; then
-
-            ee_lib_echo_fail "Pagespeed is installed on your system.\nWe have removed pagespeed from current version of our nginx\nPlease remove pagespeed from following site"
-            echo "SELECT sitename FROM sites WHERE is_pagespeed=1;"| sqlite3 /var/lob/ee/ee.db
-            ee_lib_error "Try again ee update later"
-
-        fi
-    fi
 
   if [ -f /etc/ImageMagick/policy.xml  ]
   then
@@ -678,6 +685,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     fi
     read -p "Update EasyEngine to $ee_version_new (y/n): " ee_ans
     if [ "$ee_ans" = "y" ] || [ "$ee_ans" = "Y" ]; then
+        check_pagespeed | tee -ai $ee_install_log
         ee_install_dep | tee -ai $ee_install_log
         ee_sync_db 2&>>1 $EE_INSTALL_LOG
         secure_ee_db | tee -ai $EE_INSTALL_LOG
