@@ -1,3 +1,7 @@
+v3.5.6 - May 5, 2016
+- Patch for ImageMagick vulnerability - https://imagetragick.com/
+
+
 v3.5.5 - Apr 13, 2016
 - WP-CLI support for wordpress v4.5, PR #701
 - PR #686
