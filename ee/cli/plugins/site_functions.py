@@ -627,7 +627,7 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if (data['pagespeed'] is True or data['old_pagespeed_status'] is True or data['php7'] is True) and not data['wp']:
+        if data['php7'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -667,7 +667,7 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            if (data['pagespeed'] is True or data['old_pagespeed_status'] is True or data['php7'] is True) and not data['wp']:
+            if data['php7'] is True and not data['wp']:
                 EEFileUtils.copyfile(self, configfiles[0], backup_path)
             else:
                 EEFileUtils.mvfile(self, configfiles[0], backup_path)
@@ -930,19 +930,19 @@ def site_package_check(self, stype):
 
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
-    if self.app.pargs.pagespeed:
-        if (os.path.isfile('/etc/nginx/nginx.conf') and
-           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+#    if self.app.pargs.pagespeed:
+#        if (os.path.isfile('/etc/nginx/nginx.conf') and
+#           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
             # Pagespeed configuration
-            data = dict()
-            Log.debug(self, 'Writting the Pagespeed Global '
-                      'configuration to file /etc/nginx/conf.d/'
-                      'pagespeed.conf')
-            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'pagespeed-global.mustache',
-                            out=ee_nginx)
-            ee_nginx.close()
+#            data = dict()
+#            Log.debug(self, 'Writting the Pagespeed Global '
+#                      'configuration to file /etc/nginx/conf.d/'
+#                      'pagespeed.conf')
+#            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+#                            encoding='utf-8', mode='w')
+#            self.app.render((data), 'pagespeed-global.mustache',
+#                            out=ee_nginx)
+#            ee_nginx.close()
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -1291,41 +1291,41 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         deleteDB(self, dbname, dbuser, dbhost)
 
 
-def operateOnPagespeed(self, data):
+#def operateOnPagespeed(self, data):
 
-    ee_domain_name = data['site_name']
-    ee_site_webroot = data['webroot']
+#    ee_domain_name = data['site_name']
+#    ee_site_webroot = data['webroot']
 
-    if data['pagespeed'] is True:
-        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
-                              .format(ee_site_webroot)):
-            Log.debug(self, 'Writting the Pagespeed common '
-                      'configuration to file {0}/conf/nginx/pagespeed.conf'
-                      'pagespeed.conf'.format(ee_site_webroot))
-            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
-                            .format(ee_site_webroot), encoding='utf-8',
-                            mode='w')
-            self.app.render((data), 'pagespeed-common.mustache',
-                            out=ee_nginx)
-            ee_nginx.close()
-        else:
-            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
-                               .format(ee_site_webroot),
-                               '{0}/conf/nginx/pagespeed.conf'
-                               .format(ee_site_webroot))
+#    if data['pagespeed'] is True:
+#        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
+#                              .format(ee_site_webroot)):
+#            Log.debug(self, 'Writting the Pagespeed common '
+#                      'configuration to file {0}/conf/nginx/pagespeed.conf'
+#                      'pagespeed.conf'.format(ee_site_webroot))
+#            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
+#                            .format(ee_site_webroot), encoding='utf-8',
+#                            mode='w')
+#            self.app.render((data), 'pagespeed-common.mustache',
+#                            out=ee_nginx)
+#            ee_nginx.close()
+#        else:
+#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
+#                               .format(ee_site_webroot),
+#                               '{0}/conf/nginx/pagespeed.conf'
+#                               .format(ee_site_webroot))
 
-    elif data['pagespeed'] is False:
-        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
-                          .format(ee_site_webroot)):
-            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
-                               .format(ee_site_webroot),
-                               '{0}/conf/nginx/pagespeed.conf.disabled'
-                               .format(ee_site_webroot))
-
-    # Add nginx conf folder into GIT
-    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
-              msg="Adding Pagespeed config of site: {0}"
-              .format(ee_domain_name))
+#    elif data['pagespeed'] is False:
+#        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
+#                          .format(ee_site_webroot)):
+#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
+#                               .format(ee_site_webroot),
+#                               '{0}/conf/nginx/pagespeed.conf.disabled'
+#                               .format(ee_site_webroot))
+#
+#    # Add nginx conf folder into GIT
+#    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+#              msg="Adding Pagespeed config of site: {0}"
+#              .format(ee_domain_name))
 
 def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
