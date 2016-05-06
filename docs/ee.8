@@ -11,9 +11,9 @@ ee stack [ status | start | stop | reload | restart ] [--all | --nginx | --php |
 .TP
 ee site [ list | info | show | enable | disable | edit | cd | show ] [ example.com ]
 .TP
-ee site create example.com [ --html | --php | --php7 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed | --letsencrypt/-le]]
+ee site create example.com [ --html | --php | --php7 | --mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --letsencrypt/-le]]
 .TP
-ee site update example.com [ --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password] [--letsencrypt=on/off/renew]]
+ee site update example.com [ --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password] [--letsencrypt=on/off/renew]]
 .TP
 ee site delete example.com [--db | --files | --all | --no-prompt | --force/-f ]
 .TP
@@ -129,13 +129,13 @@ Disable site by Destroying softlink with site file in
 .br
 Edit NGINX configuration of site.
 .TP
-.B create [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ]]
+.B create [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [--wpsc | --w3tc | --wpfc | --wpredis | --hhvm ]]
 .br
 Create new site according to given options. If no options provided
 .br
 create static site with html only.
 .TP
-.B update [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm | --pagespeed ] [--password]]
+.B update [ example.com ] [ --html | --php | --php7 |--mysql] [[--wp | --wpsubdir | --wpsubdomain ] [ --wpsc | --w3tc | --wpfc | --wpredis | --hhvm ] [--password]]
 .br
 Update site configuration according to specified options.
 .TP
@@ -163,9 +163,9 @@ if used with --all=off argument.
 .br
 Update security settings.
 .TP
-.B clean [ --fastcgi | --opcache | --memcache | --redis | --pagespeed | --all ]
+.B clean [ --fastcgi | --opcache | --memcache | --redis | --all ]
 .br
-Clean NGINX fastCGI cache, Opcache, Memcache, Redis cache, Pagespeed cache.
+Clean NGINX fastCGI cache, Opcache, Memcache, Redis cache.
 .br
 Clean NGINX fastCGI cache if no option specified.
 .SH ARGUMENTS
