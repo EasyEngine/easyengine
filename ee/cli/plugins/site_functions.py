@@ -711,7 +711,7 @@ def site_package_check(self, stype):
 
     if not self.app.pargs.php7 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if EEVariables.ee_platform_codename != 'trusty':
+        if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
             if not EEAptGet.is_installed(self, 'php5-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php
         else:
@@ -719,7 +719,7 @@ def site_package_check(self, stype):
                 apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
 
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if EEVariables.ee_platform_codename == 'trusty':
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
             Log.debug(self, "Setting apt_packages variable for PHP 5.6")
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
@@ -852,7 +852,7 @@ def site_package_check(self, stype):
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
     if self.app.pargs.php7:
-        if EEVariables.ee_platform_codename != 'trusty':
+        if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
         Log.debug(self, "Setting apt_packages variable for PHP 7.0")

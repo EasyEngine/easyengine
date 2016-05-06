@@ -86,7 +86,7 @@ class EEStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        if EEVariables.ee_platform_codename == 'trusty':
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
             EEAptGet.install(self, EEVariables.ee_php5_6 + EEVariables.ee_php_extra)
         else:
             EEAptGet.install(self, EEVariables.ee_php)
@@ -162,7 +162,7 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
-                if EEVariables.ee_platform_codename != 'trusty':
+                if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
                     if EEAptGet.is_installed(self, 'php5-fpm'):
                         apt_packages = apt_packages + EEVariables.ee_php
                     else:
@@ -240,7 +240,7 @@ class EEStackUpgradeController(CementBaseController):
                     if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
                             set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
-                    if EEVariables.ee_platform_codename != 'trusty':
+                    if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
                         if set(EEVariables.ee_php).issubset(set(apt_packages)):
                             EEService.restart_service(self, 'php5-fpm')
                     else:

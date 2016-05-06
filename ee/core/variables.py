@@ -96,6 +96,11 @@ class EEVariables():
                          "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
+    elif ee_platform_codename == 'xenial':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/ssalil:/init-system-helpers/xUbuntu_16.04/ /")
+        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
+                             "/ssalil:/init-system-helpers/xUbuntu_16.04/ /")
     elif ee_platform_codename == 'wheezy':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_7.0/ /")
@@ -119,7 +124,7 @@ class EEVariables():
                     "php5-mcrypt", "php5-common", "php5-readline",
                      "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
                      "memcached", "graphviz", "php-pear"]
-        elif ee_platform_codename == 'trusty':
+        elif ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial':
             ee_php_repo = "ppa:ondrej/php"
             ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
                         "php5.6-mcrypt", "php5.6-readline", "php5.6-common", "php5.6-recode",

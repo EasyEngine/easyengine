@@ -194,20 +194,20 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Enable xdebug
-                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5") +
                                               "xdebug.ini",
                                               ";zend_extension",
                                               "zend_extension")
 
                 # Fix slow log is not enabled default in PHP5.6
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
-                config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
+                config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
+                config['debug']['slowlog'] = '/var/log/{0}/slow.log'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")
                 config['debug']['request_slowlog_timeout'] = '10s'
-                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
+                with open('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"),
                           encoding='utf-8', mode='w') as confifile:
                     Log.debug(self, "Writting debug.conf configuration into "
-                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                              "/etc/{0}/fpm/pool.d/debug.conf".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
                     config.write(confifile)
 
                 self.trigger_php = True
@@ -215,7 +215,7 @@ class EEDebugController(CementBaseController):
             else:
                 Log.info(self, "PHP debug is already enabled")
 
-            self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")]
+            self.msg = self.msg + ['/var/log/{0}/slow.log'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")]
 
         # PHP global debug stop
         elif (self.app.pargs.php == 'off' and not self.app.pargs.site_name):
@@ -233,7 +233,7 @@ class EEDebugController(CementBaseController):
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
 
                 # Disable xdebug
-                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5") +
+                EEFileUtils.searchreplace(self, "/etc/{0}/mods-available/".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5") +
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
@@ -249,38 +249,38 @@ class EEDebugController(CementBaseController):
         # PHP5-FPM start global debug
         if (self.app.pargs.fpm == 'on' and not self.app.pargs.site_name):
             if not EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")):
+                                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")):
                 Log.info(self, "Setting up PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'debug'
-                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "Writting php5-FPM configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
                     config.write(configfile)
                 self.trigger_php = True
             else:
                 Log.info(self, "PHP5-FPM log_level = debug already setup")
 
-            self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")]
+            self.msg = self.msg + ['/var/log/{0}/fpm.log'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")]
 
         # PHP5-FPM stop global debug
         elif (self.app.pargs.fpm == 'off' and not self.app.pargs.site_name):
             if EEShellExec.cmd_exec(self, "grep \"log_level = debug\" "
-                                          "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")):
+                                          "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")):
                 Log.info(self, "Disabling PHP5-FPM log_level = debug")
                 config = configparser.ConfigParser()
-                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                config.read('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
                 config.remove_option('global', 'include')
                 config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5")
-                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"),
+                config['global']['include'] = '/etc/{0}/fpm/pool.d/*.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5")
+                with open('/etc/{0}/fpm/php-fpm.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"),
                           encoding='utf-8', mode='w') as configfile:
                     Log.debug(self, "writting php5 configuration into "
-                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+                              "/etc/{0}/fpm/php-fpm.conf".format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
                     config.write(configfile)
 
                 self.trigger_php = True
@@ -293,7 +293,7 @@ class EEDebugController(CementBaseController):
         # PHP global debug start
 
         if (self.app.pargs.php7 == 'on' and not self.app.pargs.site_name):
-            if EEVariables.ee_platform_codename != 'trusty':
+            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
                 Log.error(self,"PHP 7.0 not supported.")
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php7"
                                                "{/,/}/p \" /etc/nginx/"
@@ -626,7 +626,7 @@ class EEDebugController(CementBaseController):
 
         # Reload PHP
         if self.trigger_php:
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 if EEAptGet.is_installed(self,'php5.6-fpm'):
                     EEService.reload_service(self, 'php5.6-fpm')
                 if EEAptGet.is_installed(self,'php7.0-fpm'):
@@ -717,7 +717,7 @@ class EEDebugController(CementBaseController):
             self.app.pargs.nginx = 'on'
             self.app.pargs.php = 'on'
             self.app.pargs.fpm = 'on'
-            if EEVariables.ee_platform_codename == 'trusty' and EEAptGet.is_installed(self,'php7.0-fpm'):
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') and EEAptGet.is_installed(self,'php7.0-fpm'):
                 self.app.pargs.php7 = 'on'
                 self.app.pargs.fpm7 = 'on'
             self.app.pargs.mysql = 'on'
@@ -729,7 +729,7 @@ class EEDebugController(CementBaseController):
             self.app.pargs.nginx = 'off'
             self.app.pargs.php = 'off'
             self.app.pargs.fpm = 'off'
-            if EEVariables.ee_platform_codename == 'trusty' and EEAptGet.is_installed(self,'php7.0-fpm'):
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') and EEAptGet.is_installed(self,'php7.0-fpm'):
                 self.app.pargs.php7 = 'off'
                 self.app.pargs.fpm7 = 'off'
             self.app.pargs.mysql = 'off'
@@ -774,7 +774,7 @@ class EEDebugController(CementBaseController):
             EEService.reload_service(self, 'nginx')
         # Reload PHP
         if self.trigger_php:
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 if EEAptGet.is_installed(self,'php5.6-fpm'):
                     EEService.restart_service(self, 'php5.6-fpm')
                 if EEAptGet.is_installed(self,'php7.0-fpm'):
