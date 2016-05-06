@@ -90,7 +90,10 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def default(self):
         """default action of ee stack command"""
-        self.app.args.print_help()
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
+        else:
+            self.app.args.print_help()
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
@@ -2058,6 +2061,8 @@ class EEStackController(CementBaseController):
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
         self.msg = []
         try:
             # Default action for stack installation
@@ -2435,6 +2440,10 @@ class EEStackController(CementBaseController):
         apt_packages = []
         packages = []
 
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
+
+
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
@@ -2606,6 +2615,9 @@ class EEStackController(CementBaseController):
         """Start purging of packages"""
         apt_packages = []
         packages = []
+
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
 
         # Default action for stack purge
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
