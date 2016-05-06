@@ -55,14 +55,14 @@ script:
   - sudo ee site create site12.org --wpsubdomain --wpfc
   - sudo ee site create site12.in --wpfc --wpsubdomain
 
-  - yes | sudo ee site create site.hhvm.pagespeed2.com --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed4.com --wpfc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed5.com --wpsubdir --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm --pagespeed
-  - yes | sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm --pagespeed
+  - yes | sudo ee site create site.hhvm.pagespeed2.com --wpsc --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed4.com --wpfc --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed5.com --wpsubdir --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm
+  - yes | sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm
 
   - sudo ee site create site1.localtest.me --php --mysql
   - sudo ee site create site2.localtest.me --mysql --html
@@ -96,8 +96,8 @@ script:
 
   - sudo ee site update site9.com --wpsubdomain --wpfc
   - sudo ee site update site9.com --wpsubdomain --wpsc
-  - yes | sudo ee site update site.hhvm.pagespeed12.in --pagespeed=off --hhvm=off
-  - yes | sudo ee site update site9.com --hhvm --pagespeed
+  - yes | sudo ee site update site.hhvm.pagespeed12.in --hhvm=off
+  - yes | sudo ee site update site9.com --hhvm
   - sudo ee site info site.hhvm.pagespeed12.in
   - sudo ee site info site9.com
 
@@ -112,7 +112,7 @@ script:
   - nginx -v
   - sudo ee site create site-nm.localtest.me --php --mysql --html
   - sudo ee site update site-nm.localtest.me --wp
-  - yes | sudo ee site update site-nm.localtest.me --hhvm --pagespeed --wpredis
+  - yes | sudo ee site update site-nm.localtest.me --hhvm --wpredis
   - sudo ee site delete site-nm.localtest.me --no-prompt
 
   - travis_wait sudo ee stack install --mail
