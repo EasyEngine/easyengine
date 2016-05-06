@@ -192,8 +192,8 @@ class EEVariables():
     if ee_platform_distro == 'ubuntu':
         if ee_platform_codename == "precise":
             ee_boost_repo = ("ppa:mapnik/boost")
-
-        ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+        elif ee_platform_codename == "trusty":
+            ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
                         .format(codename=ee_platform_codename))
     else:
         ee_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"

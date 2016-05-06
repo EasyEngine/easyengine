@@ -210,14 +210,17 @@ class EEStackController(CementBaseController):
                     EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for HHVM, please wait...")
-            if EEVariables.ee_platform_codename == 'precise':
-                Log.debug(self, 'Adding PPA for Boost')
-                EERepo.add(self, ppa=EEVariables.ee_boost_repo)
-            Log.debug(self, 'Adding ppa repo for HHVM')
-            EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
-            Log.debug(self, 'Adding HHVM GPG Key')
-            EERepo.add_key(self, '0x5a16e7281be7a449')
+            if EEVariables.ee_platform_codename != 'xenial':
+                Log.info(self, "Adding repository for HHVM, please wait...")
+                if EEVariables.ee_platform_codename == 'precise':
+                    Log.debug(self, 'Adding PPA for Boost')
+                    EERepo.add(self, ppa=EEVariables.ee_boost_repo)
+                Log.debug(self, 'Adding ppa repo for HHVM')
+                EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
+                Log.debug(self, 'Adding HHVM GPG Key')
+                EERepo.add_key(self, '0x5a16e7281be7a449')
+            else:
+                Log.info(self, "Using default Ubuntu repository for HHVM")
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             Log.debug(self, 'Executing the command debconf-set-selections.')
