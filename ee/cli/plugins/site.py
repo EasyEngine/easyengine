@@ -299,9 +299,11 @@ class EESiteEditController(CementBaseController):
                           .format(ee_domain))
 
         elif self.app.pargs.pagespeed:
-            print("Pagespeed support has been dropped since EasyEngine 3.6.0")
-            self.app.args.print_help()
-        '''
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
+
+            '''
             if os.path.isfile('{0}/conf/nginx/pagespeed.conf'
                               .format(ee_site_webroot)):
                 try:
@@ -389,7 +391,9 @@ class EESiteCreateController(CementBaseController):
     def default(self):
         #Remove Pagespeed Support Since EE 3.6.0
         if self.app.pargs.pagespeed:
-            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
         # self.app.render((data), 'default.mustache')
         # Check domain name validation
         data = dict()
@@ -902,7 +906,9 @@ class EESiteUpdateController(CementBaseController):
         pargs = self.app.pargs
 
         if self.app.pargs.pagespeed:
-            Log.error(self, "Pagespeed support has been dropped since EasyEngine 3.6.0")
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
 
         if pargs.all:
             if pargs.site_name:
