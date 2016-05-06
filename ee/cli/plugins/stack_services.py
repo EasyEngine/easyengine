@@ -39,7 +39,7 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     services = services + ['php5-fpm']
                 else:
@@ -130,7 +130,7 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     services = services + ['php5-fpm']
                 else:
@@ -221,7 +221,7 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     services = services + ['php5-fpm']
                 else:
@@ -314,7 +314,7 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     services = services + ['php5-fpm']
                 else:
@@ -405,7 +405,7 @@ class EEStackStatusController(CementBaseController):
                 Log.info(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     services = services + ['php5-fpm']
                 else:

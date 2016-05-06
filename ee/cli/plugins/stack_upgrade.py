@@ -162,7 +162,7 @@ class EEStackUpgradeController(CementBaseController):
                     Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
-                if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+                if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                     if EEAptGet.is_installed(self, 'php5-fpm'):
                         apt_packages = apt_packages + EEVariables.ee_php
                     else:
@@ -240,7 +240,7 @@ class EEStackUpgradeController(CementBaseController):
                     if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
                             set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
-                    if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+                    if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                         if set(EEVariables.ee_php).issubset(set(apt_packages)):
                             EEService.restart_service(self, 'php5-fpm')
                     else:

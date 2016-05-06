@@ -189,7 +189,13 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx-mainline')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
+            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
+                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                Log.debug(self, 'Adding ppa for PHP')
+                EERepo.add(self, ppa=EEVariables.ee_php_repo)
+        else:
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
@@ -202,12 +208,6 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, 'Adding ppa for PHP')
                     EERepo.add(self, ppa=EEVariables.ee_php_repo)
-        else:
-            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
-                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP, please wait...")
-                Log.debug(self, 'Adding ppa for PHP')
-                EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
             Log.info(self, "Adding repository for HHVM, please wait...")
@@ -858,7 +858,7 @@ class EEStackController(CementBaseController):
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                          "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial') and set(EEVariables.ee_php).issubset(set(apt_packages)):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise') and set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
                     Log.debug(self, 'Creating directory /var/log/php5/')
@@ -1892,7 +1892,7 @@ class EEStackController(CementBaseController):
                     vm_config.close()
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
-                if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+                if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                     EEService.reload_service(self, 'php5-fpm')
                 else:
                     EEService.reload_service(self, 'php5.6-fpm')

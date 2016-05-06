@@ -124,7 +124,7 @@ class EEVariables():
                     "php5-mcrypt", "php5-common", "php5-readline",
                      "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
                      "memcached", "graphviz", "php-pear"]
-        elif ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial':
+        elif (ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial'):
             ee_php_repo = "ppa:ondrej/php"
             ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
                         "php5.6-mcrypt", "php5.6-readline", "php5.6-common", "php5.6-recode",
@@ -170,7 +170,7 @@ class EEVariables():
     # Mail repo and packages
     ee_mail_repo = ("deb http://http.debian.net/debian-backports {codename}"
                     "-backports main".format(codename=ee_platform_codename))
-    if ee_platform_codename != 'trusty':
+    if (ee_platform_distro == 'debian' or ee_platform_codename == 'precise'):
         ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                 "dovecot-managesieved", "postfix-mysql", "php5-cgi",
@@ -209,7 +209,7 @@ class EEVariables():
         ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
                         .format(codename=ee_platform_codename))
 
-    if ee_platform_codename == 'trusty':
+    if (ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial'):
         ee_redis = ['redis-server', 'php-redis']
     else:
         ee_redis = ['redis-server', 'php5-redis']

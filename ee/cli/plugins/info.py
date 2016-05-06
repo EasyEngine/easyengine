@@ -258,7 +258,7 @@ class EEInfoController(CementBaseController):
                 Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if (EEVariables.ee_platform_codename != 'trusty' or EEVariables.ee_platform_codename != 'xenial'):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     self.info_php()
                 else:
