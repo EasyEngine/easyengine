@@ -265,24 +265,24 @@ class EEStackController(CementBaseController):
                             ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                if os.path.isfile('/etc/nginx/sites-available/22222'):
-                    http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
-                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
-                            Log.debug(self, 'Setting http2/spdy in 22222')
-                            EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
+            #    if os.path.isfile('/etc/nginx/sites-available/22222'):
+            #        http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
+            #        if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
+            #                Log.debug(self, 'Setting http2/spdy in 22222')
+            #                EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
 
-                sites = getAllsites(self)
-                if sites:
-                    for site in sites:
-                        site_name = site.sitename
-                        siteinfo = getSiteInfo(self, site_name)
-                        ssl = ("enabled" if siteinfo.is_ssl else "disabled")
-                        if (ssl == "enabled"):
-                            if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
-                                http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
-                                if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
-                                    Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
-                                    EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
+            #    sites = getAllsites(self)
+            #    if sites:
+            #        for site in sites:
+            #            site_name = site.sitename
+            #            siteinfo = getSiteInfo(self, site_name)
+            #            ssl = ("enabled" if siteinfo.is_ssl else "disabled")
+            #            if (ssl == "enabled"):
+            #                if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
+            #                    http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
+            #                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
+            #                        Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
+            #                        EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
 
 
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
@@ -325,8 +325,8 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
-                    data = dict(webroot=EEVariables.ee_webroot,http2=http2)
+            #        http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
+                    data = dict(webroot=EEVariables.ee_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf',

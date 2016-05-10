@@ -440,10 +440,17 @@ function ee_update_latest()
                 fi
                 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
                 apt-get update
-                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
-
+                apt-get purge -y nginx-common
+                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-ee
             fi
-        elif [ "$ee_distro_version" == "trusty" ]; then
+            dpkg --get-selections | grep -v deinstall | grep nginx-common
+            if [ $? -eq 0 ]; then
+                sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
+	            sed -i 's/spdy/http2/g' /etc/nginx/sites-available/
+	            apt-get purge -y nginx-common
+	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-ee nginx-custom
+            fi
+          elif [ "$ee_distro_version" == "trusty" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
             if [[ $? -ne 0 ]]; then
                 if [ -f /etc/apt/sources.list.d/rtcamp-nginx-trusty.list ]; then
@@ -457,7 +464,14 @@ function ee_update_latest()
                 fi
                 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.old &>> /dev/null
                 apt-get update
-                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom
+                apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-custom nginx-ee
+            fi
+            dpkg --get-selections | grep -v deinstall | grep nginx-common
+            if [ $? -eq 0 ]; then
+                sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
+	            sed -i 's/spdy/http2/g' /etc/nginx/sites-available/
+	            apt-get purge -y nginx-common
+	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y install nginx-ee nginx-custom
             fi
         elif [ "$ee_distro_version" == "wheezy" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null

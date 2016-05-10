@@ -1378,8 +1378,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl {http2};\n".format(http2=("http2" if
-                                                           EEAptGet.is_installed(self,'nginx-mainline') else "spdy")) +
+            sslconf.write("listen 443 ssl http2;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
