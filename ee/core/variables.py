@@ -88,26 +88,26 @@ class EEVariables():
     # Nginx repo and packages
     if ee_platform_codename == 'precise':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/ssalil:/ee-repo/xUbuntu_12.04/ /")
+                         "/iam404:/nginx-1.10.1/xUbuntu_12.04/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/rtCamp:/EasyEngine-dev/xUbuntu_12.04/ /")
     elif ee_platform_codename == 'trusty':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/ssalil:/ee-repo/xUbuntu_14.04/ /")
+                         "/iam404:/nginx-1.10.1/xUbuntu_14.04/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
     elif ee_platform_codename == 'xenial':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/ssalil:/ee-repo/xUbuntu_16.04/ /")
+                         "/iam404:/nginx-1.10.1/xUbuntu_16.04/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/ssalil:/init-system-helpers/xUbuntu_16.04/ /")
     elif ee_platform_codename == 'wheezy':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine/Debian_7.0/ /")
+                         "/iam404:/nginx-1.10.1/Debian_7.0/ /")
         ee_nginx_dev_repo = None
     elif ee_platform_codename == 'jessie':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/ssalil:/ee-repo/Debian_8.0/ /")
+                         "/iam404:/nginx-1.10.1/Debian_8.0/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
 
