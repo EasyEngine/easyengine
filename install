@@ -448,14 +448,14 @@ function ee_update_latest()
                 sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
 	            find /etc/nginx/sites-available/ -type f -exec sed -i "s/spdy/http2/g" {} \;
 	            apt-get remove -y nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-mainline
             if [ $? -eq 0 ]; then
                 echo -e "\ndeb http://download.opensuse.org/repositories/home:/iam404:/nginx-1.10.1/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            apt-get remove -y nginx-mainline nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
           elif [ "$ee_distro_version" == "trusty" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -480,14 +480,14 @@ function ee_update_latest()
                 sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
 	            find /etc/nginx/sites-available/ -type f -exec sed -i "s/spdy/http2/g" {} \;
 	            apt-get remove -y nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-mainline
             if [ $? -eq 0 ]; then
                 echo -e "\ndeb http://download.opensuse.org/repositories/home:/iam404:/nginx-1.10.1/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            apt-get remove -y nginx-mainline nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
         elif [ "$ee_distro_version" == "wheezy" ]; then
             grep -Hr 'http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /' /etc/apt/sources.list.d/ &>> /dev/null
@@ -514,7 +514,7 @@ function ee_update_latest()
                 sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
 	            sed -i 's/spdy/http2/g' /etc/nginx/sites-available/
 	            apt-get purge -y nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
         elif [ "$ee_distro_version" == "jessie" ]; then
 
@@ -540,14 +540,14 @@ function ee_update_latest()
                 sed -i 's/spdy/http2/g' /var/www/*/conf/nginx/ssl.conf
 	            find /etc/nginx/sites-available/ -type f -exec sed -i "s/spdy/http2/g" {} \;
 	            apt-get remove -y nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-mainline
             if [ $? -eq 0 ]; then
                 echo -e "\ndeb http://download.opensuse.org/repositories/home:/iam404:/nginx-1.10.1/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            apt-get remove -y nginx-mainline nginx-common
-	            apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
+	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
         fi
     fi

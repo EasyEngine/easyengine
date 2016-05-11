@@ -252,7 +252,7 @@ class EEInfoController(CementBaseController):
                     self.app.pargs.php = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-common'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-common'):
                 self.info_nginx()
             else:
                 Log.error(self, "Nginx is not installed")
