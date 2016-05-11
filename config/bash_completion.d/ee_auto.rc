@@ -74,7 +74,7 @@ _ee_complete()
             # HANDLE EVERYTHING AFTER THE THIRD LEVEL NAMESPACE
             "install" | "purge" | "remove" )
                 COMPREPLY=( $(compgen \
-                              -W "--web --admin --mail --nginx --nginxmainline --php --php7 --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
+                              -W "--web --admin --mail --nginx --php --php7 --mysql --postfix --wpcli --phpmyadmin --adminer --utils --all --mailscanner --hhvm --redis --phpredisadmin" \
                               -- $cur) )
                 ;;
             "upgrade" )
