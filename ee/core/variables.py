@@ -98,7 +98,7 @@ class EEVariables():
                              "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
     elif ee_platform_codename == 'xenial':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/iam404:/nginx-1.10.1/xUbuntu_16.04/ /")
+                         "/iam404:/nginx-xenial/xUbuntu_16.04/ /")
         ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
                              "/ssalil:/init-system-helpers/xUbuntu_16.04/ /")
     elif ee_platform_codename == 'wheezy':
@@ -112,7 +112,7 @@ class EEVariables():
                              "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
 
 
-    ee_nginx = ["nginx-custom", "nginx-ee"]
+    ee_nginx = ["openssl","nginx-custom", "nginx-ee"]
     ee_nginx_dev = ["nginx-mainline", "nginx-common"]
     ee_nginx_key = '3050AC3CD2AE6F03'
 
