@@ -88,32 +88,23 @@ class EEVariables():
     # Nginx repo and packages
     if ee_platform_codename == 'precise':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine-dev-test/xUbuntu_12.04/ /")
-    #    ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-    #                         "/rtCamp:/EasyEngine-dev/xUbuntu_12.04/ /")
+                         "/rtCamp:/EasyEngine/xUbuntu_12.04/ /")
     elif ee_platform_codename == 'trusty':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine-dev-test/xUbuntu_14.04/ /")
-   #     ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-   #                          "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
+                         "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
     elif ee_platform_codename == 'xenial':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine-dev-test/xUbuntu_16.04/ /")
- #       ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
- #                            "/ssalil:/init-system-helpers/xUbuntu_16.04/ /")
+                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
     elif ee_platform_codename == 'wheezy':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine-dev-test/Debian_7.0/ /")
-      #  ee_nginx_dev_repo = None
+                         "/rtCamp:/EasyEngine/Debian_7.0/ /")
     elif ee_platform_codename == 'jessie':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
-                         "/rtCamp:/EasyEngine-dev-test/Debian_8.0/ /")
-  #      ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-  #                           "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
+                         "/rtCamp:/EasyEngine/Debian_8.0/ /")
+
 
 
     ee_nginx = ["nginx-custom", "nginx-ee"]
-  #  ee_nginx_dev = ["nginx-mainline", "nginx-common"]
     ee_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
