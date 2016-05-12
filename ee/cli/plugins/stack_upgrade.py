@@ -237,8 +237,7 @@ class EEStackUpgradeController(CementBaseController):
                     EEAptGet.install(self, apt_packages)
 
                     # Post Actions after package updates
-                    if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
-                            set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
+                    if (set(EEVariables.ee_nginx).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
                     if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                         if set(EEVariables.ee_php).issubset(set(apt_packages)):
