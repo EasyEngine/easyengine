@@ -444,7 +444,7 @@ function ee_update_latest()
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
             if [ $? -eq 0 ]; then
-                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtcamp:/EasyEngine-dev-test/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine-dev-test/xUbuntu_12.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
 	            if [ $? -eq 0 ]; then
@@ -472,7 +472,7 @@ function ee_update_latest()
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
             if [ $? -eq 0 ]; then
-                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtcamp:/EasyEngine-dev-test/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
+                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine-dev-test/xUbuntu_14.04/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
 	            if [ $? -eq 0 ]; then
@@ -503,7 +503,7 @@ function ee_update_latest()
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
             if [ $? -eq 0 ]; then
-                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtcamp:/EasyEngine-dev-test/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine-dev-test/Debian_7.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confold" -y --allow-unauthenticated install nginx-ee nginx-custom openssl
             fi
@@ -526,7 +526,7 @@ function ee_update_latest()
             fi
             dpkg --get-selections | grep -v deinstall | grep nginx-common
             if [ $? -eq 0 ]; then
-                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtcamp:/EasyEngine-dev-test/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
+                echo -e "\ndeb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine-dev-test/Debian_8.0/ /" >> /etc/apt/sources.list.d/ee-repo.list
 	            apt-get update
 	            dpkg --get-selections | grep -v deinstall | grep nginx-mainline
 	            if [ $? -eq 0 ]; then
