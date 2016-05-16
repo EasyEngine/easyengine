@@ -30,8 +30,6 @@ class EECleanController(CementBaseController):
                 dict(help='Clean MemCache', action='store_true')),
             (['--opcache'],
                 dict(help='Clean OpCache', action='store_true')),
-            (['--pagespeed'],
-                dict(help='Clean Pagespeed Cache', action='store_true')),
             (['--redis'],
                 dict(help='Clean Redis Cache', action='store_true')),
             ]
@@ -41,25 +39,21 @@ class EECleanController(CementBaseController):
     def default(self):
         if (not (self.app.pargs.all or self.app.pargs.fastcgi or
                  self.app.pargs.memcache or self.app.pargs.opcache or
-                 self.app.pargs.pagespeed or self.app.pargs.redis)):
+                 self.app.pargs.redis)):
             self.clean_fastcgi()
         if self.app.pargs.all:
             self.clean_memcache()
             self.clean_fastcgi()
             self.clean_opcache()
             self.clean_redis()
-            self.clean_pagespeed()
         if self.app.pargs.fastcgi:
             self.clean_fastcgi()
         if self.app.pargs.memcache:
             self.clean_memcache()
         if self.app.pargs.opcache:
             self.clean_opcache()
-        if self.app.pargs.pagespeed:
-            self.clean_pagespeed()
         if self.app.pargs.redis:
             self.clean_redis()
-
     @expose(hide=True)
     def clean_redis(self):
         """This function clears Redis cache"""
@@ -107,16 +101,16 @@ class EECleanController(CementBaseController):
                          " or install them with `ee stack install --admin`")
                 Log.error(self, "Unable to clean opcache", False)
 
-    @expose(hide=True)
-    def clean_pagespeed(self):
-        """This function clears Pagespeed cache"""
-        if(os.path.isdir("/var/ngx_pagespeed_cache")):
-            Log.info(self, "Cleaning PageSpeed cache")
-            EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
-        else:
-            Log.debug(self, "/var/ngx_pagespeed_cache does not exist," 
-                            " so cache not cleared")
-            Log.error(self, "Unable to clean pagespeed cache", False)
+#    @expose(hide=True)
+#    def clean_pagespeed(self):
+#        """This function clears Pagespeed cache"""
+#        if(os.path.isdir("/var/ngx_pagespeed_cache")):
+#            Log.info(self, "Cleaning PageSpeed cache")
+#            EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
+#        else:
+#            Log.debug(self, "/var/ngx_pagespeed_cache does not exist,"
+#                            " so cache not cleared")
+#            Log.error(self, "Unable to clean pagespeed cache", False)
 
 
 def load(app):

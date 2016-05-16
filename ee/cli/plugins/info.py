@@ -67,17 +67,17 @@ class EEInfoController(CementBaseController):
     @expose(hide=True)
     def info_php(self):
         """Display PHP information"""
-        version = os.popen("{0} -v 2>/dev/null | head -n1 | cut -d' ' -f2 |".format("php5.6" if EEVariables.ee_platform_codename == 'trusty' else "php") +
+        version = os.popen("{0} -v 2>/dev/null | head -n1 | cut -d' ' -f2 |".format("php5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php") +
                            " cut -d'+' -f1 | tr -d '\n'").read
         config = configparser.ConfigParser()
-        config.read('/etc/{0}/fpm/php.ini'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+        config.read('/etc/{0}/fpm/php.ini'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
         expose_php = config['PHP']['expose_php']
         memory_limit = config['PHP']['memory_limit']
         post_max_size = config['PHP']['post_max_size']
         upload_max_filesize = config['PHP']['upload_max_filesize']
         max_execution_time = config['PHP']['max_execution_time']
 
-        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+        config.read('/etc/{0}/fpm/pool.d/www.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
         www_listen = config['www']['listen']
         www_ping_path = config['www']['ping.path']
         www_pm_status_path = config['www']['pm.status_path']
@@ -95,7 +95,7 @@ class EEInfoController(CementBaseController):
         except Exception as e:
             www_xdebug = 'off'
 
-        config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if EEVariables.ee_platform_codename == 'trusty' else "php5"))
+        config.read('/etc/{0}/fpm/pool.d/debug.conf'.format("php/5.6" if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') else "php5"))
         debug_listen = config['debug']['listen']
         debug_ping_path = config['debug']['ping.path']
         debug_pm_status_path = config['debug']['pm.status_path']
@@ -252,13 +252,13 @@ class EEInfoController(CementBaseController):
                     self.app.pargs.php = True
 
         if self.app.pargs.nginx:
-            if EEAptGet.is_installed(self, 'nginx-common'):
+            if EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-common'):
                 self.info_nginx()
             else:
                 Log.error(self, "Nginx is not installed")
 
         if self.app.pargs.php:
-            if EEVariables.ee_platform_codename != 'trusty':
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                 if EEAptGet.is_installed(self, 'php5-fpm'):
                     self.info_php()
                 else:

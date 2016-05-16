@@ -627,7 +627,7 @@ def sitebackup(self, data):
                          .format(data['site_name']), backup_path)
 
     if data['currsitetype'] in ['html', 'php', 'proxy', 'mysql']:
-        if (data['pagespeed'] is True or data['old_pagespeed_status'] is True or data['php7'] is True) and not data['wp']:
+        if data['php7'] is True and not data['wp']:
             Log.info(self, "Backing up Webroot \t\t", end='')
             EEFileUtils.copyfiles(self, ee_site_webroot + '/htdocs', backup_path + '/htdocs')
             Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
@@ -667,7 +667,7 @@ def sitebackup(self, data):
         Log.info(self, "[" + Log.ENDC + "Done" + Log.OKBLUE + "]")
         # move wp-config.php/ee-config.php to backup
         if data['currsitetype'] in ['mysql', 'proxy']:
-            if (data['pagespeed'] is True or data['old_pagespeed_status'] is True or data['php7'] is True) and not data['wp']:
+            if data['php7'] is True and not data['wp']:
                 EEFileUtils.copyfile(self, configfiles[0], backup_path)
             else:
                 EEFileUtils.mvfile(self, configfiles[0], backup_path)
@@ -711,15 +711,15 @@ def site_package_check(self, stype):
 
     if not self.app.pargs.php7 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if EEVariables.ee_platform_codename != 'trusty':
-            if not EEAptGet.is_installed(self, 'php5-fpm'):
-                apt_packages = apt_packages + EEVariables.ee_php
-        else:
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
+        else:
+            if not EEAptGet.is_installed(self, 'php5-fpm'):
+                apt_packages = apt_packages + EEVariables.ee_php
 
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if EEVariables.ee_platform_codename == 'trusty':
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
             Log.debug(self, "Setting apt_packages variable for PHP 5.6")
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
@@ -852,7 +852,7 @@ def site_package_check(self, stype):
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
     if self.app.pargs.php7:
-        if EEVariables.ee_platform_codename != 'trusty':
+        if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
         Log.debug(self, "Setting apt_packages variable for PHP 7.0")
@@ -930,19 +930,19 @@ def site_package_check(self, stype):
 
     # Check if Nginx is allready installed and Pagespeed config there or not
     # If not then copy pagespeed config
-    if self.app.pargs.pagespeed:
-        if (os.path.isfile('/etc/nginx/nginx.conf') and
-           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
+#    if self.app.pargs.pagespeed:
+#        if (os.path.isfile('/etc/nginx/nginx.conf') and
+#           (not os.path.isfile('/etc/nginx/conf.d/pagespeed.conf'))):
             # Pagespeed configuration
-            data = dict()
-            Log.debug(self, 'Writting the Pagespeed Global '
-                      'configuration to file /etc/nginx/conf.d/'
-                      'pagespeed.conf')
-            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
-                            encoding='utf-8', mode='w')
-            self.app.render((data), 'pagespeed-global.mustache',
-                            out=ee_nginx)
-            ee_nginx.close()
+#            data = dict()
+#            Log.debug(self, 'Writting the Pagespeed Global '
+#                      'configuration to file /etc/nginx/conf.d/'
+#                      'pagespeed.conf')
+#            ee_nginx = open('/etc/nginx/conf.d/pagespeed.conf',
+#                            encoding='utf-8', mode='w')
+#            self.app.render((data), 'pagespeed-global.mustache',
+#                            out=ee_nginx)
+#            ee_nginx.close()
 
     return(stack.install(apt_packages=apt_packages, packages=packages,
                          disp_msg=False))
@@ -1291,41 +1291,41 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
         deleteDB(self, dbname, dbuser, dbhost)
 
 
-def operateOnPagespeed(self, data):
+#def operateOnPagespeed(self, data):
 
-    ee_domain_name = data['site_name']
-    ee_site_webroot = data['webroot']
+#    ee_domain_name = data['site_name']
+#    ee_site_webroot = data['webroot']
 
-    if data['pagespeed'] is True:
-        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
-                              .format(ee_site_webroot)):
-            Log.debug(self, 'Writting the Pagespeed common '
-                      'configuration to file {0}/conf/nginx/pagespeed.conf'
-                      'pagespeed.conf'.format(ee_site_webroot))
-            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
-                            .format(ee_site_webroot), encoding='utf-8',
-                            mode='w')
-            self.app.render((data), 'pagespeed-common.mustache',
-                            out=ee_nginx)
-            ee_nginx.close()
-        else:
-            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
-                               .format(ee_site_webroot),
-                               '{0}/conf/nginx/pagespeed.conf'
-                               .format(ee_site_webroot))
+#    if data['pagespeed'] is True:
+#        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
+#                              .format(ee_site_webroot)):
+#            Log.debug(self, 'Writting the Pagespeed common '
+#                      'configuration to file {0}/conf/nginx/pagespeed.conf'
+#                      'pagespeed.conf'.format(ee_site_webroot))
+#            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
+#                            .format(ee_site_webroot), encoding='utf-8',
+#                            mode='w')
+#            self.app.render((data), 'pagespeed-common.mustache',
+#                            out=ee_nginx)
+#            ee_nginx.close()
+#        else:
+#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
+#                               .format(ee_site_webroot),
+#                               '{0}/conf/nginx/pagespeed.conf'
+#                               .format(ee_site_webroot))
 
-    elif data['pagespeed'] is False:
-        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
-                          .format(ee_site_webroot)):
-            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
-                               .format(ee_site_webroot),
-                               '{0}/conf/nginx/pagespeed.conf.disabled'
-                               .format(ee_site_webroot))
-
-    # Add nginx conf folder into GIT
-    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
-              msg="Adding Pagespeed config of site: {0}"
-              .format(ee_domain_name))
+#    elif data['pagespeed'] is False:
+#        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
+#                          .format(ee_site_webroot)):
+#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
+#                               .format(ee_site_webroot),
+#                               '{0}/conf/nginx/pagespeed.conf.disabled'
+#                               .format(ee_site_webroot))
+#
+#    # Add nginx conf folder into GIT
+#    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
+#              msg="Adding Pagespeed config of site: {0}"
+#              .format(ee_domain_name))
 
 def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
@@ -1378,8 +1378,7 @@ def setupLetsEncrypt(self, ee_domain_name):
             sslconf = open("/var/www/{0}/conf/nginx/ssl.conf"
                                       .format(ee_domain_name),
                                       encoding='utf-8', mode='w')
-            sslconf.write("listen 443 ssl {http2};\n".format(http2=("http2" if
-                                                           EEAptGet.is_installed(self,'nginx-mainline') else "spdy")) +
+            sslconf.write("listen 443 ssl http2;\n"
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"

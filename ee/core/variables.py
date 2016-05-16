@@ -12,7 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.5.6"
+    ee_version = "3.6.0"
 
 
     # EasyEngine packages versions
@@ -89,26 +89,22 @@ class EEVariables():
     if ee_platform_codename == 'precise':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/xUbuntu_12.04/ /")
-        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-                             "/rtCamp:/EasyEngine-dev/xUbuntu_12.04/ /")
     elif ee_platform_codename == 'trusty':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/xUbuntu_14.04/ /")
-        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-                             "/rtCamp:/EasyEngine-dev/xUbuntu_14.04/ /")
+    elif ee_platform_codename == 'xenial':
+        ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
+                         "/rtCamp:/EasyEngine/xUbuntu_16.04/ /")
     elif ee_platform_codename == 'wheezy':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_7.0/ /")
-        ee_nginx_dev_repo = None
     elif ee_platform_codename == 'jessie':
         ee_nginx_repo = ("deb http://download.opensuse.org/repositories/home:"
                          "/rtCamp:/EasyEngine/Debian_8.0/ /")
-        ee_nginx_dev_repo = ("deb http://download.opensuse.org/repositories/home:"
-                             "/rtCamp:/EasyEngine-dev/Debian_8.0/ /")
 
 
-    ee_nginx = ["nginx-custom", "nginx-common"]
-    ee_nginx_dev = ["nginx-mainline", "nginx-common"]
+
+    ee_nginx = ["nginx-custom", "nginx-ee"]
     ee_nginx_key = '3050AC3CD2AE6F03'
 
     # PHP repo and packages
@@ -119,7 +115,7 @@ class EEVariables():
                     "php5-mcrypt", "php5-common", "php5-readline",
                      "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
                      "memcached", "graphviz", "php-pear"]
-        elif ee_platform_codename == 'trusty':
+        elif (ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial'):
             ee_php_repo = "ppa:ondrej/php"
             ee_php5_6 = ["php5.6-fpm", "php5.6-curl", "php5.6-gd", "php5.6-imap",
                         "php5.6-mcrypt", "php5.6-readline", "php5.6-common", "php5.6-recode",
@@ -165,7 +161,7 @@ class EEVariables():
     # Mail repo and packages
     ee_mail_repo = ("deb http://http.debian.net/debian-backports {codename}"
                     "-backports main".format(codename=ee_platform_codename))
-    if ee_platform_codename != 'trusty':
+    if (ee_platform_distro == 'debian' or ee_platform_codename == 'precise'):
         ee_mail = ["dovecot-core", "dovecot-imapd", "dovecot-pop3d",
                  "dovecot-lmtpd", "dovecot-mysql", "dovecot-sieve",
                 "dovecot-managesieved", "postfix-mysql", "php5-cgi",
@@ -187,8 +183,10 @@ class EEVariables():
     if ee_platform_distro == 'ubuntu':
         if ee_platform_codename == "precise":
             ee_boost_repo = ("ppa:mapnik/boost")
-
-        ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+            ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
+                        .format(codename=ee_platform_codename))
+        elif ee_platform_codename == "trusty":
+            ee_hhvm_repo = ("deb http://dl.hhvm.com/ubuntu {codename} main"
                         .format(codename=ee_platform_codename))
     else:
         ee_hhvm_repo = ("deb http://dl.hhvm.com/debian {codename} main"
@@ -204,7 +202,7 @@ class EEVariables():
         ee_redis_repo = ("deb http://packages.dotdeb.org {codename} all"
                         .format(codename=ee_platform_codename))
 
-    if ee_platform_codename == 'trusty':
+    if (ee_platform_codename == 'trusty' or ee_platform_codename == 'xenial'):
         ee_redis = ['redis-server', 'php-redis']
     else:
         ee_redis = ['redis-server', 'php5-redis']
