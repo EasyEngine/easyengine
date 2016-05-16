@@ -1,4 +1,4 @@
-v3.6.0 - May 12, 2016
+v3.6.0 - May 16, 2016
 - Add support for Ubuntu 16.04 LTS - Xenial.
 - Updated Nginx to the latest stable version (1.10.1)
 - Updated OpenSSL to v1.0.2g for HTTP/2 support
