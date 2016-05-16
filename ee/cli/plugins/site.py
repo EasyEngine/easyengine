@@ -1194,6 +1194,9 @@ class EESiteUpdateController(CementBaseController):
             else:
                 Log.error(self,"Cannot RENEW ! SSL is not configured for given site .")
 
+            if not EEService.reload_service(self, 'nginx'):
+                            Log.error(self, "service nginx reload failed. "
+                                 "check issues with `nginx -t` command")
             Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                            " https://{0}".format(ee_domain))
             if (SSL.getExpirationDays(self,ee_domain)>0):
@@ -1202,6 +1205,7 @@ class EESiteUpdateController(CementBaseController):
 
             else:
                     Log.warn(self, "Your cert already EXPIRED !. PLEASE renew soon . ")
+            return 0
 
         if pargs.all and pargs.letsencrypt == "renew":
 
@@ -1212,6 +1216,9 @@ class EESiteUpdateController(CementBaseController):
                 min_expiry_days = 30
                 if (expiry_days <= min_expiry_days):
                     renewLetsEncrypt(self,ee_domain)
+                    if not EEService.reload_service(self, 'nginx'):
+                            Log.error(self, "service nginx reload failed. "
+                                 "check issues with `nginx -t` command")
                     Log.info(self, "SUCCESS: Certificate was successfully renewed For"
                                " https://{0}".format(ee_domain))
                 else:
