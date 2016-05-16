@@ -6,7 +6,7 @@ VERSION = EEVariables.ee_version
 
 BANNER = """
 EasyEngine v%s
-Copyright (c) 2015 rtCamp Solutions Pvt. Ltd. 
+Copyright (c) 2016 rtCamp Solutions Pvt. Ltd.
 """ % VERSION
 
 

@@ -2,7 +2,7 @@
 
 server {
 
-  listen 22222 default_server ssl {{http2}};
+  listen 22222 default_server ssl http2;
 
   access_log   /var/log/nginx/22222.access.log rt_cache;
   error_log    /var/log/nginx/22222.error.log;

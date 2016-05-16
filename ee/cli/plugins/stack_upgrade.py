@@ -86,7 +86,7 @@ class EEStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        if EEVariables.ee_platform_codename == 'trusty':
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
             EEAptGet.install(self, EEVariables.ee_php5_6 + EEVariables.ee_php_extra)
         else:
             EEAptGet.install(self, EEVariables.ee_php)
@@ -127,8 +127,8 @@ class EEStackUpgradeController(CementBaseController):
             if self.app.pargs.web:
                 if EEAptGet.is_installed(self, 'nginx-custom'):
                     self.app.pargs.nginx = True
-                elif EEAptGet.is_installed(self, 'nginx-mainline'):
-                    self.app.pargs.nginxmainline = True
+ #               elif EEAptGet.is_installed(self, 'nginx-mainline'):
+ #                   self.app.pargs.nginxmainline = True
                 else:
                     Log.info(self, "Nginx is not already installed")
                 self.app.pargs.php = True
@@ -155,14 +155,14 @@ class EEStackUpgradeController(CementBaseController):
                 else:
                     Log.info(self, "Nginx Stable is not already installed")
 
-            if self.app.pargs.nginxmainline:
-                if EEAptGet.is_installed(self, 'nginx-mainline'):
-                    apt_packages = apt_packages + EEVariables.ee_nginx_dev
-                else:
-                    Log.info(self, "Nginx Mainline is not already installed")
+#            if self.app.pargs.nginxmainline:
+#                if EEAptGet.is_installed(self, 'nginx-mainline'):
+#                    apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#                else:
+#                    Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
-                if EEVariables.ee_platform_codename != 'trusty':
+                if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                     if EEAptGet.is_installed(self, 'php5-fpm'):
                         apt_packages = apt_packages + EEVariables.ee_php
                     else:
@@ -237,10 +237,9 @@ class EEStackUpgradeController(CementBaseController):
                     EEAptGet.install(self, apt_packages)
 
                     # Post Actions after package updates
-                    if (set(EEVariables.ee_nginx).issubset(set(apt_packages)) or
-                            set(EEVariables.ee_nginx_dev).issubset(set(apt_packages))):
+                    if (set(EEVariables.ee_nginx).issubset(set(apt_packages))):
                         EEService.restart_service(self, 'nginx')
-                    if EEVariables.ee_platform_codename != 'trusty':
+                    if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                         if set(EEVariables.ee_php).issubset(set(apt_packages)):
                             EEService.restart_service(self, 'php5-fpm')
                     else:

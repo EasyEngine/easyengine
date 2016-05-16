@@ -58,8 +58,8 @@ class EEStackController(CementBaseController):
                 dict(help='Install mail scanner stack', action='store_true')),
             (['--nginx'],
                 dict(help='Install Nginx stack', action='store_true')),
-            (['--nginxmainline'],
-                dict(help='Install Nginx mainline stack', action='store_true')),
+#            (['--nginxmainline'],
+#                dict(help='Install Nginx mainline stack', action='store_true')),
             (['--php'],
                 dict(help='Install PHP stack', action='store_true')),
             (['--php7'],
@@ -90,7 +90,12 @@ class EEStackController(CementBaseController):
     @expose(hide=True)
     def default(self):
         """default action of ee stack command"""
-        self.app.args.print_help()
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
+        else:
+            self.app.args.print_help()
 
     @expose(hide=True)
     def pre_pref(self, apt_packages):
@@ -119,8 +124,12 @@ class EEStackController(CementBaseController):
             EERepo.add(self, repo_url=EEVariables.ee_mysql_repo)
             Log.debug(self, 'Adding key for {0}'
                         .format(EEVariables.ee_mysql_repo))
-            EERepo.add_key(self, '0xcbcb082a1bb943db',
-                               keyserver="keyserver.ubuntu.com")
+            if EEVariables.ee_platform_codename != 'xenial':
+                EERepo.add_key(self, '0xcbcb082a1bb943db',
+                                   keyserver="keyserver.ubuntu.com")
+            else:
+                EERepo.add_key(self, '0xF1656F24C74CD1D8',
+                                   keyserver="keyserver.ubuntu.com")
             chars = ''.join(random.sample(string.ascii_letters, 8))
             Log.debug(self, "Pre-seeding MySQL")
             Log.debug(self, "echo \"mariadb-server-10.1 "
@@ -174,13 +183,19 @@ class EEStackController(CementBaseController):
             Log.debug(self, 'Adding ppa of Nginx')
             EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if set(["nginx-mainline"]).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for NGINX MAINLINE, please wait...")
-            EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
-            Log.debug(self, 'Adding ppa of Nginx-mainline')
-            EERepo.add_key(self, EEVariables.ee_nginx_key)
+#        if set(["nginx-mainline"]).issubset(set(apt_packages)):
+#            Log.info(self, "Adding repository for NGINX MAINLINE, please wait...")
+#            EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+#            Log.debug(self, 'Adding ppa of Nginx-mainline')
+#            EERepo.add_key(self, EEVariables.ee_nginx_key)
 
-        if EEVariables.ee_platform_codename != 'trusty':
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
+            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
+                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+                Log.info(self, "Adding repository for PHP, please wait...")
+                Log.debug(self, 'Adding ppa for PHP')
+                EERepo.add(self, ppa=EEVariables.ee_php_repo)
+        else:
             if set(EEVariables.ee_php).issubset(set(apt_packages)):
                 Log.info(self, "Adding repository for PHP, please wait...")
                 # Add repository for php
@@ -193,22 +208,19 @@ class EEStackController(CementBaseController):
                 else:
                     Log.debug(self, 'Adding ppa for PHP')
                     EERepo.add(self, ppa=EEVariables.ee_php_repo)
-        else:
-            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)) \
-                    or set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
-                Log.info(self, "Adding repository for PHP, please wait...")
-                Log.debug(self, 'Adding ppa for PHP')
-                EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
         if set(EEVariables.ee_hhvm).issubset(set(apt_packages)):
-            Log.info(self, "Adding repository for HHVM, please wait...")
-            if EEVariables.ee_platform_codename == 'precise':
-                Log.debug(self, 'Adding PPA for Boost')
-                EERepo.add(self, ppa=EEVariables.ee_boost_repo)
-            Log.debug(self, 'Adding ppa repo for HHVM')
-            EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
-            Log.debug(self, 'Adding HHVM GPG Key')
-            EERepo.add_key(self, '0x5a16e7281be7a449')
+            if EEVariables.ee_platform_codename != 'xenial':
+                Log.info(self, "Adding repository for HHVM, please wait...")
+                if EEVariables.ee_platform_codename == 'precise':
+                    Log.debug(self, 'Adding PPA for Boost')
+                    EERepo.add(self, ppa=EEVariables.ee_boost_repo)
+                Log.debug(self, 'Adding ppa repo for HHVM')
+                EERepo.add(self, repo_url=EEVariables.ee_hhvm_repo)
+                Log.debug(self, 'Adding HHVM GPG Key')
+                EERepo.add_key(self, '0x5a16e7281be7a449')
+            else:
+                Log.info(self, "Using default Ubuntu repository for HHVM")
 
         if set(EEVariables.ee_mail).issubset(set(apt_packages)):
             Log.debug(self, 'Executing the command debconf-set-selections.')
@@ -242,8 +254,7 @@ class EEStackController(CementBaseController):
                           msg="Adding Postfix into Git")
                 EEService.reload_service(self, 'postfix')
 
-            if set(EEVariables.ee_nginx).issubset(set(apt_packages)) or set(EEVariables.ee_nginx_dev)\
-                                                                                .issubset(set(apt_packages)) :
+            if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
                 if set(["nginx-plus"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
@@ -253,24 +264,24 @@ class EEStackController(CementBaseController):
                             ee_nginx.write('fastcgi_param \tSCRIPT_FILENAME '
                                            '\t$request_filename;\n')
 
-                if os.path.isfile('/etc/nginx/sites-available/22222'):
-                    http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
-                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
-                            Log.debug(self, 'Setting http2/spdy in 22222')
-                            EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
+            #    if os.path.isfile('/etc/nginx/sites-available/22222'):
+            #        http2 = "http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy"
+            #        if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /etc/nginx/sites-available/22222".format(http2=http2)):
+            #                Log.debug(self, 'Setting http2/spdy in 22222')
+            #                EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{0}/g' /etc/nginx/sites-available/22222".format(http2))
 
-                sites = getAllsites(self)
-                if sites:
-                    for site in sites:
-                        site_name = site.sitename
-                        siteinfo = getSiteInfo(self, site_name)
-                        ssl = ("enabled" if siteinfo.is_ssl else "disabled")
-                        if (ssl == "enabled"):
-                            if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
-                                http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
-                                if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
-                                    Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
-                                    EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
+            #    sites = getAllsites(self)
+            #    if sites:
+            #        for site in sites:
+            #            site_name = site.sitename
+            #            siteinfo = getSiteInfo(self, site_name)
+            #            ssl = ("enabled" if siteinfo.is_ssl else "disabled")
+            #            if (ssl == "enabled"):
+            #                if os.path.isfile('/var/www/{0}/conf/nginx/ssl.conf'.format(site_name)):
+            #                    http2 =("http2" if EEAptGet.is_installed(self,'nginx-mainline') else "spdy")
+            #                    if not EEShellExec.cmd_exec(self, "grep  -q \'{http2}\' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name)):
+            #                        Log.debug(self, 'Modifying http2/spdy parameter in /var/www/{0}/conf/nginx/ssl.conf'.format(site_name))
+            #                        EEShellExec.cmd_exec(self, "sed -i 's/http2\|spdy/{http2}/g' /var/www/{site}/conf/nginx/ssl.conf".format(http2=http2,site=site_name))
 
 
                 if not (os.path.isfile('/etc/nginx/common/wpfc.conf')):
@@ -313,8 +324,8 @@ class EEStackController(CementBaseController):
                                   '/etc/nginx/common')
                         os.makedirs('/etc/nginx/common')
 
-                    http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
-                    data = dict(webroot=EEVariables.ee_webroot,http2=http2)
+            #        http2 = ("http2" if set(["nginx-mainline"]).issubset(set(apt_packages)) else "spdy")
+                    data = dict(webroot=EEVariables.ee_webroot)
                     Log.debug(self, 'Writting the nginx configuration to '
                               'file /etc/nginx/common/acl.conf')
                     ee_nginx = open('/etc/nginx/common/acl.conf',
@@ -380,7 +391,7 @@ class EEStackController(CementBaseController):
                     ee_nginx.close()
 
                     #php7 conf
-                    if EEVariables.ee_platform_codename == 'trusty' and (not
+                    if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') and (not
                         os.path.isfile("/etc/nginx/common/php7.conf")):
                         #data = dict()
                         Log.debug(self, 'Writting the nginx configuration to '
@@ -609,7 +620,7 @@ class EEStackController(CementBaseController):
                                         out=ee_nginx)
                         ee_nginx.close()
 
-                    if EEVariables.ee_platform_codename == 'trusty':
+                    if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                         if os.path.isfile("/etc/nginx/nginx.conf") and (not
                             os.path.isfile("/etc/nginx/common/redis-php7.conf")):
                             data = dict()
@@ -849,7 +860,7 @@ class EEStackController(CementBaseController):
                                          "'$http_host \"$request\" $status $body_bytes_sent '\n"
                                          "'\"$http_referer\" \"$http_user_agent\"';\n")
 
-            if EEVariables.ee_platform_codename != 'trusty' and set(EEVariables.ee_php).issubset(set(apt_packages)):
+            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise') and set(EEVariables.ee_php).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php5/'):
                     Log.debug(self, 'Creating directory /var/log/php5/')
@@ -1005,7 +1016,7 @@ class EEStackController(CementBaseController):
                 EEService.restart_service(self, 'php5-fpm')
 
 
-            if EEVariables.ee_platform_codename == 'trusty' and set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') and set(EEVariables.ee_php5_6).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/5.6/'):
                     Log.debug(self, 'Creating directory /var/log/php/5.6/')
@@ -1149,7 +1160,7 @@ class EEStackController(CementBaseController):
                 EEService.restart_service(self, 'php5.6-fpm')
 
             #preconfiguration for php7.0
-            if EEVariables.ee_platform_codename == 'trusty' and set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial') and set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
                 # Create log directories
                 if not os.path.exists('/var/log/php/7.0/'):
                     Log.debug(self, 'Creating directory /var/log/php/7.0/')
@@ -1883,7 +1894,7 @@ class EEStackController(CementBaseController):
                     vm_config.close()
                 EEService.restart_service(self, 'dovecot')
                 EEService.reload_service(self, 'nginx')
-                if EEVariables.ee_platform_codename != 'trusty':
+                if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
                     EEService.reload_service(self, 'php5-fpm')
                 else:
                     EEService.reload_service(self, 'php5.6-fpm')
@@ -1911,7 +1922,7 @@ class EEStackController(CementBaseController):
                             .format(EEVariables.ee_webroot))
 
                 #Fix pear install config for trusty
-                if EEVariables.ee_platform_codename == 'trusty':
+                if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                     EEShellExec.cmd_exec(self, "pear config-set php_dir /usr/share/php")
                     EEShellExec.cmd_exec(self, "pear config-set doc_dir /lib/php/pear/docs")
                     EEShellExec.cmd_exec(self, "pear config-set cfg_dir /lib/php/pear/cfg")
@@ -2058,6 +2069,10 @@ class EEStackController(CementBaseController):
     @expose(help="Install packages")
     def install(self, packages=[], apt_packages=[], disp_msg=True):
         """Start installation of packages"""
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
         self.msg = []
         try:
             # Default action for stack installation
@@ -2069,7 +2084,7 @@ class EEStackController(CementBaseController):
                and (not self.app.pargs.pagespeed) and
                (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
                (not self.app.pargs.mailscanner) and (not self.app.pargs.all)
-               and (not self.app.pargs.redis) and (not self.app.pargs.nginxmainline) and
+               and (not self.app.pargs.redis) and
                (not self.app.pargs.phpredisadmin) and (not self.app.pargs.php7)):
                 self.app.pargs.web = True
                 self.app.pargs.admin = True
@@ -2142,11 +2157,11 @@ class EEStackController(CementBaseController):
                 else:
                     Log.info(self, "Mail server is already installed")
 
-            if self.app.pargs.pagespeed:
-                if not (EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-mainline')):
-                    self.app.pargs.nginx = True
-                else:
-                    Log.info(self, "Nginx already installed")
+ #           if self.app.pargs.pagespeed:
+ #               if not (EEAptGet.is_installed(self, 'nginx-custom') or EEAptGet.is_installed(self, 'nginx-mainline')):
+ #                   self.app.pargs.nginx = True
+ #               else:
+ #                   Log.info(self, "Nginx already installed")
 
             if self.app.pargs.redis:
                 if not EEAptGet.is_installed(self, 'redis-server'):
@@ -2158,7 +2173,7 @@ class EEStackController(CementBaseController):
             if self.app.pargs.nginx:
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
-                if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
+                if not (EEAptGet.is_installed(self, 'nginx-custom')):
                     if not EEAptGet.is_installed(self, 'nginx-plus'):
                         apt_packages = apt_packages + EEVariables.ee_nginx
                     else:
@@ -2167,72 +2182,72 @@ class EEStackController(CementBaseController):
                         #apt_packages = apt_packages + EEVariables.ee_nginx
                         self.post_pref(apt, packages)
                 else:
-                    Log.debug(self, "Nginx already installed")
-                    if EEAptGet.is_installed(self, 'nginx-mainline'):
-                        Log.warn(self,'Nginx Mainline already found on your system.\nDo you want to remove Nginx mainline '
-                                          'and install Nginx Stable.,\nAny answer other than "yes" will be stop this '
-                                          'operation.')
-                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
-                        if ee_prompt == 'YES' or ee_prompt == 'yes':
-                            EEService.stop_service(self, 'nginx')
-                            Log.debug(self, "Removing apt_packages variable of NGINX")
-                            Log.info(self, "Removing packages, please wait...")
-                            EEAptGet.remove(self, EEVariables.ee_nginx_dev)
-                            EEAptGet.auto_remove(self)
-                            Log.info(self, "Removing repository for NGINX MAINLINE,")
-                            EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
-                            Log.info(self, "Successfully removed packages")
-                            Log.info(self,"Initializing NGINX Mainline Packages... Please Wait")
-                            if EEAptGet.download_only(self,EEVariables.ee_nginx,EEVariables.ee_nginx_repo,EEVariables.ee_nginx_key):
-                                apt_packages = apt_packages + EEVariables.ee_nginx
-                            else:
-                                #revert the changes
-                                EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
-                                Log.error(self,"Error installing NGINX Stable\nReverting back to NGINX Mainline ..",False)
-                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
-                    else:
-                        Log.info(self, "NGINX Stable already installed")
+                    Log.debug(self, "Nginx Stable already installed")
+#                    if EEAptGet.is_installed(self, 'nginx-mainline'):
+#                        Log.warn(self,'Nginx Mainline already found on your system.\nDo you want to remove Nginx mainline '
+#                                          'and install Nginx Stable.,\nAny answer other than "yes" will be stop this '
+#                                          'operation.')
+#                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
+#                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+#                            EEService.stop_service(self, 'nginx')
+#                            Log.debug(self, "Removing apt_packages variable of NGINX")
+#                            Log.info(self, "Removing packages, please wait...")
+#                            EEAptGet.remove(self, EEVariables.ee_nginx_dev)
+#                            EEAptGet.auto_remove(self)
+#                            Log.info(self, "Removing repository for NGINX MAINLINE,")
+#                            EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+#                            Log.info(self, "Successfully removed packages")
+#                            Log.info(self,"Initializing NGINX Mainline Packages... Please Wait")
+#                            if EEAptGet.download_only(self,EEVariables.ee_nginx,EEVariables.ee_nginx_repo,EEVariables.ee_nginx_key):
+#                                apt_packages = apt_packages + EEVariables.ee_nginx
+#                            else:
+#                                #revert the changes
+#                                EERepo.add(self, repo_url=EEVariables.ee_nginx_dev_repo)
+#                                Log.error(self,"Error installing NGINX Stable\nReverting back to NGINX Mainline ..",False)
+#                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#                    else:
+#                        Log.info(self, "NGINX Stable already installed")
 
-            if self.app.pargs.nginxmainline:
-                if EEVariables.ee_nginx_dev_repo == None:
-                    Log.error(self, "NGINX Mainline Version is not supported in your platform")
-
-                Log.debug(self, "Setting apt_packages variable for Nginx")
-
-                if not (EEAptGet.is_installed(self, 'nginx-custom') or  EEAptGet.is_installed(self, 'nginx-mainline')):
-                    if not EEAptGet.is_installed(self, 'nginx-plus'):
-                        apt_packages = apt_packages + EEVariables.ee_nginx_dev
-                    else:
-                        Log.info(self, "NGINX PLUS Detected ...")
-                        apt = ["nginx-plus"] + EEVariables.ee_nginx
-                        #apt_packages = apt_packages + EEVariables.ee_nginx
-                        self.post_pref(apt, packages)
-                else:
-                    Log.debug(self, "Nginx already installed")
-                    if EEAptGet.is_installed(self, 'nginx-custom'):
-                        Log.warn(self,'Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
-                                          'and install Nginx Mainline.,\nAny answer other than "yes" will be stop this '
-                                          'operation.')
-                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
-                        if ee_prompt == 'YES' or ee_prompt == 'yes':
-                            Log.info(self,"Initializing... Please Wait")
-                            if EEAptGet.download_only(self,EEVariables.ee_nginx_dev,EEVariables.ee_nginx_dev_repo,EEVariables.ee_nginx_key):
-                                EEService.stop_service(self, 'nginx')
-                                Log.debug(self, "Removing apt_packages variable of Nginx")
-                                Log.info(self, "Removing packages, please wait...")
-                                EEAptGet.remove(self, EEVariables.ee_nginx)
-                                EEAptGet.auto_remove(self)
-                                Log.info(self, "Successfully removed packages")
-                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
-                            else:
-                                Log.error(self,"Skipped installing NGINX Mainline",False)
-                    else:
-                        Log.info(self, "NGINX Mainline already installed")
+#            if self.app.pargs.nginxmainline:
+#                if EEVariables.ee_nginx_dev_repo == None:
+#                    Log.error(self, "NGINX Mainline Version is not supported in your platform")
+#
+#                Log.debug(self, "Setting apt_packages variable for Nginx")
+#
+#                if not (EEAptGet.is_installed(self, 'nginx-custom')):
+#                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+#                        apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#                    else:
+#                        Log.info(self, "NGINX PLUS Detected ...")
+#                        apt = ["nginx-plus"] + EEVariables.ee_nginx
+#                        #apt_packages = apt_packages + EEVariables.ee_nginx
+#                        self.post_pref(apt, packages)
+#                else:
+#                    Log.debug(self, "Nginx already installed")
+#                    if EEAptGet.is_installed(self, 'nginx-custom'):
+#                        Log.warn(self,'Nginx Stable already found on your system.\nDo you want to remove Nginx stable '
+#                                          'and install Nginx Mainline.,\nAny answer other than "yes" will be stop this '
+#                                          'operation.')
+#                        ee_prompt = input("Type \"YES\" or \"yes\" to continue [n]: ")
+#                        if ee_prompt == 'YES' or ee_prompt == 'yes':
+#                            Log.info(self,"Initializing... Please Wait")
+#                            if EEAptGet.download_only(self,EEVariables.ee_nginx_dev,EEVariables.ee_nginx_dev_repo,EEVariables.ee_nginx_key):
+#                                EEService.stop_service(self, 'nginx')
+#                                Log.debug(self, "Removing apt_packages variable of Nginx")
+#                                Log.info(self, "Removing packages, please wait...")
+#                                EEAptGet.remove(self, EEVariables.ee_nginx)
+#                                EEAptGet.auto_remove(self)
+#                                Log.info(self, "Successfully removed packages")
+#                                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#                            else:
+#                                Log.error(self,"Skipped installing NGINX Mainline",False)
+#                    else:
+#                        Log.info(self, "NGINX Mainline already installed")
 
             if self.app.pargs.php:
                 Log.debug(self, "Setting apt_packages variable for PHP")
                 if not (EEAptGet.is_installed(self, 'php5-fpm') or EEAptGet.is_installed(self, 'php5.6-fpm')):
-                    if EEVariables.ee_platform_codename == 'trusty':
+                    if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                         apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
                     else:
                         apt_packages = apt_packages + EEVariables.ee_php
@@ -2242,7 +2257,7 @@ class EEStackController(CementBaseController):
 
 
             if self.app.pargs.php7:
-                if EEVariables.ee_platform_codename == 'trusty':
+                if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                     Log.debug(self, "Setting apt_packages variable for PHP 7.0")
                     if not EEAptGet.is_installed(self, 'php7.0-fpm') :
                         apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
@@ -2435,6 +2450,12 @@ class EEStackController(CementBaseController):
         apt_packages = []
         packages = []
 
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
+
+
         # Default action for stack remove
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
@@ -2444,7 +2465,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -2452,7 +2473,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 self.app.pargs.php7 = True
 
         if self.app.pargs.web:
@@ -2492,15 +2513,15 @@ class EEStackController(CementBaseController):
                 apt_packages = apt_packages + EEVariables.ee_nginx
             else:
                 Log.error(self,"Cannot Remove! Nginx Stable version not found.")
-        if self.app.pargs.nginxmainline:
-            if EEAptGet.is_installed(self, 'nginx-mainline'):
-                Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
-                apt_packages = apt_packages + EEVariables.ee_nginx_dev
-            else:
-                Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
+#        if self.app.pargs.nginxmainline:
+#            if EEAptGet.is_installed(self, 'nginx-mainline'):
+#                Log.debug(self, "Removing apt_packages variable of Nginx MAINLINE")
+#                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#            else:
+#               Log.error(self,"Cannot Remove! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Removing apt_packages variable of PHP")
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
                 if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php_extra
@@ -2508,7 +2529,7 @@ class EEStackController(CementBaseController):
                 apt_packages = apt_packages + EEVariables.ee_php
 
         if self.app.pargs.php7:
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + EEVariables.ee_php7_0
                 if not EEAptGet.is_installed(self, 'php5.6-fpm'):
@@ -2573,8 +2594,7 @@ class EEStackController(CementBaseController):
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
 
-                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
-                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                if (set(["nginx-custom"]).issubset(set(apt_packages))) :
                     EEService.stop_service(self, 'nginx')
 
                 if len(packages):
@@ -2586,10 +2606,6 @@ class EEStackController(CementBaseController):
                     Log.info(self, "Removing packages, please wait...")
                     EEAptGet.remove(self, apt_packages)
                     EEAptGet.auto_remove(self)
-
-                if set(["nginx-mainline"]).issubset(set(apt_packages)):
-                    Log.info(self, "Removing repository for NGINX MAINLINE,")
-                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
 
 
                 Log.info(self, "Successfully removed packages")
@@ -2607,6 +2623,11 @@ class EEStackController(CementBaseController):
         apt_packages = []
         packages = []
 
+        if self.app.pargs.pagespeed:
+            Log.error(self, "Pagespeed support has been dropped since EasyEngine v3.6.0",False)
+            Log.error(self, "Please run command again without `--pagespeed`",False)
+            Log.error(self, "For more details, read - https://easyengine.io/blog/disabling-pagespeed/")
+
         # Default action for stack purge
         if ((not self.app.pargs.web) and (not self.app.pargs.admin) and
            (not self.app.pargs.mail) and (not self.app.pargs.nginx) and
@@ -2616,7 +2637,7 @@ class EEStackController(CementBaseController):
            (not self.app.pargs.adminer) and (not self.app.pargs.utils) and
            (not self.app.pargs.mailscanner) and (not self.app.pargs.all) and
            (not self.app.pargs.pagespeed) and (not self.app.pargs.redis) and
-           (not self.app.pargs.phpredisadmin) and (not self.app.pargs.nginxmainline)):
+           (not self.app.pargs.phpredisadmin)):
             self.app.pargs.web = True
             self.app.pargs.admin = True
 
@@ -2624,7 +2645,7 @@ class EEStackController(CementBaseController):
             self.app.pargs.web = True
             self.app.pargs.admin = True
             self.app.pargs.mail = True
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 self.app.pargs.php7 = True
 
         if self.app.pargs.web:
@@ -2664,22 +2685,22 @@ class EEStackController(CementBaseController):
                 apt_packages = apt_packages + EEVariables.ee_nginx
             else:
                 Log.error(self,"Cannot Purge! Nginx Stable version not found.")
-        if self.app.pargs.nginxmainline:
-            if EEAptGet.is_installed(self, 'nginx-mainline'):
-                Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
-                apt_packages = apt_packages + EEVariables.ee_nginx_dev
-            else:
-                Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
+#        if self.app.pargs.nginxmainline:
+#            if EEAptGet.is_installed(self, 'nginx-mainline'):
+#                Log.debug(self, "Purge apt_packages variable of Nginx Mainline")
+#                apt_packages = apt_packages + EEVariables.ee_nginx_dev
+#            else:
+#                Log.error(self,"Cannot Purge! Nginx Mainline version not found.")
         if self.app.pargs.php:
             Log.debug(self, "Purge apt_packages variable PHP")
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
                 if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                     apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
         if self.app.pargs.php7:
-            if EEVariables.ee_platform_codename == 'trusty':
+            if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
                 apt_packages = apt_packages + EEVariables.ee_php7_0
                 if not EEAptGet.is_installed(self, 'php5.6-fpm'):
@@ -2743,8 +2764,7 @@ class EEStackController(CementBaseController):
 
             if ee_prompt == 'YES' or ee_prompt == 'yes':
 
-                if (set(["nginx-mainline"]).issubset(set(apt_packages)) or
-                        set(["nginx-custom"]).issubset(set(apt_packages))) :
+                if (set(["nginx-custom"]).issubset(set(apt_packages))) :
                     EEService.stop_service(self, 'nginx')
 
                 if len(apt_packages):
@@ -2756,9 +2776,9 @@ class EEStackController(CementBaseController):
                     EEFileUtils.remove(self, packages)
                     EEAptGet.auto_remove(self)
 
-                if set(["nginx-mainline"]).issubset(set(apt_packages)):
-                    Log.info(self, "Removing repository for NGINX MAINLINE,")
-                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
+#                if set(["nginx-mainline"]).issubset(set(apt_packages)):
+#                    Log.info(self, "Removing repository for NGINX MAINLINE,")
+#                    EERepo.remove(self, repo_url=EEVariables.ee_nginx_dev_repo)
 
 
                 Log.info(self, "Successfully purged packages")
