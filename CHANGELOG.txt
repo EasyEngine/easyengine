@@ -1,10 +1,11 @@
 v3.6.0 - May 12, 2016
 - Add support for Ubuntu 16.04 LTS - Xenial.
 - Updated Nginx to the latest stable version (1.10.1)
-- Dropped support for spdy module.
-- Move existing site spdy sites to http2
-- Drop ngx_pagespeed module
-- Drop Nginx Mainline support
+- Updated OpenSSL to v1.0.2g for HTTP/2 support
+- Drop support for spdy module. Move existing spdy sites to http2.
+- Drop support for ngx_pagespeed module.
+- Drop support for Nginx Mainline builds.
+- Fix Let's Encrypt Auto renew issue
 
 v3.5.6 - May 5, 2016
 - Patch for ImageMagick vulnerability CVE-2016–3714 - https://imagetragick.com/
