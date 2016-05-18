@@ -1066,10 +1066,6 @@ class EEStackController(CementBaseController):
                 self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
                 ee_php_fpm.close()
 
-
-
-
-
                 # Parse /etc/php/5.6/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
                 config.read_file(codecs.open('/etc/php/5.6/fpm/pool.d/www.conf',
