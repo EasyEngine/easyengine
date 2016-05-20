@@ -8,7 +8,7 @@ EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress s
 
 **EasyEngine currently supports:**
 
-- Ubuntu 12.04 & 14.04
+- Ubuntu 12.04 & 14.04 & 16.04
 - Debian 7 & 8
 
 **Port Requirements:**
