@@ -1,5 +1,5 @@
 v3.6.1 - May 20, 2016
-- Fix HHVM Issue on Ubuntu Xenial
+- Fix HHVM Support on Ubuntu Xenial
 
 v3.6.0 - May 16, 2016
 - Add support for Ubuntu 16.04 LTS - Xenial.
