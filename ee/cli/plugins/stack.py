@@ -739,7 +739,8 @@ class EEStackController(CementBaseController):
 
                 EEFileUtils.searchreplace(self, "/etc/hhvm/server.ini",
                                                 "9000", "8000")
-                EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
+                if not EEVariables.ee_platform_codename == 'xenial':
+                    EEFileUtils.searchreplace(self, "/etc/nginx/hhvm.conf",
                                                 "9000", "8000")
 
                 with open("/etc/hhvm/php.ini", "a") as hhvm_file:
@@ -1064,10 +1065,6 @@ class EEStackController(CementBaseController):
                                    encoding='utf-8', mode='w')
                 self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
                 ee_php_fpm.close()
-
-
-
-
 
                 # Parse /etc/php/5.6/fpm/pool.d/www.conf
                 config = configparser.ConfigParser()
