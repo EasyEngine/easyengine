@@ -727,12 +727,17 @@ def site_package_check(self, stype):
             if not EEAptGet.is_installed(self, 'php7.0-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
         else:
-            Log.warn(self, "PHP 7.0 not available for your system.")
-            Log.info(self,"Creating site with PHP 5.6")
-            if not EEAptGet.is_installed(self, 'php5-fpm'):
-                Log.info(self, "Setting apt_packages variable for PHP")
-                Log.debug(self, "Setting apt_packages variable for PHP")
-                apt_packages = apt_packages + EEVariables.ee_php
+            if EEVariables.ee_platform_codename == 'wheezy':
+                Log.warn(self, "PHP 7.0 not available for your system.")
+                Log.info(self,"Creating site with PHP 5.6")
+                if not EEAptGet.is_installed(self, 'php5-fpm'):
+                    Log.info(self, "Setting apt_packages variable for PHP")
+                    Log.debug(self, "Setting apt_packages variable for PHP")
+                    apt_packages = apt_packages + EEVariables.ee_php
+            else:
+                Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+                if not EEAptGet.is_installed(self, 'php7.0-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php7_0
 
     if stype in ['mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for MySQL")
@@ -852,7 +857,7 @@ def site_package_check(self, stype):
                                     "server 127.0.0.1:9000 backup;\n}\n")
 
     if self.app.pargs.php7:
-        if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
+        if (EEVariables.ee_platform_codename == 'wheezy' or EEVariables.ee_platform_codename == 'precise'):
             Log.error(self,"PHP 7.0 is not supported in your Platform")
 
         Log.debug(self, "Setting apt_packages variable for PHP 7.0")
