@@ -136,6 +136,11 @@ class EEVariables():
                   "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
                  "memcached", "graphviz", "php-pear"]
 
+        ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
+                  "php7.0-mcrypt", "php7.0-common", "php7.0-readline",
+                  "php7.0-mysql", "php7.0-cli", "php7.0-memcache", "php7.0-imagick",
+                 "memcached", "graphviz", "php-pear", "php7.0-xdebug"]
+
     if ee_platform_codename == 'wheezy':
         ee_php = ee_php + ["php5-dev"]
 
