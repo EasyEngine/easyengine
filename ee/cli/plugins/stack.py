@@ -2722,6 +2722,17 @@ class EEStackController(CementBaseController):
                     apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 apt_packages = apt_packages + EEVariables.ee_php
+                
+        #For debian --php7
+        if self.app.pargs.php7:
+            if (EEVariables.ee_platform_codename == 'jessie'):
+                Log.debug(self, "Removing apt_packages variable of PHP 7.0")
+                apt_packages = apt_packages + EEVariables.ee_php7_0
+                if not EEAptGet.is_installed(self, 'php5-fpm'):
+                    apt_packages = apt_packages + EEVariables.ee_php_extra
+            else:
+                Log.info(self,"PHP 7.0 not supported.")
+
         if self.app.pargs.php7:
             if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
