@@ -2549,7 +2549,7 @@ class EEStackController(CementBaseController):
                     apt_packages = apt_packages + EEVariables.ee_php_extra
             else:
                 Log.info(self,"PHP 7.0 not supported.")
-                
+
         if self.app.pargs.php7:
             if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
                 Log.debug(self, "Removing apt_packages variable of PHP 7.0")
@@ -2632,6 +2632,7 @@ class EEStackController(CementBaseController):
 
                 Log.info(self, "Successfully removed packages")
 
+                #Added for Ondrej Repo missing package Fix
                 if self.app.pargs.php7:
                     if EEAptGet.is_installed(self, 'php5.6-fpm'):
                         Log.info(self, "PHP5.6-fpm found on system.")
