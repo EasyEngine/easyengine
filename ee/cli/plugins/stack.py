@@ -2252,6 +2252,21 @@ class EEStackController(CementBaseController):
                     Log.debug(self, "PHP already installed")
                     Log.info(self, "PHP already installed")
 
+        #PHP 7.0 for Debian (jessie+)
+            if self.app.pargs.php7:
+                if (EEVariables.ee_platform_codename == 'jessie'):
+                    Log.debug(self, "Setting apt_packages variable for PHP 7.0")
+                    if not EEAptGet.is_installed(self, 'php7.0-fpm') :
+                        apt_packages = apt_packages + EEVariables.ee_php7_0
+                        if not EEAptGet.is_installed(self, 'php5-fpm'):
+                            apt_packages = apt_packages + EEVariables.ee_php
+                    else:
+                        Log.debug(self, "PHP 7.0 already installed")
+                        Log.info(self, "PHP 7.0 already installed")
+                else:
+                    Log.debug(self, "PHP 7.0  Not Available for your Distribution")
+                    Log.info(self, "PHP 7.0  Not Available for your Distribution")
+
 
             if self.app.pargs.php7:
                 if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
