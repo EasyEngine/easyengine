@@ -209,8 +209,8 @@ class EEStackController(CementBaseController):
                     Log.debug(self, 'Adding ppa for PHP')
                     EERepo.add(self, ppa=EEVariables.ee_php_repo)
 
-            if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
-                if EEVariables.ee_platform_codename == 'jessie':
+            if EEVariables.ee_platform_codename == 'jessie':
+                if set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
                     Log.debug(self, 'Adding repo_url of php 7.0 for debian')
                     EERepo.add(self, repo_url=EEVariables.ee_php_repo)
                     Log.debug(self, 'Adding Dotdeb/php GPG key')
