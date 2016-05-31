@@ -293,7 +293,7 @@ class EEDebugController(CementBaseController):
         # PHP global debug start
 
         if (self.app.pargs.php7 == 'on' and not self.app.pargs.site_name):
-            if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
+            if (EEVariables.ee_platform_codename == 'wheezy' or EEVariables.ee_platform_codename == 'precise'):
                 Log.error(self,"PHP 7.0 not supported.")
             if not (EEShellExec.cmd_exec(self, "sed -n \"/upstream php7"
                                                "{/,/}/p \" /etc/nginx/"
