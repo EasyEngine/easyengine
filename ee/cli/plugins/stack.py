@@ -1303,23 +1303,6 @@ class EEStackController(CementBaseController):
                     config.write(configfile)
 
                 # Parse /etc/php/7.0/fpm/php-fpm.conf
-                '''
-                #Depreciated code. Mustache version applied
-                config = configparser.ConfigParser()
-                Log.debug(self, "configuring php file"
-                          "/etc/php/7.0/fpm/php-fpm.conf")
-                config.read_file(codecs.open("/etc/php/7.0/fpm/php-fpm.conf",
-                                             "r", "utf8"))
-                config['global']['error_log'] = '/var/log/php/7.0/fpm.log'
-                config.remove_option('global', 'include')
-                config['global']['log_level'] = 'notice'
-                config['global']['include'] = '/etc/php/7.0/fpm/pool.d/*.conf'
-                with codecs.open('/etc/php/7.0/fpm/php-fpm.conf',
-                                 encoding='utf-8', mode='w') as configfile:
-                    Log.debug(self, "writting php5 configuration into "
-                              "/etc/php/7.0/fpm/php-fpm.conf")
-                    config.write(configfile)
-                '''
                 data = dict(pid="/run/php/php7.0-fpm.pid", error_log="/var/log/php/7.0/fpm.log",
                               include="/etc/php/7.0/fpm/pool.d/*.conf")
                 Log.debug(self, "writting php 7.0 configuration into "
