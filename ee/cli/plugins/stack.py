@@ -1165,6 +1165,11 @@ class EEStackController(CementBaseController):
 
         #PHP7.0 configuration for debian
             if (EEVariables.ee_platform_codename == 'jessie' ) and set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
+                 # Create log directories
+                if not os.path.exists('/var/log/php/7.0/'):
+                    Log.debug(self, 'Creating directory /var/log/php/7.0/')
+                    os.makedirs('/var/log/php/7.0/')
+                     
                 # Parse etc/php/7.0/fpm/php.ini
                 config = configparser.ConfigParser()
                 Log.debug(self, "configuring php file /etc/php/7.0/fpm/php.ini")
