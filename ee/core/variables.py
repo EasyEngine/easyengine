@@ -131,6 +131,9 @@ class EEVariables():
         if ee_platform_codename == 'wheezy':
             ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
                        .format(codename=ee_platform_codename))
+        else :
+            ee_php_repo = ("deb http://packages.dotdeb.org {codename} all".format(codename=ee_platform_codename))
+
         ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
                   "php5-mcrypt", "php5-common", "php5-readline",
                   "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
@@ -140,6 +143,7 @@ class EEVariables():
                   "php7.0-mcrypt", "php7.0-common", "php7.0-readline",
                   "php7.0-mysql", "php7.0-cli", "php7.0-memcache", "php7.0-imagick",
                  "memcached", "graphviz", "php-pear", "php7.0-xdebug"]
+        ee_php_extra = []
 
     if ee_platform_codename == 'wheezy':
         ee_php = ee_php + ["php5-dev"]
