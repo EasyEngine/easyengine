@@ -1237,8 +1237,8 @@ class EEStackController(CementBaseController):
                                  "profiler_enable] = off\n")
 
                 # Disable xdebug
-                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/7.0/mods-available/xdebug.ini"):
-                    EEFileUtils.searchreplace(self, "/etc/php/7.0/mods-available/"
+                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/mods-available/xdebug.ini"):
+                    EEFileUtils.searchreplace(self, "/etc/php/mods-available/"
                                           "xdebug.ini",
                                           "zend_extension",
                                           ";zend_extension")
