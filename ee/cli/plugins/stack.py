@@ -1162,7 +1162,8 @@ class EEStackController(CementBaseController):
 
                 EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
                 EEService.restart_service(self, 'php5.6-fpm')
-#PHP7.0 configuration for debian
+
+        #PHP7.0 configuration for debian
             if (EEVariables.ee_platform_codename == 'jessie' ) and set(EEVariables.ee_php7_0).issubset(set(apt_packages)):
                 # Parse etc/php/7.0/fpm/php.ini
                 config = configparser.ConfigParser()
