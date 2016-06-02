@@ -2328,8 +2328,8 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["http://downloads.sourceforge.net/"
-                                        "adminer/adminer-{0}.php"
+                packages = packages + [["https://www.adminer.org/static/download/"
+                                        "{0}/adminer-{0}.php"
                                         "".format(EEVariables.ee_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
