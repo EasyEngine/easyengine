@@ -694,7 +694,13 @@ def site_package_check(self, stype):
                 apt = ["nginx-plus"] + EEVariables.ee_nginx
                 #apt_packages = apt_packages + EEVariables.ee_nginx
                 stack.post_pref(apt, packages)
-
+            elif EEAptGet.is_installed(self, 'nginx'):
+                Log.info(self, "EasyEngine detected a previously installed Nginx package. "
+                                "It may or may not have required modules. "
+                                "\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n")
+                apt = ["nginx"] + EEVariables.ee_nginx
+                #apt_packages = apt_packages + EEVariables.ee_nginx
+                stack.post_pref(apt, packages)
             else:
                 apt_packages = apt_packages + EEVariables.ee_nginx
         else:

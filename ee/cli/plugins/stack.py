@@ -255,7 +255,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if set(["nginx-plus"]).issubset(set(apt_packages)):
+                if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                             'SCRIPT_FILENAME'):
