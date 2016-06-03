@@ -110,7 +110,7 @@ class EEAptGet():
                                         "Dpkg::Options::=\"--force-confdef\""
                                         " -o "
                                         "Dpkg::Options::=\"--force-confold\""
-                                        " -y {0}"
+                                        " -y --allow-unauthenticated {0}"
                                         .format(all_packages), shell=True,
                                         stdin=None, stdout=f, stderr=f,
                                         executable="/bin/bash")

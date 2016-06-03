@@ -255,7 +255,7 @@ class EEStackController(CementBaseController):
                 EEService.reload_service(self, 'postfix')
 
             if set(EEVariables.ee_nginx).issubset(set(apt_packages)):
-                if set(["nginx-plus"]).issubset(set(apt_packages)):
+                if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
                     # Fix for white screen death with NGINX PLUS
                     if not EEFileUtils.grep(self, '/etc/nginx/fastcgi_params',
                                             'SCRIPT_FILENAME'):
@@ -451,9 +451,9 @@ class EEStackController(CementBaseController):
 
                     # Nginx-Plus does not have nginx package structure like this
                     # So creating directories
-                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                    if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
                         Log.info(self,
-                                 "Installing EasyEngine Configurations for" "NGINX PLUS")
+                                 "Installing EasyEngine Configurations for" "NGINX")
                         if not os.path.exists('/etc/nginx/sites-available'):
                             Log.debug(self, 'Creating directory'
                                       '/etc/nginx/sites-available')
@@ -562,7 +562,7 @@ class EEStackController(CementBaseController):
                     EEGit.add(self,
                               ["/etc/nginx"], msg="Adding Nginx into Git")
                     EEService.reload_service(self, 'nginx')
-                    if set(["nginx-plus"]).issubset(set(apt_packages)):
+                    if set(["nginx-plus"]).issubset(set(apt_packages)) or set(["nginx"]).issubset(set(apt_packages)):
                         EEShellExec.cmd_exec(self, "sed -i -e 's/^user/#user/'"
                                             " -e '/^#user/a user"
                                             "\ www-data\;'"
@@ -2171,13 +2171,21 @@ class EEStackController(CementBaseController):
                 Log.debug(self, "Setting apt_packages variable for Nginx")
 
                 if not (EEAptGet.is_installed(self, 'nginx-custom')):
-                    if not EEAptGet.is_installed(self, 'nginx-plus'):
+                    if not (EEAptGet.is_installed(self, 'nginx-plus') or EEAptGet.is_installed(self, 'nginx')):
                         apt_packages = apt_packages + EEVariables.ee_nginx
                     else:
-                        Log.info(self, "NGINX PLUS Detected ...")
-                        apt = ["nginx-plus"] + EEVariables.ee_nginx
-                        #apt_packages = apt_packages + EEVariables.ee_nginx
-                        self.post_pref(apt, packages)
+                        if EEAptGet.is_installed(self, 'nginx-plus'):
+                            Log.info(self, "NGINX PLUS Detected ...")
+                            apt = ["nginx-plus"] + EEVariables.ee_nginx
+                            #apt_packages = apt_packages + EEVariables.ee_nginx
+                            self.post_pref(apt, packages)
+                        elif EEAptGet.is_installed(self, 'nginx'):
+                            Log.info(self, "EasyEngine detected a previously installed Nginx package. "
+                                "It may or may not have required modules. "
+                                "\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n")
+                            apt = ["nginx"] + EEVariables.ee_nginx
+                            #apt_packages = apt_packages + EEVariables.ee_nginx
+                            self.post_pref(apt, packages)
                 else:
                     Log.debug(self, "Nginx Stable already installed")
 #                    if EEAptGet.is_installed(self, 'nginx-mainline'):
@@ -2328,8 +2336,8 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.adminer:
                 Log.debug(self, "Setting packages variable for Adminer ")
-                packages = packages + [["http://downloads.sourceforge.net/"
-                                        "adminer/adminer-{0}.php"
+                packages = packages + [["https://www.adminer.org/static/download/"
+                                        "{0}/adminer-{0}.php"
                                         "".format(EEVariables.ee_adminer),
                                         "{0}22222/"
                                         "htdocs/db/adminer/index.php"
