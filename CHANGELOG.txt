@@ -1,3 +1,7 @@
+v3.6.2 - Jun 03, 2016
+- Fix Issue #726,#723,#727
+- Check for already installed nginx package
+
 v3.6.1 - May 20, 2016
 - Fix HHVM Support on Ubuntu Xenial
 
