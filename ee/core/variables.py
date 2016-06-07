@@ -140,7 +140,7 @@ class EEVariables():
                  "memcached", "graphviz", "php-pear"]
 
         ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
-                  "php7.0-mcrypt", "php7.0-common", "php7.0-readline",
+                  "php7.0-mcrypt", "php7.0-common", "php7.0-readline", "php7.0-redis",
                   "php7.0-mysql", "php7.0-cli", "php7.0-memcache", "php7.0-imagick",
                  "memcached", "graphviz", "php-pear", "php7.0-xdebug"]
         ee_php_extra = []
