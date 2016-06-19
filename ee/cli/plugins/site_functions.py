@@ -1388,6 +1388,9 @@ def setupLetsEncrypt(self, ee_domain_name):
                                      "ssl on;\n"
                                      "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n"
                                      "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n"
+                                     "ssl_protocols TLSv1.2 TLSv1.1 TLSv1;\n"
+                                     "ssl_ciphers EECDH+AESGCM:EECDH+AES;\n"
+                                     "ssl_ecdh_curve secp384r1;\n"
                                      .format(ee_domain_name))
             sslconf.close()
             # updateSiteInfo(self, ee_domain_name, ssl=True)
