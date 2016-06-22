@@ -12,8 +12,7 @@ class EEVariables():
     """Intialization of core variables"""
 
     # EasyEngine version
-    ee_version = "3.6.2"
-
+    ee_version = "3.7.0"
 
     # EasyEngine packages versions
     ee_wp_cli = "0.23.0"
@@ -126,15 +125,24 @@ class EEVariables():
                           "php7.0-mysql", "php7.0-cli", "php7.0-curl", "php7.0-mbstring",
                          "php7.0-bcmath", "php7.0-mysql", "php7.0-opcache", "php7.0-zip", "php7.0-xml", "php7.0-soap"]
             ee_php_extra = ["php-memcached", "php-imagick", "php-memcache", "memcached",
-                            "graphviz", "php-pear", "php-xdebug", "php-msgpack"]
+                            "graphviz", "php-pear", "php-xdebug", "php-msgpack", "php-redis"]
     elif ee_platform_distro == 'debian':
         if ee_platform_codename == 'wheezy':
             ee_php_repo = ("deb http://packages.dotdeb.org {codename}-php56 all"
                        .format(codename=ee_platform_codename))
+        else :
+            ee_php_repo = ("deb http://packages.dotdeb.org {codename} all".format(codename=ee_platform_codename))
+
         ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
                   "php5-mcrypt", "php5-common", "php5-readline",
                   "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
                  "memcached", "graphviz", "php-pear"]
+
+        ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
+                  "php7.0-mcrypt", "php7.0-common", "php7.0-readline", "php7.0-redis",
+                  "php7.0-mysql", "php7.0-cli", "php7.0-memcache", "php7.0-imagick",
+                 "memcached", "graphviz", "php-pear", "php7.0-xdebug"]
+        ee_php_extra = []
 
     if ee_platform_codename == 'wheezy':
         ee_php = ee_php + ["php5-dev"]

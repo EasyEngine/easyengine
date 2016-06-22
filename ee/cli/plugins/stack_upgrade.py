@@ -167,12 +167,13 @@ class EEStackUpgradeController(CementBaseController):
                         apt_packages = apt_packages + EEVariables.ee_php
                     else:
                         Log.info(self, "PHP is not installed")
+                    if EEAptGet.is_installed(self, 'php7.0-fpm'):
+                        apt_packages = apt_packages + EEVariables.ee_php7_0
                 else:
                     if EEAptGet.is_installed(self, 'php5.6-fpm'):
                         apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
                     else:
                         Log.info(self, "PHP 5.6 is not installed")
-
                     if EEAptGet.is_installed(self, 'php7.0-fpm'):
                         apt_packages = apt_packages + EEVariables.ee_php7_0 + EEVariables.ee_php_extra
                     else:

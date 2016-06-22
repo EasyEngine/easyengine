@@ -1,3 +1,7 @@
+v3.7.0 - Jun 22, 2016
+- PHP7 support for debian jessie
+- Fixed Issue #729, #724
+
 v3.6.2 - Jun 03, 2016
 - Fix Issue #726,#723,#727
 - Update Adminer to v4.2.5
