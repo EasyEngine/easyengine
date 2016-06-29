@@ -594,10 +594,6 @@ class EESiteCreateController(CementBaseController):
                 data['basic'] = True
                 self.app.pargs.wpredis = False
 
-        #     self.app.args.print_help()
-        # if not data:
-        #     self.app.close(1)
-
         # Check rerequired packages are installed or not
         ee_auth = site_package_check(self, stype)
 
@@ -1334,26 +1330,6 @@ class EESiteUpdateController(CementBaseController):
                 else:
                     data['hhvm'] = True
                     hhvm = True
-
-#            if pargs.pagespeed=="on":
-#                if (not pargs.experimental):
-#                    Log.info(self, "PageSpeed is experimental feature and it may not"
-#                             " work with all CSS/JS/Cache of your site.\nYou can "
-#                             "disable it by passing --pagespeed=off later.\nDo you wish"
-#                             " to enable PageSpeed now for {0}?".format(ee_domain))
-
-                    # Check prompt
-#                    check_prompt = input("Type \"y\" to continue [n]:")
-#                    if check_prompt != "Y" and check_prompt != "y":
-#                        Log.info(self, "Not using Pagespeed for given site")
-#                        data['pagespeed'] = False
-#                        pagespeed = False
-#                    else:
-#                        data['pagespeed'] = True
-#                        pagespeed = True
-#                else:
-#                    data['pagespeed'] = True
-#                    pagespeed = True
 
             if pargs.letsencrypt == "on":
 

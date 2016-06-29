@@ -127,8 +127,6 @@ class EEStackUpgradeController(CementBaseController):
             if self.app.pargs.web:
                 if EEAptGet.is_installed(self, 'nginx-custom'):
                     self.app.pargs.nginx = True
- #               elif EEAptGet.is_installed(self, 'nginx-mainline'):
- #                   self.app.pargs.nginxmainline = True
                 else:
                     Log.info(self, "Nginx is not already installed")
                 self.app.pargs.php = True
@@ -154,12 +152,6 @@ class EEStackUpgradeController(CementBaseController):
                     apt_packages = apt_packages + EEVariables.ee_nginx
                 else:
                     Log.info(self, "Nginx Stable is not already installed")
-
-#            if self.app.pargs.nginxmainline:
-#                if EEAptGet.is_installed(self, 'nginx-mainline'):
-#                    apt_packages = apt_packages + EEVariables.ee_nginx_dev
-#                else:
-#                    Log.info(self, "Nginx Mainline is not already installed")
 
             if self.app.pargs.php:
                 if (EEVariables.ee_platform_distro == 'debian' or EEVariables.ee_platform_codename == 'precise'):
