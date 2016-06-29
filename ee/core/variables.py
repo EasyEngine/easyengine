@@ -135,7 +135,7 @@ class EEVariables():
 
         ee_php = ["php5-fpm", "php5-curl", "php5-gd", "php5-imap",
                   "php5-mcrypt", "php5-common", "php5-readline",
-                  "php5-mysql", "php5-cli", "php5-memcache", "php5-imagick",
+                  "php5-mysql","php5-mysqlnd", "php5-cli", "php5-memcache", "php5-imagick",
                  "memcached", "graphviz", "php-pear"]
 
         ee_php7_0 = ["php7.0-fpm", "php7.0-curl", "php7.0-gd", "php7.0-imap",
