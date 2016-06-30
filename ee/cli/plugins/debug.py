@@ -305,7 +305,7 @@ class EEDebugController(CementBaseController):
                 # Change upstream.conf
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
-                nc.set([('upstream','php',), 'server'], '127.0.0.1:9170')
+                nc.set([('upstream','php7',), 'server'], '127.0.0.1:9170')
                 if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
                     nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:9170')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
@@ -342,7 +342,7 @@ class EEDebugController(CementBaseController):
 
         # PHP global debug stop
         elif (self.app.pargs.php7 == 'off' and not self.app.pargs.site_name):
-            if EEShellExec.cmd_exec(self, " sed -n \"/upstream php {/,/}/p\" "
+            if EEShellExec.cmd_exec(self, " sed -n \"/upstream php7 {/,/}/p\" "
                                           "/etc/nginx/conf.d/upstream.conf "
                                           "| grep 9170"):
                 Log.info(self, "Disabling PHP 7.0 debug")
@@ -350,7 +350,7 @@ class EEDebugController(CementBaseController):
                 # Change upstream.conf
                 nc = NginxConfig()
                 nc.loadf('/etc/nginx/conf.d/upstream.conf')
-                nc.set([('upstream','php',), 'server'], '127.0.0.1:9070')
+                nc.set([('upstream','php7',), 'server'], '127.0.0.1:9070')
                 if os.path.isfile("/etc/nginx/common/wpfc-hhvm.conf"):
                     nc.set([('upstream','hhvm',), 'server'], '127.0.0.1:8000')
                 nc.savef('/etc/nginx/conf.d/upstream.conf')
