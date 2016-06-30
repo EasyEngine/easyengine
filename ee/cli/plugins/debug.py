@@ -781,6 +781,8 @@ class EEDebugController(CementBaseController):
                     EEService.restart_service(self, 'php7.0-fpm')
             else:
                 EEService.restart_service(self, 'php5-fpm')
+                if EEVariables.ee_platform_codename == 'jessie':
+                    EEService.restart_service(self, 'php7.0-fpm')
 
         if len(self.msg) > 0:
             if not self.app.pargs.interactive:
