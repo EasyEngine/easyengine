@@ -1,5 +1,6 @@
 v3.7.1 - Jun 30, 2016
-- Fixed PHP7 support for debian jessie
+- Fix PHP7 support for debian jessie
+- Fix PHP7 debug log
 
 v3.7.0 - Jun 22, 2016
 - PHP7 support for debian jessie
