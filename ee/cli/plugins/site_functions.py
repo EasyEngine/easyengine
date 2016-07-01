@@ -1301,43 +1301,6 @@ def doCleanupAction(self, domain='', webroot='', dbname='', dbuser='',
                 raise SiteError("dbhost not provided")
         deleteDB(self, dbname, dbuser, dbhost)
 
-
-#def operateOnPagespeed(self, data):
-
-#    ee_domain_name = data['site_name']
-#    ee_site_webroot = data['webroot']
-
-#    if data['pagespeed'] is True:
-#        if not os.path.isfile("{0}/conf/nginx/pagespeed.conf.disabled"
-#                              .format(ee_site_webroot)):
-#            Log.debug(self, 'Writting the Pagespeed common '
-#                      'configuration to file {0}/conf/nginx/pagespeed.conf'
-#                      'pagespeed.conf'.format(ee_site_webroot))
-#            ee_nginx = open('{0}/conf/nginx/pagespeed.conf'
-#                            .format(ee_site_webroot), encoding='utf-8',
-#                            mode='w')
-#            self.app.render((data), 'pagespeed-common.mustache',
-#                            out=ee_nginx)
-#            ee_nginx.close()
-#        else:
-#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf.disabled"
-#                               .format(ee_site_webroot),
-#                               '{0}/conf/nginx/pagespeed.conf'
-#                               .format(ee_site_webroot))
-
-#    elif data['pagespeed'] is False:
-#        if os.path.isfile("{0}/conf/nginx/pagespeed.conf"
-#                          .format(ee_site_webroot)):
-#            EEFileUtils.mvfile(self, "{0}/conf/nginx/pagespeed.conf"
-#                               .format(ee_site_webroot),
-#                               '{0}/conf/nginx/pagespeed.conf.disabled'
-#                               .format(ee_site_webroot))
-#
-#    # Add nginx conf folder into GIT
-#    EEGit.add(self, ["{0}/conf/nginx".format(ee_site_webroot)],
-#              msg="Adding Pagespeed config of site: {0}"
-#              .format(ee_domain_name))
-
 def cloneLetsEncrypt(self):
     letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt"
     if not os.path.isdir("/opt"):
