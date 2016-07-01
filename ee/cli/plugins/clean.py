@@ -101,18 +101,6 @@ class EECleanController(CementBaseController):
                          " or install them with `ee stack install --admin`")
                 Log.error(self, "Unable to clean opcache", False)
 
-#    @expose(hide=True)
-#    def clean_pagespeed(self):
-#        """This function clears Pagespeed cache"""
-#        if(os.path.isdir("/var/ngx_pagespeed_cache")):
-#            Log.info(self, "Cleaning PageSpeed cache")
-#            EEShellExec.cmd_exec(self, "rm -rf /var/ngx_pagespeed_cache/*")
-#        else:
-#            Log.debug(self, "/var/ngx_pagespeed_cache does not exist,"
-#                            " so cache not cleared")
-#            Log.error(self, "Unable to clean pagespeed cache", False)
-
-
 def load(app):
     # register the plugin class.. this only happens if the plugin is enabled
     handler.register(EECleanController)
