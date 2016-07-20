@@ -12,8 +12,8 @@ if ($query_string != "") {
 if ($request_uri ~* "(/wp-admin/|/xmlrpc.php|wp-.*.php|index.php|/feed/|sitemap(_index)?.xml|[a-z0-9_-]+-sitemap([0-9]+)?.xml)") {
   set $cache_uri 'null cache';
 }
-# Don't use the cache for logged in users or recent commenter
-if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_logged_in") {
+# Don't use the cache for logged in users or recent commenter or customer with items in cart
+if ($http_cookie ~* "comment_author|wordpress_[a-f0-9]+|wp-postpass|wordpress_logged_in|woocommerce_items_in_cart") {
   set $cache_uri 'null cache';
 }
 # Use cached or actual file if they exists, Otherwise pass request to WordPress

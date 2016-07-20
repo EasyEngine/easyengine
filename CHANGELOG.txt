@@ -1,3 +1,6 @@
+v3.7.2 - Jul 20, 2016
+- CGI Vulnerability HTTPOXY Patch
+
 v3.7.1 - Jul 1, 2016
 - Fix PHP7 support for debian jessie
 - Fix PHP7 debug log
