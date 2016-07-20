@@ -393,6 +393,7 @@ then
    if [[ $? -ne 0 ]]; then
 	echo "fastcgi_param  HTTP_PROXY         \"\";" >> /etc/nginx/fastcgi_params
     echo "fastcgi_param  HTTP_PROXY         \"\";" >> /etc/nginx/fastcgi.conf
+    service nginx restart &>> /dev/null
 	fi
 fi
 
