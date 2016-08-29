@@ -2391,9 +2391,9 @@ class EEStackController(CementBaseController):
 
             if self.app.pargs.utils:
                 Log.debug(self, "Setting packages variable for utils")
-                packages = packages + [["http://phpmemcacheadmin.googlecode"
-                                        ".com/files/phpMemcachedAdmin-1.2.2"
-                                        "-r262.tar.gz", '/tmp/memcache.tar.gz',
+                packages = packages + [["https://storage.googleapis.com/google-code-archive-downloads/"
+                                        "v2/code.google.com/phpmemcacheadmin/"
+                                        "phpMemcachedAdmin-1.2.2-r262.tar.gz", '/tmp/memcache.tar.gz',
                                         'phpMemcachedAdmin'],
                                        ["https://raw.githubusercontent.com"
                                         "/rtCamp/eeadmin/master/cache/nginx/"
