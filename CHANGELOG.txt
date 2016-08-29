@@ -1,3 +1,6 @@
+v3.7.4 - Aug 29, 2016
+- Fix phpmemcacheadmin download urls [critical]
+
 v3.7.3 - Aug 17, 2016
 - Fix wp-cli compatibility with WordPress 4.6 [critical]
 
