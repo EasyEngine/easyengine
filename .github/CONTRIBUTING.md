@@ -19,8 +19,6 @@ wp --allow-root --info
 
 For free support, please use - http://community.rtcamp.com/c/easyengine
 
-For premium support, please check - https://rtcamp.com/products/easyengine-premium-support/
-
 Please do NOT clutter github issue tracker here with support requests. It hampers development speed of this project.
 
 
