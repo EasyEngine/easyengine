@@ -59,7 +59,7 @@ target/
 *.swp
 
 # Folder created for Nose testing
-bin/
+
 coverage_report/
 include/
 local/
@@ -90,3 +90,4 @@ sftp-config.json
 config.yml
 /vendor
 /phpunit.xml.dist
+/.idea
