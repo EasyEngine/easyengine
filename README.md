@@ -1,6 +1,8 @@
 #[EasyEngine](https://easyengine.io/)
-[![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg "Travis Build Status")] (https://travis-ci.org/EasyEngine/easyengine)
-[Join EasyEngine Slack Channel](https://easyengine.io/slack/)
+
+[![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg)](https://travis-ci.org/EasyEngine/easyengine) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
+
+**Update:** [We are working on next major release (v4) which will be in PHP and based on WP-CLI](https://easyengine.io/blog/easyengine-v4-development-begins/).
 
 <img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1-240x184.png" alt="EasyEngine Logo" align="right" />
 
