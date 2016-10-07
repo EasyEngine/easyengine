@@ -43,9 +43,11 @@ class Process {
 		$proc = proc_open( $this->command, $descriptors, $pipes, $cwd, $this->env );
 
 		$stdout = stream_get_contents( $pipes[1] );
+		self::write_log( $stdout );
 		fclose( $pipes[1] );
 
 		$stderr = stream_get_contents( $pipes[2] );
+		self::write_log( $stderr );
 		fclose( $pipes[2] );
 
 		return new ProcessRun( array(
@@ -56,6 +58,12 @@ class Process {
 			'cwd' => $cwd,
 			'env' => $this->env
 		) );
+	}
+
+	public static function write_log( $message ) {
+		$log_file   = fopen( EE_CLI_DEBUG_LOG_FILE, "a" );
+		fwrite( $log_file, "\n" . $message );
+		fclose( $log_file );
 	}
 
 	/**

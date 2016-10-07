@@ -378,7 +378,6 @@ class EE_CLI {
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch( $command, $exit_on_error = true, $return_detailed = false ) {
-
 		$proc = Process::create( $command );
 		$results = $proc->run();
 
@@ -390,6 +389,22 @@ class EE_CLI {
 		} else {
 			return $results->return_code;
 		}
+	}
+
+	/**
+	 * Launch an external process that takes over I/O with debug message.
+	 *
+	 * @param string $command Command to call.
+	 * @param string $message Message to write in log.
+	 * @param bool   $exit_on_error
+	 * @param bool   $return_detailed
+	 *
+	 * @return int|ProcessRun
+	 */
+	public static function exec_cmd( $command, $message = '', $exit_on_error = true, $return_detailed = false ) {
+		Process::write_log( $message );
+		$cmd_result = self::launch( $command, $exit_on_error, $return_detailed );
+		return $cmd_result;
 	}
 
 	/**

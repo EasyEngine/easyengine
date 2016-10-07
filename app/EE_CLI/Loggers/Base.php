@@ -1,6 +1,7 @@
 <?php
 
 namespace EE_CLI\Loggers;
+use EE_CLI\Process;
 
 /**
  * Base logger class
@@ -45,6 +46,7 @@ abstract class Base {
 	 */
 	protected function write( $handle, $str ) {
 		fwrite( $handle, $str );
+		Process::write_log( $str );
 	}
 
 	/**

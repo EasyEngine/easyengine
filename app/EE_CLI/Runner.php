@@ -261,7 +261,10 @@ class Runner {
 	 */
 	public function is_command_disabled( $command ) {
 		$path = implode( ' ', array_slice( \EE_CLI\Dispatcher\get_path( $command ), 1 ) );
-		return in_array( $path, $this->config['disabled_commands'] );
+		if ( ! empty( $this->config['disabled_commands'] ) && is_array( $this->config['disabled_commands'] ) ) {
+			return in_array( $path, $this->config['disabled_commands'] );
+		}
+		return false;
 	}
 
 	/**
@@ -391,7 +394,7 @@ class Runner {
 	}
 
 	private function init_logger() {
-		if ( $this->config['quiet'] )
+		if ( ! empty( $this->config['quiet'] ) )
 			$logger = new \EE_CLI\Loggers\Quiet;
 		else
 			$logger = new \EE_CLI\Loggers\Regular( $this->in_color() );
@@ -409,10 +412,14 @@ class Runner {
 
 			$configurator->merge_yml( $this->global_config_path );
 			$config = $configurator->to_array();
-			$this->_required_files['global'] = $config[0]['require'];
+			if ( ! empty( $config[0]['require'] ) ) {
+				$this->_required_files['global'] = $config[0]['require'];
+			}
 			$configurator->merge_yml( $this->project_config_path );
 			$config = $configurator->to_array();
-			$this->_required_files['project'] = $config[0]['require'];
+			if ( ! empty( $config[0]['require'] ) ) {
+				$this->_required_files['project'] = $config[0]['require'];
+			}
 		}
 
 		// Runtime config and args
@@ -427,7 +434,9 @@ class Runner {
 		}
 
 		list( $this->config, $this->extra_config ) = $configurator->to_array();
-		$this->_required_files['runtime'] = $this->config['require'];
+		if ( ! empty( $this->config['require'] ) ) {
+			$this->_required_files['runtime'] = $this->config['require'];
+		}
 	}
 
 	private function check_root() {
