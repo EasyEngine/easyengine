@@ -31,7 +31,7 @@ class Process {
 	 *
 	 * @return ProcessRun
 	 */
-	public function run() {
+	public function run( $write_log = false ) {
 		$cwd = $this->cwd;
 
 		$descriptors = array(
@@ -40,24 +40,36 @@ class Process {
 			2 => array( 'pipe', 'w' ),
 		);
 
+		if ( $write_log ) {
+			$descriptors[1] = array( "file", EE_CLI_DEBUG_LOG_FILE, "a" );
+			$descriptors[2] = array( "file", EE_CLI_DEBUG_LOG_FILE, "a" );
+		}
+
 		$proc = proc_open( $this->command, $descriptors, $pipes, $cwd, $this->env );
 
-		$stdout = stream_get_contents( $pipes[1] );
-		self::write_log( $stdout );
-		fclose( $pipes[1] );
-
-		$stderr = stream_get_contents( $pipes[2] );
-		self::write_log( $stderr );
-		fclose( $pipes[2] );
-
-		return new ProcessRun( array(
-			'stdout' => $stdout,
-			'stderr' => $stderr,
+		$process_args = array(
 			'return_code' => proc_close( $proc ),
 			'command' => $this->command,
 			'cwd' => $cwd,
 			'env' => $this->env
-		) );
+		);
+
+		if( false == $process_args ) {
+
+			$stdout = stream_get_contents( $pipes[1] );
+			self::write_log( $stdout );
+			fclose( $pipes[1] );
+
+			$process_args['stdout'] = $stdout;
+
+			$stderr = stream_get_contents( $pipes[2] );
+			self::write_log( $stderr );
+			fclose( $pipes[2] );
+
+			$process_args['stderr'] = $stderr;
+		}
+
+		return new ProcessRun( $process_args );
 	}
 
 	public static function write_log( $message ) {

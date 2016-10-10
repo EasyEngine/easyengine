@@ -28,11 +28,15 @@ class Stack_Command extends EE_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <name>
-	 * : Name of the site to create.
 	 *
-	 * [--wp]
-	 * : To create WordPress site.
+	 * [--web]
+	 * : To install web.
+	 *
+	 * [--nginx]
+	 * : To install nginx.
+	 *
+	 * [--php]
+	 * : To install nginx.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -42,31 +46,18 @@ class Stack_Command extends EE_CLI_Command {
 	 */
 	public function install( $args, $assoc_args ) {
 
-		list( $site_name ) = $args;
+		if( ! empty( $assoc_args['php'] ) ) {
 
-		if( ! empty( $assoc_args['pagespeed'] ) ) {
-			EE_CLI::error( $site_name . 'Pagespeed support has been dropped since EasyEngine v3.6.0' );
-			EE_CLI::error( $site_name . 'Please run command again without `--pagespeed`' );
-			EE_CLI::error( $site_name . 'For more details, read - https://easyengine.io/blog/disabling-pagespeed/' );
 		}
-
-		if ( ! empty( $site_name) ) {
-			if( ! empty( $assoc_args['wp'] ) ) {
-				$check_nginx = EE_CLI::exec_cmd('nginx -t', 'List The Directory', false);
-				if ( 0 == $check_nginx ) {
-					EE_CLI::success( 'Nginx is available' );
-				} else {
-					EE_CLI::success( 'Please install nginx' );
-				}
-
+		if( ! empty( $assoc_args['nginx'] ) ) {
+			$check_nginx = EE_CLI::exec_cmd('nginx -t', 'Checking nginx..', false );
+			if ( 0 == $check_nginx ) {
+				EE_CLI::success( 'Nginx is already available' );
 			} else {
-				EE_CLI::success( $site_name . ' site is created successfully!' );
+				EE_CLI::success( 'Please install nginx.' );
 			}
-		} else {
-			EE_CLI::error( 'Please give site name.' );
 		}
 	}
-
 }
 
 EE_CLI::add_command( 'stack', 'Stack_Command' );

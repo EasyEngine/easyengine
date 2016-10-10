@@ -9,6 +9,7 @@ include EE_CLI_ROOT . '/app/utils.php';
 include EE_CLI_ROOT . '/app/dispatcher.php';
 include EE_CLI_ROOT . '/app/class-ee-cli.php';
 include EE_CLI_ROOT . '/app/class-ee-cli-command.php';
+include EE_CLI_ROOT . '/app/core/ee-apt-get.php';
 
 \EE_CLI\Utils\load_dependencies();
 

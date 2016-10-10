@@ -288,8 +288,9 @@ class Subcommand extends CompositeCommand {
 	 * @param array $assoc_args
 	 */
 	public function invoke( $args, $assoc_args, $extra_args ) {
-		if ( \EE_CLI::get_config( 'prompt' ) )
-			list( $args, $assoc_args ) = $this->prompt_args( $args, $assoc_args );
+		// TODO: getting warning = Warning: Unknown config option 'prompt'.
+//		if ( \EE_CLI::get_config( 'prompt' ) )
+//			list( $args, $assoc_args ) = $this->prompt_args( $args, $assoc_args );
 
 		$to_unset = $this->validate_args( $args, $assoc_args, $extra_args );
 
