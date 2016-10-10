@@ -95,7 +95,48 @@ class EE_APT_GET {
 		if ( 0 == $check_upgrade ) {
 			EE_CLI::success( 'Cache upgraded successfully.' );
 		} else {
-			EE_CLI::success( 'Oops Something went wrong!!' );
+			EE_CLI::error( 'Oops Something went wrong!!' );
+		}
+	}
+
+	/**
+	 * Similar to `apt-get install --download-only PACKAGE_NAME`
+	 *
+	 * @param        $packages
+	 * @param string $repo_url
+	 * @param string $repo_key
+	 */
+	public static function download_only( $packages, $repo_url = '', $repo_key = '' ) {
+
+		if ( is_array( $packages ) ) {
+			$all_packages = implode( ' ', $packages );
+		} else {
+			$all_packages = $packages;
+		}
+
+		if ( ! empty( $repo_url ) ) {
+			EE_REPO::add($repo_url);
+		}
+
+		if ( ! empty( $repo_key ) ) {
+			EE_REPO::add_key($repo_key);
+		}
+
+		$download_packages_cmd = 'apt-get update && DEBIAN_FRONTEND=noninteractive '.
+                                        'apt-get install -o '.
+                                        'Dpkg::Options::="--force-confdef"'.
+                                        ' -o '.
+                                        'Dpkg::Options::="--force-confold"'.
+                                        ' -y  --download-only ' . $all_packages;
+
+		$download_packages = EE_CLI::exec_cmd( $download_packages_cmd, 'downloading packages...' );
+		if ( 0 == $download_packages ) {
+			EE_CLI::success( 'Packages downloaded successfully.' );
+		} else {
+			EE_CLI::error( 'Error in fetching dpkg package.\nReverting changes ..', false );
+			if ( !empty($repo_url)) {
+				EE_REPO::remove( $repo_url );
+			}
 		}
 	}
 }

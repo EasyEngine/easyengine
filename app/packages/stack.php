@@ -50,7 +50,7 @@ class Stack_Command extends EE_CLI_Command {
 
 		}
 		if( ! empty( $assoc_args['nginx'] ) ) {
-			$check_nginx = EE_CLI::exec_cmd('nginx -t', 'Checking nginx..', false );
+			$check_nginx = EE_CLI::exec_cmd('nginx -t', 'Checking nginx..' );
 			if ( 0 == $check_nginx ) {
 				EE_CLI::success( 'Nginx is already available' );
 			} else {
