@@ -48,12 +48,12 @@ class Site_Command extends EE_CLI_Command {
            // Printing additional info
 				echo 'Return value: ' . $retval;
 
-				EE_CLI::success( $site_name . ' WordPress site is created successfully!' );
+				EE::success( $site_name . ' WordPress site is created successfully!' );
 			} else {
-				EE_CLI::success( $site_name . ' site is created successfully!' );
+				EE::success( $site_name . ' site is created successfully!' );
 			}
 		} else {
-			EE_CLI::error( 'Please give site name.' );
+			EE::error( 'Please give site name.' );
 		}
 	}
 	
@@ -76,9 +76,9 @@ class Site_Command extends EE_CLI_Command {
 		list( $site_name ) = $args;
 		
 		if ( ! empty( $site_name) ) {
-			EE_CLI::success( $site_name . ' site is updated successfully!' );
+			EE::success( $site_name . ' site is updated successfully!' );
 		} else {
-			EE_CLI::error( 'Please give site name.' );
+			EE::error( 'Please give site name.' );
 		}
 	}
 	
@@ -101,11 +101,11 @@ class Site_Command extends EE_CLI_Command {
 		list( $site_name ) = $args;
 		
 		if ( ! empty( $site_name) ) {
-			EE_CLI::success( $site_name . ' site is deleted successfully!' );
+			EE::success( $site_name . ' site is deleted successfully!' );
 		} else {
-			EE_CLI::error( 'Please give site name.' );
+			EE::error( 'Please give site name.' );
 		}
 	}
 }
 
-EE_CLI::add_command( 'site', 'Site_Command' );
+EE::add_command( 'site', 'Site_Command' );

@@ -6,19 +6,19 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 class EE_OS {
 
 	public static function ee_platform_codename() {
-		$os_codename = EE_CLI::exec_cmd_output( "lsb_release -sc" );
+		$os_codename = EE::exec_cmd_output( "lsb_release -sc" );
 
 		return $os_codename;
 	}
 
 	public static function ee_platform_distro() {
-		$os_distro = EE_CLI::exec_cmd_output( "lsb_release -si" );
+		$os_distro = EE::exec_cmd_output( "lsb_release -si" );
 
 		return $os_distro;
 	}
 
 	public static function ee_platform_version() {
-		$os_version = EE_CLI::exec_cmd_output( "lsb_release -sr" );
+		$os_version = EE::exec_cmd_output( "lsb_release -sr" );
 
 		return $os_version;
 	}
@@ -30,7 +30,7 @@ class EE_OS {
 	}
 
 	public static function ee_wpcli_version() {
-		$ee_version_check = EE_CLI::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1" );
+		$ee_version_check = EE::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1" );
 		if ( empty( $ee_version_check ) ) {
 			$ee_version = EE_WP_CLI;
 		} else {
@@ -48,8 +48,8 @@ class EE_OS {
 			return true;
 		} catch ( Exception $e ) {
 			// handle errors
-			EE_CLI::debug( $e->getMessage() );
-			EE_CLI::error( "Unable to extract file " . $file );
+			EE::debug( $e->getMessage() );
+			EE::error( "Unable to extract file " . $file );
 
 			return false;
 		}
@@ -73,7 +73,7 @@ class EE_OS {
 				}
 			}
 			try {
-				EE_CLI::log( "Downloading " . $pkg_name );
+				EE::log( "Downloading " . $pkg_name );
 				set_time_limit( 0 ); // unlimited max execution time
 				$options = array(
 					CURLOPT_FILE => $download_path,
@@ -84,10 +84,10 @@ class EE_OS {
 				curl_setopt_array( $ch, $options );
 				curl_exec( $ch );
 				curl_close( $ch );
-				EE_CLI::log( "[Done]" );
+				EE::log( "[Done]" );
 			} catch ( Exception $e ) {
-				EE_CLI::debug( $e->getMessage() );
-				EE_CLI::error( "Unable to download " . $pkg_name );
+				EE::debug( $e->getMessage() );
+				EE::error( "Unable to download " . $pkg_name );
 			}
 		}
 	}

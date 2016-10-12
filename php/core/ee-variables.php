@@ -14,7 +14,7 @@ class EE_Variables {
 
 	public static function get_ee_repo_file_path() {
 //		$ee_repo_file_path = "/etc/apt/sources.list.d/" . self::$ee_repo_file;
-		$ee_repo_file_path = EE_CLI_ROOT . '/' . self::$ee_repo_file;
+		$ee_repo_file_path = EE_ROOT . '/' . self::$ee_repo_file;
 		return $ee_repo_file_path;
 	}
 }

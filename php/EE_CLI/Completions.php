@@ -70,9 +70,9 @@ class Completions {
 			}
 		}
 
-		$r = \EE_CLI::get_runner()->find_command_to_run( $positional_args );
+		$r = \EE::get_runner()->find_command_to_run( $positional_args );
 		if ( !is_array( $r ) && array_pop( $positional_args ) == $this->cur_word ) {
-			$r = \EE_CLI::get_runner()->find_command_to_run( $positional_args );
+			$r = \EE::get_runner()->find_command_to_run( $positional_args );
 		}
 
 		if ( !is_array( $r ) ) {
@@ -96,7 +96,7 @@ class Completions {
 
 	public function render() {
 		foreach ( $this->opts as $opt ) {
-			\EE_CLI::line( $opt );
+			\EE::line( $opt );
 		}
 	}
 }

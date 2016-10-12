@@ -26,9 +26,9 @@ class Help_Command extends EE_CLI_Command {
 
 		if ( $command ) {
 
-			if ( EE_CLI::get_runner()->is_command_disabled( $command ) ) {
+			if ( EE::get_runner()->is_command_disabled( $command ) ) {
 				$path = implode( ' ', array_slice( \EE_CLI\Dispatcher\get_path( $command ), 1 ) );
-				EE_CLI::error( sprintf(
+				EE::error( sprintf(
 					"The '%s' command has been disabled from the config file.",
 					$path
 				) );
@@ -40,7 +40,7 @@ class Help_Command extends EE_CLI_Command {
 	}
 
 	private static function find_subcommand( $args ) {
-		$command = \EE_CLI::get_root_command();
+		$command = \EE::get_root_command();
 
 		while ( !empty( $args ) && $command && $command->can_have_subcommands() ) {
 			$command = $command->find_subcommand( $args );
@@ -64,7 +64,7 @@ class Help_Command extends EE_CLI_Command {
 		$out = preg_replace( '#^([^\s^\#])#m', "\t$1", $out );
 
 		// section headers
-		$out = preg_replace( '/^## ([A-Z ]+)/m', EE_CLI::colorize( '%9\1%n' ), $out );
+		$out = preg_replace( '/^## ([A-Z ]+)/m', EE::colorize( '%9\1%n' ), $out );
 
 		$out = str_replace( "\t", '  ', $out );
 
@@ -131,7 +131,7 @@ class Help_Command extends EE_CLI_Command {
 		$subcommands = array();
 		foreach ( $command->get_subcommands() as $subcommand ) {
 
-			if ( EE_CLI::get_runner()->is_command_disabled( $subcommand ) ) {
+			if ( EE::get_runner()->is_command_disabled( $subcommand ) ) {
 				continue;
 			}
 
@@ -161,5 +161,5 @@ class Help_Command extends EE_CLI_Command {
 
 }
 
-EE_CLI::add_command( 'help', 'Help_Command' );
+EE::add_command( 'help', 'Help_Command' );
 

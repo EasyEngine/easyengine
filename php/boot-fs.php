@@ -12,8 +12,8 @@ if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
 	die(-1);
 }
 
-define( 'EE_CLI_ROOT', dirname( __DIR__ ) );
+define( 'EE_ROOT', dirname( __DIR__ ) );
 
-include EE_CLI_ROOT . '/app/ee-config.php';
-include EE_CLI_ROOT . '/app/ee-cli.php';
+include EE_ROOT . '/php/ee-config.php';
+include EE_ROOT . '/php/ee-cli.php';
 

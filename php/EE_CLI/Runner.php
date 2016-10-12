@@ -2,7 +2,7 @@
 
 namespace EE_CLI;
 
-use EE_CLI;
+use EE;
 use EE_CLI\Utils;
 use EE_CLI\Dispatcher;
 
@@ -156,7 +156,7 @@ class Runner {
 		if ( isset( $assoc_args['url'] ) ) {
 			$url = $assoc_args['url'];
 			if ( true === $url ) {
-				EE_CLI::warning( 'The --url parameter expects a value.' );
+				EE::warning( 'The --url parameter expects a value.' );
 			}
 		}
 
@@ -178,7 +178,7 @@ class Runner {
 	 * @return array|string Command, args, and path on success; error message on failure
 	 */
 	public function find_command_to_run( $args ) {
-		$command = \EE_CLI::get_root_command();
+		$command = \EE::get_root_command();
 
 		$cmd_path = array();
 
@@ -229,7 +229,7 @@ class Runner {
 	public function run_command( $args, $assoc_args = array() ) {
 		$r = $this->find_command_to_run( $args );
 		if ( is_string( $r ) ) {
-			EE_CLI::error( $r );
+			EE::error( $r );
 		}
 
 		list( $command, $final_args, $cmd_path ) = $r;
@@ -242,11 +242,11 @@ class Runner {
 			$extra_args = array();
 		}
 
-		EE_CLI::debug( 'Running command: ' . $name );
+		EE::debug( 'Running command: ' . $name );
 		try {
 			$command->invoke( $final_args, $assoc_args, $extra_args );
 		} catch ( EE_CLI\Iterators\Exception $e ) {
-			EE_CLI::error( $e->getMessage() );
+			EE::error( $e->getMessage() );
 		}
 	}
 
@@ -399,11 +399,11 @@ class Runner {
 		else
 			$logger = new \EE_CLI\Loggers\Regular( $this->in_color() );
 
-		EE_CLI::set_logger( $logger );
+		EE::set_logger( $logger );
 	}
 
 	private function init_config() {
-		$configurator = \EE_CLI::get_configurator();
+		$configurator = \EE::get_configurator();
 
 		// File config
 		{
@@ -447,7 +447,7 @@ class Runner {
 		if ( posix_geteuid() !== 0 )
 			return; # not root
 
-		EE_CLI::error(
+		EE::error(
 			"YIKES! It looks like you're running this as root. You probably meant to " .
 			"run this as the user that your EasyEngine install exists under.\n" .
 			"\n" .
@@ -471,8 +471,8 @@ class Runner {
 		$this->init_colorization();
 		$this->init_logger();
 
-		EE_CLI::debug( $this->_global_config_path_debug );
-		EE_CLI::debug( $this->_project_config_path_debug );
+		EE::debug( $this->_global_config_path_debug );
+		EE::debug( $this->_project_config_path_debug );
 		
 		//Commented this code as ee command run by using root user.
 		//$this->check_root();
@@ -510,10 +510,10 @@ class Runner {
 							break;
 						}
 					}
-					EE_CLI::error( sprintf( "Required file '%s' doesn't exist%s.", basename( $path ), $context ) );
+					EE::error( sprintf( "Required file '%s' doesn't exist%s.", basename( $path ), $context ) );
 				}
 				Utils\load_file( $path );
-				EE_CLI::debug( 'Required file from config: ' . $path );
+				EE::debug( 'Required file from config: ' . $path );
 			}
 		}
 
@@ -536,7 +536,7 @@ class Runner {
 		// Handle --url parameter
 		$url = self::guess_url( $this->config );
 		if ( $url )
-			\EE_CLI::set_url( $url );
+			\EE::set_url( $url );
 
 		$this->do_early_invoke( 'before_ee_load' );
 

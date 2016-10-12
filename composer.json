@@ -30,6 +30,6 @@
 		"behat/behat": "2.5.*"
 	},
 	"autoload": {
-		"psr-0": { "EE_CLI": "app" }
+		"psr-0": { "EE_CLI": "php" }
 	}
 }

@@ -7,7 +7,7 @@ use \EE_CLI\Process;
 /**
  * Various utilities for ee-cli commands.
  */
-class EE_CLI {
+class EE{
 
 	private static $configurator;
 
@@ -33,7 +33,7 @@ class EE_CLI {
 		static $configurator;
 
 		if ( !$configurator ) {
-			$configurator = new EE_CLI\Configurator( EE_CLI_ROOT . '/app/config-spec.php' );
+			$configurator = new EE_CLI\Configurator( EE_ROOT . '/php/config-spec.php' );
 		}
 
 		return $configurator;
@@ -63,7 +63,7 @@ class EE_CLI {
 	 * Set the context in which ee-cli should be run
 	 */
 	public static function set_url( $url ) {
-		EE_CLI::debug( 'Set URL: ' . $url );
+		EE::debug( 'Set URL: ' . $url );
 		$url_parts = Utils\parse_url( $url );
 		self::set_url_params( $url_parts );
 	}
@@ -148,7 +148,7 @@ class EE_CLI {
 				$callable[0] = is_object( $callable[0] ) ? get_class( $callable[0] ) : $callable[0];
 				$callable = array( $callable[0], $callable[1] );
 			}
-			EE_CLI::error( sprintf( "Callable %s does not exist, and cannot be registered as `wp %s`.", json_encode( $callable ), $name ) );
+			EE::error( sprintf( "Callable %s does not exist, and cannot be registered as `wp %s`.", json_encode( $callable ), $name ) );
 		}
 
 		if ( isset( $args['before_invoke'] ) ) {
@@ -321,7 +321,7 @@ class EE_CLI {
 		if ( \EE_CLI\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$value = json_decode( $raw_value, true );
 			if ( null === $value ) {
-				EE_CLI::error( sprintf( 'Invalid JSON: %s', $raw_value ) );
+				EE::error( sprintf( 'Invalid JSON: %s', $raw_value ) );
 			}
 		} else {
 			$value = $raw_value;

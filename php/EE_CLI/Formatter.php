@@ -98,7 +98,7 @@ class Formatter {
 			if ( in_array( $this->args['format'], array( 'table', 'csv' ) ) && ( is_object( $value ) || is_array( $value ) ) ) {
 				$value = json_encode( $value );
 			}
-			\EE_CLI::print_value( $value, array( 'format' => $this->args['format'] ) );
+			\EE::print_value( $value, array( 'format' => $this->args['format'] ) );
 		} else {
 			$this->show_multiple_fields( $item, $this->args['format'] );
 		}
@@ -145,7 +145,7 @@ class Formatter {
 			break;
 
 		default:
-			\EE_CLI::error( 'Invalid format: ' . $this->args['format'] );
+			\EE::error( 'Invalid format: ' . $this->args['format'] );
 		}
 	}
 
@@ -169,7 +169,7 @@ class Formatter {
 			if ( 'json' == $this->args['format'] ) {
 				$values[] = $item->$key;
 			} else {
-				\EE_CLI::print_value( $item->$key, array( 'format' => $this->args['format'] ) );
+				\EE::print_value( $item->$key, array( 'format' => $this->args['format'] ) );
 			}
 		}
 
@@ -195,7 +195,7 @@ class Formatter {
 		}
 
 		if ( ! isset( $key ) ) {
-			\EE_CLI::error( "Invalid field: $field." );
+			\EE::error( "Invalid field: $field." );
 		}
 
 		return $key;
@@ -238,11 +238,11 @@ class Formatter {
 			break;
 
 		case 'json':
-			\EE_CLI::print_value( $data, array( 'format' => $format ) );
+			\EE::print_value( $data, array( 'format' => $format ) );
 			break;
 
 		default:
-			\EE_CLI::error( "Invalid format: " . $format );
+			\EE::error( "Invalid format: " . $format );
 			break;
 
 		}

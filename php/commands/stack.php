@@ -46,18 +46,17 @@ class Stack_Command extends EE_CLI_Command {
 	 */
 	public function install( $args, $assoc_args ) {
 
-		if( ! empty( $assoc_args['php'] ) ) {		            
-		            
+		if( ! empty( $assoc_args['php'] ) ) {
 		}
 		if( ! empty( $assoc_args['nginx'] ) ) {
-			$check_nginx = EE_CLI::exec_cmd('nginx -t', 'Checking nginx..' );
+			$check_nginx = EE::exec_cmd( 'nginx -t', 'Checking nginx..' );
 			if ( 0 == $check_nginx ) {
-				EE_CLI::success( 'Nginx is already available' );
+				EE::success( 'Nginx is already available' );
 			} else {
-				EE_CLI::success( 'Please install nginx.' );
+				EE::success( 'Please install nginx.' );
 			}
 		}
 	}
 }
 
-EE_CLI::add_command( 'stack', 'Stack_Command' );
+EE::add_command( 'stack', 'Stack_Command' );

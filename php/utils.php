@@ -28,14 +28,14 @@ function load_dependencies() {
 
 function get_vendor_paths() {
 	$vendor_paths = array(
-		EE_CLI_ROOT . '/../../../vendor',  // part of a larger project / installed via Composer (preferred)
-		EE_CLI_ROOT . '/vendor',           // top-level project / installed as Git clone
+		EE_ROOT . '/../../../vendor',  // part of a larger project / installed via Composer (preferred)
+		EE_ROOT . '/vendor',           // top-level project / installed as Git clone
 	);
-	$maybe_composer_json = EE_CLI_ROOT . '/../../../composer.json';
+	$maybe_composer_json = EE_ROOT . '/../../../composer.json';
 	if ( file_exists( $maybe_composer_json ) && is_readable( $maybe_composer_json ) ) {
 		$composer = json_decode( file_get_contents( $maybe_composer_json ) );
 		if ( ! empty( $composer->{'vendor-dir'} ) ) {
-			array_unshift( $vendor_paths, EE_CLI_ROOT . '/../../../' . $composer->{'vendor-dir'} );
+			array_unshift( $vendor_paths, EE_ROOT . '/../../../' . $composer->{'vendor-dir'} );
 		}
 	}
 	return $vendor_paths;
@@ -47,7 +47,7 @@ function load_file( $path ) {
 }
 
 function load_command( $name ) {
-	$path = EE_CLI_ROOT . "/app/packages/$name.php";
+	$path = EE_ROOT . "/php/commands/$name.php";
 
 	if ( is_readable( $path ) ) {
 		include_once $path;
@@ -55,7 +55,7 @@ function load_command( $name ) {
 }
 
 function load_all_commands() {
-	$cmd_dir = EE_CLI_ROOT . '/app/packages/';
+	$cmd_dir = EE_ROOT . '/php/commands/';
 
 	$iterator = new \DirectoryIterator( $cmd_dir );
 
@@ -227,7 +227,7 @@ function pick_fields( $item, $fields ) {
  */
 function mustache_render( $template_name, $data ) {
 	if ( ! file_exists( $template_name ) )
-		$template_name = EE_CLI_ROOT . "/templates/$template_name";
+		$template_name = EE_ROOT . "/templates/$template_name";
 
 	$template = file_get_contents( $template_name );
 
@@ -302,7 +302,7 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 	if ( inside_phar() ) {
 		// cURL can't read Phar archives
 		$options['verify'] = extract_from_phar(
-		EE_CLI_ROOT . '/vendor' . $cert_path );
+			EE_ROOT . '/vendor' . $cert_path );
 	} else {
 		foreach( get_vendor_paths() as $vendor_path ) {
 			if ( file_exists( $vendor_path . $cert_path ) ) {
@@ -320,12 +320,12 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 		return $request;
 	} catch( \Requests_Exception $ex ) {
 		// Handle SSL certificate issues gracefully
-		\EE_CLI::warning( $ex->getMessage() );
+		\EE::warning( $ex->getMessage() );
 		$options['verify'] = false;
 		try {
 			return \Requests::request( $url, $headers, $data, $method, $options );
 		} catch( \Requests_Exception $ex ) {
-			\EE_CLI::error( $ex->getMessage() );
+			\EE::error( $ex->getMessage() );
 		}
 	}
 }

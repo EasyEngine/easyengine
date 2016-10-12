@@ -84,7 +84,7 @@ class Subcommand extends CompositeCommand {
 	 * @param string $prefix
 	 */
 	function show_usage( $prefix = 'usage: ' ) {
-		\EE_CLI::line( $this->get_usage( $prefix ) );
+		\EE::line( $this->get_usage( $prefix ) );
 	}
 
 	/**
@@ -235,7 +235,7 @@ class Subcommand extends CompositeCommand {
 
 		$cmd_path = implode( ' ', get_path( $this ) );
 		foreach ( $validator->get_unknown() as $token ) {
-			\EE_CLI::warning( sprintf(
+			\EE::warning( sprintf(
 				"The `%s` command has an invalid synopsis part: %s",
 				$cmd_path, $token
 			) );
@@ -248,12 +248,12 @@ class Subcommand extends CompositeCommand {
 
 		$unknown_positionals = $validator->unknown_positionals( $args );
 		if ( !empty( $unknown_positionals ) ) {
-			\EE_CLI::error( 'Too many positional arguments: ' .
-				implode( ' ', $unknown_positionals ) );
+			\EE::error( 'Too many positional arguments: ' .
+			            implode( ' ', $unknown_positionals ) );
 		}
 
 		list( $errors, $to_unset ) = $validator->validate_assoc(
-			array_merge( \EE_CLI::get_config(), $extra_args, $assoc_args )
+			array_merge( \EE::get_config(), $extra_args, $assoc_args )
 		);
 
 		if ( $this->name != 'help' ) {
@@ -271,10 +271,10 @@ class Subcommand extends CompositeCommand {
 				}
 			}
 
-			\EE_CLI::error( $out );
+			\EE::error( $out );
 		}
 
-		array_map( '\\EE_CLI::warning', $errors['warning'] );
+		array_map( '\\EE::warning', $errors['warning'] );
 
 		return $to_unset;
 	}
@@ -299,11 +299,11 @@ class Subcommand extends CompositeCommand {
 		}
 
 		$path = get_path( $this->get_parent() );
-		\EE_CLI::do_hook( 'before_invoke:' . implode( ' ', array_slice( $path, 1 ) ) );
+		\EE::do_hook( 'before_invoke:' . implode( ' ', array_slice( $path, 1 ) ) );
 
 		call_user_func( $this->when_invoked, $args, array_merge( $extra_args, $assoc_args ) );
 
-		\EE_CLI::do_hook( 'after_invoke:' . implode( ' ', array_slice( $path, 1 ) ) );
+		\EE::do_hook( 'after_invoke:' . implode( ' ', array_slice( $path, 1 ) ) );
 	}
 }
 

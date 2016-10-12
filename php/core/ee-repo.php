@@ -20,7 +20,7 @@ class EE_REPO {
 					$repo_file_contents = file_get_contents( $repo_file_path );
 					$repo_file_content  = explode( "\n", $repo_file_contents );
 					if ( in_array( $repo_url, $repo_file_content, true ) ) {
-						EE_CLI::log( "Entry Already Exists." );
+						EE::log( "Entry Already Exists." );
 					} else {
 						$repo_file = fopen( $repo_file_path, 'a' );
 						fwrite( $repo_file, $repo_url . "\n" );
@@ -32,16 +32,16 @@ class EE_REPO {
 					fclose( $repo_file );
 				}
 			} catch ( Exception $e ) {
-				EE_CLI::error( $e->getMessage() );
+				EE::error( $e->getMessage() );
 			}
 		}
 
 		if ( ! empty( $ppa ) ) {
-			$add_ppa = EE_CLI::exec_cmd( "add-apt-repository -y " . $ppa );
+			$add_ppa = EE::exec_cmd( "add-apt-repository -y " . $ppa );
 			if ( 0 == $add_ppa ) {
-				EE_CLI::success( 'Repository added successfully.' );
+				EE::success( 'Repository added successfully.' );
 			} else {
-				EE_CLI::error( 'Repository couldn\'t added. Please try again.' );
+				EE::error( 'Repository couldn\'t added. Please try again.' );
 			}
 		}
 	}
@@ -72,22 +72,22 @@ class EE_REPO {
 						fwrite( $repo_file, $updated_repo_file_content );
 						fclose( $repo_file );
 					} else {
-						EE_CLI::error( "Repo url not found in list." );
+						EE::error( "Repo url not found in list." );
 					}
 				} else {
-					EE_CLI::error( "Repo file does not exist." );
+					EE::error( "Repo file does not exist." );
 				}
 			} catch ( Exception $e ) {
-				EE_CLI::error( $e->getMessage() );
+				EE::error( $e->getMessage() );
 			}
 		}
 
 		if ( ! empty( $ppa ) ) {
-			$remove_ppa = EE_CLI::exec_cmd( "add-apt-repository -y --remove " . $ppa );
+			$remove_ppa = EE::exec_cmd( "add-apt-repository -y --remove " . $ppa );
 			if ( 0 == $remove_ppa ) {
-				EE_CLI::success( 'Repository added successfully.' );
+				EE::success( 'Repository added successfully.' );
 			} else {
-				EE_CLI::error( 'Repository couldn\'t added. Please try again.' );
+				EE::error( 'Repository couldn\'t added. Please try again.' );
 			}
 		}
 	}
@@ -103,17 +103,17 @@ class EE_REPO {
 	public static function add_key( $keyids, $keyserver = "hkp://keys.gnupg.net" ) {
 		if ( ! empty( $keyids ) ) {
 			// TODO: Check what this command does.
-			$add_key = EE_CLI::exec_cmd( "gpg --keyserver " . $keyserver . "  --recv-keys " . $keyids );
+			$add_key = EE::exec_cmd( "gpg --keyserver " . $keyserver . "  --recv-keys " . $keyids );
 			if ( 0 == $add_key ) {
 				// TODO: Check what this command does.
-				$export_add_key = EE_CLI::exec_cmd( "gpg -a --export --armor " . $keyids . " | apt-key add - " );
+				$export_add_key = EE::exec_cmd( "gpg -a --export --armor " . $keyids . " | apt-key add - " );
 				if ( 0 == $export_add_key ) {
-					EE_CLI::success( 'GPG key added successfully.' );
+					EE::success( 'GPG key added successfully.' );
 				} else {
-					EE_CLI::error( 'GPG key could not add.' );
+					EE::error( 'GPG key could not add.' );
 				}
 			} else {
-				EE_CLI::error( 'GPG key could not add.' );
+				EE::error( 'GPG key could not add.' );
 			}
 		}
 	}

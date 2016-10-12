@@ -23,7 +23,7 @@ abstract class Base {
 	 * @return Runner Instance of the runner class
 	 */
 	protected function get_runner() {
-		return \EE_CLI::get_runner();
+		return \EE::get_runner();
 	}
 
 	/**
