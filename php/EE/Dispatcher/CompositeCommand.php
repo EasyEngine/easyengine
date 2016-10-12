@@ -1,14 +1,14 @@
 <?php
 
-namespace EE_CLI\Dispatcher;
+namespace EE\Dispatcher;
 
-use \EE_CLI\Utils;
+use \EE\Utils;
 
 /**
  * A non-leaf node in the command tree.
  * Contains one or more Subcommands.
  *
- * @package EE_CLI
+ * @package EE
  */
 class CompositeCommand {
 
@@ -21,7 +21,7 @@ class CompositeCommand {
 	 *
 	 * @param mixed $parent Parent command (either Root or Composite)
 	 * @param string $name Represents how command should be invoked
-	 * @param \EE_CLI\DocParser
+	 * @param \EE\DocParser
 	 */
 	public function __construct( $parent, $name, $docparser ) {
 		$this->parent = $parent;
@@ -53,7 +53,7 @@ class CompositeCommand {
 	 * set of contained subcommands.
 	 *
 	 * @param string $name Represents how subcommand should be invoked
-	 * @param \EE_CLI\Dispatcher\Subcommand
+	 * @param \EE\Dispatcher\Subcommand
 	 */
 	public function add_subcommand( $name, $command ) {
 		$this->subcommands[ $name ] = $command;
@@ -185,7 +185,8 @@ class CompositeCommand {
 	 * subcommand
 	 *
 	 * @param array $args
-	 * @return \EE_CLI\Dispatcher\Subcommand|false
+	 * 
+*@return \EE\Dispatcher\Subcommand|false
 	 */
 	public function find_subcommand( &$args ) {
 		$name = array_shift( $args );
@@ -244,7 +245,7 @@ class CompositeCommand {
 		$binding = array();
 		$binding['root_command'] = $root_command;
 
-		if (! $this->can_have_subcommands() || ( is_object( $this->parent ) && get_class( $this->parent ) == 'EE_CLI\Dispatcher\CompositeCommand' )) {
+		if (! $this->can_have_subcommands() || ( is_object( $this->parent ) && get_class( $this->parent ) == 'EE\Dispatcher\CompositeCommand' )) {
 			$binding['is_subcommand'] = true;
 		}
 

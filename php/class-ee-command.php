@@ -5,7 +5,7 @@
  *
  * @package ee-cli
  */
-abstract class EE_CLI_Command {
+abstract class EE_Command {
 
 	public function __construct() {}
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 /**
  * Output one or more items in a given format (e.g. table, JSON).
@@ -75,7 +75,7 @@ class Formatter {
 
 			if ( in_array( $this->args['format'], array( 'table', 'csv' ) ) ) {
 				if ( is_object( $items ) && is_a( $items, 'Iterator' ) ) {
-					$items = \EE_CLI\Utils\iterator_map( $items, array( $this, 'transform_item_values_to_json' ) );
+					$items = \EE\Utils\iterator_map( $items, array( $this, 'transform_item_values_to_json' ) );
 				} else {
 					$items = array_map( array( $this, 'transform_item_values_to_json' ), $items );
 				}
@@ -132,13 +132,13 @@ class Formatter {
 			break;
 
 		case 'csv':
-			\EE_CLI\Utils\write_csv( STDOUT, $items, $fields );
+			\EE\Utils\write_csv( STDOUT, $items, $fields );
 			break;
 
 		case 'json':
 			$out = array();
 			foreach ( $items as $item ) {
-				$out[] = \EE_CLI\Utils\pick_fields( $item, $fields );
+				$out[] = \EE\Utils\pick_fields( $item, $fields );
 			}
 
 			echo json_encode( $out );
@@ -233,7 +233,7 @@ class Formatter {
 			if ( 'table' == $format ) {
 				self::show_table( $rows, $fields );
 			} else if ( 'csv' == $format ) {
-				\EE_CLI\Utils\write_csv( STDOUT, $rows, $fields );
+				\EE\Utils\write_csv( STDOUT, $rows, $fields );
 			}
 			break;
 
@@ -261,7 +261,7 @@ class Formatter {
 		$table->setHeaders( $fields );
 
 		foreach ( $items as $item ) {
-			$table->addRow( array_values( \EE_CLI\Utils\pick_fields( $item, $fields ) ) );
+			$table->addRow( array_values( \EE\Utils\pick_fields( $item, $fields ) ) );
 		}
 
 		$table->display();

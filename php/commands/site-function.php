@@ -34,7 +34,7 @@ class Site_Function {
 				$mustache_template = 'virtualconf.mustache';
 			}
 			EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf');
-			EE_CLI\Utils\mustache_write_in_file( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, $mustache_template, $data );
+			EE\Utils\mustache_write_in_file( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, $mustache_template, $data );
 		} catch ( \Exception $e ) {
 			EE::error( 'create nginx configuration failed for site' );
 		} finally {

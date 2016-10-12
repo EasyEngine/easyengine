@@ -1,11 +1,11 @@
 <?php
 
-namespace EE_CLI\Dispatcher;
+namespace EE\Dispatcher;
 
 /**
  * A leaf node in the command tree.
  *
- * @package EE_CLI
+ * @package EE
  */
 class Subcommand extends CompositeCommand {
 
@@ -134,7 +134,7 @@ class Subcommand extends CompositeCommand {
 		if ( ! $synopsis )
 			return array( $args, $assoc_args );
 
-		$spec = array_filter( \EE_CLI\SynopsisParser::parse( $synopsis ), function( $spec_arg ) {
+		$spec = array_filter( \EE\SynopsisParser::parse( $synopsis ), function( $spec_arg ) {
 			return in_array( $spec_arg['type'], array( 'generic', 'positional', 'assoc', 'flag' ) );
 		});
 
@@ -231,7 +231,7 @@ class Subcommand extends CompositeCommand {
 		if ( !$synopsis )
 			return array();
 
-		$validator = new \EE_CLI\SynopsisValidator( $synopsis );
+		$validator = new \EE\SynopsisValidator( $synopsis );
 
 		$cmd_path = implode( ' ', get_path( $this ) );
 		foreach ( $validator->get_unknown() as $token ) {
@@ -289,7 +289,7 @@ class Subcommand extends CompositeCommand {
 	 */
 	public function invoke( $args, $assoc_args, $extra_args ) {
 		// TODO: getting warning = Warning: Unknown config option 'prompt'.
-//		if ( \EE_CLI::get_config( 'prompt' ) )
+//		if ( \EE::get_config( 'prompt' ) )
 //			list( $args, $assoc_args ) = $this->prompt_args( $args, $assoc_args );
 
 		$to_unset = $this->validate_args( $args, $assoc_args, $extra_args );

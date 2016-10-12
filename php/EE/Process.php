@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 /**
  * Run a system process, and learn what happened.
@@ -41,8 +41,8 @@ class Process {
 		);
 
 		if ( $write_log ) {
-			$descriptors[1] = array( "file", EE_CLI_DEBUG_LOG_FILE, "a" );
-			$descriptors[2] = array( "file", EE_CLI_DEBUG_LOG_FILE, "a" );
+			$descriptors[1] = array( "file", EE_DEBUG_LOG_FILE, "a" );
+			$descriptors[2] = array( "file", EE_DEBUG_LOG_FILE, "a" );
 		}
 
 		$proc = proc_open( $this->command, $descriptors, $pipes, $cwd, $this->env );
@@ -73,7 +73,7 @@ class Process {
 	}
 
 	public static function write_log( $message ) {
-		$log_file   = fopen( EE_CLI_DEBUG_LOG_FILE, "a" );
+		$log_file   = fopen( EE_DEBUG_LOG_FILE, "a" );
 		fwrite( $log_file, "\n" . $message );
 		fclose( $log_file );
 	}

@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 /**
  * Parse command attributes from its PHPdoc.

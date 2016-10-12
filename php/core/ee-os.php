@@ -24,7 +24,7 @@ class EE_OS {
 	}
 
 	public static function ee_core_version() {
-		$ee_version = EE_CLI_VERSION;
+		$ee_version = EE_VERSION;
 
 		return $ee_version;
 	}

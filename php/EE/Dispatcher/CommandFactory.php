@@ -1,11 +1,11 @@
 <?php
 
-namespace EE_CLI\Dispatcher;
+namespace EE\Dispatcher;
 
 /**
  * Creates CompositeCommand or Subcommand instances.
  *
- * @package EE_CLI
+ * @package EE
  */
 class CommandFactory {
 
@@ -13,7 +13,7 @@ class CommandFactory {
 	 * Create a new CompositeCommand (or Subcommand if class has __invoke())
 	 *
 	 * @param string $name Represents how the command should be invoked
-	 * @param string $callable A subclass of EE_CLI_Command, a function, or a closure
+	 * @param string $callable A subclass of EE_Command, a function, or a closure
 	 * @param mixed $parent The new command's parent Composite (or Root) command
 	 */
 	public static function create( $name, $callable, $parent ) {
@@ -46,11 +46,11 @@ class CommandFactory {
 	 * @param string $name Represents how the command should be invoked
 	 * @param mixed $callable A callable function or closure, or class name and method
 	 * @param object $reflection Reflection instance, for doc parsing
-	 * @param string $class A subclass of EE_CLI_Command
+	 * @param string $class A subclass of EE_Command
 	 * @param string $method Class method to be called upon invocation.
 	 */
 	private static function create_subcommand( $parent, $name, $callable, $reflection ) {
-		$docparser = new \EE_CLI\DocParser( $reflection->getDocComment() );
+		$docparser = new \EE\DocParser( $reflection->getDocComment() );
 
 		if ( is_array( $callable ) ) {
 			if ( !$name )
@@ -80,7 +80,7 @@ class CommandFactory {
 	 * @param ReflectionClass $reflection
 	 */
 	private static function create_composite_command( $parent, $name, $reflection ) {
-		$docparser = new \EE_CLI\DocParser( $reflection->getDocComment() );
+		$docparser = new \EE\DocParser( $reflection->getDocComment() );
 
 		$container = new CompositeCommand( $parent, $name, $docparser );
 

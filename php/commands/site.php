@@ -19,7 +19,7 @@
  *
  * @package easyengine
  */
-class Site_Command extends EE_CLI_Command {
+class Site_Command extends EE_Command {
 	
 	/**
 	 * Create site.

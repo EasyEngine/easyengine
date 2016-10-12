@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 /**
  * Checks if the list of parameters matches the specification defined in the synopsis.

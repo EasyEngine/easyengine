@@ -1,15 +1,15 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 use EE;
-use EE_CLI\Utils;
-use EE_CLI\Dispatcher;
+use EE\Utils;
+use EE\Dispatcher;
 
 /**
  * Performs the execution of a command.
  *
- * @package EE_CLI
+ * @package EE
  */
 class Runner {
 
@@ -38,7 +38,7 @@ class Runner {
 	 * Register a command for early invocation, generally before WordPress loads.
 	 *
 	 * @param string $when Named execution hook
-	 * @param EE_CLI\Dispatcher\Subcommand $command
+	 * @param EE\Dispatcher\Subcommand $command
 	 */
 	public function register_early_invoke( $when, $command ) {
 		$this->_early_invoke[ $when ][] = array_slice( Dispatcher\get_path( $command ), 1 );
@@ -71,9 +71,9 @@ class Runner {
 		if ( isset( $runtime_config['config'] ) ) {
 			$config_path = $runtime_config['config'];
 			$this->_global_config_path_debug = 'Using global config from config runtime arg: ' . $config_path;
-		} else if ( getenv( 'EE_CLI_CONFIG_PATH' ) ) {
-			$config_path = getenv( 'EE_CLI_CONFIG_PATH' );
-			$this->_global_config_path_debug = 'Using global config from EE_CLI_CONFIG_PATH env var: ' . $config_path;
+		} else if ( getenv( 'EE_CONFIG_PATH' ) ) {
+			$config_path = getenv( 'EE_CONFIG_PATH' );
+			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
 			$config_path = getenv( 'HOME' ) . '/.ee-cli/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
@@ -245,7 +245,7 @@ class Runner {
 		EE::debug( 'Running command: ' . $name );
 		try {
 			$command->invoke( $final_args, $assoc_args, $extra_args );
-		} catch ( EE_CLI\Iterators\Exception $e ) {
+		} catch ( EE\Iterators\Exception $e ) {
 			EE::error( $e->getMessage() );
 		}
 	}
@@ -260,7 +260,7 @@ class Runner {
 	 * @return bool
 	 */
 	public function is_command_disabled( $command ) {
-		$path = implode( ' ', array_slice( \EE_CLI\Dispatcher\get_path( $command ), 1 ) );
+		$path = implode( ' ', array_slice( \EE\Dispatcher\get_path( $command ), 1 ) );
 		if ( ! empty( $this->config['disabled_commands'] ) && is_array( $this->config['disabled_commands'] ) ) {
 			return in_array( $path, $this->config['disabled_commands'] );
 		}
@@ -387,7 +387,7 @@ class Runner {
 
 	private function init_colorization() {
 		if ( 'auto' === $this->config['color'] ) {
-			$this->colorize = ( !\cli\Shell::isPiped() && !\EE_CLI\Utils\is_windows() );
+			$this->colorize = ( !\cli\Shell::isPiped() && !\EE\Utils\is_windows() );
 		} else {
 			$this->colorize = $this->config['color'];
 		}
@@ -395,9 +395,9 @@ class Runner {
 
 	private function init_logger() {
 		if ( ! empty( $this->config['quiet'] ) )
-			$logger = new \EE_CLI\Loggers\Quiet;
+			$logger = new \EE\Loggers\Quiet;
 		else
-			$logger = new \EE_CLI\Loggers\Regular( $this->in_color() );
+			$logger = new \EE\Loggers\Regular( $this->in_color() );
 
 		EE::set_logger( $logger );
 	}

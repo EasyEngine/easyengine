@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI;
+namespace EE;
 
 /**
  * Generate a synopsis from a command's PHPdoc arguments.

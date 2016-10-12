@@ -1,8 +1,8 @@
 <?php
 
-use \EE_CLI\Utils;
-use \EE_CLI\Dispatcher;
-use \EE_CLI\Process;
+use \EE\Utils;
+use \EE\Dispatcher;
+use \EE\Process;
 
 /**
  * Various utilities for ee-cli commands.
@@ -27,13 +27,13 @@ class EE{
 	/**
 	 * Get the Configurator instance
 	 *
-	 * @return \EE_CLI\Configurator
+	 * @return \EE\Configurator
 	 */
 	public static function get_configurator() {
 		static $configurator;
 
 		if ( !$configurator ) {
-			$configurator = new EE_CLI\Configurator( EE_ROOT . '/php/config-spec.php' );
+			$configurator = new EE\Configurator( EE_ROOT . '/php/config-spec.php' );
 		}
 
 		return $configurator;
@@ -53,7 +53,7 @@ class EE{
 		static $runner;
 
 		if ( !$runner ) {
-			$runner = new EE_CLI\Runner;
+			$runner = new EE\Runner;
 		}
 
 		return $runner;
@@ -70,7 +70,7 @@ class EE{
 
 	private static function set_url_params( $url_parts ) {
 		$f = function( $key ) use ( $url_parts ) {
-			return \EE_CLI\Utils\get_flag_value( $url_parts, $key, '' );
+			return \EE\Utils\get_flag_value( $url_parts, $key, '' );
 		};
 
 		if ( isset( $url_parts['host'] ) ) {
@@ -87,7 +87,7 @@ class EE{
 		}
 
 		$_SERVER['REQUEST_URI'] = $f('path') . ( isset( $url_parts['query'] ) ? '?' . $url_parts['query'] : '' );
-		$_SERVER['SERVER_PORT'] = \EE_CLI\Utils\get_flag_value( $url_parts, 'port', '80' );
+		$_SERVER['SERVER_PORT'] = \EE\Utils\get_flag_value( $url_parts, 'port', '80' );
 		$_SERVER['QUERY_STRING'] = $f('query');
 	}
 
@@ -169,7 +169,7 @@ class EE{
 			// create an empty container
 			if ( !$subcommand ) {
 				$subcommand = new Dispatcher\CompositeCommand( $command, $subcommand_name,
-					new \EE_CLI\DocParser( '' ) );
+					new \EE\DocParser( '' ) );
 				$command->add_subcommand( $subcommand_name, $subcommand );
 			}
 
@@ -191,7 +191,7 @@ class EE{
 			if ( is_string( $args['synopsis'] ) ) {
 				$leaf_command->set_synopsis( $args['synopsis'] );
 			} else if ( is_array( $args['synopsis'] ) ) {
-				$leaf_command->set_synopsis( \EE_CLI\SynopsisParser::render( $args['synopsis'] ) );
+				$leaf_command->set_synopsis( \EE\SynopsisParser::render( $args['synopsis'] ) );
 			}
 		}
 
@@ -278,7 +278,7 @@ class EE{
 	 * Ask for confirmation before running a destructive operation.
 	 */
 	public static function confirm( $question, $assoc_args = array() ) {
-		if ( ! \EE_CLI\Utils\get_flag_value( $assoc_args, 'yes' ) ) {
+		if ( ! \EE\Utils\get_flag_value( $assoc_args, 'yes' ) ) {
 			fwrite( STDOUT, $question . " [y/n] " );
 
 			$answer = strtolower( trim( fgets( STDIN ) ) );
@@ -318,7 +318,7 @@ class EE{
 	 * @param array $assoc_args
 	 */
 	public static function read_value( $raw_value, $assoc_args = array() ) {
-		if ( \EE_CLI\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
+		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$value = json_decode( $raw_value, true );
 			if ( null === $value ) {
 				EE::error( sprintf( 'Invalid JSON: %s', $raw_value ) );
@@ -337,7 +337,7 @@ class EE{
 	 * @param array $assoc_args
 	 */
 	public static function print_value( $value, $assoc_args = array() ) {
-		if ( \EE_CLI\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
+		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$value = json_encode( $value );
 		} elseif ( is_array( $value ) || is_object( $value ) ) {
 			$value = var_export( $value );
@@ -452,7 +452,7 @@ class EE{
 		$script_path = $GLOBALS['argv'][0];
 
 		$args = implode( ' ', array_map( 'escapeshellarg', $args ) );
-		$assoc_args = \EE_CLI\Utils\assoc_args_to_str( $assoc_args );
+		$assoc_args = \EE\Utils\assoc_args_to_str( $assoc_args );
 
 		$full_command = "{$php_bin} {$script_path} {$command} {$args} {$assoc_args}";
 
@@ -469,11 +469,11 @@ class EE{
 		if ( defined( 'PHP_BINARY' ) )
 			return PHP_BINARY;
 
-		if ( getenv( 'EE_CLI_PHP_USED' ) )
-			return getenv( 'EE_CLI_PHP_USED' );
+		if ( getenv( 'EE_PHP_USED' ) )
+			return getenv( 'EE_PHP_USED' );
 
-		if ( getenv( 'EE_CLI_PHP' ) )
-			return getenv( 'EE_CLI_PHP' );
+		if ( getenv( 'EE_PHP' ) )
+			return getenv( 'EE_PHP' );
 
 		return 'php';
 	}
@@ -494,8 +494,8 @@ class EE{
 	/**
 	 * Run a given command within the current process using the same global parameters.
 	 *
-	 * To run a command using a new process with the same global parameters, use EE_CLI::launch_self()
-	 * To run a command using a new process with different global parameters, use EE_CLI::launch()
+	 * To run a command using a new process with the same global parameters, use EE::launch_self()
+	 * To run a command using a new process with different global parameters, use EE::launch()
 	 *
 	 * @param array
 	 * @param array
@@ -507,7 +507,7 @@ class EE{
 	// DEPRECATED STUFF
 
 	public static function add_man_dir() {
-		trigger_error( 'EE_CLI::add_man_dir() is deprecated. Add docs inline.', E_USER_WARNING );
+		trigger_error( 'EE::add_man_dir() is deprecated. Add docs inline.', E_USER_WARNING );
 	}
 
 	// back-compat

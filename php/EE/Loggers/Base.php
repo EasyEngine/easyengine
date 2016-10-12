@@ -1,7 +1,7 @@
 <?php
 
-namespace EE_CLI\Loggers;
-use EE_CLI\Process;
+namespace EE\Loggers;
+use EE\Process;
 
 /**
  * Base logger class
@@ -18,7 +18,7 @@ abstract class Base {
 
 	/**
 	 * Retrieve the runner instance from the base CLI object. This facilitates
-	 * unit testing, where the EE_CLI instance isn't available
+	 * unit testing, where the EE instance isn't available
 	 *
 	 * @return Runner Instance of the runner class
 	 */
@@ -33,7 +33,7 @@ abstract class Base {
 	 */
 	public function debug( $message ) {
 		if ( $this->get_runner()->config['debug'] ) {
-			$time = round( microtime( true ) - EE_CLI_START_MICROTIME, 3 );
+			$time = round( microtime( true ) - EE_START_MICROTIME, 3 );
 			$this->_line( "$message ({$time}s)", 'Debug', '%B', STDERR );
 		}
 	}

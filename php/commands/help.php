@@ -1,9 +1,9 @@
 <?php
 
-use \EE_CLI\Utils;
-use \EE_CLI\Dispatcher;
+use \EE\Utils;
+use \EE\Dispatcher;
 
-class Help_Command extends EE_CLI_Command {
+class Help_Command extends EE_Command {
 
 	/**
 	 * Get help on easyengine, or on a specific command.
@@ -27,7 +27,7 @@ class Help_Command extends EE_CLI_Command {
 		if ( $command ) {
 
 			if ( EE::get_runner()->is_command_disabled( $command ) ) {
-				$path = implode( ' ', array_slice( \EE_CLI\Dispatcher\get_path( $command ), 1 ) );
+				$path = implode( ' ', array_slice( \EE\Dispatcher\get_path( $command ), 1 ) );
 				EE::error( sprintf(
 					"The '%s' command has been disabled from the config file.",
 					$path

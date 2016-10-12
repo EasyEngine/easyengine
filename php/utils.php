@@ -2,11 +2,11 @@
 
 // Utilities that do NOT depend on WordPress code.
 
-namespace EE_CLI\Utils;
+namespace EE\Utils;
 
 use \Composer\Semver\Comparator;
 use \Composer\Semver\Semver;
-use \EE_CLI\Dispatcher;
+use \EE\Dispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 
 function load_dependencies() {
@@ -197,7 +197,7 @@ function esc_cmd( $cmd ) {
  */
 function format_items( $format, $items, $fields ) {
 	$assoc_args = compact( 'format', 'fields' );
-	$formatter = new \EE_CLI\Formatter( $assoc_args );
+	$formatter = new \EE\Formatter( $assoc_args );
 	$formatter->display_items( $items );
 }
 
@@ -247,7 +247,7 @@ function mustache_write_in_file( $filename, $template_name, $data ) {
 
 function make_progress_bar( $message, $count ) {
 	if ( \cli\Shell::isPiped() )
-		return new \EE_CLI\NoOp;
+		return new \EE\NoOp;
 
 	return new \cli\progress\Bar( $message, $count );
 }
@@ -311,7 +311,7 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 			}
 		}
 		if ( empty( $options['verify'] ) ){
-			EE_CLI::error_log( "Cannot find SSL certificate." );
+			EE::error_log( "Cannot find SSL certificate." );
 		}
 	}
 
@@ -391,7 +391,7 @@ function get_temp_dir() {
 	}
 
 	if ( ! @is_writable( $temp ) ) {
-		EE_CLI::warning( "Temp directory isn't writable: {$temp}" );
+		EE::warning( "Temp directory isn't writable: {$temp}" );
 	}
 
 	return $trailingslashit( $temp );

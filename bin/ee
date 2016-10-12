@@ -30,9 +30,9 @@ case $(uname -a) in
 		SCRIPT_PATH="$(cygpath -w -a -- "$SCRIPT_PATH")" ;;
 esac
 
-if [ ! -z "$EE_CLI_PHP" ] ; then
-	# Use the EE_CLI_PHP environment variable if it is available.
-	php="$EE_CLI_PHP"
+if [ ! -z "$EE_PHP" ] ; then
+	# Use the EE_PHP environment variable if it is available.
+	php="$EE_PHP"
 else
 	# Default to using the php that we find on the PATH.
 	# Note that we need the full path to php here for Dreamhost, which behaves oddly.  See http://drupal.org/node/662926
@@ -41,6 +41,6 @@ fi
 
 # Pass in the path to php so that wp-cli knows which one
 # to use if it re-launches itself to run other commands.
-export EE_CLI_PHP_USED="$php"
+export EE_PHP_USED="$php"
 
-exec "$php" $EE_CLI_PHP_ARGS "$SCRIPT_PATH" "$@"
+exec "$php" $EE_PHP_ARGS "$SCRIPT_PATH" "$@"

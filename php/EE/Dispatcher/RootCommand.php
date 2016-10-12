@@ -1,13 +1,13 @@
 <?php
 
-namespace EE_CLI\Dispatcher;
+namespace EE\Dispatcher;
 
-use \EE_CLI\Utils;
+use \EE\Utils;
 
 /**
  * The root node in the command tree.
  *
- * @package EE_CLI
+ * @package EE
  */
 class RootCommand extends CompositeCommand {
 
@@ -33,7 +33,8 @@ class RootCommand extends CompositeCommand {
 	 * command.
 	 *
 	 * @param array $args
-	 * @return \EE_CLI\Dispatcher\Subcommand|false
+	 * 
+*@return \EE\Dispatcher\Subcommand|false
 	 */
 	public function find_subcommand( &$args ) {
 		$command = array_shift( $args );

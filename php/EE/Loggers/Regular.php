@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI\Loggers;
+namespace EE\Loggers;
 
 /**
  * Default logger for success, warning, error, and standard messages.

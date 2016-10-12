@@ -1,6 +1,6 @@
 <?php
 
-namespace EE_CLI\Loggers;
+namespace EE\Loggers;
 
 /**
  * Quiet logger only logs errors.
