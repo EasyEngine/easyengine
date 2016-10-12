@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: rahul
- * Date: 10/10/16
- * Time: 5:20 PM
- */
 class EE_Variables {
 
 	/**

@@ -1,11 +1,4 @@
 <?php
-
-/**
- * Created by PhpStorm.
- * User: rahul
- * Date: 10/10/16
- * Time: 4:30 PM
- */
 class EE_REPO {
 	/**
 	 * This function used to add apt repositories and or ppa's

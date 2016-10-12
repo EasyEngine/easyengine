@@ -1,11 +1,4 @@
 <?php
-
-/**
- * Created by PhpStorm.
- * User: rahul
- * Date: 10/10/16
- * Time: 2:59 PM
- */
 class EE_APT_GET {
 
 	/**

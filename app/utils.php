@@ -7,6 +7,7 @@ namespace EE_CLI\Utils;
 use \Composer\Semver\Comparator;
 use \Composer\Semver\Semver;
 use \EE_CLI\Dispatcher;
+use Symfony\Component\Filesystem\Filesystem;
 
 function load_dependencies() {
 	$has_autoload = false;
@@ -235,6 +236,13 @@ function mustache_render( $template_name, $data ) {
 	) );
 
 	return $m->render( $template, $data );
+}
+
+
+function mustache_write_in_file( $filename, $template_name, $data ) {
+	$mustache_content = mustache_render( $template_name, $data );
+	$filesystem       = new Filesystem();
+	$filesystem->dumpFile( $filename, $mustache_content );
 }
 
 function make_progress_bar( $message, $count ) {
