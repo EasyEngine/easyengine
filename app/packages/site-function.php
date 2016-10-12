@@ -1,7 +1,6 @@
-`<?php
+<?php
 
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class Site_Function {
 
