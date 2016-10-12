@@ -48,13 +48,12 @@ class Process {
 		$proc = proc_open( $this->command, $descriptors, $pipes, $cwd, $this->env );
 
 		$process_args = array(
-			'return_code' => proc_close( $proc ),
 			'command' => $this->command,
 			'cwd' => $cwd,
 			'env' => $this->env
 		);
 
-		if( false == $process_args ) {
+		if( false == $write_log ) {
 
 			$stdout = stream_get_contents( $pipes[1] );
 			self::write_log( $stdout );
@@ -69,6 +68,7 @@ class Process {
 			$process_args['stderr'] = $stderr;
 		}
 
+		$process_args['return_code'] = proc_close( $proc );
 		return new ProcessRun( $process_args );
 	}
 

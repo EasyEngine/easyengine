@@ -401,9 +401,22 @@ class EE_CLI {
 	 *
 	 * @return int|ProcessRun
 	 */
-	public static function exec_cmd( $command, $message = '', $exit_on_error = false, $return_detailed = false ) {
+	public static function exec_cmd( $command, $message = '', $exit_on_error = false, $write_log = true, $return_detailed = false ) {
 		Process::write_log( $message );
-		$cmd_result = self::launch( $command, $exit_on_error, $return_detailed, true );
+		$cmd_result = self::launch( $command, $exit_on_error, $return_detailed, $write_log );
+		return $cmd_result;
+	}
+
+	public static function exec_cmd_output( $command, $message = '', $exit_on_error = false ) {
+		Process::write_log( $message );
+		$cmd_result      = '';
+		$cmd_result_data = self::launch( $command, $exit_on_error, true );
+		if ( ! $cmd_result_data->return_code ) {
+			if ( $cmd_result_data->stdout ) {
+				$cmd_result = $cmd_result_data->stdout;
+			}
+		}
+
 		return $cmd_result;
 	}
 

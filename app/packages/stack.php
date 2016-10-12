@@ -47,6 +47,8 @@ class Stack_Command extends EE_CLI_Command {
 	public function install( $args, $assoc_args ) {
 
 		if( ! empty( $assoc_args['php'] ) ) {
+			$os_platform_codename = EE_OS::validate_domain("http://stackoverflow.com/questions/9364242/how-to-remove-http-www-and-slash-from-url-in-php");
+			echo $os_platform_codename;
 
 		}
 		if( ! empty( $assoc_args['nginx'] ) ) {
