@@ -9,10 +9,11 @@ include EE_ROOT . '/php/utils.php';
 include EE_ROOT . '/php/dispatcher.php';
 include EE_ROOT . '/php/class-ee.php';
 include EE_ROOT . '/php/class-ee-command.php';
-include EE_ROOT . '/php/core/ee-variables.php';
-include EE_ROOT . '/php/core/ee-os.php';
-include EE_ROOT . '/php/core/ee-apt-get.php';
-include EE_ROOT . '/php/core/ee-repo.php';
+include EE_ROOT . '/php/utill/class-ee-variables.php';
+include EE_ROOT . '/php/utill/class-ee-os.php';
+include EE_ROOT . '/php/utill/class-ee-apt-get.php';
+include EE_ROOT . '/php/utill/class-ee-repo.php';
+include EE_ROOT . '/php/utill/class-ee-git.php';
 
 \EE\Utils\load_dependencies();
 

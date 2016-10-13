@@ -239,7 +239,7 @@ function mustache_render( $template_name, $data ) {
 }
 
 
-function mustache_write_in_file( $filename, $template_name, $data ) {
+function mustache_write_in_file( $filename, $template_name, $data = array() ) {
 	$mustache_content = mustache_render( $template_name, $data );
 	$filesystem       = new Filesystem();
 	$filesystem->dumpFile( $filename, $mustache_content );
