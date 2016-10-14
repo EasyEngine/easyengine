@@ -1,5 +1,5 @@
 <?php
-class EE_REPO {
+class EE_Repo {
 	/**
 	 * This function used to add apt repositories and or ppa's
 	 * If repo_url is provided adds repo file to

@@ -1,45 +1,14 @@
 <?php
 
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
-
-class EE_OS {
-
-	public static function ee_platform_codename() {
-		$os_codename = EE::exec_cmd_output( "lsb_release -sc" );
-
-		return $os_codename;
-	}
-
-	public static function ee_platform_distro() {
-		$os_distro = EE::exec_cmd_output( "lsb_release -si" );
-
-		return $os_distro;
-	}
-
-	public static function ee_platform_version() {
-		$os_version = EE::exec_cmd_output( "lsb_release -sr" );
-
-		return $os_version;
-	}
-
-	public static function ee_core_version() {
-		$ee_version = EE_VERSION;
-
-		return $ee_version;
-	}
-
-	public static function ee_wpcli_version() {
-		$ee_version_check = EE::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1" );
-		if ( empty( $ee_version_check ) ) {
-			$ee_version = EE_WP_CLI;
-		} else {
-			$ee_version = $ee_version_check;
-		}
-
-		return $ee_version;
-	}
-
+class EE_Utils {
+	
+	/**
+	 * @param      $file
+	 * @param      $extract_path
+	 * @param bool $overwrite
+	 *
+	 * @return bool
+	 */
 	public static function extract( $file, $extract_path, $overwrite = false ) {
 		try {
 			$phar = new PharData( $file );

@@ -7,7 +7,7 @@ use \EE\Process;
 /**
  * Various utilities for ee-cli commands.
  */
-class EE{
+class EE {
 
 	private static $configurator;
 
@@ -32,7 +32,7 @@ class EE{
 	public static function get_configurator() {
 		static $configurator;
 
-		if ( !$configurator ) {
+		if ( ! $configurator ) {
 			$configurator = new EE\Configurator( EE_ROOT . '/php/config-spec.php' );
 		}
 
@@ -42,7 +42,7 @@ class EE{
 	public static function get_root_command() {
 		static $root;
 
-		if ( !$root ) {
+		if ( ! $root ) {
 			$root = new Dispatcher\RootCommand;
 		}
 
@@ -52,7 +52,7 @@ class EE{
 	public static function get_runner() {
 		static $runner;
 
-		if ( !$runner ) {
+		if ( ! $runner ) {
 			$runner = new EE\Runner;
 		}
 
@@ -69,7 +69,7 @@ class EE{
 	}
 
 	private static function set_url_params( $url_parts ) {
-		$f = function( $key ) use ( $url_parts ) {
+		$f = function ( $key ) use ( $url_parts ) {
 			return \EE\Utils\get_flag_value( $url_parts, $key, '' );
 		};
 
@@ -86,9 +86,9 @@ class EE{
 			$_SERVER['SERVER_NAME'] = $url_parts['host'];
 		}
 
-		$_SERVER['REQUEST_URI'] = $f('path') . ( isset( $url_parts['query'] ) ? '?' . $url_parts['query'] : '' );
-		$_SERVER['SERVER_PORT'] = \EE\Utils\get_flag_value( $url_parts, 'port', '80' );
-		$_SERVER['QUERY_STRING'] = $f('query');
+		$_SERVER['REQUEST_URI']  = $f( 'path' ) . ( isset( $url_parts['query'] ) ? '?' . $url_parts['query'] : '' );
+		$_SERVER['SERVER_PORT']  = \EE\Utils\get_flag_value( $url_parts, 'port', '80' );
+		$_SERVER['QUERY_STRING'] = $f( 'query' );
 	}
 
 	public static function colorize( $string ) {
@@ -124,7 +124,7 @@ class EE{
 	 *
 	 * @param string $name The name of the command that will be used in the CLI
 	 * @param string $callable The command implementation as a class, function or closure
-	 * @param array $args An associative array with additional parameters:
+	 * @param array  $args An associative array with additional parameters:
 	 *   'before_invoke' => callback to execute before invoking the command,
 	 *   'shortdesc' => short description (80 char or less) for the command,
 	 *   'synopsis' => the synopsis for the command (string or array)
@@ -146,7 +146,7 @@ class EE{
 		if ( ! $valid ) {
 			if ( is_array( $callable ) ) {
 				$callable[0] = is_object( $callable[0] ) ? get_class( $callable[0] ) : $callable[0];
-				$callable = array( $callable[0], $callable[1] );
+				$callable    = array( $callable[0], $callable[1] );
 			}
 			EE::error( sprintf( "Callable %s does not exist, and cannot be registered as `wp %s`.", json_encode( $callable ), $name ) );
 		}
@@ -162,12 +162,12 @@ class EE{
 
 		$command = self::get_root_command();
 
-		while ( !empty( $path ) ) {
+		while ( ! empty( $path ) ) {
 			$subcommand_name = $path[0];
-			$subcommand = $command->find_subcommand( $path );
+			$subcommand      = $command->find_subcommand( $path );
 
 			// create an empty container
-			if ( !$subcommand ) {
+			if ( ! $subcommand ) {
 				$subcommand = new Dispatcher\CompositeCommand( $command, $subcommand_name,
 					new \EE\DocParser( '' ) );
 				$command->add_subcommand( $subcommand_name, $subcommand );
@@ -251,25 +251,25 @@ class EE{
 	 * Display an error in the CLI and end with a newline
 	 *
 	 * @param string|WP_Error $message
-	 * @param bool            $exit    if true, the script will exit()
+	 * @param bool            $exit if true, the script will exit()
 	 */
 	public static function error( $message, $exit = true ) {
-		if ( ! isset( self::get_runner()->assoc_args[ 'completions' ] ) ) {
+		if ( ! isset( self::get_runner()->assoc_args['completions'] ) ) {
 			self::$logger->error( self::error_to_string( $message ) );
 		}
 
 		if ( $exit ) {
-			exit(1);
+			exit( 1 );
 		}
 	}
 
 	/**
 	 * Display an error in the CLI and end with a newline
 	 *
-	 * @param array $message  each element from the array will be printed on its own line
+	 * @param array $message each element from the array will be printed on its own line
 	 */
 	public static function error_multi_line( $message_lines ) {
-		if ( ! isset( self::get_runner()->assoc_args[ 'completions' ] ) && is_array( $message_lines ) ) {
+		if ( ! isset( self::get_runner()->assoc_args['completions'] ) && is_array( $message_lines ) ) {
 			self::$logger->error_multi_line( array_map( array( __CLASS__, 'error_to_string' ), $message_lines ) );
 		}
 	}
@@ -285,14 +285,14 @@ class EE{
 
 			if ( 'y' != $answer )
 				exit;
+			}
 		}
-	}
 
 	/**
 	 * Read value from a positional argument or from STDIN.
 	 *
 	 * @param array $args The list of positional arguments.
-	 * @param int $index At which position to check for the value.
+	 * @param int   $index At which position to check for the value.
 	 *
 	 * @return string
 	 */
@@ -378,7 +378,7 @@ class EE{
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch( $command, $exit_on_error = true, $return_detailed = false, $write_log = false ) {
-		$proc = Process::create( $command );
+		$proc    = Process::create( $command );
 		$results = $proc->run( $write_log );
 
 		if ( $results->return_code && $exit_on_error )
@@ -399,14 +399,22 @@ class EE{
 	 * @param bool   $exit_on_error
 	 * @param bool   $return_detailed
 	 *
-	 * @return int|ProcessRun
+	 * @return int|ProcessRun return code of executed command.
 	 */
 	public static function exec_cmd( $command, $message = '', $exit_on_error = false, $write_log = true, $return_detailed = false ) {
 		Process::write_log( $message );
 		$cmd_result = self::launch( $command, $exit_on_error, $return_detailed, $write_log );
+
 		return $cmd_result;
 	}
 
+	/**
+	 * @param        $command
+	 * @param string $message
+	 * @param bool   $exit_on_error
+	 *
+	 * @return string return output of executed command.
+	 */
 	public static function exec_cmd_output( $command, $message = '', $exit_on_error = false ) {
 		Process::write_log( $message );
 		$cmd_result      = '';
@@ -423,11 +431,11 @@ class EE{
 	/**
 	 * Launch another ee-cli command using the runtime arguments for the current process
 	 *
-	 * @param string Command to call
+	 * @param       string Command to call
 	 * @param array $args Positional arguments to use
 	 * @param array $assoc_args Associative arguments to use
-	 * @param bool Whether to exit if the command returns an error status
-	 * @param bool Whether to return an exit status (default) or detailed execution results
+	 * @param       bool Whether to exit if the command returns an error status
+	 * @param       bool Whether to return an exit status (default) or detailed execution results
 	 * @param array $runtime_args Override one or more global args (path,url,user,allow-root)
 	 *
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
@@ -445,13 +453,13 @@ class EE{
 				$assoc_args[ $key ] = $runtime_args[ $key ];
 			} else if ( $value = self::get_runner()->config[ $key ] )
 				$assoc_args[ $key ] = $value;
-		}
+			}
 
 		$php_bin = self::get_php_binary();
 
 		$script_path = $GLOBALS['argv'][0];
 
-		$args = implode( ' ', array_map( 'escapeshellarg', $args ) );
+		$args       = implode( ' ', array_map( 'escapeshellarg', $args ) );
 		$assoc_args = \EE\Utils\assoc_args_to_str( $assoc_args );
 
 		$full_command = "{$php_bin} {$script_path} {$command} {$args} {$assoc_args}";
@@ -483,7 +491,7 @@ class EE{
 			return self::get_runner()->config;
 		}
 
-		if ( !isset( self::get_runner()->config[ $key ] ) ) {
+		if ( ! isset( self::get_runner()->config[ $key ] ) ) {
 			self::warning( "Unknown config option '$key'." );
 			return null;
 		}

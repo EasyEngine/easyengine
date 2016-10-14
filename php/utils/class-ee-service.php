@@ -1,6 +1,6 @@
 <?php
 
-class EEService {
+class EE_Service {
 
 	/**
 	 * Start service

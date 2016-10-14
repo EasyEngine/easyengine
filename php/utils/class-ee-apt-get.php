@@ -1,5 +1,6 @@
 <?php
-class EE_APT_GET {
+
+class EE_Apt_Get {
 
 	/**
 	 * Update cache.
@@ -108,11 +109,11 @@ class EE_APT_GET {
 		}
 
 		if ( ! empty( $repo_url ) ) {
-			EE_REPO::add($repo_url);
+			EE_Repo::add($repo_url);
 		}
 
 		if ( ! empty( $repo_key ) ) {
-			EE_REPO::add_key($repo_key);
+			EE_Repo::add_key($repo_key);
 		}
 
 		$download_packages_cmd = 'apt-get update && DEBIAN_FRONTEND=noninteractive '.
@@ -128,7 +129,7 @@ class EE_APT_GET {
 		} else {
 			EE::error( 'Error in fetching dpkg package.\nReverting changes ..', false );
 			if ( !empty($repo_url)) {
-				EE_REPO::remove( $repo_url );
+				EE_Repo::remove( $repo_url );
 			}
 		}
 	}

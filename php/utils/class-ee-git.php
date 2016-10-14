@@ -1,7 +1,6 @@
 <?php
 
 use Symfony\Component\Filesystem\Filesystem;
-//use PHPGit\Git;
 use Cz\Git\GitRepository;
 
 class EE_Git {
@@ -17,7 +16,6 @@ class EE_Git {
 		$filesystem = new Filesystem();
 		foreach ( $paths as $path ) {
 			if ( $filesystem->exists( $path ) ) {
-//				$git = new Git();
 				$git = new GitRepository( $path );
 				if ( ! $filesystem->exists( $path . '/.git' ) ) {
 					try {
