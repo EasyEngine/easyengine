@@ -21,6 +21,8 @@ class Site_Function {
 
 	public static function check_domain_exists( $domain ) {
 		//Check in ee database.
+		$site_exist = is_site_exist($domain);
+		return $site_exist;
 	}
 
 	public static function setupdomain( $data ) {

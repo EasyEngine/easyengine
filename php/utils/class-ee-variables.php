@@ -278,10 +278,16 @@ class EE_Variables {
 		}
 
 		if ( 'php' === $package ) {
+			$ee_php[] = 'php-sqlite3';
+
 			return $ee_php;
 		} else if ( 'php5.6' === $package ) {
+			$ee_php5_6[] = 'php5.6-sqlite3';
+
 			return $ee_php5_6;
 		} else if ( 'php7.0' === $package ) {
+			$ee_php7_0[] = 'php7.0-sqlite3';
+
 			return $ee_php7_0;
 		} else if ( 'extra' === $package ) {
 			return $ee_php_extra;

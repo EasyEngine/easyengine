@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * Manage sites.
  *
@@ -40,15 +39,15 @@ class Stack_Command extends EE_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *	  # Create site.
-	 *	  $ ee site create example.com
+	 *      # Create site.
+	 *      $ ee site create example.com
 	 *
 	 */
 	public function install( $args, $assoc_args ) {
 
 		if( ! empty( $assoc_args['php'] ) ) {
 		}
-		if( ! empty( $assoc_args['nginx'] ) ) {
+		if ( ! empty( $assoc_args['nginx'] ) ) {
 			$check_nginx = EE::exec_cmd( 'nginx -t', 'Checking nginx..' );
 			if ( 0 == $check_nginx ) {
 				EE::success( 'Nginx is already available' );
