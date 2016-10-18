@@ -99,8 +99,9 @@ class EE {
 	 * Schedule a callback to be executed at a certain point.
 	 */
 	public static function add_hook( $when, $callback ) {
-		if ( in_array( $when, self::$hooks_passed ) )
+		if ( in_array( $when, self::$hooks_passed ) ) {
 			call_user_func( $callback );
+		}
 
 		self::$hooks[ $when ][] = $callback;
 	}
@@ -111,8 +112,9 @@ class EE {
 	public static function do_hook( $when ) {
 		self::$hooks_passed[] = $when;
 
-		if ( !isset( self::$hooks[ $when ] ) )
+		if ( ! isset( self::$hooks[ $when ] ) ) {
 			return;
+		}
 
 		foreach ( self::$hooks[ $when ] as $callback ) {
 			call_user_func( $callback );
@@ -168,8 +170,7 @@ class EE {
 
 			// create an empty container
 			if ( ! $subcommand ) {
-				$subcommand = new Dispatcher\CompositeCommand( $command, $subcommand_name,
-					new \EE\DocParser( '' ) );
+				$subcommand = new Dispatcher\CompositeCommand( $command, $subcommand_name, new \EE\DocParser( '' ) );
 				$command->add_subcommand( $subcommand_name, $subcommand );
 			}
 
@@ -179,8 +180,7 @@ class EE {
 		$leaf_command = Dispatcher\CommandFactory::create( $leaf_name, $callable, $command );
 
 		if ( ! $command->can_have_subcommands() ) {
-			throw new Exception( sprintf( "'%s' can't have subcommands.",
-				implode( ' ' , Dispatcher\get_path( $command ) ) ) );
+			throw new Exception( sprintf( "'%s' can't have subcommands.", implode( ' ', Dispatcher\get_path( $command ) ) ) );
 		}
 
 		if ( isset( $args['shortdesc'] ) ) {
@@ -283,10 +283,22 @@ class EE {
 
 			$answer = strtolower( trim( fgets( STDIN ) ) );
 
-			if ( 'y' != $answer )
+			if ( 'y' != $answer ) {
 				exit;
 			}
 		}
+	}
+
+	/**
+	 * @param $message
+	 *
+	 * @return string
+	 */
+	public static function input_value( $message ) {
+		fwrite( STDOUT, $message );
+		$answer = trim( fgets( STDIN ) );
+		return $answer;
+	}
 
 	/**
 	 * Read value from a positional argument or from STDIN.
@@ -350,6 +362,7 @@ class EE {
 	 * Convert a wp_error into a string
 	 *
 	 * @param mixed $errors
+	 *
 	 * @return string
 	 */
 	public static function error_to_string( $errors ) {
@@ -381,8 +394,9 @@ class EE {
 		$proc    = Process::create( $command );
 		$results = $proc->run( $write_log );
 
-		if ( $results->return_code && $exit_on_error )
+		if ( $results->return_code && $exit_on_error ) {
 			exit( $results->return_code );
+		}
 
 		if ( $return_detailed ) {
 			return $results;
@@ -451,9 +465,10 @@ class EE {
 		foreach ( $reused_runtime_args as $key ) {
 			if ( isset( $runtime_args[ $key ] ) ) {
 				$assoc_args[ $key ] = $runtime_args[ $key ];
-			} else if ( $value = self::get_runner()->config[ $key ] )
+			} else if ( $value = self::get_runner()->config[ $key ] ) {
 				$assoc_args[ $key ] = $value;
 			}
+		}
 
 		$php_bin = self::get_php_binary();
 
@@ -474,14 +489,17 @@ class EE {
 	 * @return string
 	 */
 	public static function get_php_binary() {
-		if ( defined( 'PHP_BINARY' ) )
+		if ( defined( 'PHP_BINARY' ) ) {
 			return PHP_BINARY;
+		}
 
-		if ( getenv( 'EE_PHP_USED' ) )
+		if ( getenv( 'EE_PHP_USED' ) ) {
 			return getenv( 'EE_PHP_USED' );
+		}
 
-		if ( getenv( 'EE_PHP' ) )
+		if ( getenv( 'EE_PHP' ) ) {
 			return getenv( 'EE_PHP' );
+		}
 
 		return 'php';
 	}
@@ -493,6 +511,7 @@ class EE {
 
 		if ( ! isset( self::get_runner()->config[ $key ] ) ) {
 			self::warning( "Unknown config option '$key'." );
+
 			return null;
 		}
 
@@ -525,8 +544,7 @@ class EE {
 
 	// back-compat
 	public static function addCommand( $name, $class ) {
-		trigger_error( sprintf( 'wp %s: %s is deprecated. use EE_CLI::add_command() instead.',
-			$name, __FUNCTION__ ), E_USER_WARNING );
+		trigger_error( sprintf( 'wp %s: %s is deprecated. use EE_CLI::add_command() instead.', $name, __FUNCTION__ ), E_USER_WARNING );
 		self::add_command( $name, $class );
 	}
 }

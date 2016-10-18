@@ -42,7 +42,7 @@ class EE_Variables {
 		return $ee_db_path;
 	}
 
-	public static function ee_wp_cli_version() {
+	public static function get_ee_wp_cli_version() {
 
 		$ee_wp_cli_version_check = EE::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1 | tr -d '\n'" );
 		if ( empty( $ee_wp_cli_version_check ) ) {
@@ -52,6 +52,16 @@ class EE_Variables {
 		}
 
 		return $ee_wp_cli_version;
+	}
+
+	public static function get_ee_webroot() {
+		$ee_webroot = '/var/www/';
+		return $ee_webroot;
+	}
+
+	public static function get_ee_php_user() {
+		$ee_php_user = 'www-data';
+		return $ee_php_user;
 	}
 
 	/**

@@ -46,6 +46,8 @@ class Stack_Command extends EE_Command {
 	public function install( $args, $assoc_args ) {
 
 		if( ! empty( $assoc_args['php'] ) ) {
+			$phpbi = EE::get_config();
+			print_r( $phpbi );
 		}
 		if ( ! empty( $assoc_args['nginx'] ) ) {
 			$check_nginx = EE::exec_cmd( 'nginx -t', 'Checking nginx..' );

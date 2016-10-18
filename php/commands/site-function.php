@@ -62,4 +62,8 @@ class Site_Function {
 			}
 		}
 	}
+
+	public static function setupdatabase( $data ){
+		$ee_domain_name = $data['site_name'];
+	}
 }
