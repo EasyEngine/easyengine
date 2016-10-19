@@ -78,7 +78,7 @@ class Site_Command extends EE_Command {
 		if ( is_site_exist( $ee_domain ) ) {
 			EE::error( "Site {$ee_domain} already exists" );
 		} else if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
-			EE::error("Nginx configuration /etc/nginx/sites-available/{$ee_domain} already exists");
+			EE::error( "Nginx configuration /etc/nginx/sites-available/{$ee_domain} already exists" );
 		}
 		$ee_site_webroot = EE_Variables::get_ee_webroot() . $ee_domain;
 		$registered_cmd  = array(
@@ -104,9 +104,12 @@ class Site_Command extends EE_Command {
 			'experimental',
 		);
 
-		$data  = array();
-		$stype = empty( $assoc_args['type'] ) ? 'html' : $assoc_args['type'];
-		$cache = empty( $assoc_args['cache'] ) ? 'basic' : $assoc_args['cache'];
+		$data               = array();
+		$data['site_name']  = $ee_domain;
+		$data['www_domain'] = $ee_www_domain;
+		$data['webroot']    = $ee_site_webroot;
+		$stype              = empty( $assoc_args['type'] ) ? 'html' : $assoc_args['type'];
+		$cache              = empty( $assoc_args['cache'] ) ? 'basic' : $assoc_args['cache'];
 
 		if ( ! empty( $stype ) ) {
 			if ( in_array( $stype, $registered_cmd ) ) {
@@ -120,6 +123,118 @@ class Site_Command extends EE_Command {
 						$host = $assoc_args['ip'];
 						$port = $assoc_args['port'];
 					}
+					$data['proxy']   = true;
+					$data['host']    = $host;
+					$data['port']    = $port;
+					$ee_site_webroot = "";
+				} else if ( 'php7' == $stype ) {
+					$data['static']    = false;
+					$data['basic']     = false;
+					$data['php7']      = true;
+					$data['wp']        = false;
+					$data['w3tc']      = false;
+					$data['wpfc']      = false;
+					$data['wpsc']      = false;
+					$data['multisite'] = false;
+					$data['wpsubdir']  = false;
+					$data['basic']     = true;
+				} else if ( in_array( $stype, array( 'html', 'php' ) ) ) {
+					$data['static']    = true;
+					$data['basic']     = false;
+					$data['php7']      = false;
+					$data['wp']        = false;
+					$data['w3tc']      = false;
+					$data['wpfc']      = false;
+					$data['wpsc']      = false;
+					$data['multisite'] = false;
+					$data['wpsubdir']  = false;
+					if ( 'php' === $stype ) {
+						$data['static'] = false;
+						$data['basic']  = true;
+					}
+				} else if ( in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+					$data['static']     = false;
+					$data['basic']      = true;
+					$data['wp']         = false;
+					$data['w3tc']       = false;
+					$data['wpfc']       = false;
+					$data['wpsc']       = false;
+					$data['wpredis']    = false;
+					$data['multisite']  = false;
+					$data['wpsubdir']   = false;
+					$data['ee_db_name'] = '';
+					$data['ee_db_user'] = '';
+					$data['ee_db_pass'] = '';
+					$data['ee_db_host'] = '';
+					if ( in_array( $stype, array( 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+						$data['wp']       = true;
+						$data['basic']    = false;
+						$data['cache']    = true;
+						$data['wp-user']  = empty( $assoc_args['user'] ) ? '' : $assoc_args['user'];
+						$data['wp-email'] = empty( $assoc_args['email'] ) ? '' : $assoc_args['email'];
+						$data['wp-pass']  = empty( $assoc_args['pass'] ) ? '' : $assoc_args['pass'];
+						if ( in_array( $stype, array( 'wpsubdir', 'wpsubdomain' ) ) ) {
+							$data['multisite'] = true;
+							if ( 'wpsubdir' == $stype ) {
+								$data['wpsubdir'] = true;
+							}
+						}
+					}
+				}
+
+				if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
+					$data['basic'] = true;
+				}
+				$ee_auth = Site_Function::site_package_check( $stype );
+
+				try {
+					Site_Function::pre_run_checks();
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::error( 'NGINX configuration check failed.' );
+				}
+
+				try {
+					try {
+						Site_Function::setup_domain( $data );
+						//				hashbucket();
+					} catch ( Exception $e ) {
+						EE::log( 'Oops Something went wrong !!' );
+						EE::log( 'Calling cleanup actions ...' );
+						Site_Function::do_cleanup_action( $ee_domain, $data['webroot'] );
+						EE::debug( $e->getMessage() );
+						EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
+					}
+
+					if ( isset( $data['proxy'] ) && $data['proxy'] ) {
+						add_new_site( $data );
+						$reload_nginx = EE_Service::reload_service( 'nginx' );
+						if ( ! $reload_nginx ) {
+							EE::log( 'Oops Something went wrong !!' );
+							EE::log( 'Calling cleanup actions ...' );
+							Site_Function::do_cleanup_action( $ee_domain, $data['webroot'] );
+							EE::error( 'Service nginx reload failed. check issues with `nginx -t` command.' );
+							EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
+						}
+						if ( ! empty( $ee_auth ) ) {
+							foreach ( $ee_auth as $msg ) {
+								EE::log( $msg );
+							}
+						}
+						EE::success( 'Successfully created site http://' . $ee_domain );
+					}
+
+					$data['php_version'] = "5.6";
+					if ( ! empty( $data['php7'] ) && $data['php7'] ) {
+						$data['php_version'] = "7.0";
+					}
+					add_new_site( $data );
+
+					if ( ! empty( $data['ee_db_name'] ) && ! $data['wp'] ) {
+						
+					}
+				} catch ( Exception $e ) {
+
 				}
 			} else {
 				//TODO: we will add hook for other packages. i.e do_action('create_site',$stype);
@@ -146,9 +261,9 @@ class Site_Command extends EE_Command {
 		list( $site_name ) = $args;
 
 		if ( ! empty( $site_name ) ) {
-			EE::success( $site_name . ' site is updated successfully!' );
+			EE::success( $site_name . ' site is updated successfully! ' );
 		} else {
-			EE::error( 'Please give site name.' );
+			EE::error( 'Please give site name . ' );
 		}
 	}
 
@@ -171,9 +286,9 @@ class Site_Command extends EE_Command {
 		list( $site_name ) = $args;
 
 		if ( ! empty( $site_name ) ) {
-			EE::success( $site_name . ' site is deleted successfully!' );
+			EE::success( $site_name . ' site is deleted successfully! ' );
 		} else {
-			EE::error( 'Please give site name.' );
+			EE::error( 'Please give site name . ' );
 		}
 	}
 }

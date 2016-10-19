@@ -21,11 +21,12 @@ class Site_Function {
 
 	public static function check_domain_exists( $domain ) {
 		//Check in ee database.
-		$site_exist = is_site_exist($domain);
+		$site_exist = is_site_exist( $domain );
+
 		return $site_exist;
 	}
 
-	public static function setupdomain( $data ) {
+	public static function setup_domain( $data ) {
 		$filesystem      = new Filesystem();
 		$ee_domain_name  = $data['site_name'];
 		$ee_site_webroot = ! empty( $data['webroot'] ) ? $data['webroot'] : '';
@@ -35,7 +36,7 @@ class Site_Function {
 			if ( empty( $data['php7'] ) ) {
 				$mustache_template = 'virtualconf.mustache';
 			}
-			EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf');
+			EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf' );
 			EE\Utils\mustache_write_in_file( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, $mustache_template, $data );
 		} catch ( \Exception $e ) {
 			EE::error( 'create nginx configuration failed for site' );
@@ -63,7 +64,18 @@ class Site_Function {
 		}
 	}
 
-	public static function setupdatabase( $data ){
+	public static function setupdatabase( $data ) {
 		$ee_domain_name = $data['site_name'];
+	}
+
+	public static function site_package_check( $stype ) {
+		$apt_packages = array();
+		$packages     = array();
+
+		return $packages;
+	}
+
+	public static function do_cleanup_action( $domain = '', $webroot = '', $dbname = '', $dbuser = '', $dbhost = '' ) {
+
 	}
 }
