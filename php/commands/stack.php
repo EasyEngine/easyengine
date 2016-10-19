@@ -200,6 +200,10 @@ class Stack_Command extends EE_Command {
 			$packages = array_merge($packages, array("adminer");
 	}
 
+	if (!empty($category['utils'] ){
+		EE::debug("Setting packages variable for utils");
+			$packages = array_merge($packages, array("phpmemcacheadmin","opcache","rtcache-clean", "opcache-gui","ocp","webgrind","perconna-toolkit","anemometer");
+	}
 
 
 
