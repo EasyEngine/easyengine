@@ -69,8 +69,12 @@ class EE_Utils {
 	 *
 	 * @return mixed
 	 */
-	public static function validate_domain( $url ) {
-		$url = preg_replace( '/https?:\/\/|www./', '', $url );
+	public static function validate_domain( $url, $replace_www = true ) {
+		$reg_exp = '/https?:\/\//';
+		if ( $replace_www ) {
+			$reg_exp = '/https?:\/\/|www./';
+		}
+		$url = preg_replace( $reg_exp, '', $url );
 		if ( strpos( $url, '/' ) !== false ) {
 			$domain = explode( '/', $url );
 			$url    = $domain['0'];

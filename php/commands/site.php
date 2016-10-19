@@ -68,14 +68,17 @@ class Site_Command extends EE_Command {
 				$site_name = $value;
 			}
 		}
+		$ee_www_domain = EE_Utils::validate_domain( $site_name, false );
 		$site_name     = EE_Utils::validate_domain( $site_name );
 		$ee_domain     = $site_name;
-		$ee_www_domain = $site_name;
+
 		if ( empty( $ee_domain ) ) {
 			EE::error( 'Invalid domain name, Provide valid domain name' );
 		}
 		if ( is_site_exist( $ee_domain ) ) {
 			EE::error( "Site {$ee_domain} already exists" );
+		} else if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
+			EE::error("Nginx configuration /etc/nginx/sites-available/{$ee_domain} already exists");
 		}
 		$ee_site_webroot = EE_Variables::get_ee_webroot() . $ee_domain;
 		$registered_cmd  = array(
