@@ -156,6 +156,51 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
+	if (!empty($stack['mysql'] ){
+		EE::debug("Setting apt_packages variable for MySQL");
+		if (!EE::exec_cmd_output("mysqladmin ping", $message = 'Looking for active mysql connection', $exit_on_error = false);){
+			$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('mysql'));
+			$packages = array_merge($packages, array("mysqltunner");
+		}else{
+			EE::success("MySQL connection is already alive");
+		}
+	}
+
+
+	if (!empty($stack['postfix'] ){
+		EE::debug("Setting apt_packages variable for Postfix");
+		if(!EE_Apt_Get::is_installed('postfix')){
+			$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('postfix'));
+		}else{
+			EE::success("Postfix is already installed");
+		}
+	}
+
+	if (!empty($stack['wpcli'] ){
+		EE::debug("Setting packages variable for WP-CLI");
+		if (!EE::exec_cmd_output("which wp", $message = 'Looking wp-cli preinstalled', $exit_on_error = false);){
+			$packages = array_merge($packages, array("wpcli");
+		}else{
+			EE::success("WP-CLI is already installed");
+		}
+	}
+
+	if (!empty($stack['phpmyadmin'] ){
+		EE::debug("Setting packages variable for phpMyAdmin");
+			$packages = array_merge($packages, array("phpmyadmin");
+	}
+
+	if (!empty($stack['phpredisadmin'] ){
+		EE::debug("Setting packages variable for phpRedisAdmin");
+			$packages = array_merge($packages, array("phpredisadmin");
+	}
+
+	if (!empty($stack['adminer'] ){
+		EE::debug("Setting packages variable for Adminer");
+			$packages = array_merge($packages, array("adminer");
+	}
+
+
 
 
 EE::add_command( 'stack', 'Stack_Command' );
