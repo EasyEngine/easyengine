@@ -49,6 +49,14 @@ class Stack_Command extends EE_Command {
 	public function install( $args, $assoc_args ) {
 
 		list( $site_name ) = $args;
+		$apt_packages = array();
+		$packages = array();
+
+		if (!empty($assoc_args['no_diplay_message'])){
+			$disp_msg = false;
+		}else{
+			$disp_msg = true;
+		}
 
 		if( !empty( $assoc_args['pagespeed'] ) ) {
 			EE_CLI::error( $site_name . 'Pagespeed support has been dropped since EasyEngine v3.6.0' );
@@ -83,12 +91,13 @@ class Stack_Command extends EE_Command {
 
 	if (!empty($stack['redis'])){
 		if(!EE_Apt_Get::is_installed('redis-server')){
+
 			$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('redis'));
 	}
 	}else{
 			EE::success("Redis already installed");
 		}
-	}
+
 
 	if (!empty($stack['nginx'])){
 		EE::debug("Setting apt_packages variable for Nginx");
@@ -116,20 +125,20 @@ class Stack_Command extends EE_Command {
 	}
 	if (!empty($stack['php'])){
 		EE::debug("Setting apt_packages variable for PHP");
-		if(!(EE_Apt_Get::is_installed('php5-fpm')||if(EE_Apt_Get::is_installed('php5.6-fpm')))){
+		if(!(EE_Apt_Get::is_installed('php5-fpm')||EE_Apt_Get::is_installed('php5.6-fpm'))){
 			if(EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php5.6'),EE_Variables::get_package_list('phpextra'));
 			}else{
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php'));
 			}
 		}else{
-			EE:success("PHP already installed");
+			EE::success("PHP already installed");
 		}
 	}
 
-	if (!empty($stack['php'] && EE_OS::ee_platform_distro == 'debian')){
-		if (EE_OS::ee_platform_codename == 'jessie'){
-			EE:debug("Setting apt_packages variable for PHP 7.0");
+	if (!empty($stack['php'] && EE_OS::ee_platform_distro() == 'debian')){
+		if (EE_OS::ee_platform_codename() == 'jessie'){
+			EE::debug("Setting apt_packages variable for PHP 7.0");
 			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php7.0'));
 				if(!EE_Apt_Get::is_installed('php5-fpm')){
@@ -142,9 +151,9 @@ class Stack_Command extends EE_Command {
 	}
 
 
-	if (!empty($stack['php'] && !EE_OS::ee_platform_distro == 'debian')){
-		if (EE_OS::ee_platform_codename == 'trusty'||EE_OS::ee_platform_codename == 'xenial'){
-			EE:debug("Setting apt_packages variable for PHP 7.0");
+	if (!empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
+		if (EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
+			EE::debug("Setting apt_packages variable for PHP 7.0");
 			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php7.0'));
 				if(!EE_Apt_Get::is_installed('php5.6-fpm')){
@@ -156,18 +165,18 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
-	if (!empty($stack['mysql'] ){
+	if (!empty($stack['mysql'])){
 		EE::debug("Setting apt_packages variable for MySQL");
-		if (!EE::exec_cmd_output("mysqladmin ping", $message = 'Looking for active mysql connection', $exit_on_error = false);){
+		if (!EE::exec_cmd_output("mysqladmin ping", $message = 'Looking for active mysql connection', $exit_on_error = false)){
 			$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('mysql'));
-			$packages = array_merge($packages, array("mysqltunner");
+			$packages = array_merge($packages, array("mysqltunner"));
 		}else{
 			EE::success("MySQL connection is already alive");
 		}
 	}
 
 
-	if (!empty($stack['postfix'] ){
+	if (!empty($stack['postfix'])){
 		EE::debug("Setting apt_packages variable for Postfix");
 		if(!EE_Apt_Get::is_installed('postfix')){
 			$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('postfix'));
@@ -176,35 +185,78 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
-	if (!empty($stack['wpcli'] ){
+	if (!empty($stack['wpcli'])){
 		EE::debug("Setting packages variable for WP-CLI");
-		if (!EE::exec_cmd_output("which wp", $message = 'Looking wp-cli preinstalled', $exit_on_error = false);){
-			$packages = array_merge($packages, array("wpcli");
-		}else{
+		if (!EE::exec_cmd_output("which wp", $message = 'Looking wp-cli preinstalled', $exit_on_error = false)){
+			$packages = array_merge($packages, array("wpcli"));
+		}
+	else{
 			EE::success("WP-CLI is already installed");
 		}
 	}
 
-	if (!empty($stack['phpmyadmin'] ){
+	if (!empty($stack['phpmyadmin'])){
 		EE::debug("Setting packages variable for phpMyAdmin");
-			$packages = array_merge($packages, array("phpmyadmin");
+			$packages = array_merge($packages, array("phpmyadmin"));
 	}
 
-	if (!empty($stack['phpredisadmin'] ){
+	if (!empty($stack['phpredisadmin'])){
 		EE::debug("Setting packages variable for phpRedisAdmin");
-			$packages = array_merge($packages, array("phpredisadmin");
+			$packages = array_merge($packages, array("phpredisadmin"));
 	}
 
-	if (!empty($stack['adminer'] ){
+	if (!empty($stack['adminer'])){
 		EE::debug("Setting packages variable for Adminer");
-			$packages = array_merge($packages, array("adminer");
+			$packages = array_merge($packages, array("adminer"));
 	}
 
-	if (!empty($category['utils'] ){
+	if (!empty($category['utils'])){
 		EE::debug("Setting packages variable for utils");
-			$packages = array_merge($packages, array("phpmemcacheadmin","opcache","rtcache-clean", "opcache-gui","ocp","webgrind","perconna-toolkit","anemometer");
+			$packages = array_merge($packages, array("phpmemcacheadmin","opcache","rtcache-clean", "opcache-gui","ocp","webgrind","perconna-toolkit","anemometer"));
 	}
 
+	if(!empty($apt_packages)||!empty($packages)){
+		EE::debug("Calling pre_pref");
+		self::pre_pref($apt_packages);
+		if(!empty($apt_packages)){
+			EE_OS::add_swap();
+			EE::success("Updating apt-cache, please wait...");
+			EE_Apt_Get::update();
+			EE_Apt_Get::install($apt_packages);
+		}
+		if(!empty($packages)){
+			EE::debug("Downloading following: " .implode(' ',$packages));
+			EE_Utils::download($packages);
+		}
+		EE::debug("Calling post_pref");
+		self::post_pref($apt_packages, $packages);
+		if(in_array('redis-server',$apt_packages)){
+			if (is_file("/etc/redis/redis.conf")){
+				$system_mem_info = EE_OS::get_system_mem_info();
+				if($system_mem_info['MemTotal'] < 512){
+					EE::debug("Setting maxmemory variable to" . (int)$system_mem_info['MemTotal']*1024*1024*0.1. " in redis.conf");
+					EE::exec_cmd_output("sed -i s/# maxmemory/maxmemory " . (int)$system_mem_info['MemTotal']*(1024*1024*0.1) ."/' /etc/redis/redis.conf", $message = '', $exit_on_error = false);
+					EE::exec_cmd_output("sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf", $message = 'Setting maxmemory-policy variable to allkeys-lru in redis.conf', $exit_on_error = false);
+					EE_Service::restart_service( 'redis-server' );
+				}
+				else{
+					EE::debug("Setting maxmemory variable to" . (int)$system_mem_info['MemTotal']*1024*1024*0.2 . " in redis.conf");
+					EE::exec_cmd_output("sed -i s/# maxmemory/maxmemory " . (int)$system_mem_info['MemTotal']*(1024*1024*0.2) ."/' /etc/redis/redis.conf", $message = '', $exit_on_error = false);
+					EE::exec_cmd_output("sed -i 's/# maxmemory-policy.*/maxmemory-policy allkeys-lru/' /etc/redis/redis.conf", $message = 'Setting maxmemory-policy variable to allkeys-lru in redis.conf', $exit_on_error = false);
+					EE_Service::restart_service( 'redis-server' );
+				}
+			}
+		}
 
+		if ($disp_msg){
+			EE::success("Successfully installed packages");
+		}
+
+	}
+
+	}
+
+	
+}
 
 EE::add_command( 'stack', 'Stack_Command' );
