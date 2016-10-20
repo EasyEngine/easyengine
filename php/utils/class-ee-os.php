@@ -33,7 +33,19 @@ class EE_OS {
 
 	}
 
+
 	public static function get_system_mem_info() {
+		/*
+ 		   Array
+				(
+					[MemTotal] =>
+					[MemFree] =>
+					[SwapCached] =>
+					[SwapTotal] => 4099.068
+					[SwapFree] => 4089.52
+					...
+				)
+ 		*/
 		$data = explode("\n", file_get_contents("/proc/meminfo"));
 		$meminfo = array();
 		foreach ($data as $line) {
@@ -42,7 +54,6 @@ class EE_OS {
 			$val = $val[0] * 0.001;
 			$meminfo[$key] = trim($val);
 		}
-		print_r( $meminfo );
 		return $meminfo;
 	}
 }
