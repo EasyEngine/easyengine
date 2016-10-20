@@ -9,7 +9,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @param string $originFile
  * @param string $targetFile
- * @param bool   $overwriteNewerFiles
+ * @param bool $overwriteNewerFiles
  */
 function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) {
 	$filesystem = new Filesystem();
@@ -20,7 +20,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * Create directory.
  *
  * @param string|array|\Traversable $dirs
- * @param int    $mode
+ * @param int $mode
  */
 function ee_file_mkdir( $dirs, $mode = 0777 ) {
 	$filesystem = new Filesystem();
@@ -43,6 +43,7 @@ function ee_file_exists( $files ) {
 
 /**
  * Remove files.
+ *
  * @param $files
  */
 function ee_file_remove( $files ) {
@@ -55,7 +56,7 @@ function ee_file_remove( $files ) {
  *
  * @param      $files
  * @param      $mode
- * @param int  $umask
+ * @param int $umask
  * @param bool $recursive
  */
 function ee_file_chmod( $files, $mode, $umask = 0000, $recursive = false ) {
@@ -65,6 +66,7 @@ function ee_file_chmod( $files, $mode, $umask = 0000, $recursive = false ) {
 
 /**
  * Change user permission.
+ *
  * @param      $files
  * @param      $user
  * @param bool $recursive
@@ -123,7 +125,8 @@ function ee_file_make_path_relative( $endPath, $startPath ) {
 
 
 /**
- * Check absolute path of file. 
+ * Check absolute path of file.
+ *
  * @param $file
  *
  * @return bool
@@ -145,4 +148,18 @@ function ee_file_is_absolute_path( $file ) {
 function ee_file_dump( $filename, $content, $mode = 0666 ) {
 	$filesystem = new Filesystem();
 	$filesystem->dumpFile( $filename, $content, $mode );
+}
+
+function grep_string( $file, $string ) {
+	$file_content = file_get_contents( $file );
+	$lines        = explode( "\n", $file_content );
+
+	foreach ( $lines as $num => $line ) {
+		$pos = strpos( $line, $string );
+		if ( $pos !== false ) {
+			return true;
+		}
+	}
+
+	return false;
 }
