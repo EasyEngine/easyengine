@@ -127,6 +127,24 @@ class EE_Variables {
 	}
 
 	/**
+	 * Get MySQL repo name.
+	 *
+	 * @return array|string
+	 */
+	public static function get_mysql_repo() {
+		$ee_platform_distro   = EE_OS::ee_platform_distro();
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		$ee_php_repo          = '';
+		if ( 'ubuntu' === $ee_platform_distro ) {
+				$ee_mysql_repo =  "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu" .$ee_platform_codename. "main" ;
+
+		} else if ( 'debian' === $ee_platform_distro ) {
+			$ee_mysql_repo =  "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/debian" .$ee_platform_codename. "main" ;
+		}
+		return $ee_mysql_repo;
+	}
+
+	/**
 	 * Get php repo name.
 	 *
 	 * @return array|string
