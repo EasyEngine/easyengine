@@ -32,4 +32,17 @@ class EE_OS {
 	public static function add_swap() {
 
 	}
+
+	public static function get_system_mem_info() {
+		$data = explode("\n", file_get_contents("/proc/meminfo"));
+		$meminfo = array();
+		foreach ($data as $line) {
+			list($key, $val) = explode(":", $line);
+			$val = explode(' ', trim($val));
+			$val = $val[0] * 0.001;
+			$meminfo[$key] = trim($val);
+		}
+		print_r( $meminfo );
+		return $meminfo;
+	}
 }
