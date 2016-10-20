@@ -256,7 +256,79 @@ class Stack_Command extends EE_Command {
 
 	}
 
-	
+
+	public static function pre_pref($apt_packages){
+
+
+		// Pre settings to do before installation packages
+
+		if (in_array(EE_Variables::get_package_list('postfix'), $apt_packages) ) {
+			echo "Pre-seeding Postfix";
+			try{
+
+				EE::exec_cmd_output('echo "postfix postfix/main_mailer_type string \'Internet Site\'" | debconf-set-selections', $message = '', $exit_on_error = false);
+				EE::exec_cmd_output('echo "postfix postfix/mailname string $(hostname -f)" | debconf-set-selections', $message = '', $exit_on_error = false);
+			}catch(Exception $e){
+				echo "Failed to intialize postfix package";
+			}
+		}
+
+		if (in_array(EE_Variables::get_package_list('mysql'), $apt_packages) ) {
+			EE::log("Adding repository for MySQL, please wait...");
+			$mysql_pref = "Package: *\nPin: origin sfo1.mirrors.digitalocean.com\nPin-Priority: 1000\n";
+			$mysql_pref_file   = fopen("/etc/apt/preferences.d/MariaDB.pref", "w" );
+			fwrite( $mysql_pref_file, $mysql_pref );
+
+			EE_Repo::add(EE_Variables::get_mysql_repo());
+
+				EE::debug("Adding key for Mysql");
+				if (EE_OS::ee_platform_codename() != 'xenial'){
+					EE_Repo::add_key('0xcbcb082a1bb943db',"keyserver.ubuntu.com");
+
+				}else {
+					EE_Repo::add_key('0xF1656F24C74CD1D8',"keyserver.ubuntu.com");
+				}
+
+			$char = EE_Utils::random_string(8);
+			EE::debug("Pre-seeding MySQL");
+			EE::debug("echo \"mariadb-server-10.1 mysql-server/root_password " .
+				"password \" | debconf-set-selections");
+			$reset_pwd = 'echo "mariadb-server-10.1" "mysql-server/root_password_again" password ' . $char .' |  "debconf-set-selections" ';
+			EE::exec_cmd($reset_pwd);
+			$mysql_config = '[client]\n user = root\n password = '. $char;
+            EE::debug('Writting configuration into MySQL file');
+            $conf_path = "/etc/mysql/conf.d/my.cnf";
+		    ee_file_dump($conf_path,$mysql_config);
+			EE::debug("Setting my.cnf permission");
+		    ee_file_chmod("/etc/mysql/conf.d/my.cnf",0600);
+
+		}
+
+		if ( in_array(EE_Variables::get_package_list('nginx'), $apt_packages)) {
+			EE::log("Adding repository for NGINX, please wait...");
+			EE_Repo::add(EE_Variables::get_nginx_repo());
+			EE_Repo::add_key('3050AC3CD2AE6F03');
+		}
+
+		if (in_array(EE_Variables::get_package_list('php7.0'), $apt_packages) || in_array(EE_Variables::get_package_list('php5.6'), $apt_packages)) {
+				EE::log("Adding repository for PHP, please wait...");
+			    EE_Repo::add(EE_Variables::get_php_repo());
+			if ('debian' == EE_OS::ee_platform_distro()){
+				EE_Repo::add_key('89DF5277');
+				}
+		}
+		if ( in_array(EE_Variables::get_package_list('redis'), $apt_packages)) {
+			EE::log("Adding repository for REDIS, please wait...");
+			EE_Repo::add(EE_Variables::get_redis_repo());
+			if ('debian' == EE_OS::ee_platform_distro()){
+				EE_Repo::add_key('3050AC3CD2AE6F03');
+			}
+		}
+		
+	}
+
+
+
 }
 
 EE::add_command( 'stack', 'Stack_Command' );
