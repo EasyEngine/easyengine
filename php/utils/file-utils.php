@@ -3,6 +3,7 @@
  * Symfony filesystem functions.
  */
 use Symfony\Component\Filesystem\Filesystem;
+use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
 
 /**
  * Copy files.
@@ -20,7 +21,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * Create directory.
  *
  * @param string|array|\Traversable $dirs
- * @param int    $mode
+ * @param int                       $mode
  */
 function ee_file_mkdir( $dirs, $mode = 0777 ) {
 	$filesystem = new Filesystem();
@@ -43,6 +44,7 @@ function ee_file_exists( $files ) {
 
 /**
  * Remove files.
+ *
  * @param $files
  */
 function ee_file_remove( $files ) {
@@ -65,6 +67,7 @@ function ee_file_chmod( $files, $mode, $umask = 0000, $recursive = false ) {
 
 /**
  * Change user permission.
+ *
  * @param      $files
  * @param      $user
  * @param bool $recursive
@@ -123,7 +126,8 @@ function ee_file_make_path_relative( $endPath, $startPath ) {
 
 
 /**
- * Check absolute path of file. 
+ * Check absolute path of file.
+ *
  * @param $file
  *
  * @return bool
@@ -145,4 +149,49 @@ function ee_file_is_absolute_path( $file ) {
 function ee_file_dump( $filename, $content, $mode = 0666 ) {
 	$filesystem = new Filesystem();
 	$filesystem->dumpFile( $filename, $content, $mode );
+}
+
+function get_ee_config( $section, $key = '' ) {
+	$config_data = get_config_data( EE_CONFIG_FILE, $section, $key );
+
+	return $config_data;
+}
+
+function get_mysql_config( $section, $key = '' ) {
+	$my_cnf_file = '';
+	if ( ee_file_exists( '/etc/mysql/conf.d/my.cnf' ) ) {
+		$my_cnf_file = '/etc/mysql/conf.d/my.cnf';
+	} else if ( ee_file_exists( '~/.my.cnf' ) ) {
+		$my_cnf_file = '~/.my.cnf';
+	}
+	if ( ! empty( $my_cnf_file ) ) {
+		$config_data = get_config_data( $my_cnf_file, $section, $key );
+
+		return $config_data;
+	}
+
+	return '';
+}
+
+function get_config_data( $config_file, $section, $key = '' ) {
+
+	$ee_config = new ConfigParser();
+	$ee_config->read( $config_file );
+	$get_config_data = '';
+	if ( ! empty( $ee_config[ $section ] ) ) {
+		$get_config_data = $ee_config[ $section ];
+		if ( ! empty( $key ) ) {
+			if ( ! empty( $ee_config[ $section ][ $key ] ) ) {
+				$get_config_data = $ee_config[ $section ][ $key ];
+			} else {
+				$get_config_data = '';
+			}
+		}
+	}
+
+	return $get_config_data;
+}
+
+function set_config_data() {
+	//	$cfg->set('server', '192.168.1.1.');
 }

@@ -1,7 +1,7 @@
 <?php
 
 class EE_Utils {
-	
+
 	/**
 	 * @param      $file
 	 * @param      $extract_path
@@ -81,5 +81,23 @@ class EE_Utils {
 		}
 
 		return $url;
+	}
+
+	public static function generate_random( $length = 10, $special_chars = true, $extra_special_chars = false ) {
+		$chars = array_merge( range( 'A', 'Z' ), range( 'a', 'z' ), range( '0', '9' ) );
+		$chars = implode($chars);
+		if ( $special_chars ) {
+			$chars .= '!@#$%^&*()';
+		}
+		if ( $extra_special_chars ) {
+			$chars .= '-_ []{}<>~`+=,.;:/?|';
+		}
+
+		$password = '';
+		for ( $i = 0; $i < $length; $i ++ ) {
+			$password .= substr( $chars, rand( 0, strlen( $chars ) - 1 ), 1 );
+		}
+
+		return $password;
 	}
 }

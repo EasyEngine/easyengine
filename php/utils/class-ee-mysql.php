@@ -9,21 +9,10 @@ class EE_MySql {
 	 * Makes connection with MySQL server.
 	 */
 	public static function connect() {
-		$fileSystem  = new Filesystem();
-		$configParse = new ConfigParser();
 		try {
-			if ( $fileSystem->exists( '/etc/mysql/conf.d/my.cnf' ) ) {
-				$my_cnf_file = '/etc/mysql/conf.d/my.cnf';
-			} else if ( $fileSystem->exists( '~/.my.cnf' ) ) {
-				$my_cnf_file = '~/.my.cnf';
-			} else {
-				return false;
-			}
-			$configParse->read( $my_cnf_file );
-			$mysql_db_credentials = ! empty( $configParse['client'] ) ? $configParse['client'] : '';
-			$db_root_username     = ! empty( $mysql_db_credentials['user'] ) ? $mysql_db_credentials['user'] : '';
-			$db_root_password     = ! empty( $mysql_db_credentials['password'] ) ? $mysql_db_credentials['password'] : '';
-			$mysqli               = new mysqli( 'localhost', $db_root_username, $db_root_password );
+			$db_root_username = get_mysql_config( 'client', 'user' );
+			$db_root_password = get_mysql_config( 'client', 'password' );
+			$mysqli           = new mysqli( 'localhost', $db_root_username, $db_root_password );
 			if ( $mysqli->connect_error ) {
 				EE::error( 'Connect Error (' . $mysqli->connect_errno . ') ' . $mysqli->connect_error );
 
@@ -46,11 +35,11 @@ class EE_MySql {
 				return $mysqli;
 			}
 			// TODO: Check if we need create database if not exist;
-//			else if ( $mysqli->query( 'CREATE DATABASE ' . $db_name ) === true ) {
-//				$mysqli->select_db( $db_name );
-//
-//				return $mysqli;
-//			}
+			//			else if ( $mysqli->query( 'CREATE DATABASE ' . $db_name ) === true ) {
+			//				$mysqli->select_db( $db_name );
+			//
+			//				return $mysqli;
+			//			}
 		} catch ( mysqli_sql_exception $e ) {
 			EE::debug( $e->getMessage() );
 			EE::error( 'Database could not setup.' );
@@ -74,22 +63,39 @@ class EE_MySql {
 	public static function execute( $statement, $err_msg = '', $log = true ) {
 		$mysqli = self::connect();
 		if ( $log ) {
-			EE::log( 'Executing MySQL Statement : ' . $statement );
+			EE::debug( 'Executing MySQL Statement : ' . $statement );
 		}
 		try {
 			$exec_query = $mysqli->query( $statement );
 			if ( ! $exec_query && ! empty( $err_msg ) ) {
 				EE::error( $err_msg );
 			}
+			$mysqli->close();
+
+			return $exec_query;
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
 			EE::error( 'Database could not setup.' );
-		} finally {
 			$mysqli->close();
+
+			return false;
 		}
 	}
 
 	public static function backupAll() {
 		// TODO: Backup all databases.
 	}
+
+	public static function check_db_exists( $db_name ) {
+		$db_exist_query  = "SELECT COUNT(*) AS `exists` FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMATA.SCHEMA_NAME='{$db_name}'";
+		$db_exist_exec   = self::execute( $db_exist_query );
+		$db_exist_result = $db_exist_exec->fetch_assoc();
+
+		if ( ! empty( $db_exist_result['exists'] ) && $db_exist_result['exists'] > 0 ) {
+			return true;
+		}
+
+		return false;
+	}
+
 }

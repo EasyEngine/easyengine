@@ -91,7 +91,40 @@ class EE_Sqlite_Db {
 		return $is_table_exist;
 	}
 
+	public static function filter_ee_data_fields( $data ) {
+		$ee_db_fields = array(
+			'id',
+			'sitename',
+			'site_type',
+			'cache_type',
+			'site_path',
+			'created_on',
+			'is_enabled',
+			'is_ssl',
+			'storage_fs',
+			'storage_db',
+			'db_name',
+			'db_user',
+			'db_password',
+			'db_host',
+			'is_hhvm',
+			'is_pagespeed',
+			'php_version'
+		);
+
+		$filter_data = array();
+
+		foreach ( $ee_db_fields as $ee_db_field ) {
+			if ( ! empty( $data[ $ee_db_field ] ) ) {
+				$filter_data[ $ee_db_field ] = $data[ $ee_db_field ];
+			}
+		}
+
+		return $filter_data;
+	}
+
 	public static function insert( $data, $table_name = '', $ee_db = '' ) {
+		$data = self::filter_ee_data_fields( $data );
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
 		}
@@ -124,6 +157,10 @@ class EE_Sqlite_Db {
 	}
 
 	public static function update( $data, $where, $table_name = '', $ee_db = '' ) {
+		// Remove/Filter extra fields if it passed in $data array.
+		$data = self::filter_ee_data_fields( $data );
+		// Remove/Filter extra fields if it passed in $where array.
+		$where = self::filter_ee_data_fields( $where );
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
 		}
@@ -166,6 +203,10 @@ class EE_Sqlite_Db {
 	}
 
 	public static function select( $where = array(), $table_name = '', $columns = array(), $ee_db = '' ) {
+		// Remove/Filter extra fields if it passed in $where array.
+		$where   = self::filter_ee_data_fields( $where );
+		// Remove/Filter extra fields if it passed in $columns array.
+		$columns = self::filter_ee_data_fields( $columns );
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
 		}
@@ -208,7 +249,8 @@ class EE_Sqlite_Db {
 	}
 
 	public static function delete( $where, $table_name = '', $ee_db = '' ) {
-
+		// Remove/Filter extra fields if it passed in $where array.
+		$where = self::filter_ee_data_fields( $where );
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
 		}

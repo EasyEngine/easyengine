@@ -7,7 +7,7 @@ class EE_Apt_Get {
 	 */
 	public static function update() {
 		$update_cmd = "apt-get update";
-		$update = EE::exec_cmd( $update_cmd, 'apt-get update' );
+		$update     = EE::exec_cmd( $update_cmd, 'apt-get update' );
 		if ( 0 == $update ) {
 			EE::success( 'Cache updated successfully.' );
 		} else {
@@ -20,7 +20,7 @@ class EE_Apt_Get {
 	 */
 	public static function check_upgrade() {
 		$check_upgrade_cmd = 'apt-get upgrade -s | grep \"^Inst\" | wc -l';
-		$check_upgrade = EE::exec_cmd( $check_upgrade_cmd, 'upgrade packages' );
+		$check_upgrade     = EE::exec_cmd( $check_upgrade_cmd, 'upgrade packages' );
 		if ( 0 == $check_upgrade ) {
 			EE::success( 'Cache upgraded successfully.' );
 		} else {
@@ -32,13 +32,8 @@ class EE_Apt_Get {
 	 *  Similar to `apt-get upgrade`
 	 */
 	public static function dist_upgrade() {
-		$dist_upgrade_cmd = 'DEBIAN_FRONTEND=noninteractive '.
-                            'apt-get dist-upgrade -o '.
-                            'Dpkg::Options::="--force-confdef"'.
-                            ' -o '.
-                            'Dpkg::Options::="--force-confold"'.
-                            ' -y ';
-		$dist_upgrade = EE::exec_cmd( $dist_upgrade_cmd, 'dist upgrade' );
+		$dist_upgrade_cmd = 'DEBIAN_FRONTEND=noninteractive ' . 'apt-get dist-upgrade -o ' . 'Dpkg::Options::="--force-confdef"' . ' -o ' . 'Dpkg::Options::="--force-confold"' . ' -y ';
+		$dist_upgrade     = EE::exec_cmd( $dist_upgrade_cmd, 'dist upgrade' );
 		if ( 0 == $dist_upgrade ) {
 			EE::success( 'Cache updated successfully.' );
 		} else {
@@ -49,20 +44,14 @@ class EE_Apt_Get {
 	/**
 	 * @param $packages
 	 */
-	public static function install($packages) {
+	public static function install( $packages ) {
 		if ( is_array( $packages ) ) {
 			$all_packages = implode( ' ', $packages );
 		} else {
 			$all_packages = $packages;
 		}
-		$install_package_cmd = 'sudo DEBIAN_FRONTEND=noninteractive ' .
-			                     'apt-get install -o ' .
-			                     'Dpkg::Options::="--force-confdef"' .
-			                     ' -o ' .
-			                     'Dpkg::Options::="--force-confold"' .
-			                     ' -y --allow-unauthenticated ' .
-			                     $all_packages;
-		$install_package = EE::exec_cmd( $install_package_cmd, 'installing package' );
+		$install_package_cmd = 'sudo DEBIAN_FRONTEND=noninteractive ' . 'apt-get install -o ' . 'Dpkg::Options::="--force-confdef"' . ' -o ' . 'Dpkg::Options::="--force-confold"' . ' -y --allow-unauthenticated ' . $all_packages;
+		$install_package     = EE::exec_cmd( $install_package_cmd, 'installing package' );
 		if ( 0 == $install_package ) {
 			EE::success( 'Cache upgraded successfully.' );
 		} else {
@@ -74,7 +63,7 @@ class EE_Apt_Get {
 	 * @param      $packages
 	 * @param bool $purge
 	 */
-	public static function remove($packages, $purge = false) {
+	public static function remove( $packages, $purge = false ) {
 		if ( is_array( $packages ) ) {
 			$all_packages = implode( ' ', $packages );
 		} else {
@@ -109,31 +98,27 @@ class EE_Apt_Get {
 		}
 
 		if ( ! empty( $repo_url ) ) {
-			EE_Repo::add($repo_url);
+			EE_Repo::add( $repo_url );
 		}
 
 		if ( ! empty( $repo_key ) ) {
-			EE_Repo::add_key($repo_key);
+			EE_Repo::add_key( $repo_key );
 		}
 
-		$download_packages_cmd = 'apt-get update && DEBIAN_FRONTEND=noninteractive '.
-                                        'apt-get install -o '.
-                                        'Dpkg::Options::="--force-confdef"'.
-                                        ' -o '.
-                                        'Dpkg::Options::="--force-confold"'.
-                                        ' -y  --download-only ' . $all_packages;
+		$download_packages_cmd = 'apt-get update && DEBIAN_FRONTEND=noninteractive ' . 'apt-get install -o ' . 'Dpkg::Options::="--force-confdef"' . ' -o ' . 'Dpkg::Options::="--force-confold"' . ' -y  --download-only ' . $all_packages;
 
 		$download_packages = EE::exec_cmd( $download_packages_cmd, 'downloading packages...' );
 		if ( 0 == $download_packages ) {
 			EE::success( 'Packages downloaded successfully.' );
 		} else {
 			EE::error( 'Error in fetching dpkg package.\nReverting changes ..', false );
-			if ( !empty($repo_url)) {
+			if ( ! empty( $repo_url ) ) {
 				EE_Repo::remove( $repo_url );
 			}
 		}
 	}
 
-// 	public static function is_installed($package){
-// 		//todo:
-// }
+	// 	public static function is_installed($package){
+	// 		//todo:
+	// }
+}
