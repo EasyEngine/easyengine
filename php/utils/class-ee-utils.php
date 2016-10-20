@@ -98,4 +98,16 @@ class EE_Utils {
 		}
 		return $str;
 	}
+
+	function grep_string($file, $string){
+		$file_content = file_get_contents($file);
+		$lines = explode("\n", $file_content);
+
+		foreach($lines as $num => $line){
+			$pos = strpos($line, $string);
+			if($pos !== false)
+				return true;
+    }
+		return false;
+}
 }
