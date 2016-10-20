@@ -93,6 +93,7 @@ class EE_Service {
 			$service_start = \EE::exec_cmd( $service_cmd, 'Service Reload ' . $service_name );
 			if ( 0 == $service_start ) {
 				EE::success( '[OK]' );
+				return true;
 			} else {
 				EE::error( '[Failed]' );
 			}
@@ -100,6 +101,7 @@ class EE_Service {
 			EE::debug( $e->getMessage() );
 			EE::log( 'Failed to reload service ' . $service_name );
 		}
+		return false;
 	}
 
 	/**

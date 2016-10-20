@@ -297,6 +297,16 @@ class EE {
 	public static function input_value( $message ) {
 		fwrite( STDOUT, $message );
 		$answer = trim( fgets( STDIN ) );
+
+		return $answer;
+	}
+
+	public static function input_hidden_value( $message ) {
+		fwrite( STDOUT, $message );
+		system( 'stty -echo' );
+		$answer = trim( fgets( STDIN ) );
+		system( 'stty echo' );
+
 		return $answer;
 	}
 

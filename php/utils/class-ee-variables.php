@@ -299,7 +299,7 @@ class EE_Variables {
 			$ee_php7_0[] = 'php7.0-sqlite3';
 
 			return $ee_php7_0;
-		} else if ( 'extra' === $package ) {
+		} else if ( 'phpextra' === $package ) {
 			return $ee_php_extra;
 		} else {
 			return false;
