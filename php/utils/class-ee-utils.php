@@ -1,7 +1,7 @@
 <?php
 
 class EE_Utils {
-
+	
 	/**
 	 * @param      $file
 	 * @param      $extract_path
@@ -83,6 +83,13 @@ class EE_Utils {
 		return $url;
 	}
 
+	/**
+	 * @param int  $length
+	 * @param bool $special_chars
+	 * @param bool $extra_special_chars
+	 *
+	 * @return string
+	 */
 	public static function generate_random( $length = 10, $special_chars = true, $extra_special_chars = false ) {
 		$chars = array_merge( range( 'A', 'Z' ), range( 'a', 'z' ), range( '0', '9' ) );
 		$chars = implode($chars);
@@ -99,5 +106,21 @@ class EE_Utils {
 		}
 
 		return $password;
+	}
+
+	/**
+	 * Generate random string.
+	 *
+	 * @return string
+	 */
+	function random_string($length = 6) {
+		$str = "";
+		$characters = array_merge(range('A','Z'), range('a','z'), range('0','9'));
+		$max = count($characters) - 1;
+		for ($i = 0; $i < $length; $i++) {
+			$rand = mt_rand(0, $max);
+			$str .= $characters[$rand];
+		}
+		return $str;
 	}
 }
