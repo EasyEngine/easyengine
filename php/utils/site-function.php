@@ -261,3 +261,221 @@ function do_cleanup_action( $data ) {
 		delete_db( $data['ee_db_name'], $data['ee_db_user'], $data['ee_db_host'] );
 	}
 }
+
+function setup_wordpress( $data ) {
+	$ee_domain_name  = $data['site_name'];
+	$ee_site_webroot = $data['webroot'];
+	$prompt_wpprefix = get_ee_config( 'wordpress', 'prefix' );
+	$ee_wp_user      = get_ee_config( 'wordpress', 'user' );
+	$ee_wp_pass      = get_ee_config( 'wordpress', 'password' );
+	$ee_wp_email     = get_ee_config( 'wordpress', 'email' );
+	$ee_wp_prefix    = '';
+	$ee_random_pwd   = EE_Utils::generate_random( 15 );
+
+	if ( ! empty( $data['wp-user'] ) ) {
+		$ee_wp_user = $data['wp-user'];
+	}
+
+	if ( ! empty( $data['wp-email'] ) ) {
+		$ee_wp_email = $data['wp-email'];
+	}
+	if ( ! empty( $data['wp-pass'] ) ) {
+		$ee_wp_pass = $data['wp-pass'];
+	}
+
+	EE::log( "Downloading WordPress \t\t" );
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	try {
+		$wp_download = EE::exec_cmd( "wp --allow-root core download" );
+		if ( 0 != $wp_download ) {
+			EE::debug( "[Fail]" );
+			EE::log( "download WordPress core failed" );
+
+			return false;
+		}
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "download WordPress core failed" );
+	}
+
+	EE::log( "Done" );
+
+	if ( ! empty( $data['ee_db_name'] ) && ! empty( $data['ee_db_user'] ) && ! empty( $data['ee_db_pass'] ) ) {
+		$data = setup_database( $data );
+	}
+
+	if ( 'true' === strtolower( $prompt_wpprefix ) ) {
+		try {
+			$ee_wp_prefix = EE::input_value( 'Enter the WordPress table prefix [wp_]: ' );
+			while ( empty( preg_match_all( '/^[A-Za-z0-9_]*$/i', $ee_wp_prefix ) ) ) {
+				EE::log( "Table prefix can only contain numbers, letters, and underscores" );
+				$ee_wp_prefix = EE::input_value( 'Enter the WordPress table prefix [wp_]: ' );
+			}
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Input table prefix failed" );
+		}
+		if ( empty( $ee_wp_prefix ) ) {
+			$ee_wp_prefix = 'wp_';
+		}
+
+		// Modify wp-config.php & move outside the webroot.
+		chdir( $ee_site_webroot . '/htdocs/' );
+		EE::debug( "Setting up wp-config file" );
+		$ee_wp_cli_path = EE_Variables::get_ee_wp_cli_path();
+		$wpredis        = empty( $data['wpredis'] ) ? '' : "\n\ndefine( WP_CACHE_KEY_SALT, {$ee_domain_name}: );";
+
+		if ( false == $data['multisite'] ) {
+			EE::debug( "Generating wp-config for WordPress Single site" );
+			EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
+			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine(WP_DEBUG, false); {$wpredis} PHP\"" );
+
+			try {
+
+				$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
+			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+
+				if ( 0 != $generate_config ) {
+					EE::log( "Generate wp-config failed for wp single site" );
+				}
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::log( "Generate wp-config failed for wp single site" );
+			}
+		} else {
+			EE::log( "Generating wp-config for WordPress multisite" );
+			EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
+			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
+			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+
+			try {
+
+				$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
+			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
+			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+
+				if ( 0 != $generate_config ) {
+					EE::log( "Generate wp-config failed for wp multi site" );
+				}
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::log( "Generate wp-config failed for wp multi site" );
+			}
+		}
+
+		$wp_config_htdocs_file = $ee_site_webroot . '/htdocs/wp-config.php';
+		$wp_config_file        = $ee_site_webroot . '/wp-config.php';
+
+		try {
+			EE::debug( "Moving file from {$wp_config_htdocs_file} to {$wp_config_file}" );
+			ee_file_rename( $wp_config_htdocs_file, $wp_config_file );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Unable to move from {$wp_config_htdocs_file} to {$wp_config_file}\"" );
+
+			return false;
+		}
+
+		if ( empty( $ee_wp_user ) ) {
+			$ee_wp_user = get_ee_git_config( 'user', 'name' );
+			while ( empty( $ee_wp_user ) ) {
+				EE::warning( "Username can have only alphanumeric characters, spaces, underscores, hyphens, periods and the @ symbol." );
+				try {
+					$ee_wp_user = EE::input_value( 'Enter WordPress username: ' );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "input WordPress username failed" );
+				}
+			}
+		}
+
+		if ( empty( $ee_wp_pass ) ) {
+			$ee_wp_pass = $ee_random_pwd;
+		}
+
+		if ( empty( $ee_wp_email ) ) {
+			$ee_wp_email = get_ee_git_config( 'user', 'email' );
+			while ( empty( $ee_wp_email ) ) {
+				try {
+					$ee_wp_email = EE::input_value( 'Enter WordPress email: ' );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "input WordPress username failed" );
+				}
+			}
+		}
+
+		try {
+			while ( empty( preg_match_all( '/^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$/i', $ee_wp_email ) ) ) {
+				EE::log( "EMail not Valid in config, Please provide valid email id." );
+				$ee_wp_email = EE::input_value( "Enter your email: " );
+			}
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "input WordPress user email failed" );
+		}
+		EE::debug( "Setting up WordPress tables" );
+
+		if ( ! $data['multisite'] ) {
+			EE::debug( "Creating tables for WordPress Single site" );
+			EE::debug( "php {$ee_wp_cli_path} --allow-root core install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+			try {
+				$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+				if ( 0 !== $wp_database ) {
+					EE::error( "setup WordPress tables failed for single site" );
+
+					return false;
+				}
+
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::error( "setup WordPress tables failed for single site" );
+
+				return false;
+			}
+
+		} else {
+			EE::debug( "Creating tables for WordPress multisite" );
+			EE::debug( "php {$ee_wp_cli_path} --allow-root core multisite-install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+			try {
+				$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core multisite-install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+				if ( 0 !== $wp_database ) {
+					EE::error( "setup WordPress tables failed for wp multi site" );
+
+					return false;
+				}
+
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::error( "setup WordPress tables failed for wp multi site" );
+
+				return false;
+			}
+		}
+
+		EE::debug( "Updating WordPress permalink" );
+
+		try {
+			EE::exec_cmd( " php {$ee_wp_cli_path} --allow-root rewrite structure /%year%/%monthnum%/%day%/%postname%/" );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Update wordpress permalinks failed" );
+		}
+	}
+}
+
+function install_wp_plugin( $plugin_name, $data ) {
+
+}

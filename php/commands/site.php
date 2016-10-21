@@ -241,6 +241,35 @@ class Site_Command extends EE_Command {
 							do_cleanup_action( $data );
 							delete_site( array( 'site_name' => $ee_domain ) );
 						}
+
+						try {
+							$ee_db_config  = $ee_site_webroot . "/ee-config.php";
+							$ee_db_content = "<?php \ndefine('DB_NAME', '{$data['ee_db_name']}');" . "\ndefine('DB_USER', '{$data['ee_db_user']}'); " . "\ndefine('DB_PASSWORD', '{$data['ee_db_pass']}');" . "\ndefine('DB_HOST', '{$data['ee_db_host']}');\n?>";
+							ee_file_dump( $ee_db_config, $ee_db_content );
+							$stype = 'mysql';
+						} catch ( Exception $e ) {
+							EE::debug( $e->getMessage() );
+							EE::debug( "Error occured while generating ee-config.php" );
+							EE::log( "Oops Something went wrong !!" );
+							EE::log( "Calling cleanup actions ..." );
+							do_cleanup_action( $data );
+							delete_site( array( 'site_name' => $ee_domain ) );
+							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						}
+					}
+
+					if ( $data["wp"] ) {
+						try {
+							$ee_wp_creds = setup_wordpress( $data );
+							update_site( $data, array( 'site_name' => $data['site_name'] ) );
+						} catch ( Exception $e ) {
+							EE::debug( $e->getMessage() );
+							EE::log( "Oops Something went wrong !!" );
+							EE::log( "Calling cleanup actions ..." );
+							do_cleanup_action( $data );
+							delete_site( array( 'site_name' => $ee_domain ) );
+							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						}
 					}
 				} catch ( Exception $e ) {
 
@@ -266,7 +295,6 @@ class Site_Command extends EE_Command {
 	 *
 	 */
 	public function update( $args, $assoc_args ) {
-
 		list( $site_name ) = $args;
 
 		if ( ! empty( $site_name ) ) {

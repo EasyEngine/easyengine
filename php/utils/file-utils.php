@@ -90,7 +90,7 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
 }
 
 /**
- * Rename file.
+ * Rename/Move file.
  *
  * @param      $origin
  * @param      $target
@@ -99,6 +99,12 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
 function ee_file_rename( $origin, $target, $overwrite = false ) {
 	$filesystem = new Filesystem();
 	$filesystem->rename( $origin, $target, $overwrite );
+}
+
+function ee_file_append_content( $file_path, $content ) {
+	$file = fopen( $file_path, 'a' );
+	fwrite( $file, $content . "\n" );
+	fclose( $file );
 }
 
 /**
@@ -139,6 +145,11 @@ function ee_file_is_absolute_path( $file ) {
 	return $absolute_path;
 }
 
+function ee_file_search_replace( $file, $search, $replace ) {
+	$file_content = file_get_contents( $file );
+	file_put_contents( $file, str_replace( $search, $replace, $file_content ) );
+}
+
 /**
  * Dump content in file.
  *
@@ -171,6 +182,28 @@ function get_mysql_config( $section, $key = '' ) {
 	}
 
 	return '';
+}
+
+function get_ee_git_config( $section, $key = '' ) {
+	try {
+		$git_config_file = "~/.gitconfig";
+		$config_data     = get_config_data( $git_config_file, $section, $key );
+
+		return $config_data;
+	} catch ( Exception $e ) {
+		$user_name                   = EE::input_value( "Enter your name: " );
+		$user_email                  = EE::input_value( "Enter your email: " );
+		$config_data['user']['name'] = $user_name;
+		$config_data['user']['name'] = $user_email;
+		$set_username                = EE::exec_cmd( "git config --global user.name {$user_name}" );
+		$set_useremail               = EE::exec_cmd( "git config --global user.email {$user_email}" );
+
+		if ( ! empty( $key ) ) {
+			return $config_data[ $section ][ $key ];
+		} else {
+			return $config_data[ $section ];
+		}
+	}
 }
 
 function get_config_data( $config_file, $section, $key = '' ) {
