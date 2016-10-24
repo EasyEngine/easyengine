@@ -181,12 +181,171 @@ function site_package_check( $stype ) {
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_nginx() );
 			}
 		} else {
-
+			if ( ! grep_string( '/etc/nginx/fastcgi_params', 'SCRIPT_FILENAME' ) ) {
+				ee_file_append_content( '/etc/nginx/fastcgi_params', 'fastcgi_param \tSCRIPT_FILENAME \t$request_filename;\n' );
+			}
 		}
 	}
 
+	if ( 'php7' == $stype ) {
+		EE::error( "INVALID OPTION: PHP 7.0 provided with PHP 5.0" );
+	}
+	$ee_platform_codename = EE_OS::ee_platform_codename();
+	if ( in_array( $stype, array( 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+		EE::log("Setting apt_packages variable for PHP");
+		if ( 'trusty' === $ee_platform_codename || 'xenial' == $ee_platform_codename ) {
+			if ( ! EE_Apt_Get::is_installed( 'php5.6-fpm' ) ) {
+				$apt_packages = array_merge( $apt_packages, EE_Variables::get_php_packages( 'php5.6' ), EE_Variables::get_php_packages( 'phpextra' ) );
+			} else {
+				if ( ! EE_Apt_Get::is_installed( 'php5-fpm' ) ) {
+					$apt_packages = array_merge( $apt_packages, EE_Variables::get_php_packages( 'php' ) );
+				}
+			}
+		}
+	}
 
-	return $packages;
+	// TODO : check if --php7 will be pass in the command.
+//	if ( 'php7' == $stype && in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+//
+//	}
+
+	if ( in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+		EE::debug( "Setting apt_packages variable for MySQL" );
+		if ( 0 !== EE::exec_cmd( "mysqladmin ping" ) ) {
+			$apt_packages = array_merge( $apt_packages, EE_Variables::get_mysql_packages() );
+			$packages = array_merge( $packages, array(
+				"https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl",
+				"/usr/bin/mysqltuner",
+				"MySQLTuner"
+			) );
+		}
+	}
+
+	if ( in_array( $stype, array( 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+		EE::debug( "Setting apt_packages variable for Postfix" );
+		if ( ! EE_Apt_Get::is_installed( 'postfix' ) ) {
+			$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_postfix() );
+		}
+	}
+
+	if ( in_array( $stype, array( 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+		EE::debug( "Setting packages variable for WP-CLI" );
+		if ( 0 !== EE::exec_cmd("which wp")) {
+			$ee_wp_cli = EE_Variables::get_ee_wp_cli_version();
+			$packages = array_merge( $packages, array(
+				"https://github.com/wp-cli/wp-cli/releases/download/v{$ee_wp_cli}/wp-cli-{$ee_wp_cli}.phar",
+				"/usr/bin/wp",
+				"WP-CLI"
+			) );
+		}
+	}
+
+	if ( 'wpredis' === $stype ) {
+		EE::debug("Setting apt_packages variable for redis");
+	    if ( ! EE_Apt_Get::is_installed( 'redis-server' ) ) {
+		    $apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_redis_packages() );
+	    }
+
+	    if ( ee_file_exists("/etc/nginx/nginx.conf") && ! ee_file_exists("/etc/nginx/common/redis.conf")) {
+	    	$data = array();
+		    EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis.conf" );
+		    \EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis.conf', 'redis.mustache', $data );
+	    }
+
+	    if ( ee_file_exists("/etc/nginx/nginx.conf") && ! ee_file_exists("/etc/nginx/common/redis-hhvm.conf")) {
+		    EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis-hhvm.conf" );
+		    \EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis-hhvm.conf', 'redis-hhvm.mustache' );
+	    }
+		if( ee_file_exists("/etc/nginx/conf.d/upstream.conf") ) {
+			if ( ! grep_string('/etc/nginx/conf.d/upstream.conf', 'redis')) {
+				$redis_upstream_content = "upstream redis {\n" .
+			                              "    server 127.0.0.1:6379;\n" .
+			                              "    keepalive 10;\n}";
+				ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $redis_upstream_content );
+			}
+		}
+		if( ee_file_exists("/etc/nginx/conf.d/upstream.conf") && ! ee_file_exists("/etc/nginx/conf.d/redis.conf") ) {
+			$redis_config_content  = "# Log format Settings\n".
+                                 "log_format rt_cache_redis '\$remote_addr \$upstream_response_time \$srcache_fetch_status [\$time_local] '\n".
+                                 "'\$http_host \"\$request\" \$status \$body_bytes_sent '\n".
+                                 "'\"\$http_referer\" \"\$http_user_agent\"';\n";
+			ee_file_append_content( "/etc/nginx/conf.d/redis.conf", $redis_config_content );
+		}
+	}
+
+	if ( 'hhvm' === $stype ) {
+		$platform_architecture = EE_OS::ee_platform_architecture();
+		if ( 'i686' === $platform_architecture || 'i386' === $platform_architecture ) {
+			EE::error( "HHVM is not supported by 32bit system" );
+		}
+		EE::debug( "Setting apt_packages variable for HHVM" );
+		if ( ! EE_Apt_Get::is_installed( 'hhvm' ) ) {
+			$apt_packages = array_merge( $apt_packages, EE_Variables::get_hhvm_packages() );
+		}
+
+		if ( ee_file_exists( "/etc/nginx/common" ) && ! ee_file_exists( "/etc/nginx/common/php-hhvm.conf" ) ) {
+			EE::debug("Writting the nginx configuration to file /etc/nginx/common/php-hhvm.conf");
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/php-hhvm.conf', 'php-hhvm.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/w3tc-hhvm.conf" );
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/w3tc-hhvm.conf', 'w3tc-hhvm.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/wpfc-hhvm.conf" );
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpfc-hhvm.conf', 'wpfc-hhvm.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/wpsc-hhvm.conf" );
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpsc-hhvm.conf', 'wpsc-hhvm.mustache' );
+		}
+
+		if ( ee_file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
+			if ( ! grep_string( "/etc/nginx/conf.d/upstream.conf", "hhvm" ) ) {
+				$upstream_config_content = "upstream hhvm {\nserver 127.0.0.1:8000;\nserver 127.0.0.1:9000 backup;\n}\n";
+				ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $upstream_config_content );
+			}
+		}
+	}
+
+	if ( 'php7' === $stype ) {
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		if ('wheezy' === $ee_platform_codename || 'precise' === $ee_platform_codename ){
+			EE::error( "PHP 7.0 is not supported in your Platform" );
+		}
+
+		EE::debug( "Setting apt_packages variable for PHP 7.0" );
+		if ( ! EE_Apt_Get::is_installed( 'php7.0-fpm' ) ) {
+			$apt_packages = array_merge( $apt_packages, EE_Variables::get_php_packages( 'php7.0' ), EE_Variables::get_php_packages( 'phpextra' ) );
+		}
+
+		if ( ee_file_exists( "/etc/nginx/common" ) && ! ee_file_exists( "/etc/nginx/common/php7.conf" ) ) {
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/locations-php7.conf" );
+			\EE\Utils\mustache_write_in_file( "/etc/nginx/common/locations-php7.conf", 'locations-php7.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/php7.conf" );
+			\EE\Utils\mustache_write_in_file( "/etc/nginx/common/php7.conf", 'php7.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/w3tc-php7.conf" );
+			\EE\Utils\mustache_write_in_file( "/etc/nginx/common/w3tc-php7.conf", 'wpfc-php7.mustache' );
+
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/wpsc-php7.conf" );
+			\EE\Utils\mustache_write_in_file( "/etc/nginx/common/wpsc-php7.conf", 'wpsc-php7.mustache' );
+		}
+
+		if ( ee_file_exists( "/etc/nginx/nginx.conf" ) && ! ee_file_exists( "/etc/nginx/common/redis-php7.conf" ) ) {
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis-php7.conf" );
+			\EE\Utils\mustache_write_in_file( "/etc/nginx/common/redis-php7.conf", 'redis-php7.mustache' );
+		}
+
+		if ( ee_file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
+			if ( grep_string( "/etc/nginx/conf.d/upstream.conf", "php7" ) ) {
+				$upstream_config_content = "upstream php7 {\nserver 127.0.0.1:9070;\n}\n" .
+				                           "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n";
+				ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $upstream_config_content );
+			}
+		}
+	}
+
+	$install_packages = $stack->install( $apt_packages, $packages );
+	return $install_packages;
 }
 
 function delete_db( $dbname, $dbuser, $dbhost, $exit = true ) {

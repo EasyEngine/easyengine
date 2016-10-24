@@ -188,6 +188,30 @@ class EE_Variables {
 		return $ee_php_repo;
 	}
 
+	public static function get_ee_postfix() {
+		return array( 'postfix' );
+	}
+
+	public static function get_ee_redis_packages() {
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		if ( $ee_platform_codename == 'trusty' || $ee_platform_codename == 'xenial' ) {
+			$ee_redis = array( 'redis-server', 'php-redis' );
+		} else {
+			$ee_redis = array( 'redis-server', 'php5-redis' );
+		}
+		return $ee_redis;
+	}
+
+	public static function get_hhvm_packages() {
+		return array( "hhvm" );
+	}
+
+	public static function get_mysql_packages() {
+		$mysql_pkg = array( "mariadb-server", "percona-toolkit" );
+
+		return $mysql_pkg;
+	}
+
 	/**
 	 * Get packages of php.
 	 *
