@@ -18,6 +18,7 @@ include EE_ROOT . '/php/utils/class-ee-repo.php';
 include EE_ROOT . '/php/utils/class-ee-git.php';
 include EE_ROOT . '/php/utils/class-ee-mysql.php';
 include EE_ROOT . '/php/utils/class-sqlite-db.php';
+include EE_ROOT . '/php/utils/class-ee-cron.php';
 include EE_ROOT . '/php/utils/site-db.php';
 include EE_ROOT . '/php/utils/site-function.php';
 

@@ -40,7 +40,7 @@ function setup_domain( $data ) {
 		EE::error( 'create nginx configuration failed for site' );
 	} finally {
 		EE::debug( 'Checking generated nginx conf, please wait...' );
-		self::pre_run_checks();
+		pre_run_checks();
 		$filesystem->symlink( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, EE_NGINX_SITE_ENABLE_DIR . $ee_domain_name );
 	}
 	if ( empty( $data['proxy'] ) ) {
@@ -158,6 +158,33 @@ function setup_database( $data ) {
 function site_package_check( $stype ) {
 	$apt_packages = array();
 	$packages     = array();
+	$stack        = new Stack_Command();
+
+	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain',	'php7' ) ) ) {
+		EE::debug( "Setting apt_packages variable for Nginx" );
+		// Check if server has nginx-custom package.
+		if ( ! EE_Apt_Get::is_installed( 'nginx-custom' ) || ! EE_Apt_Get::is_installed( 'nginx-mainline' ) ) {
+			// Check if Server has nginx-plus installed.
+			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
+				EE::log( "NGINX PLUS Detected ..." );
+				$apt = EE_Variables::get_ee_nginx();
+				$apt[] = "nginx-plus";
+				$stack->post_pref($apt, $packages);
+			} else if ( EE_Apt_Get::is_installed( 'nginx' ) ) {
+				EE::log( "EasyEngine detected a previously installed Nginx package. " .
+				         "It may or may not have required modules. " .
+				         "\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n" );
+				$apt = EE_Variables::get_ee_nginx();
+				$apt[] = "nginx";
+				$stack->post_pref($apt, $packages);
+			} else {
+				$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_nginx() );
+			}
+		} else {
+
+		}
+	}
+
 
 	return $packages;
 }
@@ -583,6 +610,26 @@ function display_cache_settings( $data ) {
 	}
 }
 
+function clone_lets_encrypt() {
+	$letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt";
+	if ( ! ee_file_exists( "/opt" ) ) {
+		ee_file_mkdir( "/opt" );
+	}
+	try {
+		EE::log( "Downloading LetsEncrypt" );
+		chdir( '/opt/' );
+		EE::exec_cmd( "git clone {$letsencrypt_repo}" );
+		EE::success( "[Done]" );
+
+		return true;
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "Unable to download file, LetsEncrypt" );
+
+		return false;
+	}
+}
+
 function setup_lets_encrypt( $ee_domain_name ) {
 	$ee_wp_email = get_ee_git_config( 'user', 'email' );
 
@@ -595,7 +642,119 @@ function setup_lets_encrypt( $ee_domain_name ) {
 		}
 	}
 
-	if ( ee_file_exists( "/opt/letsencrypt" ) ) {
-
+	if ( ! ee_file_exists( "/opt/letsencrypt" ) ) {
+		clone_lets_encrypt();
 	}
+	chdir( '/opt/letsencrypt' );
+	EE::exec_cmd( "git pull" );
+
+	if ( ee_file_exists( "/etc/letsencrypt/renewal/{$ee_domain_name}.conf" ) ) {
+		EE::debug( "LetsEncrypt SSL Certificate found for the domain {$ee_domain_name}" );
+		$ssl = archived_certificate_handle( $ee_domain_name, $ee_wp_email );
+	} else {
+		EE::warning( "Please Wait while we fetch SSL Certificate for your site.\nIt may take time depending upon network." );
+		$ssl = EE::exec_cmd( "./letsencrypt-auto certonly --webroot -w /var/www/{$ee_domain_name}/htdocs/ -d {$ee_domain_name} -d www.{$ee_domain_name} --email {$ee_wp_email} --text --agree-tos" );
+		if ( 0 === $ssl ) {
+			$ssl = true;
+		}
+	}
+
+	if ( $ssl ) {
+		EE::log( "Let's Encrypt successfully setup for your site" );
+		EE::log( "Your certificate and chain have been saved at /etc/letsencrypt/live/{$ee_domain_name}/fullchain.pem" );
+		EE::log( "Configuring Nginx SSL configuration" );
+		try {
+			EE::log( "Adding /var/www/{$ee_domain_name}/conf/nginx/ssl.conf" );
+			$ssl_config_content = "listen 443 ssl http2;\n";
+			$ssl_config_content .= "ssl on;\n";
+			$ssl_config_content .= "ssl_certificate     /etc/letsencrypt/live/{0}/fullchain.pem;\n";
+			$ssl_config_content .= "ssl_certificate_key     /etc/letsencrypt/live/{0}/privkey.pem;\n";
+			ee_file_dump( "/var/www/{$ee_domain_name}/conf/nginx/ssl.conf", $ssl_config_content );
+			EE_Git::add( array( "/etc/letsencrypt" ), "Adding letsencrypt folder" );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Error occured while generating ssl.conf" );
+		}
+	} else {
+		EE::error( "Unable to setup, Let's Encrypt", false );
+		EE::error( "Please make sure that your site is pointed to \n" .
+		           "same server on which you are running Let's Encrypt Client " .
+		           "\n to allow it to verify the site automatically.", false );
+	}
+}
+
+function https_redirect( $ee_domain_name, $redirect = true ) {
+	if ( $redirect ) {
+		if ( ee_file_exists( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf.disabled" ) ) {
+			ee_file_rename( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf.disabled", "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
+		} else {
+			try {
+				EE::log( "Adding /etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
+				$ssl_config_content = "server {\n".
+                                     "\tlisten 80;\n".
+                                     "\tserver_name www.{$ee_domain_name} {$ee_domain_name};\n".
+                                     "\treturn 301 https://{$ee_domain_name}\$request_uri;\n}";
+				ee_file_dump( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf", $ssl_config_content );
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::log( "Error occured while generating /etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
+			}
+		}
+		EE::log("Added HTTPS Force Redirection for Site http://{$ee_domain_name}");
+		EE_Git::add( array( "/etc/nginx" ), "Adding /etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
+	} else {
+		if ( ee_file_exists( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" ) ) {
+			ee_file_rename( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf", "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf.disabled" );
+			EE::log( "Disabled HTTPS Force Redirection for Site http://{$ee_domain_name}" );
+		}
+	}
+}
+
+function archived_certificate_handle( $domain, $ee_wp_email ) {
+	EE::log( "You already have an existing certificate for the domain requested.\n" .
+	         "(ref: /etc/letsencrypt/renewal/{$domain}.conf)" .
+	         "\nPlease select an option from below?" .
+	         "\n\t1: Reinstall existing certificate" .
+	         "\n\t2: Keep the existing certificate for now" .
+	         "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)" );
+	$selected_option = EE::input_value( "\nType the appropriate number [1-3] or any other key to cancel: " );
+
+	if ( ! ee_file_exists("/etc/letsencrypt/live/{$domain}/cert.pem")) {
+		EE::error("/etc/letsencrypt/live/{$domain}/cert.pem file is missing.");
+	}
+
+	switch ( $selected_option ) {
+		case '1' :
+			EE::log("Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network.");
+			$ssl = EE::exec_cmd( "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{$domain}/htdocs/ -d {$domain} -d www.{$domain} --email {$ee_wp_email} --text --agree-tos" );
+			if ( 0 === $ssl ) {
+				$ssl = true;
+			}
+			break;
+		case '2' :
+			EE::log("Using Existing Certificate files");
+			if ( ! ee_file_exists( "/etc/letsencrypt/live/{$domain}/fullchain.pem" ) || ! ee_file_exists( "/etc/letsencrypt/live/{$domain}/privkey.pem" ) ) {
+				EE::error( "Certificate files not found. Skipping.\n" .
+				           "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t" .
+				           "/etc/letsencrypt/live/{0}/privkey.pem" );
+			}
+			$ssl = true;
+			break;
+		case '3' :
+			EE::log("Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network.");
+			$ssl = EE::exec_cmd("./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{$domain}/htdocs/ -d {$domain} -d www.{$domain} --email {$ee_wp_email} --text --agree-tos");
+			if ( 0 === $ssl ) {
+				$ssl = true;
+			}
+			break;
+		default :
+			$ssl = false;
+			EE::error( "Operation cancelled by user.", false );
+	}
+
+	if ( ee_file_exists("{$domain}/conf/nginx/ssl.conf")) {
+		EE::log("Existing ssl.conf . Backing it up ..");
+		ee_file_rename( "/var/www/{$domain}/conf/nginx/ssl.conf/", "/var/www/{$domain}/conf/nginx/ssl.conf.bak" );
+	}
+	return $ssl;
 }

@@ -127,6 +127,11 @@ class EE_Variables {
 		return $php_version;
 	}
 
+	public static function get_ee_nginx() {
+		$ee_nginx = array( "nginx-custom", "nginx-ee" );
+
+		return $ee_nginx;
+	}
 	/**
 	 * Get list of packages need for on package.
 	 *

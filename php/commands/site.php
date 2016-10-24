@@ -348,7 +348,7 @@ class Site_Command extends EE_Command {
 						setup_lets_encrypt( $ee_domain );
 						https_redirect( $ee_domain );
 						EE::log( "Creating Cron Job for cert auto-renewal" );
-						EE_Cron::setcron_weekly( 'ee site update --le=renew --all 2> /dev/null', 'Renew all letsencrypt SSL cert. Set by EasyEngine' );
+						EE_Cron::set_cron_weekly( 'ee site update --le=renew --all 2> /dev/null', 'Renew all letsencrypt SSL cert. Set by EasyEngine' );
 
 						if ( EE_Service::reload_service( 'nginx' ) ) {
 							EE::log( "service nginx reload failed. check issues with `nginx -t` command" );
