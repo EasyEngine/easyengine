@@ -141,9 +141,9 @@ class EE_Apt_Get
 		}
 	}
 
-	// 	public static function is_installed($package){
-// 		//todo:
-// }
+ 	public static function is_installed($package){
+ 		//todo:
+ }
 }
 
 

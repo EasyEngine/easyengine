@@ -20,14 +20,14 @@ function load_dependencies() {
 		}
 	}
 
-	if ( !$has_autoload ) {
+	if ( ! $has_autoload ) {
 		fputs( STDERR, "Internal error: Can't find Composer autoloader.\nTry running: composer install\n" );
-		exit(3);
+		exit( 3 );
 	}
 }
 
 function get_vendor_paths() {
-	$vendor_paths = array(
+	$vendor_paths        = array(
 		EE_ROOT . '/../../../vendor',  // part of a larger project / installed via Composer (preferred)
 		EE_ROOT . '/vendor',           // top-level project / installed as Git clone
 	);
@@ -38,6 +38,7 @@ function get_vendor_paths() {
 			array_unshift( $vendor_paths, EE_ROOT . '/../../../' . $composer->{'vendor-dir'} );
 		}
 	}
+
 	return $vendor_paths;
 }
 
@@ -60,8 +61,9 @@ function load_all_commands() {
 	$iterator = new \DirectoryIterator( $cmd_dir );
 
 	foreach ( $iterator as $filename ) {
-		if ( '.php' != substr( $filename, -4 ) )
+		if ( '.php' != substr( $filename, - 4 ) ) {
 			continue;
+		}
 
 		include_once "$cmd_dir/$filename";
 	}
@@ -83,7 +85,8 @@ function load_all_commands() {
  *     }
  *
  * @param array|object Either a plain array or another iterator
- * @param callback The function to apply to an element
+ * @param              callback The function to apply to an element
+ *
  * @return object An iterator that applies the given callback(s)
  */
 function iterator_map( $it, $fn ) {
@@ -91,7 +94,7 @@ function iterator_map( $it, $fn ) {
 		$it = new \ArrayIterator( $it );
 	}
 
-	if ( !method_exists( $it, 'add_transform' ) ) {
+	if ( ! method_exists( $it, 'add_transform' ) ) {
 		$it = new Transform( $it );
 	}
 
@@ -104,9 +107,11 @@ function iterator_map( $it, $fn ) {
 
 /**
  * Search for file by walking up the directory tree until the first file is found or until $stop_check($dir) returns true
+ *
  * @param string|array The files (or file) to search for
- * @param string|null The directory to start searching from; defaults to CWD
- * @param callable Function which is passed the current dir each time a directory level is traversed
+ * @param string|null  The directory to start searching from; defaults to CWD
+ * @param              callable Function which is passed the current dir each time a directory level is traversed
+ *
  * @return null|string Null if the file was not found
  */
 function find_file_upward( $files, $dir = null, $stop_check = null ) {
@@ -128,18 +133,20 @@ function find_file_upward( $files, $dir = null, $stop_check = null ) {
 		}
 
 		$parent_dir = dirname( $dir );
-		if ( empty($parent_dir) || $parent_dir === $dir ) {
+		if ( empty( $parent_dir ) || $parent_dir === $dir ) {
 			break;
 		}
 		$dir = $parent_dir;
 	}
+
 	return null;
 }
 
 function is_path_absolute( $path ) {
 	// Windows
-	if ( isset($path[1]) && ':' === $path[1] )
+	if ( isset( $path[1] ) && ':' === $path[1] ) {
 		return true;
+	}
 
 	return $path[0] === '/';
 }
@@ -148,6 +155,7 @@ function is_path_absolute( $path ) {
  * Composes positional arguments into a command string.
  *
  * @param array
+ *
  * @return string
  */
 function args_to_str( $args ) {
@@ -158,16 +166,18 @@ function args_to_str( $args ) {
  * Composes associative arguments into a command string.
  *
  * @param array
+ *
  * @return string
  */
 function assoc_args_to_str( $assoc_args ) {
 	$str = '';
 
 	foreach ( $assoc_args as $key => $value ) {
-		if ( true === $value )
+		if ( true === $value ) {
 			$str .= " --$key";
-		else
+		} else {
 			$str .= " --$key=" . escapeshellarg( $value );
+		}
 	}
 
 	return $str;
@@ -178,8 +188,9 @@ function assoc_args_to_str( $assoc_args ) {
  * returns the final command, with the parameters escaped.
  */
 function esc_cmd( $cmd ) {
-	if ( func_num_args() < 2 )
+	if ( func_num_args() < 2 ) {
 		trigger_error( 'esc_cmd() requires at least two arguments.', E_USER_WARNING );
+	}
 
 	$args = func_get_args();
 
@@ -191,13 +202,13 @@ function esc_cmd( $cmd ) {
 /**
  * Output items in a table, JSON, CSV, ids, or the total count
  *
- * @param string        $format     Format to use: 'table', 'json', 'csv', 'ids', 'count'
- * @param array         $items      Data to output
- * @param array|string  $fields     Named fields for each item of data. Can be array or comma-separated list
+ * @param string       $format Format to use: 'table', 'json', 'csv', 'ids', 'count'
+ * @param array        $items Data to output
+ * @param array|string $fields Named fields for each item of data. Can be array or comma-separated list
  */
 function format_items( $format, $items, $fields ) {
 	$assoc_args = compact( 'format', 'fields' );
-	$formatter = new \EE\Formatter( $assoc_args );
+	$formatter  = new \EE\Formatter( $assoc_args );
 	$formatter->display_items( $items );
 }
 
@@ -205,7 +216,8 @@ function format_items( $format, $items, $fields ) {
  * Pick fields from an associative array or object.
  *
  * @param array|object Associative array or object to pick fields from
- * @param array List of fields to pick
+ * @param              array List of fields to pick
+ *
  * @return array
  */
 function pick_fields( $item, $fields ) {
@@ -226,14 +238,17 @@ function pick_fields( $item, $fields ) {
  * IMPORTANT: Automatic HTML escaping is disabled!
  */
 function mustache_render( $template_name, $data ) {
-	if ( ! file_exists( $template_name ) )
+	if ( ! file_exists( $template_name ) ) {
 		$template_name = EE_ROOT . "/templates/$template_name";
+	}
 
 	$template = file_get_contents( $template_name );
 
 	$m = new \Mustache_Engine( array(
-		'escape' => function ( $val ) { return $val; }
-	) );
+		                           'escape' => function ( $val ) {
+			                           return $val;
+		                           }
+	                           ) );
 
 	return $m->render( $template, $data );
 }
@@ -246,8 +261,9 @@ function mustache_write_in_file( $filename, $template_name, $data = array() ) {
 }
 
 function make_progress_bar( $message, $count ) {
-	if ( \cli\Shell::isPiped() )
+	if ( \cli\Shell::isPiped() ) {
 		return new \EE\NoOp;
+	}
 
 	return new \cli\progress\Bar( $message, $count );
 }
@@ -255,7 +271,7 @@ function make_progress_bar( $message, $count ) {
 function parse_url( $url ) {
 	$url_parts = \parse_url( $url );
 
-	if ( !isset( $url_parts['scheme'] ) ) {
+	if ( ! isset( $url_parts['scheme'] ) ) {
 		$url_parts = parse_url( 'http://' . $url );
 	}
 
@@ -292,8 +308,9 @@ function replace_path_consts( $source, $path ) {
  *
  * @param string $method
  * @param string $url
- * @param array $headers
- * @param array $options
+ * @param array  $headers
+ * @param array  $options
+ *
  * @return object
  */
 function http_request( $method, $url, $data = null, $headers = array(), $options = array() ) {
@@ -301,30 +318,30 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 	$cert_path = '/rmccue/requests/library/Requests/Transport/cacert.pem';
 	if ( inside_phar() ) {
 		// cURL can't read Phar archives
-		$options['verify'] = extract_from_phar(
-			EE_ROOT . '/vendor' . $cert_path );
+		$options['verify'] = extract_from_phar( EE_ROOT . '/vendor' . $cert_path );
 	} else {
-		foreach( get_vendor_paths() as $vendor_path ) {
+		foreach ( get_vendor_paths() as $vendor_path ) {
 			if ( file_exists( $vendor_path . $cert_path ) ) {
 				$options['verify'] = $vendor_path . $cert_path;
 				break;
 			}
 		}
-		if ( empty( $options['verify'] ) ){
-			EE::error_log( "Cannot find SSL certificate." );
+		if ( empty( $options['verify'] ) ) {
+			\EE::error_log( "Cannot find SSL certificate." );
 		}
 	}
 
 	try {
 		$request = \Requests::request( $url, $headers, $data, $method, $options );
+
 		return $request;
-	} catch( \Requests_Exception $ex ) {
+	} catch ( \Requests_Exception $ex ) {
 		// Handle SSL certificate issues gracefully
 		\EE::warning( $ex->getMessage() );
 		$options['verify'] = false;
 		try {
 			return \Requests::request( $url, $headers, $data, $method, $options );
-		} catch( \Requests_Exception $ex ) {
+		} catch ( \Requests_Exception $ex ) {
 			\EE::error( $ex->getMessage() );
 		}
 	}
@@ -335,6 +352,7 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
  *
  * @param string $new_version
  * @param string $original_version
+ *
  * @return string $name 'major', 'minor', 'patch'
  */
 function get_named_sem_ver( $new_version, $original_version ) {
@@ -358,9 +376,10 @@ function get_named_sem_ver( $new_version, $original_version ) {
 /**
  * Return the flag value or, if it's not set, the $default value.
  *
- * @param array  $args    Arguments array.
- * @param string $flag    Flag to get the value.
+ * @param array  $args Arguments array.
+ * @param string $flag Flag to get the value.
  * @param mixed  $default Default value for the flag. Default: NULL
+ *
  * @return mixed
  */
 function get_flag_value( $args, $flag, $default = null ) {
@@ -375,12 +394,13 @@ function get_flag_value( $args, $flag, $default = null ) {
 function get_temp_dir() {
 	static $temp = '';
 
-	$trailingslashit = function( $path ) {
+	$trailingslashit = function ( $path ) {
 		return rtrim( $path ) . '/';
 	};
 
-	if ( $temp )
+	if ( $temp ) {
 		return $trailingslashit( $temp );
+	}
 
 	if ( function_exists( 'sys_get_temp_dir' ) ) {
 		$temp = sys_get_temp_dir();
@@ -391,7 +411,7 @@ function get_temp_dir() {
 	}
 
 	if ( ! @is_writable( $temp ) ) {
-		EE::warning( "Temp directory isn't writable: {$temp}" );
+		\EE::warning( "Temp directory isn't writable: {$temp}" );
 	}
 
 	return $trailingslashit( $temp );

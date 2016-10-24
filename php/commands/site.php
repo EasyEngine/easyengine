@@ -185,10 +185,10 @@ class Site_Command extends EE_Command {
 				if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
 					$data['basic'] = true;
 				}
-				$ee_auth = Site_Function::site_package_check( $stype );
+				$ee_auth = site_package_check( $stype );
 
 				try {
-					Site_Function::pre_run_checks();
+					pre_run_checks();
 				} catch ( Exception $e ) {
 					EE::debug( $e->getMessage() );
 					EE::error( 'NGINX configuration check failed.' );
@@ -196,12 +196,12 @@ class Site_Command extends EE_Command {
 
 				try {
 					try {
-						Site_Function::setup_domain( $data );
+						setup_domain( $data );
 						//				hashbucket();
 					} catch ( Exception $e ) {
 						EE::log( 'Oops Something went wrong !!' );
 						EE::log( 'Calling cleanup actions ...' );
-						Site_Function::do_cleanup_action( $ee_domain, $data['webroot'] );
+						do_cleanup_action( $data );
 						EE::debug( $e->getMessage() );
 						EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
 					}
@@ -212,7 +212,7 @@ class Site_Command extends EE_Command {
 						if ( ! $reload_nginx ) {
 							EE::log( 'Oops Something went wrong !!' );
 							EE::log( 'Calling cleanup actions ...' );
-							Site_Function::do_cleanup_action( $ee_domain, $data['webroot'] );
+							do_cleanup_action( $data );
 							EE::error( 'Service nginx reload failed. check issues with `nginx -t` command.' );
 							EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
 						}
@@ -230,8 +230,46 @@ class Site_Command extends EE_Command {
 					}
 					add_new_site( $data );
 
-					if ( ! empty( $data['ee_db_name'] ) && ! $data['wp'] ) {
-						
+					if ( isset( $data['ee_db_name'] ) && ! $data['wp'] ) {
+						try {
+							$data = setup_database( $data );
+							update_site( $data, array( 'site_name' => $data['site_name'] ) );
+						} catch ( Exception $e ) {
+							EE::debug( $e->getMessage() );
+							EE::log( "Oops Something went wrong !!" );
+							EE::log( "Calling cleanup actions ..." );
+							do_cleanup_action( $data );
+							delete_site( array( 'site_name' => $ee_domain ) );
+						}
+
+						try {
+							$ee_db_config  = $ee_site_webroot . "/ee-config.php";
+							$ee_db_content = "<?php \ndefine('DB_NAME', '{$data['ee_db_name']}');" . "\ndefine('DB_USER', '{$data['ee_db_user']}'); " . "\ndefine('DB_PASSWORD', '{$data['ee_db_pass']}');" . "\ndefine('DB_HOST', '{$data['ee_db_host']}');\n?>";
+							ee_file_dump( $ee_db_config, $ee_db_content );
+							$stype = 'mysql';
+						} catch ( Exception $e ) {
+							EE::debug( $e->getMessage() );
+							EE::debug( "Error occured while generating ee-config.php" );
+							EE::log( "Oops Something went wrong !!" );
+							EE::log( "Calling cleanup actions ..." );
+							do_cleanup_action( $data );
+							delete_site( array( 'site_name' => $ee_domain ) );
+							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						}
+					}
+
+					if ( $data["wp"] ) {
+						try {
+							$ee_wp_creds = setup_wordpress( $data );
+							update_site( $data, array( 'site_name' => $data['site_name'] ) );
+						} catch ( Exception $e ) {
+							EE::debug( $e->getMessage() );
+							EE::log( "Oops Something went wrong !!" );
+							EE::log( "Calling cleanup actions ..." );
+							do_cleanup_action( $data );
+							delete_site( array( 'site_name' => $ee_domain ) );
+							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						}
 					}
 				} catch ( Exception $e ) {
 
@@ -257,7 +295,6 @@ class Site_Command extends EE_Command {
 	 *
 	 */
 	public function update( $args, $assoc_args ) {
-
 		list( $site_name ) = $args;
 
 		if ( ! empty( $site_name ) ) {

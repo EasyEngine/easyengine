@@ -42,6 +42,16 @@ class EE_Variables {
 		return $ee_db_path;
 	}
 
+	public static function get_ee_mysql_host() {
+
+		$ee_mysql_host = get_mysql_config( 'client', 'host' );
+		if ( empty( $ee_mysql_host ) ) {
+			$ee_mysql_host = 'localhost';
+		}
+
+		return $ee_mysql_host;
+	}
+
 	public static function get_ee_wp_cli_version() {
 
 		$ee_wp_cli_version_check = EE::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1 | tr -d '\n'" );
@@ -56,11 +66,13 @@ class EE_Variables {
 
 	public static function get_ee_webroot() {
 		$ee_webroot = '/var/www/';
+
 		return $ee_webroot;
 	}
 
 	public static function get_ee_php_user() {
 		$ee_php_user = 'www-data';
+
 		return $ee_php_user;
 	}
 
@@ -136,11 +148,12 @@ class EE_Variables {
 		$ee_platform_codename = EE_OS::ee_platform_codename();
 		$ee_php_repo          = '';
 		if ( 'ubuntu' === $ee_platform_distro ) {
-				$ee_mysql_repo =  "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu" .$ee_platform_codename. "main" ;
+			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu" . $ee_platform_codename . "main";
 
 		} else if ( 'debian' === $ee_platform_distro ) {
-			$ee_mysql_repo =  "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/debian" .$ee_platform_codename. "main" ;
+			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/debian" . $ee_platform_codename . "main";
 		}
+
 		return $ee_mysql_repo;
 	}
 

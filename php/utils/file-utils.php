@@ -3,6 +3,7 @@
  * Symfony filesystem functions.
  */
 use Symfony\Component\Filesystem\Filesystem;
+use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
 
 /**
  * Copy files.
@@ -20,7 +21,11 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * Create directory.
  *
  * @param string|array|\Traversable $dirs
+<<<<<<< HEAD
  * @param int $mode
+=======
+ * @param int                       $mode
+>>>>>>> b0698cceb87273f11b6f7af6d588ce088d3dc1cb
  */
 function ee_file_mkdir( $dirs, $mode = 0755 ) {
 	$filesystem = new Filesystem();
@@ -89,7 +94,7 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
 }
 
 /**
- * Rename file.
+ * Rename/Move file.
  *
  * @param      $origin
  * @param      $target
@@ -98,6 +103,12 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
 function ee_file_rename( $origin, $target, $overwrite = false ) {
 	$filesystem = new Filesystem();
 	$filesystem->rename( $origin, $target, $overwrite );
+}
+
+function ee_file_append_content( $file_path, $content ) {
+	$file = fopen( $file_path, 'a' );
+	fwrite( $file, $content . "\n" );
+	fclose( $file );
 }
 
 /**
@@ -138,6 +149,11 @@ function ee_file_is_absolute_path( $file ) {
 	return $absolute_path;
 }
 
+function ee_file_search_replace( $file, $search, $replace ) {
+	$file_content = file_get_contents( $file );
+	file_put_contents( $file, str_replace( $search, $replace, $file_content ) );
+}
+
 /**
  * Dump content in file.
  *
@@ -162,4 +178,70 @@ function grep_string( $file, $string ) {
 	}
 
 	return false;
+}
+function get_ee_config( $section, $key = '' ) {
+	$config_data = get_config_data( EE_CONFIG_FILE, $section, $key );
+
+	return $config_data;
+}
+
+function get_mysql_config( $section, $key = '' ) {
+	$my_cnf_file = '';
+	if ( ee_file_exists( '/etc/mysql/conf.d/my.cnf' ) ) {
+		$my_cnf_file = '/etc/mysql/conf.d/my.cnf';
+	} else if ( ee_file_exists( '~/.my.cnf' ) ) {
+		$my_cnf_file = '~/.my.cnf';
+	}
+	if ( ! empty( $my_cnf_file ) ) {
+		$config_data = get_config_data( $my_cnf_file, $section, $key );
+
+		return $config_data;
+	}
+
+	return '';
+}
+
+function get_ee_git_config( $section, $key = '' ) {
+	try {
+		$git_config_file = "~/.gitconfig";
+		$config_data     = get_config_data( $git_config_file, $section, $key );
+
+		return $config_data;
+	} catch ( Exception $e ) {
+		$user_name                   = EE::input_value( "Enter your name: " );
+		$user_email                  = EE::input_value( "Enter your email: " );
+		$config_data['user']['name'] = $user_name;
+		$config_data['user']['name'] = $user_email;
+		$set_username                = EE::exec_cmd( "git config --global user.name {$user_name}" );
+		$set_useremail               = EE::exec_cmd( "git config --global user.email {$user_email}" );
+
+		if ( ! empty( $key ) ) {
+			return $config_data[ $section ][ $key ];
+		} else {
+			return $config_data[ $section ];
+		}
+	}
+}
+
+function get_config_data( $config_file, $section, $key = '' ) {
+
+	$ee_config = new ConfigParser();
+	$ee_config->read( $config_file );
+	$get_config_data = '';
+	if ( ! empty( $ee_config[ $section ] ) ) {
+		$get_config_data = $ee_config[ $section ];
+		if ( ! empty( $key ) ) {
+			if ( ! empty( $ee_config[ $section ][ $key ] ) ) {
+				$get_config_data = $ee_config[ $section ][ $key ];
+			} else {
+				$get_config_data = '';
+			}
+		}
+	}
+
+	return $get_config_data;
+}
+
+function set_config_data() {
+	//	$cfg->set('server', '192.168.1.1.');
 }
