@@ -315,167 +315,287 @@ function setup_wordpress( $data ) {
 			EE::debug( $e->getMessage() );
 			EE::log( "Input table prefix failed" );
 		}
-		if ( empty( $ee_wp_prefix ) ) {
-			$ee_wp_prefix = 'wp_';
-		}
+	}
 
-		// Modify wp-config.php & move outside the webroot.
-		chdir( $ee_site_webroot . '/htdocs/' );
-		EE::debug( "Setting up wp-config file" );
-		$ee_wp_cli_path = EE_Variables::get_ee_wp_cli_path();
-		$wpredis        = empty( $data['wpredis'] ) ? '' : "\n\ndefine( WP_CACHE_KEY_SALT, {$ee_domain_name}: );";
+	if ( empty( $ee_wp_prefix ) ) {
+		$ee_wp_prefix = 'wp_';
+	}
 
-		if ( false == $data['multisite'] ) {
-			EE::debug( "Generating wp-config for WordPress Single site" );
-			EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+	// Modify wp-config.php & move outside the webroot.
+	chdir( $ee_site_webroot . '/htdocs/' );
+	EE::debug( "Setting up wp-config file" );
+	$ee_wp_cli_path = EE_Variables::get_ee_wp_cli_path();
+	$wpredis        = empty( $data['wpredis'] ) ? '' : "\n\ndefine( WP_CACHE_KEY_SALT, {$ee_domain_name}: );";
+
+	if ( false == $data['multisite'] ) {
+		EE::debug( "Generating wp-config for WordPress Single site" );
+		EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
 			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
 			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine(WP_DEBUG, false); {$wpredis} PHP\"" );
 
-			try {
+		try {
 
-				$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
 			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
 			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
 
-				if ( 0 != $generate_config ) {
-					EE::log( "Generate wp-config failed for wp single site" );
-				}
-			} catch ( Exception $e ) {
-				EE::debug( $e->getMessage() );
+			if ( 0 != $generate_config ) {
 				EE::log( "Generate wp-config failed for wp single site" );
 			}
-		} else {
-			EE::log( "Generating wp-config for WordPress multisite" );
-			EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Generate wp-config failed for wp single site" );
+		}
+	} else {
+		EE::log( "Generating wp-config for WordPress multisite" );
+		EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
 			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
 			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
 			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
 
-			try {
+		try {
 
-				$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
+			$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
 			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
 			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
 			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
 
-				if ( 0 != $generate_config ) {
-					EE::log( "Generate wp-config failed for wp multi site" );
-				}
-			} catch ( Exception $e ) {
-				EE::debug( $e->getMessage() );
+			if ( 0 != $generate_config ) {
 				EE::log( "Generate wp-config failed for wp multi site" );
 			}
-		}
-
-		$wp_config_htdocs_file = $ee_site_webroot . '/htdocs/wp-config.php';
-		$wp_config_file        = $ee_site_webroot . '/wp-config.php';
-
-		try {
-			EE::debug( "Moving file from {$wp_config_htdocs_file} to {$wp_config_file}" );
-			ee_file_rename( $wp_config_htdocs_file, $wp_config_file );
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( "Unable to move from {$wp_config_htdocs_file} to {$wp_config_file}\"" );
-
-			return false;
+			EE::log( "Generate wp-config failed for wp multi site" );
 		}
+	}
 
-		if ( empty( $ee_wp_user ) ) {
-			$ee_wp_user = get_ee_git_config( 'user', 'name' );
-			while ( empty( $ee_wp_user ) ) {
-				EE::warning( "Username can have only alphanumeric characters, spaces, underscores, hyphens, periods and the @ symbol." );
-				try {
-					$ee_wp_user = EE::input_value( 'Enter WordPress username: ' );
-				} catch ( Exception $e ) {
-					EE::debug( $e->getMessage() );
-					EE::log( "input WordPress username failed" );
-				}
-			}
-		}
+	$wp_config_htdocs_file = $ee_site_webroot . '/htdocs/wp-config.php';
+	$wp_config_file        = $ee_site_webroot . '/wp-config.php';
 
-		if ( empty( $ee_wp_pass ) ) {
-			$ee_wp_pass = $ee_random_pwd;
-		}
+	try {
+		EE::debug( "Moving file from {$wp_config_htdocs_file} to {$wp_config_file}" );
+		ee_file_rename( $wp_config_htdocs_file, $wp_config_file );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "Unable to move from {$wp_config_htdocs_file} to {$wp_config_file}\"" );
 
-		if ( empty( $ee_wp_email ) ) {
-			$ee_wp_email = get_ee_git_config( 'user', 'email' );
-			while ( empty( $ee_wp_email ) ) {
-				try {
-					$ee_wp_email = EE::input_value( 'Enter WordPress email: ' );
-				} catch ( Exception $e ) {
-					EE::debug( $e->getMessage() );
-					EE::log( "input WordPress username failed" );
-				}
-			}
-		}
+		return false;
+	}
 
-		try {
-			while ( empty( preg_match_all( '/^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$/i', $ee_wp_email ) ) ) {
-				EE::log( "EMail not Valid in config, Please provide valid email id." );
-				$ee_wp_email = EE::input_value( "Enter your email: " );
-			}
-		} catch ( Exception $e ) {
-			EE::debug( $e->getMessage() );
-			EE::log( "input WordPress user email failed" );
-		}
-		EE::debug( "Setting up WordPress tables" );
-
-		if ( ! $data['multisite'] ) {
-			EE::debug( "Creating tables for WordPress Single site" );
-			EE::debug( "php {$ee_wp_cli_path} --allow-root core install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+	if ( empty( $ee_wp_user ) ) {
+		$ee_wp_user = get_ee_git_config( 'user', 'name' );
+		while ( empty( $ee_wp_user ) ) {
+			EE::warning( "Username can have only alphanumeric characters, spaces, underscores, hyphens, periods and the @ symbol." );
 			try {
-				$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
-				if ( 0 !== $wp_database ) {
-					EE::error( "setup WordPress tables failed for single site" );
-
-					return false;
-				}
-
+				$ee_wp_user = EE::input_value( 'Enter WordPress username: ' );
 			} catch ( Exception $e ) {
 				EE::debug( $e->getMessage() );
+				EE::log( "input WordPress username failed" );
+			}
+		}
+	}
+
+	if ( empty( $ee_wp_pass ) ) {
+		$ee_wp_pass = $ee_random_pwd;
+	}
+
+	if ( empty( $ee_wp_email ) ) {
+		$ee_wp_email = get_ee_git_config( 'user', 'email' );
+		while ( empty( $ee_wp_email ) ) {
+			try {
+				$ee_wp_email = EE::input_value( 'Enter WordPress email: ' );
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::log( "input WordPress username failed" );
+			}
+		}
+	}
+
+	try {
+		while ( empty( preg_match_all( '/^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$/i', $ee_wp_email ) ) ) {
+			EE::log( "EMail not Valid in config, Please provide valid email id." );
+			$ee_wp_email = EE::input_value( "Enter your email: " );
+		}
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "input WordPress user email failed" );
+	}
+	EE::debug( "Setting up WordPress tables" );
+
+	if ( ! $data['multisite'] ) {
+		EE::debug( "Creating tables for WordPress Single site" );
+		EE::debug( "php {$ee_wp_cli_path} --allow-root core install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+		try {
+			$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core install 
+				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
+				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+			if ( 0 !== $wp_database ) {
 				EE::error( "setup WordPress tables failed for single site" );
 
 				return false;
 			}
 
-		} else {
-			EE::debug( "Creating tables for WordPress multisite" );
-			EE::debug( "php {$ee_wp_cli_path} --allow-root core multisite-install 
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::error( "setup WordPress tables failed for single site" );
+
+			return false;
+		}
+
+	} else {
+		EE::debug( "Creating tables for WordPress multisite" );
+		EE::debug( "php {$ee_wp_cli_path} --allow-root core multisite-install 
 				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
 				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
-			try {
-				$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core multisite-install 
+		try {
+			$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core multisite-install 
 				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
 				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
-				if ( 0 !== $wp_database ) {
-					EE::error( "setup WordPress tables failed for wp multi site" );
-
-					return false;
-				}
-
-			} catch ( Exception $e ) {
-				EE::debug( $e->getMessage() );
+			if ( 0 !== $wp_database ) {
 				EE::error( "setup WordPress tables failed for wp multi site" );
 
 				return false;
 			}
-		}
 
-		EE::debug( "Updating WordPress permalink" );
-
-		try {
-			EE::exec_cmd( " php {$ee_wp_cli_path} --allow-root rewrite structure /%year%/%monthnum%/%day%/%postname%/" );
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( "Update wordpress permalinks failed" );
+			EE::error( "setup WordPress tables failed for wp multi site" );
+
+			return false;
 		}
 	}
+
+	EE::debug( "Updating WordPress permalink" );
+
+	try {
+		EE::exec_cmd( " php {$ee_wp_cli_path} --allow-root rewrite structure /%year%/%monthnum%/%day%/%postname%/" );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "Update wordpress permalinks failed" );
+	}
+
+	// Install Wp Super Cache.
+	if ( $data['wpsc'] ) {
+		install_wp_plugin( 'wp-super-cache', $data );
+	}
+
+	// Install Redis Cache.
+	if ( $data['wpredis'] ) {
+		install_wp_plugin( 'redis-cache', $data );
+	}
+
+	// Install W3 Total Cache.
+	if ( $data['w3tc'] || $data['wpfc'] ) {
+		install_wp_plugin( 'w3-total-cache', $data );
+	}
+
+	$wp_creds = array(
+		'wp_user'  => $ee_wp_user,
+		'wp_pass'  => $ee_wp_pass,
+		'wp_email' => $ee_wp_email
+	);
+
+	return $wp_creds;
+
 }
 
 function install_wp_plugin( $plugin_name, $data ) {
+	$ee_site_webroot = $data['webroot'];
+	EE::log( "Installing plugin {$plugin_name}, please wait..." );
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	$ee_wpcli_path = EE_Variables::get_ee_wp_cli_path();
+	try {
+		EE::exec_cmd( "php {$ee_wpcli_path} plugin --allow-root install {$plugin_name}" );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "plugin installation failed" );
+	}
+	try {
+		$network = $data['multisite'] ? '--network' : '';
+		EE::exec_cmd( "php {$ee_wpcli_path} plugin --allow-root activate {$plugin_name} {$network}" );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "plugin activation failed" );
+	}
+}
 
+function uninstall_wp_plugin( $plugin_name, $data ) {
+	$ee_site_webroot = $data['webroot'];
+	EE::log( "Uninstalling plugin {$plugin_name}, please wait..." );
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	EE::log( "Uninstalling plugin {$plugin_name}, please wait..." );
+	$ee_wpcli_path = EE_Variables::get_ee_wp_cli_path();
+	try {
+		EE::exec_cmd( "php {$ee_wpcli_path} plugin --allow-root deactivate {$plugin_name}" );
+		EE::exec_cmd( "php {$ee_wpcli_path} plugin --allow-root uninstall {$plugin_name}" );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "plugin uninstall failed" );
+	}
+}
+
+function set_webroot_permissions( $webroot ) {
+	EE::log( "Setting up permissions" );
+	$ee_php_user = EE_Variables::get_ee_php_user();
+	try {
+		ee_file_chown( $webroot, $ee_php_user, true );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "problem occured while setting up webroot permissions" );
+	}
+}
+
+function display_cache_settings( $data ) {
+	if ( $data['wpsc'] ) {
+		if ( $data['multisite'] ) {
+			EE::log( "Configure WPSC:\t\thttp://{$data['site_name']}/wp-admin/network/settings.php?page=wpsupercache" );
+		} else {
+			EE::log( "Configure WPSC:\t\thttp://{$data['site_name']}/wp-admin/options-general.php?page=wpsupercache" );
+		}
+	}
+
+	if ( $data['wpredis'] ) {
+		if ( $data['multisite'] ) {
+			EE::log( "Configure redis-cache:\thttp://{$data['site_name']}/wp-admin/network/settings.php?page=redis-cache" );
+		} else {
+			EE::log( "Configure redis-cache:\thttp://{$data['site_name']}/wp-admin/options-general.php?page=redis-cache" );
+			EE::log( "Object Cache:\t\tEnable" );
+		}
+	}
+
+	if ( $data['wpfc'] || $data['w3tc'] ) {
+		if ( $data['multisite'] ) {
+			EE::log( "Configure W3TC:\t\thttp://{$data['site_name']}/wp-admin/network/admin.php?page=w3tc_general" );
+		} else {
+			EE::log( "Configure W3TC:\t\thttp://{$data['site_name']}/wp-admin/admin.php?page=w3tc_general" );
+		}
+
+		if ( $data['wpfc'] ) {
+			EE::log( "Page Cache:\t\tDisable" );
+		} else if ( $data['w3tc'] ) {
+			EE::log( "Page Cache:\t\tDisk Enhanced" );
+		}
+		EE::log( "Database Cache:\t\tMemcached" );
+		EE::log( "Object Cache:\t\tMemcached" );
+		EE::log( "Browser Cache:\t\tDisable" );
+	}
+}
+
+function setup_lets_encrypt( $ee_domain_name ) {
+	$ee_wp_email = get_ee_git_config( 'user', 'email' );
+
+	while ( empty( $ee_wp_email ) ) {
+		try {
+			$ee_wp_email = EE::input_value( 'Enter WordPress email: ' );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "input WordPress username failed" );
+		}
+	}
+
+	if ( ee_file_exists( "/opt/letsencrypt" ) ) {
+
+	}
 }

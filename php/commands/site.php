@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Manage sites.
  *
@@ -49,6 +48,12 @@ class Site_Command extends EE_Command {
 	 *
 	 * [--port=<port>]
 	 * : Port no for porxy site.
+	 *
+	 * [--letsencrypt]
+	 * : Encrypt site.
+	 *
+	 * [--experimental]
+	 * : For Experiment beta features.
 	 *
 	 *
 	 *
@@ -110,6 +115,8 @@ class Site_Command extends EE_Command {
 		$data['webroot']    = $ee_site_webroot;
 		$stype              = empty( $assoc_args['type'] ) ? 'html' : $assoc_args['type'];
 		$cache              = empty( $assoc_args['cache'] ) ? 'basic' : $assoc_args['cache'];
+		$letsencrypt        = empty( $assoc_args['letsencrypt'] ) ? false : true;
+		$experimental       = empty( $assoc_args['experimental'] ) ? false : true;
 
 		if ( ! empty( $stype ) ) {
 			if ( in_array( $stype, $registered_cmd ) ) {
@@ -271,8 +278,97 @@ class Site_Command extends EE_Command {
 							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
 						}
 					}
-				} catch ( Exception $e ) {
 
+					if ( ! EE_Service::reload_service( 'nginx' ) ) {
+						EE::log( "Oops Something went wrong !!" );
+						EE::log( "Calling cleanup actions ..." );
+						do_cleanup_action( $data );
+						delete_site( array( 'site_name' => $ee_domain ) );
+						EE::log( "service nginx reload failed. check issues with `nginx -t` command." );
+						EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+					}
+
+					EE_Git::add( array( "/etc/nginx" ), "{$ee_www_domain} created with {$stype} {$cache}" );
+
+					// Setup Permissions for webroot.
+					try {
+						set_webroot_permissions( $data['webroot'] );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Oops Something went wrong !!" );
+						EE::log( "Calling cleanup actions ..." );
+						do_cleanup_action( $data );
+						delete_site( array( 'site_name' => $ee_domain ) );
+						EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+					}
+
+					if ( ! empty( $ee_auth ) ) {
+						foreach ( $ee_auth as $msg ) {
+							EE::log( $msg );
+						}
+					}
+
+					if ( $data['wp'] ) {
+						if ( ! empty( $ee_wp_creds ) ) {
+							EE::log( "WordPress admin user : {$ee_wp_creds['wp_user']}" );
+							EE::log( "WordPress admin user password : {$ee_wp_creds['wp_pass']}" );
+							display_cache_settings( $data );
+						} else {
+							EE::debug( "Credentials could not setup." );
+							EE::debug( "WordPress Site couldn't be setup." );
+						}
+					}
+
+					EE::success( "Successfully created site http://{$ee_domain}" );
+				} catch ( Exception $e ) {
+					EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+
+				if ( $letsencrypt ) {
+					if ( $experimental ) {
+						if ( 'wpsubdomain' === $stype ) {
+							EE::warning( "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only." );
+						}
+						EE::log( "Letsencrypt is currently in beta phase. \nDo you wish to enable SSl now for {$ee_domain}?" );
+						$check_prompt = EE::input_value( "Type \"y\" to continue [n]:" );
+						if ( 'y' !== strtolower( $check_prompt ) ) {
+							$data['letsencrypt'] = false;
+							$letsencrypt         = false;
+						} else {
+							$data['letsencrypt'] = true;
+							$letsencrypt         = true;
+						}
+					} else {
+						$data['letsencrypt'] = true;
+						$letsencrypt         = true;
+					}
+
+
+					if ( $data['letsencrypt'] ) {
+						setup_lets_encrypt( $ee_domain );
+						https_redirect( $ee_domain );
+						EE::log( "Creating Cron Job for cert auto-renewal" );
+						EE_Cron::setcron_weekly( 'ee site update --le=renew --all 2> /dev/null', 'Renew all letsencrypt SSL cert. Set by EasyEngine' );
+
+						if ( EE_Service::reload_service( 'nginx' ) ) {
+							EE::log( "service nginx reload failed. check issues with `nginx -t` command" );
+						}
+
+						EE::log( "Congratulations! Successfully Configured SSl for Site https://{$ee_domain}" );
+
+						$ee_ssl_expiration_days = EE_Ssl::get_expiration_days( $ee_domain );
+
+						if ( $ee_ssl_expiration_days > 0 ) {
+							EE::log( "Your cert will expire within {$ee_ssl_expiration_days} days." );
+						} else {
+							EE::log( "Your cert already EXPIRED ! Please renew soon." );
+						}
+
+						EE_Git::add( array( "{$ee_site_webroot}/conf/nginx" ), "Adding letsencrypts config of site: {$ee_domain}" );
+						update_site( $data, array( 'site_name' => $data['site_name'] ) );
+					} else {
+						EE::log( "Not using Let's encrypt for Site http://{$ee_domain}" );
+					}
 				}
 			} else {
 				//TODO: we will add hook for other packages. i.e do_action('create_site',$stype);
