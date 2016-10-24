@@ -10,7 +10,7 @@ use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
  *
  * @param string $originFile
  * @param string $targetFile
- * @param bool   $overwriteNewerFiles
+ * @param bool $overwriteNewerFiles
  */
 function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) {
 	$filesystem = new Filesystem();
@@ -23,7 +23,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * @param string|array|\Traversable $dirs
  * @param int                       $mode
  */
-function ee_file_mkdir( $dirs, $mode = 0777 ) {
+function ee_file_mkdir( $dirs, $mode = 0755 ) {
 	$filesystem = new Filesystem();
 	$filesystem->mkdir( $dirs, $mode );
 }
@@ -57,7 +57,7 @@ function ee_file_remove( $files ) {
  *
  * @param      $files
  * @param      $mode
- * @param int  $umask
+ * @param int $umask
  * @param bool $recursive
  */
 function ee_file_chmod( $files, $mode, $umask = 0000, $recursive = false ) {
@@ -162,6 +162,19 @@ function ee_file_dump( $filename, $content, $mode = 0666 ) {
 	$filesystem->dumpFile( $filename, $content, $mode );
 }
 
+function grep_string( $file, $string ) {
+	$file_content = file_get_contents( $file );
+	$lines        = explode( "\n", $file_content );
+
+	foreach ( $lines as $num => $line ) {
+		$pos = strpos( $line, $string );
+		if ( $pos !== false ) {
+			return true;
+		}
+	}
+
+	return false;
+}
 function get_ee_config( $section, $key = '' ) {
 	$config_data = get_config_data( EE_CONFIG_FILE, $section, $key );
 

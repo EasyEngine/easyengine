@@ -1,0 +1,23 @@
+[debug]
+user = www-data
+group = www-data
+listen = {{listen}}
+listen.owner = www-data
+listen.group = www-data
+pm = ondemand
+pm.max_children = 100
+pm.start_servers = 20
+pm.min_spare_servers = 10
+pm.max_spare_servers = 30
+ping.path = /ping
+pm.status_path = /status
+pm.max_requests = 500
+request_terminate_timeout = 300
+rlimit_core = unlimited
+slowlog = {{slowlog_path}}
+request_slowlog_timeout = 10s
+
+php_admin_value[xdebug.profiler_output_dir] = /tmp/
+php_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R
+php_admin_flag[xdebug.profiler_enable_trigger] = on
+php_admin_flag[xdebug.profiler_enable] = off
