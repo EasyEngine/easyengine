@@ -424,6 +424,94 @@ class Site_Command extends EE_Command {
 			EE::error( 'Please give site name . ' );
 		}
 	}
+
+	/**
+	 * Show site information.
+	 * 
+	 * ## OPTIONS
+	 * 
+	 * <name>
+	 * : Name of the site to get site information.
+	 * 
+	 * ## EXAMPLES
+	 * 
+	 *	  # Show site information.
+	 *	  $ ee site info example.com
+	 */
+	public function info( $args, $assoc_args ) {
+		
+		list( $site_name ) = $args;
+
+		if ( empty( $site_name ) ) {
+			/* @todo If site name not passed then ask for `Enter site name`. */
+		}
+        
+        list( $ee_domain, $ee_www_domain ) = EE_Utils::validate_domain( $site_name );
+        
+		$ee_db_name = $ee_db_user = $ee_db_pass = $hhvm = '';
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( 'Site ' . $ee_domain .' does not exist.' );
+		}
+
+		
+        if ( ee_file_exists( '/etc/nginx/sites-available/' . $ee_domain ) ) {
+
+            $siteinfo 			= site_info( $ee_domain );
+			$siteinfo 			= $siteinfo[0];
+            $sitetype 			= $siteinfo['site_type'];
+            $cachetype 			= $siteinfo['cache_type'];
+            $ee_site_webroot 	= $siteinfo['site_path'];
+            $access_log 		= $ee_site_webroot . '/logs/access.log';
+            $error_log 			= $ee_site_webroot . '/logs/error.log';
+            $ee_db_name 		= $siteinfo['db_name'];
+            $ee_db_user 		= $siteinfo['db_user'];
+            $ee_db_pass 		= $siteinfo['db_password'];
+            $ee_db_host 		= $siteinfo['db_host'];
+			$site_enabled 		= ( $siteinfo['is_enabled'] ) ? 'enabled' : 'disabled';
+
+            if ( 'html' === $sitetype ) {
+				$hhvm = ( $siteinfo['is_hhvm'] ) ? 'enabled' : 'disabled';
+			}
+			
+			if ( 'proxy' === $sitetype ) {
+				$access_log 		= '/var/log/nginx/' . $ee_domain . '.access.log';
+                $error_log  		= '/var/log/nginx/' . $ee_domain . '.error.log';
+                $ee_site_webroot 	= '';
+			}
+
+            $php_version = $siteinfo['php_version'];
+			// $pagespeed = ( $siteinfo['is_pagespeed'] ) ? 'enabled' : 'disabled';
+			$ssl = ( $siteinfo['is_ssl'] ) ? 'enabled' : 'disabled';
+
+            if ( 'enabled' === $ssl ) {
+                $sslprovider = 'Lets Encrypt';
+                $sslexpiry = str( SSL.getExpirationDate( self, $ee_domain ) );
+			} else {
+                $sslprovider = $sslexpiry = '';
+            	$data = array(
+					'domain' => $ee_domain,
+					'webroot' => $ee_site_webroot,
+					'accesslog' => $access_log,
+					'errorlog' => $error_log,
+					'dbname' => $ee_db_name,
+					'dbuser' => $ee_db_user,
+					'php_version' => $php_version,
+					'dbpass' => $ee_db_pass,
+					'hhvm' => $hhvm,
+					'ssl' => 'ssl',
+					'sslprovider' => $sslprovider,
+					'sslexpiry' => $sslexpiry,
+					'type' => $sitetype . ' ' . $cachetype . $site_enabled,
+				);
+
+            	Utils\mustache_render( 'siteinfo.mustache', $data );
+			}
+        
+		} else {
+            EE::error( 'nginx configuration file does not exist for ' . $ee_domain );
+		}
+	}
 }
 
 EE::add_command( 'site', 'Site_Command' );
