@@ -136,7 +136,7 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
-	if (!empty($stack['php'] && EE_OS::ee_platform_distro() == 'debian')){
+	if ( EE_OS::ee_platform_distro() == 'debian' && !empty($stack['php'])){
 		if (EE_OS::ee_platform_codename() == 'jessie'){
 			EE::debug("Setting apt_packages variable for PHP 7.0");
 			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
@@ -687,36 +687,25 @@ class Stack_Command extends EE_Command {
 
 				EE_Git::add("/etc/php","Adding PHP in GIT");
 				EE_Service::restart_service( "php7.0-fpm" );
-				
+
 
 			}
 
-			if(in_array($apt_packages,EE_MYSQL)){
+			if(in_array( $apt_packages, "mariadb-server" )){
 
-//				if not os.path.isfile("/etc/mysql/my.cnf"):
-//                    config = ("[mysqld]\nwait_timeout = 30\n"
-//                              "interactive_timeout=60\nperformance_schema = 0"
-//                              "\nquery_cache_type = 1")
-//                    config_file = open("/etc/mysql/my.cnf",
-//						encoding='utf-8', mode='w')
-//                    config_file.write(config)
-//                    config_file.close()
-//                else:
-//                    try:
-//                        EEShellExec.cmd_exec(self, "sed -i \"/#max_conn"
-//                                             "ections/a wait_timeout = 30 \\n"
-//                                             "interactive_timeout = 60 \\n"
-//                                             "performance_schema = 0\\n"
-//                                             "query_cache_type = 1 \" "
-//                                             "/etc/mysql/my.cnf")
-//                    except CommandExecutionError as e:
-//                        Log.error(self, "Unable to update MySQL file")
-//
-//                # Set MySQLTuner permission
-//                EEFileUtils.chmod(self, "/usr/bin/mysqltuner", 0o775)
-//
-//                EEGit.add(self, ["/etc/mysql"], msg="Adding MySQL into Git")
-//EEService.reload_service(self, 'mysql')
+				if (!is_file("/etc/mysql/my.cnf")){
+					$config = "[mysqld]\nwait_timeout = 30\n".
+                              "interactive_timeout=60\nperformance_schema = 0".
+								"\nquery_cache_type = 1";
+					ee_file_dump("/etc/mysql/my.cnf", $config);
+				}else{
+					EE::exec_cmd("sed -i \"/#max_connections/a wait_timeout = 30 \\ninteractive_timeout = 60 \\n" .
+									"performance_schema = 0\\nquery_cache_type = 1 \" /etc/mysql/my.cnf");
+				}
+				$filesystem = new Filesystem();
+				$filesystem->chmod("/usr/bin/mysqltuner",0775);
+				EE_Git::add("/etc/mysql","Adding MySQL in GIT");
+				EE_Service::restart_service( "mysql" );
 			}
 
 
