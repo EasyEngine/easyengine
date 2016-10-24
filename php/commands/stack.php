@@ -563,41 +563,9 @@ class Stack_Command extends EE_Command {
 				EE\Utils\mustache_write_in_file( '/etc/php5/fpm/pool.d/debug.conf', 'php-debug.mustache', $data );
 				ee_file_search_replace( "/etc/php5/mods-available/xdebug.ini", "zend_extension", ";zend_extension" );
 
-//              todo:
-//                # PHP and Debug pull configuration
-//                if not os.path.exists('{0}22222/htdocs/fpm/status/'
-//                                      .format(EEVariables.ee_webroot)):
-//                    Log.debug(self, 'Creating directory '
-//                              '{0}22222/htdocs/fpm/status/ '
-//                              .format(EEVariables.ee_webroot))
-//                    os.makedirs('{0}22222/htdocs/fpm/status/'
-//                                .format(EEVariables.ee_webroot))
-//                open('{0}22222/htdocs/fpm/status/debug'
-//                     .format(EEVariables.ee_webroot),
-//                     encoding='utf-8', mode='a').close()
-//                open('{0}22222/htdocs/fpm/status/php'
-//                     .format(EEVariables.ee_webroot),
-//                     encoding='utf-8', mode='a').close()
-//
-//                # Write info.php
-//                if not os.path.exists('{0}22222/htdocs/php/'
-//                                      .format(EEVariables.ee_webroot)):
-//                    Log.debug(self, 'Creating directory '
-//                              '{0}22222/htdocs/php/ '
-//                              .format(EEVariables.ee_webroot))
-//                    os.makedirs('{0}22222/htdocs/php'
-//                                .format(EEVariables.ee_webroot))
-//
-//                with open("{0}22222/htdocs/php/info.php"
-//                          .format(EEVariables.ee_webroot),
-//                          encoding='utf-8', mode='w') as myfile:
-//                    myfile.write("<?php\nphpinfo();? >\n)
-//
-//                EEFileUtils.chown(self, "{0}22222"
-//                                  .format(EEVariables.ee_webroot),
-//                                  EEVariables.ee_php_user,
-//                                  EEVariables.ee_php_user, recursive=True)
-//
+
+//              todo: PHP and Debug pull configuration
+
 				EE_Git::add("/etc/php5","Adding PHP in GIT");
 				EE_Service::restart_service( "php5-fpm" );
 
@@ -606,143 +574,44 @@ class Stack_Command extends EE_Command {
 			if ((EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial')
 				&& (in_array($apt_packages, "EE_PHP5_6"))
 			) {
-//				if not os.path.exists('/var/log/php/5.6/'):
-//                    Log.debug(self, 'Creating directory /var/log/php/5.6/')
-//                    os.makedirs('/var/log/php/5.6/')
-//
-//                # Parse etc/php/5.6/fpm/php.ini
-//                config = configparser.ConfigParser()
-//                Log.debug(self, "configuring php file /etc/php/5.6/fpm/php.ini")
-//                config.read('/etc/php/5.6/fpm/php.ini')
-//                config['PHP']['expose_php'] = 'Off'
-//                config['PHP']['post_max_size'] = '100M'
-//                config['PHP']['upload_max_filesize'] = '100M'
-//                config['PHP']['max_execution_time'] = '300'
-//                config['PHP']['date.timezone'] = EEVariables.ee_timezone
-//                with open('/etc/php/5.6/fpm/php.ini',
-//					encoding='utf-8', mode='w') as configfile:
-//                    Log.debug(self, "Writting php configuration into "
-//                              "/etc/php/5.6/fpm/php.ini")
-//                    config.write(configfile)
-//
-//                # Parse /etc/php/5.6/fpm/php-fpm.conf
-//                '''
-//                #Depreciated code. Mustache version Applied.
-//                config = configparser.ConfigParser()
-//                Log.debug(self, "configuring php file "
-//                          "/etc/php/5.6/fpm/php-fpm.conf")
-//                config.read_file(codecs.open("/etc/php/5.6/fpm/php-fpm.conf",
-//                                             "r", "utf8"))
-//                config['global']['error_log'] = '/var/log/php/5.6/fpm.log'
-//                config.remove_option('global', 'include')
-//                config['global']['log_level'] = 'notice'
-//                config['global']['include'] = '/etc/php/5.6/fpm/pool.d/*.conf'
-//                with codecs.open('/etc/php/5.6/fpm/php-fpm.conf',
-//                                 encoding='utf-8', mode='w') as configfile:
-//                    Log.debug(self, "writting php5 configuration into "
-//                              "/etc/php/5.6/fpm/php-fpm.conf")
-//                    config.write(configfile)
-//                '''
-//                data = dict(pid="/run/php/php5.6-fpm.pid", error_log="/var/log/php/5.6/fpm.log",
-//                              include="/etc/php/5.6/fpm/pool.d/*.conf")
-//                Log.debug(self, "writting php5 configuration into "
-//                              "/etc/php/5.6/fpm/php-fpm.conf")
-//                ee_php_fpm = open('/etc/php/5.6/fpm/php-fpm.conf',
-//                                   encoding='utf-8', mode='w')
-//                self.app.render((data), 'php-fpm.mustache', out=ee_php_fpm)
-//                ee_php_fpm.close()
-//
-//                # Parse /etc/php/5.6/fpm/pool.d/www.conf
-//                config = configparser.ConfigParser()
-//                config.read_file(codecs.open('/etc/php/5.6/fpm/pool.d/www.conf',
-//                                             "r", "utf8"))
-//                config['www']['ping.path'] = '/ping'
-//                config['www']['pm.status_path'] = '/status'
-//                config['www']['pm.max_requests'] = '500'
-//                config['www']['pm.max_children'] = '100'
-//                config['www']['pm.start_servers'] = '20'
-//                config['www']['pm.min_spare_servers'] = '10'
-//                config['www']['pm.max_spare_servers'] = '30'
-//                config['www']['request_terminate_timeout'] = '300'
-//                config['www']['pm'] = 'ondemand'
-//                config['www']['listen'] = '127.0.0.1:9000'
-//                with codecs.open('/etc/php/5.6/fpm/pool.d/www.conf',
-//                                 encoding='utf-8', mode='w') as configfile:
-//                    Log.debug(self, "writting PHP5 configuration into "
-//                              "/etc/php/5.6/fpm/pool.d/www.conf")
-//                    config.write(configfile)
-//
-//                # Generate /etc/php/5.6/fpm/pool.d/debug.conf
-//                EEFileUtils.copyfile(self, "/etc/php/5.6/fpm/pool.d/www.conf",
-//                                     "/etc/php/5.6/fpm/pool.d/debug.conf")
-//                EEFileUtils.searchreplace(self, "/etc/php/5.6/fpm/pool.d/"
-//                                          "debug.conf", "[www]", "[debug]")
-//                config = configparser.ConfigParser()
-//                config.read('/etc/php/5.6/fpm/pool.d/debug.conf')
-//                config['debug']['listen'] = '127.0.0.1:9001'
-//                config['debug']['rlimit_core'] = 'unlimited'
-//                config['debug']['slowlog'] = '/var/log/php/5.6/slow.log'
-//                config['debug']['request_slowlog_timeout'] = '10s'
-//                with open('/etc/php/5.6/fpm/pool.d/debug.conf',
-//                          encoding='utf-8', mode='w') as confifile:
-//                    Log.debug(self, "writting PHP5 configuration into "
-//                              "/etc/php/5.6/fpm/pool.d/debug.conf")
-//                    config.write(confifile)
-//                with open("/etc/php/5.6/fpm/pool.d/debug.conf",
-//                          encoding='utf-8', mode='a') as myfile:
-//                    myfile.write("php_admin_value[xdebug.profiler_output_dir] "
-//                                 "= /tmp/ \nphp_admin_value[xdebug.profiler_"
-//                                 "output_name] = cachegrind.out.%p-%H-%R "
-//                                 "\nphp_admin_flag[xdebug.profiler_enable"
-//                                 "_trigger] = on \nphp_admin_flag[xdebug."
-//                                 "profiler_enable] = off\n")
-//                # Disable xdebug
-//                if not EEShellExec.cmd_exec(self, "grep -q \';zend_extension\' /etc/php/5.6/mods-available/xdebug.ini"):
-//                    EEFileUtils.searchreplace(self, "/etc/php/5.6/mods-available/"
-//                                          "xdebug.ini",
-//                                          "zend_extension",
-//                                          ";zend_extension")
-//
-//                # PHP and Debug pull configuration
-//                if not os.path.exists('{0}22222/htdocs/fpm/status/'
-//                                      .format(EEVariables.ee_webroot)):
-//                    Log.debug(self, 'Creating directory '
-//                              '{0}22222/htdocs/fpm/status/ '
-//                              .format(EEVariables.ee_webroot))
-//                    os.makedirs('{0}22222/htdocs/fpm/status/'
-//                                .format(EEVariables.ee_webroot))
-//                open('{0}22222/htdocs/fpm/status/debug'
-//                     .format(EEVariables.ee_webroot),
-//                     encoding='utf-8', mode='a').close()
-//                open('{0}22222/htdocs/fpm/status/php'
-//                     .format(EEVariables.ee_webroot),
-//                     encoding='utf-8', mode='a').close()
-//
-//                # Write info.php
-//                if not os.path.exists('{0}22222/htdocs/php/'
-//                                      .format(EEVariables.ee_webroot)):
-//                    Log.debug(self, 'Creating directory '
-//                              '{0}22222/htdocs/php/ '
-//                              .format(EEVariables.ee_webroot))
-//                    os.makedirs('{0}22222/htdocs/php'
-//                                .format(EEVariables.ee_webroot))
-//
-//                with open("{0}22222/htdocs/php/info.php"
-//                          .format(EEVariables.ee_webroot),
-//                          encoding='utf-8', mode='w') as myfile:
-//                    myfile.write("<?php\nphpinfo();\n? >")
-//
-//                EEFileUtils.chown(self, "{0}22222"
-//                                  .format(EEVariables.ee_webroot),
-//                                  EEVariables.ee_php_user,
-//                                  EEVariables.ee_php_user, recursive=True)
-//
-//                EEGit.add(self, ["/etc/php"], msg="Adding PHP into Git")
+
+
+				ee_file_mkdir( "/var/log/php/5.6/" );
+				$data = array();
+				//todo: date time on php.ini
+				EE::debug( 'Configuring php file /etc/php/5.6/fpm/php.ini' );
+				EE\Utils\mustache_write_in_file( '/etc/php/5.6/fpm/php.ini', 'php-ini.mustache', $data );
+
+				$data             = array(
+					"pid"         => "/run/php5.6-fpm.pid",
+					"error_log"   => "/var/log/php5/fpm.log",
+					"include"     => "/etc/php/5.6/fpm/pool.d/*.conf",
+				);
+
+				EE::debug( 'Configuring php file /etc/php/5.6/fpm/php-fpm.conf' );
+				EE\Utils\mustache_write_in_file( '/etc/php/5.6/fpm/php-fpm.conf', 'php-fpm.mustache', $data );
+
+				$data             = array(
+					"listen"      => "127.0.0.1:9000",
+				);
+				EE::debug( 'Configuring php file /etc/php/5.6/fpm/pool.d/www.conf' );
+				EE\Utils\mustache_write_in_file( '/etc/php/5.6/fpm/pool.d/www.conf', 'php-www.mustache', $data );
+
+				$data             = array(
+					"listen"           => "127.0.0.1:9001",
+					"slowlog_path"     => "/var/log/php5/slow.log",
+				);
+				EE::debug( 'Configuring php file /etc/php/5.6/fpm/pool.d/debug.conf' );
+				EE\Utils\mustache_write_in_file( '/etc/php/5.6/fpm/pool.d/debug.conf', 'php-debug.mustache', $data );
+				ee_file_search_replace( "/etc/php/5.6/mods-available/xdebug.ini", "zend_extension", ";zend_extension" );
+
+				//todo: PHP and Debug pull configuration
+
 				EE_Git::add("/etc/php","Adding PHP in GIT");
 				EE_Service::restart_service( "php5.6-fpm" );
-//
-//        #PHP7.0 configuration for debian
 			}
+
+
 			if ((EE_OS::ee_platform_codename() == 'jessie')
 				&& (in_array($apt_packages, "EE_PHP7_0"))
 			) {
