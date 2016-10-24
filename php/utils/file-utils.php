@@ -22,7 +22,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * @param string|array|\Traversable $dirs
  * @param int $mode
  */
-function ee_file_mkdir( $dirs, $mode = 0777 ) {
+function ee_file_mkdir( $dirs, $mode = 0755 ) {
 	$filesystem = new Filesystem();
 	$filesystem->mkdir( $dirs, $mode );
 }
