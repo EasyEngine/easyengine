@@ -236,7 +236,7 @@ class Site_Command extends EE_Command {
 						$data['php_version'] = "7.0";
 					}
 					add_new_site( $data );
-
+					// Setup database for MySQL site.
 					if ( isset( $data['ee_db_name'] ) && ! $data['wp'] ) {
 						try {
 							$data = setup_database( $data );

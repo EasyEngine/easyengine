@@ -101,7 +101,7 @@ class EE_Variables {
 	 */
 	public static function get_ee_wp_cli_path() {
 
-		$ee_wpcli_path = EE::exec_cmd_output( 'which wp' );
+		$ee_wpcli_path = EE::exec_cmd_output( 'which wp | tr -d \'\n\'' );
 		if ( empty( $ee_wpcli_path ) ) {
 			$ee_wpcli_path = '/usr/bin/wp';
 		}

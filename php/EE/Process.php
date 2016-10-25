@@ -74,7 +74,7 @@ class Process {
 
 	public static function write_log( $message ) {
 		$log_file   = fopen( EE_DEBUG_LOG_FILE, "a" );
-		fwrite( $log_file, "\n" . $message );
+		fwrite( $log_file, $message . "\n" );
 		fclose( $log_file );
 	}
 

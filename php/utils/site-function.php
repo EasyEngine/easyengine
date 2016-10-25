@@ -34,18 +34,35 @@ function setup_domain( $data ) {
 		if ( empty( $data['php7'] ) ) {
 			$mustache_template = 'virtualconf.mustache';
 		}
-		EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf' );
+		EE::log( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf' );
 		EE\Utils\mustache_write_in_file( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, $mustache_template, $data );
 	} catch ( \Exception $e ) {
 		EE::error( 'create nginx configuration failed for site' );
 	} finally {
-		EE::debug( 'Checking generated nginx conf, please wait...' );
-		pre_run_checks();
-		$filesystem->symlink( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, EE_NGINX_SITE_ENABLE_DIR . $ee_domain_name );
+		try {
+			EE::log( 'Checking generated nginx conf, please wait...' );
+			EE::exec_cmd( "nginx -t", '', false, false );
+			EE::debug( "[Done]" );
+		} catch ( Exception $e ) {
+			EE::debug( "[Fail]" );
+			EE::error( "created nginx configuration failed for site. check with `nginx -t`" );
+		}
 	}
+
+	$filesystem->symlink( EE_NGINX_SITE_AVAIL_DIR . $ee_domain_name, EE_NGINX_SITE_ENABLE_DIR . $ee_domain_name );
+
 	if ( empty( $data['proxy'] ) ) {
 		EE::log( 'Setting up webroot' );
 		try {
+			if ( ! ee_file_exists( "{$ee_site_webroot}/htdocs" ) ) {
+				ee_file_mkdir("{$ee_site_webroot}/htdocs");
+			}
+			if ( ! ee_file_exists( "{$ee_site_webroot}/logs" ) ) {
+				ee_file_mkdir("{$ee_site_webroot}/logs");
+			}
+			if ( ! ee_file_exists( "{$ee_site_webroot}/conf/nginx" ) ) {
+				ee_file_mkdir("{$ee_site_webroot}/conf/nginx");
+			}
 			$filesystem->symlink( '/var/log/nginx/' . $ee_domain_name . '.access.log', $ee_site_webroot . '/logs/access.log' );
 			$filesystem->symlink( '/var/log/nginx/' . $ee_domain_name . '.error.log', $ee_site_webroot . '/logs/error.log' );
 		} catch ( Exception $e ) {
@@ -53,9 +70,9 @@ function setup_domain( $data ) {
 			EE::error( 'setup webroot failed for site' );
 		} finally {
 			if ( $filesystem->exists( $ee_site_webroot . '/htdocs' ) && $filesystem->exists( $ee_site_webroot . '/logs' ) ) {
-				EE::log( 'Done' );
+				EE::debug( 'Done' );
 			} else {
-				EE::log( 'Fail' );
+				EE::debug( 'Fail' );
 				EE::error( 'setup webroot failed for site' );
 			}
 		}
@@ -131,7 +148,7 @@ function setup_database( $data ) {
 	EE::debug( "Creating user {$ee_db_username}" );
 	EE::debug( "create user `{$ee_db_username}`@`{$ee_mysql_grant_host}` identified by ''" );
 	try {
-		EE_MySql::execute( "create user `{$ee_db_username}`@`{$ee_mysql_grant_host}` identified by {$ee_db_password}" );
+		EE_MySql::execute( "create user `{$ee_db_username}`@`{$ee_mysql_grant_host}` identified by '{$ee_db_password}'" );
 	} catch ( Exception $e ) {
 		EE::debug( $e->getMessage() );
 		EE::log( "creating user failed for database" );
@@ -160,7 +177,7 @@ function site_package_check( $stype ) {
 	$packages     = array();
 
 	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain',	'php7' ) ) ) {
-		EE::debug( "Setting apt_packages variable for Nginx" );
+		EE::log( "Setting apt_packages variable for Nginx" );
 		// Check if server has nginx-custom package.
 		if ( ! EE_Apt_Get::is_installed( 'nginx-custom' ) || ! EE_Apt_Get::is_installed( 'nginx-mainline' ) ) {
 			// Check if Server has nginx-plus installed.
@@ -192,7 +209,7 @@ function site_package_check( $stype ) {
 	$ee_platform_codename = EE_OS::ee_platform_codename();
 	if ( in_array( $stype, array( 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
 		EE::log("Setting apt_packages variable for PHP");
-		if ( 'trusty' === $ee_platform_codename || 'xenial' == $ee_platform_codename ) {
+		if ( 'trusty' === $ee_platform_codename || 'xenial' === $ee_platform_codename ) {
 			if ( ! EE_Apt_Get::is_installed( 'php5.6-fpm' ) ) {
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_php_packages( 'php5.6' ), EE_Variables::get_php_packages( 'phpextra' ) );
 			} else {
@@ -483,9 +500,9 @@ function setup_wordpress( $data ) {
 		EE::log( "download WordPress core failed" );
 	}
 
-	EE::log( "Done" );
+	EE::debug( "Done" );
 
-	if ( ! empty( $data['ee_db_name'] ) && ! empty( $data['ee_db_user'] ) && ! empty( $data['ee_db_pass'] ) ) {
+	if ( empty( $data['ee_db_name'] ) && empty( $data['ee_db_user'] ) && empty( $data['ee_db_pass'] ) ) {
 		$data = setup_database( $data );
 	}
 
@@ -514,15 +531,14 @@ function setup_wordpress( $data ) {
 
 	if ( false == $data['multisite'] ) {
 		EE::debug( "Generating wp-config for WordPress Single site" );
-		EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
-			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
-			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine(WP_DEBUG, false); {$wpredis} PHP\"" );
+		$generate_config_cmd = "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}'";
+		$generate_config_cmd .= " --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}'";
+		$generate_config_cmd .= " --dbpass='{$data['ee_db_pass']}' --extra-php <<PHP\ndefine('WP_DEBUG', false); {$wpredis} \nPHP\"";
+		EE::debug( $generate_config_cmd );
 
 		try {
 
-			$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
-			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
-			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+			$generate_config = EE::exec_cmd( $generate_config_cmd );
 
 			if ( 0 != $generate_config ) {
 				EE::log( "Generate wp-config failed for wp single site" );
@@ -533,17 +549,17 @@ function setup_wordpress( $data ) {
 		}
 	} else {
 		EE::log( "Generating wp-config for WordPress multisite" );
-		EE::debug( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
-			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
-			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
-			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+		$generate_config_cmd = "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}'";
+		$generate_config_cmd .= " --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}'";
+		$generate_config_cmd .= " --dbpass='{$data['ee_db_pass']}' --extra-php <<PHP\n\ndefine('WP_ALLOW_MULTISITE', true);";
+		$generate_config_cmd .= "\n\ndefine('WPMU_ACCEL_REDIRECT', true);\n\ndefine('WP_DEBUG', false); {$wpredis} \nPHP\"";
+
+
+		EE::debug( $generate_config_cmd );
 
 		try {
 
-			$generate_config = EE::exec_cmd( "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}' 
-			 --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}' 
-			 --dbpass={$data['ee_db_pass']} --extra-php<<PHP \n\ndefine('WP_ALLOW_MULTISITE', true); \n\ndefine('WPMU_ACCEL_REDIRECT', true); 
-			 \n\ndefine('WP_DEBUG', false); {$wpredis} PHP\"" );
+			$generate_config = EE::exec_cmd( $generate_config_cmd );
 
 			if ( 0 != $generate_config ) {
 				EE::log( "Generate wp-config failed for wp multi site" );
@@ -609,13 +625,13 @@ function setup_wordpress( $data ) {
 
 	if ( ! $data['multisite'] ) {
 		EE::debug( "Creating tables for WordPress Single site" );
-		EE::debug( "php {$ee_wp_cli_path} --allow-root core install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+		$wp_database_cmd = "php {$ee_wp_cli_path} --allow-root core install";
+		$wp_database_cmd .= " --url='{$data['www_domain']}' --title='{$data['www_domain']}'";
+		$wp_database_cmd .= " --admin_name='{$ee_wp_user}' --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'";
+
+		EE::debug( $wp_database_cmd );
 		try {
-			$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+			$wp_database = EE::exec_cmd( $wp_database_cmd );
 			if ( 0 !== $wp_database ) {
 				EE::error( "setup WordPress tables failed for single site" );
 
@@ -630,14 +646,16 @@ function setup_wordpress( $data ) {
 		}
 
 	} else {
+
 		EE::debug( "Creating tables for WordPress multisite" );
-		EE::debug( "php {$ee_wp_cli_path} --allow-root core multisite-install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+		$wp_database_cmd = "php {$ee_wp_cli_path} --allow-root core multisite-install";
+		$wp_database_cmd .= " --url='{$data['www_domain']}' --title='{$data['www_domain']}'";
+		$wp_database_cmd .= " --admin_name='{$ee_wp_user}' --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'";
+
+
+		EE::debug( $wp_database_cmd );
 		try {
-			$wp_database = EE::exec_cmd( "php {$ee_wp_cli_path} --allow-root core multisite-install 
-				--url='{$data['www_domain']}' --title='{$data['www_domain']}'
-				--admin_name={$ee_wp_user} --admin_password='{$ee_wp_pass}' --admin_email='{$ee_wp_email}'" );
+			$wp_database = EE::exec_cmd( $wp_database_cmd );
 			if ( 0 !== $wp_database ) {
 				EE::error( "setup WordPress tables failed for wp multi site" );
 
