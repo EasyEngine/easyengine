@@ -28,6 +28,13 @@ class EE_MySql {
 		}
 	}
 
+	/**
+	 * Connect database and return mysqli object.
+	 *
+	 * @param string $db_name Database name
+	 *
+	 * @return bool|mysqli
+	 */
 	public static function dbConnection( $db_name ) {
 		try {
 			$mysqli = self::connect();
@@ -54,8 +61,8 @@ class EE_MySql {
 	/**
 	 * Get login details from /etc/mysql/conf.d/my.cnf & Execute MySQL query.
 	 *
-	 * @param      $statement
-	 * @param      $err_msg
+	 * @param string $statement Sql Query to create database, users etc.
+	 * @param string $err_msg Log error message if query is fail to execute.
 	 * @param bool $log
 	 *
 	 * @return bool|mysqli
@@ -86,6 +93,13 @@ class EE_MySql {
 		// TODO: Backup all databases.
 	}
 
+	/**
+	 * Check if database is exist or not.
+	 *
+	 * @param string $db_name Database name.
+	 *
+	 * @return bool
+	 */
 	public static function check_db_exists( $db_name ) {
 		$db_exist_query  = "SELECT COUNT(*) AS `exists` FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMATA.SCHEMA_NAME='{$db_name}'";
 		$db_exist_exec   = self::execute( $db_exist_query );

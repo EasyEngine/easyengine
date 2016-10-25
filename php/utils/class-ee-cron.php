@@ -7,6 +7,13 @@
  */
 class EE_Cron {
 
+	/**
+	 * Set Weekly Cron on server.
+	 *
+	 * @param        $cmd
+	 * @param string $comment
+	 * @param string $user
+	 */
 	public static function set_cron_weekly( $cmd, $comment = 'Cron set by EasyEngine', $user = 'root' ) {
 		$grep_cron = EE::exec_cmd( "crontab -l | grep -q '{$cmd}'" );
 		if ( 0 !== $grep_cron ) {
@@ -21,6 +28,11 @@ class EE_Cron {
 		}
 	}
 
+	/**
+	 * Remove existing cron.
+	 *
+	 * @param $cmd
+	 */
 	public static function remove_cron( $cmd ) {
 		$grep_cron = EE::exec_cmd( "crontab -l | grep -q '{$cmd}'" );
 		if ( 0 === $grep_cron ) {

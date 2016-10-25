@@ -49,6 +49,14 @@ function add_new_site( $data ) {
 	return $insert_site_data;
 }
 
+/**
+ * Update site info in sqlite ee.db.
+ *
+ * @param $data
+ * @param $where
+ *
+ * @return bool
+ */
 function update_site( $data, $where ) {
 
 	$update_site_data = EE_Sqlite_Db::update( $data, $where );
@@ -56,18 +64,36 @@ function update_site( $data, $where ) {
 	return $update_site_data;
 }
 
+/**
+ * Delete site from sqlite ee.db
+ * @param $where
+ *
+ * @return bool
+ */
 function delete_site( $where ) {
 	$delete_site = EE_Sqlite_Db::delete( $where );
 
 	return $delete_site;
 }
 
+/**
+ * Get all site info from sqlite ee.db.
+ *
+ * @return array|bool
+ */
 function get_all_sites() {
 	$site_info = EE_Sqlite_Db::select();
 
 	return $site_info;
 }
 
+/**
+ * Check if site is exist or not.
+ *
+ * @param $site_name
+ *
+ * @return bool
+ */
 function is_site_exist( $site_name ) {
 	$where = array(
 		'sitename' => $site_name,
@@ -82,6 +108,13 @@ function is_site_exist( $site_name ) {
 	return false;
 }
 
+/**
+ * Get site info form site name.
+ *
+ * @param $site_name
+ *
+ * @return array|bool
+ */
 function site_info( $site_name ) {
 	$where     = array(
 		'sitename' => $site_name,

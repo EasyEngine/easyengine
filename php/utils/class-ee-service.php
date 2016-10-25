@@ -81,6 +81,8 @@ class EE_Service {
 	 * Similar to `service xyz reload`
 	 *
 	 * @param $service_name
+	 *
+	 * @return bool
 	 */
 	public static function reload_service( $service_name ) {
 		try {

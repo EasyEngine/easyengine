@@ -4,7 +4,9 @@ class EE_Apt_Get
 {
 
 	/**
-	 * Update cache.
+	 * Update cache : downloads the package lists from the repositories
+	 * and "updates" them to get information on the newest versions of
+	 * packages and their dependencies.
 	 */
 	public static function update()
 	{
@@ -51,6 +53,8 @@ class EE_Apt_Get
 	}
 
 	/**
+	 * Install new package.
+	 *
 	 * @param $packages
 	 */
 	public static function install($packages)
@@ -76,6 +80,8 @@ class EE_Apt_Get
 	}
 
 	/**
+	 * Remove package.
+	 *
 	 * @param      $packages
 	 * @param bool $purge
 	 */
@@ -143,7 +149,7 @@ class EE_Apt_Get
 
  	public static function is_installed($package){
  		//todo:
- }
+    }
 }
 
 

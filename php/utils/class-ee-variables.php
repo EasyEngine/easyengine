@@ -42,6 +42,11 @@ class EE_Variables {
 		return $ee_db_path;
 	}
 
+	/**
+	 * MySql host name from mysql config file.
+	 *
+	 * @return mixed|string
+	 */
 	public static function get_ee_mysql_host() {
 
 		$ee_mysql_host = get_mysql_config( 'client', 'host' );
@@ -52,6 +57,11 @@ class EE_Variables {
 		return $ee_mysql_host;
 	}
 
+	/**
+	 * WP_CLI version installed on machine.
+	 *
+	 * @return string
+	 */
 	public static function get_ee_wp_cli_version() {
 
 		$ee_wp_cli_version_check = EE::exec_cmd_output( "wp --version | awk '{print $2}' | cut -d'-' -f1 | tr -d '\n'" );
@@ -64,12 +74,22 @@ class EE_Variables {
 		return $ee_wp_cli_version;
 	}
 
+	/**
+	 * Return Webroot path for site setup.
+	 *
+	 * @return string
+	 */
 	public static function get_ee_webroot() {
 		$ee_webroot = '/var/www/';
 
 		return $ee_webroot;
 	}
 
+	/**
+	 * Return php user for site operation.
+	 *
+	 * @return string
+	 */
 	public static function get_ee_php_user() {
 		$ee_php_user = 'www-data';
 
@@ -127,6 +147,11 @@ class EE_Variables {
 		return $php_version;
 	}
 
+	/**
+	 * Return nginx packages list.
+	 *
+	 * @return array
+	 */
 	public static function get_ee_nginx() {
 		$ee_nginx = array( "nginx-custom", "nginx-ee" );
 
@@ -151,7 +176,7 @@ class EE_Variables {
 	public static function get_mysql_repo() {
 		$ee_platform_distro   = EE_OS::ee_platform_distro();
 		$ee_platform_codename = EE_OS::ee_platform_codename();
-		$ee_php_repo          = '';
+		$ee_mysql_repo          = '';
 		if ( 'ubuntu' === $ee_platform_distro ) {
 			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu" . $ee_platform_codename . "main";
 
@@ -188,10 +213,18 @@ class EE_Variables {
 		return $ee_php_repo;
 	}
 
+	/**
+	 *
+	 * @return array
+	 */
 	public static function get_ee_postfix() {
 		return array( 'postfix' );
 	}
 
+	/**
+	 * Return redis packages list.
+	 * @return array
+	 */
 	public static function get_ee_redis_packages() {
 		$ee_platform_codename = EE_OS::ee_platform_codename();
 		if ( $ee_platform_codename == 'trusty' || $ee_platform_codename == 'xenial' ) {
@@ -202,10 +235,19 @@ class EE_Variables {
 		return $ee_redis;
 	}
 
+	/**
+	 * Return hhvm packages list.
+	 *
+	 * @return array
+	 */
 	public static function get_hhvm_packages() {
 		return array( "hhvm" );
 	}
 
+	/**
+	 * Return mysql packages list.
+	 * @return array
+	 */
 	public static function get_mysql_packages() {
 		$mysql_pkg = array( "mariadb-server", "percona-toolkit" );
 

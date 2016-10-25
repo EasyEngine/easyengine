@@ -2,6 +2,14 @@
 
 class EE_Ssl {
 
+	/**
+	 * Get ssl certification expiration remaining days.
+	 *
+	 * @param string $domain_name
+	 * @param bool   $return_on_error
+	 *
+	 * @return float|int
+	 */
 	public static function get_expiration_days( $domain_name, $return_on_error = false ) {
 		if ( ! ee_file_exists( "/etc/letsencrypt/live/{$domain_name}/cert.pem" ) ) {
 			EE::error( "File Not Found : /etc/letsencrypt/live/{$domain_name}/cert.pem" );
@@ -22,6 +30,13 @@ class EE_Ssl {
 		}
 	}
 
+	/**
+	 * Get ssl expiration date of domain.
+	 *
+	 * @param $domain_name
+	 *
+	 * @return string
+	 */
 	public static function get_expiration_date( $domain_name ) {
 		if ( ! ee_file_exists( "/etc/letsencrypt/live/{$domain_name}/cert.pem" ) ) {
 			EE::error( "File Not Found : /etc/letsencrypt/live/{$domain_name}/cert.pem" );

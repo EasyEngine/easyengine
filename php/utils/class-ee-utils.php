@@ -3,9 +3,11 @@
 class EE_Utils {
 
 	/**
-	 * @param      $file
-	 * @param      $extract_path
-	 * @param bool $overwrite
+	 * Unzip/Extract tar/zip/phar files.
+	 *
+	 * @param string $file          Zip/Tar file location.
+	 * @param string $extract_path  Extract location.
+	 * @param bool   $overwrite     Overwrite the file or not.
 	 *
 	 * @return bool
 	 */
@@ -25,7 +27,10 @@ class EE_Utils {
 	}
 
 	/**
-	 * @param array $packages Download packages, packges must be array in format of [url, path, package_name]
+	 * Download packages from url.
+	 *
+	 * @param array $packages Download packages, packges must be array
+	 *                         in format of [url, path, package_name]
 	 */
 	public static function download( $packages ) {
 		foreach ( $packages as $package ) {
@@ -84,6 +89,8 @@ class EE_Utils {
 	}
 
 	/**
+	 * Generate random string.
+	 *
 	 * @param int  $length
 	 * @param bool $special_chars
 	 * @param bool $extra_special_chars
@@ -109,6 +116,8 @@ class EE_Utils {
 	}
 
 	/**
+	 * TODO: remove if its duplicate.
+	 *
 	 * Generate random string.
 	 *
 	 * @return string

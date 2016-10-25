@@ -17,6 +17,14 @@ function pre_run_checks() {
 	return false;
 }
 
+/**
+ * TODO: Remove this function as it is duplicate of `is_site_exist( $domain )`  fun.
+ * Check if site domain is exist in sqlite database or not.
+ *
+ * @param $domain
+ *
+ * @return bool
+ */
 function check_domain_exists( $domain ) {
 	//Check in ee database.
 	$site_exist = is_site_exist( $domain );
@@ -24,6 +32,11 @@ function check_domain_exists( $domain ) {
 	return $site_exist;
 }
 
+/**
+ * Setup domain webroot and config.
+ *
+ * @param $data
+ */
 function setup_domain( $data ) {
 	$filesystem      = new Filesystem();
 	$ee_domain_name  = $data['site_name'];
@@ -79,6 +92,12 @@ function setup_domain( $data ) {
 	}
 }
 
+/**
+ * Setup database for created site.
+ * @param $data
+ *
+ * @return mixed
+ */
 function setup_database( $data ) {
 	$ee_domain_name      = $data['site_name'];
 	$ee_db_domain_name   = str_replace( '.', '_', $ee_domain_name );
@@ -172,6 +191,13 @@ function setup_database( $data ) {
 	return $data;
 }
 
+/**
+ * Check packages related site type are installed or not.
+ *
+ * @param $stype
+ *
+ * @return mixed
+ */
 function site_package_check( $stype ) {
 	$apt_packages = array();
 	$packages     = array();
@@ -364,6 +390,14 @@ function site_package_check( $stype ) {
 	return $install_packages;
 }
 
+/**
+ * Delete site database when deleting the site.
+ *
+ * @param      $dbname
+ * @param      $dbuser
+ * @param      $dbhost
+ * @param bool $exit
+ */
 function delete_db( $dbname, $dbuser, $dbhost, $exit = true ) {
 
 	try {
@@ -402,6 +436,13 @@ function delete_db( $dbname, $dbuser, $dbhost, $exit = true ) {
 	}
 }
 
+/**
+ * Remove webroot of site.
+ *
+ * @param $webroot
+ *
+ * @return bool
+ */
 function delete_web_root( $webroot ) {
 	$invalid_webroot = array(
 		"/var/www/",
@@ -429,6 +470,10 @@ function delete_web_root( $webroot ) {
 	}
 }
 
+/**
+ * Remove nginx config of site.
+ * @param $domain_name
+ */
 function remove_nginx_conf( $domain_name ) {
 	if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $domain_name ) ) {
 		EE::debug( "Removing Nginx configuration" );
@@ -439,7 +484,12 @@ function remove_nginx_conf( $domain_name ) {
 	}
 }
 
-
+/**
+ * Cleanup data of site. i.e webroot, database etc.
+ * @param $data
+ *
+ * @return bool
+ */
 function do_cleanup_action( $data ) {
 	if ( ! empty( $data['site_name'] ) ) {
 		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $data['site_name'] ) ) {
@@ -464,6 +514,12 @@ function do_cleanup_action( $data ) {
 	}
 }
 
+/**
+ * Setup WordPress site.
+ * @param $data
+ *
+ * @return array
+ */
 function setup_wordpress( $data ) {
 	$ee_domain_name  = $data['site_name'];
 	$ee_site_webroot = $data['webroot'];
@@ -704,6 +760,12 @@ function setup_wordpress( $data ) {
 
 }
 
+/**
+ * Install WordPress plugin in WP site.
+ *
+ * @param $plugin_name
+ * @param $data
+ */
 function install_wp_plugin( $plugin_name, $data ) {
 	$ee_site_webroot = $data['webroot'];
 	EE::log( "Installing plugin {$plugin_name}, please wait..." );
@@ -724,6 +786,12 @@ function install_wp_plugin( $plugin_name, $data ) {
 	}
 }
 
+/**
+ * Uninstall plugin in WordPress site.
+ *
+ * @param $plugin_name
+ * @param $data
+ */
 function uninstall_wp_plugin( $plugin_name, $data ) {
 	$ee_site_webroot = $data['webroot'];
 	EE::log( "Uninstalling plugin {$plugin_name}, please wait..." );
@@ -739,6 +807,12 @@ function uninstall_wp_plugin( $plugin_name, $data ) {
 	}
 }
 
+
+/**
+ * Set permission to webroot for php(www-data) user.
+ *
+ * @param $webroot
+ */
 function set_webroot_permissions( $webroot ) {
 	EE::log( "Setting up permissions" );
 	$ee_php_user = EE_Variables::get_ee_php_user();
@@ -750,6 +824,11 @@ function set_webroot_permissions( $webroot ) {
 	}
 }
 
+/**
+ * Display cache settings.
+ *
+ * @param $data
+ */
 function display_cache_settings( $data ) {
 	if ( $data['wpsc'] ) {
 		if ( $data['multisite'] ) {
@@ -786,6 +865,11 @@ function display_cache_settings( $data ) {
 	}
 }
 
+/**
+ * Clone letsencrypt repo.
+ *
+ * @return bool
+ */
 function clone_lets_encrypt() {
 	$letsencrypt_repo = "https://github.com/letsencrypt/letsencrypt";
 	if ( ! ee_file_exists( "/opt" ) ) {
@@ -806,6 +890,11 @@ function clone_lets_encrypt() {
 	}
 }
 
+/**
+ * Setup letsencrypt ssl secure site.
+ *
+ * @param $ee_domain_name
+ */
 function setup_lets_encrypt( $ee_domain_name ) {
 	$ee_wp_email = get_ee_git_config( 'user', 'email' );
 
@@ -859,6 +948,12 @@ function setup_lets_encrypt( $ee_domain_name ) {
 	}
 }
 
+/**
+ * Add https rediraction.
+ *
+ * @param      $ee_domain_name
+ * @param bool $redirect
+ */
 function https_redirect( $ee_domain_name, $redirect = true ) {
 	if ( $redirect ) {
 		if ( ee_file_exists( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf.disabled" ) ) {
@@ -886,6 +981,14 @@ function https_redirect( $ee_domain_name, $redirect = true ) {
 	}
 }
 
+/**
+ * Archive certificates of site.
+ *
+ * @param $domain
+ * @param $ee_wp_email
+ *
+ * @return bool|int|ProcessRun
+ */
 function archived_certificate_handle( $domain, $ee_wp_email ) {
 	EE::log( "You already have an existing certificate for the domain requested.\n" .
 	         "(ref: /etc/letsencrypt/renewal/{$domain}.conf)" .
