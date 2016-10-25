@@ -136,6 +136,9 @@ class EE_Variables {
 		if ( strpos( $package, 'php' ) !== false ) {
 			self::get_php_packages( 'php' );
 		}
+		if ( strpos( $package, 'nginx' ) !== false ) {
+			self::get_nginx_packages(  );
+		}
 	}
 
 	/**
@@ -181,6 +184,23 @@ class EE_Variables {
 		}
 
 		return $ee_php_repo;
+	}
+
+	public static function get_nginx_packages(  ) {
+		$nginx_package_list = array("nginx-ee","nginx-custom");
+		return $nginx_package_list;
+
+	}
+
+	public static function get_redis_packages(  ) {
+		$nginx_package_list = array("redis");
+		return $nginx_package_list;
+
+	}
+	public static function get_mysql_packages(  ) {
+		$mysql_package_list = array("mysql");
+		return $mysql_package_list;
+
 	}
 
 	/**
