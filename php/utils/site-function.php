@@ -158,7 +158,6 @@ function setup_database( $data ) {
 function site_package_check( $stype ) {
 	$apt_packages = array();
 	$packages     = array();
-	$stack        = new Stack_Command();
 
 	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain',	'php7' ) ) ) {
 		EE::debug( "Setting apt_packages variable for Nginx" );
@@ -169,14 +168,14 @@ function site_package_check( $stype ) {
 				EE::log( "NGINX PLUS Detected ..." );
 				$apt = EE_Variables::get_ee_nginx();
 				$apt[] = "nginx-plus";
-				$stack->post_pref($apt, $packages);
+				ee_stack_post_pref($apt, $packages);
 			} else if ( EE_Apt_Get::is_installed( 'nginx' ) ) {
 				EE::log( "EasyEngine detected a previously installed Nginx package. " .
 				         "It may or may not have required modules. " .
 				         "\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n" );
 				$apt = EE_Variables::get_ee_nginx();
 				$apt[] = "nginx";
-				$stack->post_pref($apt, $packages);
+				ee_stack_post_pref($apt, $packages);
 			} else {
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_nginx() );
 			}
@@ -344,7 +343,7 @@ function site_package_check( $stype ) {
 		}
 	}
 
-	$install_packages = $stack->install( $apt_packages, $packages );
+	$install_packages = ee_stack_install( $apt_packages, $packages );
 	return $install_packages;
 }
 
