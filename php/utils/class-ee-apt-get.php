@@ -13,7 +13,7 @@ class EE_Apt_Get
 		if (0 == $update) {
 			EE::success('Cache updated successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
@@ -27,7 +27,7 @@ class EE_Apt_Get
 		if (0 == $check_upgrade) {
 			EE::success('Cache upgraded successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
@@ -46,7 +46,7 @@ class EE_Apt_Get
 		if (0 == $dist_upgrade) {
 			EE::success('Cache updated successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
@@ -71,7 +71,7 @@ class EE_Apt_Get
 		if (0 == $install_package) {
 			EE::success('Cache upgraded successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
