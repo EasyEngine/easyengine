@@ -46,11 +46,12 @@ class EE_Utils {
 					echo "An error occurred while creating your directory at " . $e->getPath();
 				}
 			}
+
 			try {
-				EE::log( "Downloading " . $pkg_name );
+				EE::debug( "Downloading " . $pkg_name );
 				set_time_limit( 0 ); // unlimited max execution time
 				$options = array(
-					CURLOPT_FILE => $download_path,
+					CURLOPT_FILE => fopen($download_path, "w"),
 					CURLOPT_URL  => $url,
 				);
 
@@ -58,6 +59,7 @@ class EE_Utils {
 				curl_setopt_array( $ch, $options );
 				curl_exec( $ch );
 				curl_close( $ch );
+				fclose($download_path);
 				EE::log( "[Done]" );
 			} catch ( Exception $e ) {
 				EE::debug( $e->getMessage() );
