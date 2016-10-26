@@ -33,7 +33,7 @@ class EE_Utils {
 			$download_path = $package['path'];
 			$pkg_name      = $package['package_name'];
 			$dirname       = dirname( $download_path );
-			$filesystem    = new Filesystem();
+			$filesystem    = new \Symfony\Component\Filesystem\Filesystem();
 			if ( ! $filesystem->exists( $dirname ) ) {
 				try {
 					$filesystem->mkdir( $dirname );
