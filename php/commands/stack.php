@@ -127,6 +127,10 @@ class Stack_Command extends EE_Command {
 	 * : To install MySQL.
 	 *
 	 * [--web]
+	 * : install web stack
+	 *
+	 * [--wpcli]
+	 * :To install wp-cli
 	 *
 	 *
 	 *
@@ -246,8 +250,10 @@ class Stack_Command extends EE_Command {
 
 	if (!empty($stack['wpcli'])){
 		EE::debug("Setting packages variable for WP-CLI");
-		if (!EE::exec_cmd("which wp", $message = 'Looking wp-cli preinstalled')){
-			$packages = array_merge($packages, array("wpcli"));
+		if (EE::exec_cmd("which wp", $message = 'Looking wp-cli preinstalled')){
+			$packages = array_merge($packages, array( array("url"=>"https://github.com/wp-cli/wp-cli/releases/download/v".EE_WP_CLI.".phar",
+			                                                "path" => "/usr/bin/wp",
+			                                                "package_name"=>"WP_CLI")));
 		}
 	else{
 			EE::success("WP-CLI is already installed");
@@ -256,22 +262,36 @@ class Stack_Command extends EE_Command {
 
 	if (!empty($stack['phpmyadmin'])){
 		EE::debug("Setting packages variable for phpMyAdmin");
-			$packages = array_merge($packages, array("phpmyadmin"));
+		$packages = array_merge($packages, array( array("url"=>"https://github.com/phpmyadmin/phpmyadmin/archive/STABLE.tar.gz",
+		                                                "path" => "/tmp/pma.tar.gz",
+		                                                "package_name"=>"phpMyAdmin")));
 	}
 
 	if (!empty($stack['phpredisadmin'])){
 		EE::debug("Setting packages variable for phpRedisAdmin");
-			$packages = array_merge($packages, array("phpredisadmin"));
+		$packages = array_merge($packages, array( array("url"=>"https://github.com/ErikDubbelboer/phpRedisAdmin/archive/master.tar.gz",
+		                                                "path" => "/tmp/pra.tar.gz",
+		                                                "package_name"=>"phpRedisAdmin")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://github.com/nrk/predis/archive/v1.0.1.tar.gz",
+		                                                "path" => "/tmp/predis.tar.gz",
+		                                                "package_name"=>"Predis")));
 	}
 
 	if (!empty($stack['adminer'])){
 		EE::debug("Setting packages variable for Adminer");
-			$packages = array_merge($packages, array("adminer"));
+		$packages = array_merge($packages, array( array("url"=>"https://www.adminer.org/static/download/".EE_ADMINER."/adminer-".EE_ADMINER.".php",
+		                                                "path" => EE_WEBROOT."22222/htdocs/db/adminer/index.php",
+		                                                "package_name"=>"Adminer")));
 	}
 
 	if (!empty($category['utils'])){
 		EE::debug("Setting packages variable for utils");
-			$packages = array_merge($packages, array("phpmemcacheadmin","opcache","rtcache-clean", "opcache-gui","ocp","webgrind","perconna-toolkit","anemometer"));
+		$packages = array_merge($packages, array( array("url"=>"https://storage.googleapis.com/google-code-archive-downloads/".
+																"v2/code.google.com/phpmemcacheadmin/".
+																"phpMemcachedAdmin-1.2.2-r262.tar.gz",
+		                                                "path" => "/tmp/memcache.tar.gz",
+		                                                "package_name"=>"phpMemcachedAdmin")));
 	}
 
 	if(!empty($apt_packages)||!empty($packages)){
@@ -284,7 +304,6 @@ class Stack_Command extends EE_Command {
 			EE_Apt_Get::install($apt_packages);
 		}
 		if(!empty($packages)){
-			EE::debug("Downloading following: " .implode(' ',$packages));
 			EE_Utils::download($packages);
 		}
 		EE::debug("Calling post_pref");
