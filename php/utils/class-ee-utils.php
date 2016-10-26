@@ -122,7 +122,7 @@ class EE_Utils {
 	 *
 	 * @return string
 	 */
-	function random_string( $length = 6 ) {
+	public static function random_string( $length = 6 ) {
 		$str        = "";
 		$characters = array_merge( range( 'A', 'Z' ), range( 'a', 'z' ), range( '0', '9' ) );
 		$max        = count( $characters ) - 1;
