@@ -171,6 +171,26 @@ class EE_Variables {
 		}
 	}
 
+	public static function get_nginx_repo() {
+
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		$ee_nginx_repo          = '';
+		if ( 'precise' === $ee_platform_codename ) {
+			$ee_nginx_repo = "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_12.04/ /";
+
+		} else if ( 'trusty' === $ee_platform_codename ) {
+			$ee_nginx_repo = "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_14.04/ /";
+		} else if ( 'xenial' === $ee_platform_codename ) {
+			$ee_nginx_repo = "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/xUbuntu_16.04/ /";
+		} else if ( 'wheezy' === $ee_platform_codename ) {
+			$ee_nginx_repo = "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_7.0/ /";
+		} else if ( 'jessie' === $ee_platform_codename ) {
+			$ee_nginx_repo = "deb http://download.opensuse.org/repositories/home:/rtCamp:/EasyEngine/Debian_8.0/ /";
+		}
+
+		return $ee_nginx_repo;
+	}
+
 	/**
 	 * Get MySQL repo name.
 	 *
@@ -188,6 +208,21 @@ class EE_Variables {
 		}
 
 		return $ee_mysql_repo;
+	}
+
+	public static function get_redis_repo(){
+		$ee_platform_distro   = EE_OS::ee_platform_distro();
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		$ee_redis_repo          = '';
+		if ( 'ubuntu' === $ee_platform_distro ) {
+			$ee_redis_repo = "ppa:chris-lea/redis-server";
+
+		} else if ( 'debian' === $ee_platform_distro ) {
+			$ee_redis_repo = "deb http://packages.dotdeb.org " . $ee_platform_codename . " all";
+		}
+
+		return $ee_redis_repo;
+
 	}
 
 	/**
