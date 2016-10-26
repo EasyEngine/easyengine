@@ -427,7 +427,8 @@ class EE {
 	 * @return int|ProcessRun return code of executed command.
 	 */
 	public static function exec_cmd( $command, $message = '', $exit_on_error = false, $write_log = true, $return_detailed = false ) {
-		Process::write_log( $message );
+		// Process::write_log( $message );
+		EE::debug($message);
 		$cmd_result = self::launch( $command, $exit_on_error, $return_detailed, $write_log );
 
 		return $cmd_result;
