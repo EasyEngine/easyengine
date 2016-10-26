@@ -24,6 +24,86 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
  * @package easyengine
  */
 class Stack_Command extends EE_Command {
+	public function validate_stack_option( $assoc_args ) {
+		$stack = array();
+		$category = array();
+		if( !empty( $assoc_args['pagespeed'] ) ) {
+			EE::error(  'Pagespeed support has been dropped since EasyEngine v3.6.0' );
+			EE::error(  'Please run command again without `--pagespeed`' );
+			EE::error(  'For more details, read - https://easyengine.io/blog/disabling-pagespeed/' );
+		}
+		if(!empty($assoc_args['nginx'])){
+			$stack['nginx']= true;
+		}
+		if(!empty($assoc_args['mysql'])){
+			$stack['mysql']= true;
+		}
+		if(!empty($assoc_args['redis'])){
+			$stack['redis']= true;
+		}
+		if(!empty($assoc_args['phpmyadmin'])){
+			$stack['phpmyadmin']= true;
+		}
+		if(!empty($assoc_args['postfix'])){
+			$stack['postfix']= true;
+		}
+		if(!empty($assoc_args['wpcli'])){
+			$stack['wpcli']= true;
+		}
+		if(!empty($assoc_args['phpredisadmin'])){
+			$stack['phpredisadmin']= true;
+		}
+		if(!empty($assoc_args['php'])){
+			$stack['php']= true;
+		}
+		if(!empty($assoc_args['mailscanner'])){
+			$stack['mailscanner']= true;
+		}
+		if(!empty($assoc_args['mailscanner'])){
+			$stack['mailscanner']= true;
+		}
+
+
+		if(!empty( $assoc_args['all'] )){
+			$category['web'] = True;
+			$category['admin'] = True;
+		}
+		if(!empty( $assoc_args['admin'] )){
+			$category['admin'] == true;
+		}
+		if(!empty( $assoc_args['utils'] )){
+			$category['utils'] == true;
+		}
+		if(!empty( $assoc_args['web'] )){
+			$category['web'] == true;
+		}
+
+		if (isset($category['web']) && $category['web'] == true){
+			$stack['nginx']= true;
+			$stack['php']= true;
+			$stack['mysql']= true;
+			$stack['wpcli']= true;
+			$stack['postfix']= true;
+		}
+		if (isset($category['admin']) &&  $category['admin'] == true){
+			$stack['nginx']= true;
+			$stack['php']= true;
+			$stack['mysql']= true;
+			$stack['adminer']= true;
+			$stack['phpmyadmin']= true;
+			$category['utils']= true;
+		}
+		if (isset($category['utils']) &&  $category['utils']= true){
+			//todo:
+		}
+
+		if (isset($category['web']) &&  $category['mail'] == true){
+		   // todo:
+		 }
+
+		return $stack;
+
+	}
 
 	/**
 	 * Install Stack.
@@ -46,6 +126,9 @@ class Stack_Command extends EE_Command {
 	 * [--mysql]
 	 * : To install MySQL.
 	 *
+	 * [--web]
+	 *
+	 *
 	 *
 	 * ## EXAMPLES
 	 *
@@ -55,50 +138,15 @@ class Stack_Command extends EE_Command {
 	 */
 	public function install( $args, $assoc_args ) {
 
-		list( $site_name ) = $args;
 		$apt_packages = array();
 		$packages = array();
-		$stack = array();
-		if(!empty($assoc_args['nginx'])){
-			$stack['nginx']= true;
-		}
+		$stack = self::validate_stack_option($assoc_args);
 
 		if (!empty($assoc_args['no_diplay_message'])){
 			$disp_msg = false;
 		}else{
 			$disp_msg = true;
 		}
-
-		if( !empty( $assoc_args['pagespeed'] ) ) {
-			EE::error( $site_name . 'Pagespeed support has been dropped since EasyEngine v3.6.0' );
-			EE::error( $site_name . 'Please run command again without `--pagespeed`' );
-			EE::error( $site_name . 'For more details, read - https://easyengine.io/blog/disabling-pagespeed/' );
-		}
-
-	if(!empty( $assoc_args['all'] )){
-		$category['web'] = True;
-		$category['admin'] = True;
-	}
-
-	if ($category['web'] == true){
-			$stack['nginx']= true;
-			$stack['php']= true;
-			$stack['mysql']= true;
-			$stack['wpcli']= true;
-			$stack['postfix']= true;
-	}
-	if ($category['admin'] == true){
-		$stack['nginx']= true;
-		$stack['php']= true;
-		$stack['mysql']= true;
-		$stack['adminer']= true;
-		$stack['phpmyadmin']= true;
-		$category['utils']= true;
-	}
-
-	// if ($category['mail'] == true){
-	// todo:
-	// }
 
 	if (!empty($stack['redis'])) {
 		if ( ! EE_Apt_Get::is_installed( 'redis-server' ) ) {
@@ -109,9 +157,9 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
-	if ($stack['nginx']){
+	if (isset($stack['nginx'])){
 
-		EE::log("Setting apt_packages variable for Nginx");
+		EE::debug("Setting apt_packages variable for Nginx");
 		if(!EE_Apt_Get::is_installed('nginx-custom')){
 			if(!(EE_Apt_Get::is_installed('nginx-plus')||EE_Apt_Get::is_installed('nginx'))){
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_nginx_packages(  ));
@@ -122,7 +170,7 @@ class Stack_Command extends EE_Command {
 						$apt=array_merge($apt,EE_Variables::get_nginx_packages());
 						self::post_pref($apt, $packages);
 					}elseif(EE_Apt_Get::is_installed('nginx')){
-						EE:success("EasyEngine detected a previously installed Nginx package. ".
+						EE::success("EasyEngine detected a previously installed Nginx package. ".
 						"It may or may not have required modules. ".
 						"\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n");
 						$apt[]="nginx";
@@ -131,14 +179,14 @@ class Stack_Command extends EE_Command {
 					}
 			}
 		}else{
-			EE::log("Nginx Stable already installed");
+			EE::debug("Nginx Stable already installed");
 		}
 	}
 	if (!empty($stack['php'])){
 		EE::debug("Setting apt_packages variable for PHP");
 		if(!(EE_Apt_Get::is_installed('php5-fpm')||EE_Apt_Get::is_installed('php5.6-fpm'))){
 			if(EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php5.6'),EE_Variables::get_package_list('phpextra'));
+				$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages('php5.6'),EE_Variables::get_php_packages('phpextra'));
 			}else{
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages( 'php' ));
 			}
@@ -153,7 +201,7 @@ class Stack_Command extends EE_Command {
 			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
 				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php7.0'));
 				if(!EE_Apt_Get::is_installed('php5-fpm')){
-					$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php'));
+					$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages('php7.0'));
 				}
 			}else{
 				EE::success("PHP 7.0 already installed");
@@ -162,7 +210,7 @@ class Stack_Command extends EE_Command {
 	}
 
 
-	if (!empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
+	if (isset($stack['php']) && !empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
 		if (EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
 			EE::debug("Setting apt_packages variable for PHP 7.0");
 			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
@@ -178,7 +226,7 @@ class Stack_Command extends EE_Command {
 
 	if (!empty($stack['mysql'])){
 		EE::debug("Setting apt_packages variable for MySQL");
-		if (!EE::exec_cmd("mysqladmin ping", $message = 'Looking for active mysql connection')){
+		if (EE::exec_cmd("mysqladmin ping", $message = 'Looking for active mysql connection')){
 			$apt_packages = array_merge($apt_packages,EE_Variables::get_mysql_packages());
 			$packages = array_merge($packages, array("mysqltunner"));
 		}else{
@@ -239,7 +287,7 @@ class Stack_Command extends EE_Command {
 			EE::debug("Downloading following: " .implode(' ',$packages));
 			EE_Utils::download($packages);
 		}
-		EE::log("Calling post_pref");
+		EE::debug("Calling post_pref");
 		self::post_pref($apt_packages, $packages);
 		if(in_array('redis-server',$apt_packages)){
 			if (is_file("/etc/redis/redis.conf")){
@@ -273,7 +321,7 @@ class Stack_Command extends EE_Command {
 
 		// Pre settings to do before installation packages
 
-		if (in_array(EE_Variables::get_package_list('postfix'), $apt_packages) ) {
+		if (in_array('postfix', $apt_packages) ) {
 			echo "Pre-seeding Postfix";
 			try{
 
@@ -284,8 +332,8 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if (in_array(EE_Variables::get_package_list('mysql'), $apt_packages) ) {
-			EE::log("Adding repository for MySQL, please wait...");
+		if (in_array(EE_Variables::get_mysql_packages(), $apt_packages) ) {
+			EE::debug("Adding repository for MySQL, please wait...");
 			$mysql_pref = "Package: *\nPin: origin sfo1.mirrors.digitalocean.com\nPin-Priority: 1000\n";
 			$mysql_pref_file   = fopen("/etc/apt/preferences.d/MariaDB.pref", "w" );
 			fwrite( $mysql_pref_file, $mysql_pref );
@@ -316,20 +364,20 @@ class Stack_Command extends EE_Command {
 		}
 
 		if ( in_array(EE_Variables::get_nginx_packages(), $apt_packages)) {
-			EE::log("Adding repository for NGINX, please wait...");
+			EE::debug("Adding repository for NGINX, please wait...");
 			EE_Repo::add(EE_Variables::get_nginx_repo());
 			EE_Repo::add_key('3050AC3CD2AE6F03');
 		}
 
-		if (in_array(EE_Variables::get_package_list('php7.0'), $apt_packages) || in_array(EE_Variables::get_package_list('php5.6'), $apt_packages)) {
-				EE::log("Adding repository for PHP, please wait...");
+		if (in_array(EE_Variables::get_php_packages("php7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
+				EE::debug("Adding repository for PHP, please wait...");
 			    EE_Repo::add(EE_Variables::get_php_repo());
 			if ('debian' == EE_OS::ee_platform_distro()){
 				EE_Repo::add_key('89DF5277');
 				}
 		}
 		if ( in_array(EE_Variables::get_redis_packages(), $apt_packages)) {
-			EE::log("Adding repository for REDIS, please wait...");
+			EE::debug("Adding repository for REDIS, please wait...");
 			EE_Repo::add(EE_Variables::get_redis_repo());
 			if ('debian' == EE_OS::ee_platform_distro()){
 				EE_Repo::add_key('3050AC3CD2AE6F03');
@@ -341,7 +389,6 @@ class Stack_Command extends EE_Command {
 	public static function post_pref($apt_packages,$packages){
 		//Post activity after installation of packages
 
-		$filesystem = new Filesystem();
 		//Post activity after installation of packages
 		if (! empty( $apt_packages )) {
 			if (!empty(array_intersect(array('postfix'), $apt_packages))) {
@@ -361,7 +408,7 @@ class Stack_Command extends EE_Command {
 						ee_file_search_replace( "/etc/nginx/nginx.conf", '"EasyEngine"', '"EasyEngine ' . EE_VERSION . '"' );
 						$data = array();
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/blockips.conf' );
-						EE\Utils\mustache_write_in_file( '/etc/nginx/conf.d/blockips.conf', 'blockips.conf', $data );
+						EE\Utils\mustache_write_in_file( '/etc/nginx/conf.d/blockips.conf', 'blockips.mustache', $data );
 
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/conf.d/fastcgi.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/conf.d/fastcgi.conf', 'fastcgi.mustache', $data );
@@ -423,8 +470,8 @@ class Stack_Command extends EE_Command {
 
 					// Nginx-Plus does not have nginx package structure like this
 					// So creating directories
-					if ( in_array( $apt_packages, "nginx-plus" ) || in_array( $apt_packages, "nginx" ) ) {
-						EE::log( "Installing EasyEngine Configurations for NGINX" );
+					if ( in_array( "nginx-plus",$apt_packages ) || in_array( "nginx",$apt_packages ) ) {
+						EE::debug( "Installing EasyEngine Configurations for NGINX" );
 						ee_file_mkdir( "/etc/nginx/sites-available" );
 						ee_file_mkdir( "/etc/nginx/sites-enabled" );
 					}
@@ -433,18 +480,19 @@ class Stack_Command extends EE_Command {
 					EE\Utils\mustache_write_in_file( '/etc/nginx/sites-available/22222', '22222.mustache', $data );
 
 					$passwd = EE_Utils::random_string( 6 );
-					EE::log($passwd);
-					EE::exec_cmd( "printf \"easyengine:$(openssl passwd -crypt " . $passwd . "2> /dev/null)\" > /etc/nginx/htpasswd-ee 2>/dev/null" );
 
+					if(EE::exec_cmd( "printf \"easyengine:$(openssl passwd -crypt " . $passwd . "2> /dev/null)\" > /etc/nginx/htpasswd-ee 2>/dev/null" )){
+						EE::success("HTTP AUTH USERNAME:PASSWORD : easyengine:" . $passwd);
+					}
 
 					ee_file_symlink( "/etc/nginx/sites-available/22222", "/etc/nginx/sites-enabled/22222" );
 
 					//Create log and cert folder and softlinks
 
-					EE::log( 'Creating directory' . EE_WEBROOT . '22222/logs' );
+					EE::debug( 'Creating directory ' . EE_WEBROOT . '22222/logs' );
 					ee_file_mkdir( EE_WEBROOT . "22222/logs" );
 
-					EE::log( 'Creating directory' . EE_WEBROOT . '22222/cert' );
+					EE::debug( 'Creating directory ' . EE_WEBROOT . '22222/cert' );
 					ee_file_mkdir( EE_WEBROOT . "22222/cert" );
 
 					ee_file_symlink( "/var/log/nginx/22222.access.log", EE_WEBROOT . "22222/logs/access.log" );
@@ -455,9 +503,9 @@ class Stack_Command extends EE_Command {
 					ee_file_rename( EE_WEBROOT . "22222/cert/22222.key", EE_WEBROOT . "22222/cert/22222.key.org", true );
 					EE::exec_cmd( "openssl rsa -in " . EE_WEBROOT . "22222/cert/22222.key.org -out " . EE_WEBROOT . "22222/cert/22222.key" );
 					EE::exec_cmd( "openssl x509 -req -days 3652 -in " . EE_WEBROOT . "22222/cert/22222.csr -signkey " . EE_WEBROOT . "22222/cert/22222.key -out " . EE_WEBROOT . "22222/cert/22222.crt" );
-					EE::log("adding git");
+					EE::debug("adding git");
 					EE_Git::add( array("/etc/nginx"), "Adding Nginx into Git" );
-					EE::log("reloading nginx");
+					EE::debug("reloading nginx");
 					EE_Service::reload_service( "nginx" );
 
 					if ( in_array( "nginx-plus", $apt_packages ) || in_array( "nginx", $apt_packages ) ) {
@@ -472,8 +520,8 @@ class Stack_Command extends EE_Command {
 						EE::debug( 'Writting for nginx plus configuration to file /etc/nginx/conf.d/ee-plus.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/conf.d/ee-plus.conf', 'ee-plus.mustache', $data );
 
-						EE::success( "HTTP Auth User Name: easyengine" .
-						             "\nHTTP Auth Password : " . $passwd );
+						EE::success( "HTTP Auth User Name: easyengine");
+						EE::success("HTTP Auth Password : " . $passwd );
 						EE_Service::reload_service( "nginx" );
 
 					} else {
@@ -536,11 +584,11 @@ class Stack_Command extends EE_Command {
 					}
 				}
 
-				EEService::restart_service(self, 'nginx');
+				EE_Service::restart_service('nginx');
 			}
 
 
-			if ((EE_OS::ee_platform_distro() == 'debian' || EE_OS::ee_platform_codename() == 'precise') && (in_array($apt_packages, "EE_PHP"))) {
+			if ((EE_OS::ee_platform_distro() == 'debian' || EE_OS::ee_platform_codename() == 'precise') && (in_array("php5-fpm",$apt_packages))) {
 				ee_file_mkdir( "/var/log/php5/" );
 				if ((EE_OS::ee_platform_distro() == 'debian' && EE_OS::ee_platform_codename() == 'wheezy')){
 					EE::exec_cmd("pecl install xdebug");
@@ -586,7 +634,7 @@ class Stack_Command extends EE_Command {
 			}
 
 			if ((EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial')
-				&& (in_array($apt_packages, "EE_PHP5_6"))
+				&& (in_array("php5.6-fpm",$apt_packages))
 			) {
 
 
@@ -626,7 +674,7 @@ class Stack_Command extends EE_Command {
 			}
 
 
-			if ((EE_OS::ee_platform_codename() == 'jessie')	&& (in_array($apt_packages, "EE_PHP7_0"))) {
+			if ((EE_OS::ee_platform_codename() == 'jessie')	&& (in_array("php7.0-fpm",$apt_packages))) {
 
 
 				ee_file_mkdir( "/var/log/php/7.0/" );
@@ -666,7 +714,7 @@ class Stack_Command extends EE_Command {
 			}
 
 			if ((EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial')
-				&& (in_array($apt_packages, "EE_PHP7_0"))
+				&& (in_array("php7.0-fpm".$apt_packages))
 			) {
 				ee_file_mkdir( "/var/log/php/7.0/" );
 				$data = array();
@@ -705,7 +753,7 @@ class Stack_Command extends EE_Command {
 
 			}
 
-			if(in_array( $apt_packages, "mariadb-server" )){
+			if(in_array( "mariadb-server", $apt_packages )){
 
 				if (!is_file("/etc/mysql/my.cnf")){
 					$config = "[mysqld]\nwait_timeout = 30\n".
@@ -800,43 +848,7 @@ class Stack_Command extends EE_Command {
 		list( $site_name ) = $args;
 		$apt_packages = array();
 		$packages = array();
-		$stack = array();
-		if(!empty($assoc_args['nginx'])){
-			$stack['nginx']= true;
-		}
-
-		if (!empty($assoc_args['no_diplay_message'])){
-			$disp_msg = false;
-		}else{
-			$disp_msg = true;
-		}
-
-		if( !empty( $assoc_args['pagespeed'] ) ) {
-			EE::error( $site_name . 'Pagespeed support has been dropped since EasyEngine v3.6.0' );
-			EE::error( $site_name . 'Please run command again without `--pagespeed`' );
-			EE::error( $site_name . 'For more details, read - https://easyengine.io/blog/disabling-pagespeed/' );
-		}
-
-		if(!empty( $assoc_args['all'] )){
-			$category['web'] = True;
-			$category['admin'] = True;
-		}
-
-		if ($category['web'] == true){
-			$stack['nginx']= true;
-			$stack['php']= true;
-			$stack['mysql']= true;
-			$stack['wpcli']= true;
-			$stack['postfix']= true;
-		}
-		if ($category['admin'] == true){
-			$stack['nginx']= true;
-			$stack['php']= true;
-			$stack['mysql']= true;
-			$stack['adminer']= true;
-			$stack['phpmyadmin']= true;
-			$category['utils']= true;
-		}
+		$stack = self::validate_stack_option($assoc_args);
 
 		// if ($category['mail'] == true){
 		// todo:
@@ -856,7 +868,7 @@ class Stack_Command extends EE_Command {
 
 				$apt_packages=array_merge($apt_packages,EE_Variables::get_nginx_packages());
 			}else{
-				EE::log("Nginx Stable not installed");
+				EE::debug("Nginx Stable not installed");
 			}
 		}
 		if (!empty($stack['php'])){
@@ -960,10 +972,6 @@ class Stack_Command extends EE_Command {
 				EE_Utils::remove($packages);
 			}
 
-			if ($disp_msg){
-				EE::success("Successfully Removed Packages");
-			}
-
 
 		}
 	}
@@ -997,50 +1005,11 @@ class Stack_Command extends EE_Command {
 		 */
 	public function purge( $args, $assoc_args ) {
 
-		list( $site_name ) = $args;
+
 		$apt_packages = array();
 		$packages = array();
-		$stack = array();
-		if(!empty($assoc_args['nginx'])){
-			$stack['nginx']= true;
-		}
+		$stack = self::validate_stack_option($assoc_args);
 
-		if (!empty($assoc_args['no_diplay_message'])){
-			$disp_msg = false;
-		}else{
-			$disp_msg = true;
-		}
-
-		if( !empty( $assoc_args['pagespeed'] ) ) {
-			EE::error( $site_name . 'Pagespeed support has been dropped since EasyEngine v3.6.0' );
-			EE::error( $site_name . 'Please run command again without `--pagespeed`' );
-			EE::error( $site_name . 'For more details, read - https://easyengine.io/blog/disabling-pagespeed/' );
-		}
-
-		if(!empty( $assoc_args['all'] )){
-			$category['web'] = True;
-			$category['admin'] = True;
-		}
-
-		if ($category['web'] == true){
-			$stack['nginx']= true;
-			$stack['php']= true;
-			$stack['mysql']= true;
-			$stack['wpcli']= true;
-			$stack['postfix']= true;
-		}
-		if ($category['admin'] == true){
-			$stack['nginx']= true;
-			$stack['php']= true;
-			$stack['mysql']= true;
-			$stack['adminer']= true;
-			$stack['phpmyadmin']= true;
-			$category['utils']= true;
-		}
-
-		// if ($category['mail'] == true){
-		// todo:
-		// }
 
 		if (!empty($stack['redis'])) {
 			if (  EE_Apt_Get::is_installed( 'redis-server' ) ) {
@@ -1056,7 +1025,7 @@ class Stack_Command extends EE_Command {
 
 				$apt_packages=array_merge($apt_packages,EE_Variables::get_nginx_packages());
 			}else{
-				EE::log("Nginx Stable not installed");
+				EE::debug("Nginx Stable not installed");
 			}
 		}
 		if (!empty($stack['php'])){
@@ -1087,7 +1056,7 @@ class Stack_Command extends EE_Command {
 		}
 
 
-		if (!empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
+		if (isset($stack['php']) && !empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
 			if (EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
 				EE::debug("Setting apt_packages variable for PHP 7.0");
 				if(EE_Apt_Get::is_installed('php7.0-fpm')){
@@ -1160,9 +1129,6 @@ class Stack_Command extends EE_Command {
 				EE_Utils::remove($packages);
 			}
 
-			if ($disp_msg){
-				EE::success("Successfully Removed Packages");
-			}
 
 
 		}
