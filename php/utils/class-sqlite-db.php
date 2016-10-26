@@ -126,6 +126,27 @@ class EE_Sqlite_Db {
 	 * @return array
 	 */
 	public static function filter_ee_data_fields( $data ) {
+		// For backward compatibility.
+		if ( ! empty( $data['site_name'] ) ) {
+			$data['sitename'] = $data['site_name'];
+		}
+
+		if ( ! empty( $data['ee_db_name'] ) ) {
+			$data['db_name'] = $data['ee_db_name'];
+		}
+
+		if ( ! empty( $data['ee_db_user'] ) ) {
+			$data['db_user'] = $data['ee_db_user'];
+		}
+
+		if ( ! empty( $data['ee_db_pass'] ) ) {
+			$data['db_password'] = $data['ee_db_pass'];
+		}
+
+		if ( ! empty( $data['ee_db_host']) ) {
+			$data['db_host'] = $data['ee_db_host'];
+	    }
+
 		$ee_db_fields = array(
 			'id',
 			'sitename',
@@ -149,7 +170,9 @@ class EE_Sqlite_Db {
 		$filter_data = array();
 
 		foreach ( $ee_db_fields as $ee_db_field ) {
-			if ( ! empty( $data[ $ee_db_field ] ) ) {
+			if ( isset( $data[ $ee_db_field ] ) && is_bool( $data[ $ee_db_field ] ) ) {
+				$filter_data[ $ee_db_field ] = (int) $data[ $ee_db_field ];
+			} else if ( ! empty( $data[ $ee_db_field ] ) ) {
 				$filter_data[ $ee_db_field ] = $data[ $ee_db_field ];
 			}
 		}

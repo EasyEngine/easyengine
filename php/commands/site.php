@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Manage sites.
  *
@@ -67,15 +68,14 @@ class Site_Command extends EE_Command {
 
 		$site_name = empty( $args[0] ) ? '' : $args[0];
 
-		if ( empty( $site_name ) ) {
+		while ( empty( $site_name ) ) {
 			$value = EE::input_value( "Enter site name :" );
 			if ( $value ) {
 				$site_name = $value;
 			}
 		}
 		$ee_www_domain = EE_Utils::validate_domain( $site_name, false );
-		$site_name     = EE_Utils::validate_domain( $site_name );
-		$ee_domain     = $site_name;
+		$ee_domain     = EE_Utils::validate_domain( $site_name );
 
 		if ( empty( $ee_domain ) ) {
 			EE::error( 'Invalid domain name, Provide valid domain name' );
@@ -114,7 +114,10 @@ class Site_Command extends EE_Command {
 		$data['www_domain'] = $ee_www_domain;
 		$data['webroot']    = $ee_site_webroot;
 		$stype              = empty( $assoc_args['type'] ) ? 'html' : $assoc_args['type'];
+		$data['site_type']  = $stype;
 		$cache              = empty( $assoc_args['cache'] ) ? 'basic' : $assoc_args['cache'];
+		$data['cache_type'] = $cache;
+		$data['site_path']  = $ee_site_webroot;
 		$letsencrypt        = empty( $assoc_args['letsencrypt'] ) ? false : true;
 		$experimental       = empty( $assoc_args['experimental'] ) ? false : true;
 
@@ -268,7 +271,6 @@ class Site_Command extends EE_Command {
 					if ( $data["wp"] ) {
 						try {
 							$ee_wp_creds = setup_wordpress( $data );
-							update_site( $data, array( 'site_name' => $data['site_name'] ) );
 						} catch ( Exception $e ) {
 							EE::debug( $e->getMessage() );
 							EE::log( "Oops Something went wrong !!" );
@@ -377,6 +379,109 @@ class Site_Command extends EE_Command {
 	}
 
 	/**
+	 * Enable site example.com
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<name>]
+	 * : Name of the site to enable.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # enable site.
+	 *      $ ee site enable example.com
+	 *
+	 */
+	public function enable( $args, $assoc_args ) {
+
+		$site_name = empty( $args[0] ) ? '' : $args[0];
+
+		while ( empty( $site_name ) ) {
+			$value = EE::input_value( "Enter site name :" );
+			if ( $value ) {
+				$site_name = $value;
+			}
+		}
+
+		$ee_domain = EE_Utils::validate_domain( $site_name );
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+
+		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
+			EE::log( "Enable domain {$ee_domain}" );
+			if ( ee_file_exists( EE_NGINX_SITE_ENABLE_DIR . $ee_domain ) ) {
+				EE::debug( "Site {$ee_domain} already enabled." );
+				EE::log( "[Failed]" );
+			} else {
+				ee_file_symlink( EE_NGINX_SITE_AVAIL_DIR . $ee_domain, EE_NGINX_SITE_ENABLE_DIR . $ee_domain );
+				EE_Git::add( array( "/etc/nginx" ), "Enabled {$ee_domain} " );
+				$data = array( 'is_enabled' => true );
+				update_site( $data, array( 'site_name' => $ee_domain ) );
+				EE::log( "[OK]" );
+				if ( ! EE_Service::reload_service( 'nginx' ) ) {
+					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+				}
+			}
+		} else {
+			EE::error( "nginx configuration file does not exist" );
+		}
+
+	}
+
+	/**
+	 * Disable site example.com
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<name>]
+	 * : Name of the site to disable.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # disable site.
+	 *      $ ee site disable example.com
+	 *
+	 */
+	public function disable( $args, $assoc_args ) {
+
+		$site_name = empty( $args[0] ) ? '' : $args[0];
+
+		while ( empty( $site_name ) ) {
+			$value = EE::input_value( "Enter site name :" );
+			if ( $value ) {
+				$site_name = $value;
+			}
+		}
+
+		$ee_domain = EE_Utils::validate_domain( $site_name );
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+
+		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
+			EE::log( "Disable domain {$ee_domain}" );
+			if ( ! ee_file_exists( EE_NGINX_SITE_ENABLE_DIR . $ee_domain ) ) {
+				EE::debug( "Site {$ee_domain} already disabled" );
+				EE::log( "[Failed]" );
+			} else {
+				ee_file_unlink( EE_NGINX_SITE_ENABLE_DIR . $ee_domain );
+				EE_Git::add( array( "/etc/nginx" ), "Disabled {$ee_domain} " );
+				$data = array( 'is_enabled' => false );
+				update_site( $data, array( 'site_name' => $ee_domain ) );
+				EE::log( "[OK]" );
+				if ( ! EE_Service::reload_service( 'nginx' ) ) {
+					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+				}
+			}
+		} else {
+			EE::error( "nginx configuration file does not exist" );
+		}
+	}
+
+	/**
 	 * Update site.
 	 *
 	 * ## OPTIONS
@@ -427,89 +532,89 @@ class Site_Command extends EE_Command {
 
 	/**
 	 * Show site information.
-	 * 
+	 *
 	 * ## OPTIONS
-	 * 
+	 *
 	 * <name>
 	 * : Name of the site to get site information.
-	 * 
+	 *
 	 * ## EXAMPLES
-	 * 
-	 *	  # Show site information.
-	 *	  $ ee site info example.com
+	 *
+	 *      # Show site information.
+	 *      $ ee site info example.com
 	 */
 	public function info( $args, $assoc_args ) {
-		
+
 		list( $site_name ) = $args;
 
 		if ( empty( $site_name ) ) {
 			/* @todo If site name not passed then ask for `Enter site name`. */
 		}
-        
-        list( $ee_domain, $ee_www_domain ) = EE_Utils::validate_domain( $site_name );
-        
+
+		list( $ee_domain, $ee_www_domain ) = EE_Utils::validate_domain( $site_name );
+
 		$ee_db_name = $ee_db_user = $ee_db_pass = $hhvm = '';
 
 		if ( ! is_site_exist( $ee_domain ) ) {
-			EE::error( 'Site ' . $ee_domain .' does not exist.' );
+			EE::error( 'Site ' . $ee_domain . ' does not exist.' );
 		}
 
-		
-        if ( ee_file_exists( '/etc/nginx/sites-available/' . $ee_domain ) ) {
 
-            $siteinfo 			= site_info( $ee_domain );
-			$siteinfo 			= $siteinfo[0];
-            $sitetype 			= $siteinfo['site_type'];
-            $cachetype 			= $siteinfo['cache_type'];
-            $ee_site_webroot 	= $siteinfo['site_path'];
-            $access_log 		= $ee_site_webroot . '/logs/access.log';
-            $error_log 			= $ee_site_webroot . '/logs/error.log';
-            $ee_db_name 		= $siteinfo['db_name'];
-            $ee_db_user 		= $siteinfo['db_user'];
-            $ee_db_pass 		= $siteinfo['db_password'];
-            $ee_db_host 		= $siteinfo['db_host'];
-			$site_enabled 		= ( $siteinfo['is_enabled'] ) ? 'enabled' : 'disabled';
+		if ( ee_file_exists( '/etc/nginx/sites-available/' . $ee_domain ) ) {
 
-            if ( 'html' === $sitetype ) {
+			$siteinfo        = site_info( $ee_domain );
+			$siteinfo        = $siteinfo[0];
+			$sitetype        = $siteinfo['site_type'];
+			$cachetype       = $siteinfo['cache_type'];
+			$ee_site_webroot = $siteinfo['site_path'];
+			$access_log      = $ee_site_webroot . '/logs/access.log';
+			$error_log       = $ee_site_webroot . '/logs/error.log';
+			$ee_db_name      = $siteinfo['db_name'];
+			$ee_db_user      = $siteinfo['db_user'];
+			$ee_db_pass      = $siteinfo['db_password'];
+			$ee_db_host      = $siteinfo['db_host'];
+			$site_enabled    = ( $siteinfo['is_enabled'] ) ? 'enabled' : 'disabled';
+
+			if ( 'html' === $sitetype ) {
 				$hhvm = ( $siteinfo['is_hhvm'] ) ? 'enabled' : 'disabled';
 			}
-			
+
 			if ( 'proxy' === $sitetype ) {
-				$access_log 		= '/var/log/nginx/' . $ee_domain . '.access.log';
-                $error_log  		= '/var/log/nginx/' . $ee_domain . '.error.log';
-                $ee_site_webroot 	= '';
+				$access_log      = '/var/log/nginx/' . $ee_domain . '.access.log';
+				$error_log       = '/var/log/nginx/' . $ee_domain . '.error.log';
+				$ee_site_webroot = '';
 			}
 
-            $php_version = $siteinfo['php_version'];
+			$php_version = $siteinfo['php_version'];
 			// $pagespeed = ( $siteinfo['is_pagespeed'] ) ? 'enabled' : 'disabled';
 			$ssl = ( $siteinfo['is_ssl'] ) ? 'enabled' : 'disabled';
 
-            if ( 'enabled' === $ssl ) {
-                $sslprovider = 'Lets Encrypt';
-                $sslexpiry = str( SSL.getExpirationDate( self, $ee_domain ) );
+			if ( 'enabled' === $ssl ) {
+				$sslprovider = 'Lets Encrypt';
+				$sslexpiry   = str( SSL . getExpirationDate( self, $ee_domain ) );
 			} else {
-                $sslprovider = $sslexpiry = '';
-            	$data = array(
-					'domain' => $ee_domain,
-					'webroot' => $ee_site_webroot,
-					'accesslog' => $access_log,
-					'errorlog' => $error_log,
-					'dbname' => $ee_db_name,
-					'dbuser' => $ee_db_user,
+				$sslprovider = $sslexpiry = '';
+				$data        = array(
+					'domain'      => $ee_domain,
+					'webroot'     => $ee_site_webroot,
+					'accesslog'   => $access_log,
+					'errorlog'    => $error_log,
+					'dbname'      => $ee_db_name,
+					'dbuser'      => $ee_db_user,
 					'php_version' => $php_version,
-					'dbpass' => $ee_db_pass,
-					'hhvm' => $hhvm,
-					'ssl' => 'ssl',
+					'dbpass'      => $ee_db_pass,
+					'hhvm'        => $hhvm,
+					'ssl'         => 'ssl',
 					'sslprovider' => $sslprovider,
-					'sslexpiry' => $sslexpiry,
-					'type' => $sitetype . ' ' . $cachetype . $site_enabled,
+					'sslexpiry'   => $sslexpiry,
+					'type'        => $sitetype . ' ' . $cachetype . $site_enabled,
 				);
 
-            	Utils\mustache_render( 'siteinfo.mustache', $data );
+				Utils\mustache_render( 'siteinfo.mustache', $data );
 			}
-        
+
 		} else {
-            EE::error( 'nginx configuration file does not exist for ' . $ee_domain );
+			EE::error( 'nginx configuration file does not exist for ' . $ee_domain );
 		}
 	}
 }

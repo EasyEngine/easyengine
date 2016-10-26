@@ -126,6 +126,21 @@ function ee_file_symlink( $originDir, $targetDir, $copyOnWindows = false ) {
 }
 
 /**
+ * @param $linkfile
+ */
+function ee_file_unlink( $linkfile ) {
+
+	if ( ee_file_exists( $linkfile ) ) {
+		if ( is_link( $linkfile ) ) {
+			unlink( $linkfile );
+		} else {
+			EE::log( "{$linkfile} exists but not symbolic link\n" );
+		}
+	}
+
+}
+
+/**
  * Make relative path.
  *
  * @param $endPath

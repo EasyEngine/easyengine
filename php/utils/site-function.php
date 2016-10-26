@@ -518,7 +518,7 @@ function do_cleanup_action( $data ) {
  * Setup WordPress site.
  * @param $data
  *
- * @return array
+ * @return array|boolean
  */
 function setup_wordpress( $data ) {
 	$ee_domain_name  = $data['site_name'];
@@ -560,6 +560,7 @@ function setup_wordpress( $data ) {
 
 	if ( empty( $data['ee_db_name'] ) && empty( $data['ee_db_user'] ) && empty( $data['ee_db_pass'] ) ) {
 		$data = setup_database( $data );
+		$update_data = update_site( $data, array( 'site_name' => $data['site_name'] ) );
 	}
 
 	if ( 'true' === strtolower( $prompt_wpprefix ) ) {
@@ -670,7 +671,7 @@ function setup_wordpress( $data ) {
 
 	try {
 		while ( empty( preg_match_all( '/^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$/i', $ee_wp_email ) ) ) {
-			EE::log( "EMail not Valid in config, Please provide valid email id." );
+			EE::log( "Email not Valid in config, Please provide valid email id." );
 			$ee_wp_email = EE::input_value( "Enter your email: " );
 		}
 	} catch ( Exception $e ) {
