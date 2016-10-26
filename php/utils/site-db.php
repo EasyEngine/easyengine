@@ -10,7 +10,7 @@
 function add_new_site( $data ) {
 
 	$default_args = array(
-		'sitename'     => '',
+		'site_name'     => '',
 		'site_type'    => '',
 		'cache_type'   => '',
 		'site_path'    => '',
@@ -31,12 +31,12 @@ function add_new_site( $data ) {
 	$data = array_merge( $default_args, $data );
 
 
-	if ( empty( $data['sitename'] ) ) {
+	if ( empty( $data['site_name'] ) ) {
 		EE::debug( "Sitename is empty." );
 
 		return false;
 	}
-	$is_site_exist = is_site_exist( $data['sitename'] );
+	$is_site_exist = is_site_exist( $data['site_name'] );
 
 	if ( $is_site_exist ) {
 		EE::error( "Site is already exist." );
