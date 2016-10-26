@@ -4,7 +4,9 @@ class EE_Apt_Get
 {
 
 	/**
-	 * Update cache.
+	 * Update cache : downloads the package lists from the repositories
+	 * and "updates" them to get information on the newest versions of
+	 * packages and their dependencies.
 	 */
 	public static function update()
 	{
@@ -13,7 +15,7 @@ class EE_Apt_Get
 		if (0 == $update) {
 			EE::success('Cache updated successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
@@ -27,7 +29,7 @@ class EE_Apt_Get
 		if (0 == $check_upgrade) {
 			EE::success('Cache upgraded successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
@@ -46,11 +48,13 @@ class EE_Apt_Get
 		if (0 == $dist_upgrade) {
 			EE::success('Cache updated successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
 	/**
+	 * Install new package.
+	 *
 	 * @param $packages
 	 */
 	public static function install($packages)
@@ -71,11 +75,13 @@ class EE_Apt_Get
 		if (0 == $install_package) {
 			EE::success('Cache upgraded successfully.');
 		} else {
-			EE::success('Oops Something went wrong!!');
+			EE::error('Oops Something went wrong!!');
 		}
 	}
 
 	/**
+	 * Remove package.
+	 *
 	 * @param      $packages
 	 * @param bool $purge
 	 */
@@ -142,13 +148,15 @@ class EE_Apt_Get
 	}
 
  	public static function is_installed($package){
+
  		if(!EE::exec_cmd("dpkg -s ".$package." | grep Status")){
 		    return true;
 	    }else{
 		    return false;
 	    }
 
- }
+   }
+
 }
 
 

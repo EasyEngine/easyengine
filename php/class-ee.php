@@ -230,6 +230,7 @@ class EE {
 	}
 
 	/**
+	 * Display debug message prefixed with "Debug: " when `--debug` is used.
 	 * Log debug information
 	 *
 	 * @param string $message

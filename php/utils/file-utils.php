@@ -101,6 +101,12 @@ function ee_file_rename( $origin, $target, $overwrite = false ) {
 	$filesystem->rename( $origin, $target, $overwrite );
 }
 
+/**
+ * Append content in file.
+ *
+ * @param $file_path
+ * @param $content
+ */
 function ee_file_append_content( $file_path, $content ) {
 	$file = fopen( $file_path, 'a' );
 	fwrite( $file, $content . "\n" );
@@ -145,6 +151,13 @@ function ee_file_is_absolute_path( $file ) {
 	return $absolute_path;
 }
 
+/**
+ * Search and replace content in file.
+ *
+ * @param $file
+ * @param $search
+ * @param $replace
+ */
 function ee_file_search_replace( $file, $search, $replace ) {
 	$file_content = file_get_contents( $file );
 	file_put_contents( $file, str_replace( $search, $replace, $file_content ) );
@@ -162,6 +175,13 @@ function ee_file_dump( $filename, $content, $mode = 0666 ) {
 	$filesystem->dumpFile( $filename, $content, $mode );
 }
 
+/**
+ * Check if string is exist or not in file.
+ * @param $file
+ * @param $string
+ *
+ * @return bool
+ */
 function grep_string( $file, $string ) {
 	$file_content = file_get_contents( $file );
 	$lines        = explode( "\n", $file_content );
@@ -175,12 +195,29 @@ function grep_string( $file, $string ) {
 
 	return false;
 }
+
+/**
+ * Get data from ee config file.
+ *
+ * @param        $section
+ * @param string $key
+ *
+ * @return mixed|string
+ */
 function get_ee_config( $section, $key = '' ) {
 	$config_data = get_config_data( EE_CONFIG_FILE, $section, $key );
 
 	return $config_data;
 }
 
+/**
+ * Get data from mysql config file.
+ *
+ * @param        $section
+ * @param string $key
+ *
+ * @return mixed|string
+ */
 function get_mysql_config( $section, $key = '' ) {
 	$my_cnf_file = '';
 	if ( ee_file_exists( '/etc/mysql/conf.d/my.cnf' ) ) {
@@ -197,6 +234,14 @@ function get_mysql_config( $section, $key = '' ) {
 	return '';
 }
 
+/**
+ * Get data from gitconfig file.
+ *
+ * @param        $section
+ * @param string $key
+ *
+ * @return mixed|string
+ */
 function get_ee_git_config( $section, $key = '' ) {
 	try {
 		$git_config_file = "~/.gitconfig";
@@ -219,6 +264,15 @@ function get_ee_git_config( $section, $key = '' ) {
 	}
 }
 
+/**
+ * Read data from config file using config-parser.
+ *
+ * @param        $config_file
+ * @param        $section
+ * @param string $key
+ *
+ * @return mixed|string
+ */
 function get_config_data( $config_file, $section, $key = '' ) {
 
 	$ee_config = new ConfigParser();
@@ -238,6 +292,12 @@ function get_config_data( $config_file, $section, $key = '' ) {
 	return $get_config_data;
 }
 
+/**
+ * Write data in config file using config-parser.
+ * @param      $config_file
+ * @param      $data
+ * @param bool $new_section
+ */
 function set_config_data( $config_file, $data, $new_section = false ) {
 	$ee_config = new ConfigParser();
 	$ee_config->read( $config_file );

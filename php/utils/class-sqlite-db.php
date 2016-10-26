@@ -9,6 +9,11 @@ class EE_Sqlite_Db {
 
 	public static $ee_site_table_name = "sites";
 
+	/**
+	 * Database connection with sqlite database.
+	 *
+	 * @return bool|SQLite3
+	 */
 	public static function dbConnection() {
 		//		$ee_db_file = EE_Variables::get_ee_db_file();
 		// TODO: Test db on root dir of project.
@@ -24,6 +29,13 @@ class EE_Sqlite_Db {
 		return $ee_db;
 	}
 
+	/**
+	 * Create sqlite database table. (Default: create site table in ee db)
+	 *
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function createDb( $ee_db = '' ) {
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
@@ -67,6 +79,14 @@ class EE_Sqlite_Db {
 		$ee_db->close();
 	}
 
+	/**
+	 * Check if table is already exist or not in database.
+	 *
+	 * @param        $table_name
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function is_table_exist( $table_name, $ee_db = '' ) {
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
@@ -82,6 +102,13 @@ class EE_Sqlite_Db {
 		return true;
 	}
 
+	/**
+	 * Check if ee site table is exist or not in ee db.
+	 *
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function is_site_table_exist( $ee_db = '' ) {
 		if ( empty( $ee_db ) ) {
 			$ee_db = self::dbConnection();
@@ -91,6 +118,13 @@ class EE_Sqlite_Db {
 		return $is_table_exist;
 	}
 
+	/**
+	 * Filter data array with site table columns to avoid extra fields.
+	 *
+	 * @param $data
+	 *
+	 * @return array
+	 */
 	public static function filter_ee_data_fields( $data ) {
 		$ee_db_fields = array(
 			'id',
@@ -123,6 +157,15 @@ class EE_Sqlite_Db {
 		return $filter_data;
 	}
 
+	/**
+	 * Insert row in table.
+	 *
+	 * @param        $data
+	 * @param string $table_name
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function insert( $data, $table_name = '', $ee_db = '' ) {
 		$data = self::filter_ee_data_fields( $data );
 		if ( empty( $ee_db ) ) {
@@ -156,6 +199,16 @@ class EE_Sqlite_Db {
 		return false;
 	}
 
+	/**
+	 * Update row in table.
+	 *
+	 * @param        $data
+	 * @param        $where
+	 * @param string $table_name
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function update( $data, $where, $table_name = '', $ee_db = '' ) {
 		// Remove/Filter extra fields if it passed in $data array.
 		$data = self::filter_ee_data_fields( $data );
@@ -248,6 +301,15 @@ class EE_Sqlite_Db {
 		return $select_data;
 	}
 
+	/**
+	 * Delete data from table.
+	 *
+	 * @param        $where
+	 * @param string $table_name
+	 * @param string $ee_db
+	 *
+	 * @return bool
+	 */
 	public static function delete( $where, $table_name = '', $ee_db = '' ) {
 		// Remove/Filter extra fields if it passed in $where array.
 		$where = self::filter_ee_data_fields( $where );
