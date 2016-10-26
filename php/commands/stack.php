@@ -968,7 +968,34 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
-	public function remove( $args, $assoc_args ) {
+		/**
+		 * purge
+		 *
+		 * ## OPTIONS
+		 *
+		 *[--all]
+		 *:all
+		 * [--web]
+		 * : To install web.
+		 *
+		 * [--admin]
+		 *
+		 * [--nginx]
+		 * : To install nginx.
+		 *
+		 * [--php]
+		 * : To install php.
+		 *
+		 * [--mysql]
+		 * : To install MySQL.
+		 *
+		 *
+		 * ## EXAMPLES
+		 *
+		 *      # Install Stack.
+		 *      $ ee stack purge --nginx
+		 */
+	public function purge( $args, $assoc_args ) {
 
 		list( $site_name ) = $args;
 		$apt_packages = array();
