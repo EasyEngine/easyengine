@@ -148,8 +148,15 @@ class EE_Apt_Get
 	}
 
  	public static function is_installed($package){
- 		//todo:
-    }
+
+ 		if(!EE::exec_cmd("dpkg -s ".$package." | grep Status")){
+		    return true;
+	    }else{
+		    return false;
+	    }
+
+   }
+
 }
 
 

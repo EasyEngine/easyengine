@@ -85,9 +85,10 @@ class EE_Service {
 	 * @return bool
 	 */
 	public static function reload_service( $service_name ) {
+		EE::log( 'Reload : ' . $service_name );
 		try {
 			$service_cmd = 'service ' . $service_name . ' reload';
-			if ( in_array( $service_name, array( 'nginx', 'php5-fpm' ) ) ) {
+			if ( in_array( $service_name, array( 'nginx') ) ) {
 				$service_cmd = $service_name . ' -t && service ' . $service_name . ' reload';
 			}
 

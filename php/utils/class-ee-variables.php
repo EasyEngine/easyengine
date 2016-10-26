@@ -166,6 +166,9 @@ class EE_Variables {
 		if ( strpos( $package, 'php' ) !== false ) {
 			self::get_php_packages( 'php' );
 		}
+		if ( strpos( $package, 'nginx' ) !== false ) {
+			self::get_nginx_packages(  );
+		}
 	}
 
 	/**
@@ -213,10 +216,25 @@ class EE_Variables {
 		return $ee_php_repo;
 	}
 
+
+	public static function get_nginx_packages(  ) {
+		$nginx_package_list = array("nginx-ee","nginx-custom");
+		return $nginx_package_list;
+
+	}
+
+	public static function get_redis_packages(  ) {
+		$nginx_package_list = array("redis");
+		return $nginx_package_list;
+
+	}
+
+
 	/**
 	 *
 	 * @return array
 	 */
+
 	public static function get_ee_postfix() {
 		return array( 'postfix' );
 	}
@@ -252,6 +270,7 @@ class EE_Variables {
 		$mysql_pkg = array( "mariadb-server", "percona-toolkit" );
 
 		return $mysql_pkg;
+
 	}
 
 	/**
