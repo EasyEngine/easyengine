@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 .idea/
+composer.lock
 
 
 #PHP refactoring codes
