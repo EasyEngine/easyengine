@@ -85,24 +85,24 @@ class EE_Service {
 	 * @return bool
 	 */
 	public static function reload_service( $service_name ) {
-		EE::log( 'Reload : ' . $service_name );
+		EE::debug( 'Reload : ' . $service_name );
 		try {
 			$service_cmd = 'service ' . $service_name . ' reload';
 			if ( in_array( $service_name, array( 'nginx') ) ) {
 				$service_cmd = $service_name . ' -t && service ' . $service_name . ' reload';
 			}
 
-			EE::log( 'Reload : ' . $service_name );
+			EE::debug( 'Reload : ' . $service_name );
 			$service_start = \EE::exec_cmd( $service_cmd, 'Service Reload ' . $service_name );
 			if ( 0 == $service_start ) {
-				EE::success( '[OK]' );
+				EE::success( 'Reload ' . $service_name . ' :'.'[OK]' );
 				return true;
 			} else {
-				EE::error( '[Failed]' );
+				EE::error( 'Reload ' . $service_name . ' :'.'[Failed]' );
 			}
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( 'Failed to reload service ' . $service_name );
+			EE::debug( 'Failed to reload service ' . $service_name );
 		}
 		return false;
 	}
