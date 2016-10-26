@@ -127,6 +127,11 @@ class EE_Variables {
 		return $php_version;
 	}
 
+	public static function get_ee_nginx() {
+		$ee_nginx = array( "nginx-custom", "nginx-ee" );
+
+		return $ee_nginx;
+	}
 	/**
 	 * Get list of packages need for on package.
 	 *
@@ -197,9 +202,29 @@ class EE_Variables {
 		return $nginx_package_list;
 
 	}
-	public static function get_mysql_packages(  ) {
-		$mysql_package_list = array("mysql");
-		return $mysql_package_list;
+
+	public static function get_ee_postfix() {
+		return array( 'postfix' );
+	}
+
+	public static function get_ee_redis_packages() {
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+		if ( $ee_platform_codename == 'trusty' || $ee_platform_codename == 'xenial' ) {
+			$ee_redis = array( 'redis-server', 'php-redis' );
+		} else {
+			$ee_redis = array( 'redis-server', 'php5-redis' );
+		}
+		return $ee_redis;
+	}
+
+	public static function get_hhvm_packages() {
+		return array( "hhvm" );
+	}
+
+	public static function get_mysql_packages() {
+		$mysql_pkg = array( "mariadb-server", "percona-toolkit" );
+
+		return $mysql_pkg;
 
 	}
 

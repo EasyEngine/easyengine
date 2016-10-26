@@ -29,6 +29,11 @@ class EE_OS {
 		return $ee_version;
 	}
 
+	public static function ee_platform_architecture() {
+		$platform_architecture = EE::exec_cmd_output( 'uname --hardware-platform' );
+		return $platform_architecture;
+	}
+
 	public static function add_swap() {
 
 	}

@@ -21,11 +21,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * Create directory.
  *
  * @param string|array|\Traversable $dirs
-<<<<<<< HEAD
- * @param int $mode
-=======
  * @param int                       $mode
->>>>>>> b0698cceb87273f11b6f7af6d588ce088d3dc1cb
  */
 function ee_file_mkdir( $dirs, $mode = 0755 ) {
 	$filesystem = new Filesystem();
@@ -216,9 +212,9 @@ function get_ee_git_config( $section, $key = '' ) {
 		$set_useremail               = EE::exec_cmd( "git config --global user.email {$user_email}" );
 
 		if ( ! empty( $key ) ) {
-			return $config_data[ $section ][ $key ];
+			return empty( $config_data[ $section ][ $key ] ) ? '' : $config_data[ $section ][ $key ];
 		} else {
-			return $config_data[ $section ];
+			return empty( $config_data[ $section ] ) ? '' : $config_data[ $section ];
 		}
 	}
 }
@@ -242,6 +238,18 @@ function get_config_data( $config_file, $section, $key = '' ) {
 	return $get_config_data;
 }
 
-function set_config_data() {
-	//	$cfg->set('server', '192.168.1.1.');
+function set_config_data( $config_file, $data, $new_section = false ) {
+	$ee_config = new ConfigParser();
+	$ee_config->read( $config_file );
+	foreach ( $data as $section ) {
+		if ( $new_section && ! $ee_config->hasSection( $section ) ) {
+			$ee_config->addSection( $section );
+		}
+		if ( $ee_config->hasSection( $section ) ) {
+			foreach ( $section as $key => $value ) {
+				$ee_config->set( $section, $key, $value );
+			}
+		}
+	}
+	$ee_config->save();
 }
