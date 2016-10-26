@@ -73,7 +73,7 @@ class EE_Apt_Get
 			$all_packages;
 		$install_package = EE::exec_cmd($install_package_cmd, 'installing package');
 		if (0 == $install_package) {
-			EE::success('Cache upgraded successfully.');
+			EE::success('Packages installed successfully.');
 		} else {
 			EE::error('Oops Something went wrong!!');
 		}
@@ -99,7 +99,7 @@ class EE_Apt_Get
 		}
 		$check_upgrade = EE::exec_cmd($check_upgrade_cmd, 'removing packages');
 		if (0 == $check_upgrade) {
-			EE::success('Cache upgraded successfully.');
+			EE::success('Packages removed successfully.');
 		} else {
 			EE::error('Oops Something went wrong!!');
 		}
