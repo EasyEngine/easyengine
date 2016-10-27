@@ -38,9 +38,8 @@ script:
 
   #- sudo ee --help
 
-  - sudo ee stack install
-  - sudo ee stack install --all
-  - sudo ee stack install --admin
+  - sudo ee stack install --nginx
+  - sudo ee stack install --mysql
 
   - sudo ee site create html.net --html || sudo tail -n50 /var/log/ee/ee.log
   - sudo ee site create php.com --php || sudo tail -n50 /var/log/ee/ee.log
