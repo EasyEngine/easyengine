@@ -394,11 +394,12 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if (in_array(EE_Variables::get_mysql_packages(), $apt_packages) ) {
+		if (in_array(EE_Variables::get_mysql_packages()[0], $apt_packages) ) {
 			EE::debug("Adding repository for MySQL, please wait...");
 			$mysql_pref = "Package: *\nPin: origin sfo1.mirrors.digitalocean.com\nPin-Priority: 1000\n";
 			$mysql_pref_file   = fopen("/etc/apt/preferences.d/MariaDB.pref", "w" );
 			fwrite( $mysql_pref_file, $mysql_pref );
+			fclose($mysql_pref_file);
 
 			EE_Repo::add(EE_Variables::get_mysql_repo());
 
@@ -815,7 +816,8 @@ class Stack_Command extends EE_Command {
 
 			}
 
-			if(in_array( "mariadb-server", $apt_packages )){
+			if(in_array( EE_Variables::get_mysql_packages(), $apt_packages )){
+				EE::debug("creating .my.cnf");
 
 				if (!is_file("/etc/mysql/my.cnf")){
 					$config = "[mysqld]\nwait_timeout = 30\n".
