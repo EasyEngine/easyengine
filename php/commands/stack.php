@@ -292,6 +292,47 @@ class Stack_Command extends EE_Command {
 																"phpMemcachedAdmin-1.2.2-r262.tar.gz",
 		                                                "path" => "/tmp/memcache.tar.gz",
 		                                                "package_name"=>"phpMemcachedAdmin")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://raw.githubusercontent.com".
+		                                                       "/rtCamp/eeadmin/master/cache/nginx/".
+		                                                       "clean.php",
+		                                                "path" => EE_WEBROOT. "22222/htdocs/cache/nginx/clean.php",
+		                                                "package_name"=>"clean.php")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://raw.github.com/rlerdorf/".
+		                                                       "opcache-status/master/opcache.php",
+		                                                "path" => EE_WEBROOT. "22222/htdocs/cache/opcache/opcache.php",
+		                                                "package_name"=>"opcache.php")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://raw.github.com/amnuts/".
+		                                                       "opcache-gui/master/index.php",
+		                                                "path" => EE_WEBROOT. "22222/htdocs/cache/opcache/opgui.php",
+		                                                "package_name"=>"Opgui")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://gist.github.com/ck-on/4959032".
+		                                                       "/raw/0b871b345fd6cfcd6d2be030c1f33d1".
+																"ad6a475cb/ocp.php",
+		                                                "path" => EE_WEBROOT. "22222/htdocs/cache/opcache/ocp.php",
+		                                                "package_name"=>"OCP.php")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://github.com/jokkedk/webgrind/".
+		                                                       "archive/master.tar.gz",
+		                                                "path" =>"/tmp/webgrind.tar.gz",
+		                                                "package_name"=>"Webgrind")));
+
+		$packages = array_merge($packages, array( array("url"=>"http://bazaar.launchpad.net/~".
+		                                                       "percona-toolkit-dev/percona-toolkit/".
+																"2.1/download/head:/ptquerydigest-".
+																"20110624220137-or26tn4expb9ul2a-16/pt-query-digest",
+		                                                "path" =>"/usr/bin/pt-query-advisor",
+		                                                "package_name"=>"pt-query-advisor")));
+
+		$packages = array_merge($packages, array( array("url"=>"https://github.com/box/Anemometer/".
+		                                                       "archive/master.tar.gz",
+		                                                "path"=>"/tmp/anemometer.tar.gz",
+		                                                "package_name"=>"Anemometer")));
+
+
 	}
 
 	if(!empty($apt_packages)||!empty($packages)){
