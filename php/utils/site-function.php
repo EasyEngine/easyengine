@@ -1038,3 +1038,76 @@ function archived_certificate_handle( $domain, $ee_wp_email ) {
 	}
 	return $ssl;
 }
+
+function do_update_site( $site_name, $assoc_args ) {
+	$hhvm = '';
+	//	$pagespeed = '';
+	$letsencrypt = false;
+	$php7        = '';
+
+	$ee_www_domain = EE_Utils::validate_domain( $site_name, false );
+	$ee_domain     = EE_Utils::validate_domain( $site_name );
+
+	if ( empty( $ee_domain ) ) {
+		EE::error( 'Invalid domain name, Provide valid domain name' );
+	}
+
+	$ee_site_webroot = EE_Variables::get_ee_webroot() . $ee_domain;
+	$registered_cmd  = array(
+		'html',
+		'php',
+		'php7',
+		'mysql',
+		'wp',
+		'wpsubdir',
+		'wpsubdomain',
+		'w3tc',
+		'wpfc',
+		'wpsc',
+		'wpredis',
+		'hhvm',
+		'pagespeed',
+		'le',
+		'letsencrypt',
+		'user',
+		'email',
+		'pass',
+		'proxy',
+		'experimental',
+	);
+
+	$data               = array();
+	$data['site_name']  = $ee_domain;
+	$data['www_domain'] = $ee_www_domain;
+	$data['webroot']    = $ee_site_webroot;
+	$stype              = empty( $assoc_args['type'] ) ? 'html' : $assoc_args['type'];
+	$data['site_type']  = $stype;
+	$cache              = empty( $assoc_args['cache'] ) ? 'basic' : $assoc_args['cache'];
+	$data['cache_type'] = $cache;
+	$data['site_path']  = $ee_site_webroot;
+	$letsencrypt        = empty( $assoc_args['letsencrypt'] ) ? false : true;
+	$experimental       = empty( $assoc_args['experimental'] ) ? false : true;
+
+	if ( ! empty( $stype ) ) {
+		if ( in_array( $stype, $registered_cmd ) ) {
+			if ( 'proxy' == $stype ) {
+				$proxyinfo = $assoc_args['ip'];
+				if ( strpos( $proxyinfo, ':' ) !== false ) {
+					$proxyinfo = explode( ':', $proxyinfo );
+					$host      = $proxyinfo[0];
+					$port      = ( strlen( $proxyinfo[1] ) < 2 ) ? '80' : $proxyinfo[1];
+				} else {
+					$host = $assoc_args['ip'];
+					$port = $assoc_args['port'];
+				}
+				$data['proxy']   = true;
+				$data['host']    = $host;
+				$data['port']    = $port;
+				$ee_site_webroot = "";
+			}
+
+		} else {
+			//TODO: we will add hook for other packages. i.e do_action('create_site',$stype);
+		}
+	}
+}

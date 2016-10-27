@@ -454,6 +454,15 @@ class EE {
 		return $cmd_result;
 	}
 
+	public static function invoke_editor( $filename ) {
+		try {
+			passthru( "sensible-editor " . $filename );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log("Failed invoke editor");
+		}
+	}
+
 	/**
 	 * Launch another ee-cli command using the runtime arguments for the current process
 	 *

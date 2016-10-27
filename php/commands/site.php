@@ -486,23 +486,79 @@ class Site_Command extends EE_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <name>
+	 * [<name>]
 	 * : Name of the site to update.
+	 *
+	 * [--all]
+	 * : Type for create site.
+	 *
+	 * [--type=<types>]
+	 * : Type for create site.
+	 *
+	 * [--cache=<cache>]
+	 * : Cache for site.
+	 *
+	 * [--user=<username>]
+	 * : Username for WordPress admin.
+	 *
+	 * [--email=<email>]
+	 * : Email id for WordPress admin.
+	 *
+	 * [--pass=<pass>]
+	 * : Password for WordPress admin.
+	 *
+	 * [--ip=<ip>]
+	 * : Proxy ip address for proxy site.
+	 *
+	 * [--port=<port>]
+	 * : Port no for porxy site.
+	 *
+	 * [--letsencrypt]
+	 * : Encrypt site.
+	 *
+	 * [--experimental]
+	 * : For Experiment beta features.
+	 *
+	 *
 	 *
 	 * ## EXAMPLES
 	 *
-	 *      # update site.
+	 *      # Create site.
 	 *      $ ee site update example.com
 	 *
 	 */
 	public function update( $args, $assoc_args ) {
-		list( $site_name ) = $args;
+		$site_name = empty( $args[0] ) ? '' : $args[0];
 
-		if ( ! empty( $site_name ) ) {
-			EE::success( $site_name . ' site is updated successfully! ' );
-		} else {
-			EE::error( 'Please give site name . ' );
+		if ( ! empty( $assoc_args['pagespeed'] ) ) {
+			EE::error( "Pagespeed support has been dropped since EasyEngine v3.6.0", false );
+			EE::error( "Please run command again without `--pagespeed`", false );
+			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
 		}
+
+		if ( ! empty( $assoc_args['all'] ) ) {
+			if ( ! empty( $site_name ) ) {
+				EE::error( "`--all` option cannot be used with site name provided" );
+			}
+			if ( empty( $assoc_args['type'] ) ) {
+				EE::error( "Please provide --type to update sites." );
+			}
+			if ( 'html' === $assoc_args['type'] ) {
+				EE::error( "No site can be updated to html" );
+			}
+
+			$sites = get_all_sites();
+
+			if ( ! empty( $sites )) {
+				foreach ( $sites as $site ) {
+					EE::log( "Updating site {$site['sitename']}, please wait..." );
+					do_update_site( $site['sitename'], $assoc_args );
+				}
+			} else {
+				do_update_site( $site_name, $assoc_args );
+			}
+		}
+
 	}
 
 	/**
@@ -545,13 +601,16 @@ class Site_Command extends EE_Command {
 	 */
 	public function info( $args, $assoc_args ) {
 
-		list( $site_name ) = $args;
+		$site_name = empty( $args[0] ) ? '' : $args[0];
 
-		if ( empty( $site_name ) ) {
-			/* @todo If site name not passed then ask for `Enter site name`. */
+		while ( empty( $site_name ) ) {
+			$value = EE::input_value( "Enter site name :" );
+			if ( $value ) {
+				$site_name = $value;
+			}
 		}
 
-		list( $ee_domain, $ee_www_domain ) = EE_Utils::validate_domain( $site_name );
+		$ee_domain = EE_Utils::validate_domain( $site_name );
 
 		$ee_db_name = $ee_db_user = $ee_db_pass = $hhvm = '';
 
@@ -560,10 +619,9 @@ class Site_Command extends EE_Command {
 		}
 
 
-		if ( ee_file_exists( '/etc/nginx/sites-available/' . $ee_domain ) ) {
+		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
 
-			$siteinfo        = site_info( $ee_domain );
-			$siteinfo        = $siteinfo[0];
+			$siteinfo        = get_site_info( $ee_domain );
 			$sitetype        = $siteinfo['site_type'];
 			$cachetype       = $siteinfo['cache_type'];
 			$ee_site_webroot = $siteinfo['site_path'];
@@ -591,7 +649,7 @@ class Site_Command extends EE_Command {
 
 			if ( 'enabled' === $ssl ) {
 				$sslprovider = 'Lets Encrypt';
-				$sslexpiry   = str( SSL . getExpirationDate( self, $ee_domain ) );
+				$sslexpiry   = EE_Ssl::get_expiration_date( $ee_domain );
 			} else {
 				$sslprovider = $sslexpiry = '';
 				$data        = array(
@@ -603,20 +661,175 @@ class Site_Command extends EE_Command {
 					'dbuser'      => $ee_db_user,
 					'php_version' => $php_version,
 					'dbpass'      => $ee_db_pass,
-					'hhvm'        => $hhvm,
-					'ssl'         => 'ssl',
+					'hhvm'        => empty( $hhvm ) ? 'disabled' : $hhvm,
+					'ssl'         => $ssl,
 					'sslprovider' => $sslprovider,
 					'sslexpiry'   => $sslexpiry,
-					'type'        => $sitetype . ' ' . $cachetype . $site_enabled,
+					'type'        => $sitetype . ' ' . $cachetype . ' (' . $site_enabled . ')',
 				);
 
-				Utils\mustache_render( 'siteinfo.mustache', $data );
+				echo \EE\Utils\mustache_render( 'siteinfo.mustache', $data );
 			}
 
 		} else {
 			EE::error( 'nginx configuration file does not exist for ' . $ee_domain );
 		}
 	}
+
+
+	/**
+	 * Monitor example.com logs
+	 *
+	 * ## OPTIONS
+	 *
+	 * <site-name>
+	 * : Name of the site to monitor logs.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Monitor example.com logs
+	 *      $ ee site log example.com
+	 *
+	 */
+	public function log( $args, $assoc_args ) {
+
+		$site_name       = empty( $args[0] ) ? '' : $args[0];
+		$ee_domain       = EE_Utils::validate_domain( $site_name );
+		$ee_site_info    = get_site_info( $site_name );
+		$ee_site_webroot = $ee_site_info['site_path'];
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+		$logfiles = $ee_site_webroot . '/logs/*.log';
+		passthru( 'tail -f ' . $logfiles );
+	}
+
+	/**
+	 * Display Nginx configuration of example.com
+	 *
+	 * ## OPTIONS
+	 *
+	 * <site-name>
+	 * : Name of the site to display nginx configuration.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Display Nginx configuration of example.com
+	 *      $ ee site show example.com
+	 *
+	 */
+	public function show( $args, $assoc_args ) {
+
+		$site_name       = empty( $args[0] ) ? '' : $args[0];
+		$ee_domain       = EE_Utils::validate_domain( $site_name );
+		$ee_site_info    = get_site_info( $site_name );
+		$ee_site_webroot = $ee_site_info['site_path'];
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+
+		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
+			EE::log( "Display NGINX configuration for {$ee_domain}" );
+			$config_content = file_get_contents( EE_NGINX_SITE_AVAIL_DIR . $ee_domain );
+			EE::log( $config_content );
+		} else {
+			EE::error( "nginx configuration file does not exists" );
+		}
+	}
+
+	/**
+	 * Change directory to site webroot of example.com
+	 *
+	 * ## OPTIONS
+	 *
+	 * <site-name>
+	 * : Name of the site to change webroot dir.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Change directory to site webroot of example.com
+	 *      $ ee site cd example.com
+	 *
+	 */
+	public function cd( $args, $assoc_args ) {
+
+		$site_name       = empty( $args[0] ) ? '' : $args[0];
+		$ee_domain       = EE_Utils::validate_domain( $site_name );
+		$ee_site_info    = get_site_info( $site_name );
+		$ee_site_webroot = $ee_site_info['site_path'];
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+
+		try {
+			chdir( $ee_site_webroot );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::error( "unable to change directory" );
+		}
+	}
+
+	/**
+	 * Edit Nginx configuration of site.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<name>]
+	 * : Name of the site to edit.
+	 *
+	 * [<--pagespeed>]
+	 * : edit pagespeed configuration for site
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # disable site.
+	 *      $ ee site disable example.com
+	 *
+	 */
+	public function edit( $args, $assoc_args ) {
+
+		$site_name = empty( $args[0] ) ? '' : $args[0];
+
+		while ( empty( $site_name ) ) {
+			$value = EE::input_value( "Enter site name :" );
+			if ( $value ) {
+				$site_name = $value;
+			}
+		}
+
+		$ee_domain = EE_Utils::validate_domain( $site_name );
+
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "site {$ee_domain} does not exist" );
+		}
+
+		if ( empty( $assoc_args["pagespeed"] ) ) {
+			if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
+				try {
+					EE::invoke_editor( EE_NGINX_SITE_AVAIL_DIR . $ee_domain );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Failed invoke editor" );
+				}
+				//Todo: Check EE_NGINX_SITE_AVAIL_DIR . $ee_domain  status if its change or not using git.
+				EE_Git::add( array( "/etc/nginx" ), "Edit website: {$ee_domain}" );
+				if ( ! EE_Service::reload_service( "nginx" ) ) {
+					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+				}
+			} else {
+				EE::error( "nginx configuration file does not exist" );
+			}
+		} else {
+			EE::error( "Pagespeed support has been dropped since EasyEngine v3.6.0", false );
+			EE::error( "Please run command again without `--pagespeed`", false );
+			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
+		}
+	}
+
+
 }
 
 EE::add_command( 'site', 'Site_Command' );

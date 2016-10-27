@@ -10,9 +10,9 @@ class EE_OS {
 	 * @return string
 	 */
 	public static function ee_platform_codename() {
-		$os_codename = EE::exec_cmd_output( "lsb_release -sc | tr -d \n" );
+		$os_codename = EE::exec_cmd_output( "lsb_release -sc | tr -d '\n'" );
 
-		return $os_codename;
+		return strtolower( $os_codename );
 	}
 
 	/**
@@ -20,9 +20,9 @@ class EE_OS {
 	 * @return string
 	 */
 	public static function ee_platform_distro() {
-		$os_distro = EE::exec_cmd_output( "lsb_release -si | tr -d \n" );
+		$os_distro = EE::exec_cmd_output( "lsb_release -si | tr -d '\n'" );
 
-		return $os_distro;
+		return strtolower( $os_distro );
 	}
 
 	/**
@@ -30,7 +30,7 @@ class EE_OS {
 	 * @return string
 	 */
 	public static function ee_platform_version() {
-		$os_version = EE::exec_cmd_output( "lsb_release -sr | tr -d \n" );
+		$os_version = EE::exec_cmd_output( "lsb_release -sr | tr -d '\n''" );
 
 		return $os_version;
 	}
@@ -51,7 +51,7 @@ class EE_OS {
 	 * @return string
 	 */
 	public static function ee_platform_architecture() {
-		$platform_architecture = EE::exec_cmd_output( 'uname --hardware-platform  | tr -d \n' );
+		$platform_architecture = EE::exec_cmd_output( "uname --hardware-platform  | tr -d '\n'" );
 		return $platform_architecture;
 	}
 

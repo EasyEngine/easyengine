@@ -115,11 +115,11 @@ function is_site_exist( $site_name ) {
  *
  * @return array|bool
  */
-function site_info( $site_name ) {
+function get_site_info( $site_name ) {
 	$where     = array(
 		'sitename' => $site_name,
 	);
 	$site_info = EE_Sqlite_Db::select( $where );
 
-	return $site_info;
+	return empty( $site_info[0] ) ? array() : $site_info[0];
 }
