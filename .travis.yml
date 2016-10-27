@@ -38,86 +38,11 @@ script:
 
   #- sudo ee --help
 
-  - sudo ee stack install --nginx
-  - sudo ee stack install --mysql
-
-  - sudo ee site create html.net --html || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create php.com --php || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create mysql.com --mysql || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site1.com --wp || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site create site2.net --wp --wpsc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site3.net --wp --w3tc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site4.com --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site4.net --wp --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site4.org --wpfc --wp || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site5.com --wpsubdir || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site create site6.com --wpsubdir --wpsc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site7.com --wpsubdir --w3tc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site8.com --wpsubdir --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site8.net --wpfc --wpsubdir || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site9.com --wpsubdomain || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site create site10.org --wpsubdomain --wpsc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site11.org --wpsubdomain --w3tc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site12.org --wpsubdomain --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site12.in --wpfc --wpsubdomain || sudo tail -n50 /var/log/ee/ee.log
-
-  - yes | sudo ee site create site.hhvm.pagespeed2.com --wpsc --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed4.com --wpfc --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed5.com --wpsubdir --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed6.com --wpsubdir --wpsc --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed8.com --wpsubdir --wpfc --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed9.com --wpsubdomain --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed10.org --wpsubdomain --wpsc --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site.hhvm.pagespeed12.in --wpfc --wpsubdomain --hhvm || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site create site1.localtest.me --php --mysql || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site2.localtest.me --mysql --html || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site3.localtest.me --php --html || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site4.localtest.me --wp --wpsubdomain || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create site5.localtest.me --wp --wpsubdir --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site6.localtest.me --wpredis || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site7.localtest.me --wpsubdomain --wpredis || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site create site8.localtest.me --wpsubdir --wpredis || sudo tail -n50 /var/log/ee/ee.log
+  - sudo ee stack install --nginx --debug
+  - sudo ee stack install --mysql --debug
+  - sudo cat /etc/mysql/conf.d/my.cnf
+  - sudo ee stack install --wpcli --debug
+  - sudo ee stack install --utils --debug
 
 
-  - sudo ee debug --all || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee debug --all=off || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee debug site12.net || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee debug site12.net --all=off || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create 1.com --html || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create 2.com --php || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create 3.com --mysql || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site update 1.com --wp || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update 2.com --wpsubdir || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update 3.com --wpsubdomain || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site update site1.com --wp --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update site1.com --wp --w3tc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update site1.com --wp --wpsc || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site update site1.com --wpredis || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site update site5.com --wpsubdir --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update site5.com --wpsubdir --wpsc || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site update site9.com --wpsubdomain --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update site9.com --wpsubdomain --wpsc || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site update site.hhvm.pagespeed12.in --hhvm=off || sudo tail -n50 /var/log/ee/ee.log
-  - yes | sudo ee site update site9.com --hhvm || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site info site.hhvm.pagespeed12.in || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site info site9.com || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site create www.site-1.com --wp || sudo tail -n50 /var/log/ee/ee.log|| sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site create www.subsite.site-1.com --wpfc || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site update www.subsite.site-1.com --wp || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee site delete www.subsite.site-1.com --all --no-prompt || sudo tail -n50 /var/log/ee/ee.log
-
-  - sudo ee site delete site12.in --all --no-prompt || sudo tail -n50 /var/log/ee/ee.log
-
-  - travis_wait sudo ee stack install --mail
-  - sudo ls /var/www/
-  - sudo wp --allow-root --info
-  - sudo bash -c 'cat /var/log/ee/ee.log'
+  - sudo ee site create html.net --type=wp

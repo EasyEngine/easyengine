@@ -417,7 +417,7 @@ class Stack_Command extends EE_Command {
 				"password \" | debconf-set-selections");
 			$reset_pwd = 'echo "mariadb-server-10.1" "mysql-server/root_password_again" password ' . $char .' |  "debconf-set-selections" ';
 			EE::exec_cmd($reset_pwd);
-			$mysql_config = '[client]\n user = root\n password = '. $char;
+			$mysql_config = "[client] \n user = root\n password = ". $char;
             EE::debug('Writting configuration into MySQL file');
             $conf_path = "/etc/mysql/conf.d/my.cnf";
 		    ee_file_dump($conf_path,$mysql_config);
