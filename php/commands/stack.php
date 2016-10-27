@@ -72,7 +72,7 @@ class Stack_Command extends EE_Command {
 			$category['admin'] == true;
 		}
 		if(!empty( $assoc_args['utils'] )){
-			$category['utils'] == true;
+			$stack['utils'] = true;
 		}
 		if(!empty( $assoc_args['web'] )){
 			$category['web'] == true;
@@ -91,7 +91,7 @@ class Stack_Command extends EE_Command {
 			$stack['mysql']= true;
 			$stack['adminer']= true;
 			$stack['phpmyadmin']= true;
-			$category['utils']= true;
+			$stack['utils']= true;
 		}
 		if (isset($category['utils']) &&  $category['utils']= true){
 			//todo:
@@ -132,6 +132,8 @@ class Stack_Command extends EE_Command {
 	 * [--wpcli]
 	 * :To install wp-cli
 	 *
+	 * [--utils]
+	 * : To install Utilities tools
 	 *
 	 *
 	 * ## EXAMPLES
@@ -251,7 +253,7 @@ class Stack_Command extends EE_Command {
 	if (!empty($stack['wpcli'])){
 		EE::debug("Setting packages variable for WP-CLI");
 		if (EE::exec_cmd("which wp", $message = 'Looking wp-cli preinstalled')){
-			$packages = array_merge($packages, array( array("url"=>"https://github.com/wp-cli/wp-cli/releases/download/v".EE_WP_CLI.".phar",
+			$packages = array_merge($packages, array( array("url"=>"https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar",
 			                                                "path" => "/usr/bin/wp",
 			                                                "package_name"=>"WP_CLI")));
 		}
@@ -285,7 +287,7 @@ class Stack_Command extends EE_Command {
 		                                                "package_name"=>"Adminer")));
 	}
 
-	if (!empty($category['utils'])){
+	if (!empty($stack['utils'])){
 		EE::debug("Setting packages variable for utils");
 		$packages = array_merge($packages, array( array("url"=>"https://storage.googleapis.com/google-code-archive-downloads/".
 																"v2/code.google.com/phpmemcacheadmin/".
@@ -833,42 +835,55 @@ class Stack_Command extends EE_Command {
 
 		}
 
-		if (! empty($packages)){
-			if (in_array('/usr/bin/wp', $packages)){
-//				Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
-//EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
-			}
+		if (!empty($packages)){
+			foreach ( $packages as $package ) {
+				if ( '/usr/bin/wp' === $package['path'] )  {
+					EE::debug( "Setting Privileges to /usr/bin/wp file " );
+					ee_file_chmod("/usr/bin/wp",0775);
+				}
 
-			if (in_array('/tmp/pma.tar.gz', $packages)){
-				//todo
-			}
+				if ('/tmp/pma.tar.gz'=== $package['path'] ) {
+					EE::debug("Extracting file /tmp/pma.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/pma.tar.gz","/tmp/");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/db");
+					ee_file_rename("/tmp/phpmyadmin-STABLE",EE_WEBROOT."22222/htdocs/db/pma");
+					ee_file_copy(EE_WEBROOT."22222/htdocs/db/pma/config.sample.inc.php",EE_WEBROOT."22222/htdocs/db/pma/config.inc.php");
+					EE::debug("Setting Blowfish Secret Key FOR COOKIE AUTH to  /var/www/22222/htdocs/db/pma/config.inc.php file");
+					$blowfish_key = EE_Utils::generate_random();
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/db/pma/config.inc.php","\$cfg['blowfish_secret'] = '';","\$cfg['blowfish_secret'] = '".$blowfish_key."{0}';");
+                    EE::debug("Setting HOST Server For Mysql to  /var/www/22222/htdocs/db/pma/config.inc.php");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/db/pma/config.inc.php","\$cfg['Servers'][\$i]['host'] = 'localhost';","\$cfg['Servers'][\$i]['host'] = '".EE_Variables::get_ee_mysql_host()."';");
+					EE::debug("Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file");
+					ee_file_chown(EE_WEBROOT."22222/htdocs/db/pma","www-data",true);
+				}
 
-			if (in_array('/tmp/memcache.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/memcache.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/webgrind.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/webgrind.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/anemometer.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/anemometer.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/usr/bin/pt-query-advisor', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/usr/bin/pt-query-advisor', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/vimbadmin.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/vimbadmin.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/roundcube.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/roundcube.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/pra.tar.gz', $packages)){
-				//TODO:
+				if ( in_array( '/tmp/pra.tar.gz', $packages ) ) {
+					//TODO:
+				}
 			}
 
 		}
