@@ -14,8 +14,8 @@ class EE_Variables {
 	public static function get_ee_repo_file_path() {
 		$ee_repo_file = "ee-repo.list";
 		//		$ee_repo_file_path = "/etc/apt/sources.list.d/" . self::$ee_repo_file;
-		// TODO: Test repo url.
-		$ee_repo_file_path = EE_ROOT . '/' . $ee_repo_file;
+		//TODO: Test repo url.
+		$ee_repo_file_path = "/etc/apt/sources.list.d" . '/' . $ee_repo_file;
 
 		return $ee_repo_file_path;
 	}
@@ -460,5 +460,9 @@ class EE_Variables {
 		} else {
 			return false;
 		}
+	}
+
+	public static function get_timezone(){
+
 	}
 }
