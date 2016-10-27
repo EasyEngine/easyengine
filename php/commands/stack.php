@@ -896,7 +896,7 @@ class Stack_Command extends EE_Command {
 				}
 
 				if ( in_array( '/usr/bin/pt-query-advisor', $packages ) ) {
-					//TODO:
+					ee_file_chmod("/usr/bin/pt-query-advisor",0775);
 				}
 
 				if ( in_array( '/tmp/vimbadmin.tar.gz', $packages ) ) {
@@ -908,7 +908,16 @@ class Stack_Command extends EE_Command {
 				}
 
 				if ( in_array( '/tmp/pra.tar.gz', $packages ) ) {
-					//TODO:
+					EE::debug("Extracting file /tmp/pra.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/pra.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/cache/redis");
+					ee_file_rename("/tmp/phpRedisAdmin-master",EE_WEBROOT."22222/htdocs/cache/redis/phpRedisAdmin");
+
+					EE::debug("Extracting file /tmp/predis.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/predis.tar.gz","/tmp");
+					ee_file_rename("/tmp/predis-1.0.1",EE_WEBROOT."22222/htdocs/cache/redis/phpRedisAdmin/vendor");
+					EE::debug("Setting Privileges of webroot permission to /var/www");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
 				}
 			}
 
