@@ -36,11 +36,11 @@ script:
   - php -r "unlink('composer-setup.php');"
   - sudo php composer.phar install
 
+  #- sudo ee --help
 
-  - sudo ee --help
-  - sudo ee stack install || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee stack install --web || sudo tail -n50 /var/log/ee/ee.log
-  - sudo ee stack install --admin || sudo tail -n50 /var/log/ee/ee.log
+  - sudo ee stack install
+  - sudo ee stack install --all
+  - sudo ee stack install --admin
 
   - sudo ee site create html.net --html || sudo tail -n50 /var/log/ee/ee.log
   - sudo ee site create php.com --php || sudo tail -n50 /var/log/ee/ee.log
@@ -117,13 +117,6 @@ script:
   - sudo ee site delete www.subsite.site-1.com --all --no-prompt || sudo tail -n50 /var/log/ee/ee.log
 
   - sudo ee site delete site12.in --all --no-prompt || sudo tail -n50 /var/log/ee/ee.log
-
-#  - echo "yes" | sudo ee stack install --nginxmainline || sudo tail -n50 /var/log/ee/ee.log
-#  - nginx -v
-#  - sudo ee site create site-nm.localtest.me --php --mysql --html || sudo tail -n50 /var/log/ee/ee.log
-#  - sudo ee site update site-nm.localtest.me --wp || sudo tail -n50 /var/log/ee/ee.log
-#  - yes | sudo ee site update site-nm.localtest.me --hhvm --wpredis || sudo tail -n50 /var/log/ee/ee.log
-#  - sudo ee site delete site-nm.localtest.me --no-prompt || sudo tail -n50 /var/log/ee/ee.log
 
   - travis_wait sudo ee stack install --mail
   - sudo ls /var/www/
