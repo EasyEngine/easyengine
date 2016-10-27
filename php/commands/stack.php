@@ -857,8 +857,11 @@ class Stack_Command extends EE_Command {
 					ee_file_chown(EE_WEBROOT."22222/htdocs/db/pma","www-data",true);
 				}
 
-				if ( in_array( '/tmp/memcache.tar.gz', $packages ) ) {
-					//TODO:
+				if (  '/tmp/memcache.tar.gz'=== $package['path'] ) {
+					EE::debug("Extracting memcache.tar.gz to location /var/www/22222/htdocs/cache/memcache ");
+					EE_Utils::extract("/tmp/memcache.tar.gz",EE_WEBROOT."22222/htdocs/cache/memcache");
+					EE::debug("Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
 				}
 
 				if ( in_array( '/tmp/webgrind.tar.gz', $packages ) ) {
