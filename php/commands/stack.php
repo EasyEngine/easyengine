@@ -865,11 +865,34 @@ class Stack_Command extends EE_Command {
 				}
 
 				if ( in_array( '/tmp/webgrind.tar.gz', $packages ) ) {
-					//TODO:
+					EE::debug("Extracting file webgrind.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/webgrind.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/php");
+					ee_file_rename("/tmp/webgrind-master/",EE_WEBROOT."22222/htdocs/php/webgrind");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","/usr/local/bin/dot","/usr/bin/dot");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","Europe/Copenhagen",EE_Variables::get_timezone());
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","90","100");
+					EE::debug("Setting Privileges of webroot permission to /var/www");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
+
 				}
 
 				if ( in_array( '/tmp/anemometer.tar.gz', $packages ) ) {
-					//TODO:
+					EE::debug("Extracting file anemometer.tar.gz to location /tmp");
+					EE_Utils::extract("/tmp/webgrind.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/db");
+					ee_file_rename("/tmp/Anemometer-master",EE_WEBROOT."22222/htdocs/db/anemometer");
+					$char = EE_Utils::random_string(8);
+					EE::exec_cmd("mysql < ".EE_WEBROOT."/htdocs/db/anemometer/install.sql");
+					EE::exec_cmd("grant select on *.* to 'anemometer'@'".EE_Variables::get_ee_mysql_host()."' IDENTIFIED BY '".$char."'");
+					EE::debug("grant all on slow-query-log.* to anemometer@root_user IDENTIFIED BY password");
+					EE::exec_cmd("grant all on slow_query_log.* to 'anemometer'@'".EE_Variables::get_ee_mysql_host()."' IDENTIFIED BY '".$char."'");
+					EE::debug("configration Anemometer");
+					$data=array('host'=>EE_Variables::get_ee_mysql_host(),
+								'port'=>'3306',
+								'user'=>'anemometer',
+								'password'=>$char);
+					EE\Utils\mustache_write_in_file( EE_WEBROOT.'22222/htdocs/db/anemometer/conf/config.inc.php', 'anemometer.mustache', $data );
 				}
 
 				if ( in_array( '/usr/bin/pt-query-advisor', $packages ) ) {
