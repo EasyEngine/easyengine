@@ -27,7 +27,11 @@ script:
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
   - sudo echo "Travis Banch = $TRAVIS_BRANCH"
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt
-  - sudo bash install $TRAVIS_BRANCH
+  - ls -la
+  - sudo ln -s bin/ee /usr/bin/ee
+
+
+
   - sudo ee --help
   - sudo ee stack install || sudo tail -n50 /var/log/ee/ee.log
   - sudo ee stack install --web || sudo tail -n50 /var/log/ee/ee.log
