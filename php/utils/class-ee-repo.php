@@ -15,6 +15,7 @@ class EE_Repo {
 
 		if ( ! empty( $repo_url ) ) {
 			$repo_file_path = EE_Variables::get_ee_repo_file_path();
+			EE:
 			try {
 				if ( file_exists( $repo_file_path ) ) {
 					$repo_file_contents = file_get_contents( $repo_file_path );
@@ -22,7 +23,7 @@ class EE_Repo {
 					if ( in_array( $repo_url, $repo_file_content, true ) ) {
 						EE::log( "Entry Already Exists." );
 					} else {
-						$repo_file = fopen( $repo_file_path, 'a' );
+						$repo_file = fopen( $repo_file_path, 'a+' );
 						fwrite( $repo_file, $repo_url . "\n" );
 						fclose( $repo_file );
 					}

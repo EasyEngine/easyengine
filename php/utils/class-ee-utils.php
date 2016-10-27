@@ -33,12 +33,14 @@ class EE_Utils {
 	 *                         in format of [url, path, package_name]
 	 */
 	public static function download( $packages ) {
+		//print_r($packages);
 		foreach ( $packages as $package ) {
 			$url           = $package['url'];
 			$download_path = $package['path'];
 			$pkg_name      = $package['package_name'];
 			$dirname       = dirname( $download_path );
 			$filesystem    = new \Symfony\Component\Filesystem\Filesystem();
+			$file = fopen($download_path, "a+");
 			if ( ! $filesystem->exists( $dirname ) ) {
 				try {
 					$filesystem->mkdir( $dirname );
@@ -51,7 +53,7 @@ class EE_Utils {
 				EE::debug( "Downloading " . $pkg_name );
 				set_time_limit( 0 ); // unlimited max execution time
 				$options = array(
-					CURLOPT_FILE => fopen($download_path, "w"),
+					CURLOPT_FILE => $file,
 					CURLOPT_URL  => $url,
 				);
 
@@ -59,8 +61,8 @@ class EE_Utils {
 				curl_setopt_array( $ch, $options );
 				curl_exec( $ch );
 				curl_close( $ch );
-				fclose($download_path);
-				EE::log( "[Done]" );
+				fclose($file);
+				EE::success( "[Done]" );
 			} catch ( Exception $e ) {
 				EE::debug( $e->getMessage() );
 				EE::error( "Unable to download " . $pkg_name );

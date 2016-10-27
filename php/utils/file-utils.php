@@ -24,6 +24,7 @@ function ee_file_copy( $originFile, $targetFile, $overwriteNewerFiles = false ) 
  * @param int                       $mode
  */
 function ee_file_mkdir( $dirs, $mode = 0755 ) {
+	EE::debug("Creating directory : " .$dirs);
 	$filesystem = new Filesystem();
 	$filesystem->mkdir( $dirs, $mode );
 }
@@ -97,6 +98,7 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
  * @param bool $overwrite
  */
 function ee_file_rename( $origin, $target, $overwrite = false ) {
+	EE::debug("Moving Files/Folder: ".$origin." To : ".$target );
 	$filesystem = new Filesystem();
 	$filesystem->rename( $origin, $target, $overwrite );
 }

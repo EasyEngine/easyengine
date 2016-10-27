@@ -72,7 +72,7 @@ class Stack_Command extends EE_Command {
 			$category['admin'] == true;
 		}
 		if(!empty( $assoc_args['utils'] )){
-			$category['utils'] == true;
+			$stack['utils'] = true;
 		}
 		if(!empty( $assoc_args['web'] )){
 			$category['web'] == true;
@@ -91,7 +91,7 @@ class Stack_Command extends EE_Command {
 			$stack['mysql']= true;
 			$stack['adminer']= true;
 			$stack['phpmyadmin']= true;
-			$category['utils']= true;
+			$stack['utils']= true;
 		}
 		if (isset($category['utils']) &&  $category['utils']= true){
 			//todo:
@@ -132,6 +132,8 @@ class Stack_Command extends EE_Command {
 	 * [--wpcli]
 	 * :To install wp-cli
 	 *
+	 * [--utils]
+	 * : To install Utilities tools
 	 *
 	 *
 	 * ## EXAMPLES
@@ -251,7 +253,7 @@ class Stack_Command extends EE_Command {
 	if (!empty($stack['wpcli'])){
 		EE::debug("Setting packages variable for WP-CLI");
 		if (EE::exec_cmd("which wp", $message = 'Looking wp-cli preinstalled')){
-			$packages = array_merge($packages, array( array("url"=>"https://github.com/wp-cli/wp-cli/releases/download/v".EE_WP_CLI.".phar",
+			$packages = array_merge($packages, array( array("url"=>"https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar",
 			                                                "path" => "/usr/bin/wp",
 			                                                "package_name"=>"WP_CLI")));
 		}
@@ -285,7 +287,7 @@ class Stack_Command extends EE_Command {
 		                                                "package_name"=>"Adminer")));
 	}
 
-	if (!empty($category['utils'])){
+	if (!empty($stack['utils'])){
 		EE::debug("Setting packages variable for utils");
 		$packages = array_merge($packages, array( array("url"=>"https://storage.googleapis.com/google-code-archive-downloads/".
 																"v2/code.google.com/phpmemcacheadmin/".
@@ -392,11 +394,12 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if (in_array(EE_Variables::get_mysql_packages(), $apt_packages) ) {
+		if (in_array(EE_Variables::get_mysql_packages()[0], $apt_packages) ) {
 			EE::debug("Adding repository for MySQL, please wait...");
 			$mysql_pref = "Package: *\nPin: origin sfo1.mirrors.digitalocean.com\nPin-Priority: 1000\n";
 			$mysql_pref_file   = fopen("/etc/apt/preferences.d/MariaDB.pref", "w" );
 			fwrite( $mysql_pref_file, $mysql_pref );
+			fclose($mysql_pref_file);
 
 			EE_Repo::add(EE_Variables::get_mysql_repo());
 
@@ -813,7 +816,8 @@ class Stack_Command extends EE_Command {
 
 			}
 
-			if(in_array( "mariadb-server", $apt_packages )){
+			if(in_array( EE_Variables::get_mysql_packages(), $apt_packages )){
+				EE::debug("creating .my.cnf");
 
 				if (!is_file("/etc/mysql/my.cnf")){
 					$config = "[mysqld]\nwait_timeout = 30\n".
@@ -833,42 +837,90 @@ class Stack_Command extends EE_Command {
 
 		}
 
-		if (! empty($packages)){
-			if (in_array('/usr/bin/wp', $packages)){
-//				Log.debug(self, "Setting Privileges to /usr/bin/wp file ")
-//EEFileUtils.chmod(self, "/usr/bin/wp", 0o775)
-			}
+		if (!empty($packages)){
+			foreach ( $packages as $package ) {
+				if ( '/usr/bin/wp' === $package['path'] )  {
+					EE::debug( "Setting Privileges to /usr/bin/wp file " );
+					ee_file_chmod("/usr/bin/wp",0775);
+				}
 
-			if (in_array('/tmp/pma.tar.gz', $packages)){
-				//todo
-			}
+				if ('/tmp/pma.tar.gz'=== $package['path'] ) {
+					EE::debug("Extracting file /tmp/pma.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/pma.tar.gz","/tmp/");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/db");
+					ee_file_rename("/tmp/phpmyadmin-STABLE",EE_WEBROOT."22222/htdocs/db/pma");
+					ee_file_copy(EE_WEBROOT."22222/htdocs/db/pma/config.sample.inc.php",EE_WEBROOT."22222/htdocs/db/pma/config.inc.php");
+					EE::debug("Setting Blowfish Secret Key FOR COOKIE AUTH to  /var/www/22222/htdocs/db/pma/config.inc.php file");
+					$blowfish_key = EE_Utils::generate_random();
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/db/pma/config.inc.php","\$cfg['blowfish_secret'] = '';","\$cfg['blowfish_secret'] = '".$blowfish_key."{0}';");
+                    EE::debug("Setting HOST Server For Mysql to  /var/www/22222/htdocs/db/pma/config.inc.php");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/db/pma/config.inc.php","\$cfg['Servers'][\$i]['host'] = 'localhost';","\$cfg['Servers'][\$i]['host'] = '".EE_Variables::get_ee_mysql_host()."';");
+					EE::debug("Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file");
+					ee_file_chown(EE_WEBROOT."22222/htdocs/db/pma","www-data",true);
+				}
 
-			if (in_array('/tmp/memcache.tar.gz', $packages)){
-				//TODO:
-			}
+				if (  '/tmp/memcache.tar.gz'=== $package['path'] ) {
+					EE::debug("Extracting memcache.tar.gz to location /var/www/22222/htdocs/cache/memcache ");
+					EE_Utils::extract("/tmp/memcache.tar.gz",EE_WEBROOT."22222/htdocs/cache/memcache");
+					EE::debug("Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
+				}
 
-			if (in_array('/tmp/webgrind.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/webgrind.tar.gz', $packages ) ) {
+					EE::debug("Extracting file webgrind.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/webgrind.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/php");
+					ee_file_rename("/tmp/webgrind-master/",EE_WEBROOT."22222/htdocs/php/webgrind");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","/usr/local/bin/dot","/usr/bin/dot");
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","Europe/Copenhagen",EE_Variables::get_timezone());
+					ee_file_search_replace(EE_WEBROOT."22222/htdocs/php/webgrind/config.php","90","100");
+					EE::debug("Setting Privileges of webroot permission to /var/www");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
 
-			if (in_array('/tmp/anemometer.tar.gz', $packages)){
-				//TODO:
-			}
+				}
 
-			if (in_array('/usr/bin/pt-query-advisor', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/anemometer.tar.gz', $packages ) ) {
+					EE::debug("Extracting file anemometer.tar.gz to location /tmp");
+					EE_Utils::extract("/tmp/webgrind.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/db");
+					ee_file_rename("/tmp/Anemometer-master",EE_WEBROOT."22222/htdocs/db/anemometer");
+					$char = EE_Utils::random_string(8);
+					EE::exec_cmd("mysql < ".EE_WEBROOT."/htdocs/db/anemometer/install.sql");
+					EE::exec_cmd("grant select on *.* to 'anemometer'@'".EE_Variables::get_ee_mysql_host()."' IDENTIFIED BY '".$char."'");
+					EE::debug("grant all on slow-query-log.* to anemometer@root_user IDENTIFIED BY password");
+					EE::exec_cmd("grant all on slow_query_log.* to 'anemometer'@'".EE_Variables::get_ee_mysql_host()."' IDENTIFIED BY '".$char."'");
+					EE::debug("configration Anemometer");
+					$data=array('host'=>EE_Variables::get_ee_mysql_host(),
+								'port'=>'3306',
+								'user'=>'anemometer',
+								'password'=>$char);
+					EE\Utils\mustache_write_in_file( EE_WEBROOT.'22222/htdocs/db/anemometer/conf/config.inc.php', 'anemometer.mustache', $data );
+				}
 
-			if (in_array('/tmp/vimbadmin.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/usr/bin/pt-query-advisor', $packages ) ) {
+					ee_file_chmod("/usr/bin/pt-query-advisor",0775);
+				}
 
-			if (in_array('/tmp/roundcube.tar.gz', $packages)){
-				//TODO:
-			}
+				if ( in_array( '/tmp/vimbadmin.tar.gz', $packages ) ) {
+					//TODO:
+				}
 
-			if (in_array('/tmp/pra.tar.gz', $packages)){
-				//TODO:
+				if ( in_array( '/tmp/roundcube.tar.gz', $packages ) ) {
+					//TODO:
+				}
+
+				if ( in_array( '/tmp/pra.tar.gz', $packages ) ) {
+					EE::debug("Extracting file /tmp/pra.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/pra.tar.gz","/tmp");
+					ee_file_mkdir(EE_WEBROOT."22222/htdocs/cache/redis");
+					ee_file_rename("/tmp/phpRedisAdmin-master",EE_WEBROOT."22222/htdocs/cache/redis/phpRedisAdmin");
+
+					EE::debug("Extracting file /tmp/predis.tar.gz to location /tmp/");
+					EE_Utils::extract("/tmp/predis.tar.gz","/tmp");
+					ee_file_rename("/tmp/predis-1.0.1",EE_WEBROOT."22222/htdocs/cache/redis/phpRedisAdmin/vendor");
+					EE::debug("Setting Privileges of webroot permission to /var/www");
+					ee_file_chown(EE_WEBROOT."22222/","www-data",true);
+				}
 			}
 
 		}
