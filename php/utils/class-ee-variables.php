@@ -57,6 +57,10 @@ class EE_Variables {
 		return $ee_mysql_host;
 	}
 
+	public static function get_ee_date() {
+		return date('dMYhms');
+	}
+
 	/**
 	 * WP_CLI version installed on machine.
 	 *

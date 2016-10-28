@@ -32,6 +32,39 @@ class Site_Command extends EE_Command {
 	 * [--type=<types>]
 	 * : Type for create site.
 	 *
+	 * [--html]
+	 * : Create html site
+	 *
+	 * [--php=<version>]
+	 * : Create php site.
+	 *
+	 * [--mysql]
+	 * : Create mysql site.
+	 *
+	 * [--wp]
+	 * : Create wordpress single site.
+	 *
+	 * [--wpsubdir]
+	 * : Create wordpress multisite with subdirectory setup.
+	 *
+	 * [--wpsubdomain]
+	 * : Create wordpress multisite with subdomain setup.
+	 *
+	 * [--w3tc]
+	 * : Create wordpress single/multi site with w3tc cache.
+	 *
+	 * [--wpredis]
+	 * : Create wordpress single/multi site with redis cache.
+	 *
+	 * [--hhvm]
+	 * : Create HHVM site.
+	 *
+	 * [--proxy]
+	 * : Create proxy for site.
+	 *
+	 * [--pagespeed]
+	 * : Create pagespeed site.
+	 *
 	 * [--cache=<cache>]
 	 * : Cache for site.
 	 *
@@ -51,10 +84,13 @@ class Site_Command extends EE_Command {
 	 * : Port no for porxy site.
 	 *
 	 * [--letsencrypt]
-	 * : Encrypt site.
+	 * : Configure letsencrypt ssl for the site
+	 *
+	 * [--le]
+	 * : Configure letsencrypt ssl for the site
 	 *
 	 * [--experimental]
-	 * : For Experiment beta features.
+	 * : Enable Experimenal packages without prompt.
 	 *
 	 *
 	 *
@@ -489,11 +525,41 @@ class Site_Command extends EE_Command {
 	 * [<name>]
 	 * : Name of the site to update.
 	 *
-	 * [--all]
-	 * : Type for create site.
-	 *
 	 * [--type=<types>]
-	 * : Type for create site.
+	 * : Type for update site.
+	 *
+	 * [--html]
+	 * : Update to html site
+	 *
+	 * [--php=<version>]
+	 * : Update to php site.
+	 *
+	 * [--mysql]
+	 * : Update to mysql site.
+	 *
+	 * [--wp]
+	 * : Update to wordpress single site.
+	 *
+	 * [--wpsubdir]
+	 * : Update to wordpress multisite with subdirectory setup.
+	 *
+	 * [--wpsubdomain]
+	 * : Update to wordpress multisite with subdomain setup.
+	 *
+	 * [--w3tc]
+	 * : Update to wordpress single/multi site with w3tc cache.
+	 *
+	 * [--wpredis]
+	 * : Update to wordpress single/multi site with redis cache.
+	 *
+	 * [--hhvm]
+	 * : Update to HHVM site.
+	 *
+	 * [--proxy]
+	 * : Update site to proxy.
+	 *
+	 * [--pagespeed]
+	 * : Update to pagespeed site.
 	 *
 	 * [--cache=<cache>]
 	 * : Cache for site.
@@ -514,25 +580,40 @@ class Site_Command extends EE_Command {
 	 * : Port no for porxy site.
 	 *
 	 * [--letsencrypt]
-	 * : Encrypt site.
+	 * : Configure letsencrypt ssl for the site
+	 *
+	 * [--le]
+	 * : Configure letsencrypt ssl for the site
 	 *
 	 * [--experimental]
-	 * : For Experiment beta features.
+	 * : Enable Experimenal packages without prompt.
 	 *
 	 *
 	 *
 	 * ## EXAMPLES
 	 *
-	 *      # Create site.
+	 *      # Update site.
 	 *      $ ee site update example.com
 	 *
 	 */
 	public function update( $args, $assoc_args ) {
 		$site_name = empty( $args[0] ) ? '' : $args[0];
 
+		if ( false || empty( $assoc_args['type'] ) || empty( $assoc_args['cache'] ) ) {
+			//TODO : Filter assoc args.
+			list( $stype, $cache ) = filter_site_assoc_args( $assoc_args );
+		}
+
 		if ( ! empty( $assoc_args['pagespeed'] ) ) {
 			EE::error( "Pagespeed support has been dropped since EasyEngine v3.6.0", false );
 			EE::error( "Please run command again without `--pagespeed`", false );
+			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
+		}
+
+		if ( ! empty( $assoc_args['type'] ) && 'hhvm' == $assoc_args['type'] ){
+			EE::error( "Hhvm support has been dropped since EasyEngine v4.0", false );
+			EE::error( "Please run command again with other type", false );
+			// TODO :change hhvm link;
 			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
 		}
 
@@ -554,9 +635,15 @@ class Site_Command extends EE_Command {
 					EE::log( "Updating site {$site['sitename']}, please wait..." );
 					do_update_site( $site['sitename'], $assoc_args );
 				}
-			} else {
-				do_update_site( $site_name, $assoc_args );
 			}
+		} else {
+			while ( empty( $site_name ) ) {
+				$value = EE::input_value( "Enter site name :" );
+				if ( $value ) {
+					$site_name = $value;
+				}
+			}
+			do_update_site( $site_name, $assoc_args );
 		}
 
 	}
