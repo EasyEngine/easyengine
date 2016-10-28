@@ -291,7 +291,7 @@ class Info_Command extends EE_Command {
         $debug_request_terminate	= $config['debug']['request_terminate_timeout'];
 		
         try {
-            $debug_xdebug = config['debug']['php_admin_flag[xdebug.profiler_enable_trigger]'];
+            $debug_xdebug = $config['debug']['php_admin_flag[xdebug.profiler_enable_trigger]'];
         } catch( Exception $e ) {
             $debug_xdebug = 'off';
 		}

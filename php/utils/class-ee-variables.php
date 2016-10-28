@@ -205,10 +205,10 @@ class EE_Variables {
 		$ee_platform_codename = EE_OS::ee_platform_codename();
 		$ee_mysql_repo          = '';
 		if ( 'ubuntu' === $ee_platform_distro ) {
-			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu" . $ee_platform_codename . "main";
+			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu " . $ee_platform_codename . " main";
 
 		} else if ( 'debian' === $ee_platform_distro ) {
-			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/debian" . $ee_platform_codename . "main";
+			$ee_mysql_repo = "deb http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/debian " . $ee_platform_codename . " main";
 		}
 
 		return $ee_mysql_repo;
