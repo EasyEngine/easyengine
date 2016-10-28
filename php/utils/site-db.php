@@ -81,8 +81,8 @@ function delete_site( $where ) {
  *
  * @return array|bool
  */
-function get_all_sites() {
-	$site_info = EE_Sqlite_Db::select();
+function get_all_sites( $where = array() ) {
+	$site_info = EE_Sqlite_Db::select( $where );
 
 	return $site_info;
 }

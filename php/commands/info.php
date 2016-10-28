@@ -21,7 +21,7 @@ class Info_Command extends EE_Command {
 	 * default: 5.6
 	 * options:
 	 *   - 5.6
-	 *   - 7
+	 *   - 7.0
 	 * 
 	 * [--mysql]
 	 * : Get MySql configuration information.
@@ -42,7 +42,7 @@ class Info_Command extends EE_Command {
 	 *     Success: Get PHP configuration information.
 	 * 
 	 *	   # PHP7 Info
-	 *     $ ee info --php=7
+	 *     $ ee info --php=7.0
 	 *     Success: Get PHP 7.0 configuration information.
 	 * 
 	 *	   # MySQL Info
