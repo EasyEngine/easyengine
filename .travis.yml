@@ -42,6 +42,7 @@ script:
   #- sudo ee --help
 
   - sudo ee stack install --nginx --debug || tail -n100 testlog.log
+  - ls /etc/nginx/common
   - sudo ee stack install --mysql --debug || tail -n100 testlog.log
   - sudo cat /etc/mysql/conf.d/my.cnf
   - sudo mysql -e "SHOW DATABASES;"
@@ -52,5 +53,5 @@ script:
   - sudo ee stack install --utils --debug
 
 
-  - sudo ee site create wp.localtest.me --type=wp || nginx -t && tail -n100 testlog.log
+  - sudo ee site create wp.localtest.me --type=wp || sudo nginx -t && tail -n100 testlog.log
   - curl http://wp.localtest.me
