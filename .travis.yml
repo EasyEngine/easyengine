@@ -52,5 +52,5 @@ script:
   - sudo ee stack install --utils --debug
 
 
-  - sudo ee site create wp.localtest.me --type=wp
+  - sudo ee site create wp.localtest.me --type=wp || nginx -t && tail -n100 testlog.log
   - curl http://wp.localtest.me
