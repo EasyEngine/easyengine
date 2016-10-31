@@ -168,7 +168,7 @@ class Stack_Command extends EE_Command {
 		EE::debug("Setting apt_packages variable for Nginx");
 		if(!EE_Apt_Get::is_installed('nginx-custom')){
 			if(!(EE_Apt_Get::is_installed('nginx-plus')||EE_Apt_Get::is_installed('nginx'))){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_nginx_packages(  ));
+				$apt_packages = array_merge($apt_packages,EE_Variables::get_nginx_packages( ));
 			}else{
 					if(EE_Apt_Get::is_installed('nginx-plus')){
 						EE::success("NGINX PLUS Detected ...");
@@ -403,20 +403,20 @@ class Stack_Command extends EE_Command {
 
 		}
 
-		if ( in_array(EE_Variables::get_nginx_packages(), $apt_packages)) {
+		if ( in_array(EE_Variables::get_nginx_packages()[0], $apt_packages)) {
 			EE::debug("Adding repository for NGINX, please wait...");
 			EE_Repo::add(EE_Variables::get_nginx_repo());
 			EE_Repo::add_key('3050AC3CD2AE6F03');
 		}
-
-		if (in_array(EE_Variables::get_php_packages("php7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
-				EE::debug("Adding repository for PHP, please wait...");
-			    EE_Repo::add(EE_Variables::get_php_repo());
-			if ('debian' == EE_OS::ee_platform_distro()){
-				EE_Repo::add_key('89DF5277');
-				}
-		}
-		if ( in_array(EE_Variables::get_redis_packages(), $apt_packages)) {
+//
+//		if (in_array(EE_Variables::get_php_packages("7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
+//				EE::debug("Adding repository for PHP, please wait...");
+//			    EE_Repo::add(EE_Variables::get_php_repo());
+//			if ('debian' == EE_OS::ee_platform_distro()){
+//				EE_Repo::add_key('89DF5277');
+//				}
+//		}
+		if ( in_array(EE_Variables::get_redis_packages()[0], $apt_packages)) {
 			EE::debug("Adding repository for REDIS, please wait...");
 			EE_Repo::add(EE_Variables::get_redis_repo());
 			if ('debian' == EE_OS::ee_platform_distro()){
