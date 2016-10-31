@@ -68,13 +68,13 @@ function setup_domain( $data ) {
 		EE::log( 'Setting up webroot' );
 		try {
 			if ( ! ee_file_exists( "{$ee_site_webroot}/htdocs" ) ) {
-				ee_file_mkdir("{$ee_site_webroot}/htdocs");
+				ee_file_mkdir( "{$ee_site_webroot}/htdocs" );
 			}
 			if ( ! ee_file_exists( "{$ee_site_webroot}/logs" ) ) {
-				ee_file_mkdir("{$ee_site_webroot}/logs");
+				ee_file_mkdir( "{$ee_site_webroot}/logs" );
 			}
 			if ( ! ee_file_exists( "{$ee_site_webroot}/conf/nginx" ) ) {
-				ee_file_mkdir("{$ee_site_webroot}/conf/nginx");
+				ee_file_mkdir( "{$ee_site_webroot}/conf/nginx" );
 			}
 			$filesystem->symlink( '/var/log/nginx/' . $ee_domain_name . '.access.log', $ee_site_webroot . '/logs/access.log' );
 			$filesystem->symlink( '/var/log/nginx/' . $ee_domain_name . '.error.log', $ee_site_webroot . '/logs/error.log' );
@@ -94,6 +94,7 @@ function setup_domain( $data ) {
 
 /**
  * Setup database for created site.
+ *
  * @param $data
  *
  * @return mixed
@@ -202,23 +203,23 @@ function site_package_check( $stype ) {
 	$apt_packages = array();
 	$packages     = array();
 
-	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain',	'php7' ) ) ) {
+	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain', 'php7' ) ) ) {
 		EE::log( "Setting apt_packages variable for Nginx" );
 		// Check if server has nginx-custom package.
 		if ( ! EE_Apt_Get::is_installed( 'nginx-custom' ) || ! EE_Apt_Get::is_installed( 'nginx-mainline' ) ) {
 			// Check if Server has nginx-plus installed.
 			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
 				EE::log( "NGINX PLUS Detected ..." );
-				$apt = EE_Variables::get_ee_nginx();
+				$apt   = EE_Variables::get_ee_nginx();
 				$apt[] = "nginx-plus";
-				ee_stack_post_pref($apt, $packages);
+				ee_stack_post_pref( $apt, $packages );
 			} else if ( EE_Apt_Get::is_installed( 'nginx' ) ) {
 				EE::log( "EasyEngine detected a previously installed Nginx package. " .
 				         "It may or may not have required modules. " .
 				         "\nIf you need help, please create an issue at https://github.com/EasyEngine/easyengine/issues/ \n" );
-				$apt = EE_Variables::get_ee_nginx();
+				$apt   = EE_Variables::get_ee_nginx();
 				$apt[] = "nginx";
-				ee_stack_post_pref($apt, $packages);
+				ee_stack_post_pref( $apt, $packages );
 			} else {
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_nginx() );
 			}
@@ -234,7 +235,7 @@ function site_package_check( $stype ) {
 	}
 	$ee_platform_codename = EE_OS::ee_platform_codename();
 	if ( in_array( $stype, array( 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
-		EE::log("Setting apt_packages variable for PHP");
+		EE::log( "Setting apt_packages variable for PHP" );
 		if ( 'trusty' === $ee_platform_codename || 'xenial' === $ee_platform_codename ) {
 			if ( ! EE_Apt_Get::is_installed( 'php5.6-fpm' ) ) {
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_php_packages( 'php5.6' ), EE_Variables::get_php_packages( 'phpextra' ) );
@@ -247,15 +248,15 @@ function site_package_check( $stype ) {
 	}
 
 	// TODO : check if --php7 will be pass in the command.
-//	if ( 'php7' == $stype && in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
-//
-//	}
+	//	if ( 'php7' == $stype && in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+	//
+	//	}
 
 	if ( in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
 		EE::debug( "Setting apt_packages variable for MySQL" );
 		if ( 0 !== EE::exec_cmd( "mysqladmin ping" ) ) {
 			$apt_packages = array_merge( $apt_packages, EE_Variables::get_mysql_packages() );
-			$packages = array_merge( $packages, array(
+			$packages     = array_merge( $packages, array(
 				"https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl",
 				"/usr/bin/mysqltuner",
 				"MySQLTuner"
@@ -272,9 +273,9 @@ function site_package_check( $stype ) {
 
 	if ( in_array( $stype, array( 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
 		EE::debug( "Setting packages variable for WP-CLI" );
-		if ( 0 !== EE::exec_cmd("which wp")) {
+		if ( 0 !== EE::exec_cmd( "which wp" ) ) {
 			$ee_wp_cli = EE_Variables::get_ee_wp_cli_version();
-			$packages = array_merge( $packages, array(
+			$packages  = array_merge( $packages, array(
 				"https://github.com/wp-cli/wp-cli/releases/download/v{$ee_wp_cli}/wp-cli-{$ee_wp_cli}.phar",
 				"/usr/bin/wp",
 				"WP-CLI"
@@ -283,30 +284,30 @@ function site_package_check( $stype ) {
 	}
 
 	if ( 'wpredis' === $stype ) {
-		EE::debug("Setting apt_packages variable for redis");
-	    if ( ! EE_Apt_Get::is_installed( 'redis-server' ) ) {
-		    $apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_redis_packages() );
-	    }
+		EE::debug( "Setting apt_packages variable for redis" );
+		if ( ! EE_Apt_Get::is_installed( 'redis-server' ) ) {
+			$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_redis_packages() );
+		}
 
-	    if ( ee_file_exists("/etc/nginx/nginx.conf") && ! ee_file_exists("/etc/nginx/common/redis.conf")) {
-	    	$data = array();
-		    EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis.conf" );
-		    \EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis.conf', 'redis.mustache', $data );
-	    }
+		if ( ee_file_exists( "/etc/nginx/nginx.conf" ) && ! ee_file_exists( "/etc/nginx/common/redis.conf" ) ) {
+			$data = array();
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis.conf" );
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis.conf', 'redis.mustache', $data );
+		}
 
-	    if ( ee_file_exists("/etc/nginx/nginx.conf") && ! ee_file_exists("/etc/nginx/common/redis-hhvm.conf")) {
-		    EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis-hhvm.conf" );
-		    \EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis-hhvm.conf', 'redis-hhvm.mustache' );
-	    }
-		if( ee_file_exists("/etc/nginx/conf.d/upstream.conf") ) {
-			if ( ! grep_string('/etc/nginx/conf.d/upstream.conf', 'redis')) {
+		if ( ee_file_exists( "/etc/nginx/nginx.conf" ) && ! ee_file_exists( "/etc/nginx/common/redis-hhvm.conf" ) ) {
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/redis-hhvm.conf" );
+			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis-hhvm.conf', 'redis-hhvm.mustache' );
+		}
+		if ( ee_file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
+			if ( ! grep_string( '/etc/nginx/conf.d/upstream.conf', 'redis' ) ) {
 				$redis_upstream_content = "upstream redis {\n" .
 			                              "    server 127.0.0.1:6379;\n" .
 			                              "    keepalive 10;\n}";
 				ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $redis_upstream_content );
 			}
 		}
-		if( ee_file_exists("/etc/nginx/conf.d/upstream.conf") && ! ee_file_exists("/etc/nginx/conf.d/redis.conf") ) {
+		if ( ee_file_exists( "/etc/nginx/conf.d/upstream.conf" ) && ! ee_file_exists( "/etc/nginx/conf.d/redis.conf" ) ) {
 			$redis_config_content  = "# Log format Settings\n".
                                  "log_format rt_cache_redis '\$remote_addr \$upstream_response_time \$srcache_fetch_status [\$time_local] '\n".
                                  "'\$http_host \"\$request\" \$status \$body_bytes_sent '\n".
@@ -326,7 +327,7 @@ function site_package_check( $stype ) {
 		}
 
 		if ( ee_file_exists( "/etc/nginx/common" ) && ! ee_file_exists( "/etc/nginx/common/php-hhvm.conf" ) ) {
-			EE::debug("Writting the nginx configuration to file /etc/nginx/common/php-hhvm.conf");
+			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/php-hhvm.conf" );
 			\EE\Utils\mustache_write_in_file( '/etc/nginx/common/php-hhvm.conf', 'php-hhvm.mustache' );
 
 			EE::debug( "Writting the nginx configuration to file /etc/nginx/common/w3tc-hhvm.conf" );
@@ -349,7 +350,7 @@ function site_package_check( $stype ) {
 
 	if ( 'php7' === $stype ) {
 		$ee_platform_codename = EE_OS::ee_platform_codename();
-		if ('wheezy' === $ee_platform_codename || 'precise' === $ee_platform_codename ){
+		if ( 'wheezy' === $ee_platform_codename || 'precise' === $ee_platform_codename ) {
 			EE::error( "PHP 7.0 is not supported in your Platform" );
 		}
 
@@ -387,6 +388,7 @@ function site_package_check( $stype ) {
 	}
 
 	$install_packages = ee_stack_install( $apt_packages, $packages );
+
 	return $install_packages;
 }
 
@@ -472,6 +474,7 @@ function delete_web_root( $webroot ) {
 
 /**
  * Remove nginx config of site.
+ *
  * @param $domain_name
  */
 function remove_nginx_conf( $domain_name ) {
@@ -486,6 +489,7 @@ function remove_nginx_conf( $domain_name ) {
 
 /**
  * Cleanup data of site. i.e webroot, database etc.
+ *
  * @param $data
  *
  * @return bool
@@ -516,6 +520,7 @@ function do_cleanup_action( $data ) {
 
 /**
  * Setup WordPress site.
+ *
  * @param $data
  *
  * @return array|boolean
@@ -559,7 +564,7 @@ function setup_wordpress( $data ) {
 	EE::debug( "Done" );
 
 	if ( empty( $data['ee_db_name'] ) && empty( $data['ee_db_user'] ) && empty( $data['ee_db_pass'] ) ) {
-		$data = setup_database( $data );
+		$data        = setup_database( $data );
 		$update_data = update_site( $data, array( 'site_name' => $data['site_name'] ) );
 	}
 
@@ -761,6 +766,45 @@ function setup_wordpress( $data ) {
 
 }
 
+function setup_wordpress_network( $data ) {
+	$ee_site_webroot = $data['webroot'];
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	EE::log( "Setting up WordPress Network \t" );
+	try {
+		$subdomains = empty( $data['wpsubdir'] ) ? '--subdomains' : '';
+		if ( 0 !== EE::exec_cmd( "wp --allow-root core multisite-convert --title='{$data['www_domain']}' {$subdomains}" ) ) {
+			EE::error( "setup WordPress network failed" );
+		}
+		
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "setup WordPress network failed" );
+	}
+	EE::log( "[Done]" );
+}
+
+function setup_wp_plugin( $plugin_name, $plugin_option, $plugin_data, $data ) {
+	$ee_site_webroot = $data['webroot'];
+	EE::log( "Setting plugin {$plugin_name}, please wait..." );
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	$ee_wpcli_path = EE_Variables::get_ee_wp_cli_path();
+	if ( ! $data['multisite'] ) {
+		try {
+			EE::exec_cmd("php {$ee_wpcli_path} --allow-root option update {$plugin_option} '{$plugin_data}' --format=json");
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "plugin setup failed" );
+		}
+	} else {
+		try {
+			EE::exec_cmd("php {$ee_wpcli_path} --allow-root network meta update 1 {$plugin_option} '{$plugin_data}' --format=json");
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "plugin setup failed" );
+		}
+	}
+}
+
 /**
  * Install WordPress plugin in WP site.
  *
@@ -785,6 +829,8 @@ function install_wp_plugin( $plugin_name, $data ) {
 		EE::debug( $e->getMessage() );
 		EE::log( "plugin activation failed" );
 	}
+
+	return true;
 }
 
 /**
@@ -891,6 +937,52 @@ function clone_lets_encrypt() {
 	}
 }
 
+function renew_lets_encrypt( $ee_domain_name ) {
+	$ee_wp_email = get_ee_config( 'user', 'email' );
+	while( empty( $ee_wp_email)) {
+		try {
+			$ee_wp_email = EE::input_value( "Enter email address: " );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "Input WordPress email failed" );
+		}
+	}
+
+	if ( ! ee_file_exists( "/opt/letsencrypt" ) ) {
+		clone_lets_encrypt();
+	}
+	chdir( "/opt/letsencrypt" );
+	EE::exec_cmd( "git pull" );
+	EE::log( "Renewing SSl cert for https://{$ee_domain_name}" );
+	$ssl = EE::exec_cmd( "./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{$ee_wp_email}/htdocs/ -d {$ee_wp_email} -d www.{$ee_wp_email} --email {$ee_wp_email} --text --agree-tos" );
+	$mail_list = '';
+	if ( 0 !== $ssl ) {
+		EE::error("ERROR : Cannot RENEW SSL cert !", false);
+		$expiry_days = EE_Ssl::get_expiration_days( $ee_domain_name );
+		if ( $expiry_days > 0 ){
+			EE::error( "Your current cert will expire within {$expiry_days} days", false );
+		} else {
+			EE::error( "Your current cert already EXPIRED !", false );
+		}
+		$ee_subject = "[FAIL] SSL cert renewal {$ee_domain_name}";
+		$ee_message = "Hey Hi,\n\nSSL Certificate renewal for https://{$ee_domain_name} was unsuccessful.";
+		              $ee_message .= "\nPlease check easyengine log for reason. Your SSL Expiry date : ";
+		$ee_message .= EE_Ssl::get_expiration_date( $ee_domain_name );
+		$ee_message .= "\n\nFor support visit https://easyengine.io/support/ .\n\nYour's faithfully,\nEasyEngine";
+		EE_Mail::send("easyengine@{$ee_domain_name}", $ee_subject, $ee_message, $ee_wp_email );
+		EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+	}
+
+	EE_Git::add( array( "/etc/letsencrypt" ), "Adding letsencrypt folder" );
+
+	$ee_subject = "[SUCCESS] SSL cert renewal {$ee_domain_name}";
+	$ee_message = "Hey Hi,\n\nYour SSL Certificate has been renewed for https://{$ee_domain_name} .";
+	$ee_message .= "\nYour SSL will Expire on : ";
+	$ee_message .= EE_Ssl::get_expiration_date( $ee_domain_name );
+	$ee_message .= "\n\nYour's faithfully,\nEasyEngine";
+	EE_Mail::send("easyengine@{$ee_domain_name}", $ee_subject, $ee_message, $ee_wp_email );
+}
+
 /**
  * Setup letsencrypt ssl secure site.
  *
@@ -972,7 +1064,7 @@ function https_redirect( $ee_domain_name, $redirect = true ) {
 				EE::log( "Error occured while generating /etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
 			}
 		}
-		EE::log("Added HTTPS Force Redirection for Site http://{$ee_domain_name}");
+		EE::log( "Added HTTPS Force Redirection for Site http://{$ee_domain_name}" );
 		EE_Git::add( array( "/etc/nginx" ), "Adding /etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" );
 	} else {
 		if ( ee_file_exists( "/etc/nginx/conf.d/force-ssl-{$ee_domain_name}.conf" ) ) {
@@ -999,20 +1091,20 @@ function archived_certificate_handle( $domain, $ee_wp_email ) {
 	         "\n\t3: Renew & replace the certificate (limit ~5 per 7 days)" );
 	$selected_option = EE::input_value( "\nType the appropriate number [1-3] or any other key to cancel: " );
 
-	if ( ! ee_file_exists("/etc/letsencrypt/live/{$domain}/cert.pem")) {
-		EE::error("/etc/letsencrypt/live/{$domain}/cert.pem file is missing.");
+	if ( ! ee_file_exists( "/etc/letsencrypt/live/{$domain}/cert.pem" ) ) {
+		EE::error( "/etc/letsencrypt/live/{$domain}/cert.pem file is missing." );
 	}
 
 	switch ( $selected_option ) {
 		case '1' :
-			EE::log("Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network.");
+			EE::log( "Please Wait while we reinstall SSL Certificate for your site.\nIt may take time depending upon network." );
 			$ssl = EE::exec_cmd( "./letsencrypt-auto certonly --reinstall --webroot -w /var/www/{$domain}/htdocs/ -d {$domain} -d www.{$domain} --email {$ee_wp_email} --text --agree-tos" );
 			if ( 0 === $ssl ) {
 				$ssl = true;
 			}
 			break;
 		case '2' :
-			EE::log("Using Existing Certificate files");
+			EE::log( "Using Existing Certificate files" );
 			if ( ! ee_file_exists( "/etc/letsencrypt/live/{$domain}/fullchain.pem" ) || ! ee_file_exists( "/etc/letsencrypt/live/{$domain}/privkey.pem" ) ) {
 				EE::error( "Certificate files not found. Skipping.\n" .
 				           "Please check if following file exist\n\t/etc/letsencrypt/live/{0}/fullchain.pem\n\t" .
@@ -1021,8 +1113,8 @@ function archived_certificate_handle( $domain, $ee_wp_email ) {
 			$ssl = true;
 			break;
 		case '3' :
-			EE::log("Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network.");
-			$ssl = EE::exec_cmd("./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{$domain}/htdocs/ -d {$domain} -d www.{$domain} --email {$ee_wp_email} --text --agree-tos");
+			EE::log( "Please Wait while we renew SSL Certificate for your site.\nIt may take time depending upon network." );
+			$ssl = EE::exec_cmd( "./letsencrypt-auto --renew-by-default certonly --webroot -w /var/www/{$domain}/htdocs/ -d {$domain} -d www.{$domain} --email {$ee_wp_email} --text --agree-tos" );
 			if ( 0 === $ssl ) {
 				$ssl = true;
 			}
@@ -1032,11 +1124,151 @@ function archived_certificate_handle( $domain, $ee_wp_email ) {
 			EE::error( "Operation cancelled by user.", false );
 	}
 
-	if ( ee_file_exists("{$domain}/conf/nginx/ssl.conf")) {
-		EE::log("Existing ssl.conf . Backing it up ..");
+	if ( ee_file_exists( "{$domain}/conf/nginx/ssl.conf" ) ) {
+		EE::log( "Existing ssl.conf . Backing it up .." );
 		ee_file_rename( "/var/www/{$domain}/conf/nginx/ssl.conf/", "/var/www/{$domain}/conf/nginx/ssl.conf.bak" );
 	}
+
 	return $ssl;
+}
+
+function filter_site_assoc_args( $assoc_args ) {
+	$sitetype  = $cachetype = '';
+	$typelist  = array();
+	$cachelist = array();
+
+	foreach ( $assoc_args as $key => $val ) {
+		if ( in_array( $key, array( 'html', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain', 'php7' ) ) ) {
+			$typelist[ $key ] = $val;
+		} else if ( in_array( $key, array( 'wpfc', 'wpsc', 'w3tc', 'wpredis' ) ) ) {
+			$cachelist[ $key ] = $val;
+		}
+	}
+
+	if ( ! empty( $typelist ) || ! empty( $cachelist ) ) {
+		if ( count( $cachelist ) > 1 ) {
+			EE::error( "Could not determine cache type. Multiple cache parameter entered" );
+		}
+	}
+
+	return array( $sitetype, $cachetype );
+}
+
+function update_wp_user_password( $ee_domain, $ee_site_webroot ) {
+	$ee_wp_user = '';
+	$ee_wp_pass = '';
+	chdir( "{$ee_site_webroot}/htdocs/" );
+	$is_wp = false;
+	try {
+		$is_wp = EE::exec_cmd( "wp --allow-root core version" );
+		if ( 0 == $is_wp ) {
+			$is_wp = true;
+		}
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "is WordPress site? check command failed " );
+	}
+
+	if ( ! $is_wp ) {
+		EE::error("{$ee_domain} does not seem to be a WordPress site");
+	}
+
+	try {
+		$ee_wp_user = EE::input_value( "Provide WordPress user name [admin]: " );
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "\nCould not update password" );
+	}
+
+	if ( empty( $ee_wp_user ) ) {
+		$ee_wp_user = 'admin';
+	}
+
+	try {
+		$is_user_exist = EE::exec_cmd( "wp --allow-root user list --fields=user_login | grep {$ee_wp_user}" );
+		if( 0 === $is_user_exist ) {
+			$is_user_exist = true;
+		}
+	} catch ( Exception $e ) {
+		EE::debug( $e->getMessage() );
+		EE::log( "`if wp user exists check` command failed" );
+	}
+
+	if ( ! empty( $is_user_exist ) ) {
+		try {
+			while( empty( $ee_wp_pass ) ) {
+				$ee_wp_pass = EE::input_hidden_value("Provide password for {$ee_wp_user} user: ");
+			}
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "failed to read password input " );
+		}
+
+		try {
+			EE::exec_cmd( "wp --allow-root user update {$ee_wp_user} --user_pass={$ee_wp_pass}" );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "wp user password update command failed" );
+		}
+		EE::success( "Password updated successfully" );
+	} else {
+		EE::error( "Invalid WordPress user {$ee_wp_user} for {$ee_domain}." );
+	}
+}
+
+function site_backup( $data ) {
+	$ee_site_webroot = $data['webroot'];
+	$backup_path = $ee_site_webroot . '/backup/' . EE_Variables::get_ee_date();
+	if ( ! ee_file_exists( $backup_path )) {
+		ee_file_mkdir( $backup_path );
+	}
+	EE::log("Backup location : {$backup_path}");
+	ee_file_copy( "/etc/nginx/sites-available/{$data['site_name']}", $backup_path );
+
+	if ( in_array( $data['currsitetype'], array( 'html', 'php', 'proxy', 'mysql' ) ) ) {
+		if ( $data['php7'] && ! $data['wp'] ) {
+			EE::log( "Backing up Webroot \t\t" );
+			ee_file_copy( "{$ee_site_webroot}/htdocs", "{$backup_path}/htdocs" );
+			EE::log( "[Done]" );
+		} else {
+			EE::log( "Backing up Webroot \t\t" );
+			ee_file_rename( "{$ee_site_webroot}/htdocs", "{$backup_path}/htdocs" );
+			EE::log( "[Done]" );
+		}
+	}
+
+	$config_files = glob( $ee_site_webroot . '/*-config.php' );
+	if ( empty( $config_files ) ) {
+		EE::debug("Config files not found in {$ee_site_webroot}/ ");
+		if ( 'mysql' !== $data['currsitetype'] ) {
+			EE::debug("Searching wp-config.php in {$ee_site_webroot}/htdocs/ ");
+			$config_files = glob( $ee_site_webroot . '/htdocs/wp-config.php' );
+		}
+	}
+
+	if ( ! empty( $data['ee_db_name'] ) ) {
+		EE::log( "Backing up database \t\t" );
+		try {
+			if ( 0 !== EE::exec_cmd( "mysqldump {$data['ee_db_name']} > {$backup_path}/{$data['ee_db_name']}.sql" ) ) {
+				EE::log( "Fail" );
+				EE::error( "mysqldump failed to backup database" );
+			}
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::log( "mysqldump failed to backup database" );
+		}
+		EE::log( "Done" );
+
+		if ( in_array( $data['currsitetype'], array( 'mysql', 'proxy' ) ) ) {
+			if ( $data['php7'] && ! $data['wp'] ) {
+				ee_file_copy( $config_files[0], $backup_path );
+			} else {
+				ee_file_rename( $config_files[0], $backup_path );
+			}
+		} else {
+			ee_file_copy( $config_files[0], $backup_path );
+		}
+	}
 }
 
 function do_update_site( $site_name, $assoc_args ) {
@@ -1088,8 +1320,72 @@ function do_update_site( $site_name, $assoc_args ) {
 	$letsencrypt        = empty( $assoc_args['letsencrypt'] ) ? false : true;
 	$experimental       = empty( $assoc_args['experimental'] ) ? false : true;
 
+
 	if ( ! empty( $stype ) ) {
 		if ( in_array( $stype, $registered_cmd ) ) {
+
+			$check_site = get_site_info( $site_name );
+
+			if ( empty( $check_site ) ) {
+				EE::error( "Site {$site_name} does not exist." );
+			} else {
+				//    old_pagespeed = $check_site['is_pagespeed'];
+				$old_site_type     = $check_site['site_type'];
+				$old_cache_type    = $check_site['cache_type'];
+				$old_hhvm          = $check_site['is_hhvm'];
+				$check_ssl         = $check_site['is_ssl'];
+				$check_php_version = $check_site['php_version'];
+
+				$data['currsitetype']  = $old_site_type;
+				$data['currcachetype'] = $old_cache_type;
+
+				if ( $check_php_version == "7.0" ) {
+					$old_php7 = true;
+				} else {
+					$old_php7 = false;
+				}
+			}
+
+			if ( ! empty( $assoc_args['password'] ) && empty( $assoc_args['type'] ) ) {
+				try {
+					update_wp_user_password( $ee_domain, $ee_site_webroot );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Password Unchanged." );
+
+					return false;
+				}
+			}
+
+			if ( $stype === $old_site_type ) {
+				EE::log( "Site is already in {$stype}" );
+			}
+
+			if ( 'proxy' === $old_site_type && ( ! empty( $assoc_args['hhvm'] ) || 'hhvm' === $stype ) ) {
+				EE::log( "Can not update proxy site to HHVM" );
+			}
+
+			if ( 'html' === $old_site_type && ( ! empty( $assoc_args['hhvm'] ) || 'hhvm' === $stype ) ) {
+				EE::log( "Can not update HTML site to HHVM" );
+			}
+
+			if ( ( 'php' === $stype && ! in_array( $old_site_type, array( 'html', 'proxy', 'php7' ) ) ) || ( 'mysql' === $stype && ! in_array( $old_site_type, array(
+						'html',
+						'php',
+						'proxy',
+						'php7'
+					) ) ) || ( 'wp' === $stype && ! in_array( $old_site_type, array(
+						'html',
+						'php',
+						'mysql',
+						'proxy',
+						'wp',
+						'php7'
+					) ) ) || ( 'wpsubdir' === $stype && ! in_array( $old_site_type, array( 'wpsubdomain' ) ) ) || ( 'wpsubdomain' === $stype && ! in_array( $old_site_type, array( 'wpsubdir' ) ) ) || ( $old_site_type === $stype && $old_cache_type === $cache )
+			) {
+				EE::log( "can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
+			}
+
 			if ( 'proxy' == $stype ) {
 				$proxyinfo = $assoc_args['ip'];
 				if ( strpos( $proxyinfo, ':' ) !== false ) {
@@ -1106,8 +1402,547 @@ function do_update_site( $site_name, $assoc_args ) {
 				$ee_site_webroot = "";
 			}
 
+			if ( 'php' === $stype ) {
+				$data['static']    = false;
+				$data['basic']     = true;
+				$data['wp']        = false;
+				$data['w3tc']      = false;
+				$data['wpfc']      = false;
+				$data['wpsc']      = false;
+				$data['wpredis']   = false;
+				$data['multisite'] = false;
+				$data['wpsubdir']  = false;
+			} else if ( in_array( $stype, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+				$data['static']     = false;
+				$data['basic']      = true;
+				$data['wp']         = false;
+				$data['w3tc']       = false;
+				$data['wpfc']       = false;
+				$data['wpsc']       = false;
+				$data['wpredis']    = false;
+				$data['multisite']  = false;
+				$data['wpsubdir']   = false;
+				$data['ee_db_name'] = '';
+				$data['ee_db_user'] = '';
+				$data['ee_db_pass'] = '';
+				$data['ee_db_host'] = '';
+				if ( in_array( $stype, array( 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+					$data['wp']    = true;
+					$data['basic'] = false;
+					$data['cache'] = true;
+					if ( in_array( $stype, array( 'wpsubdir', 'wpsubdomain' ) ) ) {
+						$data['multisite'] = true;
+						if ( 'wpsubdir' === $stype ) {
+							$data['wpsubdir'] = true;
+						}
+					}
+				}
+			}
+
+			if ( 'php' === $stype || 'php7' === $stype || ! empty( $assoc_args['php'] ) ) {
+				if ( empty( $data ) ) {
+					$data  = array(
+						'site_name'     => $ee_domain,
+						'www_domain'    => $ee_www_domain,
+						'currsitetype'  => $old_site_type,
+						'currcachetype' => $old_cache_type,
+						'webroot'       => $ee_site_webroot,
+					);
+					$stype = $old_site_type;
+					$cache = $old_cache_type;
+					if ( 'html' === $old_site_type || 'proxy' === $old_site_type ) {
+						$data['static']    = true;
+						$data['wp']        = false;
+						$data['multisite'] = false;
+						$data['wpsubdir']  = false;
+					} else if ( 'php' === $old_site_type || 'mysql' === $old_site_type ) {
+						$data['static']    = false;
+						$data['wp']        = false;
+						$data['multisite'] = false;
+						$data['wpsubdir']  = false;
+					} else if ( 'wp' === $old_site_type ) {
+						$data['static']    = false;
+						$data['wp']        = true;
+						$data['multisite'] = false;
+						$data['wpsubdir']  = false;
+					} else if ( 'wpsubdir' === $old_site_type ) {
+						$data['static']    = false;
+						$data['wp']        = true;
+						$data['multisite'] = true;
+						$data['wpsubdir']  = true;
+					} else if ( 'wpsubdomain' === $old_site_type ) {
+						$data['static']    = false;
+						$data['wp']        = true;
+						$data['multisite'] = true;
+						$data['wpsubdir']  = false;
+					}
+
+					if ( 'basic' === $old_cache_type ) {
+						$data['basic']   = true;
+						$data['w3tc']    = false;
+						$data['wpfc']    = false;
+						$data['wpsc']    = false;
+						$data['wpredis'] = false;
+					} else if ( 'w3tc' === $old_cache_type ) {
+						$data['basic']   = false;
+						$data['w3tc']    = true;
+						$data['wpfc']    = false;
+						$data['wpsc']    = false;
+						$data['wpredis'] = false;
+					} else if ( 'wpfc' === $old_cache_type ) {
+						$data['basic']   = false;
+						$data['w3tc']    = false;
+						$data['wpfc']    = true;
+						$data['wpsc']    = false;
+						$data['wpredis'] = false;
+					} else if ( 'wpsc' === $old_cache_type ) {
+						$data['basic']   = false;
+						$data['w3tc']    = false;
+						$data['wpfc']    = false;
+						$data['wpsc']    = true;
+						$data['wpredis'] = false;
+					} else if ( 'wpredis' === $old_cache_type ) {
+						$data['basic']   = false;
+						$data['w3tc']    = false;
+						$data['wpfc']    = false;
+						$data['wpsc']    = false;
+						$data['wpredis'] = true;
+					}
+				}
+				if ( '7.0' == $assoc_args['php'] || 'php7' === $stype ) {
+					$data['php7']      = true;
+					$php7              = true;
+					$check_php_version = '7.0';
+					if ( $old_php7 ) {
+						EE::log( "PHP 7.0 is already enabled for given site" );
+					}
+				} else {
+					$data['php7']      = false;
+					$php7              = false;
+					$check_php_version = '5.6';
+					if ( ! $old_php7 ) {
+						EE::log( "PHP 7.0 is already disabled for given site" );
+					}
+				}
+			}
+
+			if ( "renew" === $assoc_args['letsencrypt'] && empty( $assoc_args['all'] ) ) {
+				$expiry_days     = EE_Ssl::get_expiration_days( $ee_domain );
+				$min_expiry_days = 30;
+				if ( $check_ssl ) {
+					if ( $expiry_days <= $min_expiry_days ) {
+						renew_lets_encrypt( $ee_domain );
+					} else {
+						EE::error( "More than 30 days left for certificate Expiry. Not renewing now." );
+					}
+				} else {
+					EE::error( "Cannot RENEW ! SSL is not configured for given site ." );
+				}
+
+				if ( ! EE_Service::reload_service( "nginx" ) ) {
+					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+				}
+				EE::success( "Certificate was successfully renewed For https://{$ee_domain}" );
+				$remaining_expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
+				$expiry_date           = EE_Ssl::get_expiration_date( $ee_domain );
+				if ( $remaining_expiry_days > 0 ) {
+					EE::log( "Your cert will expire within {$remaining_expiry_days}  days." );
+					EE::log( "Expiration DATE: {$expiry_date}" );
+				} else {
+					EE::warning( "Your cert already EXPIRED !. PLEASE renew soon . " );
+				}
+			}
+
+			if ( "renew" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+				if ( $check_ssl ) {
+					$expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
+					if ( $expiry_days < 0 ) {
+						return false;
+					}
+					$min_expiry_days = 30;
+					if ( $expiry_days <= $min_expiry_days ) {
+						renew_lets_encrypt( $ee_domain );
+						if ( ! EE_Service::reload_service( "nginx" ) ) {
+							EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+						}
+						EE::success( "Certificate was successfully renewed For https://{$ee_domain}" );
+					} else {
+						EE::error( "More than 30 days left for certificate Expiry. Not renewing now." );
+					}
+
+					$remaining_expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
+					$expiry_date           = EE_Ssl::get_expiration_date( $ee_domain );
+					if ( $remaining_expiry_days > 0 ) {
+						EE::log( "Your cert will expire within {$remaining_expiry_days}  days." );
+						EE::log( "Expiration DATE: {$expiry_date}" );
+					} else {
+						return false;
+					}
+				} else {
+					EE::error( "Cannot RENEW ! SSL is not configured for given site ." );
+				}
+			}
+
+			if ( "off" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+				if ( ! $check_ssl ) {
+					EE::error( "SSl is not configured for given " );
+				}
+			}
+
+			if ( ! empty( $assoc_args['letsencrypt'] ) ) {
+				if ( 'on' === $assoc_args['letsencrypt'] ) {
+					$data['letsencrypt'] = true;
+					$letsencrypt         = true;
+					if ( $check_ssl ) {
+						EE::error( "SSl is already configured for given site" );
+					}
+				} else if ( 'off' === $assoc_args['letsencrypt'] ) {
+					$data['letsencrypt'] = false;
+					$letsencrypt         = false;
+					if ( ! $check_ssl ) {
+						EE::error( "SSl is not configured for given site" );
+					}
+				}
+			}
+
+			if ( ! empty( $assoc_args['hhvm'] ) ) {
+				if ( 'on' === $assoc_args['hhvm'] ) {
+					if ( $old_hhvm ) {
+						EE::log( "HHVM is already enable for given site" );
+					}
+				} else if ( 'off' === $assoc_args['hhvm'] ) {
+					if ( ! $old_hhvm ) {
+						EE::log( "HHVM is already disabled for given site" );
+					}
+				}
+				$assoc_args['hhvm'] = false;
+			}
+
+			if ( ( ! empty( $data ) ) && empty( $assoc_args['hhvm'] ) ) {
+				if ( $old_hhvm ) {
+					$data['hhvm'] = true;
+					$hhvm         = true;
+				} else {
+					$data['hhvm'] = false;
+					$hhvm         = false;
+				}
+			}
+
+			if ( ! empty( $data ) && ( ! $php7 ) ) {
+				if ( $old_php7 ) {
+					$data['php7'] = true;
+					$php7         = true;
+				} else {
+					$data['php7'] = false;
+					$php7         = false;
+				}
+			}
+
+
+			if ( '7.0' === $assoc_args['php'] ) {
+				$data['php7'] = true;
+				$php7         = true;
+			}
+
+			if ( 'on' === $assoc_args['hhvm'] ) {
+				$data['hhvm'] = true;
+				$hhvm         = true;
+			}
+
+			if ( 'on' === $assoc_args['letsencrypt'] ) {
+				$data['letsencrypt'] = true;
+				$letsencrypt         = true;
+			}
+
+			if ( ( 'wpredis' === $stype || ! empty( $assoc_args['wpredis'] ) ) && 'wpredis' !== $data['currcachetype'] ) {
+				$data['wpredis'] = false;
+				$data['basic']   = true;
+				$cache           = 'basic';
+			}
+
+			if ( empty( $data ) ) {
+				EE::error( "Cannot update {$ee_domain}, Invalid Options" );
+			}
+
+			$ee_auth            = site_package_check( $stype );
+			$data['ee_db_name'] = $check_site['db_name'];
+			$data['ee_db_user'] = $check_site['db_user'];
+			$data['ee_db_pass'] = $check_site['db_password'];
+			$data['ee_db_host'] = $check_site['db_host'];
+
+			if ( empty( $assoc_args['letsencrypt'] ) ) {
+				try {
+					pre_run_checks();
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "NGINX configuration check failed." );
+				}
+
+				try {
+					site_backup( $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+
+				try {
+					setup_domain( $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( ! empty( $data['proxy'] ) ) {
+				update_site( $data, array( 'site_name' => $ee_domain ) );
+				EE::log( "Successfully updated site http://{$ee_domain}" );
+			}
+
+			if ( ! empty( $assoc_args['letsencrypt'] ) ) {
+				if ( true === $assoc_args['letsencrypt'] ) {
+					if ( ! ee_file_exists( "{$ee_site_webroot}/conf/nginx/ssl.conf.disabled" ) ) {
+						setup_lets_encrypt( $ee_domain );
+					} else {
+						ee_file_rename( "{$ee_site_webroot}/conf/nginx/ssl.conf.disabled", "{$ee_site_webroot}/conf/nginx/ssl.conf" );
+					}
+					https_redirect( $ee_domain );
+					EE::log( "Creating Cron Job for cert auto-renewal" );
+					EE_Cron::set_cron_weekly( 'ee site update --le=renew --all 2> /dev/null', 'Renew all letsencrypt SSL cert. Set by EasyEngine' );
+					if ( ! EE_Service::reload_service( "nginx" ) ) {
+						EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+					}
+					EE::success( "Congratulations! Successfully Configured SSl for Site https://{$ee_domain}" );
+					$expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
+					if( $expiry_days > 0 ) {
+						EE::log( "Your cert will expire within {$expiry_days} days" );
+					} else {
+						EE::warning( "Your cert already EXPIRED ! PLEASE renew soon." );
+					}
+				} else if ( false === $assoc_args['letsencrypt'] ) {
+					if ( ee_file_exists( "{$ee_site_webroot}/conf/nginx/ssl.conf" ) ) {
+						EE::log( "Setting Nginx configuration" );
+						ee_file_rename( "{$ee_site_webroot}/conf/nginx/ssl.conf", "{$ee_site_webroot}/conf/nginx/ssl.conf.disabled" );
+						https_redirect( $ee_domain, false );
+						if ( ! EE_Service::reload_service( "nginx" ) ) {
+							EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+						}
+						EE::success( "Successfully Disabled SSl for Site https://{$ee_domain}" );
+					}
+				}
+				EE_Git::add( array( "{$ee_site_webroot}/conf/nginx/" ), "Adding letsencrypts config of site: {$ee_domain}" );
+				update_site( $data, array( 'site_name' => $ee_domain ) );
+				return 0;
+			}
+
+			if ( $stype === $old_site_type && $cache === $old_cache_type ) {
+				if ( ! EE_Service::reload_service( "nginx" ) ) {
+					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+				}
+				update_site( $data, array( 'site_name' => $ee_domain ) );
+				EE::log( "Successfully updated site http://{$ee_domain}" );
+				return 0;
+			}
+
+			if ( ! empty( $data['ee_db_name'] ) && ( ! $data['wp'] ) ) {
+				try {
+					$data = setup_database( $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+				try {
+					$ee_db_config_content = "<?php \ndefine('DB_NAME', '{$data['ee_db_name']}');";
+					$ee_db_config_content .= "\ndefine('DB_USER', '{$data['ee_db_user']}'); ";
+					$ee_db_config_content .= "\ndefine('DB_PASSWORD', '{$data['ee_db_pass']}');";
+					$ee_db_config_content .= "\ndefine('DB_HOST', '{$data['ee_db_host']}');\n?>";
+					ee_file_dump( "{$ee_site_webroot}/ee-config.php", $ee_db_config_content );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::debug("creating ee-config.php failed.");
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( ! empty( $data['wp'] ) && in_array( $old_site_type, array( 'html', 'proxy', 'php', 'mysql' ) ) ) {
+				try {
+					$ee_wp_creds = setup_wordpress( $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( in_array( $old_site_type, array( 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+				if ( ! empty( $data['multisite'] ) && 'wp' === $old_site_type ) {
+					try {
+						setup_wordpress_network( $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+					}
+				}
+
+				if ( 'w3tc' === $old_cache_type || 'wpfc' === $old_cache_type && ( ! $data['wpfc'] || ! $data['wpfc'] ) ) {
+					try {
+						uninstall_wp_plugin( 'w3-total-cache', $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+					}
+				}
+
+				if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpredis' ) ) && $data['wpfc'] ) ||
+				     ( 'wp' === $old_site_type && $data['multisite'] && $data['wpfc'] ) ) {
+					try {
+						$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
+						$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
+						$plugin_data .= '"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,';
+						$plugin_data .= '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,';
+						$plugin_data .= '"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request",';
+						$plugin_data .= '"redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+						setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						return 1;
+					}
+				} else if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpfc' ) ) && $data['wpredis'] ) ||
+				            ( 'wp' === $old_site_type && $data['multisite'] && $data['wpredis'] ) ) {
+					try {
+						$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
+						$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
+						$plugin_data .= '"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,';
+						$plugin_data .= '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,';
+						$plugin_data .= '"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request",';
+						$plugin_data .= '"redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+						setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						return 1;
+					}
+				} else {
+					try {
+						$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":0,"enable_map":0,';
+						$plugin_data .= '"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,';
+						$plugin_data .= '"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,';
+						$plugin_data .= '"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,';
+						$plugin_data .= '"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis",';
+						$plugin_data .= '"purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+						setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						return 1;
+					}
+				}
+
+				if ( 'wpsc' === $old_cache_type && ( ! $data['wpsc'] ) ) {
+					try {
+						uninstall_wp_plugin( 'wp-super-cache', $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						return 1;
+					}
+				}
+
+				if ( 'wpredis' === $old_cache_type && ( ! $data['wpredis'] ) ) {
+					try {
+						uninstall_wp_plugin( 'redis-cache', $data );
+					} catch ( Exception $e ) {
+						EE::debug( $e->getMessage() );
+						EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+						return 1;
+					}
+				}
+			}
+
+			if ( ( 'w3tc' !== $old_cache_type || 'wpfc' !== $old_cache_type ) && ( $data['w3tc'] || $data['wpfc'] ) ) {
+				try {
+					install_wp_plugin( 'w3-total-cache', $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( 'wpsc' !== $old_cache_type && $data['wpsc'] ) {
+				try {
+					install_wp_plugin( 'w3-super-cache', $data );
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( 'wpredis' !== $old_cache_type && $data['wpredis'] ) {
+				try {
+					if ( install_wp_plugin( 'redis-cache', $data ) ) {
+						if ( ee_file_exists( "{$ee_site_webroot}/wp-config.php" ) ) {
+							$config_path = "{$ee_site_webroot}/wp-config.php";
+						} else if ( ee_file_exists( "{$ee_site_webroot}/htdocs/wp-config.php" ) ) {
+							$config_path = "{$ee_site_webroot}/htdocs/wp-config.php";
+						} else {
+							EE::debug("Updating wp-config.php failed. File could not be located.");
+							EE::error( "wp-config.php could not be located !!" );
+							return false;
+						}
+
+						if ( ! grep_string( $config_path, "WP_CACHE_KEY_SALT" ) ) {
+							$wp_config_content = "\n\ndefine( 'WP_CACHE_KEY_SALT', '{$ee_domain}:' );";
+							try {
+								ee_file_append_content( $config_path, $wp_config_content );
+							} catch ( Exception $e ) {
+								EE::debug( $e->getMessage() );
+								EE::debug( "Updating wp-config.php failed." );
+								EE::warning("Updating wp-config.php failed. Could not append: \n {$wp_config_content} \n Please add manually.");
+							}
+						}
+					}
+				} catch ( Exception $e ) {
+					EE::debug( $e->getMessage() );
+					EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+				}
+			}
+
+			if ( ! EE_Service::reload_service( "nginx" ) ) {
+				EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
+			}
+
+			EE_Git::add( array( "/etc/nginx" ), "{$ee_www_domain} updated with {$stype} {$cache}" );
+
+			try {
+				set_webroot_permissions( $data['webroot'] );
+			} catch ( Exception $e ) {
+				EE::debug( $e->getMessage() );
+				EE::log( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+			}
+
+			if ( ! empty( $ee_auth ) ) {
+				foreach ( $ee_auth as $msg ) {
+					EE::log( $msg );
+				}
+			}
+
+			display_cache_settings( $data );
+			if ( $data['wp'] && in_array( $old_site_type, array( 'html', 'php', 'mysql' ) ) ) {
+				EE::log( "\n\n WordPress admin user : {$ee_wp_creds['wp_user']}" );
+				EE::log( "WordPress admin user : {$ee_wp_creds['wp_pass']}\n\n" );
+			}
+			if ( in_array( $old_site_type, array( 'html', 'php' ) ) && 'php' !== $stype ) {
+				$data['db_name']     = $data['ee_db_name'];
+				$data['db_user']     = $data['ee_db_user'];
+				$data['db_password'] = $data['ee_db_pass'];
+				$data['db_host']     = $data['ee_db_host'];
+				$data['hhvm']        = $hhvm;
+				$data['ssl']         = $check_site['is_ssl'];
+				$data['php_version'] = $check_php_version;
+				$update_data = update_site( $data, array( 'site_name' => $data['site_name'] ) );
+			}
+			EE::log( "Successfully updated site http://{$ee_domain}" );
 		} else {
-			//TODO: we will add hook for other packages. i.e do_action('create_site',$stype);
+			//TODO: we will add hook for other packages. i.e do_action('update_site',$stype);
 		}
 	}
 }

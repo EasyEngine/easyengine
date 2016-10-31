@@ -32,6 +32,44 @@ class Site_Command extends EE_Command {
 	 * [--type=<types>]
 	 * : Type for create site.
 	 *
+	 * [--html]
+	 * : Create html site
+	 *
+	 * [--php]
+	 * : Get PHP configuration information.
+	 * ---
+	 * default: 5.6
+	 * options:
+	 *   - 5.6
+	 *   - 7.0
+	 *
+	 * [--mysql]
+	 * : Create mysql site.
+	 *
+	 * [--wp]
+	 * : Create wordpress single site.
+	 *
+	 * [--wpsubdir]
+	 * : Create wordpress multisite with subdirectory setup.
+	 *
+	 * [--wpsubdomain]
+	 * : Create wordpress multisite with subdomain setup.
+	 *
+	 * [--w3tc]
+	 * : Create wordpress single/multi site with w3tc cache.
+	 *
+	 * [--wpredis]
+	 * : Create wordpress single/multi site with redis cache.
+	 *
+	 * [--hhvm]
+	 * : Create HHVM site.
+	 *
+	 * [--proxy]
+	 * : Create proxy for site.
+	 *
+	 * [--pagespeed]
+	 * : Create pagespeed site.
+	 *
 	 * [--cache=<cache>]
 	 * : Cache for site.
 	 *
@@ -51,10 +89,13 @@ class Site_Command extends EE_Command {
 	 * : Port no for porxy site.
 	 *
 	 * [--letsencrypt]
-	 * : Encrypt site.
+	 * : Configure letsencrypt ssl for the site
+	 *
+	 * [--le]
+	 * : Configure letsencrypt ssl for the site
 	 *
 	 * [--experimental]
-	 * : For Experiment beta features.
+	 * : Enable Experimenal packages without prompt.
 	 *
 	 *
 	 *
@@ -489,11 +530,46 @@ class Site_Command extends EE_Command {
 	 * [<name>]
 	 * : Name of the site to update.
 	 *
-	 * [--all]
-	 * : Type for create site.
-	 *
 	 * [--type=<types>]
-	 * : Type for create site.
+	 * : Type for update site.
+	 *
+	 * [--html]
+	 * : Update to html site
+	 *
+	 * [--php]
+	 * : Get PHP configuration information.
+	 * ---
+	 * default: 5.6
+	 * options:
+	 *   - 5.6
+	 *   - 7.0
+	 *
+	 * [--mysql]
+	 * : Update to mysql site.
+	 *
+	 * [--wp]
+	 * : Update to wordpress single site.
+	 *
+	 * [--wpsubdir]
+	 * : Update to wordpress multisite with subdirectory setup.
+	 *
+	 * [--wpsubdomain]
+	 * : Update to wordpress multisite with subdomain setup.
+	 *
+	 * [--w3tc]
+	 * : Update to wordpress single/multi site with w3tc cache.
+	 *
+	 * [--wpredis]
+	 * : Update to wordpress single/multi site with redis cache.
+	 *
+	 * [--hhvm]
+	 * : Update to HHVM site.
+	 *
+	 * [--proxy]
+	 * : Update site to proxy.
+	 *
+	 * [--pagespeed]
+	 * : Update to pagespeed site.
 	 *
 	 * [--cache=<cache>]
 	 * : Cache for site.
@@ -514,25 +590,40 @@ class Site_Command extends EE_Command {
 	 * : Port no for porxy site.
 	 *
 	 * [--letsencrypt]
-	 * : Encrypt site.
+	 * : Configure letsencrypt ssl for the site
+	 *
+	 * [--le]
+	 * : Configure letsencrypt ssl for the site
 	 *
 	 * [--experimental]
-	 * : For Experiment beta features.
+	 * : Enable Experimenal packages without prompt.
 	 *
 	 *
 	 *
 	 * ## EXAMPLES
 	 *
-	 *      # Create site.
+	 *      # Update site.
 	 *      $ ee site update example.com
 	 *
 	 */
 	public function update( $args, $assoc_args ) {
 		$site_name = empty( $args[0] ) ? '' : $args[0];
 
+		if ( false || empty( $assoc_args['type'] ) || empty( $assoc_args['cache'] ) ) {
+			//TODO : Filter assoc args.
+			list( $stype, $cache ) = filter_site_assoc_args( $assoc_args );
+		}
+
 		if ( ! empty( $assoc_args['pagespeed'] ) ) {
 			EE::error( "Pagespeed support has been dropped since EasyEngine v3.6.0", false );
 			EE::error( "Please run command again without `--pagespeed`", false );
+			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
+		}
+
+		if ( ! empty( $assoc_args['type'] ) && 'hhvm' == $assoc_args['type'] ){
+			EE::error( "Hhvm support has been dropped since EasyEngine v4.0", false );
+			EE::error( "Please run command again with other type", false );
+			// TODO :change hhvm link;
 			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
 		}
 
@@ -554,20 +645,44 @@ class Site_Command extends EE_Command {
 					EE::log( "Updating site {$site['sitename']}, please wait..." );
 					do_update_site( $site['sitename'], $assoc_args );
 				}
-			} else {
-				do_update_site( $site_name, $assoc_args );
 			}
+		} else {
+			while ( empty( $site_name ) ) {
+				$value = EE::input_value( "Enter site name :" );
+				if ( $value ) {
+					$site_name = $value;
+				}
+			}
+			do_update_site( $site_name, $assoc_args );
 		}
 
 	}
 
 	/**
-	 * Delete site.
+	 * Delete website configuration and files.
 	 *
 	 * ## OPTIONS
 	 *
-	 * <name>
-	 * : Name of the site to delete.
+	 * [<name>]
+	 * : Domain name to be deleted
+	 *
+	 * [--no-prompt]
+	 * : Doesn't ask permission for delete.
+	 *
+	 * [--f]
+	 * : Forcefully delete site and configuration.
+	 *
+	 * [--force]
+	 * : Forcefully delete site and configuration.
+	 *
+	 * [--all]
+	 * : Delete site database, webroot and nginx configuration.
+	 *
+	 * [--db]
+	 * : Delete db only.
+	 *
+	 * [--files]
+	 * : Delete webroot only.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -577,12 +692,156 @@ class Site_Command extends EE_Command {
 	 */
 	public function delete( $args, $assoc_args ) {
 
-		list( $site_name ) = $args;
+		$site_name = empty( $args[0] ) ? '' : $args[0];
 
-		if ( ! empty( $site_name ) ) {
-			EE::success( $site_name . ' site is deleted successfully! ' );
+		while ( empty( $site_name ) ) {
+			$value = EE::input_value( "Enter site name :" );
+			if ( $value ) {
+				$site_name = $value;
+			}
+		}
+
+		$ee_domain     = EE_Utils::validate_domain( $site_name );
+
+		if ( empty( $ee_domain ) ) {
+			EE::error( 'Invalid domain name, Provide valid domain name' );
+		}
+		if ( ! is_site_exist( $ee_domain ) ) {
+			EE::error( "Site {$ee_domain} does not exist" );
+		}
+
+		if ( empty( $assoc_args['db'] ) && empty( $assoc_args['files'] ) && empty( $assoc_args['all'] ) ) {
+			$assoc_args['all'] = true;
+		}
+
+		$ee_db_name                 = '';
+		$mark_db_delete_prompt      = false;
+		$mark_webroot_delete_prompt = false;
+		$mark_db_deleted            = false;
+		$mark_webroot_deleted       = false;
+		$check_site                 = get_site_info( $ee_domain );
+		$ee_site_type = $check_site['site_type'];
+		$ee_site_webroot = $check_site['site_path'];
+		if ( 'deleted' === $ee_site_webroot ) {
+			$mark_webroot_deleted = true;
+		}
+
+		if ( in_array( $ee_site_type, array( 'mysql', 'wp', 'wpsubdir', 'wpsubdomain' ) ) ) {
+			$ee_db_name = $check_site['db_name'];
+			$ee_db_user = $check_site['db_user'];
+			$ee_mysql_grant_host = get_ee_config( 'mysql', 'grant-host' );
+			if ( 'deleted' === $ee_db_name ) {
+				$mark_db_deleted = true;
+			}
+			if ( ! empty( $assoc_args['all'] ) ) {
+				$assoc_args['db']    = true;
+				$assoc_args['files'] = true;
+			}
 		} else {
-			EE::error( 'Please give site name . ' );
+			if ( ! empty( $assoc_args['all'] ) ) {
+				$mark_db_deleted     = true;
+				$assoc_args['files'] = true;
+			}
+		}
+
+		if ( $assoc_args['db'] ) {
+			if ( 'deleted' !== $ee_db_name and ! empty( $ee_db_name ) ) {
+				if ( empty( $assoc_args['no_prompt'] ) ) {
+					$ee_db_prompt = EE::input_value( "Are you sure, you want to delete database [y/N]: " );
+				} else {
+					$ee_db_prompt = 'Y';
+					$mark_db_delete_prompt = true;
+				}
+				if ( 'y' === strtolower($ee_db_prompt)) {
+					$mark_db_delete_prompt = true;
+					EE::log( "Deleting Database, {$ee_db_name}, user {$ee_db_user}" );
+					delete_db( $ee_db_name, $ee_db_user, $ee_mysql_grant_host, false );
+					$data = array(
+						'db_name'     => 'deleted',
+						'db_user'     => 'deleted',
+						'db_password' => 'deleted'
+					);
+					update_site( $data, array( 'site_name' => $ee_domain ) );
+					$mark_db_deleted = true;
+					EE::log( "Deleted Database successfully." );
+				}
+			} else {
+				$mark_db_deleted = true;
+				EE::log( "Does not seems to have database for this site." );
+			}
+		}
+
+		if ( $assoc_args['files'] ) {
+			if ( 'deleted' !== $ee_site_webroot ) {
+				if ( empty( $assoc_args['no_prompt'] ) ) {
+					$ee_web_prompt = EE::input_value( "Are you sure, you want to delete webroot [y/N]: " );
+				} else {
+					$ee_web_prompt = 'Y';
+					$mark_webroot_delete_prompt = true;
+				}
+
+				if ( 'y' === strtolower( $ee_web_prompt ) ) {
+					$mark_webroot_delete_prompt = true;
+					EE::log("Deleting Webroot, {$ee_site_webroot}");
+					delete_web_root( $ee_site_webroot );
+					$data = array(
+						'webroot'     => 'deleted',
+					);
+					update_site( $data, array( 'site_name' => $ee_domain ) );
+					$mark_webroot_deleted = true;
+					EE::log( "Deleted webroot successfully" );
+				}
+			} else {
+				$mark_webroot_deleted = true;
+				EE::log( "Webroot seems to be already deleted" );
+			}
+		}
+
+		if ( empty( $assoc_args['force'] ) ) {
+			if ( $mark_webroot_deleted && $mark_db_deleted ) {
+				remove_nginx_conf($ee_domain);
+				delete_site( array( 'sitename' => $ee_domain ) );
+				EE::log("Deleted site {$ee_domain}");
+			}
+		} else {
+			if ( $mark_db_delete_prompt || $mark_webroot_delete_prompt || ( $mark_webroot_deleted && $mark_db_deleted ) ) {
+				remove_nginx_conf($ee_domain);
+				delete_site( array( 'sitename' => $ee_domain ) );
+				EE::log("Deleted site {$ee_domain}");
+			}
+		}
+	}
+
+	/**
+	 * @subcommand list
+	 *
+	 * Lists websites
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--enabled]
+	 * : List enabled websites.
+	 *
+	 * [--disabled]
+	 * : List disabled websites.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Delete site.
+	 *      $ ee site delete example.com
+	 *
+	 */
+	public function _list( $args, $assoc_args ) {
+		$where = array();
+		if ( ! empty( $assoc_args['enabled'] ) ) {
+			$where['is_enabled'] = true;
+		} else if ( ! empty( $assoc_args['disabled'] ) ) {
+			$where['is_enabled'] = false;
+		}
+		$sites = get_all_sites( $where );
+
+		foreach ( $sites as $site ) {
+			EE::log( $site['sitename'] );
 		}
 	}
 
