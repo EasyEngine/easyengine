@@ -221,7 +221,7 @@ function site_package_check( $stype ) {
 				$apt[] = "nginx";
 				ee_stack_post_pref( $apt, $packages );
 			} else {
-				$apt_packages = array_merge( $apt_packages, EE_Variables::get_ee_nginx() );
+				$apt_packages = array_merge( $apt_packages, EE_Variables::get_nginx_packages() );
 			}
 		} else {
 			if ( ! grep_string( '/etc/nginx/fastcgi_params', 'SCRIPT_FILENAME' ) ) {
