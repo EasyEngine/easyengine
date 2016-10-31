@@ -759,7 +759,7 @@ class Stack_Command extends EE_Command {
 			}
 
 			if ((EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial')
-				&& (in_array("php7.0-fpm".$apt_packages))
+				&& (in_array("php7.0-fpm",$apt_packages))
 			) {
 				ee_file_mkdir( "/var/log/php/7.0/" );
 				$data = array();
