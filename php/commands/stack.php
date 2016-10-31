@@ -395,8 +395,10 @@ class Stack_Command extends EE_Command {
 			EE::debug("Pre-seeding MySQL");
 			EE::debug("echo \"mariadb-server-10.1 mysql-server/root_password " .
 				"password \" | debconf-set-selections");
-			$reset_pwd = 'echo "mariadb-server-10.1" "mysql-server/root_password_again" password ' . $char .' |  "debconf-set-selections" ';
-			EE::exec_cmd($reset_pwd);
+			$set_pwd = "echo \"mariadb-server-10.1 mysql-server/root_password password " . $char ."\""." |  debconf-set-selections";
+			EE::exec_cmd($set_pwd);
+			$set_pwd = "echo \"mariadb-server-10.1 mysql-server/root_password_again password " . $char ."\""." |  debconf-set-selections";
+			EE::exec_cmd($set_pwd);
 			$mysql_config = "[client] \n user = root\n password = ". $char;
             EE::debug('Writting configuration into MySQL file');
             $conf_path = "/etc/mysql/conf.d/my.cnf";
