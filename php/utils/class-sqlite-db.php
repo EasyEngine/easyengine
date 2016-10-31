@@ -17,7 +17,7 @@ class EE_Sqlite_Db {
 	public static function dbConnection() {
 		//		$ee_db_file = EE_Variables::get_ee_db_file();
 		// TODO: Test db on root dir of project.
-		$ee_db_file = EE_ROOT . '/ee.db';
+		$ee_db_file = "/var/lib/ee" . '/ee.db';
 
 		$ee_db = new SQLite3( $ee_db_file );
 		if ( ! $ee_db ) {
