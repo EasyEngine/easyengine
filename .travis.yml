@@ -22,7 +22,7 @@ before_script:
   - sudo add-apt-repository -y 'ppa:ondrej/php'
   - sudo apt-get update
   - sudo apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-sqlite3 php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-  - sudo apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-common php7.0-recode php7.0-cli php7.0-mbstring php7.0-bcmath php7.0-mysql php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php7.0-sqlite3 php-memcached  php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack  php-redis || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
+  - sudo apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-mysql php7.0-sqlite3 php7.0-cli php7.0-common php7.0-recode php7.0-mbstring php7.0-bcmath php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php7.0-sqlite3 php-memcached  php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack  php-redis || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
 script:
   - lsb_release -a
   - unset LANG
@@ -41,7 +41,9 @@ script:
   - sudo ee stack install --nginx --debug || tail -n100 testlog.log
   - sudo ee stack install --mysql --debug || tail -n100 testlog.log
   - sudo cat /etc/mysql/conf.d/my.cnf
+  - sydo mysql -e "SHOW DATABASES;"
   - sudo ee stack install --php --debug
+  - sudo ee stack install --redis --debug
   - sudo ee stack install --wpcli --debug
   - wp --allow-root cli version
   - sudo ee stack install --utils --debug

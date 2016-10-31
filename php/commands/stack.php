@@ -124,7 +124,10 @@ class Stack_Command extends EE_Command {
 	 * : To install php.
 	 *
 	 * [--mysql]
-	 * : To install MySQL.
+	 * : To install MySQL
+	 *
+	 * [--redis]
+	 * : To install Redis.
 	 *
 	 * [--web]
 	 * : install web stack
@@ -418,8 +421,10 @@ class Stack_Command extends EE_Command {
 //		}
 		if ( in_array(EE_Variables::get_redis_packages()[0], $apt_packages)) {
 			EE::debug("Adding repository for REDIS, please wait...");
-			EE_Repo::add(EE_Variables::get_redis_repo());
-			if ('debian' == EE_OS::ee_platform_distro()){
+			if ( 'ubuntu' === EE_OS::ee_platform_distro() ) {
+				EE_Repo::add('',EE_Variables::get_redis_repo());
+			}else if ('debian' == EE_OS::ee_platform_distro()){
+				EE_Repo::add(EE_Variables::get_redis_repo());
 				EE_Repo::add_key('3050AC3CD2AE6F03');
 			}
 		}

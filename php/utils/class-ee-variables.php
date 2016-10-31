@@ -246,9 +246,21 @@ class EE_Variables {
 
 	}
 
+	/**
+	 *
+	 * @return array
+	 */
 	public static function get_redis_packages(  ) {
-		$nginx_package_list = array("redis");
-		return $nginx_package_list;
+		$ee_platform_distro   = EE_OS::ee_platform_distro();
+		$ee_platform_codename = EE_OS::ee_platform_codename();
+
+		if ('ubuntu' === $ee_platform_distro) {
+			$redis_package_list = array( 'redis-server', 'php-redis' );
+		}
+        else {
+	        $redis_package_list = array( 'redis-server', 'php5-redis' );
+        }
+		return $redis_package_list;
 
 	}
 
