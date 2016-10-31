@@ -41,7 +41,7 @@ script:
   - sudo ee stack install --nginx --debug || tail -n100 testlog.log
   - sudo ee stack install --mysql --debug || tail -n100 testlog.log
   - sudo cat /etc/mysql/conf.d/my.cnf
-  - sydo mysql -e "SHOW DATABASES;"
+  - sudo mysql -e "SHOW DATABASES;"
   - sudo ee stack install --php --debug
   - sudo ee stack install --redis --debug
   - sudo ee stack install --wpcli --debug
