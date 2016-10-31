@@ -261,7 +261,7 @@ function get_mysql_config( $section, $key = '' ) {
  */
 function get_ee_git_config( $section, $key = '' ) {
 	try {
-		$git_config_file = "~/.gitconfig";
+		$git_config_file = getenv("HOME") ."/.gitconfig";
 		$config_data     = get_config_data( $git_config_file, $section, $key );
 
 		return $config_data;
