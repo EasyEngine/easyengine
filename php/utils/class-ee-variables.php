@@ -20,6 +20,17 @@ class EE_Variables {
 		return $ee_repo_file_path;
 	}
 
+
+	/**
+	 * EasyEngine version
+	 *
+	 * @return string
+	 */
+	public static function get_php_path() {
+		$php_path = "/etc/php";
+		return $php_path;
+	}
+
 	/**
 	 * EasyEngine version
 	 *
@@ -147,29 +158,6 @@ class EE_Variables {
 		return $php_version;
 	}
 
-	/**
-	 * Return nginx packages list.
-	 *
-	 * @return array
-	 */
-	public static function get_ee_nginx() {
-		$ee_nginx = array( "nginx-custom", "nginx-ee" );
-
-		return $ee_nginx;
-	}
-	/**
-	 * Get list of packages need for on package.
-	 *
-	 * @param string $package package name i.e php
-	 */
-	public static function get_package_list( $package ) {
-		if ( strpos( $package, 'php' ) !== false ) {
-			self::get_php_packages( 'php' );
-		}
-		if ( strpos( $package, 'nginx' ) !== false ) {
-			self::get_nginx_packages(  );
-		}
-	}
 
 	public static function get_nginx_repo() {
 
@@ -235,11 +223,7 @@ class EE_Variables {
 		$ee_platform_codename = EE_OS::ee_platform_codename();
 		$ee_php_repo          = '';
 		if ( 'ubuntu' === $ee_platform_distro ) {
-			if ( 'precise' === $ee_platform_codename ) {
-				$ee_php_repo = array( "ppa:ondrej/php5-5.6" );
-			} else if ( 'trusty' === $ee_platform_codename && 'xenial' === $ee_platform_codename ) {
 				$ee_php_repo = "ppa:ondrej/php";
-			}
 		} else if ( 'debian' === $ee_platform_distro ) {
 			if ( 'wheezy' === $ee_platform_codename ) {
 				$ee_php_repo = "deb http://packages.dotdeb.org {$ee_platform_codename}-php56 all";
@@ -289,20 +273,12 @@ class EE_Variables {
 	}
 
 	/**
-	 * Return hhvm packages list.
-	 *
-	 * @return array
-	 */
-	public static function get_hhvm_packages() {
-		return array( "hhvm" );
-	}
-
-	/**
 	 * Return mysql packages list.
 	 * @return array
 	 */
 	public static function get_mysql_packages() {
-		$mysql_pkg = array( "mariadb-server", "percona-toolkit" );
+		$mysql_pkg = array( "mariadb-server",
+							"percona-toolkit" );
 
 		return $mysql_pkg;
 
@@ -315,7 +291,7 @@ class EE_Variables {
 	 *
 	 * @return array|bool
 	 */
-	public static function get_php_packages( $package ) {
+	public static function get_php_packages( $version ) {
 		$ee_platform_distro   = EE_OS::ee_platform_distro();
 		$ee_platform_codename = EE_OS::ee_platform_codename();
 		$ee_php               = array();
@@ -323,24 +299,6 @@ class EE_Variables {
 		$ee_php7_0            = array();
 		$ee_php_extra         = array();
 		if ( 'ubuntu' === $ee_platform_distro ) {
-			if ( 'precise' === $ee_platform_codename ) {
-				$ee_php = array(
-					"php5-fpm",
-					"php5-curl",
-					"php5-gd",
-					"php5-imap",
-					"php5-mcrypt",
-					"php5-common",
-					"php5-readline",
-					"php5-mysql",
-					"php5-cli",
-					"php5-memcache",
-					"php5-imagick",
-					"memcached",
-					"graphviz",
-					"php-pear"
-				);
-			} else if ( 'trusty' === $ee_platform_codename && 'xenial' === $ee_platform_codename ) {
 				$ee_php5_6    = array(
 					"php5.6-fpm",
 					"php5.6-curl",
@@ -359,7 +317,17 @@ class EE_Variables {
 					"php5.6-opcache",
 					"php5.6-zip",
 					"php5.6-xml",
-					"php5.6-soap"
+					"php5.6-soap",
+					'php5.6-sqlite3',
+					"php-memcached",
+					"php-imagick",
+					"php-memcache",
+					"memcached",
+					"graphviz",
+					"php-pear",
+					"php-xdebug",
+					"php-msgpack",
+					"php-redis"
 				);
 				$ee_php7_0    = array(
 					"php7.0-fpm",
@@ -377,9 +345,8 @@ class EE_Variables {
 					"php7.0-opcache",
 					"php7.0-zip",
 					"php7.0-xml",
-					"php7.0-soap"
-				);
-				$ee_php_extra = array(
+					"php7.0-soap",
+					'php7.0-sqlite3',
 					"php-memcached",
 					"php-imagick",
 					"php-memcache",
@@ -390,9 +357,8 @@ class EE_Variables {
 					"php-msgpack",
 					"php-redis"
 				);
-			}
 		} else if ( 'debian' === $ee_platform_distro ) {
-			$ee_php = array(
+			$ee_php5_6 = array(
 				"php5-fpm",
 				"php5-curl",
 				"php5-gd",
@@ -406,7 +372,8 @@ class EE_Variables {
 				"php5-imagick",
 				"memcached",
 				"graphviz",
-				"php-pear"
+				"php-pear",
+				"php-sqlite3"
 			);
 
 			$ee_php7_0 = array(
@@ -437,32 +404,22 @@ class EE_Variables {
 			);
 		}
 		if ( 'wheezy' == $ee_platform_codename ) {
-			$ee_php[] = "php5-dev";
+			$ee_php5_6[] = "php5-dev";
 		}
-		if ( 'precise' == $ee_platform_codename && 'jessie' == $ee_platform_codename ) {
-			$ee_php[] = "php5-xdebug";
+		if ( 'jessie' == $ee_platform_codename ) {
+			$ee_php5_6[] = "php5-xdebug";
 		}
 
-		if ( 'php' === $package ) {
-			$ee_php[] = 'php-sqlite3';
-
-			return $ee_php;
-		} else if ( 'php5.6' === $package ) {
-			$ee_php5_6[] = 'php5.6-sqlite3';
-
+		if ( '5.6' === $version ) {
 			return $ee_php5_6;
-		} else if ( 'php7.0' === $package ) {
-			$ee_php7_0[] = 'php7.0-sqlite3';
-
+		} else if ( '7.0' === $version ) {
 			return $ee_php7_0;
-		} else if ( 'phpextra' === $package ) {
-			return $ee_php_extra;
-		} else {
+		}  else {
 			return false;
 		}
 	}
 
 	public static function get_timezone(){
-
+		//todo:
 	}
 }

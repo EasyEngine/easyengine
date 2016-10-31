@@ -188,53 +188,30 @@ class Stack_Command extends EE_Command {
 			EE::debug("Nginx Stable already installed");
 		}
 	}
+
 	if (!empty($stack['php'])){
-		EE::debug("Setting apt_packages variable for PHP");
-		if(!(EE_Apt_Get::is_installed('php5-fpm')||EE_Apt_Get::is_installed('php5.6-fpm'))){
-			if(EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages('php5.6'),EE_Variables::get_php_packages('phpextra'));
-			}else{
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages( 'php' ));
-			}
-		}else{
-			EE::success("PHP already installed");
-		}
-	}
 
-	if ( EE_OS::ee_platform_distro() == 'debian' && !empty($stack['php'])){
-		if (EE_OS::ee_platform_codename() == 'jessie'){
-			EE::debug("Setting apt_packages variable for PHP 7.0");
-			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php7.0'));
-				if(!EE_Apt_Get::is_installed('php5-fpm')){
-					$apt_packages = array_merge($apt_packages,EE_Variables::get_php_packages('php7.0'));
+			if(!grep_string(EE_Variables::get_php_path()."/5.6/fpm/php.ini","EasyEngine")){
+				EE::debug("Configuting PHP FPM PROCESS");
+				$apt=array();
+				$apt=array_merge($apt,EE_Variables::get_php_packages('5.6'));
+				if(!grep_string(EE_Variables::get_php_path()."/7.0/fpm/php.ini","EasyEngine")){
+					$apt=array_merge($apt,EE_Variables::get_php_packages('7.0'));
 				}
-			}else{
-				EE::success("PHP 7.0 already installed");
+				self::post_pref($apt, $packages);
+			}else {
+				EE::success( "PHP already installed and Configured" );
 			}
 		}
-	}
 
-
-	if (isset($stack['php']) && !empty($stack['php'] && !EE_OS::ee_platform_codename() == 'debian')){
-		if (EE_OS::ee_platform_codename() == 'trusty'||EE_OS::ee_platform_codename() == 'xenial'){
-			EE::debug("Setting apt_packages variable for PHP 7.0");
-			if(!EE_Apt_Get::is_installed('php7.0-fpm')){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php7.0'));
-				if(!EE_Apt_Get::is_installed('php5.6-fpm')){
-					$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('php5.6'),EE_Variables::get_package_list('phpextra'));
-				}
-			}else{
-				EE::success("PHP 7.0 already installed");
-			}
-		}
-	}
 
 	if (!empty($stack['mysql'])){
 		EE::debug("Setting apt_packages variable for MySQL");
 		if (EE::exec_cmd("mysqladmin ping", $message = 'Looking for active mysql connection')){
 			$apt_packages = array_merge($apt_packages,EE_Variables::get_mysql_packages());
-			$packages = array_merge($packages, array("mysqltunner"));
+			$packages = array_merge($packages, array( array("url"=>"https://raw.githubusercontent.com/major/MySQLTuner-perl/master/mysqltuner.pl",
+			                                                "path" => "/usr/bin/mysqltuner",
+			                                                "package_name"=>"MySQLTuner")));
 		}else{
 			EE::success("MySQL connection is already alive");
 		}
@@ -629,7 +606,7 @@ class Stack_Command extends EE_Command {
 				}
 			}
 
-			if (!empty(array_intersect(EE_Variables::get_php_packages('php7.0'), $apt_packages))) {
+			if (!empty(array_intersect(EE_Variables::get_php_packages('7.0'), $apt_packages))) {
 				EE::debug( 'Writting the nginx configuration to file PHP7.0' );
 				EE\Utils\mustache_write_in_file('/etc/nginx/common/locations-php7.conf', 'locations-php7.mustache');
 				EE\Utils\mustache_write_in_file('/etc/nginx/common/php7.conf', 'php7.mustache');
@@ -816,9 +793,7 @@ class Stack_Command extends EE_Command {
 
 			}
 
-			if(in_array( EE_Variables::get_mysql_packages(), $apt_packages )){
-				EE::debug("creating .my.cnf");
-
+			if(in_array( EE_Variables::get_mysql_packages()[0], $apt_packages )){
 				if (!is_file("/etc/mysql/my.cnf")){
 					$config = "[mysqld]\nwait_timeout = 30\n".
                               "interactive_timeout=60\nperformance_schema = 0".
