@@ -93,8 +93,9 @@ class EE_Sqlite_Db {
 		}
 		$table_exist_sql  = "SELECT name FROM sqlite_master WHERE type='table' AND name='{$table_name}'";
 		$table_exist_exec = $ee_db->query( $table_exist_sql );
-		$table_exist_name = $table_exist_exec->fetchArray( SQLITE3_ASSOC );
-
+		if($table_exist_exec) {
+			$table_exist_name = $table_exist_exec->fetchArray( SQLITE3_ASSOC );
+		}
 		if ( empty( $table_exist_name ) ) {
 			return false;
 		}
@@ -314,8 +315,10 @@ class EE_Sqlite_Db {
 
 		$select_data_exec = $ee_db->query( $select_data_query );
 		$select_data      = array();
-		while ( $row = $select_data_exec->fetchArray( SQLITE3_ASSOC ) ) {
-			$select_data[] = $row;
+		if($select_data_exec) {
+			while ( $row = $select_data_exec->fetchArray( SQLITE3_ASSOC ) ) {
+				$select_data[] = $row;
+			}
 		}
 		if ( empty( $select_data ) ) {
 			return false;
