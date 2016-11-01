@@ -389,7 +389,7 @@ class EE_Stack {
 					}
 
 
-					if ( ! file_exists( "/etc/nginx/common/wpfc.conf" ) ) {
+					if ( ! file_exists( "/etc/nginx/common/wpfc.conf" )|| ! file_exists( "/etc/nginx/common/php7.conf") ) {
 						ee_file_search_replace( "/etc/nginx/nginx.conf", "# add_header", "add_header" );
 						ee_file_search_replace( "/etc/nginx/nginx.conf", '"EasyEngine"', '"EasyEngine ' . EE_VERSION . '"' );
 						$data = array();
@@ -420,18 +420,15 @@ class EE_Stack {
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/locations.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/locations.conf', 'locations.mustache', $data );
 
+						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/php.conf' );
+						EE\Utils\mustache_write_in_file( '/etc/nginx/common/php.conf', 'php.mustache', $data );
+
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/w3tc.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/w3tc.conf', 'w3tc.mustache', $data );
 
-						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/wpfc.conf' );
-						EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpfc.conf', 'wpfc.mustache', $data );
-
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/wpsubdir.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpsubdir.conf', 'wpsubdir.mustache', $data );
-					}
 
-
-					if ( ! file_exists( "/etc/nginx/common/php7.conf" ) ) {
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/locations-php7.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/locations-php7.conf', 'locations-php7.mustache', $data );
 
@@ -452,7 +449,11 @@ class EE_Stack {
 
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/php7.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/php7.conf', 'php7.mustache', $data );
+
+						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/wpfc.conf' );
+						EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpfc.conf', 'wpfc.mustache', $data );
 					}
+
 
 					// Nginx-Plus does not have nginx package structure like this
 					// So creating directories
@@ -515,7 +516,6 @@ class EE_Stack {
 						             "\nHTTP Auth Password : " . $passwd );
 						EE_Service::reload_service( "nginx" );
 					}
-
 
 				} else {
 					EE_Service::restart_service( "nginx" );
@@ -622,8 +622,6 @@ class EE_Stack {
 			if ((EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial')
 			    && (in_array("php5.6-fpm",$apt_packages))
 			) {
-
-
 				ee_file_mkdir( "/var/log/php/5.6/" );
 				$data = array();
 				//todo: date time on php.ini
