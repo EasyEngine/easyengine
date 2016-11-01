@@ -242,7 +242,7 @@ function site_package_check( $stype ) {
 			}
 
 		if ( ee_file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
-			if ( grep_string( "/etc/nginx/conf.d/upstream.conf", "php7" ) ) {
+			if ( ! grep_string( "/etc/nginx/conf.d/upstream.conf", "php7" ) ) {
 				$upstream_config_content = "upstream php7 {\nserver 127.0.0.1:9070;\n}\n" .
 				                           "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n";
 				ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $upstream_config_content );

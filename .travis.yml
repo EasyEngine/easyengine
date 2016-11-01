@@ -53,5 +53,9 @@ script:
   - sudo ee stack install --utils --debug
 
 
-  - sudo ee site create wp.localtest.me --type=wp || sudo nginx -t && tail -n100 testlog.log
+  - sudo ee site create wp.localtest.me --type=wp --debug || sudo nginx -t && tail -n100 testlog.log
   - curl http://wp.localtest.me
+  - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis
+  - sudo ee site create wp1.localtest.me --type=wp --cache=wpfc
+  - sudo ee site create wp1.localtest.me --type=wp --cache=w3tc
+  - sudo ee site list
