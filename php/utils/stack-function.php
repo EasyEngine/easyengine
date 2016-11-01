@@ -420,6 +420,9 @@ class EE_Stack {
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/locations.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/locations.conf', 'locations.mustache', $data );
 
+						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/wpcommon.conf' );
+						EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpcommon.conf', 'wpcommon.mustache', $data );
+
 						EE::debug( 'Writting the nginx configuration to file /etc/nginx/common/php.conf' );
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/php.conf', 'php.mustache', $data );
 
