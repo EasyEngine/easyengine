@@ -162,7 +162,7 @@ class EE_Stack {
 		if (!empty($stack['postfix'])){
 			EE::debug("Setting apt_packages variable for Postfix");
 			if(!EE_Apt_Get::is_installed('postfix')){
-				$apt_packages = array_merge($apt_packages,EE_Variables::get_package_list('postfix'));
+				$apt_packages = array_merge($apt_packages,array('postfix'));
 			}else{
 				EE::success("Postfix is already installed");
 			}
