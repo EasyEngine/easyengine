@@ -24,6 +24,10 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
  * @package easyengine
  */
 class Stack_Command extends EE_Command {
+	public static function pass_to_install($assoc_args){
+		$retval = self::install('',$assoc_args);
+		return $retval;
+	}
 	public function validate_stack_option( $assoc_args ) {
 		$stack = array();
 		$category = array();
