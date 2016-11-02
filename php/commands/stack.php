@@ -454,7 +454,6 @@ class Stack_Command extends EE_Command {
 			EE_Service::start_service($service);
 		}
 
-
 	}
 
 	/**
