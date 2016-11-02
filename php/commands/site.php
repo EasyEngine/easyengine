@@ -235,6 +235,14 @@ class Site_Command extends EE_Command {
 
 				if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
 					$data['basic'] = true;
+				}elseif("wpredis"===$cache){
+					$data['wpredis'] = true;
+				}elseif("wpfc"===$cache){
+					$data['wpfc'] = true;
+				}elseif("wpsc"===$cache){
+					$data['wpsc'] = true;
+				}elseif("w3tc"===$cache){
+					$data['w3tc'] = true;
 				}
 				$ee_auth = site_package_check( $stype );
 
