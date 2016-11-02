@@ -750,8 +750,8 @@ class EE_Stack {
 					EE::exec_cmd("sed -i \"/#max_connections/a wait_timeout = 30 \\ninteractive_timeout = 60 \\n" .
 					             "performance_schema = 0\\nquery_cache_type = 1 \" /etc/mysql/my.cnf");
 				}
-				$filesystem = new Filesystem();
-				$filesystem->chmod("/usr/bin/mysqltuner",0775);
+
+				ee_file_chmod("/usr/bin/mysqltuner",0775);
 				EE_Git::add("/etc/mysql","Adding MySQL in GIT");
 				EE_Service::restart_service( "mysql" );
 			}
