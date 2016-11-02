@@ -199,7 +199,7 @@ function setup_database( $data ) {
  *
  * @return mixed
  */
-function site_package_check( $stype ) {
+function site_package_check( $stype, $cache='' ) {
 	$stack_required = array();
 	if ( in_array( $stype, array( 'html', 'proxy', 'php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain', 'php7' ) ) ) {
 
@@ -278,7 +278,7 @@ function site_package_check( $stype ) {
 		}
 	}
 
-	if ( 'wpredis' === $stype ) {
+	if ( 'wpredis' === $cache ) {
 		EE::debug( "Setting apt_packages variable for redis" );
 		if ( ! EE_Apt_Get::is_installed( 'redis-server' ) ) {
 			$stack_required['redis']=true;

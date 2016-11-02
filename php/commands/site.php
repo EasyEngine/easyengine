@@ -244,7 +244,7 @@ class Site_Command extends EE_Command {
 				}elseif("w3tc"===$cache){
 					$data['w3tc'] = true;
 				}
-				$ee_auth = site_package_check( $stype );
+				$ee_auth = site_package_check( $stype, $cache );
 
 				try {
 					pre_run_checks();
