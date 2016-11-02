@@ -851,7 +851,7 @@ class EE_Stack {
 
 	public static function get_service_list($assoc_args){
 		$services = array();
-		if ($assoc_args['nginx']){
+		if (!empty($assoc_args['nginx'])){
 			if(EE_Apt_Get::is_installed('nginx-custom')){
 
 				$services = array_merge($services, array('nginx'));
@@ -868,7 +868,7 @@ class EE_Stack {
 			}
 		}
 
-		if ($assoc_args['mysql']){
+		if (!empty($assoc_args['mysql'])){
 			if(EE_Apt_Get::is_installed('mysql-server') || EE_Apt_Get::is_installed('mariadb-server')){
 
 				$services = array_merge($services, array('mysql'));
@@ -885,7 +885,7 @@ class EE_Stack {
 			}
 		}
 
-		if ($assoc_args['memcached']){
+		if (!empty($assoc_args['memcached'])){
 			if(EE_Apt_Get::is_installed('memcached')){
 
 				$services = array_merge($services, array('memcached'));
