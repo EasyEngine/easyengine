@@ -454,7 +454,12 @@ class Stack_Command extends EE_Command {
 	}
 
 	public function stop($args, $assoc_args ){
-		//todo:
+		$services = EE_Stack::get_service_list($assoc_args);
+
+		foreach ( $services as $service ) {
+			EE::debug("Starting Services : ".$service);
+			EE_Service::stop_service($service);
+		}
 	}
 
 	public function reload($args, $assoc_args ){
