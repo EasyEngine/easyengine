@@ -492,7 +492,7 @@ function setup_wordpress( $data ) {
 	chdir( $ee_site_webroot . '/htdocs/' );
 	EE::debug( "Setting up wp-config file" );
 	$ee_wp_cli_path = EE_Variables::get_ee_wp_cli_path();
-	$wpredis        = empty( $data['wpredis'] ) ? '' : "\n\ndefine( WP_CACHE_KEY_SALT, {$ee_domain_name}: );";
+	$wpredis        = empty( $data['wpredis'] ) ? '' : "\n\ndefine('WP_CACHE_KEY_SALT', '{$ee_domain_name}:');";
 
 	if ( false == $data['multisite'] ) {
 		EE::debug( "Generating wp-config for WordPress Single site" );
@@ -1793,7 +1793,7 @@ function do_update_site( $site_name, $assoc_args ) {
 						}
 
 						if ( ! grep_string( $config_path, "WP_CACHE_KEY_SALT" ) ) {
-							$wp_config_content = "\n\ndefine( 'WP_CACHE_KEY_SALT', '{$ee_domain}:' );";
+							$wp_config_content = "\n\ndefine('WP_CACHE_KEY_SALT', '{$ee_domain}:');";
 							try {
 								ee_file_append_content( $config_path, $wp_config_content );
 							} catch ( Exception $e ) {
