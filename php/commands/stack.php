@@ -472,7 +472,12 @@ class Stack_Command extends EE_Command {
 	}
 
 	public function restart($args, $assoc_args ){
-		//todo:
+		$services = EE_Stack::get_service_list($assoc_args);
+
+		foreach ( $services as $service ) {
+			EE::debug("Restarting Services : ".$service);
+			EE_Service::reload_service($service);
+		}
 	}
 
 	public function status($args, $assoc_args ){
