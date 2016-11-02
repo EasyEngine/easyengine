@@ -78,20 +78,34 @@ class Stack_Command extends EE_Command {
 	 * ## OPTIONS
 	 *
 	 *[--all]
-	 *:all
+	 *: To remove all stack
+	 * 
 	 * [--web]
-	 * : To install web.
+	 * : To remove web.
 	 *
 	 * [--admin]
 	 *
 	 * [--nginx]
-	 * : To install nginx.
+	 * : To remove nginx.
 	 *
 	 * [--php]
-	 * : To install php.
+	 * : To remove php.
 	 *
 	 * [--mysql]
-	 * : To install MySQL.
+	 * : To remove MySQL
+	 *
+	 * [--redis]
+	 * : To remove Redis.
+	 *
+	 * [--web]
+	 * : remove web stack
+	 *
+	 * [--wpcli]
+	 * :To remove wp-cli
+	 *
+	 * [--utils]
+	 * : To remove Utilities tools
+	 *
 	 *
 	 *
 	 * ## EXAMPLES
