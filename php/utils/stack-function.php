@@ -546,10 +546,10 @@ class EE_Stack {
 					}
 				}
 
-				if(file_exists("/etc/nginx/nginx.conf")&&!file_exists("/etc/nginx/conf.d/redis.conf")){
+				if(file_exists("/etc/nginx/nginx.conf") && !file_exists("/etc/nginx/conf.d/redis.conf")){
 					$content = "# Log format Settings".
-					           "log_format rt_cache_redis '\$remote_addr \$upstream_response_time \$srcache_fetch_status [\$time_local] '".
-					           "'\$http_host \"\$request\" \$status \$body_bytes_sent '".
+					           "\nlog_format rt_cache_redis '\$remote_addr \$upstream_response_time \$srcache_fetch_status [\$time_local] '\n".
+					           "'\$http_host \"\$request\" \$status \$body_bytes_sent '\n".
 					           "'\"\$http_referer\" \"\$http_user_agent\"';";
 					ee_file_append_content( "/etc/nginx/conf.d/redis.conf", $content );
 				}
