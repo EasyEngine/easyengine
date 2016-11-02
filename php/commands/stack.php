@@ -419,21 +419,25 @@ class Stack_Command extends EE_Command {
 	 * ## OPTIONS
 	 *
 	 * [--all]
-	 * : To purge all stack
+	 * : To start all stack
 	 *
 	 * [--nginx]
-	 * : To purge nginx.
+	 * : To start nginx.
 	 *
 	 * [--php]
-	 * : To purge php.
+	 * : To start php.
 	 *
 	 * [--mysql]
-	 * : To purge MySQL
+	 * : To start MySQL
 	 *
 	 * [--redis]
-	 * : To purge Redis.
+	 * : To start Redis.
 	 *
+	 * [--postfix]
+	 * : To start postfix
 	 *
+	 * [--memcached]
+	 * : To start memcached
 	 *
 	 * ## EXAMPLES
 	 *
@@ -453,6 +457,38 @@ class Stack_Command extends EE_Command {
 
 	}
 
+	/**
+	 * STOP
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : To stop all stack
+	 *
+	 * [--nginx]
+	 * : To stop nginx.
+	 *
+	 * [--php]
+	 * : To stop php.
+	 *
+	 * [--mysql]
+	 * : To stop MySQL
+	 *
+	 * [--redis]
+	 * : To stop Redis.
+	 *
+	 * [--postfix]
+	 * : To stop postfix
+	 *
+	 * [--memcached]
+	 * : To stop memcached
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # stop Stack.
+	 *      $ ee stack stop --nginx
+	 */
+
 	public function stop($args, $assoc_args ){
 		$services = EE_Stack::get_service_list($assoc_args);
 
@@ -461,6 +497,38 @@ class Stack_Command extends EE_Command {
 			EE_Service::stop_service($service);
 		}
 	}
+
+	/**
+	 * Reload
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : To reload all stack
+	 *
+	 * [--nginx]
+	 * : To reload nginx.
+	 *
+	 * [--php]
+	 * : To reload php.
+	 *
+	 * [--mysql]
+	 * : To reload MySQL
+	 *
+	 * [--redis]
+	 * : To reload Redis.
+	 *
+	 * [--postfix]
+	 * : To reload postfix
+	 *
+	 * [--memcached]
+	 * : To reload memcached
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Start Stack.
+	 *      $ ee stack reload --nginx
+	 */
 
 	public function reload($args, $assoc_args ){
 		$services = EE_Stack::get_service_list($assoc_args);
@@ -471,6 +539,38 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
+	/**
+	 * RESTART
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : To restart all stack
+	 *
+	 * [--nginx]
+	 * : To restart nginx.
+	 *
+	 * [--php]
+	 * : To restart php.
+	 *
+	 * [--mysql]
+	 * : To restart MySQL
+	 *
+	 * [--redis]
+	 * : To restart Redis.
+	 *
+	 * [--postfix]
+	 * : To restart postfix
+	 *
+	 * [--memcached]
+	 * : To restart memcached
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Start Stack.
+	 *      $ ee stack restart --nginx
+	 */
+
 	public function restart($args, $assoc_args ){
 		$services = EE_Stack::get_service_list($assoc_args);
 
@@ -479,6 +579,36 @@ class Stack_Command extends EE_Command {
 			EE_Service::restart_service($service);
 		}
 	}
+
+	/**
+	 * status
+	 *
+	 * ## OPTIONS
+	 *
+	 *
+	 * [--nginx]
+	 * :
+	 *
+	 * [--php]
+	 * :
+	 *
+	 * [--mysql]
+	 * :
+	 *
+	 * [--redis]
+	 * :
+	 *
+	 * [--postfix]
+	 * :
+	 *
+	 * [--memcached]
+	 * :
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Start Stack.
+	 *      $ ee stack status --nginx
+	 */
 
 	public function status($args, $assoc_args ){
 		$services = EE_Stack::get_service_list($assoc_args);
