@@ -40,7 +40,6 @@ class EE_Utils {
 			$pkg_name      = $package['package_name'];
 			$dirname       = dirname( $download_path );
 			$filesystem    = new \Symfony\Component\Filesystem\Filesystem();
-			$file = fopen($download_path, "a+");
 			if ( ! $filesystem->exists( $dirname ) ) {
 				try {
 					$filesystem->mkdir( $dirname );
@@ -48,8 +47,8 @@ class EE_Utils {
 					echo "An error occurred while creating your directory at " . $e->getPath();
 				}
 			}
-
 			try {
+				$file = fopen($download_path, "a+");
 				EE::debug( "Downloading " . $pkg_name );
 				set_time_limit( 0 ); // unlimited max execution time
 				$options = array(
