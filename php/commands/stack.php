@@ -476,7 +476,7 @@ class Stack_Command extends EE_Command {
 
 		foreach ( $services as $service ) {
 			EE::debug("Restarting Services : ".$service);
-			EE_Service::reload_service($service);
+			EE_Service::restart_service($service);
 		}
 	}
 
