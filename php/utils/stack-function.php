@@ -849,5 +849,71 @@ class EE_Stack {
 
 	}
 
+	public static function get_service_list($assoc_args){
+		$services = array();
+		if ($assoc_args['nginx']){
+			if(EE_Apt_Get::is_installed('nginx-custom')){
+
+				$services = array_merge($services, array('nginx'));
+			}else{
+				EE::debug("Nginx not installed");
+			}
+		}
+
+		if (!empty($assoc_args['redis'])) {
+			if (  EE_Apt_Get::is_installed( 'redis-server' ) ) {
+				$services = array_merge( $services, array('redis-server') );
+			} else {
+				EE::success( "Redis not installed" );
+			}
+		}
+
+		if ($assoc_args['mysql']){
+			if(EE_Apt_Get::is_installed('mysql-server') || EE_Apt_Get::is_installed('mariadb-server')){
+
+				$services = array_merge($services, array('mysql'));
+			}else{
+				EE::debug("MySQL not installed");
+			}
+		}
+
+		if (!empty($assoc_args['postfix'])) {
+			if (  EE_Apt_Get::is_installed( 'postfix' ) ) {
+				$services = array_merge( $services, array('postfix') );
+			} else {
+				EE::success( "Postfix not installed" );
+			}
+		}
+
+		if ($assoc_args['memcached']){
+			if(EE_Apt_Get::is_installed('memcached')){
+
+				$services = array_merge($services, array('memcached'));
+			}else{
+				EE::debug("Memcached not installed");
+			}
+		}
+
+
+
+		if (!empty($stack['php'])){
+			if(EE_Apt_Get::is_installed('php5-fpm')||EE_Apt_Get::is_installed('php5.6-fpm')){
+				if(EE_OS::ee_platform_distro() == 'ubuntu'){
+					$services = array_merge($services, array('php5.6-fpm'));
+				}else{
+					$services = array_merge($services, array('php5-fpm'));
+				}
+				if(EE_Apt_Get::is_installed('php7.0-fpm')){
+					$services = array_merge($services, array('php7.0-fpm'));
+				}
+			}else{
+				EE::success("PHP not installed");
+			}
+		}
+
+		return $services;
+
+	}
+
 
 }
