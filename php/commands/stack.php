@@ -413,6 +413,34 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
+	/**
+	 * start
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : To purge all stack
+	 *
+	 * [--nginx]
+	 * : To purge nginx.
+	 *
+	 * [--php]
+	 * : To purge php.
+	 *
+	 * [--mysql]
+	 * : To purge MySQL
+	 *
+	 * [--redis]
+	 * : To purge Redis.
+	 *
+	 *
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Start Stack.
+	 *      $ ee stack start --nginx
+	 */
+
 	public function start($args, $assoc_args ){
 		$services = array();
 
