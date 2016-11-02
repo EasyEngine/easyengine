@@ -413,6 +413,14 @@ class Stack_Command extends EE_Command {
 		}
 	}
 
+	public function start($args, $assoc_args ){
+		//todo:
+	}
+
+	public function stop($args, $assoc_args ){
+		//todo:
+	}
+
 	public function reload($args, $assoc_args ){
 		//todo:
 	}
