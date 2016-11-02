@@ -59,3 +59,7 @@ script:
   - sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug || sudo nginx -t && tail -n100 testlog.log
   - sudo ee site list --debug
   - sudo ee clean --all
+  - ee stack restart --nginx --mysql--postfix --redis
+  - ee stack stop --nginx --mysql--postfix --redis
+  - ee stack start --nginx --mysql--postfix --redis
+  - ee stack status --nginx --mysql--postfix --redis
