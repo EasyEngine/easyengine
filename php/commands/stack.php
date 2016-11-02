@@ -457,13 +457,18 @@ class Stack_Command extends EE_Command {
 		$services = EE_Stack::get_service_list($assoc_args);
 
 		foreach ( $services as $service ) {
-			EE::debug("Starting Services : ".$service);
+			EE::debug("Stopping Services : ".$service);
 			EE_Service::stop_service($service);
 		}
 	}
 
 	public function reload($args, $assoc_args ){
-		//todo:
+		$services = EE_Stack::get_service_list($assoc_args);
+
+		foreach ( $services as $service ) {
+			EE::debug("Reloading Services : ".$service);
+			EE_Service::reload_service($service);
+		}
 	}
 
 	public function restart($args, $assoc_args ){
