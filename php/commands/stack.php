@@ -385,10 +385,19 @@ class Stack_Command extends EE_Command {
 				EE::debug("Removing following: " .implode(' ',$packages));
 				EE_Utils::remove($packages);
 			}
-
-
-
 		}
+	}
+
+	public function reload($args, $assoc_args ){
+		//todo:
+	}
+
+	public function restart($args, $assoc_args ){
+		//todo:
+	}
+
+	public function status($args, $assoc_args ){
+		//todo:
 	}
 
 }
