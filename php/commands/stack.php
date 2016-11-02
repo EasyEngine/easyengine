@@ -79,7 +79,7 @@ class Stack_Command extends EE_Command {
 	 *
 	 *[--all]
 	 *: To remove all stack
-	 * 
+	 *
 	 * [--web]
 	 * : To remove web.
 	 *
@@ -252,26 +252,37 @@ class Stack_Command extends EE_Command {
 		 *
 		 * ## OPTIONS
 		 *
-		 *[--all]
-		 *:all
+		 * [--all]
+		 * : To purge all stack
+		 *
 		 * [--web]
-		 * : To install web.
+		 * : To purge web.
 		 *
 		 * [--admin]
+		 * :To purge admin tool
 		 *
 		 * [--nginx]
-		 * : To install nginx.
+		 * : To purge nginx.
 		 *
 		 * [--php]
-		 * : To install php.
+		 * : To purge php.
 		 *
 		 * [--mysql]
-		 * : To install MySQL.
+		 * : To purge MySQL
+		 *
+		 * [--redis]
+		 * : To purge Redis.
+		 *
+		 * [--wpcli]
+		 * :To purge wp-cli
+		 *
+		 * [--utils]
+		 * : To purge Utilities tools
 		 *
 		 *
 		 * ## EXAMPLES
 		 *
-		 *      # Install Stack.
+		 *      # Purge Stack.
 		 *      $ ee stack purge --nginx
 		 */
 	public function purge( $args, $assoc_args ) {
