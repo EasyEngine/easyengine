@@ -109,7 +109,7 @@ function iterator_map( $it, $fn ) {
  * Search for file by walking up the directory tree until the first file is found or until $stop_check($dir) returns true
  *
  * @param string|array The files (or file) to search for
- * @param string|null  The directory to start searching from; defaults to CWD
+ * @param string|null The directory to start searching from; defaults to CWD
  * @param              callable Function which is passed the current dir each time a directory level is traversed
  *
  * @return null|string Null if the file was not found
@@ -202,8 +202,8 @@ function esc_cmd( $cmd ) {
 /**
  * Output items in a table, JSON, CSV, ids, or the total count
  *
- * @param string       $format Format to use: 'table', 'json', 'csv', 'ids', 'count'
- * @param array        $items Data to output
+ * @param string $format Format to use: 'table', 'json', 'csv', 'ids', 'count'
+ * @param array $items Data to output
  * @param array|string $fields Named fields for each item of data. Can be array or comma-separated list
  */
 function format_items( $format, $items, $fields ) {
@@ -245,10 +245,10 @@ function mustache_render( $template_name, $data ) {
 	$template = file_get_contents( $template_name );
 
 	$m = new \Mustache_Engine( array(
-		                           'escape' => function ( $val ) {
-			                           return $val;
-		                           }
-	                           ) );
+		'escape' => function ( $val ) {
+			return $val;
+		}
+	) );
 
 	return $m->render( $template, $data );
 }
@@ -282,7 +282,7 @@ function parse_url( $url ) {
  * Check if we're running in a Windows environment (cmd.exe).
  */
 function is_windows() {
-	return strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+	return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';
 }
 
 /**
@@ -308,8 +308,8 @@ function replace_path_consts( $source, $path ) {
  *
  * @param string $method
  * @param string $url
- * @param array  $headers
- * @param array  $options
+ * @param array $headers
+ * @param array $options
  *
  * @return object
  */
@@ -376,9 +376,9 @@ function get_named_sem_ver( $new_version, $original_version ) {
 /**
  * Return the flag value or, if it's not set, the $default value.
  *
- * @param array  $args Arguments array.
+ * @param array $args Arguments array.
  * @param string $flag Flag to get the value.
- * @param mixed  $default Default value for the flag. Default: NULL
+ * @param mixed $default Default value for the flag. Default: NULL
  *
  * @return mixed
  */
