@@ -125,6 +125,31 @@ class debug_Command extends EE_Command {
 		}
 	}
 
+	public function __invoke( $args, $assoc_args ) {
+		$_argc = array();
+		$_argc = array_merge( $_argc, $assoc_args );
+		if ( ! empty( $args ) ) {
+			$_argc['sitename'] = $args[0];
+		}
+
+		if ( ! empty( [ 'nginx' ] ) ) {
+			self::debug_nginx( $_argc );
+		}
+
+		if ( ! empty( [ 'mysql' ] ) ) {
+			if ( 'localhost' === EE_Variables::get_ee_mysql_host() ) {
+				self::debug_mysql( $_argc );
+			} else {
+				EE::warning( "Remote MySQL found, EasyEngine will not enable remote debug" );
+			}
+		}
+		
+		if ( ! empty( [ 'wp' ] ) ) {
+			self::debug_wp( $_argc );
+		}
+
+	}
+
 }
 
 EE::add_command( 'debug', 'Debug_Command' );
