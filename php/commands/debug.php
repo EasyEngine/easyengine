@@ -125,6 +125,45 @@ class debug_Command extends EE_Command {
 		}
 	}
 
+	/**
+	 * Enable Debug Mode.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<sitename>]
+	 * : Name of the site to create.
+	 *
+	 * [--nginx]
+	 * : Enable nginx debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * [--mysql]
+	 * : Enable Mysql debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * [--wp]
+	 * : Enable wordpress debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * ## EXAMPLES
+	 *
+	 *      # Enable Debug Mode.
+	 *      $ ee debug --nginx
+	 *      $ ee debug example.com --wp
+	 *
+	 */
 	public function __invoke( $args, $assoc_args ) {
 		$_argc = array();
 		$_argc = array_merge( $_argc, $assoc_args );
@@ -143,7 +182,7 @@ class debug_Command extends EE_Command {
 				EE::warning( "Remote MySQL found, EasyEngine will not enable remote debug" );
 			}
 		}
-		
+
 		if ( ! empty( [ 'wp' ] ) ) {
 			self::debug_wp( $_argc );
 		}
