@@ -40,6 +40,35 @@ class debug_Command extends EE_Command {
 
 	public function debug_php(){
 		// """Start/Stop PHP debug"""
+		//todo:
+
+	}
+
+	public function debug_mysql($_argc){
+		//"""Start/Stop MySQL debug"""
+		$debug = $_argc;
+		if('on'=== $debug['mysql'] && empty($debug['sitename'])){
+			if(!EE::exec_cmd("mysql -e \"show variables like 'slow_query_log';\" | grep ON")){
+				EE::success("Setting up MySQL slow log");
+				EE_MySql::execute("set global slow_query_log = 'ON';");
+				EE_MySql::execute("set global slow_query_log_file = '/var/log/mysql/mysql-slow.log';");
+				EE_MySql::execute("set global long_query_time = 2;");
+				EE_MySql::execute("set global log_queries_not_using_indexes = 'ON';");
+			}else{
+				EE::success("MySQL slow log is already enabled");
+			}
+
+		}elseif('off'=== $debug['mysql'] && empty($debug['sitename'])){
+			if(EE::exec_cmd("mysql -e \"show variables like 'slow_query_log';\" | grep ON")){
+				EE::success("Disabling MySQL slow log");
+				EE_MySql::execute("set global slow_query_log = 'OFF';");
+				EE_MySql::execute("set global slow_query_log_file = '/var/log/mysql/mysql-slow.log';");
+				EE_MySql::execute("set global long_query_time = 10;");
+				EE_MySql::execute("set global log_queries_not_using_indexes = 'OFF';");
+			}else{
+				EE::success("MySQL slow log already disabled");
+			}
+		}
 
 	}
 
