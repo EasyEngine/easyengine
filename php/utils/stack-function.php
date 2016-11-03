@@ -432,7 +432,7 @@ class EE_Stack {
 		//Post activity after installation of packages
 		if ( ! empty( $apt_packages ) ) {
 			if ( ! empty( array_intersect( array( 'postfix' ), $apt_packages ) ) ) {
-				EE_Git::add( "/etc/postfix", "Adding Postfix into Git" );
+				EE_Git::add( array("/etc/postfix"), "Adding Postfix into Git" );
 				EE_Service::reload_service( 'postfix' );
 			}
 
@@ -671,7 +671,7 @@ class EE_Stack {
 
 //              todo: PHP and Debug pull configuration
 
-				EE_Git::add( "/etc/php5", "Adding PHP in GIT" );
+				EE_Git::add( array("/etc/php5"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php5-fpm" );
 
 			}
@@ -710,7 +710,7 @@ class EE_Stack {
 
 				//todo: PHP and Debug pull configuration
 
-				EE_Git::add( "/etc/php", "Adding PHP in GIT" );
+				EE_Git::add( array("/etc/php"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php5.6-fpm" );
 			}
 
@@ -749,7 +749,7 @@ class EE_Stack {
 
 				//todo: PHP and Debug pull configuration
 
-				EE_Git::add( "/etc/php", "Adding PHP in GIT" );
+				EE_Git::add( array("/etc/php"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php7.0-fpm" );
 
 			}
@@ -788,7 +788,7 @@ class EE_Stack {
 
 				//todo: PHP and Debug pull configuration
 
-				EE_Git::add( "/etc/php", "Adding PHP in GIT" );
+				EE_Git::add( array("/etc/php"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php7.0-fpm" );
 
 
@@ -806,7 +806,7 @@ class EE_Stack {
 				}
 
 				ee_file_chmod( "/usr/bin/mysqltuner", 0775 );
-				EE_Git::add( "/etc/mysql", "Adding MySQL in GIT" );
+				EE_Git::add( array("/etc/mysql"), "Adding MySQL in GIT" );
 				EE_Service::restart_service( "mysql" );
 			}
 
