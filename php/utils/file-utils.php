@@ -29,6 +29,12 @@ function ee_file_mkdir( $dirs, $mode = 0755 ) {
 	$filesystem->mkdir( $dirs, $mode );
 }
 
+function ee_file_touch($files){
+	EE::debug("Touching file : " .$files);
+	$filesystem = new Filesystem();
+	$filesystem->touch($files);
+}
+
 /**
  * Check if file is already exist or not.
  *
