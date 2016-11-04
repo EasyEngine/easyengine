@@ -35,6 +35,7 @@ class debug_Command extends EE_Command {
 
 			//todo:
 		}
+		EE_Service::restart_service('nginx');
 
 	}
 
@@ -70,6 +71,7 @@ class debug_Command extends EE_Command {
 			}
 		}
 
+		EE_Service::restart_service('mysql');
 	}
 
 	public function debug_wp( $_argc ) {
@@ -171,11 +173,11 @@ class debug_Command extends EE_Command {
 			$_argc['sitename'] = $args[0];
 		}
 
-		if ( ! empty( [ 'nginx' ] ) ) {
+		if ( ! empty( $_argc[ 'nginx' ] ) ) {
 			self::debug_nginx( $_argc );
 		}
 
-		if ( ! empty( [ 'mysql' ] ) ) {
+		if ( ! empty( $_argc[ 'mysql' ] ) ) {
 			if ( 'localhost' === EE_Variables::get_ee_mysql_host() ) {
 				self::debug_mysql( $_argc );
 			} else {
@@ -183,7 +185,7 @@ class debug_Command extends EE_Command {
 			}
 		}
 
-		if ( ! empty( [ 'wp' ] ) ) {
+		if ( ! empty( $_argc[ 'wp' ] ) ) {
 			self::debug_wp( $_argc );
 		}
 
