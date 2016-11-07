@@ -456,7 +456,7 @@ class EE {
 
 	public static function invoke_editor( $filename ) {
 		try {
-			passthru( "sensible-editor " . $filename );
+			system( "sensible-editor " . $filename ." >/dev/tty" );
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
 			EE::log("Failed invoke editor");
