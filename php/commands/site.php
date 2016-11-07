@@ -1033,6 +1033,7 @@ class Site_Command extends EE_Command {
 
 		try {
 			chdir( $ee_site_webroot );
+			exec("bash");
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
 			EE::error( "unable to change directory" );
