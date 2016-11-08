@@ -217,6 +217,15 @@ class EE {
 	 * @param string $message
 	 */
 	public static function log( $message ) {
+		self::$logger->log( $message );
+	}
+
+	/**
+	 * Log an informational message.
+	 *
+	 * @param string $message
+	 */
+	public static function info( $message ) {
 		self::$logger->info( $message );
 	}
 
