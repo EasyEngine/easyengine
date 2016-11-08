@@ -19,8 +19,17 @@ class Regular extends Base {
 	 *
 	 * @param string $message Message to write.
 	 */
-	public function info( $message ) {
+	public function log( $message ) {
 		$this->write( STDOUT, $message . "\n" );
+	}
+
+	/**
+	 * Write an informational message to STDOUT.
+	 *
+	 * @param string $message Message to write.
+	 */
+	public function info( $message ) {
+		$this->_line( $message, 'Info', '%B' );
 	}
 
 	/**
