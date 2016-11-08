@@ -258,8 +258,8 @@ class Site_Command extends EE_Command {
 						setup_domain( $data );
 						//				hashbucket();
 					} catch ( Exception $e ) {
-						EE::log( 'Oops Something went wrong !!' );
-						EE::log( 'Calling cleanup actions ...' );
+						EE::info( 'Oops Something went wrong !!' );
+						EE::info( 'Calling cleanup actions ...' );
 						do_cleanup_action( $data );
 						EE::debug( $e->getMessage() );
 						EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
@@ -269,15 +269,15 @@ class Site_Command extends EE_Command {
 						add_new_site( $data );
 						$reload_nginx = EE_Service::reload_service( 'nginx' );
 						if ( ! $reload_nginx ) {
-							EE::log( 'Oops Something went wrong !!' );
-							EE::log( 'Calling cleanup actions ...' );
+							EE::info( 'Oops Something went wrong !!' );
+							EE::info( 'Calling cleanup actions ...' );
 							do_cleanup_action( $data );
 							EE::error( 'Service nginx reload failed. check issues with `nginx -t` command.' );
 							EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
 						}
 						if ( ! empty( $ee_auth ) ) {
 							foreach ( $ee_auth as $msg ) {
-								EE::log( $msg );
+								EE::info( $msg );
 							}
 						}
 						EE::success( 'Successfully created site http://' . $ee_domain );
@@ -295,8 +295,8 @@ class Site_Command extends EE_Command {
 							update_site( $data, array( 'site_name' => $data['site_name'] ) );
 						} catch ( Exception $e ) {
 							EE::debug( $e->getMessage() );
-							EE::log( "Oops Something went wrong !!" );
-							EE::log( "Calling cleanup actions ..." );
+							EE::info( "Oops Something went wrong !!" );
+							EE::info( "Calling cleanup actions ..." );
 							do_cleanup_action( $data );
 							delete_site( array( 'site_name' => $ee_domain ) );
 						}
@@ -309,8 +309,8 @@ class Site_Command extends EE_Command {
 						} catch ( Exception $e ) {
 							EE::debug( $e->getMessage() );
 							EE::debug( "Error occured while generating ee-config.php" );
-							EE::log( "Oops Something went wrong !!" );
-							EE::log( "Calling cleanup actions ..." );
+							EE::info( "Oops Something went wrong !!" );
+							EE::info( "Calling cleanup actions ..." );
 							do_cleanup_action( $data );
 							delete_site( array( 'site_name' => $ee_domain ) );
 							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
@@ -322,8 +322,8 @@ class Site_Command extends EE_Command {
 							$ee_wp_creds = setup_wordpress( $data );
 						} catch ( Exception $e ) {
 							EE::debug( $e->getMessage() );
-							EE::log( "Oops Something went wrong !!" );
-							EE::log( "Calling cleanup actions ..." );
+							EE::info( "Oops Something went wrong !!" );
+							EE::info( "Calling cleanup actions ..." );
 							do_cleanup_action( $data );
 							delete_site( array( 'site_name' => $ee_domain ) );
 							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
@@ -331,11 +331,11 @@ class Site_Command extends EE_Command {
 					}
 
 					if ( ! EE_Service::reload_service( 'nginx' ) ) {
-						EE::log( "Oops Something went wrong !!" );
-						EE::log( "Calling cleanup actions ..." );
+						EE::info( "Oops Something went wrong !!" );
+						EE::info( "Calling cleanup actions ..." );
 						do_cleanup_action( $data );
 						delete_site( array( 'site_name' => $ee_domain ) );
-						EE::log( "service nginx reload failed. check issues with `nginx -t` command." );
+						EE::info( "service nginx reload failed. check issues with `nginx -t` command." );
 						EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
 					}
 
@@ -346,8 +346,8 @@ class Site_Command extends EE_Command {
 						set_webroot_permissions( $data['webroot'] );
 					} catch ( Exception $e ) {
 						EE::debug( $e->getMessage() );
-						EE::log( "Oops Something went wrong !!" );
-						EE::log( "Calling cleanup actions ..." );
+						EE::info( "Oops Something went wrong !!" );
+						EE::info( "Calling cleanup actions ..." );
 						do_cleanup_action( $data );
 						delete_site( array( 'site_name' => $ee_domain ) );
 						EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
@@ -355,14 +355,14 @@ class Site_Command extends EE_Command {
 
 					if ( ! empty( $ee_auth ) ) {
 						foreach ( $ee_auth as $msg ) {
-							EE::log( $msg );
+							EE::info( $msg );
 						}
 					}
 
 					if ( $data['wp'] ) {
 						if ( ! empty( $ee_wp_creds ) ) {
-							EE::log( "WordPress admin user : {$ee_wp_creds['wp_user']}" );
-							EE::log( "WordPress admin user password : {$ee_wp_creds['wp_pass']}" );
+							EE::info( "WordPress admin user : {$ee_wp_creds['wp_user']}" );
+							EE::info( "WordPress admin user password : {$ee_wp_creds['wp_pass']}" );
 							display_cache_settings( $data );
 						} else {
 							EE::debug( "Credentials could not setup." );
@@ -380,7 +380,7 @@ class Site_Command extends EE_Command {
 						if ( 'wpsubdomain' === $stype ) {
 							EE::warning( "Wildcard domains are not supported in Lets Encrypt.\nWP SUBDOMAIN site will get SSL for primary site only." );
 						}
-						EE::log( "Letsencrypt is currently in beta phase. \nDo you wish to enable SSl now for {$ee_domain}?" );
+						EE::info( "Letsencrypt is currently in beta phase. \nDo you wish to enable SSl now for {$ee_domain}?" );
 						$check_prompt = EE::input_value( "Type \"y\" to continue [n]:" );
 						if ( 'y' !== strtolower( $check_prompt ) ) {
 							$data['letsencrypt'] = false;
@@ -398,27 +398,27 @@ class Site_Command extends EE_Command {
 					if ( $data['letsencrypt'] ) {
 						setup_lets_encrypt( $ee_domain );
 						https_redirect( $ee_domain );
-						EE::log( "Creating Cron Job for cert auto-renewal" );
+						EE::info( "Creating Cron Job for cert auto-renewal" );
 						EE_Cron::set_cron_weekly( 'ee site update --le=renew --all 2> /dev/null', 'Renew all letsencrypt SSL cert. Set by EasyEngine' );
 
 						if ( EE_Service::reload_service( 'nginx' ) ) {
-							EE::log( "service nginx reload failed. check issues with `nginx -t` command" );
+							EE::info( "service nginx reload failed. check issues with `nginx -t` command" );
 						}
 
-						EE::log( "Congratulations! Successfully Configured SSl for Site https://{$ee_domain}" );
+						EE::info( "Congratulations! Successfully Configured SSl for Site https://{$ee_domain}" );
 
 						$ee_ssl_expiration_days = EE_Ssl::get_expiration_days( $ee_domain );
 
 						if ( $ee_ssl_expiration_days > 0 ) {
-							EE::log( "Your cert will expire within {$ee_ssl_expiration_days} days." );
+							EE::info( "Your cert will expire within {$ee_ssl_expiration_days} days." );
 						} else {
-							EE::log( "Your cert already EXPIRED ! Please renew soon." );
+							EE::info( "Your cert already EXPIRED ! Please renew soon." );
 						}
 
 						EE_Git::add( array( "{$ee_site_webroot}/conf/nginx" ), "Adding letsencrypts config of site: {$ee_domain}" );
 						update_site( $data, array( 'site_name' => $data['site_name'] ) );
 					} else {
-						EE::log( "Not using Let's encrypt for Site http://{$ee_domain}" );
+						EE::info( "Not using Let's encrypt for Site http://{$ee_domain}" );
 					}
 				}
 			} else {
@@ -459,16 +459,16 @@ class Site_Command extends EE_Command {
 		}
 
 		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
-			EE::log( "Enable domain {$ee_domain}" );
+			EE::info( "Enable domain {$ee_domain}" );
 			if ( ee_file_exists( EE_NGINX_SITE_ENABLE_DIR . $ee_domain ) ) {
 				EE::debug( "Site {$ee_domain} already enabled." );
-				EE::log( "[Failed]" );
+				EE::info( "[Failed]" );
 			} else {
 				ee_file_symlink( EE_NGINX_SITE_AVAIL_DIR . $ee_domain, EE_NGINX_SITE_ENABLE_DIR . $ee_domain );
 				EE_Git::add( array( "/etc/nginx" ), "Enabled {$ee_domain} " );
 				$data = array( 'is_enabled' => true );
 				update_site( $data, array( 'site_name' => $ee_domain ) );
-				EE::log( "[OK]" );
+				EE::info( "[OK]" );
 				if ( ! EE_Service::reload_service( 'nginx' ) ) {
 					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
 				}
@@ -511,16 +511,16 @@ class Site_Command extends EE_Command {
 		}
 
 		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
-			EE::log( "Disable domain {$ee_domain}" );
+			EE::info( "Disable domain {$ee_domain}" );
 			if ( ! ee_file_exists( EE_NGINX_SITE_ENABLE_DIR . $ee_domain ) ) {
 				EE::debug( "Site {$ee_domain} already disabled" );
-				EE::log( "[Failed]" );
+				EE::info( "[Failed]" );
 			} else {
 				ee_file_unlink( EE_NGINX_SITE_ENABLE_DIR . $ee_domain );
 				EE_Git::add( array( "/etc/nginx" ), "Disabled {$ee_domain} " );
 				$data = array( 'is_enabled' => false );
 				update_site( $data, array( 'site_name' => $ee_domain ) );
-				EE::log( "[OK]" );
+				EE::info( "[OK]" );
 				if ( ! EE_Service::reload_service( 'nginx' ) ) {
 					EE::error( "service nginx reload failed. check issues with `nginx -t` command" );
 				}
@@ -650,7 +650,7 @@ class Site_Command extends EE_Command {
 
 			if ( ! empty( $sites )) {
 				foreach ( $sites as $site ) {
-					EE::log( "Updating site {$site['sitename']}, please wait..." );
+					EE::info( "Updating site {$site['sitename']}, please wait..." );
 					do_update_site( $site['sitename'], $assoc_args );
 				}
 			}
@@ -762,7 +762,7 @@ class Site_Command extends EE_Command {
 				}
 				if ( 'y' === strtolower($ee_db_prompt)) {
 					$mark_db_delete_prompt = true;
-					EE::log( "Deleting Database, {$ee_db_name}, user {$ee_db_user}" );
+					EE::info( "Deleting Database, {$ee_db_name}, user {$ee_db_user}" );
 					delete_db( $ee_db_name, $ee_db_user, $ee_mysql_grant_host, false );
 					$data = array(
 						'db_name'     => 'deleted',
@@ -771,11 +771,11 @@ class Site_Command extends EE_Command {
 					);
 					update_site( $data, array( 'site_name' => $ee_domain ) );
 					$mark_db_deleted = true;
-					EE::log( "Deleted Database successfully." );
+					EE::info( "Deleted Database successfully." );
 				}
 			} else {
 				$mark_db_deleted = true;
-				EE::log( "Does not seems to have database for this site." );
+				EE::info( "Does not seems to have database for this site." );
 			}
 		}
 
@@ -790,18 +790,18 @@ class Site_Command extends EE_Command {
 
 				if ( 'y' === strtolower( $ee_web_prompt ) ) {
 					$mark_webroot_delete_prompt = true;
-					EE::log("Deleting Webroot, {$ee_site_webroot}");
+					EE::info("Deleting Webroot, {$ee_site_webroot}");
 					delete_web_root( $ee_site_webroot );
 					$data = array(
 						'webroot'     => 'deleted',
 					);
 					update_site( $data, array( 'site_name' => $ee_domain ) );
 					$mark_webroot_deleted = true;
-					EE::log( "Deleted webroot successfully" );
+					EE::info( "Deleted webroot successfully" );
 				}
 			} else {
 				$mark_webroot_deleted = true;
-				EE::log( "Webroot seems to be already deleted" );
+				EE::info( "Webroot seems to be already deleted" );
 			}
 		}
 
@@ -809,13 +809,13 @@ class Site_Command extends EE_Command {
 			if ( $mark_webroot_deleted && $mark_db_deleted ) {
 				remove_nginx_conf($ee_domain);
 				delete_site( array( 'sitename' => $ee_domain ) );
-				EE::log("Deleted site {$ee_domain}");
+				EE::info("Deleted site {$ee_domain}");
 			}
 		} else {
 			if ( $mark_db_delete_prompt || $mark_webroot_delete_prompt || ( $mark_webroot_deleted && $mark_db_deleted ) ) {
 				remove_nginx_conf($ee_domain);
 				delete_site( array( 'sitename' => $ee_domain ) );
-				EE::log("Deleted site {$ee_domain}");
+				EE::info("Deleted site {$ee_domain}");
 			}
 		}
 	}
@@ -849,7 +849,7 @@ class Site_Command extends EE_Command {
 		$sites = get_all_sites( $where );
 
 		foreach ( $sites as $site ) {
-			EE::log( $site['sitename'] );
+			EE::info( $site['sitename'] );
 		}
 	}
 
@@ -998,9 +998,9 @@ class Site_Command extends EE_Command {
 		}
 
 		if ( ee_file_exists( EE_NGINX_SITE_AVAIL_DIR . $ee_domain ) ) {
-			EE::log( "Display NGINX configuration for {$ee_domain}" );
+			EE::info( "Display NGINX configuration for {$ee_domain}" );
 			$config_content = file_get_contents( EE_NGINX_SITE_AVAIL_DIR . $ee_domain );
-			EE::log( $config_content );
+			EE::info( $config_content );
 		} else {
 			EE::error( "nginx configuration file does not exists" );
 		}
@@ -1080,7 +1080,7 @@ class Site_Command extends EE_Command {
 					EE::invoke_editor( EE_NGINX_SITE_AVAIL_DIR . $ee_domain );
 				} catch ( Exception $e ) {
 					EE::debug( $e->getMessage() );
-					EE::log( "Failed invoke editor" );
+					EE::info( "Failed invoke editor" );
 				}
 				//Todo: Check EE_NGINX_SITE_AVAIL_DIR . $ee_domain  status if its change or not using git.
 				EE_Git::add( array( "/etc/nginx" ), "Edit website: {$ee_domain}" );
