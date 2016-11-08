@@ -322,8 +322,8 @@ class Site_Command extends EE_Command {
 							$ee_wp_creds = setup_wordpress( $data );
 						} catch ( Exception $e ) {
 							EE::debug( $e->getMessage() );
-							EE::info( "Oops Something went wrong !!" );
-							EE::info( "Calling cleanup actions ..." );
+							EE::warning( "Oops Something went wrong !!" );
+							EE::warning( "Calling cleanup actions ..." );
 							do_cleanup_action( $data );
 							delete_site( array( 'site_name' => $ee_domain ) );
 							EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
@@ -331,11 +331,11 @@ class Site_Command extends EE_Command {
 					}
 
 					if ( ! EE_Service::reload_service( 'nginx' ) ) {
-						EE::info( "Oops Something went wrong !!" );
-						EE::info( "Calling cleanup actions ..." );
+						EE::warning( "Oops Something went wrong !!" );
+						EE::warning( "Calling cleanup actions ..." );
 						do_cleanup_action( $data );
 						delete_site( array( 'site_name' => $ee_domain ) );
-						EE::info( "service nginx reload failed. check issues with `nginx -t` command." );
+						EE::warning( "service nginx reload failed. check issues with `nginx -t` command." );
 						EE::error( "Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
 					}
 
