@@ -139,7 +139,7 @@ class EE_Stack {
 				if ( ! grep_string( EE_Variables::get_php_path() . "/7.0/fpm/php.ini", "EasyEngine" ) ) {
 					$apt = array_merge( $apt, EE_Variables::get_php_packages( '7.0' ) );
 				}
-				self::post_pref( $apt, $packages );
+				self::post_pref( $apt, '' );
 			} else {
 				EE::success( "PHP already installed and Configured" );
 			}
@@ -511,6 +511,14 @@ class EE_Stack {
 						EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpfc.conf', 'wpfc.mustache', $data );
 					}
 
+					if ( file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
+						if ( ! grep_string( "/etc/nginx/conf.d/upstream.conf", "php7" ) ) {
+							$content = "upstream php7 {\n" .
+							           "server 127.0.0.1:9070;\n}\n" .
+							           "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n";
+							ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $content );
+						}
+					}
 
 					// Nginx-Plus does not have nginx package structure like this
 					// So creating directories
@@ -607,27 +615,6 @@ class EE_Stack {
 					           "'\"\$http_referer\" \"\$http_user_agent\"';";
 					ee_file_append_content( "/etc/nginx/conf.d/redis.conf", $content );
 				}
-			}
-
-			if ( ! empty( array_intersect( EE_Variables::get_php_packages( '7.0' ), $apt_packages ) ) ) {
-				EE::debug( 'Writting the nginx configuration to file PHP7.0' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/locations-php7.conf', 'locations-php7.mustache' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/php7.conf', 'php7.mustache' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/w3tc-php7.conf', 'w3tc-php7.mustache' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpcommon-php7.conf', 'wpcommon-php7.mustache' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/wpsc-php7.conf', 'wpsc-php7.mustache' );
-				EE\Utils\mustache_write_in_file( '/etc/nginx/common/redis-php7.conf', 'redis-php7.mustache' );
-
-				if ( file_exists( "/etc/nginx/conf.d/upstream.conf" ) ) {
-					if ( ! grep_string( "/etc/nginx/conf.d/upstream.conf", "php7" ) ) {
-						$content = "upstream php7 {\n" .
-						           "server 127.0.0.1:9070;\n}\n" .
-						           "upstream debug7 {\nserver 127.0.0.1:9170;\n}\n";
-						ee_file_append_content( "/etc/nginx/conf.d/upstream.conf", $content );
-					}
-				}
-
-				EE_Service::restart_service( 'nginx' );
 			}
 
 
