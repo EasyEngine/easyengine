@@ -44,7 +44,7 @@ class EE_Cron {
 				EE::error( "Failed to remove crontab entry" );
 			}
 		} else {
-			EE::log( "Cron not found" );
+			EE::warning( "Cron not found" );
 		}
 	}
 }

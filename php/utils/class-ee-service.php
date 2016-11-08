@@ -15,7 +15,7 @@ class EE_Service {
 				$service_cmd = $service_name . ' -t && service ' . $service_name . ' start';
 			}
 
-			EE::log( 'Start : ' . $service_name );
+			EE::info( 'Start : ' . $service_name );
 			$service_start = \EE::exec_cmd( $service_cmd, 'Service start ' . $service_name );
 			if ( 0 == $service_start ) {
 				EE::success( '[OK]' );
@@ -24,7 +24,7 @@ class EE_Service {
 			}
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( 'Failed to start service ' . $service_name );
+			EE::warning( 'Failed to start service ' . $service_name );
 		}
 	}
 
@@ -37,7 +37,7 @@ class EE_Service {
 	public static function stop_service( $service_name ) {
 		try {
 			$service_cmd = 'service ' . $service_name . ' stop';
-			EE::log( 'Stop : ' . $service_name );
+			EE::info( 'Stop : ' . $service_name );
 			$service_start = \EE::exec_cmd( $service_cmd, 'Service stop ' . $service_name );
 			if ( 0 == $service_start ) {
 				EE::success( '[OK]' );
@@ -46,7 +46,7 @@ class EE_Service {
 			}
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( 'Failed to stop service ' . $service_name );
+			EE::warning( 'Failed to stop service ' . $service_name );
 		}
 	}
 
@@ -63,7 +63,7 @@ class EE_Service {
 				$service_cmd = $service_name . ' -t && service ' . $service_name . ' restart';
 			}
 
-			EE::log( 'Restart : ' . $service_name );
+			EE::info( 'Restart : ' . $service_name );
 			$service_start = \EE::exec_cmd( $service_cmd, 'Service Restart ' . $service_name );
 			if ( 0 == $service_start ) {
 				EE::success( '[OK]' );
@@ -72,7 +72,7 @@ class EE_Service {
 			}
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( 'Failed to restart service ' . $service_name );
+			EE::warning( 'Failed to restart service ' . $service_name );
 		}
 	}
 
@@ -129,7 +129,7 @@ class EE_Service {
 			return false;
 		} catch ( Exception $e ) {
 			EE::debug( $e->getMessage() );
-			EE::log( 'Unable to get services status of ' . $service_name );
+			EE::warning( 'Unable to get services status of ' . $service_name );
 
 			return false;
 		}

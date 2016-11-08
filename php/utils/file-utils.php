@@ -142,7 +142,7 @@ function ee_file_unlink( $linkfile ) {
 		if ( is_link( $linkfile ) ) {
 			unlink( $linkfile );
 		} else {
-			EE::log( "{$linkfile} exists but not symbolic link\n" );
+			EE::warning( "{$linkfile} exists but not symbolic link\n" );
 		}
 	}
 

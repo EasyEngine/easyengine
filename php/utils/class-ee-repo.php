@@ -21,7 +21,7 @@ class EE_Repo {
 					$repo_file_contents = file_get_contents( $repo_file_path );
 					$repo_file_content  = explode( "\n", $repo_file_contents );
 					if ( in_array( $repo_url, $repo_file_content, true ) ) {
-						EE::log( "Entry Already Exists." );
+						EE::info( "Entry Already Exists." );
 					} else {
 						$repo_file = fopen( $repo_file_path, 'a+' );
 						fwrite( $repo_file, $repo_url . "\n" );

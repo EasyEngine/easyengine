@@ -19,11 +19,11 @@ class EE_Git {
 				$git = new GitRepository( $path );
 				if ( ! $filesystem->exists( $path . '/.git' ) ) {
 					try {
-						EE::log( 'EEGit: git init at ' . $path );
+						EE::info( 'EEGit: git init at ' . $path );
 						$git->init( $path );
 					} catch ( Exception $e ) {
-						EE::log( $e->getMessage() );
-						EE::log( 'Unable to git init at ' . $path );
+						EE::debug( $e->getMessage() );
+						EE::warning( 'Unable to git init at ' . $path );
 					}
 				}
 
@@ -38,7 +38,7 @@ class EE_Git {
 					}
 				}
 			} else {
-				EE::log( 'EEGit: Path ' . $path . ' not present' );
+				EE::warning( 'EEGit: Path ' . $path . ' not present' );
 			}
 		}
 	}
