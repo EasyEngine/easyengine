@@ -66,3 +66,4 @@ script:
   - sudo ee stack stop --nginx --mysql --postfix --redis
   - sudo ee stack start --nginx --mysql --postfix --redis
   - sudo ee stack status --nginx --mysql --postfix --redis
+  - sudo ee stack install --all
