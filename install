@@ -290,8 +290,8 @@ function ee_install()
     php composer-setup.php
     php -r "unlink('composer-setup.php');"
     php composer.phar install || ee_lib_error "Unable to install EasyEngine, exit status " $?
-    ln -s $(pwd)/bin/ee /usr/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
-    chmod +x /usr/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
+    ln -s $(pwd)/bin/ee /usr/local/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
+    chmod +x /usr/local/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
 }
 
 # Update EasyEngine configuration
@@ -773,6 +773,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
 elif [ ! -f /usr/local/bin/ee ]; then
     ee_install_dep | tee -ai $ee_install_log
     ee_install | tee -ai $ee_install_log
+    ee_sync_db 2&>>1 $EE_INSTALL_LOG
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_git_init | tee -ai $ee_install_log
 
