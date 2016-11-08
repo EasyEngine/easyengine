@@ -42,9 +42,9 @@ script:
   - sudo echo "CREATE TABLE sites (id INTEGER PRIMARY KEY  AUTOINCREMENT,sitename UNIQUE,site_type CHAR,cache_type CHAR,site_path  CHAR,created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,is_enabled INT,is_ssl INT,storage_fs CHAR,storage_db CHAR,db_name VARCHAR,db_user VARCHAR,db_password VARCHAR,db_host VARCHAR,is_hhvm INT INT DEFAULT '0',is_pagespeed INT INT DEFAULT '0',php_version VARCHAR);" | sudo sqlite3 /var/lib/ee/ee.db
 
   - sudo ee | cat
-  - sudo ee stack install --nginx --debug || tail -n100 testlog.log
+  - sudo ee stack install --nginx --debug
   - ls /etc/nginx/common
-  - sudo ee stack install --mysql --debug || tail -n100 testlog.log
+  - sudo ee stack install --mysql --debug
   - sudo cat /etc/mysql/conf.d/my.cnf
   - sudo mysql -e "SHOW DATABASES;"
   - sudo ee stack install --php --debug
@@ -54,7 +54,7 @@ script:
   - sudo ee stack install --utils --debug
 
 
-  - sudo ee site create wp.localtest.me --type=wp --debug || sudo nginx -t && tail -n100 testlog.log
+  - sudo ee site create wp.localtest.me --type=wp --debug
   - curl http://wp.localtest.me
   - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug
   - sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug
