@@ -35,10 +35,6 @@ function ee_lib_error()
     exit $2
 }
 
-if [ "$ee_linux_distro" == "Ubuntu" ]; then
-    add-apt-repository -y 'ppa:ondrej/php'
-fi
-
 # Execute: apt-get update
 ee_lib_echo "Executing apt-get update, please wait..."
 apt-get update &>> /dev/null
@@ -57,6 +53,11 @@ readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
 readonly ee_distro_version=$(lsb_release -sc)
+
+if [ "$ee_linux_distro" == "Ubuntu" ]; then
+    add-apt-repository -y 'ppa:ondrej/php'
+    apt-get update &>> /dev/null
+fi
 
 # Checking linux distro
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
@@ -92,7 +93,7 @@ fi
 function ee_install_dep()
 {
     if [ "$ee_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install gcc curl gzip php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-sqlite3 php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-mysql php7.0-sqlite3 php7.0-cli php7.0-common php7.0-recode php7.0-mbstring php7.0-bcmath php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php7.0-sqlite3 php-memcached  php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack php-redis sqlite3 software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
+        apt-get -y --force-yes install git gcc curl gzip php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-sqlite3 php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-mysql php7.0-sqlite3 php7.0-cli php7.0-common php7.0-recode php7.0-mbstring php7.0-bcmath php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php7.0-sqlite3 php-memcached  php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack php-redis sqlite3 software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
     elif [ "$ee_linux_distro" == "Debian" ]; then
         apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
@@ -272,6 +273,7 @@ function check_pagespeed()
 function ee_install()
 {
     # Remove old clone of EasyEngine (ee) if any
+    rm -r /opt/easyengine
 
     # Clone EE 3.0 Python ee_branch
     ee_lib_echo "Cloning EasyEngine, please wait..."
@@ -283,12 +285,11 @@ function ee_install()
     || ee_lib_error "Unable to clone EasyEngine, exit status" $?
 
     cd /opt/easyengine
-    ee_lib_echo "Installing EasyEngine, please wait..."
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    php -r "if (hash_file('SHA384', 'composer-setup.php') === 'e115a8dc7871f15d853148a7fbac7da27d6c0030b848d9b3dc09e2a0388afed865e6a3d6b3c0fad45c48e2b5fc1196ae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+    php -r "if (hash_file('SHA384', 'composer-setup.php') === 'aa96f26c2b67226a324c27919f1eb05f21c248b987e6195cad9690d5c1ff713d53020a02ac8c217dbf90a7eacc9d141d') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
     php composer-setup.php
     php -r "unlink('composer-setup.php');"
-    sudo php composer.phar install || ee_lib_error "Unable to install EasyEngine, exit status " $?
+    php composer.phar install || ee_lib_error "Unable to install EasyEngine, exit status " $?
     ln -s $(pwd)/bin/ee /usr/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
     chmod +x /usr/bin/ee || ee_lib_error "Unable to install EasyEngine, exit status " $?
 }

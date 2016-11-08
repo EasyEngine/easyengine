@@ -32,10 +32,9 @@ script:
   - sudo ln -s $(pwd)/bin/ee /usr/bin/ee
   - chmod +x /usr/bin/ee
   - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  - php -r "if (hash_file('SHA384', 'composer-setup.php') === 'e115a8dc7871f15d853148a7fbac7da27d6c0030b848d9b3dc09e2a0388afed865e6a3d6b3c0fad45c48e2b5fc1196ae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+  - php -r "if (hash_file('SHA384', 'composer-setup.php') === 'aa96f26c2b67226a324c27919f1eb05f21c248b987e6195cad9690d5c1ff713d53020a02ac8c217dbf90a7eacc9d141d') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
   - php composer-setup.php
   - php -r "unlink('composer-setup.php');"
-  - sudo php composer.phar install
   - sudo mkdir -p /var/lib/ee
   - sudo echo "CREATE TABLE sites (id INTEGER PRIMARY KEY  AUTOINCREMENT,sitename UNIQUE,site_type CHAR,cache_type CHAR,site_path  CHAR,created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,is_enabled INT,is_ssl INT,storage_fs CHAR,storage_db CHAR,db_name VARCHAR,db_user VARCHAR,db_password VARCHAR,db_host VARCHAR,is_hhvm INT INT DEFAULT '0',is_pagespeed INT INT DEFAULT '0',php_version VARCHAR);" | sudo sqlite3 /var/lib/ee/ee.db
 
