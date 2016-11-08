@@ -48,16 +48,13 @@ class EE_Utils {
 				}
 			}
 			try {
-				$file = fopen($download_path, "a+");
-				EE::debug( "Downloading " . $pkg_name );
+				$file = fopen($download_path, "w+");
+				EE::info( "Downloading " . $pkg_name );
 				set_time_limit( 0 ); // unlimited max execution time
-				$options = array(
-					CURLOPT_FILE => $file,
-					CURLOPT_URL  => $url,
-				);
-
 				$ch = curl_init();
-				curl_setopt_array( $ch, $options );
+				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_FILE, $file); //auto write to file
+				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 				curl_exec( $ch );
 				curl_close( $ch );
 				fclose($file);
