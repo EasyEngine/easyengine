@@ -37,6 +37,8 @@ script:
   - php -r "unlink('composer-setup.php');"
   - sudo php composer.phar install
   - sudo mkdir -p /var/lib/ee
+  - sudo mkdir /var/log/ee
+  - sudo touch /var/log/ee/ee.log
   - sudo echo "CREATE TABLE sites (id INTEGER PRIMARY KEY  AUTOINCREMENT,sitename UNIQUE,site_type CHAR,cache_type CHAR,site_path  CHAR,created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,is_enabled INT,is_ssl INT,storage_fs CHAR,storage_db CHAR,db_name VARCHAR,db_user VARCHAR,db_password VARCHAR,db_host VARCHAR,is_hhvm INT INT DEFAULT '0',is_pagespeed INT INT DEFAULT '0',php_version VARCHAR);" | sudo sqlite3 /var/lib/ee/ee.db
 
   - sudo ee | cat
