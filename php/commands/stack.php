@@ -103,6 +103,9 @@ class Stack_Command extends EE_Command {
 	 * [--wpcli]
 	 * :To remove wp-cli
 	 *
+	 * [--phpmyadmin]
+	 * : To remove phpmyadmin tool
+	 *
 	 * [--utils]
 	 * : To remove Utilities tools
 	 *
@@ -119,7 +122,7 @@ class Stack_Command extends EE_Command {
 		list( $site_name ) = $args;
 		$apt_packages = array();
 		$packages     = array();
-		$stack        = self::validate_stack_option( $assoc_args );
+		$stack        = EE_Stack::validate_stack_option( $assoc_args );
 
 		// if ($category['mail'] == true){
 		// todo:
@@ -285,6 +288,9 @@ class Stack_Command extends EE_Command {
 	 * [--wpcli]
 	 * :To purge wp-cli
 	 *
+	 * [--phpmyadmin]
+	 * : To remove phpmyadmin tool
+	 *
 	 * [--utils]
 	 * : To purge Utilities tools
 	 *
@@ -299,7 +305,7 @@ class Stack_Command extends EE_Command {
 
 		$apt_packages = array();
 		$packages     = array();
-		$stack        = self::validate_stack_option( $assoc_args );
+		$stack        = EE_Stack::validate_stack_option( $assoc_args );
 
 
 		if ( ! empty( $stack['redis'] ) ) {
