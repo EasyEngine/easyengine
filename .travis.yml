@@ -56,11 +56,11 @@ script:
 
   - sudo ee site create wp.localtest.me --type=wp --debug || sudo nginx -t && tail -n100 testlog.log
   - curl http://wp.localtest.me
-  - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug || sudo nginx -t && tail -n100 testlog.log
-  - sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug || sudo nginx -t && tail -n100 testlog.log
-  - sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug || sudo nginx -t && tail -n100 testlog.log
+  - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug
+  - sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug
+  - sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug
   - sudo ee site list --debug
-  - ee site show wp.localtest.me
+  - sudo ee site show wp.localtest.me
   - sudo ee clean --all
   - sudo ee stack restart --nginx --mysql --postfix --redis
   - sudo ee stack stop --nginx --mysql --postfix --redis

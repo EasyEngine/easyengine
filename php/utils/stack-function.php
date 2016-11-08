@@ -133,7 +133,7 @@ class EE_Stack {
 		if ( ! empty( $stack['php'] ) ) {
 
 			if ( ! grep_string( EE_Variables::get_php_path() . "/5.6/fpm/php.ini", "EasyEngine" ) ) {
-				EE::debug( "Configuting PHP FPM PROCESS" );
+				EE::debug( "Configuring PHP FPM PROCESS" );
 				$apt = array();
 				$apt = array_merge( $apt, EE_Variables::get_php_packages( '5.6' ) );
 				if ( ! grep_string( EE_Variables::get_php_path() . "/7.0/fpm/php.ini", "EasyEngine" ) ) {
