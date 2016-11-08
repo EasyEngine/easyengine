@@ -715,10 +715,11 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 function ee_git_init()
 {
     if [ ! -f ~/.gitconfig ]; then
-	    read -p "Please enter your name : " ee_name
+        clear
+	    read -p "\nPlease enter your name : " ee_name
 	    git config --global user.name $ee_name
 
-	    read -p "Please enter your email : " ee_email
+	    read -p "\nPlease enter your email : " ee_email
 	    git config --global user.email $ee_email
 
     fi
@@ -812,7 +813,6 @@ else
         ee_lib_error "You already have EasyEngine $ee_version_new, exit status = " 1
     fi
 fi
-ee sync | tee -ai $EE_INSTALL_LOG
 
 echo
 ee_lib_echo "For EasyEngine (ee) auto completion, run the following command"
