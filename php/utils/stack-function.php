@@ -377,9 +377,11 @@ class EE_Stack {
 
 			EE::debug( "Adding key for Mysql" );
 			if ( EE_OS::ee_platform_codename() != 'xenial' ) {
+				EE::info("Adding GPG key for MYSQL");
 				EE_Repo::add_key( '0xcbcb082a1bb943db', "keyserver.ubuntu.com" );
 
 			} else {
+				EE::info("Adding GPG key for MYSQL");
 				EE_Repo::add_key( '0xF1656F24C74CD1D8', "keyserver.ubuntu.com" );
 			}
 
@@ -401,8 +403,9 @@ class EE_Stack {
 		}
 
 		if ( in_array( EE_Variables::get_nginx_packages()[0], $apt_packages ) ) {
-			EE::debug( "Adding repository for NGINX, please wait..." );
+			EE::info( "Adding repository for NGINX, please wait..." );
 			EE_Repo::add( EE_Variables::get_nginx_repo() );
+			EE::info("Adding GPG key for NGINX");
 			EE_Repo::add_key( '3050AC3CD2AE6F03' );
 		}
 //
@@ -418,7 +421,9 @@ class EE_Stack {
 			if ( 'ubuntu' === EE_OS::ee_platform_distro() ) {
 				EE_Repo::add( '', EE_Variables::get_redis_repo() );
 			} else if ( 'debian' == EE_OS::ee_platform_distro() ) {
+				EE::info( "Adding repository for REDIS, please wait..." );
 				EE_Repo::add( EE_Variables::get_redis_repo() );
+				EE::info("Adding GPG key for REDIS");
 				EE_Repo::add_key( '3050AC3CD2AE6F03' );
 			}
 		}
