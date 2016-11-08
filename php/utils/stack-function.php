@@ -356,13 +356,13 @@ class EE_Stack {
 		// Pre settings to do before installation packages
 
 		if ( in_array( 'postfix', $apt_packages ) ) {
-			echo "Pre-seeding Postfix";
+			EE::info("Pre-seeding Postfix");
 			try {
 
 				EE::exec_cmd_output( 'echo "postfix postfix/main_mailer_type string \'Internet Site\'" | debconf-set-selections', $message = '', $exit_on_error = false );
 				EE::exec_cmd_output( 'echo "postfix postfix/mailname string $(hostname -f)" | debconf-set-selections', $message = '', $exit_on_error = false );
 			} catch ( Exception $e ) {
-				echo "Failed to intialize postfix package";
+				EE::error("Failed to intialize postfix package");
 			}
 		}
 
