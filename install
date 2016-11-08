@@ -718,10 +718,10 @@ function ee_git_init()
 {
     if [ ! -f ~/.gitconfig ]; then
         clear
-	    read -p "\nPlease enter your name : " ee_name
+	    read -p "Please enter your name : " ee_name
 	    git config --global user.name $ee_name
 
-	    read -p "\nPlease enter your email : " ee_email
+	    read -p "Please enter your email : " ee_email
 	    git config --global user.email $ee_email
 
     fi
@@ -787,6 +787,11 @@ elif [ ! -f /usr/local/bin/ee ]; then
     ee_install | tee -ai $ee_install_log
     ee_sync_db 2&>>1 $EE_INSTALL_LOG
     secure_ee_db | tee -ai $EE_INSTALL_LOG
+
+    if [ ! -d /etc/ee ]; then
+            mkdir -p /etc/ee
+            cp /opt/easyengine/config/ee.conf /etc/ee/ee.conf > /dev/null
+    fi
     ee_git_init | tee -ai $ee_install_log
 
 else
