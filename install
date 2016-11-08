@@ -273,7 +273,9 @@ function check_pagespeed()
 function ee_install()
 {
     # Remove old clone of EasyEngine (ee) if any
-    rm -r /opt/easyengine
+    if [ -d /opt/easyengine ];then
+        rm -r /opt/easyengine
+    fi
 
     # Clone EE 3.0 Python ee_branch
     ee_lib_echo "Cloning EasyEngine, please wait..."
