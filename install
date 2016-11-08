@@ -714,6 +714,13 @@ if [ -f /etc/ImageMagick/policy.xml  ]
 # Do git intialisation
 function ee_git_init()
 {
+    if [ ! -f ~/.gitconfig ]; then
+	    read -p "Please enter your name : " ee_name
+	    read -p "Please enter your email : " ee_email
+	    git config --global user.email $ee_email
+	    git config --global user.name $ee_name
+    fi
+    
     # Nginx under git version control
     if [ -d /etc/nginx ];then
         cd /etc/nginx
