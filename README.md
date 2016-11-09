@@ -50,51 +50,42 @@ ee update
 ### Standard WordPress Sites
 
 ```bash
-ee site create example.com --wp                  # install wordpress without any page caching
-ee site create example.com --w3tc                # install wordpress with w3-total-cache plugin
-ee site create example.com --wpsc                # install wordpress with wp-super-cache plugin
-ee site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
-ee site create example.com --wpredis             # install wordpress + nginx redis_cache
+ee site create example.com --type=wp                  # install wordpress without any page caching
+ee site create example.com --cache=w3tc                # install wordpress with w3-total-cache plugin
+ee site create example.com --cache=wpsc                # install wordpress with wp-super-cache plugin
+ee site create example.com --cache=wpfc                # install wordpress + nginx fastcgi_cache
+ee site create example.com --cache=wpredis            # install wordpress + nginx redis_cache
+ee site create example.com --type=wp --php=7.0      # install wordpress without any page caching(PHP Version: 7.0)
 ```
 
 ### WordPress Multsite with subdirectory
 
 ```bash
-ee site create example.com --wpsubdir            # install wpmu-subdirectory without any page caching
-ee site create example.com --wpsubdir --w3tc     # install wpmu-subdirectory with w3-total-cache plugin
-ee site create example.com --wpsubdir --wpsc     # install wpmu-subdirectory with wp-super-cache plugin
-ee site create example.com --wpsubdir --wpfc     # install wpmu-subdirectory + nginx fastcgi_cache
-ee site create example.com --wpsubdir --wpredis  # install wpmu-subdirectory + nginx redis_cache
+ee site create example.com --type=wpsubdir            # install wpmu-subdirectory without any page caching
+ee site create example.com --type=wpsubdir --cache=w3tc     # install wpmu-subdirectory with w3-total-cache plugin
+ee site create example.com --type=wpsubdir --cache=wpsc     # install wpmu-subdirectory with wp-super-cache plugin
+ee site create example.com --type=wpsubdir --cache=wpfc     # install wpmu-subdirectory + nginx fastcgi_cache
+ee site create example.com --type=wpsubdir --cache=wpredis  # install wpmu-subdirectory + nginx redis_cache
 ```
 
 ### WordPress Multsite with subdomain
 
 ```bash
-ee site create example.com --wpsubdomain            # install wpmu-subdomain without any page caching
-ee site create example.com --wpsubdomain --w3tc     # install wpmu-subdomain with w3-total-cache plugin
-ee site create example.com --wpsubdomain --wpsc     # install wpmu-subdomain with wp-super-cache plugin
-ee site create example.com --wpsubdomain --wpfc     # install wpmu-subdomain + nginx fastcgi_cache
-ee site create example.com --wpsubdomain --wpredis  # install wpmu-subdomain + nginx redis_cache
+ee site create example.com --type=wpsubdomain            # install wpmu-subdomain without any page caching
+ee site create example.com --type=wpsubdomain --cache=w3tc     # install wpmu-subdomain with w3-total-cache plugin
+ee site create example.com --type=wpsubdomain --cache=wpsc     # install wpmu-subdomain with wp-super-cache plugin
+ee site create example.com --type=wpsubdomain --cache=wpfc     # install wpmu-subdomain + nginx fastcgi_cache
+ee site create example.com --type=wpsubdomain --cache=wpredis  # install wpmu-subdomain + nginx redis_cache
+ee site create example.com --type=wpsubdomain --php=7.0 # install wpmu-subdomain without any page caching (PHP Version: 7.0)
 ```
 
 ### Non-WordPress Sites
 ```bash
-ee site create example.com --html     # create example.com for static/html sites
-ee site create example.com --php      # create example.com with php support
-ee site create example.com --mysql    # create example.com with php & mysql support
+ee site create example.com --type=html     # create example.com for static/html sites
+ee site create example.com --type=php      # create example.com with php support
+ee site create example.com --type=mysql    # create example.com with php & mysql support
 ```
 
-### HHVM Enabled Sites
-```bash
-ee site create example.com --wp --hhvm           # create example.com WordPress site with HHVM support
-ee site create example.com --php --hhvm          # create example.com php site with HHVM support
-```
-
-### PageSpeed Enabled Sites
-```bash
-ee site create example.com --wp --pagespeed      # create example.com WordPress site with PageSpeed support
-ee site create example.com --php --pagespeed     # create example.com php site with PageSpeed support
-```
 
 ## Cheatsheet - Site creation
 
