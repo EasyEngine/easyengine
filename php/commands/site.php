@@ -31,9 +31,29 @@ class Site_Command extends EE_Command {
 	 *
 	 * [--type=<types>]
 	 * : Type for create site.
+	 * ---
+	 * default: html
+	 * options:
+	 *   - html
+	 *   - php
+	 *   - mysql
+	 *   - wp
+	 *   - wpsubdir
+	 *   - wpsubdomain
+	 *   - proxy
 	 *
-	 * [--html]
-	 * : Create html site
+	 * [--cache=<cache>]
+	 * : Cache for site.
+	 * ---
+	 * default: wpfc
+	 * options:
+	 *   - w3tc
+	 *   - wpfc
+	 *   - wpredis
+	 *   - wpsc
+	 *   - wpsubdir
+	 *   - wpsubdomain
+	 *   - proxy
 	 *
 	 * [--php]
 	 * : Get PHP configuration information.
@@ -42,36 +62,6 @@ class Site_Command extends EE_Command {
 	 * options:
 	 *   - 5.6
 	 *   - 7.0
-	 *
-	 * [--mysql]
-	 * : Create mysql site.
-	 *
-	 * [--wp]
-	 * : Create wordpress single site.
-	 *
-	 * [--wpsubdir]
-	 * : Create wordpress multisite with subdirectory setup.
-	 *
-	 * [--wpsubdomain]
-	 * : Create wordpress multisite with subdomain setup.
-	 *
-	 * [--w3tc]
-	 * : Create wordpress single/multi site with w3tc cache.
-	 *
-	 * [--wpredis]
-	 * : Create wordpress single/multi site with redis cache.
-	 *
-	 * [--hhvm]
-	 * : Create HHVM site.
-	 *
-	 * [--proxy]
-	 * : Create proxy for site.
-	 *
-	 * [--pagespeed]
-	 * : Create pagespeed site.
-	 *
-	 * [--cache=<cache>]
-	 * : Cache for site.
 	 *
 	 * [--user=<username>]
 	 * : Username for WordPress admin.
@@ -102,7 +92,7 @@ class Site_Command extends EE_Command {
 	 * ## EXAMPLES
 	 *
 	 *      # Create site.
-	 *      $ ee site create example.com
+	 *      $ ee site create example.com --type=wp --cache=wpredis
 	 *
 	 */
 	public function create( $args, $assoc_args ) {
@@ -262,7 +252,7 @@ class Site_Command extends EE_Command {
 				}elseif("w3tc"===$cache){
 					$data['w3tc'] = true;
 				}
-				if('7.0'=== $assoc_args['php']){
+				if(isset($assoc_args['php']) && '7.0'=== $assoc_args['php']){
 					$data['php_version'] = "7.0";
 					$data['php7']      = true;
 				}else{
