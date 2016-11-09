@@ -262,6 +262,11 @@ class Site_Command extends EE_Command {
 				}elseif("w3tc"===$cache){
 					$data['w3tc'] = true;
 				}
+				if('7.0'=== $assoc_args['php']){
+					$data['php_version'] = "7.0";
+				}else{
+					$data['php_version'] = "5.6";
+				}
 				$ee_auth = site_package_check( $stype, $cache );
 
 				try {
@@ -301,7 +306,7 @@ class Site_Command extends EE_Command {
 						EE::success( 'Successfully created site http://' . $ee_domain );
 					}
 
-					$data['php_version'] = "5.6";
+
 					if ( ! empty( $data['php7'] ) && $data['php7'] ) {
 						$data['php_version'] = "7.0";
 					}
