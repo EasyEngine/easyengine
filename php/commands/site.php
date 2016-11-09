@@ -264,6 +264,7 @@ class Site_Command extends EE_Command {
 				}
 				if('7.0'=== $assoc_args['php']){
 					$data['php_version'] = "7.0";
+					$data['php7']      = true;
 				}else{
 					$data['php_version'] = "5.6";
 				}
