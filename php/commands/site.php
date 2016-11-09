@@ -550,13 +550,33 @@ class Site_Command extends EE_Command {
 	 * ## OPTIONS
 	 *
 	 * [<name>]
-	 * : Name of the site to update.
+	 * : Name of the site to create.
 	 *
 	 * [--type=<types>]
-	 * : Type for update site.
+	 * : Type for create site.
+	 * ---
+	 * default: html
+	 * options:
+	 *   - html
+	 *   - php
+	 *   - mysql
+	 *   - wp
+	 *   - wpsubdir
+	 *   - wpsubdomain
+	 *   - proxy
 	 *
-	 * [--html]
-	 * : Update to html site
+	 * [--cache=<cache>]
+	 * : Cache for site.
+	 * ---
+	 * default: wpfc
+	 * options:
+	 *   - w3tc
+	 *   - wpfc
+	 *   - wpredis
+	 *   - wpsc
+	 *   - wpsubdir
+	 *   - wpsubdomain
+	 *   - proxy
 	 *
 	 * [--php]
 	 * : Get PHP configuration information.
@@ -565,36 +585,6 @@ class Site_Command extends EE_Command {
 	 * options:
 	 *   - 5.6
 	 *   - 7.0
-	 *
-	 * [--mysql]
-	 * : Update to mysql site.
-	 *
-	 * [--wp]
-	 * : Update to wordpress single site.
-	 *
-	 * [--wpsubdir]
-	 * : Update to wordpress multisite with subdirectory setup.
-	 *
-	 * [--wpsubdomain]
-	 * : Update to wordpress multisite with subdomain setup.
-	 *
-	 * [--w3tc]
-	 * : Update to wordpress single/multi site with w3tc cache.
-	 *
-	 * [--wpredis]
-	 * : Update to wordpress single/multi site with redis cache.
-	 *
-	 * [--hhvm]
-	 * : Update to HHVM site.
-	 *
-	 * [--proxy]
-	 * : Update site to proxy.
-	 *
-	 * [--pagespeed]
-	 * : Update to pagespeed site.
-	 *
-	 * [--cache=<cache>]
-	 * : Cache for site.
 	 *
 	 * [--user=<username>]
 	 * : Username for WordPress admin.
@@ -619,8 +609,6 @@ class Site_Command extends EE_Command {
 	 *
 	 * [--experimental]
 	 * : Enable Experimenal packages without prompt.
-	 *
-	 *
 	 *
 	 * ## EXAMPLES
 	 *
