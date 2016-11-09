@@ -59,6 +59,8 @@ script:
   - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug
   - sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug
   - sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug
+  - sudo ee site create proxy.localtest.me --type=proxy --ip=127.0.0.1:22222 --debug
+  - sudo ee site create proxy1.localtest.me --type=proxy --ip=127.0.0.1 --port=22222 --debug
   - sudo ee site list --debug
   - sudo ee site show wp.localtest.me
   - sudo ee clean --all
