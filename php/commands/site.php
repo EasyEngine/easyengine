@@ -174,6 +174,22 @@ class Site_Command extends EE_Command {
 												"\nee site create example.com --type=proxy --ip=127.0.0.1 --proxy=22222");
 					}
 					$proxyinfo = $assoc_args['ip'];
+					if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
+						$data['basic'] = true;
+					}elseif("wpredis"===$cache){
+						$data['wpredis'] = true;
+						$data['wp'] = true;
+					}elseif("wpfc"===$cache){
+						$data['wpfc'] = true;
+						$data['wp'] = true;
+					}elseif("wpsc"===$cache){
+						$data['wpsc'] = true;
+						$data['wp'] = true;
+					}elseif("w3tc"===$cache){
+						$data['w3tc'] = true;
+						$data['wp'] = true;
+					}
+					
 					if ( strpos( $proxyinfo, ':' ) !== false ) {
 						$proxyinfo = explode( ':', $proxyinfo );
 						$host      = $proxyinfo[0];
@@ -241,17 +257,6 @@ class Site_Command extends EE_Command {
 					}
 				}
 
-				if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
-					$data['basic'] = true;
-				}elseif("wpredis"===$cache){
-					$data['wpredis'] = true;
-				}elseif("wpfc"===$cache){
-					$data['wpfc'] = true;
-				}elseif("wpsc"===$cache){
-					$data['wpsc'] = true;
-				}elseif("w3tc"===$cache){
-					$data['w3tc'] = true;
-				}
 				if(isset($assoc_args['php']) && '7.0'=== $assoc_args['php']){
 					$data['php_version'] = "7.0";
 					$data['php7']      = true;
@@ -634,7 +639,7 @@ class Site_Command extends EE_Command {
 			EE::error( "Hhvm support has been dropped since EasyEngine v4.0", false );
 			EE::error( "Please run command again with other type", false );
 			// TODO :change hhvm link;
-			EE::error( "For more details, read - https://easyengine.io/blog/disabling-pagespeed/" );
+			EE::error( "For more details, read - " );
 		}
 
 		if ( ! empty( $assoc_args['all'] ) ) {
