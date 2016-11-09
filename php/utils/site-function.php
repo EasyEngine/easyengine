@@ -659,6 +659,50 @@ function setup_wordpress( $data ) {
 	if ( $data['w3tc'] || $data['wpfc'] ) {
 		install_wp_plugin( 'w3-total-cache', $data );
 	}
+	#setup Nginx Helper plugin
+	if ( $data['wpfc'] ) {
+		try {
+			$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
+			$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
+			$plugin_data .= '"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,';
+			$plugin_data .= '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,';
+			$plugin_data .= '"purge_page_on_deleted_comment":1,"cache_method":"enable_fastcgi","purge_method":"get_request",';
+			$plugin_data .= '"redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+			setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::info( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+			return 1;
+		}
+	} else if ( $data['wpredis'] )  {
+		try {
+			$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
+			$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
+			$plugin_data .= '"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,"purge_archive_on_new_comment":0,';
+			$plugin_data .= '"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,"purge_page_on_new_comment":1,';
+			$plugin_data .= '"purge_page_on_deleted_comment":1,"cache_method":"enable_redis","purge_method":"get_request",';
+			$plugin_data .= '"redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+			setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::info( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+			return 1;
+		}
+	} else {
+		try {
+			$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":0,"enable_map":0,';
+			$plugin_data .= '"enable_log":0,"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,';
+			$plugin_data .= '"purge_homepage_on_del":1,"purge_archive_on_new":1,"purge_archive_on_edit":0,"purge_archive_on_del":0,';
+			$plugin_data .= '"purge_archive_on_new_comment":0,"purge_archive_on_deleted_comment":0,"purge_page_on_mod":1,';
+			$plugin_data .= '"purge_page_on_new_comment":1,"purge_page_on_deleted_comment":1,"cache_method":"enable_redis",';
+			$plugin_data .= '"purge_method":"get_request","redis_hostname":"127.0.0.1","redis_port":"6379","redis_prefix":"nginx-cache:"}';
+			setup_wp_plugin( 'nginx-helper', 'rt_wp_nginx_helper_options', $plugin_data, $data );
+		} catch ( Exception $e ) {
+			EE::debug( $e->getMessage() );
+			EE::info( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
+			return 1;
+		}
+	}
 
 	$wp_creds = array(
 		'wp_user'  => $ee_wp_user,
