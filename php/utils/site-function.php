@@ -141,7 +141,7 @@ function setup_database( $data ) {
 	}
 
 	if ( strlen( $ee_db_username ) > 16 ) {
-		EE::info( 'Autofix MySQL username (ERROR 1470 (HY000)), please wait' );
+		EE::debug( 'Autofix MySQL username (ERROR 1470 (HY000)), please wait' );
 		$ee_db_username = substr( $ee_db_username, 0, 6 ) . EE_Utils::generate_random( 10, false );
 	}
 
