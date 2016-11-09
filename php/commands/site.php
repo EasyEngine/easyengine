@@ -127,6 +127,20 @@ class Site_Command extends EE_Command {
 			EE::error( "Nginx configuration /etc/nginx/sites-available/{$ee_domain} already exists" );
 		}
 		$ee_site_webroot = EE_Variables::get_ee_webroot() . $ee_domain;
+		$registered_stype  = array(
+			'html',
+			'php',
+			'php7',
+			'mysql',
+			'wp',
+			'wpsubdir',
+			'wpsubdomain',
+			'w3tc',
+			'wpfc',
+			'wpsc',
+			'wpredis',
+			'proxy',
+		);
 		$registered_cmd  = array(
 			'html',
 			'php',
@@ -163,8 +177,12 @@ class Site_Command extends EE_Command {
 		$experimental       = empty( $assoc_args['experimental'] ) ? false : true;
 
 		if ( ! empty( $stype ) ) {
-			if ( in_array( $stype, $registered_cmd ) ) {
+			if ( in_array( $stype, $registered_stype ) ) {
 				if ( 'proxy' == $stype ) {
+					if(empty($assoc_args['ip'])){
+						EE::error("--type=proxy option not set correctly.\nExample:\nee site create example.com --type=proxy --ip=127.0.0.1:22222".
+												"\nee site create example.com --type=proxy --ip=127.0.0.1 --proxy=22222");
+					}
 					$proxyinfo = $assoc_args['ip'];
 					if ( strpos( $proxyinfo, ':' ) !== false ) {
 						$proxyinfo = explode( ':', $proxyinfo );
