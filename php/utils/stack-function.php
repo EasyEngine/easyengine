@@ -582,8 +582,8 @@ class EE_Stack {
 						EE_Service::reload_service( "nginx" );
 
 					} else {
-						EE::success( "HTTP Auth User Name: easyengine" .
-						             "\nHTTP Auth Password : " . $passwd );
+						EE::success( "HTTP Auth User Name: easyengine");
+						EE::success( "HTTP Auth Password : " . $passwd );
 						EE_Service::reload_service( "nginx" );
 					}
 
@@ -623,7 +623,7 @@ class EE_Stack {
 			}
 
 
-			if ( ( EE_OS::ee_platform_distro() == 'debian' || EE_OS::ee_platform_codename() == 'precise' ) && ( in_array( "php5-fpm", $apt_packages ) ) ) {
+			if ( ( EE_OS::ee_platform_distro() == 'debian' ) && ( in_array( "php5-fpm", $apt_packages ) ) ) {
 				ee_file_mkdir( "/var/log/php5/" );
 				if ( ( EE_OS::ee_platform_distro() == 'debian' && EE_OS::ee_platform_codename() == 'wheezy' ) ) {
 					EE::exec_cmd( "pecl install xdebug" );
@@ -668,7 +668,7 @@ class EE_Stack {
 
 			}
 
-			if ( ( EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial' )
+			if ( ( EE_OS::ee_platform_distro() == 'ubuntu')
 			     && ( in_array( "php5.6-fpm", $apt_packages ) )
 			) {
 				ee_file_mkdir( "/var/log/php/5.6/" );
@@ -726,13 +726,13 @@ class EE_Stack {
 				EE\Utils\mustache_write_in_file( '/etc/php/7.0/fpm/php-fpm.conf', 'php-fpm.mustache', $data );
 
 				$data = array(
-					"listen" => "127.0.0.1:9000",
+					"listen" => "127.0.0.1:9070",
 				);
 				EE::debug( 'Configuring php file /etc/php/7.0/fpm/pool.d/www.conf' );
 				EE\Utils\mustache_write_in_file( '/etc/php/7.0/fpm/pool.d/www.conf', 'php-www.mustache', $data );
 
 				$data = array(
-					"listen"       => "127.0.0.1:9001",
+					"listen"       => "127.0.0.1:9170",
 					"slowlog_path" => "/var/log/php/7.0/slow.log",
 				);
 				EE::debug( 'Configuring php file /etc/php/7.0/fpm/pool.d/debug.conf' );
@@ -746,7 +746,7 @@ class EE_Stack {
 
 			}
 
-			if ( ( EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial' )
+			if ( ( EE_OS::ee_platform_distro() == 'ubuntu' )
 			     && ( in_array( "php7.0-fpm", $apt_packages ) )
 			) {
 				ee_file_mkdir( "/var/log/php/7.0/" );
@@ -765,13 +765,13 @@ class EE_Stack {
 				EE\Utils\mustache_write_in_file( '/etc/php/7.0/fpm/php-fpm.conf', 'php-fpm.mustache', $data );
 
 				$data = array(
-					"listen" => "127.0.0.1:9000",
+					"listen" => "127.0.0.1:9070",
 				);
 				EE::debug( 'Configuring php file /etc/php/7.0/fpm/pool.d/www.conf' );
 				EE\Utils\mustache_write_in_file( '/etc/php/7.0/fpm/pool.d/www.conf', 'php-www.mustache', $data );
 
 				$data = array(
-					"listen"       => "127.0.0.1:9001",
+					"listen"       => "127.0.0.1:9170",
 					"slowlog_path" => "/var/log/php/7.0/slow.log",
 				);
 				EE::debug( 'Configuring php file /etc/php/7.0/fpm/pool.d/debug.conf' );
