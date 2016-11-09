@@ -644,6 +644,7 @@ function setup_wordpress( $data ) {
 		EE::info( "Update wordpress permalinks failed" );
 	}
 
+	install_wp_plugin( 'nginx-helper', $data );
 	// Install Wp Super Cache.
 	if ( $data['wpsc'] ) {
 		install_wp_plugin( 'wp-super-cache', $data );
