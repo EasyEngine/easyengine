@@ -241,7 +241,7 @@ class Site_Command extends EE_Command {
 						}
 					}
 				}
-				
+
 				if ( ! in_array( $cache, array( 'w3tc', 'wpfc', 'wpsc', 'wpredis', 'hhvm' ) ) ) {
 					$data['basic'] = true;
 				}elseif("wpredis"===$cache){
