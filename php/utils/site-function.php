@@ -653,6 +653,8 @@ function setup_wordpress( $data ) {
 	// Install Redis Cache.
 	if ( $data['wpredis'] ) {
 		install_wp_plugin( 'redis-cache', $data );
+		//Activate Object Caching
+		ee_file_copy($ee_site_webroot."/htdocs/wp-content/plugins/redis-cache/includes/object-cache.php",$ee_site_webroot."/htdocs/wp-content/object-cache.php");
 	}
 
 	// Install W3 Total Cache.
