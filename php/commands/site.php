@@ -81,9 +81,6 @@ class Site_Command extends EE_Command {
 	 * [--letsencrypt]
 	 * : Configure letsencrypt ssl for the site
 	 *
-	 * [--le]
-	 * : Configure letsencrypt ssl for the site
-	 *
 	 * [--experimental]
 	 * : Enable Experimenal packages without prompt.
 	 *
@@ -130,28 +127,6 @@ class Site_Command extends EE_Command {
 			'wpsc',
 			'wpredis',
 			'proxy',
-		);
-		$registered_cmd  = array(
-			'html',
-			'php',
-			'php7',
-			'mysql',
-			'wp',
-			'wpsubdir',
-			'wpsubdomain',
-			'w3tc',
-			'wpfc',
-			'wpsc',
-			'wpredis',
-			'hhvm',
-			'pagespeed',
-			'le',
-			'letsencrypt',
-			'user',
-			'email',
-			'pass',
-			'proxy',
-			'experimental',
 		);
 
 		$data               = array();
@@ -608,9 +583,6 @@ class Site_Command extends EE_Command {
 	 * : Port no for porxy site.
 	 *
 	 * [--letsencrypt]
-	 * : Configure letsencrypt ssl for the site
-	 *
-	 * [--le]
 	 * : Configure letsencrypt ssl for the site
 	 *
 	 * [--experimental]
