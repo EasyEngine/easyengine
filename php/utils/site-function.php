@@ -817,7 +817,7 @@ function set_webroot_permissions( $webroot ) {
 		ee_file_chown( $webroot, $ee_php_user, true );
 	} catch ( Exception $e ) {
 		EE::debug( $e->getMessage() );
-		EE::info( "problem occured while setting up webroot permissions" );
+		EE::info( "Problem occured while setting up webroot permissions" );
 	}
 }
 
@@ -1235,7 +1235,7 @@ function do_update_site( $site_name, $assoc_args ) {
 	}
 
 	$ee_site_webroot = EE_Variables::get_ee_webroot() . $ee_domain;
-	$registered_cmd  = array(
+	$registered_stype  = array(
 		'html',
 		'php',
 		'php7',
@@ -1247,15 +1247,7 @@ function do_update_site( $site_name, $assoc_args ) {
 		'wpfc',
 		'wpsc',
 		'wpredis',
-		'hhvm',
-		'pagespeed',
-		'le',
-		'letsencrypt',
-		'user',
-		'email',
-		'pass',
 		'proxy',
-		'experimental',
 	);
 
 	$data               = array();
@@ -1272,7 +1264,7 @@ function do_update_site( $site_name, $assoc_args ) {
 
 
 	if ( ! empty( $stype ) ) {
-		if ( in_array( $stype, $registered_cmd ) ) {
+		if ( in_array( $stype, $registered_stype ) ) {
 
 			$check_site = get_site_info( $site_name );
 
