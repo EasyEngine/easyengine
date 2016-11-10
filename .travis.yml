@@ -67,6 +67,7 @@ script:
   - sudo ee site create proxy1.localtest.me --type=proxy --ip=127.0.0.1 --port=22222 --debug
   - sudo ee site list --debug
   - sudo ee site show wp.localtest.me
+  - sudo ee site info wp.localtest.me
   - sudo ee clean --all
   - sudo ee stack restart --nginx --mysql --postfix --redis
   - sudo ee stack stop --nginx --mysql --postfix --redis
