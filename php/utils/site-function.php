@@ -1323,7 +1323,7 @@ function do_update_site( $site_name, $assoc_args ) {
 						'proxy',
 						'wp',
 						'php7'
-					) ) ) || ( 'wpsubdir' === $stype && ! in_array( $old_site_type, array( 'wpsubdomain' ) ) ) || ( 'wpsubdomain' === $stype && ! in_array( $old_site_type, array( 'wpsubdir' ) ) ) || ( $old_site_type === $stype && $old_cache_type === $cache )
+					) ) ) || ( 'wpsubdir' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdomain' ) ) ) || ( 'wpsubdomain' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdir' ) ) ) || ( $old_site_type === $stype && $old_cache_type === $cache )
 			) {
 				EE::info( "can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
 			}
