@@ -104,9 +104,15 @@ function ee_file_chgrp( $files, $group, $recursive = false ) {
  * @param bool $overwrite
  */
 function ee_file_rename( $origin, $target, $overwrite = false ) {
-	EE::debug("Moving Files/Folder: ".$origin." To : ".$target );
-	$filesystem = new Filesystem();
-	$filesystem->rename( $origin, $target, $overwrite );
+	try{
+		EE::debug( "Moving Files/Folder: ".$origin." To : ".$target );
+		$filesystem = new Filesystem();
+		$filesystem->rename( $origin, $target, $overwrite );
+	} catch ( Exception $e ) {
+		// handle errors
+		EE::debug( $e->getMessage() );
+		EE::error( "Unable to rename file " . $origin, false );
+	}
 }
 
 /**
