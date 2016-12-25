@@ -101,7 +101,7 @@ class EE_Utils {
 		$chars = array_merge( range( 'A', 'Z' ), range( 'a', 'z' ), range( '0', '9' ) );
 		$chars = implode($chars);
 		if ( $special_chars ) {
-			$chars .= '!@#$%^&*()';
+			$chars .= '!@#%^&*()';
 		}
 		if ( $extra_special_chars ) {
 			$chars .= '-_ []{}<>~`+=,.;:/?|';
