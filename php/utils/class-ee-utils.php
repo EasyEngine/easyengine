@@ -20,7 +20,7 @@ class EE_Utils {
 		} catch ( Exception $e ) {
 			// handle errors
 			EE::debug( $e->getMessage() );
-			EE::error( "Unable to extract file " . $file );
+			EE::error( "Unable to extract file " . $file, false );
 
 			return false;
 		}
