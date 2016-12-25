@@ -260,8 +260,14 @@ class Site_Command extends EE_Command {
 						EE::error( 'Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!' );
 					}
 
+					if ( ! empty( $data['php7'] ) && $data['php7'] ) {
+						$data['php_version'] = "7.0";
+					}
+
+					// Add New Site record information into ee database.
+					add_new_site( $data );
+
 					if ( isset( $data['proxy'] ) && $data['proxy'] ) {
-						add_new_site( $data );
 						$reload_nginx = EE_Service::reload_service( 'nginx' );
 						if ( ! $reload_nginx ) {
 							EE::info( 'Oops Something went wrong !!' );
@@ -279,10 +285,6 @@ class Site_Command extends EE_Command {
 					}
 
 
-					if ( ! empty( $data['php7'] ) && $data['php7'] ) {
-						$data['php_version'] = "7.0";
-					}
-					add_new_site( $data );
 					// Setup database for MySQL site.
 					if ( isset( $data['ee_db_name'] ) && ! $data['wp'] ) {
 						try {
