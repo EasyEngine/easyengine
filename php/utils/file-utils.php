@@ -107,7 +107,11 @@ function ee_file_rename( $origin, $target, $overwrite = false ) {
 	try{
 		EE::debug( "Moving Files/Folder: ".$origin." To : ".$target );
 		$filesystem = new Filesystem();
-		$filesystem->rename( $origin, $target, $overwrite );
+		if ( $filesystem->exists( $origin ) ) {
+			$filesystem->rename( $origin, $target, $overwrite );
+		} else {
+			EE::error( "File does not exist : " . $origin );
+		}
 	} catch ( Exception $e ) {
 		// handle errors
 		EE::debug( $e->getMessage() );
