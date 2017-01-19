@@ -25,7 +25,8 @@
 		"symfony/translation": "2.7.*",
 		"nb/oxymel": "0.1.0",
 		"czproject/git-php": "3.6.0",
-		"noiselabs/configparser": "dev-master"
+		"noiselabs/configparser": "dev-master",
+		"squizlabs/php_codesniffer": "*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "3.7.*",
