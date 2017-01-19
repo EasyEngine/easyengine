@@ -829,7 +829,7 @@ class Site_Command extends EE_Command {
 			$where['is_enabled'] = false;
 		}
 		$sites = get_all_sites( $where );
-		if( $sites == "" ){
+		if( "" == $sites ){
 			EE::info("No sites created");
 		} else {
 			foreach ( $sites as $site ) {
