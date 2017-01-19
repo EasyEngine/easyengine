@@ -4,13 +4,6 @@
 # This script is designed to install latest EasyEngine or
 # to update current EasyEngine from 2.x to 3.x
 
-# Checking permissions
-if [[ $EUID -ne 0 ]]; then
-    ee_lib_echo_fail "Sudo privilege required..."
-    ee_lib_echo_fail "Uses: wget -qO ee rt.cx/ee && sudo bash ee"
-    exit 100
-fi
-
 # Define echo function
 # Blue color
 function ee_lib_echo()
@@ -27,6 +20,13 @@ function ee_lib_echo_fail()
 {
     echo $(tput setaf 1)$@$(tput sgr0)
 }
+
+# Checking permissions
+if [[ $EUID -ne 0 ]]; then
+    ee_lib_echo_fail "Sudo privilege required..."
+    ee_lib_echo_fail "Uses: wget -qO ee rt.cx/ee && sudo bash ee"
+    exit 100
+fi
 
 # Capture errors
 function ee_lib_error()
