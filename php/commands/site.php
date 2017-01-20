@@ -733,7 +733,8 @@ class Site_Command extends EE_Command {
 				$assoc_args['files'] = true;
 			}
 		}
-		if ( $assoc_args['db'] ) {
+		if ( !empty($assoc_args['db'] ) && $assoc_args['db'] ) {
+
 			if ( 'deleted' !== $ee_db_name and ! empty( $ee_db_name ) ) {
 				if ( empty( $assoc_args['no_prompt'] ) ) {
 					$ee_db_prompt = EE::input_value( "Are you sure, you want to delete database [y/N]: " );
