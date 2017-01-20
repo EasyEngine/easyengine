@@ -592,6 +592,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function restart( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Restarting Services : " . $service );
