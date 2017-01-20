@@ -66,7 +66,7 @@ class Stack_Command extends EE_Command {
 	 *
 	 */
 	public function install( $args, $assoc_args ) {
-
+		
 		EE_Stack::install( $assoc_args );
 
 	}
@@ -118,6 +118,10 @@ class Stack_Command extends EE_Command {
 	 *
 	 */
 	public function remove( $args, $assoc_args ) {
+
+		if( empty($assoc_args) ){
+			EE::error("please select options, you can see available options by 'ee stack purge --help'");
+		}
 
 		list( $site_name ) = $args;
 		$apt_packages = array();
@@ -301,7 +305,9 @@ class Stack_Command extends EE_Command {
 	 *      $ ee stack purge --nginx
 	 */
 	public function purge( $args, $assoc_args ) {
-
+		if( empty($assoc_args) ){
+			EE::error("please select options, you can see available options by 'ee stack purge --help'");
+		}
 
 		$apt_packages = array();
 		$packages     = array();
@@ -470,7 +476,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function start( $args, $assoc_args ) {
-
+		if( empty($assoc_args) ){
+			$assoc_args['all'] = 1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Starting Services : " . $service );
@@ -512,6 +520,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function stop( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all'] = 1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Stopping Services : " . $service );
@@ -633,6 +644,11 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function status( $args, $assoc_args ) {
+		
+		if( empty($assoc_args) ){
+			$assoc_args['all'] = 1;
+		}
+
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE_Service::get_service_status( $service );
