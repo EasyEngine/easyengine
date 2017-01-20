@@ -10,8 +10,8 @@ import shutil
 conf = []
 templates = []
 
-long_description = '''EasyEngine is the commandline tool to manage your
-                      Websites based on WordPress and Nginx with easy to use
+long_description = '''EasyEngine is a commandline tool to manage your
+                      WordPress and Nginx based websites with easy to use
                       commands'''
 
 for name in glob.glob('config/plugins.d/*.conf'):
@@ -33,23 +33,23 @@ try:
     ee_user = config['user']['name']
     ee_email = config['user']['email']
 except Exception as e:
-    print("EasyEngine (ee) required your name & email address to track"
-          " changes you made under the Git version control")
+    print("EasyEngine (ee) requires your name & email address to track"
+          " the changes you make under the Git version control")
     print("EasyEngine (ee) will be able to send you daily reports & alerts in "
-          "upcoming version")
+          "the upcoming version")
     print("EasyEngine (ee) will NEVER send your information across")
 
-    ee_user = input("Enter your name: ")
+    ee_user = input("Enter your NAME: ")
     while ee_user is "":
-        print("Name not Valid, Please enter again")
-        ee_user = input("Enter your name: ")
+        print("Name NOT valid, please enter again")
+        ee_user = input("Enter your NAME: ")
 
-    ee_email = input("Enter your email: ")
+    ee_email = input("Enter your EMAIL: ")
 
     while not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$",
                        ee_email):
-        print("Invalid email address, please try again")
-        ee_email = input("Enter your email: ")
+        print("Invalid EMAIL address, please try again")
+        ee_email = input("Enter your EMAIL: ")
 
     os.system("git config --global user.name {0}".format(ee_user))
     os.system("git config --global user.email {0}".format(ee_email))
