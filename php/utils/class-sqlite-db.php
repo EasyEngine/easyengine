@@ -254,24 +254,28 @@ class EE_Sqlite_Db {
 			foreach ( $data as $key => $value ) {
 				$fields[] = "`$key`='" . $value . "'";
 			}
+			if( empty($fields) ){
+					
+				foreach ( $where as $key => $value ) {
+					$conditions[] = "`$key`='" . $value . "'";
+				}
 
-			foreach ( $where as $key => $value ) {
-				$conditions[] = "`$key`='" . $value . "'";
-			}
+				$fields     = implode( ', ', $fields );
+				$conditions = implode( ' AND ', $conditions );
 
-			$fields     = implode( ', ', $fields );
-			$conditions = implode( ' AND ', $conditions );
+				$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
 
-			$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
+				$update_query_exec = $ee_db->exec( $update_query );
 
-			$update_query_exec = $ee_db->exec( $update_query );
+				if ( ! $update_query_exec ) {
+					EE::debug( $ee_db->lastErrorMsg() );
+					$ee_db->close();
+				} else {
+					$ee_db->close();
 
-			if ( ! $update_query_exec ) {
-				EE::debug( $ee_db->lastErrorMsg() );
-				$ee_db->close();
+					return true;
+				}
 			} else {
-				$ee_db->close();
-
 				return true;
 			}
 		}
