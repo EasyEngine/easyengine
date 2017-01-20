@@ -254,14 +254,15 @@ class EE_Sqlite_Db {
 			foreach ( $data as $key => $value ) {
 				$fields[] = "`$key`='" . $value . "'";
 			}
-			if( empty($fields) ){
 					
-				foreach ( $where as $key => $value ) {
-					$conditions[] = "`$key`='" . $value . "'";
-				}
+			foreach ( $where as $key => $value ) {
+				$conditions[] = "`$key`='" . $value . "'";
+			}
 
-				$fields     = implode( ', ', $fields );
-				$conditions = implode( ' AND ', $conditions );
+			$fields     = implode( ', ', $fields );
+			$conditions = implode( ' AND ', $conditions );
+
+			if( !empty($fields) ){
 
 				$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
 
