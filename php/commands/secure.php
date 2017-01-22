@@ -36,6 +36,23 @@ class Secure_Command extends EE_Command {
 		//***This function Secures port***
 		//todo:
 
+		EE::info("Please Enter valid port number");
+		$port = EE::input_value("EasyEngine admin port [22222]:");
+		if(empty($port)){
+			$port = 22222;
+		}
+		while(!is_numeric($port)){
+			EE::error("Please enter valid port number:");
+			$port = EE::input_value("EasyEngine admin port [22222]:");
+		}
+		$distro_name = EE_OS::ee_platform_distro();
+		if("ubuntu" == $distro_name) {
+			EE::exec_cmd("sed -i \"s/listen.*/listen $port default_server ssl http2;/\" /etc/nginx/sites-available/22222");
+		} else if ( "debian" == $distro_name){
+			EE::exec_cmd("sed -i \"s/listen.*/listen $port default_server ssl http2;/\" /etc/nginx/sites-available/22222");
+		}
+		EE_Git::add("/etc/nginx","Adding changed port to git");
+		EE_Service::restart_service("nginx");
 	}
 
 	public static function secure_ip(){
@@ -82,4 +99,3 @@ class Secure_Command extends EE_Command {
 }
 
 EE::add_command( 'secure', 'Secure_Command' );
-
