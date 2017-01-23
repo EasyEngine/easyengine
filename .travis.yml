@@ -1,75 +1,85 @@
 dist: trusty
 sudo: required
-
 notifications:
-  slack: easyengine:76AI30tP8P8AcNTaWaQ9ZAT7
   webhooks:
+    slack:
+      rooms:
+        - secure: f7Y+hZWn2t8TtV9/nTZRJN56mN3wjuBWozFxSK7XCTbsRZ7gn/XS2eB6WbuTxccB9fDILf6vMfMXWpVOxtYakNvr7Bk7K+wXTHpTyAiR370wf1358KqCcBJ0S2IvMg0xoP9lnjE+nGlVarD/4vknDpffX2cOExuI8ZghjcmSp4o=
+        - secure: fCDKBSmTks3+QvnwkySqFq0AAh5OUIHaPKfkzloU3CTFc2hr3ZZOKbMZJ69+Dborubtkd2tPlBI8MHFtdfjCHXkneTgcyuCtOEEJGVorQic5w+bl2070M56ipv/Gzdire2Rw3T63/P1nRIatZFY/Q/z+ox//zT34Amj50S7Dwuo=
     urls:
-      - https://webhooks.gitter.im/e/bd77a26eab56de803949
-      - https://webhooks.gitter.im/e/e3e2feb8384c77bf1a8a
-    on_success: always  # options: [always|never|change] default: always
-    on_failure: always  # options: [always|never|change] default: always
-    on_start: false     # default: false
-
+    - https://webhooks.gitter.im/e/bd77a26eab56de803949
+    - https://webhooks.gitter.im/e/e3e2feb8384c77bf1a8a
+    on_success: always
+    on_failure: always
+    on_start: false
 language: bash
-
 before_install:
-  - rm -rf ~/.gnupg
-
+- rm -rf ~/.gnupg
 before_script:
-  - sudo rm -rf /etc/mysql/
-  - sudo bash -c 'echo example.com > /etc/hostname'
-  - sudo service hostname restart
-  - sudo apt-get -qq purge mysql* graphviz*
-  - sudo apt-get -qq autoremove
-  - sudo add-apt-repository -y 'ppa:ondrej/php'
-  - sudo apt-get update
-  - sudo apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt php5.6-readline php5.6-mysql php5.6-sqlite3 php5.6-cli php5.6-common php5.6-curl php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml php5.6-soap php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-  - sudo apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt php7.0-readline php7.0-mysql php7.0-sqlite3 php7.0-cli php7.0-common php7.0-recode php7.0-mbstring php7.0-bcmath php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php-memcached  php-imagick php-memcache memcached graphviz php-pear php-xdebug php-msgpack  php-redis || ee_lib_error "Unable to install PHP 5.6 packages, exit status " 1
-  - sudo apt-get -y install sqlite3 gcc curl gzip git
+- sudo rm -rf /etc/mysql/
+- sudo bash -c 'echo example.com > /etc/hostname'
+- sudo service hostname restart
+- sudo apt-get -qq purge mysql* graphviz*
+- sudo apt-get -qq autoremove
+- sudo add-apt-repository -y 'ppa:ondrej/php'
+- sudo apt-get update
+- sudo apt-get -y install php5.6-fpm php5.6-curl php5.6-gd php5.6-imap php5.6-mcrypt
+  php5.6-readline php5.6-mysql php5.6-sqlite3 php5.6-cli php5.6-common php5.6-curl
+  php5.6-mbstring php5.6-bcmath php5.6-recode php5.6-mysql php5.6-opcache php-memcached
+  php-imagick memcached graphviz php-pear php-xdebug php-msgpack php5.6-zip php5.6-xml
+  php5.6-soap php-memcache || ee_lib_error "Unable to install PHP 5.6 packages, exit
+  status " 1
+- sudo apt-get -y install php7.0-fpm php7.0-curl php7.0-gd php7.0-imap php7.0-mcrypt
+  php7.0-readline php7.0-mysql php7.0-sqlite3 php7.0-cli php7.0-common php7.0-recode
+  php7.0-mbstring php7.0-bcmath php7.0-opcache php7.0-zip php7.0-xml php7.0-soap php-memcached  php-imagick
+  php-memcache memcached graphviz php-pear php-xdebug php-msgpack  php-redis || ee_lib_error
+  "Unable to install PHP 5.6 packages, exit status " 1
+- sudo apt-get -y install sqlite3 gcc curl gzip git
 script:
-  - lsb_release -a
-  - unset LANG
-  - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
-  - ls -la
-  - sudo ln -s $(pwd)/bin/ee /usr/bin/ee
-  - chmod +x /usr/bin/ee
-  - php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  - php composer-setup.php
-  - php -r "unlink('composer-setup.php');"
-  - sudo php composer.phar install
-  - sudo mkdir -p /var/lib/ee
-  - sudo mkdir /var/log/ee
-  - sudo touch /var/log/ee/ee.log
-  - sudo echo "CREATE TABLE sites (id INTEGER PRIMARY KEY  AUTOINCREMENT,sitename UNIQUE,site_type CHAR,cache_type CHAR,site_path  CHAR,created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,is_enabled INT,is_ssl INT,storage_fs CHAR,storage_db CHAR,db_name VARCHAR,db_user VARCHAR,db_password VARCHAR,db_host VARCHAR,is_hhvm INT INT DEFAULT '0',is_pagespeed INT INT DEFAULT '0',php_version VARCHAR);" | sudo sqlite3 /var/lib/ee/ee.db
-
-  - sudo ee | cat
-  - sudo ee stack install --nginx --debug
-  - ls /etc/nginx/common
-  - sudo ee stack install --mysql --debug
-  - sudo cat /etc/mysql/conf.d/my.cnf
-  - sudo mysql -e "SHOW DATABASES;"
-  - sudo ee stack install --php --debug
-  - sudo ee stack install --redis --debug
-  - sudo ee stack install --wpcli --debug
-  - wp --allow-root cli version
-  - sudo ee stack install --utils --debug
-
-
-  - sudo ee site create wp.localtest.me --type=wp --debug
-  - curl http://wp.localtest.me
-  - sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug
-  - sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug
-  - sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug
-  - sudo ee site create wp4.localtest.me --type=wp --php=7.0 --cache=w3tc --debug
-  - sudo ee site create proxy.localtest.me --type=proxy --ip=127.0.0.1:22222 --debug
-  - sudo ee site create proxy1.localtest.me --type=proxy --ip=127.0.0.1 --port=22222 --debug
-  - sudo ee site list --debug
-  - sudo ee site show wp.localtest.me
-  - sudo ee site info wp.localtest.me
-  - sudo ee clean --all
-  - sudo ee stack restart --nginx --mysql --postfix --redis
-  - sudo ee stack stop --nginx --mysql --postfix --redis
-  - sudo ee stack start --nginx --mysql --postfix --redis
-  - sudo ee stack status --nginx --mysql --postfix --redis
-  - sudo ee stack install --all
+- lsb_release -a
+- unset LANG
+- sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
+- ls -la
+- sudo ln -s $(pwd)/bin/ee /usr/bin/ee
+- chmod +x /usr/bin/ee
+- php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+- php composer-setup.php
+- php -r "unlink('composer-setup.php');"
+- sudo php composer.phar install
+- sudo mkdir -p /var/lib/ee
+- sudo mkdir /var/log/ee
+- sudo touch /var/log/ee/ee.log
+- sudo echo "CREATE TABLE sites (id INTEGER PRIMARY KEY  AUTOINCREMENT,sitename UNIQUE,site_type
+  CHAR,cache_type CHAR,site_path  CHAR,created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,is_enabled
+  INT,is_ssl INT,storage_fs CHAR,storage_db CHAR,db_name VARCHAR,db_user VARCHAR,db_password
+  VARCHAR,db_host VARCHAR,is_hhvm INT INT DEFAULT '0',is_pagespeed INT INT DEFAULT
+  '0',php_version VARCHAR);" | sudo sqlite3 /var/lib/ee/ee.db
+- sudo ee | cat
+- sudo ee stack install --nginx --debug
+- ls /etc/nginx/common
+- sudo ee stack install --mysql --debug
+- sudo cat /etc/mysql/conf.d/my.cnf
+- sudo mysql -e "SHOW DATABASES;"
+- sudo ee stack install --php --debug
+- sudo ee stack install --redis --debug
+- sudo ee stack install --wpcli --debug
+- wp --allow-root cli version
+- sudo ee stack install --utils --debug
+- sudo ee site create wp.localtest.me --type=wp --debug
+- curl http://wp.localtest.me
+- sudo ee site create wp1.localtest.me --type=wp --cache=wpredis --debug
+- sudo ee site create wp2.localtest.me --type=wp --cache=wpfc --debug
+- sudo ee site create wp3.localtest.me --type=wp --cache=w3tc --debug
+- sudo ee site create wp4.localtest.me --type=wp --php=7.0 --cache=w3tc --debug
+- sudo ee site create proxy.localtest.me --type=proxy --ip=127.0.0.1:22222 --debug
+- sudo ee site create proxy1.localtest.me --type=proxy --ip=127.0.0.1 --port=22222
+  --debug
+- sudo ee site list --debug
+- sudo ee site show wp.localtest.me
+- sudo ee site info wp.localtest.me
+- sudo ee clean --all
+- sudo ee stack restart --nginx --mysql --postfix --redis
+- sudo ee stack stop --nginx --mysql --postfix --redis
+- sudo ee stack start --nginx --mysql --postfix --redis
+- sudo ee stack status --nginx --mysql --postfix --redis
+- sudo ee stack install --all
