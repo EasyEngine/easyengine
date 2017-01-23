@@ -72,7 +72,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       jessie32.vm.provider "virtualbox" do |v|
           v.memory = 1024
       end
-      jessie32.vm.box = "boxcutter/debian80-i386"
+      jessie32.vm.box = "boxcutter/debian8-i386"
       jessie32.ssh.forward_agent = true
       jessie32.vm.network "forwarded_port", guest: 80, host: 8886
       jessie32.vm.network "private_network", ip: "192.168.33.19"
