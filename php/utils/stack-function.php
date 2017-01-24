@@ -72,11 +72,10 @@ class EE_Stack {
 			$stack['utils']      = true;
 		}
 		if ( isset( $category['utils'] ) && $category['utils'] = true ) {
-			//todo:
+			//todo: install phpMemcachedAdmin FastCGIcleanupScript OPcache Webgrid Anemometer
 		}
-
-		if ( isset( $category['web'] ) && $category['mail'] == true ) {
-			// todo:
+		if ( isset( $category['mail'] ) && $category['mail'] == true ) {
+			// todo: install ViMbAdminSetup
 		}
 
 		return $stack;
@@ -126,7 +125,7 @@ class EE_Stack {
 					}
 				}
 			} else {
-				EE::debug( "Nginx Stable already installed" );
+				EE::success( "Nginx Stable already installed" );
 			}
 		}
 
@@ -814,7 +813,13 @@ class EE_Stack {
 				}
 
 				if ( '/tmp/pma.tar.gz' === $package['path'] ) {
-					EE::debug( "Extracting file /tmp/pma.tar.gz to location /tmp/" );
+					EE::debug( "Clearing old unwanted packages and extracting file /tmp/pma.tar.gz to location /tmp/" );
+					if(ee_file_exists("/tmp/phpmyadmin-STABLE")){
+						ee_file_remove("/tmp/phpmyadmin-STABLE");	
+					}
+					if(ee_file_exists(EE_WEBROOT . "22222/htdocs/db/pma")){
+						ee_file_remove(EE_WEBROOT . "22222/htdocs/db/pma");
+					}
 					EE_Utils::extract( "/tmp/pma.tar.gz", "/tmp/" );
 					ee_file_mkdir( EE_WEBROOT . "22222/htdocs/db" );
 					ee_file_rename( "/tmp/phpmyadmin-STABLE", EE_WEBROOT . "22222/htdocs/db/pma" );
@@ -830,6 +835,9 @@ class EE_Stack {
 
 				if ( '/tmp/memcache.tar.gz' === $package['path'] ) {
 					EE::debug( "Extracting memcache.tar.gz to location /var/www/22222/htdocs/cache/memcache " );
+					if(ee_file_exists( EE_WEBROOT . "22222/htdocs/cache/memcache" )){
+						ee_file_remove( EE_WEBROOT . "22222/htdocs/cache/memcache");
+					}
 					EE_Utils::extract( "/tmp/memcache.tar.gz", EE_WEBROOT . "22222/htdocs/cache/memcache" );
 					EE::debug( "Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file" );
 					ee_file_chown( EE_WEBROOT . "22222/", "www-data", true );
