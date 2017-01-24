@@ -248,7 +248,7 @@ class EE_Sqlite_Db {
 			$table_name = self::$ee_site_table_name;
 		}
 		$is_table_exist = self::is_site_table_exist( $ee_db );
-		if ( $is_table_exist ) {
+		if ( $is_table_exist && !empty( $fields ) ) {
 			$fields     = array();
 			$conditions = array();
 			foreach ( $data as $key => $value ) {
