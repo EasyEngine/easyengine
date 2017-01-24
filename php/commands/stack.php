@@ -323,7 +323,7 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if ( $stack['nginx'] ) {
+		if ( ! empty( $stack['nginx'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
 
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_nginx_packages() );

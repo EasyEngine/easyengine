@@ -408,14 +408,15 @@ class EE_Stack {
 			EE::info("Adding GPG key for NGINX");
 			EE_Repo::add_key( '3050AC3CD2AE6F03' );
 		}
-//
-//		if (in_array(EE_Variables::get_php_packages("7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
-//				EE::debug("Adding repository for PHP, please wait...");
-//			    EE_Repo::add(EE_Variables::get_php_repo());
-//			if ('debian' == EE_OS::ee_platform_distro()){
-//				EE_Repo::add_key('89DF5277');
-//				}
-//		}
+
+		// if (in_array(EE_Variables::get_php_packages("7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
+		// 		EE::debug("Adding repository for PHP, please wait...");
+		// 	    EE_Repo::add(EE_Variables::get_php_repo());
+		// 	if ('debian' == EE_OS::ee_platform_distro()){
+		// 		EE_Repo::add_key('89DF5277');
+		// 		}
+		// }
+		
 		if ( in_array( EE_Variables::get_redis_packages()[0], $apt_packages ) ) {
 			EE::debug( "Adding repository for REDIS, please wait..." );
 			if ( 'ubuntu' === EE_OS::ee_platform_distro() ) {
@@ -661,7 +662,7 @@ class EE_Stack {
 				ee_file_search_replace( "/etc/php5/mods-available/xdebug.ini", "zend_extension", ";zend_extension" );
 
 
-//              todo: PHP and Debug pull configuration
+              	//todo: PHP and Debug pull configuration
 
 				EE_Git::add( array("/etc/php5"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php5-fpm" );
