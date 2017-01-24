@@ -248,7 +248,7 @@ class EE_Sqlite_Db {
 			$table_name = self::$ee_site_table_name;
 		}
 		$is_table_exist = self::is_site_table_exist( $ee_db );
-		if ( $is_table_exist && !empty( $fields ) ) {
+		if ( $is_table_exist ) {
 			$fields     = array();
 			$conditions = array();
 			foreach ( $data as $key => $value ) {
@@ -261,18 +261,19 @@ class EE_Sqlite_Db {
 
 			$fields     = implode( ', ', $fields );
 			$conditions = implode( ' AND ', $conditions );
+			if ( !empty($fields) ){
+				$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
 
-			$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
+				$update_query_exec = $ee_db->exec( $update_query );
 
-			$update_query_exec = $ee_db->exec( $update_query );
+				if ( ! $update_query_exec ) {
+					EE::debug( $ee_db->lastErrorMsg() );
+					$ee_db->close();
+				} else {
+					$ee_db->close();
 
-			if ( ! $update_query_exec ) {
-				EE::debug( $ee_db->lastErrorMsg() );
-				$ee_db->close();
-			} else {
-				$ee_db->close();
-
-				return true;
+					return true;
+				}
 			}
 		}
 
