@@ -98,6 +98,15 @@ ee site create example.com --type=mysql    # create example.com with php & mysql
 | **Nginx cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
 
+## Local Development
+ - Download and install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+ - Download and install [Vagrant](https://www.vagrantup.com/downloads.html)
+ - Clone this repository
+ - Run `vagrant up`.  
+ **Warning** This will launch a lot of environments, make sure you have enough resources.  
+ *If you want to test on just one environment, you can run, for example, *  `vagrant up xenial64`.
+
+
 ## Useful Links
 - [Documentation] (http://docs.rtcamp.com/easyengine/)
 - [FAQ] (http://docs.rtcamp.com/easyengine/faq.html)
