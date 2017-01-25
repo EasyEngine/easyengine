@@ -316,7 +316,7 @@ function delete_db( $dbname, $dbuser, $dbhost, $exit = true ) {
 			EE::info( "Database {$dbname} not dropped" );
 		}
 
-		if ( 'root' === $dbuser ) {
+		if ( 'root' != $dbuser ) {
 			EE::debug( "dropping user `{$dbuser}`" );
 			try {
 				EE_MySql::execute( "drop user `{$dbuser}`@`{$dbhost}`" );
@@ -498,13 +498,13 @@ function setup_wordpress( $data ) {
 		EE::debug( "Generating wp-config for WordPress Single site" );
 		$generate_config_cmd = "bash -c \"php {$ee_wp_cli_path} --allow-root core config --dbname='{$data['ee_db_name']}'";
 		$generate_config_cmd .= " --dbprefix='{$ee_wp_prefix}' --dbuser='{$data['ee_db_user']}' --dbhost='{$data['ee_db_host']}'";
-		$generate_config_cmd .= " --dbpass='{$data['ee_db_pass']}' --extra-php <<PHP\ndefine('WP_DEBUG', false); {$wpredis} \nPHP\"";
+		$generate_config_cmd .= " --dbpass='{$data['ee_db_pass']}' --extra-php <<PHP\ndefine('WP_DEBUG', true); {$wpredis} \nPHP\"";
 		EE::debug( $generate_config_cmd );
 
 		try {
-
+			echo $generate_config_cmd;
 			$generate_config = EE::exec_cmd( $generate_config_cmd );
-
+		
 			if ( 0 != $generate_config ) {
 				EE::info( "Generate wp-config failed for wp single site" );
 			}
