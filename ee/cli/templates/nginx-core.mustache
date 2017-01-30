@@ -17,6 +17,7 @@ limit_req_zone $binary_remote_addr zone=one:10m rate=1r/s;
 
 fastcgi_read_timeout 300;
 client_max_body_size 100m;
+server_names_hash_bucket_size  64;
 
 # SSL Settings
 ssl_session_cache shared:SSL:20m;
