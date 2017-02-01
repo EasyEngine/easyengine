@@ -14,6 +14,9 @@ class EE_Git {
 	 */
 	public static function add( $paths, $msg = "Intializating" ) {
 		$filesystem = new Filesystem();
+		if( !is_array($paths) ){
+			$paths = array($paths);
+		}
 		foreach ( $paths as $path ) {
 			if ( $filesystem->exists( $path ) ) {
 				$git = new GitRepository( $path );

@@ -192,8 +192,13 @@ function ee_file_is_absolute_path( $file ) {
  * @param $replace
  */
 function ee_file_search_replace( $file, $search, $replace ) {
-	$file_content = file_get_contents( $file );
-	file_put_contents( $file, str_replace( $search, $replace, $file_content ) );
+	if(ee_file_exists($file)){
+		$file_content = file_get_contents( $file );
+		file_put_contents( $file, str_replace( $search, $replace, $file_content ) );
+	} else {
+		EE::debug("$file not found");
+	}
+	
 }
 
 /**
