@@ -503,7 +503,7 @@ function setup_wordpress( $data ) {
 
 		try {
 			$generate_config = EE::exec_cmd( $generate_config_cmd );
-		
+
 			if ( 0 != $generate_config ) {
 				EE::info( "Generate wp-config failed for wp single site" );
 			}
@@ -724,7 +724,7 @@ function setup_wordpress_network( $data ) {
 		if ( 0 !== EE::exec_cmd( "wp --allow-root core multisite-convert --title='{$data['www_domain']}' {$subdomains}" ) ) {
 			EE::error( "setup WordPress network failed" );
 		}
-		
+
 	} catch ( Exception $e ) {
 		EE::debug( $e->getMessage() );
 		EE::info( "setup WordPress network failed" );
@@ -1287,7 +1287,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( ! empty( $assoc_args['password'] ) && empty( $assoc_args['type'] ) ) {
+			if ( ! empty( $assoc_args['pass'] ) && empty( $assoc_args['type'] ) ) {
 				try {
 					update_wp_user_password( $ee_domain, $ee_site_webroot );
 				} catch ( Exception $e ) {
@@ -1467,7 +1467,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "renew" === $assoc_args['letsencrypt'] && empty( $assoc_args['all'] ) ) {
+			if ( ( isset( $assoc_args['letsencrypt'] ) && "renew" === $assoc_args['letsencrypt'] ) && empty( $assoc_args['all'] ) ) {
 				$expiry_days     = EE_Ssl::get_expiration_days( $ee_domain );
 				$min_expiry_days = 30;
 				if ( $check_ssl ) {
@@ -1494,7 +1494,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "renew" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+			if ( ( isset( $assoc_args['letsencrypt'] ) && "renew" === $assoc_args['letsencrypt'] ) && ! empty( $assoc_args['all'] ) ) {
 				if ( $check_ssl ) {
 					$expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
 					if ( $expiry_days < 0 ) {
@@ -1524,7 +1524,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "off" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+			if ( ( isset( $assoc_args['letsencrypt'] ) && "off" === $assoc_args['letsencrypt'] ) && ! empty( $assoc_args['all'] ) ) {
 				if ( ! $check_ssl ) {
 					EE::error( "SSl is not configured for given " );
 				}
@@ -1580,17 +1580,17 @@ function do_update_site( $site_name, $assoc_args ) {
 			}
 
 
-			if ( '7.0' === $assoc_args['php'] ) {
+			if ( isset($assoc_args['php']) && '7.0' === $assoc_args['php'] ) {
 				$data['php7'] = true;
 				$php7         = true;
 			}
 
-			if ( 'on' === $assoc_args['hhvm'] ) {
+			if ( isset($assoc_args['hhvm'] ) && 'on' === $assoc_args['hhvm'] ) {
 				$data['hhvm'] = true;
 				$hhvm         = true;
 			}
 
-			if ( 'on' === $assoc_args['letsencrypt'] ) {
+			if ( isset($assoc_args['letsencrypt'] ) && 'on' === $assoc_args['letsencrypt'] ) {
 				$data['letsencrypt'] = true;
 				$letsencrypt         = true;
 			}
