@@ -908,6 +908,9 @@ class EE_Stack {
 
 	public static function get_service_list( $assoc_args ) {
 		$services = array();
+		if( !isset($assoc_args['all']) ){
+            $assoc_args['all'] = 0;
+        }
 		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['nginx'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
 
