@@ -15,7 +15,7 @@ class debug_Command extends EE_Command {
 		if ( 'on' === $debug['nginx'] && empty( $debug['sitename'] ) ) {
 			if ( ! grep_string( '/etc/nginx/nginx.conf', 'debug_connection' ) ) {
 				EE::success( "Setting up Nginx debug connection for 0.0.0.0/0" );
-				EE::exec_cmd( "sed -i \"/events {{/a\\ \\ \\ \\ $(echo debug_connection " . $debug_address . ";)\" /etc/nginx/nginx.conf" );
+                EE::exec_cmd( "sed -i 's@events {@events {\\n\\tdebug_connection ". $debug_address ."@' /etc/nginx/nginx.conf");
 			} else {
 				EE::success( "Nginx debug connection already enabled" );
 			}
