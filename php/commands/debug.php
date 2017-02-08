@@ -46,8 +46,7 @@ class debug_Command extends EE_Command {
                 }
             }
             EE_Service::reload_service('nginx');
-            var_dump($log_path);
-		    if( !empty($debug['interactive']) && !empty($log_path) ){
+		    if( !empty($debug['interactive']) && $debug['interactive'] ==='on' && !empty($log_path) ){
                 EE::tail_logs($log_path);
             }
 		} elseif ( 'off' === $debug['nginx'] ) {
