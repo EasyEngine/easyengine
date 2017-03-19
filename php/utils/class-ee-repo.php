@@ -15,7 +15,6 @@ class EE_Repo {
 
 		if ( ! empty( $repo_url ) ) {
 			$repo_file_path = EE_Variables::get_ee_repo_file_path();
-			EE:
 			try {
 				if ( file_exists( $repo_file_path ) ) {
 					$repo_file_contents = file_get_contents( $repo_file_path );
