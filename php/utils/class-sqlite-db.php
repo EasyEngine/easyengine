@@ -15,9 +15,14 @@ class EE_Sqlite_Db {
 	 * @return bool|SQLite3
 	 */
 	public static function dbConnection() {
-		//		$ee_db_file = EE_Variables::get_ee_db_file();
+		$ee_db_file = EE_Variables::get_ee_db_file();
 		// TODO: Test db on root dir of project.
-		$ee_db_file = "/var/lib/ee" . '/ee.db';
+//		$ee_db_file = "/var/lib/ee" . '/ee.db';
+
+		if ( ! ee_file_exists( $ee_db_file ) ) {
+			EE::debug( "EE Sqlite Database does not exist." );
+			return false;
+		}
 
 		$ee_db = new SQLite3( $ee_db_file );
 		if ( ! $ee_db ) {

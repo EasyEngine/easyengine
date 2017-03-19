@@ -38,7 +38,7 @@ function ee_file_touch($files){
 /**
  * Check if file is already exist or not.
  *
- * @param string $files
+ * @param string|array|\Traversable $files A filename, an array of files, or a \Traversable instance to check
  *
  * @return bool
  */
