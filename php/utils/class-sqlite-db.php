@@ -266,18 +266,19 @@ class EE_Sqlite_Db {
 
 			$fields     = implode( ', ', $fields );
 			$conditions = implode( ' AND ', $conditions );
+			if ( !empty($fields) ){
+				$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
 
-			$update_query = "UPDATE `$table_name` SET $fields WHERE $conditions";
+				$update_query_exec = $ee_db->exec( $update_query );
 
-			$update_query_exec = $ee_db->exec( $update_query );
+				if ( ! $update_query_exec ) {
+					EE::debug( $ee_db->lastErrorMsg() );
+					$ee_db->close();
+				} else {
+					$ee_db->close();
 
-			if ( ! $update_query_exec ) {
-				EE::debug( $ee_db->lastErrorMsg() );
-				$ee_db->close();
-			} else {
-				$ee_db->close();
-
-				return true;
+					return true;
+				}
 			}
 		}
 
