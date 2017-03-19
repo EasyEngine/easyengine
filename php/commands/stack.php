@@ -128,7 +128,7 @@ class Stack_Command extends EE_Command {
 		// todo:
 		// }
 
-		if ( ! empty( $stack['redis'] ) ) {
+		if ( !empty($assoc_args['all']) || ! empty( $stack['redis'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'redis-server' ) ) {
 
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_redis_packages() );
@@ -137,7 +137,7 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if ( $stack['nginx'] ) {
+		if ( !empty($assoc_args['all']) || $stack['nginx'] ) {
 			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
 
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_nginx_packages() );
@@ -145,7 +145,7 @@ class Stack_Command extends EE_Command {
 				EE::debug( "Nginx Stable not installed" );
 			}
 		}
-		if ( ! empty( $stack['php'] ) ) {
+		if ( !empty($assoc_args['all']) || ! empty( $stack['php'] ) ) {
 			EE::debug( "Setting apt_packages variable for PHP" );
 			if ( EE_Apt_Get::is_installed( 'php5-fpm' ) || EE_Apt_Get::is_installed( 'php5.6-fpm' ) ) {
 				if ( EE_OS::ee_platform_codename() == 'trusty' || EE_OS::ee_platform_codename() == 'xenial' ) {
@@ -158,7 +158,7 @@ class Stack_Command extends EE_Command {
 			}
 		}
 
-		if ( EE_OS::ee_platform_distro() == 'debian' && ! empty( $stack['php'] ) ) {
+		if ( EE_OS::ee_platform_distro() == 'debian' && ( !empty($assoc_args['all']) || ! empty( $stack['php'] ) ) ) {
 			if ( EE_OS::ee_platform_codename() == 'jessie' ) {
 				EE::debug( "Setting apt_packages variable for PHP 7.0" );
 				if ( EE_Apt_Get::is_installed( 'php7.0-fpm' ) ) {
@@ -231,7 +231,7 @@ class Stack_Command extends EE_Command {
 			$packages = array_merge( $packages, array( "adminer" ) );
 		}
 
-		if ( ! empty( $category['utils'] ) ) {
+		if ( !empty($assoc_args['all']) || ! empty( $category['utils'] ) ) {
 			EE::debug( "Setting packages variable for utils" );
 			$packages = array_merge( $packages, array(
 				"phpmemcacheadmin",
@@ -301,14 +301,18 @@ class Stack_Command extends EE_Command {
 	 *      $ ee stack purge --nginx
 	 */
 	public function purge( $args, $assoc_args ) {
-
+		
+		if( empty($assoc_args) ){
+			EE:error("No options selected");
+			return;
+		}
 
 		$apt_packages = array();
 		$packages     = array();
 		$stack        = EE_Stack::validate_stack_option( $assoc_args );
 
 
-		if ( ! empty( $stack['redis'] ) ) {
+		if ( !! empty( $stack['redis'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'redis-server' ) ) {
 
 				$apt_packages = array_merge( $apt_packages, EE_Variables::get_redis_packages() );
@@ -470,7 +474,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function start( $args, $assoc_args ) {
-
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Starting Services : " . $service );
@@ -512,6 +518,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function stop( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Stopping Services : " . $service );
@@ -552,6 +561,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function reload( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Reloading Services : " . $service );
@@ -592,6 +604,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function restart( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE::debug( "Restarting Services : " . $service );
@@ -630,6 +645,9 @@ class Stack_Command extends EE_Command {
 	 */
 
 	public function status( $args, $assoc_args ) {
+		if( empty($assoc_args) ){
+			$assoc_args['all']=1;
+		}
 		$services = EE_Stack::get_service_list( $assoc_args );
 		foreach ( $services as $service ) {
 			EE_Service::get_service_status( $service );
