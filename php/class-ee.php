@@ -464,6 +464,22 @@ class EE {
 		return $cmd_result;
 	}
 
+    /**
+     * Show the tail logs for the given paths
+     *
+     * @param string $paths separated by spaces
+     *
+     */
+    public static function tail_logs($paths){
+
+        if(empty($paths)){
+            self::error("No path specified for tail logging");
+            return;
+        }
+        self::debug("running: tail -f ".$paths);
+        self::debug(system("tail -f ".$paths));
+
+    }
 	public static function invoke_editor( $filename ) {
 		try {
 			system( "sensible-editor " . $filename ." >/dev/tty" );

@@ -12,31 +12,65 @@ class debug_Command extends EE_Command {
 		$debug         = $_argc;
 		$debug_address = '0.0.0.0/0';
 
-		if ( 'on' === $debug['nginx'] && empty( $debug['sitename'] ) ) {
-			if ( ! grep_string( '/etc/nginx/nginx.conf', 'debug_connection' ) ) {
-				EE::success( "Setting up Nginx debug connection for 0.0.0.0/0" );
-				EE::exec_cmd( "sed -i \"/events {{/a\\ \\ \\ \\ $(echo debug_connection " . $debug_address . ";)\" /etc/nginx/nginx.conf" );
-			} else {
-				EE::success( "Nginx debug connection already enabled" );
-			}
 
-		} elseif ( 'off' === $debug['nginx'] && empty( $debug['sitename'] ) ) {
-			if ( grep_string( '/etc/nginx/nginx.conf', 'debug_connection' ) ) {
-				EE::success( "Disabling Nginx debug connections" );
-				EE::exec_cmd( "sed -i \"/debug_connection.*/d\" /etc/nginx/nginx.conf" );
-			} else {
-				EE::success( "Nginx debug connection already disabled" );
-			}
-		} elseif ( 'on' === $debug['nginx'] && ! empty( $debug['sitename'] ) ) {
 
-			//todo:
-
-		} elseif ( 'off' === $debug['nginx'] && ! empty( $debug['sitename'] ) ) {
-
-			//todo:
+        if(isset($debug['sitename'])) {
+            $site_name = $debug['sitename'];
+            $ee_domain = EE_Utils::validate_domain($site_name);
+            $ee_site_info = get_site_info($site_name);
+            $ee_site_webroot = $ee_site_info['site_path'];
+        }
+        if ( 'on' === $debug['nginx'] ) {
+		    $log_path = "";
+		    if( empty( $ee_domain ) ){
+                if ( ! grep_string( '/etc/nginx/nginx.conf', 'debug_connection' ) ) {
+                    EE::success( "Setting up Nginx debug connection for 0.0.0.0/0" );
+                    EE::exec_cmd( "sed -i 's@events {@events {\\n\\tdebug_connection ". $debug_address .";@' /etc/nginx/nginx.conf");
+                    $log_path = "/var/log/nginx/*.error.log";
+                } else {
+                    EE::success( "Nginx debug connection already enabled" );
+                    $log_path = "/var/log/nginx/*.error.log";
+                }
+            } else {
+                if(is_site_exist($ee_domain)){
+                    $configFile = "/etc/nginx/sites-available/".$ee_domain;
+                    if(ee_file_exists($configFile)){
+                        if(!grep_string($configFile,"error.log debug")){
+                            EE::exec_cmd("sed -i \"s/error.log;/error.log debug;/\" ".$configFile);
+                            $log_path = "/var/log/nginx/".$ee_domain.".error.log ".$ee_site_webroot."/logs/*.log";
+                        } else {
+                            $log_path = "/var/log/nginx/".$ee_domain.".error.log ".$ee_site_webroot."/logs/*.log";
+                            EE::success("Debug is already enabled for the given site");
+                        }
+                    }
+                }
+            }
+            EE_Service::reload_service('nginx');
+		    if( !empty($debug['interactive']) && $debug['interactive'] ==='on' && !empty($log_path) ){
+                EE::tail_logs($log_path);
+            }
+		} elseif ( 'off' === $debug['nginx'] ) {
+		    if( empty( $debug['sitename'] ) ){
+                if ( grep_string( '/etc/nginx/nginx.conf', 'debug_connection' ) ) {
+                    EE::success( "Disabling Nginx debug connections" );
+                    EE::exec_cmd( "sed -i \"/debug_connection.*/d\" /etc/nginx/nginx.conf" );
+                } else {
+                    EE::success( "Nginx debug connection already disabled" );
+                }
+            } else {
+                if(is_site_exist($debug['sitename'])){
+                    $configFile = "/etc/nginx/sites-available/".$debug['sitename'];
+                    if(ee_file_exists($configFile)){
+                        if(grep_string($configFile,"error.log debug")){
+                            EE::exec_cmd("sed -i \"s/error.log debug;/error.log;/\" ".$configFile);
+                        } else {
+                            EE::success("Debug is already disabled for the given site");
+                        }
+                    }
+                }
+            }
+            EE_Service::reload_service('nginx');
 		}
-		EE_Service::restart_service('nginx');
-
 	}
 
 	public function debug_php() {
@@ -133,7 +167,7 @@ class debug_Command extends EE_Command {
 	 * ## OPTIONS
 	 *
 	 * [<sitename>]
-	 * : Name of the site to create.
+	 * : Name of the site to debug.
 	 *
 	 * [--nginx]
 	 * : Enable nginx debug mode
@@ -159,6 +193,13 @@ class debug_Command extends EE_Command {
 	 *   - on
 	 *   - off
 	 *
+     * [--interactive]
+     * : Gives realtime logs
+     * default: off
+     * options:
+     *   - on
+     *   - off
+     *
 	 * ## EXAMPLES
 	 *
 	 *      # Enable Debug Mode.
