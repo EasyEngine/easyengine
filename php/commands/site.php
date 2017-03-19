@@ -733,8 +733,8 @@ class Site_Command extends EE_Command {
 				$assoc_args['files'] = true;
 			}
 		}
+		if ( !empty($assoc_args['db'] ) && $assoc_args['db'] ) {
 
-		if ( $assoc_args['db'] ) {
 			if ( 'deleted' !== $ee_db_name and ! empty( $ee_db_name ) ) {
 				if ( empty( $assoc_args['no_prompt'] ) ) {
 					$ee_db_prompt = EE::input_value( "Are you sure, you want to delete database [y/N]: " );
@@ -827,11 +827,15 @@ class Site_Command extends EE_Command {
 			$where['is_enabled'] = true;
 		} else if ( ! empty( $assoc_args['disabled'] ) ) {
 			$where['is_enabled'] = false;
-		}
+		}		
 		$sites = get_all_sites( $where );
 
-		foreach ( $sites as $site ) {
-			EE::info( $site['sitename'] );
+		if( empty($sites) ){
+			EE::info("No sites created");
+		} else {
+			foreach ( $sites as $site ) {
+				EE::info( $site['sitename'] );
+			}
 		}
 	}
 
