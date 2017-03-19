@@ -4,6 +4,8 @@
 # This script is designed to install latest EasyEngine or
 # to update current EasyEngine from 2.x to 4.x
 
+# TODO: Remove dev variable ee_dev=$2.
+
 # Define echo function
 # Blue color
 function ee_lib_echo()
@@ -47,6 +49,7 @@ fi
 
 # Define variables for later use
 ee_branch=$1
+ee_dev=$2
 readonly ee_version_old="2.2.3"
 readonly ee_version_new="4.0.0"
 readonly ee_log_dir=/var/log/ee/
@@ -299,7 +302,7 @@ function check_pagespeed()
 function ee_install()
 {
     # Remove old clone of EasyEngine (ee) if any
-    if [ -d /opt/easyengine ];then
+    if [ "$ee_dev" = "" && -d /opt/easyengine ];then
         rm -r /opt/easyengine
     fi
 
@@ -309,9 +312,10 @@ function ee_install()
         ee_branch=master
     fi
 
-    git clone -b $ee_branch https://github.com/EasyEngine/easyengine.git /opt/easyengine --quiet > /dev/null \
-    || ee_lib_error "Unable to clone EasyEngine, exit status" $?
-
+    if [ "$ee_dev" = "" ]; then
+	    git clone -b $ee_branch https://github.com/EasyEngine/easyengine.git /opt/easyengine --quiet > /dev/null \
+	    || ee_lib_error "Unable to clone EasyEngine, exit status" $?
+    fi
     cd /opt/easyengine
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     php composer-setup.php

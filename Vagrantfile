@@ -8,7 +8,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       apt-get install -qqy git
       pushd /opt/easyengine > /dev/null
       git checkout feature/v4.0.0
-      /bin/bash install feature/v4.0.0
+      /bin/bash install feature/v4.0.0 dev
       source config/bash_completion.d/ee_auto.rc
       popd > /dev/null
     SHELL
@@ -36,14 +36,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     # Ubuntu 14.04 64 bit
-    config.vm.define "trusty64" do |trusty|
-      trusty.vm.provider "virtualbox" do |v|
+    config.vm.define "trusty64" do |trusty64|
+      trusty64.vm.provider "virtualbox" do |v|
           v.memory = 1024
       end
-      trusty.vm.box = "ubuntu/trusty64"
-      trusty.vm.network "forwarded_port", guest: 80, host: 8883
-      trusty.vm.network "private_network", ip: "192.168.33.14"
-      trusty.ssh.forward_agent = true
+      trusty64.vm.box = "ubuntu/trusty64"
+      trusty64.vm.network "forwarded_port", guest: 80, host: 8883
+      trusty64.vm.network "private_network", ip: "192.168.33.14"
+      trusty64.ssh.forward_agent = true
     end
 
     # Ubuntu 14.04 32 bit
@@ -90,13 +90,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     #Ubuntu 16.04 32 bit
-    config.vm.define "xenial32" do |xenial64|
-      xenial64.vm.provider "virtualbox" do |v|
+    config.vm.define "xenial32" do |xenial32|
+      xenial32.vm.provider "virtualbox" do |v|
           v.memory = 1024
       end
-      xenial64.vm.box = "ubuntu/xenial32"
-      xenial64.ssh.forward_agent = true
-      xenial64.vm.network "forwarded_port", guest: 80, host: 8888
-      xenial64.vm.network "private_network", ip: "192.168.33.21"
+      xenial32.vm.box = "ubuntu/xenial32"
+      xenial32.ssh.forward_agent = true
+      xenial32.vm.network "forwarded_port", guest: 80, host: 8888
+      xenial32.vm.network "private_network", ip: "192.168.33.21"
     end
 end
