@@ -830,8 +830,12 @@ class Site_Command extends EE_Command {
 		}
 		$sites = get_all_sites( $where );
 
-		foreach ( $sites as $site ) {
-			EE::info( $site['sitename'] );
+		if (!empty($sites)){
+			foreach ( $sites as $site ) {
+				EE::info( $site['sitename'] );
+			}
+		} else {
+			EE::error("No sites created");
 		}
 	}
 
