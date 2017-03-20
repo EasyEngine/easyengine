@@ -69,7 +69,6 @@ class Secure_Command extends EE_Command {
 	public static function secure_ip(){
 		//***This function Secures IP***
 		//todo:
-		$newiplist = array();
 		$rawips = EE::input_value("Enter the comma separated Ip addresses to white list [127.0.0.1]:");
 		$ips = explode(",",$rawips);
 		if( !empty($ips) ){
