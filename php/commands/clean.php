@@ -79,7 +79,16 @@ class Clean_Command extends EE_Command {
 	 * Clear opcache
 	 */
 	public static function clean_opcache() {
-		// todo: This function clears opcache.
+		// This function clears opcache.
+		try {
+			EE::success( 'Cleaning Opcache' );
+			$fd = fopen( 'https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset' );
+			fread( $fd, filesize( 'https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset' ) );
+		} catch (Exception $e ) {
+			EE::debug( 'Unable hit url, https://127.0.0.1:22222/cache/opcache/opgui.php?page=reset, please check you have admin tools installed' );
+			EE::debug( 'please check you have admin tools installed, or install them with `ee stack install --admin`' );
+			EE::error( 'Unable to clean opcache' );
+		}
 	}
 
 	/**
