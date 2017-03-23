@@ -14,7 +14,7 @@ location = /robots.txt {
   log_not_found off;
 }
 # Cache static files
-location ~* \.(ogg|ogv|svg|svgz|eot|otf|woff|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|swf)$ {
+location ~* \.(ogg|ogv|svg|svgz|eot|otf|woff|woff2|mp4|ttf|css|rss|atom|js|jpg|jpeg|gif|png|ico|zip|tgz|gz|rar|bz2|doc|xls|exe|ppt|tar|mid|midi|wav|bmp|rtf|swf)$ {
   add_header "Access-Control-Allow-Origin" "*";
   access_log off;
   log_not_found off;
