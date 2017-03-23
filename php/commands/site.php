@@ -761,7 +761,7 @@ class Site_Command extends EE_Command {
 			}
 		}
 
-		if ( $assoc_args['files'] ) {
+		if ( isset( $assoc_args['files'] ) ) {
 			if ( 'deleted' !== $ee_site_webroot ) {
 				if ( empty( $assoc_args['no_prompt'] ) ) {
 					$ee_web_prompt = EE::input_value( "Are you sure, you want to delete webroot [y/N]: " );
