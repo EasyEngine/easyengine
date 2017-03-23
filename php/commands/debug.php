@@ -5,6 +5,7 @@
  * @package EasyEngine
  * @subpackage EasyEngine/Commands
  */
+
 use \EE\Utils;
 use \EE\Dispatcher;
 
@@ -37,8 +38,40 @@ class Debug_Command extends EE_Command {
 	 *   - on
 	 *   - off
 	 *
+	 * [--php]
+	 * : Enable PHP debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * [--fpm]
+	 * : Enable PHP5-FPM debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * [--rewrite]
+	 * : Debug Nginx rewrite rule
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
 	 * [--wp]
 	 * : Enable wordpress debug mode
+	 * ---
+	 * default: on
+	 * options:
+	 *   - on
+	 *   - off
+	 *
+	 * [--all]
+	 * : Enable all debug mode
 	 * ---
 	 * default: on
 	 * options:
@@ -68,7 +101,6 @@ class Debug_Command extends EE_Command {
 		if ( ! empty( $args ) ) {
 			$_argc['sitename'] = $args[0];
 		}
-
 		if ( ! empty( $_argc['nginx'] ) ) {
 			self::debug_nginx( $_argc );
 		}
@@ -85,6 +117,10 @@ class Debug_Command extends EE_Command {
 			self::debug_wp( $_argc );
 		}
 
+		if ( ! empty( $_argc['rewrite'] ) ) {
+			self::debug_rewrite( $_argc );
+		}
+
 	}
 
 	/**
@@ -96,7 +132,6 @@ class Debug_Command extends EE_Command {
 		// Start or Stop Nginx debug.
 		$debug         = $_argc;
 		$debug_address = '0.0.0.0/0';
-
 		if ( isset( $debug['sitename'] ) ) {
 			$site_name = $debug['sitename'];
 			$ee_domain = EE_Utils::validate_domain( $site_name );
@@ -153,6 +188,70 @@ class Debug_Command extends EE_Command {
 				}
 			}
 			EE_Service::reload_service( 'nginx' );
+		} else {
+			EE::error( 'Missing argument value on/off' );
+		}
+	}
+
+	/**
+	 * Function to debug wp.
+	 *
+	 * @param array $_argc command parameter.
+	 */
+	public function debug_rewrite( $_argc ) {
+		$debug = $_argc;
+		if ( isset( $debug['sitename'] ) ) {
+			$site_name = $debug['sitename'];
+			$ee_domain = EE_Utils::validate_domain( $site_name );
+			$ee_site_info = get_site_info( $site_name );
+			$ee_site_webroot = $ee_site_info['site_path'];
+		}
+
+		if ( 'on' === $debug['rewrite'] ) {
+			if ( empty( $ee_domain ) ) {
+				if ( ! grep_string( '/etc/nginx/nginx.conf', 'rewrite_log on' ) ) {
+					EE::success( 'Setting up Nginx rewrite logs' );
+					EE::exec_cmd( "sed -i '/http {/a \\\\t rewrite_log on;' /etc/nginx/nginx.conf" );
+				} else {
+					EE::success( 'Nginx rewrite logs already enabled' );
+				}
+			} else {
+				// If domain exist.
+				if ( is_site_exist( $ee_domain ) ) {
+					$config_file = '/etc/nginx/sites-available/' . $ee_domain;
+					if ( ee_file_exists( $config_file ) ) {
+						if ( ! grep_string( $config_file, 'rewrite_log on' ) ) {
+							EE::info( 'Setting up Nginx rewrite logs' );
+							EE::exec_cmd( 'sed -i "/access_log /i \\\\\\t rewrite_log on;" ' . $config_file );
+						} else {
+							EE::info( 'Debug is already enabled for the given site' );
+						}
+					}
+				} else {
+					EE::info( 'Site not exist.' );
+				}
+			}
+		} elseif ( 'off' === $debug['rewrite'] ) {
+			if ( empty( $ee_domain ) ) {
+				if ( grep_string( '/etc/nginx/nginx.conf', 'rewrite_log on' ) ) {
+						EE::info( 'Disabling Nginx rewrite logs' );
+						EE::exec_cmd( 'sed -i "/rewrite_log.*/d" /etc/nginx/nginx.conf' );
+				} else {
+					EE::info( 'Nginx rewrite logs already disabled' );
+				}
+			} else {
+				$config_file = '/etc/nginx/sites-available/' . $ee_domain;
+				if ( ee_file_exists( $config_file ) ) {
+					if ( grep_string( $config_file, 'rewrite_log on' ) ) {
+						EE::info( 'Disabling Nginx rewrite logs' );
+						EE::exec_cmd( 'sed -i "/rewrite_log.*/d" ' . $config_file );
+					} else {
+						EE::info( 'Nginx rewrite logs already disabled for given site' );
+					}
+				}
+			}
+		} else {
+			EE::error( 'Missing argument value on/off' );
 		}
 	}
 
@@ -163,7 +262,26 @@ class Debug_Command extends EE_Command {
 	 */
 	public function debug_php( $_argc ) {
 		// Start/Stop PHP debug.
+		if ( 'on' === $debug['php'] && empty( $debug['sitename'] ) ) {
+			if ( ! EE::exec_cmd( 'sed -n \"/upstream php {/,/}/p \" /etc/nginx/ conf.d/upstream.conf | grep 9001' ) ) {
+				EE::success( 'Enabling PHP debug' );
+			} else {
+				EE::info( 'PHP debug is already enabled' );
+			}
+		} elseif ( 'off' === $debug['mysql'] && empty( $debug['sitename'] ) ) {
+			if ( EE::exec_cmd( 'sed -n \"/upstream php {/,/}/p \" /etc/nginx/ conf.d/upstream.conf | grep 9001' ) ) {
+				EE::success( 'Disabling PHP debug' );
+			} else {
+				EE::success( 'PHP debug is already disabled' );
+			}
+		} else {
+			EE::error( 'Missing argument value on/off' );
+		}
 	}
+
+	/**
+	 *
+	 */
 
 	/**
 	 * Function to debug mysql
@@ -183,6 +301,7 @@ class Debug_Command extends EE_Command {
 			} else {
 				EE::success( 'MySQL slow log is already enabled' );
 			}
+			EE_Service::restart_service( 'mysql' );
 		} elseif ( 'off' === $debug['mysql'] && empty( $debug['sitename'] ) ) {
 			if ( EE::exec_cmd( "mysql -e \"show variables like 'slow_query_log';\" | grep ON" ) ) {
 				EE::success( 'Disabling MySQL slow log' );
@@ -193,9 +312,10 @@ class Debug_Command extends EE_Command {
 			} else {
 				EE::success( 'MySQL slow log already disabled' );
 			}
+			EE_Service::restart_service( 'mysql' );
+		} else {
+			EE::error( 'Missing argument value on/off' );
 		}
-
-		EE_Service::restart_service( 'mysql' );
 	}
 
 	/**
@@ -209,13 +329,11 @@ class Debug_Command extends EE_Command {
 		if ( 'on' === $debug['wp'] && ! empty( $debug['sitename'] ) ) {
 			$wp_config = EE_WEBROOT . $debug['sitename'] . '/wp-config.php';
 			$webroot   = EE_WEBROOT . $debug['sitename'];
-
 			if ( ! is_file( $wp_config ) ) {
 				$wp_config = EE_WEBROOT . $debug['sitename'] . '/htdocs/wp-config.php';
 			}
-
-			if ( ! is_file( $wp_config ) ) {
-				if ( ! EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
+			if ( is_file( $wp_config ) ) {
+				if ( 0 === EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
 					EE::success( 'Starting WordPress debug' );
 					ee_file_touch( $webroot . '/htdocs/wp-content/debug.log' );
 					ee_file_chown( $webroot . '/htdocs/wp-content/debug.log', EE_PHP_USER );
@@ -226,6 +344,8 @@ class Debug_Command extends EE_Command {
 					EE::exec_cmd( 'cd ' . $webroot . '/htdocs/ && wp plugin --allow-root install developer query-monitor' );
 					EE::exec_cmd( 'chown -R ' . EE_PHP_USER . ': ' . $webroot . '/htdocs/wp-content/plugins' );
 					EE::success( 'Log Enabled: ' . $webroot . '/htdocs/wp-content/debug.log' );
+				} else {
+					EE::error( 'WP_DEBUG is not enabled in wp-config.php file', false );
 				}
 			} else {
 				EE::error( 'Unable to find wp-config.php for site', false );
@@ -233,13 +353,12 @@ class Debug_Command extends EE_Command {
 		} elseif ( 'off' === $debug['wp'] && ! empty( $debug['sitename'] ) ) {
 			$wp_config = EE_WEBROOT . $debug['sitename'] . '/wp-config.php';
 			$webroot   = EE_WEBROOT . $debug['sitename'];
-
 			if ( ! is_file( $wp_config ) ) {
 				$wp_config = EE_WEBROOT . $debug['sitename'] . '/htdocs/wp-config.php';
 			}
 
-			if ( ! is_file( $wp_config ) ) {
-				if ( EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
+			if ( is_file( $wp_config ) ) {
+				if ( 0 === EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
 					EE::success( 'Disabling WordPress debug' );
 					EE::exec_cmd( "sed -i \"s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/\" " . $wp_config . '' );
 					EE::exec_cmd( "sed -i \"/define('WP_DEBUG_DISPLAY', false);/d\" " . $wp_config . '' );
@@ -250,9 +369,10 @@ class Debug_Command extends EE_Command {
 				}
 			}
 		} else {
-			EE::error( 'Missing argument site name' );
+			EE::error( 'Missing argument value on/off' );
 		}
 	}
+
 }
 
 EE::add_command( 'debug', 'Debug_Command' );
