@@ -803,8 +803,6 @@ class Site_Command extends EE_Command {
 	}
 
 	/**
-	 * @subcommand list
-	 *
 	 * Lists websites
 	 *
 	 * ## OPTIONS
@@ -815,10 +813,12 @@ class Site_Command extends EE_Command {
 	 * [--disabled]
 	 * : List disabled websites.
 	 *
+	 * @subcommand list
+	 *
 	 * ## EXAMPLES
 	 *
-	 *      # Delete site.
-	 *      $ ee site delete example.com
+	 *	# Delete site.
+	 *	$ ee site delete example.com
 	 *
 	 */
 	public function _list( $args, $assoc_args ) {
