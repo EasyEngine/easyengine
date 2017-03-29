@@ -1301,6 +1301,7 @@ function do_update_site( $site_name, $assoc_args ) {
 
 			if ( $stype === $old_site_type ) {
 				EE::info( "Site is already in {$stype}" );
+				return false;
 			}
 
 			if ( 'proxy' === $old_site_type && ( ! empty( $assoc_args['hhvm'] ) || 'hhvm' === $stype ) ) {
@@ -1325,7 +1326,8 @@ function do_update_site( $site_name, $assoc_args ) {
 						'php7'
 					) ) ) || ( 'wpsubdir' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdomain' ) ) ) || ( 'wpsubdomain' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdir' ) ) ) || ( $old_site_type === $stype && $old_cache_type === $cache )
 			) {
-				EE::info( "can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
+				EE::info( "Can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
+				return false;
 			}
 
 			if ( 'proxy' == $stype ) {
