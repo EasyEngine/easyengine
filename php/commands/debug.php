@@ -8,6 +8,7 @@
 
 use \EE\Utils;
 use \EE\Dispatcher;
+use NoiseLabs\ToolKit\ConfigParser\ConfigParser;
 
 /**
  * Debug_Command are used for server level debugging.
@@ -54,6 +55,9 @@ class Debug_Command extends EE_Command {
 	 *   - on
 	 *   - off
 	 *
+	 * [--version]
+	 * : Enable PHP5-version debug mode
+	 *
 	 * [--rewrite]
 	 * : Debug Nginx rewrite rule
 	 * ---
@@ -95,12 +99,14 @@ class Debug_Command extends EE_Command {
 	 * @param array $assoc_args invoke argument.
 	 */
 	public function __invoke( $args, $assoc_args ) {
+
 		$_argc = array();
 		$_argc = array_merge( $_argc, $assoc_args );
 
 		if ( ! empty( $args ) ) {
 			$_argc['sitename'] = $args[0];
 		}
+
 		if ( ! empty( $_argc['nginx'] ) ) {
 			self::debug_nginx( $_argc );
 		}
@@ -117,10 +123,15 @@ class Debug_Command extends EE_Command {
 			self::debug_wp( $_argc );
 		}
 
+		if ( ! empty( $_argc['fpm'] ) && ! empty( $_argc['version'] ) ) {
+			self::debug_fpm7( $_argc );
+		} else {
+			self::debug_fpm( $_argc );
+		}
+
 		if ( ! empty( $_argc['rewrite'] ) ) {
 			self::debug_rewrite( $_argc );
 		}
-
 	}
 
 	/**
@@ -191,6 +202,88 @@ class Debug_Command extends EE_Command {
 		} else {
 			EE::error( 'Missing argument value on/off' );
 		}
+	}
+
+	/**
+	 * Function to debug fpm.
+	 *
+	 * @param array $args command parameter.
+	 */
+	public function debug_fpm( $args ) {
+		// Start/Stop PHP5-FPM7 debug.
+		$debug = $args;
+		$php_version_folder = ( EE_OS::ee_platform_codename() === 'trusty' or EE_OS::ee_platform_codename() === 'xenial' ) ? 'php/5.6' : 'php5';
+		$fpm_conf_path = '/etc/' . $php_version_folder . '/fpm/php-fpm.conf';
+		if ( 'on' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+			if ( EE::exec_cmd( 'grep "log_level = debug" ' . $fpm_conf_path ) ) {
+				EE::success( 'Enabling FPM debug' );
+				// Created ConfigParser class instance.
+				$config = new ConfigParser();
+				$config->read( $fpm_conf_path );
+				$config->removeOption( 'global', 'include' );
+				$config->set( 'global','include', '/etc/' . $php_version_folder . '/fpm/pool.d/*.conf' );
+				$config->set( 'global','log_level', 'debug' );
+				$config->write( $fpm_conf_path );
+			} else {
+				EE::info( 'FPM debug is already enabled' );
+			}
+		} elseif ( 'off' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+			if ( ! EE::exec_cmd( 'grep "log_level = debug" ' . $fpm_conf_path ) ) {
+				EE::success( 'Disabling FPM debug' );
+				// Created ConfigParser class instance.
+				$config = new ConfigParser();
+				$php_version_folder = ( EE_OS::ee_platform_codename() === 'trusty' or EE_OS::ee_platform_codename() === 'xenial' ) ? 'php/5.6' : 'php5';
+				$config->read( $fpm_conf_path );
+				$config->set( 'global','log_level', 'notice' );
+				$config->set( 'global','include', '/etc/' . $php_version_folder . '/fpm/pool.d/*.conf' );
+				$config->write( $fpm_conf_path );
+			} else {
+				EE::info( 'FPM debug is already disabled' );
+			}
+		} else {
+			EE::error( 'Missing argument value on/off' );
+		}
+	}
+
+	/**
+	 * Function to debug fpm7.
+	 *
+	 * @param array $args command parameter.
+	 */
+	public function debug_fpm7( $args ) {
+		// Start/Stop PHP5-FPM7 debug.
+		$debug = $args;
+		if ( 'on' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+			if ( EE::exec_cmd( 'grep "log_level = debug" /etc/php/7.0/fpm/php-fpm.conf' ) ) {
+				EE::success( 'Enabling FPM7 debug' );
+				// Created ConfigParser class instance.
+				$config = new ConfigParser();
+				$config->read( '/etc/php/7.0/fpm/php-fpm.conf' );
+				$config->removeOption( 'global', 'include' );
+				$config->set( 'global','include', '/etc/php/7.0/fpm/pool.d/*.conf' );
+				$config->set( 'global','log_level', 'debug' );
+				$config->write( '/etc/php/7.0/fpm/php-fpm.conf' );
+			} else {
+				EE::info( 'FPM7 debug is already enabled' );
+			}
+		} elseif ( 'off' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+			if ( ! EE::exec_cmd( 'grep "log_level = debug" /etc/php/7.0/fpm/php-fpm.conf' ) ) {
+				EE::success( 'Disabling FPM7 debug' );
+				// Created ConfigParser class instance.
+				$config = new ConfigParser();
+				$php_version_folder = ( EE_OS::ee_platform_codename() === 'trusty' or EE_OS::ee_platform_codename() === 'xenial' ) ? 'php/5.6' : 'php5';
+				$config->read( '/etc/php/7.0/fpm/php-fpm.conf' );
+				$config->removeOption( 'global', 'include' );
+				$config->set( 'global','include', '/etc/php/7.0/fpm/pool.d/*.conf' );
+				$config->set( 'global','log_level', 'notice' );
+				$config->write( '/etc/php/7.0/fpm/php-fpm.conf' );
+			} else {
+				EE::success( 'FPM7 debug is already disabled' );
+			}
+		} else {
+			EE::error( 'Missing argument value on/off' );
+		}
+
 	}
 
 	/**
@@ -268,7 +361,7 @@ class Debug_Command extends EE_Command {
 			} else {
 				EE::info( 'PHP debug is already enabled' );
 			}
-		} elseif ( 'off' === $debug['mysql'] && empty( $debug['sitename'] ) ) {
+		} elseif ( 'off' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
 			if ( EE::exec_cmd( 'sed -n \"/upstream php {/,/}/p \" /etc/nginx/ conf.d/upstream.conf | grep 9001' ) ) {
 				EE::success( 'Disabling PHP debug' );
 			} else {
@@ -278,10 +371,6 @@ class Debug_Command extends EE_Command {
 			EE::error( 'Missing argument value on/off' );
 		}
 	}
-
-	/**
-	 *
-	 */
 
 	/**
 	 * Function to debug mysql
