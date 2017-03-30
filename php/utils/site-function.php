@@ -1160,6 +1160,7 @@ function update_wp_user_password( $ee_domain, $ee_site_webroot ) {
 			EE::debug( $e->getMessage() );
 			EE::info( "wp user password update command failed" );
 		}
+		EE::line(); // add blank line for showing success message below hidden password field.
 		EE::success( "Password updated successfully" );
 	} else {
 		EE::error( "Invalid WordPress user {$ee_wp_user} for {$ee_domain}." );
@@ -1294,9 +1295,8 @@ function do_update_site( $site_name, $assoc_args ) {
 				} catch ( Exception $e ) {
 					EE::debug( $e->getMessage() );
 					EE::info( "Password Unchanged." );
-
-					return false;
 				}
+				return false;
 			}
 
 			if ( $stype === $old_site_type ) {
