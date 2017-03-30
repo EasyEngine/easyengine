@@ -125,7 +125,7 @@ class Debug_Command extends EE_Command {
 
 		if ( ! empty( $_argc['fpm'] ) && ! empty( $_argc['version'] ) ) {
 			self::debug_fpm7( $_argc );
-		} else {
+		} elseif ( ! empty( $_argc['fpm'] ) ) {
 			self::debug_fpm( $_argc );
 		}
 
@@ -214,7 +214,7 @@ class Debug_Command extends EE_Command {
 		$debug = $args;
 		$php_version_folder = ( EE_OS::ee_platform_codename() === 'trusty' or EE_OS::ee_platform_codename() === 'xenial' ) ? 'php/5.6' : 'php5';
 		$fpm_conf_path = '/etc/' . $php_version_folder . '/fpm/php-fpm.conf';
-		if ( 'on' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+		if ( isset( $debug['fpm'] ) && 'on' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
 			if ( EE::exec_cmd( 'grep "log_level = debug" ' . $fpm_conf_path ) ) {
 				EE::success( 'Enabling FPM debug' );
 				// Created ConfigParser class instance.
@@ -227,7 +227,7 @@ class Debug_Command extends EE_Command {
 			} else {
 				EE::info( 'FPM debug is already enabled' );
 			}
-		} elseif ( 'off' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
+		} elseif ( isset( $debug['fpm'] ) && 'off' === $debug['fpm'] && empty( $debug['sitename'] ) ) {
 			if ( ! EE::exec_cmd( 'grep "log_level = debug" ' . $fpm_conf_path ) ) {
 				EE::success( 'Disabling FPM debug' );
 				// Created ConfigParser class instance.
@@ -299,7 +299,6 @@ class Debug_Command extends EE_Command {
 			$ee_site_info = get_site_info( $site_name );
 			$ee_site_webroot = $ee_site_info['site_path'];
 		}
-
 		if ( 'on' === $debug['rewrite'] ) {
 			if ( empty( $ee_domain ) ) {
 				if ( ! grep_string( '/etc/nginx/nginx.conf', 'rewrite_log on' ) ) {
@@ -316,6 +315,7 @@ class Debug_Command extends EE_Command {
 						if ( ! grep_string( $config_file, 'rewrite_log on' ) ) {
 							EE::info( 'Setting up Nginx rewrite logs' );
 							EE::exec_cmd( 'sed -i "/access_log /i \\\\\\t rewrite_log on;" ' . $config_file );
+
 						} else {
 							EE::info( 'Debug is already enabled for the given site' );
 						}
@@ -415,6 +415,9 @@ class Debug_Command extends EE_Command {
 	public function debug_wp( $_argc ) {
 		// Start/Stop WordPress debug.
 		$debug = $_argc;
+		if ( empty( $debug['sitename'] ) ) {
+			EE::error( 'Site Name is missing', true );
+		}
 		if ( 'on' === $debug['wp'] && ! empty( $debug['sitename'] ) ) {
 			$wp_config = EE_WEBROOT . $debug['sitename'] . '/wp-config.php';
 			$webroot   = EE_WEBROOT . $debug['sitename'];
@@ -422,19 +425,16 @@ class Debug_Command extends EE_Command {
 				$wp_config = EE_WEBROOT . $debug['sitename'] . '/htdocs/wp-config.php';
 			}
 			if ( is_file( $wp_config ) ) {
-				if ( 0 === EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
+				if ( 1 === EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
 					EE::success( 'Starting WordPress debug' );
 					ee_file_touch( $webroot . '/htdocs/wp-content/debug.log' );
 					ee_file_chown( $webroot . '/htdocs/wp-content/debug.log', EE_PHP_USER );
-					EE::exec_cmd( "sed -i \"s/define('WP_DEBUG'.*/define('WP_DEBUG', true);
-																\ndefine('WP_DEBUG_DISPLAY', false);
-																\ndefine('WP_DEBUG_LOG', true);
-																\ndefine('SAVEQUERIES', true);/\" " . $wp_config . '' );
+					EE::exec_cmd( "sed -i \"s@define('WP_DEBUG'.*@define('WP_DEBUG', true); \\n define('WP_DEBUG_DISPLAY', false);\\n define('WP_DEBUG_LOG', true);\\n define('SAVEQUERIES', true);@g\" " . $wp_config );
 					EE::exec_cmd( 'cd ' . $webroot . '/htdocs/ && wp plugin --allow-root install developer query-monitor' );
 					EE::exec_cmd( 'chown -R ' . EE_PHP_USER . ': ' . $webroot . '/htdocs/wp-content/plugins' );
 					EE::success( 'Log Enabled: ' . $webroot . '/htdocs/wp-content/debug.log' );
 				} else {
-					EE::error( 'WP_DEBUG is not enabled in wp-config.php file', false );
+					EE::info( 'WP_DEBUG is already on in wp-config.php file', false );
 				}
 			} else {
 				EE::error( 'Unable to find wp-config.php for site', false );
@@ -449,17 +449,18 @@ class Debug_Command extends EE_Command {
 			if ( is_file( $wp_config ) ) {
 				if ( 0 === EE::exec_cmd( "grep \"'WP_DEBUG'\" " . $wp_config . ' | grep true' ) ) {
 					EE::success( 'Disabling WordPress debug' );
-					EE::exec_cmd( "sed -i \"s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/\" " . $wp_config . '' );
-					EE::exec_cmd( "sed -i \"/define('WP_DEBUG_DISPLAY', false);/d\" " . $wp_config . '' );
-					EE::exec_cmd( "sed -i \"/define('WP_DEBUG_LOG', true);/d\" " . $wp_config . '' );
-					EE::exec_cmd( "sed -i \"/define('SAVEQUERIES', true);/d\" " . $wp_config . '' );
+					EE::exec_cmd( "sed -i \"s/define('WP_DEBUG', true);/define('WP_DEBUG', false);/\" " . $wp_config );
+					EE::exec_cmd( "sed -i \"/define('WP_DEBUG_DISPLAY', false);/d\" " . $wp_config );
+					EE::exec_cmd( "sed -i \"/define('WP_DEBUG_LOG', true);/d\" " . $wp_config );
+					EE::exec_cmd( "sed -i \"/define('SAVEQUERIES', true);/d\" " . $wp_config );
 				} else {
-					EE::error( 'WordPress debug already disabled', false );
+					EE::info( 'WordPress debug already disabled', false );
 				}
 			}
 		} else {
 			EE::error( 'Missing argument value on/off' );
 		}
+
 	}
 
 }
