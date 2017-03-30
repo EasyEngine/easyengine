@@ -107,6 +107,18 @@ class Debug_Command extends EE_Command {
 			$_argc['sitename'] = $args[0];
 		}
 
+		if ( isset( $_argc['all'] ) && ! empty( $_argc['all'] ) && ! empty( $_argc['sitename'] ) ) {
+			$_argc['wp'] = $_argc['all'];
+			$_argc['nginx'] = $_argc['all'];
+			$_argc['rewrite'] = $_argc['all'];
+			$_argc['mysql'] = $_argc['all'];
+		} elseif ( isset( $_argc['all'] ) && ! empty( $_argc['all'] ) && empty( $_argc['sitename'] ) ) {
+			$_argc['fpm'] = $_argc['all'];
+			$_argc['mysql'] = $_argc['all'];
+			$_argc['nginx'] = $_argc['all'];
+			$_argc['rewrite'] = $_argc['all'];
+		}
+
 		if ( ! empty( $_argc['nginx'] ) ) {
 			self::debug_nginx( $_argc );
 		}
