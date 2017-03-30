@@ -734,7 +734,7 @@ class Site_Command extends EE_Command {
 			}
 		}
 
-		if ( $assoc_args['db'] ) {
+		if ( isset( $assoc_args['db'] ) ) {
 			if ( 'deleted' !== $ee_db_name and ! empty( $ee_db_name ) ) {
 				if ( empty( $assoc_args['no_prompt'] ) ) {
 					$ee_db_prompt = EE::input_value( "Are you sure, you want to delete database [y/N]: " );
@@ -761,7 +761,7 @@ class Site_Command extends EE_Command {
 			}
 		}
 
-		if ( $assoc_args['files'] ) {
+		if ( isset( $assoc_args['files'] ) ) {
 			if ( 'deleted' !== $ee_site_webroot ) {
 				if ( empty( $assoc_args['no_prompt'] ) ) {
 					$ee_web_prompt = EE::input_value( "Are you sure, you want to delete webroot [y/N]: " );
@@ -803,8 +803,6 @@ class Site_Command extends EE_Command {
 	}
 
 	/**
-	 * @subcommand list
-	 *
 	 * Lists websites
 	 *
 	 * ## OPTIONS
@@ -815,10 +813,12 @@ class Site_Command extends EE_Command {
 	 * [--disabled]
 	 * : List disabled websites.
 	 *
+	 * @subcommand list
+	 *
 	 * ## EXAMPLES
 	 *
-	 *      # Delete site.
-	 *      $ ee site delete example.com
+	 *	# Delete site.
+	 *	$ ee site delete example.com
 	 *
 	 */
 	public function _list( $args, $assoc_args ) {
