@@ -1,0 +1,657 @@
+#!/bin/bash
+
+
+# Make Variables Available For Later Use
+INSTALLLOG=/var/log/easyengine/install.log
+LINUX_DISTRO=$(lsb_release -i |awk '{print $3}')
+
+# Capture Errors
+OwnError()
+{
+	echo -e "[ `date` ] \033[31m$@\e[0m" | tee -ai $INSTALLLOG
+	exit 101
+}
+
+GITCOMMIT ()
+{
+	# Change Directory
+	cd $EEGITDIR || OwnError "Unable To Change Directory $EEGITDIR"
+
+	# Check .git
+	if [ ! -d .git ]
+	then
+		# Initialise Git
+		echo -e "\033[34mInitialise Git On $EEGITDIR...\e[0m"
+		git init &>> $INSTALLLOG || OwnError "Unable To Initialize Git On $EEGITDIR"
+	fi
+
+	# Check For Untracked Files
+	if [ $(git status -s | wc -l) -ne 0 ]
+	then
+		# Add Files In Git Version Control
+		git add --all && git commit -am "$EEGITMESSAGE"  &>> $INSTALLLOG \
+		|| OwnError "Unable To Git Commit On $EEGITDIR"
+	fi
+}
+
+EEUPDATE()
+{
+	# Clone EasyEngine (ee) Stable Repository
+	rm -rf /tmp/easyengine
+	echo -e "\033[34mUpdating EasyEngine (ee), Please Wait...\e[0m" | tee -ai $INSTALLLOG
+	git clone -b stable git://github.com/rtCamp/easyengine.git /tmp/easyengine &>> $INSTALLLOG || OwnError "Unable To Clone Easy Engine"
+
+	# EasyEngine (ee) /etc Files
+	cp -a /tmp/easyengine/etc/bash_completion.d/ee /etc/bash_completion.d/ &>> $INSTALLLOG || OwnError "Unable To Copy EE Auto Complete File"
+
+	# EE /usr/share/easyengine Files
+	cp -a /tmp/easyengine/etc/nginx/* /usr/share/easyengine/nginx/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
+	cp -a /tmp/easyengine/usr/share/easyengine/* /usr/share/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy Configuration Files "
+
+	# EE Command
+	cp -a /tmp/easyengine/usr/local/sbin/easyengine /usr/local/sbin/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Command"
+
+	# EE Man Pages
+	cp -a /tmp/easyengine/man/ee.8 /usr/share/man/man8/ &>> $INSTALLLOG || OwnError "Unable To Copy EasyEngine Man Pages"
+
+	# Change Permission For EE
+	chmod 750 /usr/local/sbin/easyengine || OwnError "Unable To Change EasyEngine Command Permission"
+
+	# Create Symbolic Link If Not Exist
+	if [ ! -L /usr/local/sbin/ee ]
+	then
+		ln -s /usr/local/sbin/easyengine /usr/local/sbin/ee
+	fi	
+
+	# Git Config Settings
+	EEGITNAME=$(git config user.name)
+	EEGITEMAIL=$(git config user.email)
+
+	if [ -z "$EEGITNAME" ] || [ -z "$EEGITEMAIL" ]
+	then
+		echo
+		echo -e "\033[34mEasyEngine (ee) Required Your Name & Email Address To Track Changes You Made Under The Git\e[0m" | tee -ai $INSTALLLOG
+		echo -e "\033[34mEasyEngine (ee) Will Be Able To Send You Daily Reports & Alerts In Upcoming Version\e[0m" | tee -ai $INSTALLLOG
+		echo -e "\033[34mEasyEngine (ee) Will NEVER Send Your Information Across\e[0m" | tee -ai $INSTALLLOG
+	fi
+	# Check Git User Is Empty Or Not
+	if [ -z "$EEGITNAME" ]
+	then
+		read -p "Enter Your Name [$(whoami)]: " EEGITNAME
+		# If Enter Is Pressed
+		if [[ $EEGITNAME = "" ]]
+		then
+			EEGITNAME=$(whoami)
+		fi
+		git config --global user.name "$EEGITNAME" &>> $INSTALLLOG	
+	fi
+
+	# Check Git User Is Empty Or Not
+	if [ -z "$EEGITEMAIL" ]
+	then
+		read -p "Enter Your Email [$(whoami)@$(hostname -f)]: " EEGITEMAIL
+		# If Enter Is Pressed
+		if [[ $EEGITEMAIL = "" ]]
+		then
+			EEGITEMAIL=$(whoami)@$(hostname -f)
+		fi
+		git config --global user.email $EEGITEMAIL &>> $INSTALLLOG
+	fi
+}
+
+MYSQLUSERPASS()
+{
+        MYSQLUSER=root
+        MYSQLHOST=localhost
+
+        # Turn Off Echo For Passwords
+        stty -echo
+        read -p "Enter The MySQL Password For root User: " MYSQLPASS
+        stty echo
+        echo
+}
+
+MYSQLPASSCHECK()
+{
+        while [ -n $(mysqladmin -h $MYSQLHOST -u $MYSQLUSER -p$MYSQLPASS ping 2> /dev/null | grep alive) &> /dev/null ]
+        do
+                # Verify MySQL Credentials
+                MYSQLUSERPASS
+        done
+
+        # Generate ~/.my.cnf
+        echo -e "[client]\nuser=root\npassword=$MYSQLPASS" > ~/.my.cnf
+}
+
+MYCNFCHECK()
+{
+	# MySQL Root Password
+	if [ -f ~/.my.cnf ]
+	then
+		MYSQLUSER=root
+		MYSQLHOST=localhost
+		MYSQLPASS=$(cat ~/.my.cnf | grep pass | cut -d'=' -f2)
+		MYSQLPASSCHECK
+	else
+		# Turn Off Echo For Passwords
+        stty -echo
+        MYSQLUSER=root
+        MYSQLHOST=localhost
+        read -p "Enter The MySQL Password For root User: " MYSQLPASS
+        stty echo
+        echo
+
+		MYSQLPASSCHECK
+	fi
+
+
+}
+
+EE101()
+{
+	# EasyEngine (ee) /etc Files
+	cp -a /tmp/easyengine/etc/easyengine/ee.conf /etc/easyengine/ &>> $INSTALLLOG || OwnError "Unable To Copy ee.conf File"
+
+	# Let Copy Some Missing Files & Chnage Nginx As Per Latest EasyEngine
+	(sed "/allow/,+2d" /usr/share/easyengine/nginx/common/acl.conf; grep -v ^# /etc/nginx/common/allowed_ip.conf ) > /etc/nginx/common/acl.conf
+	cp /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common
+	sed -i "s/fastcgi_cache_use_stale.*/fastcgi_cache_use_stale error timeout invalid_header updating http_500 http_503;\nfastcgi_cache_valid any 1h;/g" /etc/nginx/conf.d/fastcgi.conf
+	sed -i "s/log_format rt_cache.*/log_format rt_cache '\$remote_addr \$upstream_response_time \$upstream_cache_status [\$time_local] '/" /etc/nginx/nginx.conf
+	sed -i "s/.*\$body_bytes_sent'/\t\t'\$http_host \"\$request\" \$status \$body_bytes_sent '/" /etc/nginx/nginx.conf
+
+	# Check SSL Settings
+	grep ssl_ /etc/nginx/nginx.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		sed -i "/client_max_body_size/a \ \n\t# SSL Settings\n\tssl_session_cache shared:SSL:20m;\n\tssl_session_timeout 10m;\n\tssl_prefer_server_ciphers on;\n\tssl_ciphers HIGH:\!aNULL:\!MD5:\!kEDH;\n\n" /etc/nginx/nginx.conf
+	fi
+
+	# Move PHP’s Session Storage To Memcache
+	sed -i "/extension/a \session.save_handler = memcache\nsession.save_path = \"tcp://localhost:11211\"" /etc/php5/mods-available/memcache.ini
+}
+
+EE110()
+{
+	sed -i '/allow ;/d' /etc/nginx/common/acl.conf
+}
+
+PHPUSERINFO()
+{
+	# PHP User
+	PHPUSER=$(grep ^user /etc/php5/fpm/pool.d/www.conf | cut -d'=' -f2 | cut -d' ' -f2) \
+	|| OwnError "Unable To Find Out PHP Username"
+}
+
+PHP_PACKAGES()
+{
+	# Nginx Fastcgi Cache Cleanup
+	if [ ! -d /var/www/22222/htdocs/cache/nginx ]
+	then
+		mkdir -p /var/www/22222/htdocs/cache/nginx || OwnError "Unable To Create Nginx Fastcgi Cleanup Directory"
+
+		# Downloading Nginx FastCGI Cleanup Script
+		echo -e "\033[34mDownloading Nginx FastCGI Cleanup Script, Please Wait...\e[0m"
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/nginx/clean.php https://raw.githubusercontent.com/rtCamp/eeadmin/master/cache/nginx/clean.php
+	fi
+
+	# Opcache Settings
+	if [ ! -d /var/www/22222/htdocs/cache/opcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/cache/opcache || OwnError "Unable To Create Opcache Directory"
+
+		# Download Opcache Status Files
+		echo -e "\033[34mInstalling Opcache Tool, Please Wait...\e[0m"
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opcache.php https://raw.github.com/rlerdorf/opcache-status/master/opcache.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/opgui.php https://raw.github.com/amnuts/opcache-gui/master/index.php
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/opcache/ocp.php https://gist.github.com/ck-on/4959032/raw/0b871b345fd6cfcd6d2be030c1f33d1ad6a475cb/ocp.php
+	fi
+
+	# Memcache Settings
+	if [ ! -d /var/www/22222/htdocs/cache/memcache ]
+	then
+		# Create Directory
+		mkdir -p /var/www/22222/htdocs/cache/memcache || OwnError "Unable To Create Memcache Directory"
+
+		# Download phpMemcachedAdmin
+		echo -e "\033[34mInstalling Memcache Tool, Please Wait...\e[0m"
+		wget --no-check-certificate -cqO /var/www/22222/htdocs/cache/memcache/memcache.tar.gz http://phpmemcacheadmin.googlecode.com/files/phpMemcachedAdmin-1.2.2-r262.tar.gz
+
+		# Extract phpMemcachedAdmin
+		tar -zxf /var/www/22222/htdocs/cache/memcache/memcache.tar.gz -C /var/www/22222/htdocs/cache/memcache
+
+		# Remove Unwanted Files
+		rm -f /var/www/22222/htdocs/cache/memcache/memcache.tar.gz
+	fi
+
+	if [ ! -d /var/www/22222/htdocs/php/webgrind/ ]
+	then
+		# Download Opcache Status Files
+		mkdir -p mkdir -p /var/www/22222/htdocs/php/webgrind/ ||  OwnError "Unable To Create webgrind Directory"
+		
+		# Download Webgrind
+		echo -e "\033[34mCloning Webgrind, Please Wait...\e[0m"
+		git clone https://github.com/jokkedk/webgrind.git /var/www/22222/htdocs/php/webgrind/ &>> $INSTALLLOG || OwnError "Unable To Clone Webgrind"
+		sed -i "s'/usr/local/bin/dot'/usr/bin/dot'" /var/www/22222/htdocs/php/webgrind/config.php
+
+		# Install Graphviz
+		dpkg -l | grep graphviz &>> $INSTALLLOG
+		if [ $? -ne 0 ]
+		then
+			echo -e "\033[34mInstalling Graphviz, Please Wait...\e[0m"
+			apt-get -y install graphviz || OwnError "Unable To Install Graphviz"
+		fi
+	fi
+
+	# Create info.php File To Display The phpinfo Information
+	echo -e "<?php \n\t phpinfo(); \n?>" &>> /var/www/22222/htdocs/php/info.php
+
+	# Fake PHP5-FPM Status Pages
+	if [ ! -d /var/www/22222/htdocs/fpm/status/ ]
+	then
+			mkdir -p /var/www/22222/htdocs/fpm/status/ || OwnError "Unable To Create FPM Status Directory"
+			touch /var/www/22222/htdocs/fpm/status/{php,debug}
+	fi
+
+	# Call PHPUSERINFO Function For PHP User Details
+	PHPUSERINFO
+
+	# Change Ownership
+	chown -R $PHPUSER:$PHPUSER /var/www/22222 || OwnError "Unable To Change Ownership For /var/www/22222"
+}
+
+ANEMOMETER_INSTALL()
+{
+	if [ -d /etc/mysql/ ]
+	then
+
+		# Anemometer Setup
+		if [ ! -d /var/www/22222/htdocs/db/anemometer ]
+		then
+			mkdir -p /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Create Anemometer Directory"
+
+			# Download Anemometer
+			echo -e "\033[34mCloning Anemometer, Please Wait...\e[0m"
+			git clone https://github.com/box/Anemometer.git /var/www/22222/htdocs/db/anemometer &>> $INSTALLLOG \
+			|| OwnError "Unable To Clone Anemometer"
+
+			# Setup Anemometer
+			# Collect MySQL Login Details
+			MYCNFCHECK
+
+			# Setup Anemometer Database
+			mysql -u $MYSQLUSER -p$MYSQLPASS < /var/www/22222/htdocs/db/anemometer/install.sql \
+			|| OwnError "Unable To Import Anemometer Database"
+
+			# Setup Anemometer Database Grants
+			ANEMOMETERPASS=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 15 | head -n1)
+			mysql -u $MYSQLUSER -p$MYSQLPASS -e "grant all on slow_query_log.* to 'anemometer'@'localhost' IDENTIFIED BY '$ANEMOMETERPASS';"			
+
+			# Execute On MySQL Logrotation
+			sed -i "/endscript/,/}/d" /etc/logrotate.d/mysql-server
+			echo -e "                  pt-query-digest --user=anemometer --password=$ANEMOMETERPASS \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                  --review D=slow_query_log,t=global_query_review \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                  --review-history D=slow_query_log,t=global_query_review_history \\" >> /etc/logrotate.d/mysql-server
+			echo -e "                   --no-report --limit=0% --filter=\" \\\$event->{Bytes} = length(\\\$event->{arg}) and \\\$event->{hostname}="\\\"\$HOSTNAME\\\"\" /var/log/mysql/slow.log >> /etc/logrotate.d/mysql-server
+			echo -e "\t\tendscript" >> /etc/logrotate.d/mysql-server
+			echo -e "}" >> /etc/logrotate.d/mysql-server
+
+			# Copy Anemometer Configuration File
+			cp /var/www/22222/htdocs/db/anemometer/conf/sample.config.inc.php /var/www/22222/htdocs/db/anemometer/conf/config.inc.php \
+			|| OwnError "Unable To Copy Anemometer Configuration File"
+
+			# Update Anemoneter Configuration File
+			sed -i "s/root/anemometer/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+			sed -i "/password/ s/''/'$ANEMOMETERPASS'/g" /var/www/22222/htdocs/db/anemometer/conf/config.inc.php
+
+			# Call PHPUSERINFO Function For PHP User Details
+			PHPUSERINFO
+
+			# Change Ownership
+			chown -R $PHPUSER:$PHPUSER /var/www/22222/htdocs/db/anemometer/ || OwnError "Unable To Change Ownership For Anemometer"
+		fi
+	fi
+}
+
+INSTALLPMA()
+{
+	# Install PMA/phpMyAdmin
+	if [ ! -d /var/www/22222/htdocs/db/pma ] || [ ! -d /var/www/22222/htdocs/db/adminer ]
+	then
+		if [ ! -d /var/www/22222/htdocs/db/pma ]
+		then
+			echo -e "\033[34mDownloading phpMyAdmin, Please Wait...\e[0m"
+
+			# Setup PMA/phpMyAdmin
+			mkdir -p /var/www/22222/htdocs/db/pma/ || OwnError "Unable To Create phpMyAdmin Directory: /var/www/22222/htdocs/db/pma/"
+
+			# Download PMA/phpMyAdmin
+			wget --no-check-certificate -cqO /var/www/22222/htdocs/db/pma/pma.tar.gz http://dl.cihar.com/phpMyAdmin/master/phpMyAdmin-master-latest.tar.gz \
+			|| OwnError "Unable To Download phpMyAdmin"
+
+			# Extract PMA/phpMyAdmin
+			tar --strip-components=1 -zxf  /var/www/22222/htdocs/db/pma/pma.tar.gz -C /var/www/22222/htdocs/db/pma/ \
+			|| OwnError "Unable To Extract phpMyAdmin"
+
+			# Remove Unwanted Files
+			rm -f /var/www/22222/htdocs/db/pma/pma.tar.gz
+
+		fi
+	
+		if [ ! -d /var/www/22222/htdocs/db/adminer ]
+		then
+			echo -e "\033[34mDownloading Adminer, Please Wait...\e[0m"
+			# Setup Adminer
+			mkdir -p /var/www/22222/htdocs/db/adminer/ || OwnError "Unable To Create Adminer Directory: /var/www/22222/htdocs/db/adminer/"
+
+			# Download Adminer
+			wget --no-check-certificate -cqO /var/www/22222/htdocs/db/adminer/index.php http://downloads.sourceforge.net/adminer/adminer-4.0.3.php \
+			|| OwnError "Unable To Download Adminer"
+
+		fi
+
+	else
+		echo -e "\033[34mAlready Installed phpMyAdmin (/var/www/22222/htdocs/db/pma)...\e[0m"
+	fi
+}
+
+EE122()
+{
+	# EasyEngine Config File
+	sed -i "/# WordPress Defaults/i # Comma Separated Whitelist/Debugging IP Address\nip_address = \n"  /etc/easyengine/ee.conf
+
+	# Nginx File Copy
+	cp /usr/share/easyengine/nginx/conf.d/upstream.conf /etc/nginx/conf.d/  || OwnError "Unable To Copy Nginx Upstream File"
+	cp /usr/share/easyengine/nginx/common/locations.conf /etc/nginx/common/ || OwnError "Unable To Copy Nginx Common Location File"
+	cp /usr/share/easyengine/nginx/common/wpcommon.conf /etc/nginx/common/  || OwnError "Unable To Copy Nginx Common WordPress File"
+
+	# Nginx Changes
+	sed -i "/worker_processes/a \worker_rlimit_nofile 100000;" /etc/nginx/nginx.conf
+	sed -i "s/# multi_accept/multi_accept/" /etc/nginx/nginx.conf
+	sed -i "s/keepalive_timeout.*/keepalive_timeout 30;/" /etc/nginx/nginx.conf
+
+	# EasyEngine Admin Setup
+	cp /usr/share/easyengine/nginx/22222 /etc/nginx/sites-available/ || OwnError "Unable To Copy 22222 Nginx Configuration File"
+	ln -s /etc/nginx/sites-available/22222 /etc/nginx/sites-enabled/ || OwnError "Unable To Create Symbolic Link For 22222 Nginx Configuration"
+
+	# EasyEngine Admin Logs Setup
+	if [ ! -d /var/www/22222/logs ]
+	then
+		mkdir -p /var/www/22222/logs || OwnError "Unable To Create /var/www/22222/logs"
+	fi
+
+	# Symbolic Links
+	ln -s /var/log/nginx/eeadmin.access.log /var/www/22222/logs/access.log
+	ln -s /var/log/nginx/eeadmin.error.log /var/www/22222/logs/error.log
+
+	# EasyEngine Admin SSL Setup
+	if [ ! -d /var/www/22222/cert ]
+	then
+		mkdir -p /var/www/22222/cert || OwnError "Unable To Create /var/www/22222/cert"
+	fi
+
+	# Generate SSL Key
+	echo -e "\033[34mGenerating SSL Private Key, Please Wait...\e[0m"
+	openssl genrsa -out /var/www/22222/cert/22222.key 2048 &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Private Key"
+
+	echo -e "\033[34mGenerating a Certificate Signing Request (CSR), Please Wait...\e[0m"
+	openssl req -new -batch -subj /commonName=127.0.0.1/ -key /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.csr &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate Certificate Signing Request (CSR)"
+
+	echo -e "\033[34mRemoving Passphrase From SSL Private Key, Please Wait...\e[0m"
+	mv /var/www/22222/cert/22222.key /var/www/22222/cert/22222.key.org
+	openssl rsa -in /var/www/22222/cert/22222.key.org -out /var/www/22222/cert/22222.key &>> $INSTALLLOG \
+	|| OwnError "Unable To Remove Passphrase From SSL Private Key"
+
+	echo -e "\033[34mGenerating SSL Certificate, Please Wait...\e[0m"
+	openssl x509 -req -days 3652 -in /var/www/22222/cert/22222.csr -signkey /var/www/22222/cert/22222.key -out /var/www/22222/cert/22222.crt &>> $INSTALLLOG \
+	|| OwnError "Unable To Generate SSL Certificate"
+
+	# PHP Setup
+	dpkg -l | grep php5-fpm &>> $INSTALLLOG
+	if [ $? -eq 0 ]
+	then
+		# Install Packages
+		echo -e "\033[34mInstalling php5-xdebug percona-toolkit graphviz, Please Wait...\e[0m"
+		apt-get -y install php5-xdebug percona-toolkit graphviz
+
+		# Personal Settings For PHP
+		echo -e "\033[34mUpdating PHP Configuration Files, Please Wait...\e[0m"
+
+		# Needed For Custome PHP5 Logs
+		if [ ! -d /var/log/php5/ ]
+		then
+			mkdir -p /var/log/php5/ || OwnError "Unable To Create PHP5 Log Directory: /var/log/php5/"
+		fi
+
+		TIME_ZONE=$(cat /etc/timezone | head -n1 | sed "s'/'\\\/'")
+		sed -i "s/;date.timezone.*/date.timezone = $TIME_ZONE/" /etc/php5/fpm/php.ini
+
+		# Change PHP5-FPM Error Logs Location
+		sed -i "s'error_log.*'error_log = /var/log/php5/fpm.log'" /etc/php5/fpm/php-fpm.conf
+
+		# Separate PHP POOL For Slow Logs
+		cp /etc/php5/fpm/pool.d/www.conf /etc/php5/fpm/pool.d/debug.conf
+		sed -i "s'\[www\]'[debug]'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Pool Name"
+		sed -i "s'listen = 127.0.0.1:9000'listen = 127.0.0.1:9001'" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Fastcgi Listen Port"
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+		sed -i "s';slowlog.*'slowlog = /var/log/php5/slow.log'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Slowlog"
+		sed -i "s';request_slowlog_timeout.*'request_slowlog_timeout = 10s'"  /etc/php5/fpm/pool.d/debug.conf || OwnError "Unable To Change PHP Request Slowlog Timeout"
+		echo -e "php_admin_value[xdebug.profiler_output_dir] = /tmp/ \nphp_admin_value[xdebug.profiler_output_name] = cachegrind.out.%p-%H-%R \nphp_admin_flag[xdebug.profiler_enable_trigger] = on \nphp_admin_flag[xdebug.profiler_enable] = off" | tee -ai  /etc/php5/fpm/pool.d/debug.conf &>> $INSTALLLOG \
+		|| OwnError "Unable To Add Xdebug Settings"
+
+	else
+		# Install Packages
+		echo -e "\033[34mInstalling percona-toolkit graphviz, Please Wait...\e[0m"
+		apt-get -y install percona-toolkit graphviz
+	fi
+
+	# Install PHP Packages
+	PHP_PACKAGES
+
+	# Install Anemometer 
+	ANEMOMETER_INSTALL
+
+	# Install phpMyAdmin
+	INSTALLPMA
+}
+
+EE133()
+{
+	# Change PHP5-FPM Process Manager
+	grep "^pm = ondemand" /etc/php5/fpm/pool.d/www.conf &>> $INSTALLLOG
+	if [ $? -ne 0 ]
+	then
+		sed -i "s/pm = dynamic/pm = ondemand/" /etc/php5/fpm/pool.d/www.conf \
+		|| OwnError "Unable To Chnage Process Manager From Dynamic To Ondemand"
+	else
+		echo -e "\033[34mPHP5-FPM Process Manager Set To Ondemand\e[0m"
+	fi
+}
+
+EE134()
+{
+	# Nginx Update
+	if [ "$LINUX_DISTRO" == "Ubuntu" ]
+	then
+		nginx -v 2>&1 | grep 1.6.0
+		if [ $? -ne 0 ]
+		then
+			# Removing Old Nginx Repository
+			rm /etc/apt/sources.list.d/brianmercer-nginx*
+
+			# Add rtCamp Nginx Launchpad Repository
+			echo -e "\033[34mAdding rtCamp Nginx Launchpad Repository, Please Wait...\e[0m"
+			add-apt-repository -y ppa:rtcamp/nginx &>> $INSTALLLOG \
+			|| OwnError "Unable To Add Nginx Launchpad Repository" 
+
+			# Update The APT Cache
+			echo -e "\033[34mUpdating APT Cache, Please Wait...\e[0m"
+			apt-get update &>> $INSTALLLOG || OwnError "Unable To Update APT Cache"
+
+			# Update Nginx
+			apt-get -o Dpkg::Options::="--force-confold" -y install nginx-custom \
+			|| OwnError "Unable To Update Nginx"
+		fi
+	fi
+	# WP-CLI Update
+	WP_CLI_VERSION=$(wp --allow-root --info | grep "WP-CLI version" | awk '{print $3}')
+	if [[ $WP_CLI_VERSION != "0.14.1" ]]
+	then
+        echo -e "\033[34mUpdating WP-CLI, Please Wait...\e[0m"
+        #Remove Old WP-CLI
+		rm -rf /usr/share/easyengine/wp-cli  /usr/bin/wp /etc/bash_completion.d/wp-completion.bash
+
+		curl -sL https://raw.github.com/wp-cli/wp-cli.github.com/master/installer.sh | INSTALL_DIR='/usr/share/easyengine/wp-cli' VERSION='0.14.1' bash &>> $INSTALLLOG \
+		|| OwnError "Unable To Update WP-CLI"
+
+		# Add WP-CLI Command In PATH Variable
+		ln -s /usr/share/easyengine/wp-cli/bin/wp /usr/bin/wp || OwnError "Unable To Create Symbolic Link For WP-CLI Command"
+
+		# Add WP-CLI Auto Completion
+		cp -i /usr/share/easyengine/wp-cli/vendor/wp-cli/wp-cli/utils/wp-completion.bash /etc/bash_completion.d/
+		source /etc/bash_completion.d/wp-completion.bash
+	fi
+
+}
+
+HTTPAUTH()
+{
+	# Get The htpasswd Details
+	HTPASSWDUSER=$(grep htpasswduser /etc/easyengine/ee.conf | awk '{print($3)}')
+	HTPASSWDPASS=$(grep htpasswdpass /etc/easyengine/ee.conf | awk '{print($3)}')
+
+	# Ask User To Provide HTTP AUTH Username & Password
+	if [ -z "$HTPASSWDUSER" ]
+	then
+		read -p "Enter The HTTP AUTH Username [easyengine]: " HTPASSWDUSER
+		# Turn Off Echo For Passwords
+		stty -echo
+		read -p "Enter The HTTP AUTH Password [easyengine]: " HTPASSWDPASS
+		stty echo
+		echo
+	fi
+
+	# If Enter Is Pressed, User Defaults
+	if [[ $HTPASSWDUSER = "" ]]
+	then
+		HTPASSWDUSER=easyengine
+	fi
+
+	if [[ $HTPASSWDPASS = "" ]]
+	then
+		HTPASSWDPASS=easyengine
+	fi
+
+	# Add HTTP Auth Details In EE Configuration File
+	sed -i "s/htpasswduser.*/htpasswduser = $HTPASSWDUSER/" /etc/easyengine/ee.conf
+	sed -i "s/htpasswdpass.*/htpasswdpass = $HTPASSWDPASS/" /etc/easyengine/ee.conf
+
+	# Generate htpasswd-ee file
+	printf "$HTPASSWDUSER:$(openssl passwd -crypt $HTPASSWDPASS 2> /dev/null)\n" > /etc/nginx/htpasswd-ee 2> /dev/null
+}
+
+RESTARTSERVICE()
+{
+	echo -e "\033[34mRestarting Nginx & PHP5-FPM Configuration, Please Wait...\e[0m"
+	(php5-fpm -t && service php5-fpm restart) &>> $INSTALLLOG || OwnError "Unable To Restart PHP5-FPM After Update"
+	(nginx -t && service nginx restart) &>> $INSTALLLOG || OwnError "Unable To Restart Nginx After Update"
+}
+
+
+
+
+
+# Update EasyEngine (ee)
+EECURRENTVERSION=$(ee version | awk '{print($3)}')
+EELATESTVERSION=$(curl -sL https://api.github.com/repos/rtCamp/easyengine/releases | grep tag_name | awk '{print($2)}' | cut -d'"' -f2 | cut -c2-  | head -n1)
+echo EECURRENTVERSION = $EECURRENTVERSION EELATESTVERSION = $EELATESTVERSION &>> $INSTALLLOG
+
+if [[ $EECURRENTVERSION < $EELATESTVERSION ]]
+then
+	stty echo
+	read -p "Would You Like To Update EasyEngine To $EELATESTVERSION (y/n): " EEUPDATE
+
+	# Check User Choice
+	if [ "$EEUPDATE" = "y" ] || [ "$EEUPDATE" = "Y" ]
+	then
+		# Lets Start Update 
+		echo &>> $INSTALLLOG
+		echo &>> $INSTALLLOG
+		echo -e "\033[34mEasyEngine (ee) Update Started [$(date)]\e[0m" | tee -ai $INSTALLLOG
+
+		# Before Update Take Nginx Conf In GIT
+		EEGITDIR=/etc/nginx
+		EEGITMESSAGE="Before Updating EasyEngine To $EELATESTVERSION"
+		GITCOMMIT
+
+		# Before Update Take PHP Conf In GIT
+		EEGITDIR=/etc/php5
+		GITCOMMIT
+
+		# Update EasyEngine (ee)
+		EEUPDATE
+		
+
+		if [[ $EECURRENTVERSION = 1.0.0 ]] || [[ $EECURRENTVERSION = 1.0.1 ]]
+		then
+			EE101
+			HTTPAUTH
+			MYCNFCHECK
+			EECURRENTVERSION="1.1.0"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.1.0 ]]
+		then
+			EE110
+			EECURRENTVERSION="1.1.1"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.1.1 ]] || [[ $EECURRENTVERSION = 1.1.2 ]] || [[ $EECURRENTVERSION = 1.1.3 ]] || [[ $EECURRENTVERSION = 1.1.4 ]] || [[ $EECURRENTVERSION = 1.1.5 ]] || [[ $EECURRENTVERSION = 1.2.0 ]] || [[ $EECURRENTVERSION = 1.2.1 ]]
+		then
+			EECURRENTVERSION="1.2.2"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.2.2 ]]
+		then
+			EE122
+			EECURRENTVERSION="1.3.0"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.3.0 ]] || [[ $EECURRENTVERSION = 1.3.1 ]] || [[ $EECURRENTVERSION = 1.3.2 ]] || [[ $EECURRENTVERSION = 1.3.3 ]]
+		then
+			EE133
+			EECURRENTVERSION="1.3.4"
+		fi
+
+		if [[ $EECURRENTVERSION = 1.3.4 ]] || [[ $EECURRENTVERSION = 1.3.5 ]] || [[ $EECURRENTVERSION = 1.3.6 ]]
+		then
+			EE134
+		fi
+	fi
+
+	# Restart Nginx & PHP Services
+	RESTARTSERVICE
+
+	# Let's Take Conf In Git Version Control
+	EEGITDIR=/etc/nginx
+	EEGITMESSAGE="After Updating EasyEngine To $EELATESTVERSION"
+	GITCOMMIT
+	EEGITDIR=/etc/php5
+	GITCOMMIT
+
+	# Source EasyEngine (ee) Auto Complete To Take Effect
+	echo -e "\033[34mFor EasyEngine (ee) Auto Completion Run Following Command\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[37msource /etc/bash_completion.d/ee\e[0m" | tee -ai $INSTALLLOG
+	echo
+	echo -e "\033[34mEasyEngine (ee) Updated Successfully\e[0m" | tee -ai $INSTALLLOG
+	echo -e "\033[34mPlease Ignore If You See Anything After This Line.\e[0m" | tee -ai $INSTALLLOGfwww
+
+	echo -e "\033[34mKilling The Parent Process\e[0m" &>> $INSTALLLOG
+	ps ax | grep $PPID | grep -v grep &>> $INSTALLLOG
+	kill -9 $PPID
+
+else
+	echo "EasyEngine Already Updated To The Latest Version"
+fi
