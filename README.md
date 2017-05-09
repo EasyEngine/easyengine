@@ -108,10 +108,11 @@ ee site create example.com --php --pagespeed     # create example.com php site w
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
 
 ## Useful Links
-- [Documentation] (http://docs.rtcamp.com/easyengine/)
-- [FAQ] (http://docs.rtcamp.com/easyengine/faq.html)
-- [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
-- [EasyEngine Premium Support] (https://rtcamp.com/products/easyengine-premium-support/)
+- [Documentation](http://docs.rtcamp.com/easyengine/)
+- [FAQ](http://docs.rtcamp.com/easyengine/faq.html)
+- [Conventions used](http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
+- [EasyEngine Premium Support](https://rtcamp.com/products/easyengine-premium-support/)
+- [Develop and Deploy with EasyEngine + VVV + Wordmove](https://github.com/joeguilmette/ee-vvv-wordmove)
 
 ## Donations
 
