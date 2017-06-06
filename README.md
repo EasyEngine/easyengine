@@ -115,11 +115,11 @@ ee site create example.com --php --pagespeed     # create example.com php site w
 
 ## Donations
 
-[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
+[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](https://rtcamp.com/donate/?project=easyengine)
 
 [![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
 
 ---
 
 ## License
-[MIT] (http://opensource.org/licenses/MIT)
+[MIT](http://opensource.org/licenses/MIT) - [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
