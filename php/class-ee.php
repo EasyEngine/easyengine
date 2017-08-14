@@ -1,5 +1,5 @@
 <?php
-
+use \EE\ExitException;
 use \EE\Utils;
 use \EE\Dispatcher;
 use \EE\Process;
