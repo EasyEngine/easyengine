@@ -416,3 +416,26 @@ function get_temp_dir() {
 
 	return $trailingslashit( $temp );
 }
+
+/**
+ * Check that `proc_open()` and `proc_close()` haven't been disabled.
+ *
+ * @param string $context Optional. If set will appear in error message. Default null.
+ * @param bool   $return  Optional. If set will return false rather than error out. Default false.
+ *
+ * @return bool
+ */
+function check_proc_available( $context = null, $return = false ) {
+    if ( ! function_exists( 'proc_open' ) || ! function_exists( 'proc_close' ) ) {
+        if ( $return ) {
+            return false;
+        }
+        $msg = 'The PHP functions `proc_open()` and/or `proc_close()` are disabled. Please check your PHP ini directive `disable_functions` or suhosin settings.';
+        if ( $context ) {
+            \EE::error( sprintf( "Cannot do '%s': %s", $context, $msg ) );
+        } else {
+            \EE::error( $msg );
+        }
+    }
+    return true;
+}

@@ -87,6 +87,11 @@ class Help_Command extends EE_Command {
 
 	private static function pass_through_pager( $out ) {
 
+		if ( ! Utils\check_proc_available( null /*context*/, true /*return*/ ) ) {
+			\EE::debug( 'Warning: check_proc_available() failed in pass_through_pager().', 'help' );
+			return $out;
+		}
+
 		if ( false === ( $pager = getenv( 'PAGER' ) ) ) {
 			$pager = Utils\is_windows() ? 'more' : 'less -r';
 		}
