@@ -99,6 +99,30 @@ class Configurator {
 		return array( $positional_args, $assoc_args );
 	}
 
+    /**
+     * Get any aliases defined in config files.
+     *
+     * @return array
+     */
+    function get_aliases() {
+        if ( $runtime_alias = getenv( 'WP_CLI_RUNTIME_ALIAS' ) ) {
+            $returned_aliases = array();
+            foreach( json_decode( $runtime_alias, true ) as $key => $value ) {
+                if ( preg_match( '#' . self::ALIAS_REGEX . '#', $key ) ) {
+                    $returned_aliases[ $key ] = array();
+                    foreach( self::$alias_spec as $i ) {
+                        if ( isset( $value[ $i ] ) ) {
+                            $returned_aliases[ $key ][ $i ] = $value[ $i ];
+                        }
+                    }
+                }
+            }
+            return $returned_aliases;
+        } else {
+            return $this->aliases;
+        }
+    }
+
 	/**
 	 * Separate runtime parameters from command-specific parameters.
 	 *
