@@ -11,7 +11,7 @@ class Completions {
 		// TODO: properly parse single and double quotes
 		$this->words = explode( ' ', $line );
 
-		// first word is always `wp`
+		// first word is always `ee`
 		array_shift( $this->words );
 
 		// last word is either empty or an incomplete subcommand
@@ -24,7 +24,7 @@ class Completions {
 		$is_help = false;
 		if ( ! empty( $this->words[0] ) && preg_match( "/^@/", $this->words[0] ) ) {
 			array_shift( $this->words );
-			// `wp @al` is false, but `wp @all ` is true.
+			// `ee @al` is false, but `ee @all ` is true.
 			if ( count( $this->words ) ) {
 				$is_alias = true;
 			}
