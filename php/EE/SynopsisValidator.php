@@ -20,7 +20,7 @@ class SynopsisValidator {
 	}
 
 	/**
-	 * Get any unknown arugments.
+	 * Get any unknown arguments.
 	 *
 	 * @return array
 	 */
@@ -82,7 +82,7 @@ class SynopsisValidator {
 
 		$errors = array(
 			'fatal' => array(),
-			'warning' => array()
+			'warning' => array(),
 		);
 
 		$to_unset = array();
