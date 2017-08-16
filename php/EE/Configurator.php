@@ -24,6 +24,27 @@ class Configurator {
 	 */
 	private $extra_config = array();
 
+    /**
+     * @var array $aliases Any aliases defined in config files.
+     */
+    private $aliases = array();
+
+    /**
+     * @var string ALIAS_REGEX Regex pattern used to define an alias
+     */
+    const ALIAS_REGEX = '^@[A-Za-z0-9-_\.\-]+$';
+
+    /**
+     * @var array ALIAS_SPEC Arguments that can be used in an alias
+     */
+    private static $alias_spec = array(
+        'user',
+        'url',
+        'path',
+        'ssh',
+        'http',
+    );
+
 	/**
 	 * @param string $path Path to config spec file.
 	 */
@@ -62,6 +83,30 @@ class Configurator {
 	function get_spec() {
 		return $this->spec;
 	}
+
+    /**
+     * Get any aliases defined in config files.
+     *
+     * @return array
+     */
+    function get_aliases() {
+        if ( $runtime_alias = getenv( 'WP_CLI_RUNTIME_ALIAS' ) ) {
+            $returned_aliases = array();
+            foreach( json_decode( $runtime_alias, true ) as $key => $value ) {
+                if ( preg_match( '#' . self::ALIAS_REGEX . '#', $key ) ) {
+                    $returned_aliases[ $key ] = array();
+                    foreach( self::$alias_spec as $i ) {
+                        if ( isset( $value[ $i ] ) ) {
+                            $returned_aliases[ $key ][ $i ] = $value[ $i ];
+                        }
+                    }
+                }
+            }
+            return $returned_aliases;
+        } else {
+            return $this->aliases;
+        }
+    }
 
 	/**
 	 * Splits a list of arguments into positional, associative and config.
