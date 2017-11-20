@@ -694,7 +694,7 @@ if [ -f /etc/ImageMagick/policy.xml  ]
    if [[ $? -eq 0 ]]; then
         crontab -l > /var/spool/cron/cron-backup.txt  #backup cron before editing
         crontab -l | sed '/--min_expiry_limit/d' | crontab -
-        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * 0 ee site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine\"; } | crontab -"
+        /bin/bash -c "crontab -l 2> /dev/null | { cat; echo -e \"\n0 0 * * * sudo ee site update --le=renew --all 2> /dev/null # Renew all letsencrypt SSL cert. Set by EasyEngine\"; } | crontab -"
    fi
 
 
