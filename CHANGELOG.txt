@@ -1,3 +1,7 @@
+v3.7.5 - Jan 12, 2018
+- Upgrade wp-cli version to 1.4.1
+- Update templates to skip cache for more plugins
+
 v3.7.4 - Aug 29, 2016
 - Fix phpmemcacheadmin download urls [critical]
 
