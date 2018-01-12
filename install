@@ -48,7 +48,7 @@ fi
 # Define variables for later use
 ee_branch=$1
 readonly ee_version_old="2.2.3"
-readonly ee_version_new="3.7.4"
+readonly ee_version_new="3.7.5"
 readonly ee_log_dir=/var/log/ee/
 readonly ee_install_log=/var/log/ee/install.log
 readonly ee_linux_distro=$(lsb_release -i | awk '{print $3}')
@@ -57,7 +57,7 @@ readonly ee_distro_version=$(lsb_release -sc)
 # Checking linux distro
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
     ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
-    ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/rtCamp/easyengine/fork"
+    ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/EasyEngine/easyengine/fork"
     ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
     exit 100
 fi
@@ -233,7 +233,7 @@ function ee_update_wp_cli()
     if [ "${WP_CLI_PATH}" != "" ]; then
         # Get WP-CLI version
         WP_CLI_VERSION=$(${PHP_PATH} ${WP_CLI_PATH} --allow-root cli version | awk '{ print $2 }')
-        dpkg --compare-versions ${WP_CLI_VERSION} lt 0.24.1
+        dpkg --compare-versions ${WP_CLI_VERSION} lt 1.4.1
         # Update WP-CLI version
         if [ "$?" == "0" ]; then
            wget -qO ${WP_CLI_PATH} https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
@@ -740,7 +740,7 @@ if [ -f /usr/local/sbin/easyengine ]; then
     if [[ $? -ne 0 ]]; then
         ee_lib_echo "EasyEngine $ee_version_old not found on your system" | tee -ai $ee_install_log
         ee_lib_echo "Updating your EasyEngine to $ee_version_old for compability" | tee -ai $ee_install_log
-        wget -q https://raw.githubusercontent.com/rtCamp/easyengine/old-stable/bin/update && bash update
+        wget -q https://raw.githubusercontent.com/EasyEngine/easyengine/old-stable/bin/update && bash update
         if [[ $? -ne 0 ]]; then
             ee_lib_echo_fail "Unable to update EasyEngine to $ee_version_old, exit status = " $?
             exit 100
