@@ -41,7 +41,7 @@ wget -qO ee rt.cx/ee && sudo bash ee
 
 ```
 #### If current version is after than 3.0.6
-```
+```bash
 ee update
 ```
 
@@ -108,18 +108,18 @@ ee site create example.com --php --pagespeed     # create example.com php site w
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
 
 ## Useful Links
-- [Documentation] (http://docs.rtcamp.com/easyengine/)
-- [FAQ] (http://docs.rtcamp.com/easyengine/faq.html)
-- [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
-- [EasyEngine Premium Support] (https://rtcamp.com/products/easyengine-premium-support/)
+- [Documentation](http://docs.rtcamp.com/easyengine/)
+- [FAQ](http://docs.rtcamp.com/easyengine/faq.html)
+- [Conventions used](http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
+- [EasyEngine Premium Support](https://rtcamp.com/products/easyengine-premium-support/)
 
 ## Donations
 
-[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
+[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](https://rtcamp.com/donate/?project=easyengine)
 
 [![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
 
 ---
 
 ## License
-[MIT] (http://opensource.org/licenses/MIT)
+[MIT](http://opensource.org/licenses/MIT)
