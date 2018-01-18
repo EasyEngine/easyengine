@@ -19,17 +19,3 @@ location /wp-content/uploads/ {
     deny all;
   }
 }
-# Yoast sitemap
-location ~ ([^/]*)sitemap(.*)\.x(m|s)l$ {
-  rewrite ^/sitemap\.xml$ /sitemap_index.xml permanent;
-  rewrite ^/([a-z]+)?-?sitemap\.xsl$ /index.php?xsl=$1 last;
-  # Rules for yoast sitemap with wp|wpsubdir|wpsubdomain
-  rewrite ^.*/sitemap_index\.xml$ /index.php?sitemap=1 last;
-  rewrite ^.*/([^/]+?)-sitemap([0-9]+)?\.xml$ /index.php?sitemap=$1&sitemap_n=$2 last;
-  # Following lines are options. Needed for WordPress seo addons
-  rewrite ^/news_sitemap\.xml$ /index.php?sitemap=wpseo_news last;
-  rewrite ^/locations\.kml$ /index.php?sitemap=wpseo_local_kml last;
-  rewrite ^/geo_sitemap\.xml$ /index.php?sitemap=wpseo_local last;
-  rewrite ^/video-sitemap\.xsl$ /index.php?xsl=video last;
-  access_log off;
-}
