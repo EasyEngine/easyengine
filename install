@@ -734,9 +734,9 @@ function ee_git_init()
 }
 
 # Update EasyEngine
-if [ -f /usr/local/bin/ee ]; then
+if [ -f /usr/local/sbin/easyengine ]; then
     # Check old EasyEngine version
-    ee --version | grep ${ee_version_old} &>> /dev/null
+    ee version | grep ${ee_version_old} &>> /dev/null
     if [[ $? -ne 0 ]]; then
         ee_lib_echo "EasyEngine $ee_version_old not found on your system" | tee -ai $ee_install_log
         ee_lib_echo "Updating your EasyEngine to $ee_version_old for compability" | tee -ai $ee_install_log
