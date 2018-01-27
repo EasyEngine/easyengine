@@ -575,7 +575,7 @@ class Site_Command extends EE_Command {
 	 * [--email=<email>]
 	 * : Email id for WordPress admin.
 	 *
-	 * [--pass=<pass>]
+	 * [--password]
 	 * : Password for WordPress admin.
 	 *
 	 * [--ip=<ip>]

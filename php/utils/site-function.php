@@ -725,7 +725,7 @@ function setup_wordpress_network( $data ) {
 		if ( 0 !== EE::exec_cmd( "wp --allow-root core multisite-convert --title='{$data['www_domain']}' {$subdomains}" ) ) {
 			EE::error( "setup WordPress network failed" );
 		}
-		
+
 	} catch ( Exception $e ) {
 		EE::debug( $e->getMessage() );
 		EE::info( "setup WordPress network failed" );
@@ -738,7 +738,7 @@ function setup_wp_plugin( $plugin_name, $plugin_option, $plugin_data, $data ) {
 	EE::info( "Setting plugin {$plugin_name}, please wait..." );
 	chdir( "{$ee_site_webroot}/htdocs/" );
 	$ee_wpcli_path = EE_Variables::get_ee_wp_cli_path();
-	if ( ! $data['multisite'] ) {
+	if ( ! isset( $data['multisite'] ) ) {
 		try {
 			EE::exec_cmd("php {$ee_wpcli_path} --allow-root option update {$plugin_option} '{$plugin_data}' --format=json");
 		} catch ( Exception $e ) {
@@ -1160,6 +1160,7 @@ function update_wp_user_password( $ee_domain, $ee_site_webroot ) {
 			EE::debug( $e->getMessage() );
 			EE::info( "wp user password update command failed" );
 		}
+		EE::line(); // add blank line for showing success message below hidden password field.
 		EE::success( "Password updated successfully" );
 	} else {
 		EE::error( "Invalid WordPress user {$ee_wp_user} for {$ee_domain}." );
@@ -1294,13 +1295,13 @@ function do_update_site( $site_name, $assoc_args ) {
 				} catch ( Exception $e ) {
 					EE::debug( $e->getMessage() );
 					EE::info( "Password Unchanged." );
-
-					return false;
 				}
+				return false;
 			}
 
 			if ( $stype === $old_site_type ) {
 				EE::info( "Site is already in {$stype}" );
+				return false;
 			}
 
 			if ( 'proxy' === $old_site_type && ( ! empty( $assoc_args['hhvm'] ) || 'hhvm' === $stype ) ) {
@@ -1325,7 +1326,8 @@ function do_update_site( $site_name, $assoc_args ) {
 						'php7'
 					) ) ) || ( 'wpsubdir' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdomain' ) ) ) || ( 'wpsubdomain' === $stype && ! in_array( $old_site_type, array( 'wp','wpsubdir' ) ) ) || ( $old_site_type === $stype && $old_cache_type === $cache )
 			) {
-				EE::info( "can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
+				EE::info( "Can not update {$old_site_type} {$old_cache_type} to {$stype} {$cache}" );
+				return false;
 			}
 
 			if ( 'proxy' == $stype ) {
@@ -1468,7 +1470,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "renew" === $assoc_args['letsencrypt'] && empty( $assoc_args['all'] ) ) {
+			if ( isset( $assoc_args['letsencrypt'] ) && "renew" === $assoc_args['letsencrypt'] && empty( $assoc_args['all'] ) ) {
 				$expiry_days     = EE_Ssl::get_expiration_days( $ee_domain );
 				$min_expiry_days = 30;
 				if ( $check_ssl ) {
@@ -1495,7 +1497,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "renew" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+			if ( isset( $assoc_args['letsencrypt'] ) && "renew" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
 				if ( $check_ssl ) {
 					$expiry_days = EE_Ssl::get_expiration_days( $ee_domain );
 					if ( $expiry_days < 0 ) {
@@ -1525,7 +1527,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( "off" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
+			if ( isset( $assoc_args['letsencrypt'] ) && "off" === $assoc_args['letsencrypt'] && ! empty( $assoc_args['all'] ) ) {
 				if ( ! $check_ssl ) {
 					EE::error( "SSl is not configured for given " );
 				}
@@ -1581,17 +1583,17 @@ function do_update_site( $site_name, $assoc_args ) {
 			}
 
 
-			if ( '7.0' === $assoc_args['php'] ) {
+			if ( isset( $assoc_args['php'] ) && '7.0' === $assoc_args['php'] ) {
 				$data['php7'] = true;
 				$php7         = true;
 			}
 
-			if ( 'on' === $assoc_args['hhvm'] ) {
+			if ( isset( $assoc_args['hhvm'] ) && 'on' === $assoc_args['hhvm'] ) {
 				$data['hhvm'] = true;
 				$hhvm         = true;
 			}
 
-			if ( 'on' === $assoc_args['letsencrypt'] ) {
+			if ( isset( $assoc_args['letsencrypt'] ) && 'on' === $assoc_args['letsencrypt'] ) {
 				$data['letsencrypt'] = true;
 				$letsencrypt         = true;
 			}
@@ -1685,7 +1687,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				return 0;
 			}
 
-			if ( ! empty( $data['ee_db_name'] ) && ( ! $data['wp'] ) ) {
+			if ( ! empty( $data['ee_db_name'] ) && ( ! isset( $data['wp'] ) ) ) {
 				try {
 					$data = setup_database( $data );
 				} catch ( Exception $e ) {
@@ -1733,8 +1735,8 @@ function do_update_site( $site_name, $assoc_args ) {
 					}
 				}
 
-				if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpredis' ) ) && $data['wpfc'] ) ||
-				     ( 'wp' === $old_site_type && $data['multisite'] && $data['wpfc'] ) ) {
+				if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpredis' ) ) && isset( $data['wpfc'] ) ) ||
+				     ( 'wp' === $old_site_type && isset( $data['multisite'] ) && $data['wpfc'] ) ) {
 					try {
 						$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
 						$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
@@ -1748,8 +1750,8 @@ function do_update_site( $site_name, $assoc_args ) {
 						EE::info( "Update site failed. Check logs for reason `tail /var/log/ee/ee.log` & Try Again!!!" );
 						return 1;
 					}
-				} else if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpfc' ) ) && $data['wpredis'] ) ||
-				            ( 'wp' === $old_site_type && $data['multisite'] && $data['wpredis'] ) ) {
+				} else if ( ( in_array( $old_cache_type, array( 'w3tc', 'wpsc', 'basic', 'wpfc' ) ) && isset( $data['wpredis'] ) ) ||
+				            ( 'wp' === $old_site_type && isset( $data['multisite'] ) && $data['wpredis'] ) ) {
 					try {
 						$plugin_data = '{"log_level":"INFO","log_filesize":5,"enable_purge":1,"enable_map":0,"enable_log":0,';
 						$plugin_data .= '"enable_stamp":0,"purge_homepage_on_new":1,"purge_homepage_on_edit":1,"purge_homepage_on_del":1,';
@@ -1800,7 +1802,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( ( 'w3tc' !== $old_cache_type || 'wpfc' !== $old_cache_type ) && ( $data['w3tc'] || $data['wpfc'] ) ) {
+			if ( ( 'w3tc' !== $old_cache_type || 'wpfc' !== $old_cache_type ) && ( isset( $data['w3tc'] ) || isset( $data['wpfc'] ) ) ) {
 				try {
 					install_wp_plugin( 'w3-total-cache', $data );
 				} catch ( Exception $e ) {
@@ -1809,7 +1811,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( 'wpsc' !== $old_cache_type && $data['wpsc'] ) {
+			if ( 'wpsc' !== $old_cache_type && isset( $data['wpsc'] ) ) {
 				try {
 					install_wp_plugin( 'w3-super-cache', $data );
 				} catch ( Exception $e ) {
@@ -1818,7 +1820,7 @@ function do_update_site( $site_name, $assoc_args ) {
 				}
 			}
 
-			if ( 'wpredis' !== $old_cache_type && $data['wpredis'] ) {
+			if ( 'wpredis' !== $old_cache_type && isset( $data['wpredis'] ) ) {
 				try {
 					if ( install_wp_plugin( 'redis-cache', $data ) ) {
 						if ( ee_file_exists( "{$ee_site_webroot}/wp-config.php" ) ) {
