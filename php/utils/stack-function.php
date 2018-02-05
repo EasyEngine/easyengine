@@ -72,11 +72,10 @@ class EE_Stack {
 			$stack['utils']      = true;
 		}
 		if ( isset( $category['utils'] ) && $category['utils'] = true ) {
-			//todo:
+			//todo: install phpMemcachedAdmin FastCGIcleanupScript OPcache Webgrid Anemometer
 		}
-
-		if ( isset( $category['web'] ) && $category['mail'] == true ) {
-			// todo:
+		if ( isset( $category['mail'] ) && $category['mail'] == true ) {
+			// todo: install ViMbAdminSetup
 		}
 
 		return $stack;
@@ -126,7 +125,7 @@ class EE_Stack {
 					}
 				}
 			} else {
-				EE::debug( "Nginx Stable already installed" );
+				EE::success( "Nginx Stable already installed" );
 			}
 		}
 
@@ -408,14 +407,15 @@ class EE_Stack {
 			EE::info("Adding GPG key for NGINX");
 			EE_Repo::add_key( '3050AC3CD2AE6F03' );
 		}
-//
-//		if (in_array(EE_Variables::get_php_packages("7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
-//				EE::debug("Adding repository for PHP, please wait...");
-//			    EE_Repo::add(EE_Variables::get_php_repo());
-//			if ('debian' == EE_OS::ee_platform_distro()){
-//				EE_Repo::add_key('89DF5277');
-//				}
-//		}
+
+		// if (in_array(EE_Variables::get_php_packages("7.0"), $apt_packages) || in_array(EE_Variables::get_php_packages('php5.6'), $apt_packages)) {
+		// 		EE::debug("Adding repository for PHP, please wait...");
+		// 	    EE_Repo::add(EE_Variables::get_php_repo());
+		// 	if ('debian' == EE_OS::ee_platform_distro()){
+		// 		EE_Repo::add_key('89DF5277');
+		// 		}
+		// }
+		
 		if ( in_array( EE_Variables::get_redis_packages()[0], $apt_packages ) ) {
 			EE::debug( "Adding repository for REDIS, please wait..." );
 			if ( 'ubuntu' === EE_OS::ee_platform_distro() ) {
@@ -661,7 +661,7 @@ class EE_Stack {
 				ee_file_search_replace( "/etc/php5/mods-available/xdebug.ini", "zend_extension", ";zend_extension" );
 
 
-//              todo: PHP and Debug pull configuration
+              	//todo: PHP and Debug pull configuration
 
 				EE_Git::add( array("/etc/php5"), "Adding PHP in GIT" );
 				EE_Service::restart_service( "php5-fpm" );
@@ -813,7 +813,13 @@ class EE_Stack {
 				}
 
 				if ( '/tmp/pma.tar.gz' === $package['path'] ) {
-					EE::debug( "Extracting file /tmp/pma.tar.gz to location /tmp/" );
+					EE::debug( "Clearing old unwanted packages and extracting file /tmp/pma.tar.gz to location /tmp/" );
+					if(ee_file_exists("/tmp/phpmyadmin-STABLE")){
+						ee_file_remove("/tmp/phpmyadmin-STABLE");	
+					}
+					if(ee_file_exists(EE_WEBROOT . "22222/htdocs/db/pma")){
+						ee_file_remove(EE_WEBROOT . "22222/htdocs/db/pma");
+					}
 					EE_Utils::extract( "/tmp/pma.tar.gz", "/tmp/" );
 					ee_file_mkdir( EE_WEBROOT . "22222/htdocs/db" );
 					ee_file_rename( "/tmp/phpmyadmin-STABLE", EE_WEBROOT . "22222/htdocs/db/pma" );
@@ -829,6 +835,9 @@ class EE_Stack {
 
 				if ( '/tmp/memcache.tar.gz' === $package['path'] ) {
 					EE::debug( "Extracting memcache.tar.gz to location /var/www/22222/htdocs/cache/memcache " );
+					if(ee_file_exists( EE_WEBROOT . "22222/htdocs/cache/memcache" )){
+						ee_file_remove( EE_WEBROOT . "22222/htdocs/cache/memcache");
+					}
 					EE_Utils::extract( "/tmp/memcache.tar.gz", EE_WEBROOT . "22222/htdocs/cache/memcache" );
 					EE::debug( "Setting Privileges of webroot permission to /var/www/22222/htdocs/db/pma file" );
 					ee_file_chown( EE_WEBROOT . "22222/", "www-data", true );
@@ -899,7 +908,10 @@ class EE_Stack {
 
 	public static function get_service_list( $assoc_args ) {
 		$services = array();
-		if ( ! empty( $assoc_args['nginx'] ) ) {
+		if( !isset($assoc_args['all']) ){
+            $assoc_args['all'] = 0;
+        }
+		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['nginx'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'nginx-custom' ) ) {
 
 				$services = array_merge( $services, array( 'nginx' ) );
@@ -908,7 +920,7 @@ class EE_Stack {
 			}
 		}
 
-		if ( ! empty( $assoc_args['redis'] ) ) {
+		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['redis'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'redis-server' ) ) {
 				$services = array_merge( $services, array( 'redis-server' ) );
 			} else {
@@ -916,7 +928,7 @@ class EE_Stack {
 			}
 		}
 
-		if ( ! empty( $assoc_args['mysql'] ) ) {
+		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['mysql'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'mysql-server' ) || EE_Apt_Get::is_installed( 'mariadb-server' ) ) {
 
 				$services = array_merge( $services, array( 'mysql' ) );
@@ -925,7 +937,7 @@ class EE_Stack {
 			}
 		}
 
-		if ( ! empty( $assoc_args['postfix'] ) ) {
+		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['postfix'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'postfix' ) ) {
 				$services = array_merge( $services, array( 'postfix' ) );
 			} else {
@@ -933,7 +945,7 @@ class EE_Stack {
 			}
 		}
 
-		if ( ! empty( $assoc_args['memcached'] ) ) {
+		if ( 1 == $assoc_args['all'] || ! empty( $assoc_args['memcached'] ) ) {
 			if ( EE_Apt_Get::is_installed( 'memcached' ) ) {
 
 				$services = array_merge( $services, array( 'memcached' ) );
