@@ -11,7 +11,7 @@
 		"php": ">=5.3.2",
 		"wp-cli/php-cli-tools": "0.11.0",
 		"mustache/mustache": "~2.4",
-		"mustangostang/spyc": "0.5.1",
+		"wp-cli/mustangostang-spyc": "^0.6.3",
 		"composer/semver": "1.0.0",
 		"ramsey/array_column": "~1.1",
 		"rmccue/requests": "~1.6",
