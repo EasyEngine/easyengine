@@ -60,6 +60,19 @@ class CompositeCommand {
 	}
 
 	/**
+	 * Remove a named subcommand from this composite command's set of contained
+	 * subcommands
+	 *
+	 * @param string $name Represents how subcommand should be invoked
+	 */
+	public function remove_subcommand( $name ) {
+		if ( isset( $this->subcommands[ $name ] ) ) {
+			unset( $this->subcommands[ $name ] );
+		}
+	}
+
+
+	/**
 	 * Composite commands always contain subcommands.
 	 *
 	 * @return true
@@ -115,7 +128,16 @@ class CompositeCommand {
 	 * @return string
 	 */
 	public function get_longdesc() {
-		return $this->longdesc;
+		return $this->longdesc . $this->get_global_params();
+	}
+
+	/**
+	 * Set the long description for this composite command
+	 *
+	 * @param string
+	 */
+	public function set_longdesc( $longdesc ) {
+		$this->longdesc = $longdesc;
 	}
 
 	/**
@@ -268,6 +290,10 @@ class CompositeCommand {
 				'synopsis' => $synopsis,
 				'desc' => $details['desc']
 			);
+		}
+
+		if ( $this->get_subcommands() ) {
+			$binding['has_subcommands'] = true;
 		}
 
 		return Utils\mustache_render( 'man-params.mustache', $binding );
