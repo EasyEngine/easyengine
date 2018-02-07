@@ -416,3 +416,29 @@ function get_temp_dir() {
 
 	return $trailingslashit( $temp );
 }
+
+/**
+ * Expand within paths to their matching paths.
+ *
+ * Has no effect on paths which do not use glob patterns.
+ *
+ * @param string|array $paths Single path as a string, or an array of paths.
+ * @param int          $flags Flags to pass to glob.
+ *
+ * @return array Expanded paths.
+ */
+function expand_globs( $paths, $flags = GLOB_BRACE ) {
+    $expanded = array();
+
+    foreach ( (array) $paths as $path ) {
+        $matching = array( $path );
+
+        if ( preg_match( '/[' . preg_quote( '*?[]{}!', '/' ) . ']/', $path ) ) {
+            $matching = glob( $path, $flags ) ?: array();
+        }
+
+        $expanded = array_merge( $expanded, $matching );
+    }
+
+    return array_unique( $expanded );
+}
