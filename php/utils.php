@@ -6,10 +6,46 @@ namespace EE\Utils;
 
 use \Composer\Semver\Comparator;
 use \Composer\Semver\Semver;
+use \EE;
 use \EE\Dispatcher;
+use \EE\Iterators\Transform;
 use Symfony\Component\Filesystem\Filesystem;
 
+const PHAR_STREAM_PREFIX = 'phar://';
+
+function inside_phar() {
+	return 0 === strpos( EE_ROOT, PHAR_STREAM_PREFIX );
+}
+
+// Files that need to be read by external programs have to be extracted from the Phar archive.
+function extract_from_phar( $path ) {
+	if ( ! inside_phar() ) {
+		return $path;
+	}
+
+	$fname = basename( $path );
+
+	$tmp_path = get_temp_dir() . "ee-$fname";
+
+	copy( $path, $tmp_path );
+
+	register_shutdown_function( function() use ( $tmp_path ) {
+		@unlink( $tmp_path );
+	} );
+
+	return $tmp_path;
+}
+
 function load_dependencies() {
+	if ( inside_phar() ) {
+		if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
+			require EE_ROOT . '/vendor/autoload.php';
+		} elseif ( file_exists( dirname( dirname( EE_ROOT ) ) . '/autoload.php' ) ) {
+			require dirname( dirname( EE_ROOT ) ) . '/autoload.php';
+		}
+		return;
+	}
+
 	$has_autoload = false;
 
 	foreach ( get_vendor_paths() as $vendor_path ) {
@@ -27,15 +63,15 @@ function load_dependencies() {
 }
 
 function get_vendor_paths() {
-	$vendor_paths        = array(
+	$vendor_paths = array(
 		EE_ROOT . '/../../../vendor',  // part of a larger project / installed via Composer (preferred)
 		EE_ROOT . '/vendor',           // top-level project / installed as Git clone
 	);
 	$maybe_composer_json = EE_ROOT . '/../../../composer.json';
 	if ( file_exists( $maybe_composer_json ) && is_readable( $maybe_composer_json ) ) {
 		$composer = json_decode( file_get_contents( $maybe_composer_json ) );
-		if ( ! empty( $composer->{'vendor-dir'} ) ) {
-			array_unshift( $vendor_paths, EE_ROOT . '/../../../' . $composer->{'vendor-dir'} );
+		if ( ! empty( $composer->config ) && ! empty( $composer->config->{'vendor-dir'} ) ) {
+			array_unshift( $vendor_paths, EE_ROOT . '/../../../' . $composer->config->{'vendor-dir'} );
 		}
 	}
 
@@ -52,20 +88,6 @@ function load_command( $name ) {
 
 	if ( is_readable( $path ) ) {
 		include_once $path;
-	}
-}
-
-function load_all_commands() {
-	$cmd_dir = EE_ROOT . '/php/commands/';
-
-	$iterator = new \DirectoryIterator( $cmd_dir );
-
-	foreach ( $iterator as $filename ) {
-		if ( '.php' != substr( $filename, - 4 ) ) {
-			continue;
-		}
-
-		include_once "$cmd_dir/$filename";
 	}
 }
 
@@ -175,6 +197,10 @@ function assoc_args_to_str( $assoc_args ) {
 	foreach ( $assoc_args as $key => $value ) {
 		if ( true === $value ) {
 			$str .= " --$key";
+		} elseif( is_array( $value ) ) {
+			foreach( $value as $_ => $v ) {
+				$str .= assoc_args_to_str( array( $key => $v ) );
+			}
 		} else {
 			$str .= " --$key=" . escapeshellarg( $value );
 		}
@@ -213,6 +239,29 @@ function format_items( $format, $items, $fields ) {
 }
 
 /**
+ * Write data as CSV to a given file.
+ *
+ * @access public
+ *
+ * @param resource $fd         File descriptor
+ * @param array    $rows       Array of rows to output
+ * @param array    $headers    List of CSV columns (optional)
+ */
+function write_csv( $fd, $rows, $headers = array() ) {
+	if ( ! empty( $headers ) ) {
+		fputcsv( $fd, $headers );
+	}
+
+	foreach ( $rows as $row ) {
+		if ( ! empty( $headers ) ) {
+			$row = pick_fields( $row, $headers );
+		}
+
+		fputcsv( $fd, array_values( $row ) );
+	}
+}
+
+/**
  * Pick fields from an associative array or object.
  *
  * @param array|object Associative array or object to pick fields from
@@ -233,25 +282,85 @@ function pick_fields( $item, $fields ) {
 }
 
 /**
+ * Launch system's $EDITOR for the user to edit some text.
+ *
+ * @access public
+ * @category Input
+ *
+ * @param  string  $content  Some form of text to edit (e.g. post content)
+ * @return string|bool       Edited text, if file is saved from editor; false, if no change to file.
+ */
+function launch_editor_for_input( $input, $filename = 'EE' ) {
+
+	check_proc_available( 'launch_editor_for_input' );
+
+	$tmpdir = get_temp_dir();
+
+	do {
+		$tmpfile = basename( $filename );
+		$tmpfile = preg_replace( '|\.[^.]*$|', '', $tmpfile );
+		$tmpfile .= '-' . substr( md5( rand() ), 0, 6 );
+		$tmpfile = $tmpdir . $tmpfile . '.tmp';
+		$fp = @fopen( $tmpfile, 'x' );
+		if ( ! $fp && is_writable( $tmpdir ) && file_exists( $tmpfile ) ) {
+			$tmpfile = '';
+			continue;
+		}
+		if ( $fp ) {
+			fclose( $fp );
+		}
+	} while( ! $tmpfile );
+
+	if ( ! $tmpfile ) {
+		\EE::error( 'Error creating temporary file.' );
+	}
+
+	$output = '';
+	file_put_contents( $tmpfile, $input );
+
+	$editor = getenv( 'EDITOR' );
+	if ( !$editor ) {
+		if ( isset( $_SERVER['OS'] ) && false !== strpos( $_SERVER['OS'], 'indows' ) )
+			$editor = 'notepad';
+		else
+			$editor = 'vi';
+	}
+
+	$descriptorspec = array( STDIN, STDOUT, STDERR );
+	$process = proc_open( "$editor " . escapeshellarg( $tmpfile ), $descriptorspec, $pipes );
+	$r = proc_close( $process );
+	if ( $r ) {
+		exit( $r );
+	}
+
+	$output = file_get_contents( $tmpfile );
+
+	unlink( $tmpfile );
+
+	if ( $output === $input )
+		return false;
+
+	return $output;
+}
+
+/**
  * Render PHP or other types of files using Mustache templates.
  *
  * IMPORTANT: Automatic HTML escaping is disabled!
  */
-function mustache_render( $template_name, $data ) {
-	if ( ! file_exists( $template_name ) ) {
+function mustache_render( $template_name, $data = array() ) {
+	if ( ! file_exists( $template_name ) )
 		$template_name = EE_ROOT . "/templates/$template_name";
-	}
 
 	$template = file_get_contents( $template_name );
 
 	$m = new \Mustache_Engine( array(
-		'escape' => function ( $val ) {
-			return $val;
-		}
+		'escape' => function ( $val ) { return $val; },
 	) );
 
 	return $m->render( $template, $data );
 }
+
 
 
 function mustache_write_in_file( $filename, $template_name, $data = array() ) {
@@ -260,10 +369,37 @@ function mustache_write_in_file( $filename, $template_name, $data = array() ) {
 	$filesystem->dumpFile( $filename, $mustache_content );
 }
 
+/**
+ * Create a progress bar to display percent completion of a given operation.
+ *
+ * Progress bar is written to STDOUT, and disabled when command is piped. Progress
+ * advances with `$progress->tick()`, and completes with `$progress->finish()`.
+ * Process bar also indicates elapsed time and expected total time.
+ *
+ * ```
+ * # `wp user generate` ticks progress bar each time a new user is created.
+ * #
+ * # $ wp user generate --count=500
+ * # Generating users  22 % [=======>                             ] 0:05 / 0:23
+ *
+ * $progress = \EE\Utils\make_progress_bar( 'Generating users', $count );
+ * for ( $i = 0; $i < $count; $i++ ) {
+ *     // uses wp_insert_user() to insert the user
+ *     $progress->tick();
+ * }
+ * $progress->finish();
+ * ```
+ *
+ * @access public
+ * @category Output
+ *
+ * @param string  $message  Text to display before the progress bar.
+ * @param integer $count    Total number of ticks to be performed.
+ * @return cli\progress\Bar|EE\NoOp
+ */
 function make_progress_bar( $message, $count ) {
-	if ( \cli\Shell::isPiped() ) {
+	if ( \cli\Shell::isPiped() )
 		return new \EE\NoOp;
-	}
 
 	return new \cli\progress\Bar( $message, $count );
 }
@@ -280,9 +416,11 @@ function parse_url( $url ) {
 
 /**
  * Check if we're running in a Windows environment (cmd.exe).
+ *
+ * @return bool
  */
 function is_windows() {
-	return strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN';
+	return false !== ( $test_is_windows = getenv( 'EE_TEST_IS_WINDOWS' ) ) ? (bool) $test_is_windows : strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 }
 
 /**
@@ -294,7 +432,7 @@ function is_windows() {
 function replace_path_consts( $source, $path ) {
 	$replacements = array(
 		'__FILE__' => "'$path'",
-		'__DIR__'  => "'" . dirname( $path ) . "'"
+		'__DIR__'  => "'" . dirname( $path ) . "'",
 	);
 
 	$old = array_keys( $replacements );
@@ -304,11 +442,24 @@ function replace_path_consts( $source, $path ) {
 }
 
 /**
- * Make a HTTP request to a remote URL
+ * Make a HTTP request to a remote URL.
  *
- * @param string $method
- * @param string $url
- * @param array $headers
+ * Wraps the Requests HTTP library to ensure every request includes a cert.
+ *
+ * ```
+ * # `wp core download` verifies the hash for a downloaded WordPress archive
+ *
+ * $md5_response = Utils\http_request( 'GET', $download_url . '.md5' );
+ * if ( 20 != substr( $md5_response->status_code, 0, 2 ) ) {
+ *      EE::error( "Couldn't access md5 hash for release (HTTP code {$response->status_code})" );
+ * }
+ * ```
+ *
+ * @access public
+ *
+ * @param string $method    HTTP method (GET, POST, DELETE, etc.)
+ * @param string $url       URL to make the HTTP request to.
+ * @param array $headers    Add specific headers to the request.
  * @param array $options
  *
  * @return object
@@ -318,7 +469,8 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 	$cert_path = '/rmccue/requests/library/Requests/Transport/cacert.pem';
 	if ( inside_phar() ) {
 		// cURL can't read Phar archives
-		$options['verify'] = extract_from_phar( EE_ROOT . '/vendor' . $cert_path );
+		$options['verify'] = extract_from_phar(
+		EE_ROOT . '/vendor' . $cert_path );
 	} else {
 		foreach ( get_vendor_paths() as $vendor_path ) {
 			if ( file_exists( $vendor_path . $cert_path ) ) {
@@ -327,13 +479,12 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 			}
 		}
 		if ( empty( $options['verify'] ) ) {
-			\EE::error_log( "Cannot find SSL certificate." );
+			\EE::error( "Cannot find SSL certificate." );
 		}
 	}
 
 	try {
 		$request = \Requests::request( $url, $headers, $data, $method, $options );
-
 		return $request;
 	} catch ( \Requests_Exception $ex ) {
 		// Handle SSL certificate issues gracefully
@@ -348,7 +499,63 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 }
 
 /**
- * Compare two version strings to get the named semantic version
+ * Increments a version string using the "x.y.z-pre" format
+ *
+ * Can increment the major, minor or patch number by one
+ * If $new_version == "same" the version string is not changed
+ * If $new_version is not a known keyword, it will be used as the new version string directly
+ *
+ * @param  string $current_version
+ * @param  string $new_version
+ * @return string
+ */
+function increment_version( $current_version, $new_version ) {
+	// split version assuming the format is x.y.z-pre
+	$current_version    = explode( '-', $current_version, 2 );
+	$current_version[0] = explode( '.', $current_version[0] );
+
+	switch ( $new_version ) {
+		case 'same':
+			// do nothing
+			break;
+
+		case 'patch':
+			$current_version[0][2]++;
+
+			$current_version = array( $current_version[0] ); // drop possible pre-release info
+			break;
+
+		case 'minor':
+			$current_version[0][1]++;
+			$current_version[0][2] = 0;
+
+			$current_version = array( $current_version[0] ); // drop possible pre-release info
+			break;
+
+		case 'major':
+			$current_version[0][0]++;
+			$current_version[0][1] = 0;
+			$current_version[0][2] = 0;
+
+			$current_version = array( $current_version[0] ); // drop possible pre-release info
+			break;
+
+		default: // not a keyword
+			$current_version = array( array( $new_version ) );
+			break;
+	}
+
+	// reconstruct version string
+	$current_version[0] = implode( '.', $current_version[0] );
+	$current_version    = implode( '-', $current_version );
+
+	return $current_version;
+}
+
+/**
+ * Compare two version strings to get the named semantic version.
+ *
+ * @access public
  *
  * @param string $new_version
  * @param string $original_version
@@ -362,9 +569,16 @@ function get_named_sem_ver( $new_version, $original_version ) {
 	}
 
 	$parts = explode( '-', $original_version );
-	list( $major, $minor, $patch ) = explode( '.', $parts[0] );
+	$bits = explode( '.', $parts[0] );
+	$major = $bits[0];
+	if ( isset( $bits[1] ) ) {
+		$minor = $bits[1];
+	}
+	if ( isset( $bits[2] ) ) {
+		$patch = $bits[2];
+	}
 
-	if ( Semver::satisfies( $new_version, "{$major}.{$minor}.x" ) ) {
+	if ( ! is_null( $minor ) && Semver::satisfies( $new_version, "{$major}.{$minor}.x" ) ) {
 		return 'patch';
 	} else if ( Semver::satisfies( $new_version, "{$major}.x.x" ) ) {
 		return 'minor';
@@ -376,10 +590,16 @@ function get_named_sem_ver( $new_version, $original_version ) {
 /**
  * Return the flag value or, if it's not set, the $default value.
  *
- * @param array $args Arguments array.
- * @param string $flag Flag to get the value.
- * @param mixed $default Default value for the flag. Default: NULL
+ * Because flags can be negated (e.g. --no-quiet to negate --quiet), this
+ * function provides a safer alternative to using
+ * `isset( $assoc_args['quiet'] )` or similar.
  *
+ * @access public
+ * @category Input
+ *
+ * @param array  $assoc_args  Arguments array.
+ * @param string $flag        Flag to get the value.
+ * @param mixed  $default     Default value for the flag. Default: NULL
  * @return mixed
  */
 function get_flag_value( $args, $flag, $default = null ) {
@@ -387,25 +607,56 @@ function get_flag_value( $args, $flag, $default = null ) {
 }
 
 /**
- * Get the temp directory, and let the user know if it isn't writable.
+ * Get the home directory.
+ *
+ * @access public
+ * @category System
+ *
+ * @return string
+ */
+function get_home_dir() {
+	$home = getenv( 'HOME' );
+	if ( ! $home ) {
+		// In Windows $HOME may not be defined
+		$home = getenv( 'HOMEDRIVE' ) . getenv( 'HOMEPATH' );
+	}
+
+	return rtrim( $home, '/\\' );
+}
+
+/**
+ * Appends a trailing slash.
+ *
+ * @access public
+ * @category System
+ *
+ * @param string $string What to add the trailing slash to.
+ * @return string String with trailing slash added.
+ */
+function trailingslashit( $string ) {
+	return rtrim( $string, '/\\' ) . '/';
+}
+
+/**
+ * Get the system's temp directory. Warns user if it isn't writable.
+ *
+ * @access public
+ * @category System
  *
  * @return string
  */
 function get_temp_dir() {
 	static $temp = '';
 
-	$trailingslashit = function ( $path ) {
-		return rtrim( $path ) . '/';
-	};
-
 	if ( $temp ) {
-		return $trailingslashit( $temp );
+		return $temp;
 	}
 
-	if ( function_exists( 'sys_get_temp_dir' ) ) {
-		$temp = sys_get_temp_dir();
-	} else if ( ini_get( 'upload_tmp_dir' ) ) {
-		$temp = ini_get( 'upload_tmp_dir' );
+	// `sys_get_temp_dir()` introduced PHP 5.2.1.
+	if ( $try = sys_get_temp_dir() ) {
+		$temp = trailingslashit( $try );
+	} elseif ( $try = ini_get( 'upload_tmp_dir' ) ) {
+		$temp = trailingslashit( $try );
 	} else {
 		$temp = '/tmp/';
 	}
@@ -414,5 +665,313 @@ function get_temp_dir() {
 		\EE::warning( "Temp directory isn't writable: {$temp}" );
 	}
 
-	return $trailingslashit( $temp );
+	return $temp;
+}
+
+/**
+ * Parse a SSH url for its host, port, and path.
+ *
+ * Similar to parse_url(), but adds support for defined SSH aliases.
+ *
+ * ```
+ * host OR host/path/to/wordpress OR host:port/path/to/wordpress
+ * ```
+ *
+ * @access public
+ *
+ * @return mixed
+ */
+function parse_ssh_url( $url, $component = -1 ) {
+	preg_match( '#^((docker|docker\-compose|ssh):)?(([^@:]+)@)?([^:/~]+)(:([\d]*))?((/|~)(.+))?$#', $url, $matches );
+	$bits = array();
+	foreach( array(
+		2 => 'scheme',
+		4 => 'user',
+		5 => 'host',
+		7 => 'port',
+		8 => 'path',
+	) as $i => $key ) {
+		if ( ! empty( $matches[ $i ] ) ) {
+			$bits[ $key ] = $matches[ $i ];
+		}
+	}
+	switch ( $component ) {
+		case PHP_URL_SCHEME:
+			return isset( $bits['scheme'] ) ? $bits['scheme'] : null;
+		case PHP_URL_USER:
+			return isset( $bits['user'] ) ? $bits['user'] : null;
+		case PHP_URL_HOST:
+			return isset( $bits['host'] ) ? $bits['host'] : null;
+		case PHP_URL_PATH:
+			return isset( $bits['path'] ) ? $bits['path'] : null;
+		case PHP_URL_PORT:
+			return isset( $bits['port'] ) ? $bits['port'] : null;
+		default:
+			return $bits;
+	}
+}
+
+/**
+ * Report the results of the same operation against multiple resources.
+ *
+ * @access public
+ * @category Input
+ *
+ * @param string  $noun      Resource being affected (e.g. plugin)
+ * @param string  $verb      Type of action happening to the noun (e.g. activate)
+ * @param integer $total     Total number of resource being affected.
+ * @param integer $successes Number of successful operations.
+ * @param integer $failures  Number of failures.
+ */
+function report_batch_operation_results( $noun, $verb, $total, $successes, $failures ) {
+	$plural_noun = $noun . 's';
+	if ( in_array( $verb, array( 'reset' ), true ) ) {
+		$past_tense_verb = $verb;
+	} else {
+		$past_tense_verb = 'e' === substr( $verb, -1 ) ? $verb . 'd' : $verb . 'ed';
+	}
+	$past_tense_verb_upper = ucfirst( $past_tense_verb );
+	if ( $failures ) {
+		if ( $successes ) {
+			EE::error( "Only {$past_tense_verb} {$successes} of {$total} {$plural_noun}." );
+		} else {
+			EE::error( "No {$plural_noun} {$past_tense_verb}." );
+		}
+	} else {
+		if ( $successes ) {
+			EE::success( "{$past_tense_verb_upper} {$successes} of {$total} {$plural_noun}." );
+		} else {
+			$message = $total > 1 ? ucfirst( $plural_noun ) : ucfirst( $noun );
+			EE::success( "{$message} already {$past_tense_verb}." );
+		}
+	}
+}
+
+/**
+ * Parse a string of command line arguments into an $argv-esqe variable.
+ *
+ * @access public
+ * @category Input
+ *
+ * @param string $arguments
+ * @return array
+ */
+function parse_str_to_argv( $arguments ) {
+	preg_match_all ('/(?<=^|\s)([\'"]?)(.+?)(?<!\\\\)\1(?=$|\s)/', $arguments, $matches );
+	$argv = isset( $matches[0] ) ? $matches[0] : array();
+	$argv = array_map( function( $arg ){
+		foreach( array( '"', "'" ) as $char ) {
+			if ( $char === substr( $arg, 0, 1 ) && $char === substr( $arg, -1 ) ) {
+				$arg = substr( $arg, 1, -1 );
+				break;
+			}
+		}
+		return $arg;
+	}, $argv );
+	return $argv;
+}
+
+/**
+ * Locale-independent version of basename()
+ *
+ * @access public
+ *
+ * @param string $path
+ * @param string $suffix
+ * @return string
+ */
+function basename( $path, $suffix = '' ) {
+	return urldecode( \basename( str_replace( array( '%2F', '%5C' ), '/', urlencode( $path ) ), $suffix ) );
+}
+
+/**
+ * Checks whether the output of the current script is a TTY or a pipe / redirect
+ *
+ * Returns true if STDOUT output is being redirected to a pipe or a file; false is
+ * output is being sent directly to the terminal.
+ *
+ * If an env variable SHELL_PIPE exists, returned result depends it's
+ * value. Strings like 1, 0, yes, no, that validate to booleans are accepted.
+ *
+ * To enable ASCII formatting even when shell is piped, use the
+ * ENV variable SHELL_PIPE=0
+ *
+ * @access public
+ *
+ * @return bool
+ */
+function isPiped() {
+	$shellPipe = getenv('SHELL_PIPE');
+
+	if ($shellPipe !== false) {
+		return filter_var($shellPipe, FILTER_VALIDATE_BOOLEAN);
+	} else {
+		return (function_exists('posix_isatty') && !posix_isatty(STDOUT));
+	}
+}
+
+/**
+ * Expand within paths to their matching paths.
+ *
+ * Has no effect on paths which do not use glob patterns.
+ *
+ * @param string|array $paths Single path as a string, or an array of paths.
+ * @param int          $flags Flags to pass to glob.
+ *
+ * @return array Expanded paths.
+ */
+function expand_globs( $paths, $flags = GLOB_BRACE ) {
+	$expanded = array();
+
+	foreach ( (array) $paths as $path ) {
+		$matching = array( $path );
+
+		if ( preg_match( '/[' . preg_quote( '*?[]{}!', '/' ) . ']/', $path ) ) {
+			$matching = glob( $path, $flags ) ?: array();
+		}
+
+		$expanded = array_merge( $expanded, $matching );
+	}
+
+	return array_unique( $expanded );
+}
+
+/**
+ * Get the closest suggestion for a mis-typed target term amongst a list of
+ * options.
+ *
+ * Uses the Levenshtein algorithm to calculate the relative "distance" between
+ * terms.
+ *
+ * If the "distance" to the closest term is higher than the threshold, an empty
+ * string is returned.
+ *
+ * @param string $target    Target term to get a suggestion for.
+ * @param array  $options   Array with possible options.
+ * @param int    $threshold Threshold above which to return an empty string.
+ *
+ * @return string
+ */
+function get_suggestion( $target, array $options, $threshold = 2 ) {
+	if ( empty( $options ) ) {
+		return '';
+	}
+	foreach ( $options as $option ) {
+		$distance = levenshtein( $option, $target );
+		$levenshtein[ $option ] = $distance;
+	}
+
+	// Sort known command strings by distance to user entry.
+	asort( $levenshtein );
+
+	// Fetch the closest command string.
+	reset( $levenshtein );
+	$suggestion = key( $levenshtein );
+
+	// Only return a suggestion if below a given threshold.
+	return $levenshtein[ $suggestion ] <= $threshold && $suggestion !== $target
+		? (string) $suggestion
+		: '';
+}
+
+/**
+ * Get a Phar-safe version of a path.
+ *
+ * For paths inside a Phar, this strips the outer filesystem's location to
+ * reduce the path to what it needs to be within the Phar archive.
+ *
+ * Use the __FILE__ or __DIR__ constants as a starting point.
+ *
+ * @param string $path An absolute path that might be within a Phar.
+ *
+ * @return string A Phar-safe version of the path.
+ */
+function phar_safe_path( $path ) {
+
+	if ( ! inside_phar() ) {
+		return $path;
+	}
+
+	return str_replace(
+		PHAR_STREAM_PREFIX . EE_PHAR_PATH . '/',
+		PHAR_STREAM_PREFIX,
+		$path
+	);
+}
+
+/**
+ * Check whether a given Command object is part of the bundled set of
+ * commands.
+ *
+ * This function accepts both a fully qualified class name as a string as
+ * well as an object that extends `EE\Dispatcher\CompositeCommand`.
+ *
+ * @param \EE\Dispatcher\CompositeCommand|string $command
+ *
+ * @return bool
+ */
+function is_bundled_command( $command ) {
+	static $classes;
+
+	if ( null === $classes ) {
+		$classes = array();
+		$class_map = EE_VENDOR_DIR . '/composer/autoload_commands_classmap.php';
+		if ( file_exists( EE_VENDOR_DIR . '/composer/') ) {
+			$classes = include $class_map;
+		}
+	}
+
+	if ( is_object( $command ) ) {
+		$command = get_class( $command );
+	}
+
+	return is_string( $command )
+		? array_key_exists( $command, $classes )
+		: false;
+}
+
+/**
+ * Maybe prefix command string with "/usr/bin/env".
+ * Removes (if there) if Windows, adds (if not there) if not.
+ *
+ * @param string $command
+ *
+ * @return string
+ */
+function force_env_on_nix_systems( $command ) {
+	$env_prefix = '/usr/bin/env ';
+	$env_prefix_len = strlen( $env_prefix );
+	if ( is_windows() ) {
+		if ( 0 === strncmp( $command, $env_prefix, $env_prefix_len ) ) {
+			$command = substr( $command, $env_prefix_len );
+		}
+	} else {
+		if ( 0 !== strncmp( $command, $env_prefix, $env_prefix_len ) ) {
+			$command = $env_prefix . $command;
+		}
+	}
+	return $command;
+}
+
+/**
+ * Check that `proc_open()` and `proc_close()` haven't been disabled.
+ *
+ * @param string $context Optional. If set will appear in error message. Default null.
+ * @param bool   $return  Optional. If set will return false rather than error out. Default false.
+ *
+ * @return bool
+ */
+function check_proc_available( $context = null, $return = false ) {
+	if ( ! function_exists( 'proc_open' ) || ! function_exists( 'proc_close' ) ) {
+		if ( $return ) {
+			return false;
+		}
+		$msg = 'The PHP functions `proc_open()` and/or `proc_close()` are disabled. Please check your PHP ini directive `disable_functions` or suhosin settings.';
+		if ( $context ) {
+			EE::error( sprintf( "Cannot do '%s': %s", $context, $msg ) );
+		} else {
+			EE::error( $msg );
+		}
+	}
+	return true;
 }
