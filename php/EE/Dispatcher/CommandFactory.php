@@ -9,6 +9,9 @@ namespace EE\Dispatcher;
  */
 class CommandFactory {
 
+	// Cache of file contents, indexed by filename. Only used if opcache.save_comments is disabled.
+	private static $file_contents = array();
+
 	/**
 	 * Create a new CompositeCommand (or Subcommand if class has __invoke())
 	 *
@@ -29,14 +32,22 @@ class CommandFactory {
 		} else {
 			$reflection = new \ReflectionClass( $callable );
 			if ( $reflection->hasMethod( '__invoke' ) ) {
-				$command = self::create_subcommand( $parent, $name, array( $reflection->name, '__invoke' ),
+				$class = is_object( $callable ) ? $callable : $reflection->name;
+				$command = self::create_subcommand( $parent, $name, array( $class, '__invoke' ),
 					$reflection->getMethod( '__invoke' ) );
 			} else {
-				$command = self::create_composite_command( $parent, $name, $reflection );
+				$command = self::create_composite_command( $parent, $name, $callable );
 			}
 		}
 
 		return $command;
+	}
+
+	/**
+	 * Clear the file contents cache.
+	 */
+	public static function clear_file_contents_cache() {
+		self::$file_contents = array();
 	}
 
 	/**
@@ -50,7 +61,8 @@ class CommandFactory {
 	 * @param string $method Class method to be called upon invocation.
 	 */
 	private static function create_subcommand( $parent, $name, $callable, $reflection ) {
-		$docparser = new \EE\DocParser( $reflection->getDocComment() );
+		$doc_comment = self::get_doc_comment( $reflection );
+		$docparser = new \EE\DocParser( $doc_comment );
 
 		if ( is_array( $callable ) ) {
 			if ( !$name )
@@ -58,6 +70,9 @@ class CommandFactory {
 
 			if ( !$name )
 				$name = $reflection->name;
+		}
+		if ( ! $doc_comment ) {
+			\EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
 		}
 
 		$when_invoked = function ( $args, $assoc_args ) use ( $callable ) {
@@ -77,10 +92,15 @@ class CommandFactory {
 	 *
 	 * @param mixed $parent The new command's parent Root or Composite command
 	 * @param string $name Represents how the command should be invoked
-	 * @param ReflectionClass $reflection
+	 * @param mixed $callable
 	 */
-	private static function create_composite_command( $parent, $name, $reflection ) {
-		$docparser = new \EE\DocParser( $reflection->getDocComment() );
+	private static function create_composite_command( $parent, $name, $callable ) {
+		$reflection = new \ReflectionClass( $callable );
+		$doc_comment = self::get_doc_comment( $reflection );
+		if ( ! $doc_comment ) {
+			\EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
+		}
+		$docparser = new \EE\DocParser( $doc_comment );
 
 		$container = new CompositeCommand( $parent, $name, $docparser );
 
@@ -88,7 +108,8 @@ class CommandFactory {
 			if ( !self::is_good_method( $method ) )
 				continue;
 
-			$subcommand = self::create_subcommand( $container, false, array( $reflection->name, $method->name ), $method );
+			$class = is_object( $callable ) ? $callable : $reflection->name;
+			$subcommand = self::create_subcommand( $container, false, array( $class, $method->name ), $method );
 
 			$subcommand_name = $subcommand->get_name();
 
@@ -107,5 +128,67 @@ class CommandFactory {
 	private static function is_good_method( $method ) {
 		return $method->isPublic() && !$method->isStatic() && 0 !== strpos( $method->getName(), '__' );
 	}
-}
 
+	/**
+	 * Gets the document comment. Caters for PHP directive `opcache.save comments` being disabled.
+	 *
+	 * @param ReflectionMethod|ReflectionClass|ReflectionFunction $reflection Reflection instance.
+	 * @return string|false|null Doc comment string if any, false if none (same as `Reflection*::getDocComment()`), null if error.
+	 */
+	private static function get_doc_comment( $reflection ) {
+		$doc_comment = $reflection->getDocComment();
+
+		if ( false !== $doc_comment || ! ( ini_get( 'opcache.enable_cli' ) && ! ini_get( 'opcache.save_comments' ) ) ) {
+			// Either have doc comment, or no doc comment and save comments enabled - standard situation.
+			if ( ! getenv( 'WP_CLI_TEST_GET_DOC_COMMENT' ) ) {
+				return $doc_comment;
+			}
+		}
+
+		$filename = $reflection->getFileName();
+
+		if ( isset( self::$file_contents[ $filename ] ) ) {
+			$contents = self::$file_contents[ $filename ];
+		} elseif ( is_readable( $filename ) && ( $contents = file_get_contents( $filename ) ) ) {
+			self::$file_contents[ $filename ] = $contents = explode( "\n", $contents );
+		} else {
+			\EE::debug( "Could not read contents for filename '{$filename}'.", 'commandfactory' );
+			return null;
+		}
+
+		return self::extract_last_doc_comment( implode( "\n", array_slice( $contents, 0, $reflection->getStartLine() ) ) );
+	}
+
+	/**
+	 * Returns the last doc comment if any in `$content`.
+	 *
+	 * @param string $content The content, which should end at the class or function declaration.
+	 * @return string|bool The last doc comment if any, or false if none.
+	 */
+	private static function extract_last_doc_comment( $content ) {
+		$content = trim( $content );
+		$comment_end_pos = strrpos( $content, '*/' );
+		if ( false === $comment_end_pos ) {
+			return false;
+		}
+		// Make sure comment end belongs to this class/function.
+		if ( preg_match_all( '/(?:^|[\s;}])(?:class|function)\s+/', substr( $content, $comment_end_pos + 2 ), $dummy /*needed for PHP 5.3*/ ) > 1 ) {
+			return false;
+		}
+		$content = substr( $content, 0, $comment_end_pos + 2 );
+		if ( false === ( $comment_start_pos = strrpos( $content, '/**' ) ) || $comment_start_pos + 2 === $comment_end_pos ) {
+			return false;
+		}
+		// Make sure comment start belongs to this comment end.
+		if ( false !== ( $comment_end2_pos = strpos( substr( $content, $comment_start_pos ), '*/' ) ) && $comment_start_pos + $comment_end2_pos < $comment_end_pos ) {
+			return false;
+		}
+		// Allow for '/**' within doc comment.
+		$subcontent = substr( $content, 0, $comment_start_pos );
+		while ( false !== ( $comment_start2_pos = strrpos( $subcontent, '/**' ) ) && false === strpos( $subcontent, '*/', $comment_start2_pos ) ) {
+			$comment_start_pos = $comment_start2_pos;
+			$subcontent = substr( $subcontent, 0, $comment_start_pos );
+		}
+		return substr( $content, $comment_start_pos, $comment_end_pos + 2 );
+	}
+}
