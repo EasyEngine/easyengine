@@ -30,12 +30,22 @@ abstract class Base {
 	 * Write a message to STDERR, prefixed with "Debug: ".
 	 *
 	 * @param string $message Message to write.
+	 * @param string $group Organize debug message to a specific group.
 	 */
-	public function debug( $message ) {
-		if ( $this->get_runner()->config['debug'] ) {
-			$time = round( microtime( true ) - EE_START_MICROTIME, 3 );
-			$this->_line( "$message ({$time}s)", 'Debug', '%B', STDERR );
+	public function debug( $message, $group = false ) {
+		$debug = $this->get_runner()->config['debug'];
+		if ( ! $debug ) {
+			return;
 		}
+		if ( true !== $debug && $group !== $debug ) {
+			return;
+		}
+		$time = round( microtime( true ) - EE_START_MICROTIME, 3 );
+		$prefix = 'Debug';
+		if ( $group && true === $debug ) {
+			$prefix = 'Debug (' . $group . ')';
+		}
+		$this->_line( "$message ({$time}s)", $prefix, '%B', STDERR );
 	}
 
 	/**
@@ -58,7 +68,11 @@ abstract class Base {
 	 * @param resource $handle Resource to write to. Defaults to STDOUT.
 	 */
 	protected function _line( $message, $label, $color, $handle = STDOUT ) {
-		$label = \cli\Colors::colorize( "$color$label:%n", $this->in_color );
+		if ( class_exists( 'cli\Colors' ) ) {
+			$label = \cli\Colors::colorize( "$color$label:%n", $this->in_color );
+		} else {
+			$label = "$label:";
+		}
 		$this->write( $handle, "$label $message\n" );
 	}
 
