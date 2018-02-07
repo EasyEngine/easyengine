@@ -33,8 +33,7 @@ class RootCommand extends CompositeCommand {
 	 * command.
 	 *
 	 * @param array $args
-	 * 
-*@return \EE\Dispatcher\Subcommand|false
+	 * @return \EE\Dispatcher\Subcommand|false
 	 */
 	public function find_subcommand( &$args ) {
 		$command = array_shift( $args );
@@ -54,8 +53,6 @@ class RootCommand extends CompositeCommand {
 	 * @return array
 	 */
 	public function get_subcommands() {
-		Utils\load_all_commands();
-
 		return parent::get_subcommands();
 	}
 }
