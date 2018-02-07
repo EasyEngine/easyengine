@@ -1,7 +1,9 @@
 <?php
 
+use \EE\ExitException;
 use \EE\Utils;
 use \EE\Dispatcher;
+use \EE\FileCache;
 use \EE\Process;
 
 /**
