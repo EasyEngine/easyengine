@@ -1,7 +1,7 @@
 <?php
 
-use WP_CLI\Process;
-use WP_CLI\Utils;
+use EE\Process;
+use EE\Utils;
 
 class ProcessTests extends PHPUnit_Framework_TestCase {
 

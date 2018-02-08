@@ -1,25 +1,25 @@
 <?php
 
-define( 'WP_CLI_ROOT', dirname( dirname( __FILE__ ) ) );
+define( 'EE_ROOT', dirname( dirname( __FILE__ ) ) );
 
-if ( file_exists( WP_CLI_ROOT . '/vendor/autoload.php' ) ) {
-	define( 'WP_CLI_BASE_PATH', WP_CLI_ROOT );
-	define( 'WP_CLI_VENDOR_DIR' , WP_CLI_ROOT . '/vendor' );
-} elseif ( file_exists( dirname( dirname( WP_CLI_ROOT ) ) . '/autoload.php' ) ) {
-	define( 'WP_CLI_BASE_PATH', dirname( dirname( dirname( WP_CLI_ROOT ) ) ) );
-	define( 'WP_CLI_VENDOR_DIR' , dirname( dirname( WP_CLI_ROOT ) ) );
+if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
+	define( 'EE_BASE_PATH', EE_ROOT );
+	define( 'EE_VENDOR_DIR' , EE_ROOT . '/vendor' );
+} elseif ( file_exists( dirname( dirname( EE_ROOT ) ) . '/autoload.php' ) ) {
+	define( 'EE_BASE_PATH', dirname( dirname( dirname( EE_ROOT ) ) ) );
+	define( 'EE_VENDOR_DIR' , dirname( dirname( EE_ROOT ) ) );
 } else {
 	fwrite( STDERR, 'Missing vendor/autoload.php' . PHP_EOL );
 	exit(1);
 }
-require WP_CLI_VENDOR_DIR . '/autoload.php';
-require WP_CLI_ROOT . '/php/utils.php';
+require EE_VENDOR_DIR . '/autoload.php';
+require EE_ROOT . '/php/utils.php';
 
 use Symfony\Component\Finder\Finder;
-use WP_CLI\Utils;
-use WP_CLI\Configurator;
+use EE\Utils;
+use EE\Configurator;
 
-$configurator = new Configurator( WP_CLI_ROOT . '/utils/make-phar-spec.php' );
+$configurator = new Configurator( EE_ROOT . '/utils/make-phar-spec.php' );
 
 list( $args, $assoc_args, $runtime_config ) = $configurator->parse_args( array_slice( $GLOBALS['argv'], 1 ) );
 
@@ -34,21 +34,21 @@ define( 'BE_QUIET', isset( $runtime_config['quiet'] ) && $runtime_config['quiet'
 
 define( 'BUILD', isset( $runtime_config['build'] ) ? $runtime_config['build'] : '' );
 
-$current_version = trim( file_get_contents( WP_CLI_ROOT . '/VERSION' ) );
+$current_version = trim( file_get_contents( EE_ROOT . '/VERSION' ) );
 
 if ( isset( $runtime_config['version'] ) ) {
 	$new_version = $runtime_config['version'];
 	$new_version = Utils\increment_version( $current_version, $new_version );
 
 	if ( isset( $runtime_config['store-version'] ) && $runtime_config['store-version'] ) {
-		file_put_contents( WP_CLI_ROOT . '/VERSION', $new_version );
+		file_put_contents( EE_ROOT . '/VERSION', $new_version );
 	}
 
 	$current_version = $new_version;
 }
 
 function add_file( $phar, $path ) {
-	$key = str_replace( WP_CLI_BASE_PATH, '', $path );
+	$key = str_replace( EE_BASE_PATH, '', $path );
 
 	if ( ! BE_QUIET ) {
 		echo "$key - $path" . PHP_EOL;
@@ -65,7 +65,7 @@ function add_file( $phar, $path ) {
 					'\/phpunit\/',
 					'\/nb\/oxymel\/',
 					'-command\/src\/',
-					'\/wp-cli\/[^\n]+?-command\/',
+					'\/ee\/[^\n]+?-command\/',
 					'\/symfony\/(?!finder|polyfill-mbstring)[^\/]+\/',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
 				);
@@ -90,7 +90,7 @@ function add_file( $phar, $path ) {
 }
 
 function set_file_contents( $phar, $path, $content ) {
-	$key = str_replace( WP_CLI_BASE_PATH, '', $path );
+	$key = str_replace( EE_BASE_PATH, '', $path );
 
 	if ( ! BE_QUIET ) {
 		echo "$key - $path" . PHP_EOL;
@@ -100,7 +100,7 @@ function set_file_contents( $phar, $path, $content ) {
 }
 
 function get_composer_versions( $current_version ) {
-	$composer_lock_path = WP_CLI_ROOT . '/composer.lock';
+	$composer_lock_path = EE_ROOT . '/composer.lock';
 	if ( ! ( $get_composer_lock = file_get_contents( $composer_lock_path ) ) || ! ( $composer_lock = json_decode( $get_composer_lock, true ) ) ) {
 		fwrite( STDERR, sprintf( "Warning: Failed to read '%s'." . PHP_EOL, $composer_lock_path ) );
 		return '';
@@ -109,7 +109,7 @@ function get_composer_versions( $current_version ) {
 		fwrite( STDERR, sprintf( "Warning: No packages in '%s'." . PHP_EOL, $composer_lock_path ) );
 		return '';
 	}
-	$vendor_versions = array( implode( ' ', array( 'wp-cli/wp-cli', $current_version, date( 'c' ) ) ) );
+	$vendor_versions = array( implode( ' ', array( 'ee/ee', $current_version, date( 'c' ) ) ) );
 	$missing_names = $missing_versions = $missing_references = 0;
 	foreach ( $composer_lock['packages'] as $package ) {
 		if ( isset( $package['name'] ) ) {
@@ -149,7 +149,7 @@ function get_composer_versions( $current_version ) {
 if ( file_exists( DEST_PATH ) ) {
 	unlink( DEST_PATH );
 }
-$phar = new Phar( DEST_PATH, 0, 'wp-cli.phar' );
+$phar = new Phar( DEST_PATH, 0, 'ee.phar' );
 
 $phar->startBuffering();
 
@@ -159,13 +159,13 @@ $finder
 	->files()
 	->ignoreVCS(true)
 	->name('*.php')
-	->in(WP_CLI_ROOT . '/php')
-	->in(WP_CLI_VENDOR_DIR . '/mustache')
-	->in(WP_CLI_VENDOR_DIR . '/rmccue/requests')
-	->in(WP_CLI_VENDOR_DIR . '/composer')
-	->in(WP_CLI_VENDOR_DIR . '/ramsey/array_column')
-	->in(WP_CLI_VENDOR_DIR . '/symfony/finder')
-	->in(WP_CLI_VENDOR_DIR . '/symfony/polyfill-mbstring')
+	->in(EE_ROOT . '/php')
+	->in(EE_VENDOR_DIR . '/mustache')
+	->in(EE_VENDOR_DIR . '/rmccue/requests')
+	->in(EE_VENDOR_DIR . '/composer')
+	->in(EE_VENDOR_DIR . '/ramsey/array_column')
+	->in(EE_VENDOR_DIR . '/symfony/finder')
+	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
 	->exclude('examples')
@@ -177,9 +177,9 @@ $finder
 	;
 if ( 'cli' === BUILD ) {
 	$finder
-		->in(WP_CLI_VENDOR_DIR . '/wp-cli/mustangostang-spyc')
-		->in(WP_CLI_VENDOR_DIR . '/wp-cli/php-cli-tools')
-		->in(WP_CLI_VENDOR_DIR . '/seld/cli-prompt')
+		->in(EE_VENDOR_DIR . '/ee/mustangostang-spyc')
+		->in(EE_VENDOR_DIR . '/ee/php-cli-tools')
+		->in(EE_VENDOR_DIR . '/seld/cli-prompt')
 		->exclude('composer/ca-bundle')
 		->exclude('composer/semver')
 		->exclude('composer/src')
@@ -187,24 +187,24 @@ if ( 'cli' === BUILD ) {
 		;
 } else {
 	$finder
-		->in(WP_CLI_VENDOR_DIR . '/wp-cli')
-		->in(WP_CLI_ROOT . '/features/bootstrap') // These are required for scaffold-package-command.
-		->in(WP_CLI_ROOT . '/features/steps')
-		->in(WP_CLI_ROOT . '/features/extra')
-		->in(WP_CLI_VENDOR_DIR . '/nb/oxymel')
-		->in(WP_CLI_VENDOR_DIR . '/psr')
-		->in(WP_CLI_VENDOR_DIR . '/seld')
-		->in(WP_CLI_VENDOR_DIR . '/symfony/console')
-		->in(WP_CLI_VENDOR_DIR . '/symfony/filesystem')
-		->in(WP_CLI_VENDOR_DIR . '/symfony/process')
-		->in(WP_CLI_VENDOR_DIR . '/justinrainbow/json-schema')
+		->in(EE_VENDOR_DIR . '/ee')
+		->in(EE_ROOT . '/features/bootstrap') // These are required for scaffold-package-command.
+		->in(EE_ROOT . '/features/steps')
+		->in(EE_ROOT . '/features/extra')
+		->in(EE_VENDOR_DIR . '/nb/oxymel')
+		->in(EE_VENDOR_DIR . '/psr')
+		->in(EE_VENDOR_DIR . '/seld')
+		->in(EE_VENDOR_DIR . '/symfony/console')
+		->in(EE_VENDOR_DIR . '/symfony/filesystem')
+		->in(EE_VENDOR_DIR . '/symfony/process')
+		->in(EE_VENDOR_DIR . '/justinrainbow/json-schema')
 		->exclude('demo')
 		->exclude('nb/oxymel/OxymelTest.php')
 		->exclude('composer/spdx-licenses')
 		->exclude('composer/composer/src/Composer/Command')
 		->exclude('composer/composer/src/Composer/Compiler.php')
 		->exclude('composer/composer/src/Composer/Console')
-		->exclude('composer/composer/src/Composer/Downloader/PearPackageExtractor.php') // Assuming Pear installation isn't supported by wp-cli.
+		->exclude('composer/composer/src/Composer/Downloader/PearPackageExtractor.php') // Assuming Pear installation isn't supported by ee.
 		->exclude('composer/composer/src/Composer/Installer/PearBinaryInstaller.php')
 		->exclude('composer/composer/src/Composer/Installer/PearInstaller.php')
 		->exclude('composer/composer/src/Composer/Question')
@@ -223,7 +223,7 @@ $finder
 	->files()
 	->ignoreVCS(true)
 	->ignoreDotFiles(false)
-	->in( WP_CLI_ROOT . '/templates')
+	->in( EE_ROOT . '/templates')
 	;
 
 foreach ( $finder as $file ) {
@@ -232,13 +232,13 @@ foreach ( $finder as $file ) {
 
 if ( 'cli' !== BUILD ) {
 	// Include base project files, because the autoloader will load them
-	if ( WP_CLI_BASE_PATH !== WP_CLI_ROOT ) {
+	if ( EE_BASE_PATH !== EE_ROOT ) {
 		$finder = new Finder();
 		$finder
 			->files()
 			->ignoreVCS(true)
 			->name('*.php')
-			->in(WP_CLI_BASE_PATH . '/src')
+			->in(EE_BASE_PATH . '/src')
 			->exclude('test')
 			->exclude('tests')
 			->exclude('Test')
@@ -247,7 +247,7 @@ if ( 'cli' !== BUILD ) {
 			add_file( $phar, $file );
 		}
 		// Any PHP files in the project root
-		foreach ( glob( WP_CLI_BASE_PATH . '/*.php' ) as $file ) {
+		foreach ( glob( EE_BASE_PATH . '/*.php' ) as $file ) {
 			add_file( $phar, $file );
 		}
 	}
@@ -257,7 +257,7 @@ if ( 'cli' !== BUILD ) {
 		->files()
 		->ignoreVCS(true)
 		->ignoreDotFiles(false)
-		->in( WP_CLI_VENDOR_DIR . '/wp-cli/config-command/templates')
+		->in( EE_VENDOR_DIR . '/ee/config-command/templates')
 		;
 	foreach ( $finder as $file ) {
 		add_file( $phar, $file );
@@ -268,32 +268,32 @@ if ( 'cli' !== BUILD ) {
 		->files()
 		->ignoreVCS(true)
 		->ignoreDotFiles(false)
-		->in( WP_CLI_VENDOR_DIR . '/wp-cli/scaffold-command/templates')
+		->in( EE_VENDOR_DIR . '/ee/scaffold-command/templates')
 		;
 	foreach ( $finder as $file ) {
 		add_file( $phar, $file );
 	}
 }
 
-add_file( $phar, WP_CLI_VENDOR_DIR . '/autoload.php' );
-add_file( $phar, WP_CLI_VENDOR_DIR . '/autoload_commands.php' );
-add_file( $phar, WP_CLI_VENDOR_DIR . '/autoload_framework.php' );
+add_file( $phar, EE_VENDOR_DIR . '/autoload.php' );
+add_file( $phar, EE_VENDOR_DIR . '/autoload_commands.php' );
+add_file( $phar, EE_VENDOR_DIR . '/autoload_framework.php' );
 if ( 'cli' !== BUILD ) {
-	add_file( $phar, WP_CLI_ROOT . '/ci/behat-tags.php' );
-	add_file( $phar, WP_CLI_VENDOR_DIR . '/composer/composer/LICENSE' );
-	add_file( $phar, WP_CLI_VENDOR_DIR . '/composer/composer/res/composer-schema.json' );
+	add_file( $phar, EE_ROOT . '/ci/behat-tags.php' );
+	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/LICENSE' );
+	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/res/composer-schema.json' );
 }
-add_file( $phar, WP_CLI_VENDOR_DIR . '/rmccue/requests/library/Requests/Transport/cacert.pem' );
+add_file( $phar, EE_VENDOR_DIR . '/rmccue/requests/library/Requests/Transport/cacert.pem' );
 
-set_file_contents( $phar, WP_CLI_ROOT . '/COMPOSER_VERSIONS', get_composer_versions( $current_version ) );
-set_file_contents( $phar, WP_CLI_ROOT . '/VERSION', $current_version );
+set_file_contents( $phar, EE_ROOT . '/COMPOSER_VERSIONS', get_composer_versions( $current_version ) );
+set_file_contents( $phar, EE_ROOT . '/VERSION', $current_version );
 
-$phar_boot = str_replace( WP_CLI_BASE_PATH, '', WP_CLI_ROOT . '/php/boot-phar.php' );
+$phar_boot = str_replace( EE_BASE_PATH, '', EE_ROOT . '/php/boot-phar.php' );
 $phar->setStub( <<<EOB
 #!/usr/bin/env php
 <?php
 Phar::mapPhar();
-include 'phar://wp-cli.phar{$phar_boot}';
+include 'phar://ee.phar{$phar_boot}';
 __HALT_COMPILER();
 ?>
 EOB

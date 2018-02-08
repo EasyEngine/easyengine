@@ -1,9 +1,9 @@
 <?php
 
-use WP_CLI\Utils;
+use EE\Utils;
 
-require_once dirname( __DIR__ ) . '/php/class-wp-cli.php';
-require_once dirname( __DIR__ ) . '/php/class-wp-cli-command.php';
+require_once dirname( __DIR__ ) . '/php/class-ee.php';
+require_once dirname( __DIR__ ) . '/php/class-ee-command.php';
 require_once dirname( __DIR__ ) . '/php/commands/help.php';
 
 class HelpTest extends PHPUnit_Framework_TestCase {
@@ -24,7 +24,7 @@ This is a [reference link][1]. It should be displayed very nice!
 EOL;
 		$this->assertSame( $expected, $result );
 
-		$desc = 'This is a [reference link](https://wordpress.org/) and [second link](http://wp-cli.org/). It should be displayed very nice!';
+		$desc = 'This is a [reference link](https://wordpress.org/) and [second link](http://ee.org/). It should be displayed very nice!';
 		$result = $method->invokeArgs( null, array( $desc ) );
 
 		$expected =<<<EOL
@@ -32,12 +32,12 @@ This is a [reference link][1] and [second link][2]. It should be displayed very 
 
 ---
 [1] https://wordpress.org/
-[2] http://wp-cli.org/
+[2] http://ee.org/
 EOL;
 		$this->assertSame( $expected, $result );
 
 		$desc =<<<EOL
-This is a [reference link](https://wordpress.org/) and [second link](http://wp-cli.org/).
+This is a [reference link](https://wordpress.org/) and [second link](http://ee.org/).
 It should be displayed very nice!
 EOL;
 		$result = $method->invokeArgs( null, array( $desc ) );
@@ -48,13 +48,13 @@ It should be displayed very nice!
 
 ---
 [1] https://wordpress.org/
-[2] http://wp-cli.org/
+[2] http://ee.org/
 EOL;
 
 		$this->assertSame( $expected, $result );
 
 		$desc =<<<EOL
-This is a [reference link](https://wordpress.org/) and [second link](http://wp-cli.org/).
+This is a [reference link](https://wordpress.org/) and [second link](http://ee.org/).
 It should be displayed very nice!
 
 ## Example
@@ -69,7 +69,7 @@ It should be displayed very nice!
 
 ---
 [1] https://wordpress.org/
-[2] http://wp-cli.org/
+[2] http://ee.org/
 
 ## Example
 

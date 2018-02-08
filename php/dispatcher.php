@@ -1,11 +1,11 @@
 <?php
 
-namespace WP_CLI\Dispatcher;
+namespace EE\Dispatcher;
 
 /**
  * Get the path to a command, e.g. "core download"
  *
- * @param WP_CLI\Dispatcher\Subcommand $command
+ * @param EE\Dispatcher\Subcommand $command
  * @return string
  */
 function get_path( $command ) {

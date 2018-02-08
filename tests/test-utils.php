@@ -1,8 +1,8 @@
 <?php
 
-use WP_CLI\Utils;
+use EE\Utils;
 
-require_once dirname( __DIR__ ) . '/php/class-wp-cli.php';
+require_once dirname( __DIR__ ) . '/php/class-ee.php';
 
 class UtilsTest extends PHPUnit_Framework_TestCase {
 
@@ -278,17 +278,17 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testForceEnvOnNixSystems() {
-		$env_is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
+		$env_is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
 
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=0' );
+		putenv( 'EE_TEST_IS_WINDOWS=0' );
 		$this->assertSame( '/usr/bin/env cmd', Utils\force_env_on_nix_systems( 'cmd' ) );
 		$this->assertSame( '/usr/bin/env cmd', Utils\force_env_on_nix_systems( '/usr/bin/env cmd' ) );
 
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=1' );
+		putenv( 'EE_TEST_IS_WINDOWS=1' );
 		$this->assertSame( 'cmd', Utils\force_env_on_nix_systems( 'cmd' ) );
 		$this->assertSame( 'cmd', Utils\force_env_on_nix_systems( '/usr/bin/env cmd' ) );
 
-		putenv( false === $env_is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$env_is_windows" );
+		putenv( false === $env_is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$env_is_windows" );
 	}
 
 	public function testGetHomeDir() {
@@ -332,50 +332,28 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 
 	public function testGetTempDir() {
 		$this->assertTrue( '/' === substr( Utils\get_temp_dir(), -1 ) );
-
-		// INI directive `sys_temp_dir` introduced PHP 5.5.0.
-		if ( version_compare( PHP_VERSION, '5.5.0', '>=' ) ) {
-
-			// `sys_temp_dir` set to unwritable.
-
-			$cmd = 'php ' . escapeshellarg( '-dsys_temp_dir=\\tmp\\' ) . ' php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'echo WP_CLI\\Utils\\get_temp_dir();' ) . ' 2>&1';
-			$output = array();
-			exec( $cmd, $output );
-			$output = trim( implode( "\n", $output ) );
-			$this->assertTrue( false !== strpos( $output, 'Warning' ) );
-			$this->assertTrue( false !== strpos( $output, 'writable' ) );
-			$this->assertTrue( false !== strpos( $output, '\\tmp/' ) );
-
-			// `sys_temp_dir` unset.
-
-			$cmd = 'php ' . escapeshellarg( '-dsys_temp_dir=' ) . ' php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'echo WP_CLI\\Utils\\get_temp_dir();' ) . ' 2>&1';
-			$output = array();
-			exec( $cmd, $output );
-			$output = trim( implode( "\n", $output ) );
-			$this->assertTrue( '/' === substr( $output, -1 ) );
-		}
 	}
 
 	public function testHttpRequestBadAddress() {
-		// Save WP_CLI state.
-		$class_wp_cli_logger = new \ReflectionProperty( 'WP_CLI', 'logger' );
-		$class_wp_cli_logger->setAccessible( true );
-		$class_wp_cli_capture_exit = new \ReflectionProperty( 'WP_CLI', 'capture_exit' );
-		$class_wp_cli_capture_exit->setAccessible( true );
+		// Save EE state.
+		$class_ee_logger = new \ReflectionProperty( 'EE', 'logger' );
+		$class_ee_logger->setAccessible( true );
+		$class_ee_capture_exit = new \ReflectionProperty( 'EE', 'capture_exit' );
+		$class_ee_capture_exit->setAccessible( true );
 
-		$prev_logger = $class_wp_cli_logger->getValue();
-		$prev_capture_exit = $class_wp_cli_capture_exit->getValue();
+		$prev_logger = $class_ee_logger->getValue();
+		$prev_capture_exit = $class_ee_capture_exit->getValue();
 
 		// Enable exit exception.
-		$class_wp_cli_capture_exit->setValue( true );
+		$class_ee_capture_exit->setValue( true );
 
-		$logger = new \WP_CLI\Loggers\Execution;
-		WP_CLI::set_logger( $logger );
+		$logger = new \EE\Loggers\Execution;
+		EE::set_logger( $logger );
 
 		$exception = null;
 		try {
 			Utils\http_request( 'GET', 'https://nosuchhost_asdf_asdf_asdf.com', null /*data*/, array() /*headers*/, array( 'timeout' => 0.01 ) );
-		} catch ( \WP_CLI\ExitException $ex ) {
+		} catch ( \EE\ExitException $ex ) {
 			$exception = $ex;
 		}
 		$this->assertTrue( null !== $exception );
@@ -385,8 +363,8 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue( 0 === strpos( $logger->stderr, 'Error: Failed to get url' ) );
 
 		// Restore.
-		$class_wp_cli_logger->setValue( $prev_logger );
-		$class_wp_cli_capture_exit->setValue( $prev_capture_exit );
+		$class_ee_logger->setValue( $prev_logger );
+		$class_ee_capture_exit->setValue( $prev_capture_exit );
 	}
 
 	public function testHttpRequestBadCAcert() {
@@ -394,17 +372,17 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 			$this->markTestSkipped( 'curl not available' );
 		}
 
-		// Save WP_CLI state.
-		$class_wp_cli_logger = new \ReflectionProperty( 'WP_CLI', 'logger' );
-		$class_wp_cli_logger->setAccessible( true );
+		// Save EE state.
+		$class_ee_logger = new \ReflectionProperty( 'EE', 'logger' );
+		$class_ee_logger->setAccessible( true );
 
-		$prev_logger = $class_wp_cli_logger->getValue();
+		$prev_logger = $class_ee_logger->getValue();
 
 		$have_bad_cacert = false;
 		$created_dirs = array();
 
 		// Hack to create bad CAcert, using Utils\get_vendor_paths() preference for a path as part of a Composer-installed larger project.
-		$vendor_dir = WP_CLI_ROOT . '/../../../vendor';
+		$vendor_dir = EE_ROOT . '/../../../vendor';
 		$cert_path = '/rmccue/requests/library/Requests/Transport/cacert.pem';
 		$bad_cacert_path = $vendor_dir . $cert_path;
 		if ( ! file_exists( $bad_cacert_path ) ) {
@@ -432,8 +410,8 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 			$this->markTestSkipped( 'Unable to create bad CAcert.' );
 		}
 
-		$logger = new \WP_CLI\Loggers\Execution;
-		WP_CLI::set_logger( $logger );
+		$logger = new \EE\Loggers\Execution;
+		EE::set_logger( $logger );
 
 		Utils\http_request( 'GET', 'https://example.com' );
 
@@ -448,39 +426,7 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse( strpos( $logger->stderr, 'Error' ) );
 
 		// Restore.
-		$class_wp_cli_logger->setValue( $prev_logger );
-	}
-
-	public function testRunMysqlCommandProcDisabled() {
-		$err_msg = 'Error: Cannot do \'run_mysql_command\': The PHP functions `proc_open()` and/or `proc_close()` are disabled';
-
-		$cmd = 'php -ddisable_functions=proc_open php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'WP_CLI\\Utils\\run_mysql_command( null, array() );' ) . ' 2>&1';
-		$output = array();
-		exec( $cmd, $output );
-		$output = trim( implode( "\n", $output ) );
-		$this->assertTrue( false !== strpos( $output, $err_msg ) );
-
-		$cmd = 'php -ddisable_functions=proc_close php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'WP_CLI\\Utils\\run_mysql_command( null, array() );' ) . ' 2>&1';
-		$output = array();
-		exec( $cmd, $output );
-		$output = trim( implode( "\n", $output ) );
-		$this->assertTrue( false !== strpos( $output, $err_msg ) );
-	}
-
-	public function testLaunchEditorForInputProcDisabled() {
-		$err_msg = 'Error: Cannot do \'launch_editor_for_input\': The PHP functions `proc_open()` and/or `proc_close()` are disabled';
-
-		$cmd = 'php -ddisable_functions=proc_open php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'WP_CLI\\Utils\\launch_editor_for_input( null, null );' ) . ' 2>&1';
-		$output = array();
-		exec( $cmd, $output );
-		$output = trim( implode( "\n", $output ) );
-		$this->assertTrue( false !== strpos( $output, $err_msg ) );
-
-		$cmd = 'php -ddisable_functions=proc_close php/boot-fs.php --skip-wordpress eval ' . escapeshellarg( 'WP_CLI\\Utils\\launch_editor_for_input( null, null );' ) . ' 2>&1';
-		$output = array();
-		exec( $cmd, $output );
-		$output = trim( implode( "\n", $output ) );
-		$this->assertTrue( false !== strpos( $output, $err_msg ) );
+		$class_ee_logger->setValue( $prev_logger );
 	}
 
 	/**
@@ -524,20 +470,23 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider dataExpandGlobs
 	 */
 	public function testExpandGlobs( $path, $expected ) {
-		$expand_globs_no_glob_brace = getenv( 'WP_CLI_TEST_EXPAND_GLOBS_NO_GLOB_BRACE' );
+		$expand_globs_no_glob_brace = getenv( 'EE_TEST_EXPAND_GLOBS_NO_GLOB_BRACE' );
 
 		$dir = __DIR__ . '/data/expand_globs/';
 		$expected = array_map( function ( $v ) use ( $dir ) { return $dir . $v; }, $expected );
+		sort( $expected );
 
-		putenv( 'WP_CLI_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=0' );
+		putenv( 'EE_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=0' );
 		$out = Utils\expand_globs( $dir . $path );
+		sort( $out );
 		$this->assertSame( $expected, $out );
 
-		putenv( 'WP_CLI_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=1' );
+		putenv( 'EE_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=1' );
 		$out = Utils\expand_globs( $dir . $path );
+		sort( $out );
 		$this->assertSame( $expected, $out );
 
-		putenv( false === $expand_globs_no_glob_brace ? 'WP_CLI_TEST_EXPAND_GLOBS_NO_GLOB_BRACE' : "WP_CLI_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=$expand_globs_no_glob_brace" );
+		putenv( false === $expand_globs_no_glob_brace ? 'EE_TEST_EXPAND_GLOBS_NO_GLOB_BRACE' : "EE_TEST_EXPAND_GLOBS_NO_GLOB_BRACE=$expand_globs_no_glob_brace" );
 	}
 
 	public function dataExpandGlobs() {
@@ -562,34 +511,34 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 	 * @dataProvider dataReportBatchOperationResults
 	 */
 	public function testReportBatchOperationResults( $stdout, $stderr, $noun, $verb, $total, $successes, $failures, $skips ) {
-		// Save WP_CLI state.
-		$class_wp_cli_logger = new \ReflectionProperty( 'WP_CLI', 'logger' );
-		$class_wp_cli_logger->setAccessible( true );
-		$class_wp_cli_capture_exit = new \ReflectionProperty( 'WP_CLI', 'capture_exit' );
-		$class_wp_cli_capture_exit->setAccessible( true );
+		// Save EE state.
+		$class_ee_logger = new \ReflectionProperty( 'EE', 'logger' );
+		$class_ee_logger->setAccessible( true );
+		$class_ee_capture_exit = new \ReflectionProperty( 'EE', 'capture_exit' );
+		$class_ee_capture_exit->setAccessible( true );
 
-		$prev_logger = $class_wp_cli_logger->getValue();
-		$prev_capture_exit = $class_wp_cli_capture_exit->getValue();
+		$prev_logger = $class_ee_logger->getValue();
+		$prev_capture_exit = $class_ee_capture_exit->getValue();
 
 		// Enable exit exception.
-		$class_wp_cli_capture_exit->setValue( true );
+		$class_ee_capture_exit->setValue( true );
 
-		$logger = new \WP_CLI\Loggers\Execution;
-		WP_CLI::set_logger( $logger );
+		$logger = new \EE\Loggers\Execution;
+		EE::set_logger( $logger );
 
 		$exception = null;
 
 		try {
 			Utils\report_batch_operation_results( $noun, $verb, $total, $successes, $failures, $skips );
-		} catch ( \WP_CLI\ExitException $ex ) {
+		} catch ( \EE\ExitException $ex ) {
 			$exception = $ex;
 		}
 		$this->assertSame( $stdout, $logger->stdout );
 		$this->assertSame( $stderr, $logger->stderr );
 
 		// Restore.
-		$class_wp_cli_logger->setValue( $prev_logger );
-		$class_wp_cli_capture_exit->setValue( $prev_capture_exit );
+		$class_ee_logger->setValue( $prev_logger );
+		$class_ee_capture_exit->setValue( $prev_capture_exit );
 	}
 
 	public function dataReportBatchOperationResults() {
@@ -611,44 +560,44 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testGetPHPBinary() {
-		$env_php_used = getenv( 'WP_CLI_PHP_USED' );
-		$env_php = getenv( 'WP_CLI_PHP' );
+		$env_php_used = getenv( 'EE_PHP_USED' );
+		$env_php = getenv( 'EE_PHP' );
 
-		putenv( 'WP_CLI_PHP_USED' );
-		putenv( 'WP_CLI_PHP' );
+		putenv( 'EE_PHP_USED' );
+		putenv( 'EE_PHP' );
 		$get_php_binary = Utils\get_php_binary();
 		$this->assertTrue( is_executable( $get_php_binary ) );
 
-		putenv( 'WP_CLI_PHP_USED=/my-php-5.3' );
-		putenv( 'WP_CLI_PHP' );
+		putenv( 'EE_PHP_USED=/my-php-5.3' );
+		putenv( 'EE_PHP' );
 		$get_php_binary = Utils\get_php_binary();
 		$this->assertSame( $get_php_binary, '/my-php-5.3' );
 
-		putenv( 'WP_CLI_PHP=/my-php-7.3' );
+		putenv( 'EE_PHP=/my-php-7.3' );
 		$get_php_binary = Utils\get_php_binary();
-		$this->assertSame( $get_php_binary, '/my-php-5.3' ); // WP_CLI_PHP_USED wins.
+		$this->assertSame( $get_php_binary, '/my-php-5.3' ); // EE_PHP_USED wins.
 
-		putenv( 'WP_CLI_PHP_USED' );
+		putenv( 'EE_PHP_USED' );
 		$get_php_binary = Utils\get_php_binary();
 		$this->assertSame( $get_php_binary, '/my-php-7.3' );
 
-		putenv( false === $env_php_used ? 'WP_CLI_PHP_USED' : "WP_CLI_PHP_USED=$env_php_used" );
-		putenv( false === $env_php ? 'WP_CLI_PHP' : "WP_CLI_PHP=$env_php" );
+		putenv( false === $env_php_used ? 'EE_PHP_USED' : "EE_PHP_USED=$env_php_used" );
+		putenv( false === $env_php ? 'EE_PHP' : "EE_PHP=$env_php" );
 	}
 
 	/**
 	 * @dataProvider dataProcOpenCompatWinEnv
 	 */
 	public function testProcOpenCompatWinEnv( $cmd, $env, $expected_cmd, $expected_env ) {
-		$env_is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
+		$env_is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
 
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=1' );
+		putenv( 'EE_TEST_IS_WINDOWS=1' );
 
 		$cmd = Utils\_proc_open_compat_win_env( $cmd, $env );
 		$this->assertSame( $expected_cmd, $cmd );
 		$this->assertSame( $expected_env, $env );
 
-		putenv( false === $env_is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$env_is_windows" );
+		putenv( false === $env_is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$env_is_windows" );
 	}
 
 	function dataProcOpenCompatWinEnv() {
@@ -670,30 +619,6 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 			array( '_eNv=1 echo', array(), 'echo', array( '_eNv' => '1' ) ), // Mixed-case and beginning with underscore allowed.
 			array( 'ENV=\'blah blah\' echo', array(), 'blah\' echo', array( 'ENV' => '\'blah' ) ), // Unix escaping not supported, ie treated literally.
 		);
-	}
-
-	/**
-	 * Copied from core "tests/phpunit/tests/db.php" (adapted to not use `$wpdb`).
-	 */
-	function test_esc_like() {
-		$inputs   = array(
-			'howdy%', //Single Percent
-			'howdy_', //Single Underscore
-			'howdy\\', //Single slash
-			'howdy\\howdy%howdy_', //The works
-			'howdy\'"[[]*#[^howdy]!+)(*&$#@!~|}{=--`/.,<>?', //Plain text
-		);
-		$expected = array(
-			'howdy\\%',
-			'howdy\\_',
-			'howdy\\\\',
-			'howdy\\\\howdy\\%howdy\\_',
-			'howdy\'"[[]*#[^howdy]!+)(*&$#@!~|}{=--`/.,<>?',
-		);
-
-		foreach ( $inputs as $key => $input ) {
-			$this->assertEquals( $expected[ $key ], Utils\esc_like( $input ) );
-		}
 	}
 
 	/** @dataProvider dataIsJson */

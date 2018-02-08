@@ -8,7 +8,7 @@
  *     # Foo.
  *     $ wp foo
  */
-class CommandFactoryTests_Get_Doc_Comment_1_Command_Win extends WP_CLI_Command {
+class CommandFactoryTests_Get_Doc_Comment_1_Command_Win extends EE_Command {
 	/**
 	 * Command1 method
 	 *
@@ -64,7 +64,7 @@ final
  *     $ wp foo --final abstract
  class*/abstract class
   CommandFactoryTests_Get_Doc_Comment_2_Command_Win
- extends              WP_CLI_Command
+ extends              EE_Command
     {
 		function command1() {}
 	}

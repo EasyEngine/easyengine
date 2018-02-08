@@ -7,9 +7,9 @@ version=${1-"same"}
 current_rev=$(git rev-parse HEAD)
 current_rev=${current_rev:0:10}
 
-packages_repo=../wp-cli-packages
+packages_repo=../ee-packages
 
-fname="phar/wp-cli.phar"
+fname="phar/ee.phar"
 
 # generate archive
 php -dphar.readonly=0 ./utils/make-phar.php $packages_repo/$fname --quiet --version=$version --store-version
@@ -19,10 +19,10 @@ cd $packages_repo
 # smoke test
 php $fname --version
 
-# check which wp-cli commit the previous Phar archive was based on
+# check which ee commit the previous Phar archive was based on
 # can't use the md5 hash, since it will be different each time the
 # archive is generated
-new_commit_subj="update wp-cli.phar to wp-cli/wp-cli@$current_rev"
+new_commit_subj="update ee.phar to ee/ee@$current_rev"
 
 current_commit_subj=$(git show -s --pretty=format:%s HEAD)
 

@@ -1,8 +1,8 @@
 <?php
 
-use WP_CLI\Dispatcher\CommandFactory;
+use EE\Dispatcher\CommandFactory;
 
-require_once dirname( __DIR__ ) . '/php/class-wp-cli-command.php';
+require_once dirname( __DIR__ ) . '/php/class-ee-command.php';
 
 class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 
@@ -11,12 +11,12 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 	 */
 	function testExtractLastDocComment( $content, $expected ) {
 		// Save and set test env var.
-		$is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=0' );
+		$is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
+		putenv( 'EE_TEST_IS_WINDOWS=0' );
 
 		static $extract_last_doc_comment = null;
 		if ( null === $extract_last_doc_comment ) {
-			$extract_last_doc_comment = new \ReflectionMethod( 'WP_CLI\Dispatcher\CommandFactory', 'extract_last_doc_comment' );
+			$extract_last_doc_comment = new \ReflectionMethod( 'EE\Dispatcher\CommandFactory', 'extract_last_doc_comment' );
 			$extract_last_doc_comment->setAccessible( true );
 		}
 
@@ -24,7 +24,7 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expected, $actual );
 
 		// Restore.
-		putenv( false === $is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$is_windows" );
+		putenv( false === $is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$is_windows" );
 	}
 
 	/**
@@ -32,12 +32,12 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 	 */
 	function testExtractLastDocCommentWin( $content, $expected ) {
 		// Save and set test env var.
-		$is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=1' );
+		$is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
+		putenv( 'EE_TEST_IS_WINDOWS=1' );
 
 		static $extract_last_doc_comment = null;
 		if ( null === $extract_last_doc_comment ) {
-			$extract_last_doc_comment = new \ReflectionMethod( 'WP_CLI\Dispatcher\CommandFactory', 'extract_last_doc_comment' );
+			$extract_last_doc_comment = new \ReflectionMethod( 'EE\Dispatcher\CommandFactory', 'extract_last_doc_comment' );
 			$extract_last_doc_comment->setAccessible( true );
 		}
 
@@ -45,7 +45,7 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expected, $actual );
 
 		// Restore.
-		putenv( false === $is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$is_windows" );
+		putenv( false === $is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$is_windows" );
 	}
 
 	function dataProviderExtractLastDocComment() {
@@ -82,14 +82,14 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 
 	function testGetDocComment() {
 		// Save and set test env var.
-		$get_doc_comment = getenv( 'WP_CLI_TEST_GET_DOC_COMMENT' );
-		$is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
+		$get_doc_comment = getenv( 'EE_TEST_GET_DOC_COMMENT' );
+		$is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
 
-		putenv( 'WP_CLI_TEST_GET_DOC_COMMENT=1' );
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=0' );
+		putenv( 'EE_TEST_GET_DOC_COMMENT=1' );
+		putenv( 'EE_TEST_IS_WINDOWS=0' );
 
 		// Make private function accessible.
-		$get_doc_comment = new \ReflectionMethod( 'WP_CLI\Dispatcher\CommandFactory', 'get_doc_comment' );
+		$get_doc_comment = new \ReflectionMethod( 'EE\Dispatcher\CommandFactory', 'get_doc_comment' );
 		$get_doc_comment->setAccessible( true );
 
 		if ( ! class_exists( 'CommandFactoryTests_Get_Doc_Comment_1_Command', false ) ) {
@@ -244,20 +244,20 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expected, $actual );
 
 		// Restore.
-		putenv( false === $get_doc_comment ? 'WP_CLI_TEST_GET_DOC_COMMENT' : "WP_CLI_TEST_GET_DOC_COMMENT=$get_doc_comment" );
-		putenv( false === $is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$is_windows" );
+		putenv( false === $get_doc_comment ? 'EE_TEST_GET_DOC_COMMENT' : "EE_TEST_GET_DOC_COMMENT=$get_doc_comment" );
+		putenv( false === $is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$is_windows" );
 	}
 
 	function testGetDocCommentWin() {
 		// Save and set test env var.
-		$get_doc_comment = getenv( 'WP_CLI_TEST_GET_DOC_COMMENT' );
-		$is_windows = getenv( 'WP_CLI_TEST_IS_WINDOWS' );
+		$get_doc_comment = getenv( 'EE_TEST_GET_DOC_COMMENT' );
+		$is_windows = getenv( 'EE_TEST_IS_WINDOWS' );
 
-		putenv( 'WP_CLI_TEST_GET_DOC_COMMENT=1' );
-		putenv( 'WP_CLI_TEST_IS_WINDOWS=1' );
+		putenv( 'EE_TEST_GET_DOC_COMMENT=1' );
+		putenv( 'EE_TEST_IS_WINDOWS=1' );
 
 		// Make private function accessible.
-		$get_doc_comment = new \ReflectionMethod( 'WP_CLI\Dispatcher\CommandFactory', 'get_doc_comment' );
+		$get_doc_comment = new \ReflectionMethod( 'EE\Dispatcher\CommandFactory', 'get_doc_comment' );
 		$get_doc_comment->setAccessible( true );
 
 		if ( ! class_exists( 'CommandFactoryTests_Get_Doc_Comment_1_Command', false ) ) {
@@ -412,7 +412,7 @@ class CommandFactoryTests extends PHPUnit_Framework_TestCase {
 		$this->assertSame( $expected, $actual );
 
 		// Restore.
-		putenv( false === $get_doc_comment ? 'WP_CLI_TEST_GET_DOC_COMMENT' : "WP_CLI_TEST_GET_DOC_COMMENT=$get_doc_comment" );
-		putenv( false === $is_windows ? 'WP_CLI_TEST_IS_WINDOWS' : "WP_CLI_TEST_IS_WINDOWS=$is_windows" );
+		putenv( false === $get_doc_comment ? 'EE_TEST_GET_DOC_COMMENT' : "EE_TEST_GET_DOC_COMMENT=$get_doc_comment" );
+		putenv( false === $is_windows ? 'EE_TEST_IS_WINDOWS' : "EE_TEST_IS_WINDOWS=$is_windows" );
 	}
 }

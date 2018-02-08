@@ -1,6 +1,6 @@
 <?php
 
-use WP_CLI\DocParser;
+use EE\DocParser;
 
 class DocParserTests extends PHPUnit_Framework_TestCase {
 

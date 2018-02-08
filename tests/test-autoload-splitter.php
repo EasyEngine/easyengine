@@ -2,16 +2,16 @@
 /**
  * Test AutoloadSplitter class
  *
- * @package   WP_CLI\Tests\Unit
- * @author    WP-CLI Contributors
- * @copyright 2017 WP-CLI
+ * @package   EE\Tests\Unit
+ * @author    EE Contributors
+ * @copyright 2017 EE
  * @license   GPL-2.0+
  */
 
-namespace WP_CLI\Tests\Unit;
+namespace EE\Tests\Unit;
 
 use PHPUnit_Framework_TestCase;
-use WP_CLI\AutoloadSplitter;
+use EE\AutoloadSplitter;
 
 /**
  * Class AutoloadSplitterTest.
@@ -37,23 +37,23 @@ class AutoloadSplitterTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function dataCodePaths() {
 		return array(
-			array( '/wp-cli/a-command/', true ),
-			array( '/wp-cli/abcd-command/', true ),
-			array( '/wp-cli/a-b-c-d-e-f-g-h-i-j-k-l-m-n-o-p-q-r-s-t-u-v-w-x-y-z-command/', true ),
-			array( 'xyz/wp-cli/abcd-command/zxy', true ),
+			array( '/ee/a-command/', true ),
+			array( '/ee/abcd-command/', true ),
+			array( '/ee/a-b-c-d-e-f-g-h-i-j-k-l-m-n-o-p-q-r-s-t-u-v-w-x-y-z-command/', true ),
+			array( 'xyz/ee/abcd-command/zxy', true ),
 
 			array( '/php/commands/src/', true ),
 			array( 'xyz/php/commands/src/zyx', true ),
 
-			array( '/wp-cli/-command/', false ), // No command name.
-			array( '/wp-cli/--command/', false ), // No command name.
-			array( '/wp-cli/abcd-command-/', false ), // End is not '-command/`
-			array( '/wp-cli/abcd-/', false ), // End is not '-command/'.
-			array( '/wp-cli/abcd-command', false ), // End is not '-command/'.
-			array( 'wp-cli/abcd-command/', false ), // Start is not '/wp-cli/'.
-			array( '/wp--cli/abcd-command/', false ),  // Start is not '/wp-cli/'.
-			array( '/wp-cliabcd-command/', false ),  // Start is not '/wp-cli/'.
-			array( '/wp-cli//abcd-command/', false ),  // Middle contains two '/'.
+			array( '/ee/-command/', false ), // No command name.
+			array( '/ee/--command/', false ), // No command name.
+			array( '/ee/abcd-command-/', false ), // End is not '-command/`
+			array( '/ee/abcd-/', false ), // End is not '-command/'.
+			array( '/ee/abcd-command', false ), // End is not '-command/'.
+			array( 'ee/abcd-command/', false ), // Start is not '/ee/'.
+			array( '/wp--cli/abcd-command/', false ),  // Start is not '/ee/'.
+			array( '/eeabcd-command/', false ),  // Start is not '/ee/'.
+			array( '/ee//abcd-command/', false ),  // Middle contains two '/'.
 
 			array( '/php-/commands/src/', false ),  // Start is not '/php/'.
 			array( 'php/commands/src/', false ), // Start is not '/php/'.

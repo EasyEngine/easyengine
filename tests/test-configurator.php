@@ -1,6 +1,6 @@
 <?php
 
-use WP_CLI\Configurator;
+use EE\Configurator;
 
 class ConfiguratorTest extends PHPUnit_Framework_TestCase {
 

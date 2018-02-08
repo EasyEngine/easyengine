@@ -1,35 +1,35 @@
 <?php
 
-namespace WP_CLI;
+namespace EE;
 
-use WP_CLI\Bootstrap\BootstrapState;
+use EE\Bootstrap\BootstrapState;
 
 /**
- * Get the list of ordered steps that need to be processed to bootstrap WP-CLI.
+ * Get the list of ordered steps that need to be processed to bootstrap EE.
  *
  * Each entry is a fully qualified class name for a class implementing the
- * `WP_CLI\Bootstrap\BootstrapStep` interface.
+ * `EE\Bootstrap\BootstrapStep` interface.
  *
  * @return string[]
  */
 function get_bootstrap_steps() {
 	return array(
-		'WP_CLI\Bootstrap\LoadUtilityFunctions',
-		'WP_CLI\Bootstrap\LoadDispatcher',
-		'WP_CLI\Bootstrap\DeclareMainClass',
-		'WP_CLI\Bootstrap\DeclareAbstractBaseCommand',
-		'WP_CLI\Bootstrap\IncludeFrameworkAutoloader',
-		'WP_CLI\Bootstrap\ConfigureRunner',
-		'WP_CLI\Bootstrap\InitializeColorization',
-		'WP_CLI\Bootstrap\InitializeLogger',
-		'WP_CLI\Bootstrap\DefineProtectedCommands',
-		'WP_CLI\Bootstrap\LoadRequiredCommand',
-		'WP_CLI\Bootstrap\IncludePackageAutoloader',
-		'WP_CLI\Bootstrap\IncludeBundledAutoloader',
-		'WP_CLI\Bootstrap\RegisterFrameworkCommands',
-		'WP_CLI\Bootstrap\IncludeFallbackAutoloader',
-		'WP_CLI\Bootstrap\RegisterDeferredCommands',
-		'WP_CLI\Bootstrap\LaunchRunner',
+		'EE\Bootstrap\LoadUtilityFunctions',
+		'EE\Bootstrap\LoadDispatcher',
+		'EE\Bootstrap\DeclareMainClass',
+		'EE\Bootstrap\DeclareAbstractBaseCommand',
+		'EE\Bootstrap\IncludeFrameworkAutoloader',
+		'EE\Bootstrap\ConfigureRunner',
+		'EE\Bootstrap\InitializeColorization',
+		'EE\Bootstrap\InitializeLogger',
+		'EE\Bootstrap\DefineProtectedCommands',
+		'EE\Bootstrap\LoadRequiredCommand',
+		'EE\Bootstrap\IncludePackageAutoloader',
+		'EE\Bootstrap\IncludeBundledAutoloader',
+		'EE\Bootstrap\RegisterFrameworkCommands',
+		'EE\Bootstrap\IncludeFallbackAutoloader',
+		'EE\Bootstrap\RegisterDeferredCommands',
+		'EE\Bootstrap\LaunchRunner',
 	);
 }
 
@@ -40,13 +40,13 @@ function get_bootstrap_steps() {
  * custom autoloader to fetch the bootstrap classes in a flexible way.
  */
 function prepare_bootstrap() {
-	require_once WP_CLI_ROOT . '/php/WP_CLI/Autoloader.php';
+	require_once EE_ROOT . '/php/EE/Autoloader.php';
 
 	$autoloader = new Autoloader();
 
 	$autoloader->add_namespace(
-		'WP_CLI\Bootstrap',
-		WP_CLI_ROOT . '/php/WP_CLI/Bootstrap'
+		'EE\Bootstrap',
+		EE_ROOT . '/php/EE/Bootstrap'
 	)->register();
 }
 
@@ -70,7 +70,7 @@ function bootstrap() {
 	$state = initialize_bootstrap_state();
 
 	foreach ( get_bootstrap_steps() as $step ) {
-		/** @var \WP_CLI\Bootstrap\BootstrapStep $step_instance */
+		/** @var \EE\Bootstrap\BootstrapStep $step_instance */
 		$step_instance = new $step();
 		$state = $step_instance->process( $state );
 	}

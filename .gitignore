@@ -9,3 +9,12 @@ PHAR_BUILD_VERSION
 /codesniffer
 /PHP_Codesniffer-VariableAnalysis
 .*.swp
+launch.json
+ee.iml
+modules.xml
+php.xml
+php-test-framework.xml
+vcs.xml
+workspace.xml
+profiles_settings.xml
+Project_Default.xml
