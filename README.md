@@ -1,4 +1,4 @@
-#[EasyEngine](https://easyengine.io/)
+# [EasyEngine](https://easyengine.io/)
 
 [![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg)](https://travis-ci.org/EasyEngine/easyengine) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
@@ -108,18 +108,17 @@ ee site create example.com --php --pagespeed     # create example.com php site w
 | **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
 
 ## Useful Links
-- [Documentation] (http://docs.rtcamp.com/easyengine/)
-- [FAQ] (http://docs.rtcamp.com/easyengine/faq.html)
-- [Conventions used] (http://rtcamp.com/wordpress-nginx/tutorials/conventions/)
-- [EasyEngine Premium Support] (https://rtcamp.com/products/easyengine-premium-support/)
+- [Documentation](https://easyengine.io/docs/)
+- [FAQ](https://easyengine.io/faq/)
+- [Conventions used](https://easyengine.io/wordpress-nginx/tutorials/conventions/)
+
+## Community Guides
+- [Develop and Deploy with EasyEngine + VVV + Wordmove](https://github.com/joeguilmette/ee-vvv-wordmove)
 
 ## Donations
 
-[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)]  (https://rtcamp.com/donate/?project=easyengine)
-
+[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
 [![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
 
----
-
 ## License
-[MIT] (http://opensource.org/licenses/MIT)
+[MIT](http://opensource.org/licenses/MIT)

@@ -1,4 +1,4 @@
-Please attach the output of following command when open a new support request.
+Kindly, attach the output of the following commands while creating a new support request.
 
 - [ ] lsb_release -a
 - [ ] ee -v
