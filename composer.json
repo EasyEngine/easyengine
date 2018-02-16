@@ -40,7 +40,8 @@
 		"symfony/yaml": "^2.7|^3.0",
 		"wp-cli/autoload-splitter": "^0.1.5",
 		"wp-cli/mustangostang-spyc": "^0.6.3",
-		"wp-cli/php-cli-tools": "~0.11.2"
+		"wp-cli/php-cli-tools": "~0.11.2",
+		"ee/site-command": "dev-master"
 	},
 	"suggest": {
 		"psy/psysh": "Enhanced shell functionality"
@@ -59,5 +60,11 @@
 			"split-target-prefix-true": "autoload_commands",
 			"split-target-prefix-false": "autoload_framework"
 		}
-	}
+	},
+	"repositories": {
+        "ee/site-command": {
+            "type": "vcs",
+            "url": "git@git.rtcamp.com:riddhesh.sanghvi/site-command.git"
+        }
+    }
 }
