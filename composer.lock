@@ -268,7 +268,7 @@
             "source": {
                 "type": "git",
                 "url": "git@git.rtcamp.com:riddhesh.sanghvi/site-command.git",
-                "reference": "370cccfe7e4f2025a95d368cbc21e57c54c5fc2c"
+                "reference": "d39f2d8ac70d792c0a7dd0e80661b79b4bab29fb"
             },
             "type": "wp-cli-package",
             "extra": {
@@ -293,7 +293,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/ee/site",
-            "time": "2018-02-16T08:29:11+00:00"
+            "time": "2018-02-20T12:38:08+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
