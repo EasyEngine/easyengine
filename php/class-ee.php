@@ -620,8 +620,9 @@ class EE {
 	/**
 	 * Ask for confirmation before running a destructive operation.
 	 *
-	 * If 'y' is provided to the question, the script execution continues. If
-	 * 'n' or any other response is provided to the question, script exits.
+	 * If 'y' is provided to the question, the script execution continues and returns true. If
+	 * 'n' or any other response is provided to the question, script exits if
+	 * $exit is set to true. Otherwise the script returns false.
 	 *
 	 * @access public
 	 * @category Input
@@ -629,16 +630,20 @@ class EE {
 	 * @param string $question Question to display before the prompt.
 	 * @param array $assoc_args Skips prompt if 'yes' is provided.
 	 */
-	public static function confirm( $question, $assoc_args = array() ) {
+	public static function confirm( $question, $assoc_args = array(), $exit = true ) {
 		if ( ! \EE\Utils\get_flag_value( $assoc_args, 'yes' ) ) {
 			fwrite( STDOUT, $question . ' [y/n] ' );
 
 			$answer = strtolower( trim( fgets( STDIN ) ) );
 
 			if ( 'y' != $answer ) {
-				exit;
+				if( $exit === true )
+					exit;
+				return false;
 			}
+			return true;
 		}
+		return true;
 	}
 
 	/**
