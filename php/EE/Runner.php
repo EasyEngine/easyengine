@@ -6,6 +6,7 @@ use EE;
 use EE\Utils;
 use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
+use Mustangostang\Spyc;
 
 /**
  * Performs the execution of a command.
@@ -477,7 +478,7 @@ class Runner {
 		{
 			$this->global_config_path = $this->get_global_config_path();
 			$this->project_config_path = $this->get_project_config_path();
-
+			
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
 			$config = $configurator->to_array();
 			$this->_required_files['global'] = $config[0]['require'];
@@ -503,6 +504,47 @@ class Runner {
 			$this->aliases = array_reverse( $this->aliases );
 		}
 		$this->_required_files['runtime'] = $this->config['require'];
+	}
+	
+	private function check_sites_path() {
+		
+		if ( empty($this->config['sites_path']) ) {
+			$this->config['sites_path'] = \cli\prompt("Enter path where sites will be stored", '~/Sites/');
+			
+			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_dir_path = dirname( $config_file_path );
+			
+			if ( file_exists( $config_file_path ) ) {
+				if ( is_readable( $config_file_path ) ) {
+					if ( is_writable( $config_file_path ) ) {
+						$existing_config = Spyc::YAMLLoad ( $config_file_path );
+						$this->add_sites_path_to_config_file( $config_file_path, $existing_config );
+						return;
+					}
+					EE::error("The config file {$config_file_path} is not writable. Please set a config path which is writable in EE_CONFIG_PATH environment variable.");
+				}
+				EE::error("The config file {$config_file_path} is not readable. Please select a config path which is readable in EE_CONFIG_PATH environment variable.");
+			}
+			else {
+				if ( is_writable( $config_dir_path ) ) {
+					$this->add_sites_path_to_config_file( $config_file_path );
+					return;
+				}
+				$mkdir_success = mkdir ( $config_dir_path , 0755, true );
+				if ( ! $mkdir_success ) {
+					EE::error("The config file path ${$config_dir_path} is not writable. Please select a config path which is writable in EE_CONFIG_PATH environment variable.");
+				}
+				$this->add_sites_path_to_config_file( $config_file_path );
+			}
+		}
+	}
+
+	private function add_sites_path_to_config_file( $config_file_path, $config = [] ) {
+		$config['sites_path'] = $this->config['sites_path'];
+
+		$config_file = fopen( $config_file_path, "w" );
+		fwrite( $config_file, Spyc::YAMLDump( $config ) );
+		fclose( $config_file );
 	}
 
 	private function check_root() {
@@ -575,6 +617,8 @@ class Runner {
 	}
 
 	public function start() {
+
+		$this->check_sites_path();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {

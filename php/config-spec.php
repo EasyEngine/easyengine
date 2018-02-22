@@ -39,6 +39,13 @@ return array(
 		'desc' => '(Sub)commands to disable.',
 	),
 
+	'sites_path' => array(
+		'runtime' => '=<path>',
+		'file' => '<path>',
+		'default' => null,
+		'desc' => 'Absolute path to where all sites will be stored.',
+	),
+
 	'color' => array(
 		'runtime' => true,
 		'file' => '<bool>',
