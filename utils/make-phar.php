@@ -188,10 +188,6 @@ if ( 'cli' === BUILD ) {
 } else {
 	$finder
 		->in(EE_VENDOR_DIR . '/ee')
-		->in(EE_ROOT . '/features/bootstrap') // These are required for scaffold-package-command.
-		->in(EE_ROOT . '/features/steps')
-		->in(EE_ROOT . '/features/extra')
-		->in(EE_VENDOR_DIR . '/nb/oxymel')
 		->in(EE_VENDOR_DIR . '/psr')
 		->in(EE_VENDOR_DIR . '/seld')
 		->in(EE_VENDOR_DIR . '/symfony/console')
@@ -252,24 +248,6 @@ if ( 'cli' !== BUILD ) {
 		}
 	}
 
-	$finder = new Finder();
-	$finder
-		->files()
-		->ignoreVCS(true)
-		->ignoreDotFiles(false)
-		->in( EE_VENDOR_DIR . '/ee/config-command/templates')
-		;
-	foreach ( $finder as $file ) {
-		add_file( $phar, $file );
-	}
-
-	$finder = new Finder();
-	$finder
-		->files()
-		->ignoreVCS(true)
-		->ignoreDotFiles(false)
-		->in( EE_VENDOR_DIR . '/ee/scaffold-command/templates')
-		;
 	foreach ( $finder as $file ) {
 		add_file( $phar, $file );
 	}
@@ -279,7 +257,6 @@ add_file( $phar, EE_VENDOR_DIR . '/autoload.php' );
 add_file( $phar, EE_VENDOR_DIR . '/autoload_commands.php' );
 add_file( $phar, EE_VENDOR_DIR . '/autoload_framework.php' );
 if ( 'cli' !== BUILD ) {
-	add_file( $phar, EE_ROOT . '/ci/behat-tags.php' );
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/LICENSE' );
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/res/composer-schema.json' );
 }
