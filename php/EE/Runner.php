@@ -626,6 +626,7 @@ class Runner {
 	public function start() {
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/Sites' );
+		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
