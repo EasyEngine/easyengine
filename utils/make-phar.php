@@ -12,6 +12,8 @@ if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 	fwrite( STDERR, 'Missing vendor/autoload.php' . PHP_EOL );
 	exit(1);
 }
+
+require EE_ROOT . '/php/class-ee.php';
 require EE_VENDOR_DIR . '/autoload.php';
 require EE_ROOT . '/php/utils.php';
 
