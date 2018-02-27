@@ -41,7 +41,7 @@
 		"wp-cli/autoload-splitter": "^0.1.5",
 		"wp-cli/mustangostang-spyc": "^0.6.3",
 		"wp-cli/php-cli-tools": "~0.11.2",
-		"ee/site-command": "dev-master"
+		"ee/site-command": "dev-develop"
 	},
 	"suggest": {
 		"psy/psysh": "Enhanced shell functionality"
@@ -64,7 +64,7 @@
 	"repositories": {
         "ee/site-command": {
             "type": "vcs",
-            "url": "git@git.rtcamp.com:riddhesh.sanghvi/site-command.git"
+            "url": "git@git.rtcamp.com:sys/site-command.git"
         }
     }
 }

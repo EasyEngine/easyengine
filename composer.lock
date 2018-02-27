@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c1f486af18c6815f4ca7927a79b2cf7f",
+    "content-hash": "1eb596923d6e6dbca943799dfacaab8b",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -264,11 +264,11 @@
         },
         {
             "name": "ee/site-command",
-            "version": "dev-master",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
-                "url": "git@git.rtcamp.com:riddhesh.sanghvi/site-command.git",
-                "reference": "d39f2d8ac70d792c0a7dd0e80661b79b4bab29fb"
+                "url": "git@git.rtcamp.com:sys/site-command.git",
+                "reference": "cd06622a5e6895f03bb9760fa4822c10c2464f02"
             },
             "type": "wp-cli-package",
             "extra": {
@@ -293,7 +293,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/ee/site",
-            "time": "2018-02-20T12:38:08+00:00"
+            "time": "2018-02-27T05:34:19+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
