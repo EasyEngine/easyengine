@@ -179,8 +179,8 @@ $finder
 	;
 if ( 'cli' === BUILD ) {
 	$finder
-		->in(EE_VENDOR_DIR . '/ee/mustangostang-spyc')
-		->in(EE_VENDOR_DIR . '/ee/php-cli-tools')
+		->in(EE_VENDOR_DIR . '/wp-cli/mustangostang-spyc')
+		->in(EE_VENDOR_DIR . '/wp-cli/php-cli-tools')
 		->in(EE_VENDOR_DIR . '/seld/cli-prompt')
 		->exclude('composer/ca-bundle')
 		->exclude('composer/semver')
@@ -190,6 +190,7 @@ if ( 'cli' === BUILD ) {
 } else {
 	$finder
 		->in(EE_VENDOR_DIR . '/ee')
+		->in(EE_VENDOR_DIR . '/wp-cli')
 		->in(EE_VENDOR_DIR . '/psr')
 		->in(EE_VENDOR_DIR . '/seld')
 		->in(EE_VENDOR_DIR . '/symfony/console')
