@@ -223,6 +223,7 @@ $finder
 	->ignoreVCS(true)
 	->ignoreDotFiles(false)
 	->in( EE_ROOT . '/templates')
+	->in(EE_ROOT . '/ee4-config')
 	;
 
 foreach ( $finder as $file ) {
