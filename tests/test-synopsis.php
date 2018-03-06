@@ -1,6 +1,6 @@
 <?php
 
-use WP_CLI\SynopsisParser;
+use EE\SynopsisParser;
 
 class SynopsisParserTest extends PHPUnit_Framework_TestCase {
 

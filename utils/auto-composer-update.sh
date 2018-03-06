@@ -9,16 +9,16 @@
 
 date
 
-if [ -z "$WP_CLI_DIR" ]; then
-	echo 'Please set $WP_CLI_DIR'
+if [ -z "$EE_DIR" ]; then
+	echo 'Please set $EE_DIR'
 	exit 1
 fi
 
 set -ex
 
-cd $WP_CLI_DIR
+cd $EE_DIR
 
-# Reset WP-CLI directory to baseline
+# Reset EE directory to baseline
 git checkout -f master
 git pull origin master
 composer install

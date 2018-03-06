@@ -1,9 +1,9 @@
 <?php
 
-use WP_CLI\FileCache;
-use WP_CLI\Utils;
+use EE\FileCache;
+use EE\Utils;
 
-require_once dirname( __DIR__ ) . '/php/class-wp-cli.php';
+require_once dirname( __DIR__ ) . '/php/class-ee.php';
 
 class FileCacheTest extends PHPUnit_Framework_TestCase {
 
@@ -14,7 +14,7 @@ class FileCacheTest extends PHPUnit_Framework_TestCase {
 		$max_size = 32;
 		$ttl = 60;
 
-		$cache_dir = Utils\get_temp_dir() . uniqid( 'wp-cli-test-file-cache', true );
+		$cache_dir = Utils\get_temp_dir() . uniqid( 'ee-test-file-cache', true );
 
 		$cache = new FileCache( $cache_dir, $ttl, $max_size );
 		$this->assertSame( $cache_dir . '/', $cache->get_root() );
@@ -32,16 +32,16 @@ class FileCacheTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_ensure_dir_exists() {
-		$class_wp_cli_logger = new ReflectionProperty( 'WP_CLI', 'logger' );
-		$class_wp_cli_logger->setAccessible( true );
-		$prev_logger = $class_wp_cli_logger->getValue();
+		$class_ee_logger = new ReflectionProperty( 'EE', 'logger' );
+		$class_ee_logger->setAccessible( true );
+		$prev_logger = $class_ee_logger->getValue();
 
-		$logger = new WP_CLI\Loggers\Execution;
-		WP_CLI::set_logger( $logger );
+		$logger = new EE\Loggers\Execution;
+		EE::set_logger( $logger );
 
 		$max_size = 32;
 		$ttl = 60;
-		$cache_dir = Utils\get_temp_dir() . uniqid( 'wp-cli-test-file-cache', true );
+		$cache_dir = Utils\get_temp_dir() . uniqid( 'ee-test-file-cache', true );
 
 		$cache = new FileCache( $cache_dir, $ttl, $max_size );
 		$test_class = new ReflectionClass( $cache );
@@ -79,6 +79,6 @@ class FileCacheTest extends PHPUnit_Framework_TestCase {
 		rmdir( $cache_dir . '/test1' );
 		unlink( $cache_dir . '/test2' );
 		rmdir( $cache_dir );
-		$class_wp_cli_logger->setValue( $prev_logger );
+		$class_ee_logger->setValue( $prev_logger );
 	}
 }

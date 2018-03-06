@@ -1,11 +1,11 @@
 <?php
 
-use WP_CLI\Extractor;
-use WP_CLI\Utils;
+use EE\Extractor;
+use EE\Utils;
 
 class Extractor_Test extends PHPUnit_Framework_TestCase {
 
-	static $copy_overwrite_files_prefix = 'wp-cli-test-utils-copy-overwrite-files-';
+	static $copy_overwrite_files_prefix = 'ee-test-utils-copy-overwrite-files-';
 
 	static $expected_wp = array(
 		'index1.php',
@@ -28,12 +28,12 @@ class Extractor_Test extends PHPUnit_Framework_TestCase {
 		parent::setUp();
 
 		// Save and set logger.
-		$class_wp_cli_logger = new \ReflectionProperty( 'WP_CLI', 'logger' );
-		$class_wp_cli_logger->setAccessible( true );
-		self::$prev_logger = $class_wp_cli_logger->getValue();
+		$class_ee_logger = new \ReflectionProperty( 'EE', 'logger' );
+		$class_ee_logger->setAccessible( true );
+		self::$prev_logger = $class_ee_logger->getValue();
 
-		self::$logger = new \WP_CLI\Loggers\Execution;
-		WP_CLI::set_logger( self::$logger );
+		self::$logger = new \EE\Loggers\Execution;
+		EE::set_logger( self::$logger );
 
 		// Remove any failed tests detritus.
 		$temp_dirs = Utils\get_temp_dir() . self::$copy_overwrite_files_prefix . '*';
@@ -44,7 +44,7 @@ class Extractor_Test extends PHPUnit_Framework_TestCase {
 
 	public function tearDown() {
 		// Restore logger.
-		WP_CLI::set_logger( self::$prev_logger );
+		EE::set_logger( self::$prev_logger );
 
 		parent::tearDown();
 	}
@@ -112,11 +112,24 @@ class Extractor_Test extends PHPUnit_Framework_TestCase {
 		// Create test tarball.
 		$output = array();
 		$return_var = -1;
-		// Need --force-local for Windows to avoid "C:" being interpreted as being on remote machine.
-		exec( Utils\esc_cmd( 'tar czvf %1$s --force-local --directory=%2$s/src wordpress', $tarball, $temp_dir ), $output, $return_var );
+		// Need --force-local for Windows to avoid "C:" being interpreted as being on remote machine, and redirect for Mac as outputs verbosely on STDERR.
+		$cmd = 'tar czvf %1$s' . ( Utils\is_windows() ? ' --force-local' : '' ) . ' --directory=%2$s/src wordpress 2>&1';
+		exec( Utils\esc_cmd( $cmd, $tarball, $temp_dir ), $output, $return_var );
 		$this->assertSame( 0, $return_var );
 		$this->assertFalse( empty( $output ) );
+
+		// Normalize (Mac) output.
+		$output = array_map( function ( $v ) {
+			if ( 'a ' === substr( $v, 0, 2 ) ) {
+				$v = substr( $v, 2 );
+			}
+			if ( '/' !== substr( $v, -1 ) && false === strpos( $v, '.' ) ) {
+				$v .= '/';
+			}
+			return $v;
+		}, $output );
 		sort( $output );
+
 		$this->assertSame( self::recursive_scandir( $src_dir ), $output );
 
 		// Test.

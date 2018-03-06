@@ -1,12 +1,12 @@
 <?php
 
-use \WP_CLI\Utils;
-use \WP_CLI\Dispatcher;
+use \EE\Utils;
+use \EE\Dispatcher;
 
-class Help_Command extends WP_CLI_Command {
+class Help_Command extends EE_Command {
 
 	/**
-	 * Get help on WP-CLI, or on a specific command.
+	 * Get help on EE, or on a specific command.
 	 *
 	 * ## OPTIONS
 	 *
@@ -16,13 +16,13 @@ class Help_Command extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     # get help for `core` command
-	 *     wp help core
+	 *     ee help core
 	 *
 	 *     # get help for `core download` subcommand
-	 *     wp help core download
+	 *     ee help core download
 	 */
 	public function __invoke( $args, $assoc_args ) {
-		$r = WP_CLI::get_runner()->find_command_to_run( $args );
+		$r = EE::get_runner()->find_command_to_run( $args );
 
 		if ( is_array( $r ) ) {
 			list( $command ) = $r;
@@ -88,7 +88,7 @@ class Help_Command extends WP_CLI_Command {
 		}
 
 		// section headers
-		$out = preg_replace( '/^## ([A-Z ]+)/m', WP_CLI::colorize( '%9\1%n' ), $out );
+		$out = preg_replace( '/^## ([A-Z ]+)/m', EE::colorize( '%9\1%n' ), $out );
 
 		self::pass_through_pager( $out );
 	}
@@ -110,7 +110,7 @@ class Help_Command extends WP_CLI_Command {
 	private static function pass_through_pager( $out ) {
 
 		if ( ! Utils\check_proc_available( null /*context*/, true /*return*/ ) ) {
-			WP_CLI::debug( 'Warning: check_proc_available() failed in pass_through_pager().', 'help' );
+			EE::debug( 'Warning: check_proc_available() failed in pass_through_pager().', 'help' );
 			return $out;
 		}
 
@@ -121,7 +121,7 @@ class Help_Command extends WP_CLI_Command {
 		// For Windows 7 need to set code page to something other than Unicode (65001) to get around "Not enough memory." error with `more.com` on PHP 7.1+.
 		if ( 'more' === $pager && defined( 'PHP_WINDOWS_VERSION_MAJOR' ) && PHP_WINDOWS_VERSION_MAJOR < 10 && function_exists( 'sapi_windows_cp_set' ) ) {
 			// Note will also apply to Windows 8 (see http://msdn.microsoft.com/en-us/library/windows/desktop/ms724832.aspx) but probably harmless anyway.
-			$cp = getenv( 'WP_CLI_WINDOWS_CODE_PAGE' ) ?: 1252; // Code page 1252 is the most used so probably the most compat.
+			$cp = getenv( 'EE_WINDOWS_CODE_PAGE' ) ?: 1252; // Code page 1252 is the most used so probably the most compat.
 			sapi_windows_cp_set( $cp ); // `sapi_windows_cp_set()` introduced PHP 7.1.
 		}
 
@@ -165,7 +165,7 @@ class Help_Command extends WP_CLI_Command {
 		$subcommands = array();
 		foreach ( $command->get_subcommands() as $subcommand ) {
 
-			if ( WP_CLI::get_runner()->is_command_disabled( $subcommand ) ) {
+			if ( EE::get_runner()->is_command_disabled( $subcommand ) ) {
 				continue;
 			}
 
@@ -236,5 +236,5 @@ class Help_Command extends WP_CLI_Command {
 	}
 }
 
-WP_CLI::add_command( 'help', 'Help_Command' );
+EE::add_command( 'help', 'Help_Command' );
 

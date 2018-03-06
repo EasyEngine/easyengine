@@ -1,17 +1,8 @@
 <?php
 
-return array(
-	'path' => array(
-		'runtime' => '=<path>',
-		'file' => '<path>',
-		'desc' => 'Path to the WordPress files.',
-	),
+# Global configuration file for EE.
 
-	'url' => array(
-		'runtime' => '=<url>',
-		'file' => '<url>',
-		'desc' => 'Pretend request came from given URL. In multisite, this argument is how the target site is specified.',
-	),
+return array(
 
 	'ssh' => array(
 		'runtime' => '=[<scheme>:][<user>@]<host|container>[:<port>][<path>]',
@@ -19,36 +10,13 @@ return array(
 		'desc' => 'Perform operation against a remote server over SSH (or a container using scheme of "docker", "docker-compose", "vagrant").',
 	),
 
-	'http' => array(
-		'runtime' => '=<http>',
-		'file' => '<http>',
-		'desc' => 'Perform operation against a remote WordPress install over HTTP.',
-	),
-
-	'blog' => array(
-		'deprecated' => 'Use --url instead.',
-		'runtime' => '=<url>',
-	),
-
-	'user' => array(
-		'runtime' => '=<id|login|email>',
-		'file' => '<id|login|email>',
-		'desc' => 'Set the WordPress user.',
-	),
-
-	'skip-plugins' => array(
-		'runtime' => '[=<plugin>]',
-		'file' => '<list>',
-		'desc' => 'Skip loading all or some plugins. Note: mu-plugins are still loaded.',
-		'default' => '',
-	),
-
-	'skip-themes' => array(
-		'runtime' => '[=<theme>]',
-		'file' => '<list>',
-		'desc' => 'Skip loading all or some themes.',
-		'default' => '',
-	),
+	# Used by wp-cli to control wp site remotely.
+	# Might be useful in future for controlling ee remotely.
+	// 'http' => array(
+	// 	'runtime' => '=<http>',
+	// 	'file' => '<http>',
+	// 	'desc' => 'Reserved for future.',
+	// ),
 
 	'skip-packages' => array(
 		'runtime'   => '',
@@ -71,6 +39,13 @@ return array(
 		'desc' => '(Sub)commands to disable.',
 	),
 
+	'sites_path' => array(
+		'runtime' => '=<path>',
+		'file' => '<path>',
+		'default' => null,
+		'desc' => 'Absolute path to where all sites will be stored.',
+	),
+
 	'color' => array(
 		'runtime' => true,
 		'file' => '<bool>',
@@ -82,7 +57,7 @@ return array(
 		'runtime' => '[=<group>]',
 		'file' => '<group>',
 		'default' => false,
-		'desc' => 'Show all PHP errors; add verbosity to WP-CLI bootstrap.',
+		'desc' => 'Show all PHP errors; add verbosity to EE bootstrap.',
 	),
 
 	'prompt' => array(
@@ -99,14 +74,7 @@ return array(
 		'desc' => 'Suppress informational messages.',
 	),
 
-	'apache_modules' => array(
-		'file' => '<list>',
-		'desc' => 'List of Apache Modules that are to be reported as loaded.',
-		'multiple' => true,
-		'default' => array(),
-	),
-
-	# --allow-root => (NOT RECOMMENDED) Allow wp-cli to run as root. This poses
+	# --allow-root => (NOT RECOMMENDED) Allow ee to run as root. This poses
 	# a security risk, so you probably do not want to do this.
 	'allow-root' => array(
 		'file' => false, # Explicit. Just in case the default changes.

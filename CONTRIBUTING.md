@@ -3,7 +3,7 @@ Contributing
 
 Welcome and thanks!
 
-We appreciate you taking the initiative to contribute to WP-CLI. It’s because of you, and the community around you, that WP-CLI is such a great project.
+We appreciate you taking the initiative to contribute to EE. It’s because of you, and the community around you, that EE is such a great project.
 
 **Contributing isn’t limited to just code.** We encourage you to contribute in the way that best fits your abilities, by writing tutorials, giving a demo at your local meetup, helping other users with their support questions, or revising our documentation.
 

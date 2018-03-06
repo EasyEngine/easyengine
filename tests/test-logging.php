@@ -1,6 +1,6 @@
 <?php
 
-class MockRegularLogger extends WP_CLI\Loggers\Regular {
+class MockRegularLogger extends EE\Loggers\Regular {
 
 	protected function get_runner() {
 		return (object) array (
@@ -15,7 +15,7 @@ class MockRegularLogger extends WP_CLI\Loggers\Regular {
 	}
 }
 
-class MockQuietLogger extends WP_CLI\Loggers\Quiet {
+class MockQuietLogger extends EE\Loggers\Quiet {
 
 	protected function get_runner() {
 		return (object) array (
@@ -51,7 +51,7 @@ class LoggingTests extends PHPUnit_Framework_TestCase {
 
 	function testExecutionLogger() {
 		// Save Runner config.
-		$runner = WP_CLI::get_runner();
+		$runner = EE::get_runner();
 		$runner_config = new \ReflectionProperty( $runner, 'config' );
 		$runner_config->setAccessible( true );
 
@@ -60,7 +60,7 @@ class LoggingTests extends PHPUnit_Framework_TestCase {
 		// Set debug.
 		$runner_config->setValue( $runner, array( 'debug' => true ) );
 
-		$logger = new WP_CLI\Loggers\Execution;
+		$logger = new EE\Loggers\Execution;
 
 		// Standard use.
 

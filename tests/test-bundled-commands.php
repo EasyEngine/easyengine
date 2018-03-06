@@ -1,7 +1,7 @@
 <?php
 
-use WP_CLI\Utils;
-use WP_CLI\Dispatcher\CompositeCommand;
+use EE\Utils;
+use EE\Dispatcher\CompositeCommand;
 
 // Mock class to test whether `CLI_Command` will be found.
 class CLI_Command extends CompositeCommand {
