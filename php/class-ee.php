@@ -74,7 +74,7 @@ class EE {
 
 		if ( ! $cache ) {
 			$home = Utils\get_home_dir();
-			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee/cache";
+			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee4/cache";
 
 			// 6 months, 300mb
 			$cache = new FileCache( $dir, 15552000, 314572800 );
