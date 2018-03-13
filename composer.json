@@ -71,6 +71,10 @@
         "ee/site-command": {
             "type": "vcs",
             "url": "git@git.rtcamp.com:sys/site-command.git"
+        },
+        "ee/wp-command": {
+            "type": "vcs",
+            "url": "git@git.rtcamp.com:sys/wp-command.git"
         }
 	}
 }
