@@ -24,6 +24,8 @@
 		"php": ">=5.3.29",
 		"composer/composer": "^1.2.0",
 		"composer/semver": "~1.0",
+		"ee/site-command": "dev-develop",
+		"funkjedi/composer-include-files": "^1.0",
 		"justinrainbow/json-schema": "~5.2.5",
 		"mustache/mustache": "~2.4",
 		"ramsey/array_column": "~1.1",
@@ -39,20 +41,31 @@
 		"symfony/translation": "^2.7|^3.0",
 		"symfony/yaml": "^2.7|^3.0",
 		"wp-cli/mustangostang-spyc": "^0.6.3",
-		"wp-cli/php-cli-tools": "~0.11.2",
-		"ee/site-command": "dev-develop"
+		"wp-cli/php-cli-tools": "~0.11.2"
 	},
 	"suggest": {
 		"psy/psysh": "Enhanced shell functionality"
 	},
 	"autoload": {
-		"psr-0": { "EE": "php" },
-		"psr-4": { "": "php/commands/src" }
+		"psr-0": {
+		    "EE": "php",
+		    "EE\\Bootstrap": "php/EE/Bootstrap"
+		},
+
+		"psr-4": {
+			"": "php/commands/src"
+		 }
 	},
 	"extra": {
 		"branch-alias": {
 			"dev-master": "1.5.x-dev"
-		}
+		},
+		"include_files": [
+			"php/utils.php",
+			"php/dispatcher.php",
+			"php/class-ee.php",
+			"php/class-ee-command.php"
+		]
 	},
 	"repositories": {
         "ee/site-command": {

@@ -14,11 +14,6 @@ use EE\Bootstrap\BootstrapState;
  */
 function get_bootstrap_steps() {
 	return array(
-		'EE\Bootstrap\LoadUtilityFunctions',
-		'EE\Bootstrap\LoadDispatcher',
-		'EE\Bootstrap\DeclareMainClass',
-		'EE\Bootstrap\DeclareAbstractBaseCommand',
-		'EE\Bootstrap\IncludeAutoloader',
 		'EE\Bootstrap\ConfigureRunner',
 		'EE\Bootstrap\InitializeColorization',
 		'EE\Bootstrap\InitializeLogger',
@@ -64,7 +59,8 @@ function initialize_bootstrap_state() {
  */
 function bootstrap() {
 
-	prepare_bootstrap();
+	// prepare_bootstrap();
+	require_once EE_VENDOR_DIR . '/autoload.php';
 	$state = initialize_bootstrap_state();
 
 	foreach ( get_bootstrap_steps() as $step ) {
