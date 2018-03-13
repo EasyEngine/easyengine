@@ -26,23 +26,6 @@ function get_bootstrap_steps() {
 }
 
 /**
- * Register the classes needed for the bootstrap process.
- *
- * The Composer autoloader is not active yet at this point, so we need to use a
- * custom autoloader to fetch the bootstrap classes in a flexible way.
- */
-function prepare_bootstrap() {
-	require_once EE_ROOT . '/php/EE/Autoloader.php';
-
-	$autoloader = new Autoloader();
-
-	$autoloader->add_namespace(
-		'EE\Bootstrap',
-		EE_ROOT . '/php/EE/Bootstrap'
-	)->register();
-}
-
-/**
  * Initialize and return the bootstrap state to pass from step to step.
  *
  * @return BootstrapState
@@ -59,7 +42,6 @@ function initialize_bootstrap_state() {
  */
 function bootstrap() {
 
-	// prepare_bootstrap();
 	require_once EE_VENDOR_DIR . '/autoload.php';
 	$state = initialize_bootstrap_state();
 
