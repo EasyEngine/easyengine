@@ -3,14 +3,14 @@
 namespace EE\Bootstrap;
 
 /**
- * Class IncludeFallbackAutoloader.
+ * Class IncludeAutoloader.
  *
- * Loads the fallback autoloader that is provided through the `composer.json`
+ * Loads the autoloader that is provided through the `composer.json`
  * file.
  *
  * @package EE\Bootstrap
  */
-final class IncludeFallbackAutoloader extends AutoloaderStep {
+final class IncludeAutoloader extends AutoloaderStep {
 
 	/**
 	 * Get the autoloader paths to scan for an autoloader.

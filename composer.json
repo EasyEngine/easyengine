@@ -38,7 +38,6 @@
 		"symfony/process": "^2.1|^3.0",
 		"symfony/translation": "^2.7|^3.0",
 		"symfony/yaml": "^2.7|^3.0",
-		"wp-cli/autoload-splitter": "^0.1.5",
 		"wp-cli/mustangostang-spyc": "^0.6.3",
 		"wp-cli/php-cli-tools": "~0.11.2",
 		"ee/site-command": "dev-develop"
@@ -53,12 +52,6 @@
 	"extra": {
 		"branch-alias": {
 			"dev-master": "1.5.x-dev"
-		},
-		"autoload-splitter": {
-			"splitter-logic": "EE\\AutoloadSplitter",
-			"splitter-location": "php/EE/AutoloadSplitter.php",
-			"split-target-prefix-true": "autoload_commands",
-			"split-target-prefix-false": "autoload_framework"
 		}
 	},
 	"repositories": {
@@ -66,5 +59,5 @@
             "type": "vcs",
             "url": "git@git.rtcamp.com:sys/site-command.git"
         }
-    }
+	}
 }

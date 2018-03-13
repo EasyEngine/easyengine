@@ -18,16 +18,13 @@ function get_bootstrap_steps() {
 		'EE\Bootstrap\LoadDispatcher',
 		'EE\Bootstrap\DeclareMainClass',
 		'EE\Bootstrap\DeclareAbstractBaseCommand',
-		'EE\Bootstrap\IncludeFrameworkAutoloader',
+		'EE\Bootstrap\IncludeAutoloader',
 		'EE\Bootstrap\ConfigureRunner',
 		'EE\Bootstrap\InitializeColorization',
 		'EE\Bootstrap\InitializeLogger',
 		'EE\Bootstrap\DefineProtectedCommands',
 		'EE\Bootstrap\LoadRequiredCommand',
 		'EE\Bootstrap\IncludePackageAutoloader',
-		'EE\Bootstrap\IncludeBundledAutoloader',
-		'EE\Bootstrap\RegisterFrameworkCommands',
-		'EE\Bootstrap\IncludeFallbackAutoloader',
 		'EE\Bootstrap\RegisterDeferredCommands',
 		'EE\Bootstrap\LaunchRunner',
 	);
@@ -66,6 +63,7 @@ function initialize_bootstrap_state() {
  * `process()` method.
  */
 function bootstrap() {
+
 	prepare_bootstrap();
 	$state = initialize_bootstrap_state();
 
