@@ -57,7 +57,10 @@
         },
         "psr-4": {
             "": "php/commands/src"
-        }
+        },
+        "files": [
+            "php/class-ee-db.php"
+        ]
     },
     "extra": {
         "branch-alias": {

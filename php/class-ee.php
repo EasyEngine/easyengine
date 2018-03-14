@@ -22,6 +22,8 @@ class EE {
 
 	private static $deferred_additions = array();
 
+	private static $db;
+
 	/**
 	 * Set the logger instance.
 	 *
@@ -1051,5 +1053,13 @@ class EE {
 	 */
 	public static function run_command( $args, $assoc_args = array() ) {
 		self::get_runner()->run_command( $args, $assoc_args );
+	}
+
+	public static function db() {
+		if ( empty( self::$db ) ) {
+			self::$db = new EE_DB();
+		}
+
+		return self::$db;
 	}
 }

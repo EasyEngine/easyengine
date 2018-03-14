@@ -1307,3 +1307,87 @@ function parse_shell_arrays( $assoc_args, $array_arguments ) {
 
 	return $assoc_args;
 }
+
+/**
+ * Remove trailing slash from a string.
+ *
+ * @param string $str Input string.
+ *
+ * @return string String without trailing slash.
+ */
+function remove_trailing_slash( $str ) {
+
+	return rtrim( $str, '/' );
+}
+
+/**
+ * Function to recursively copy directory.
+ *
+ * @param string $source Source directory.
+ * @param string $dest   Destination directory.
+ *
+ * @return bool Success.
+ */
+function copy_recursive( $source, $dest ) {
+
+	if ( ! is_dir( $dest ) ) {
+		if ( ! @mkdir( $dest, 0755 ) ) {
+			return false;
+		}
+	}
+
+	foreach (
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $source, \RecursiveDirectoryIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::SELF_FIRST
+		) as $item
+	) {
+		if ( $item->isDir() ) {
+			mkdir( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+		} else {
+			copy( $item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+		}
+	}
+
+	return true;
+}
+
+/**
+ * Delete directory.
+ *
+ * @param string $dir path to directory.
+ */
+function delete_dir( $dir ) {
+	$it    = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
+	$files = new RecursiveIteratorIterator(
+		$it,
+		RecursiveIteratorIterator::CHILD_FIRST
+	);
+	foreach ( $files as $file ) {
+		if ( $file->isDir() ) {
+			@rmdir( $file->getRealPath() );
+		} else {
+			@unlink( $file->getRealPath() );
+		}
+	}
+	if ( @rmdir( $dir ) ) {
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Function to generate random password.
+ */
+function random_password() {
+	$alphabet    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+	$pass        = array();
+	$alphaLength = strlen( $alphabet ) - 1;
+	for ( $i = 0; $i < 12; $i ++ ) {
+		$n      = rand( 0, $alphaLength );
+		$pass[] = $alphabet[$n];
+	}
+
+	return implode( $pass );
+}
