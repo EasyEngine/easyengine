@@ -514,6 +514,7 @@ class EE {
 	 */
 	public static function log( $message ) {
 		self::$logger->info( $message );
+		self::$file_logger->info( $message );
 	}
 
 	/**
@@ -568,6 +569,7 @@ class EE {
 	 */
 	public static function warning( $message ) {
 		self::$logger->warning( self::error_to_string( $message ) );
+		self::$file_logger->warning( $message );
 	}
 
 	/**
@@ -589,6 +591,7 @@ class EE {
 	public static function error( $message, $exit = true ) {
 		if ( ! isset( self::get_runner()->assoc_args['completions'] ) ) {
 			self::$logger->error( self::error_to_string( $message ) );
+			self::$file_logger->error( $message );
 		}
 
 		$return_code = false;
