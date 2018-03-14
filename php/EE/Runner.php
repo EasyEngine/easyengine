@@ -44,6 +44,24 @@ class Runner {
 	}
 
 	/**
+	 * Function to check and create the root directory for ee4.
+	 */
+	private function init_ee4() {
+
+		if ( ! is_dir( EE_CONF_ROOT ) ) {
+			mkdir( EE_CONF_ROOT );
+		}
+
+		if ( ! is_dir( $this->config['sites_path'] ) ) {
+			mkdir( $this->config['sites_path'] );
+		}
+		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
+		define( 'DB', EE_CONF_ROOT . 'ee4.db' );
+		define( 'LOCALHOST_IP', '127.0.0.1' );
+		define( 'TABLE', 'sites' );
+	}
+
+	/**
 	 * Register a command for early invocation, generally before WordPress loads.
 	 *
 	 * @param string $when Named execution hook
@@ -627,6 +645,7 @@ class Runner {
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/Sites' );
 		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
+		$this->init_ee4();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
