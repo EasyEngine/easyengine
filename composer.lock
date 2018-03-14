@@ -298,32 +298,31 @@
             "time": "2018-03-06 13:44:05"
         },
         {
-            "name": "funkjedi/composer-include-files",
-            "version": "1.0.0",
+            "name": "ee/wp-command",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/funkjedi/composer-include-files.git",
-                "reference": "5e96f2e46537d99b8b72662796955dba739e251f"
+                "url": "git@git.rtcamp.com:sys/wp-command.git",
+                "reference": "84a03ca8cd9c227e51eb5d082e9f4bacfd8de188"
             },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/funkjedi/composer-include-files/zipball/5e96f2e46537d99b8b72662796955dba739e251f",
-                "reference": "5e96f2e46537d99b8b72662796955dba739e251f",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.0"
-            },
-            "type": "composer-plugin",
+            "type": "wp-cli-package",
             "extra": {
-                "class": "ComposerIncludeFiles\\Plugin"
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                },
+                "bundled": true,
+                "commands": [
+                    "wp"
+                ]
             },
             "autoload": {
                 "psr-4": {
-                    "ComposerIncludeFiles\\": "src"
-                }
+                    "": "src/"
+                },
+                "files": [
+                    "wp-command.php"
+                ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
