@@ -24,6 +24,8 @@ class EE {
 
 	private static $db;
 
+	private static $file_logger;
+
 	/**
 	 * Set the logger instance.
 	 *
@@ -31,6 +33,24 @@ class EE {
 	 */
 	public static function set_logger( $logger ) {
 		self::$logger = $logger;
+	}
+
+	/**
+	 * Set the file logger instance.
+	 *
+	 * @param object $file_logger
+	 */
+	public static function set_file_logger( $file_logger ) {
+		self::$file_logger = $file_logger;
+	}
+
+	/**
+	 * Return file logger object.
+	 *
+	 * @return object $file_logger
+	 */
+	public static function get_file_logger() {
+		return self::$file_logger;
 	}
 
 	/**

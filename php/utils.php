@@ -1358,10 +1358,10 @@ function copy_recursive( $source, $dest ) {
  * @param string $dir path to directory.
  */
 function delete_dir( $dir ) {
-	$it    = new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS );
-	$files = new RecursiveIteratorIterator(
+	$it    = new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS );
+	$files = new \RecursiveIteratorIterator(
 		$it,
-		RecursiveIteratorIterator::CHILD_FIRST
+		\RecursiveIteratorIterator::CHILD_FIRST
 	);
 	foreach ( $files as $file ) {
 		if ( $file->isDir() ) {
