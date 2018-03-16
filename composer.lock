@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a9ef06ee2e7c71f95f0adab7d3140c5",
+    "content-hash": "c49b9beeb8ba141ad744f1b829be3228",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -268,7 +268,7 @@
             "source": {
                 "type": "git",
                 "url": "git@git.rtcamp.com:sys/site-command.git",
-                "reference": "5219c4d025ed7f24bb612c411481ba54c793847b"
+                "reference": "ef5f7f4c8aaf5fb3ec509c28919eeb2d2b082dbd"
             },
             "type": "wp-cli-package",
             "extra": {
@@ -295,7 +295,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/ee/site",
-            "time": "2018-03-06T13:44:05+00:00"
+            "time": "2018-03-16T10:32:50+00:00"
         },
         {
             "name": "ee/wp-command",
@@ -303,7 +303,7 @@
             "source": {
                 "type": "git",
                 "url": "git@git.rtcamp.com:sys/wp-command.git",
-                "reference": "84a03ca8cd9c227e51eb5d082e9f4bacfd8de188"
+                "reference": "5dd0e04c2f11a2b1ed1bb25e26a9c55e6f4d66a4"
             },
             "type": "wp-cli-package",
             "extra": {
@@ -327,7 +327,51 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/wp-command",
-            "time": "2018-03-13T12:33:49+00:00"
+            "time": "2018-03-16T10:51:04+00:00"
+        },
+        {
+            "name": "funkjedi/composer-include-files",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/funkjedi/composer-include-files.git",
+                "reference": "5e96f2e46537d99b8b72662796955dba739e251f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/funkjedi/composer-include-files/zipball/5e96f2e46537d99b8b72662796955dba739e251f",
+                "reference": "5e96f2e46537d99b8b72662796955dba739e251f",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "ComposerIncludeFiles\\Plugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "ComposerIncludeFiles\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Robertson",
+                    "email": "funkjedi@gmail.com"
+                }
+            ],
+            "description": "Include files at a higher priority than autoload files.",
+            "homepage": "https://github.com/funkjedi/composer-include-files",
+            "keywords": [
+                "autoload",
+                "composer"
+            ],
+            "time": "2016-12-23T18:15:30+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -1416,47 +1460,6 @@
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
             "time": "2018-01-03T07:36:31+00:00"
-        },
-        {
-            "name": "wp-cli/autoload-splitter",
-            "version": "v0.1.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/wp-cli/autoload-splitter.git",
-                "reference": "fb4302da26390811d2631c62b42b75976d224bb8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/wp-cli/autoload-splitter/zipball/fb4302da26390811d2631c62b42b75976d224bb8",
-                "reference": "fb4302da26390811d2631c62b42b75976d224bb8",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.1"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "WP_CLI\\AutoloadSplitter\\ComposerPlugin"
-            },
-            "autoload": {
-                "psr-4": {
-                    "WP_CLI\\AutoloadSplitter\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alain Schlesser",
-                    "email": "alain.schlesser@gmail.com",
-                    "homepage": "https://www.alainschlesser.com"
-                }
-            ],
-            "description": "Composer plugin for splitting a generated autoloader into two distinct parts.",
-            "homepage": "https://wp-cli.org",
-            "time": "2017-08-03T08:40:16+00:00"
         },
         {
             "name": "wp-cli/mustangostang-spyc",
