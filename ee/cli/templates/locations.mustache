@@ -46,7 +46,7 @@ location /nginx_status {
   access_log off;
   include common/acl.conf;
 }
-location ~ ^/(status|ping) {
+location ~ ^/(status|ping)$ {
   include fastcgi_params;
   fastcgi_pass php;
   include common/acl.conf;
