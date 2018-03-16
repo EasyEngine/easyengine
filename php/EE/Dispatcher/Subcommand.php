@@ -285,7 +285,7 @@ class Subcommand extends CompositeCommand {
 		}
 
 		$unknown_positionals = $validator->unknown_positionals( $args );
-		if ( ! empty( $unknown_positionals ) ) {
+		if ( ! empty( $unknown_positionals ) && 'wp' !== $this->name ) {
 			\EE::error(
 				'Too many positional arguments: ' .
 				implode( ' ', $unknown_positionals )

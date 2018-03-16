@@ -22,6 +22,10 @@ class EE {
 
 	private static $deferred_additions = array();
 
+	private static $db;
+
+	private static $file_logger;
+
 	/**
 	 * Set the logger instance.
 	 *
@@ -29,6 +33,24 @@ class EE {
 	 */
 	public static function set_logger( $logger ) {
 		self::$logger = $logger;
+	}
+
+	/**
+	 * Set the file logger instance.
+	 *
+	 * @param object $file_logger
+	 */
+	public static function set_file_logger( $file_logger ) {
+		self::$file_logger = $file_logger;
+	}
+
+	/**
+	 * Return file logger object.
+	 *
+	 * @return object $file_logger
+	 */
+	public static function get_file_logger() {
+		return self::$file_logger;
 	}
 
 	/**
@@ -492,6 +514,7 @@ class EE {
 	 */
 	public static function log( $message ) {
 		self::$logger->info( $message );
+		self::$file_logger->info( $message );
 	}
 
 	/**
@@ -546,6 +569,7 @@ class EE {
 	 */
 	public static function warning( $message ) {
 		self::$logger->warning( self::error_to_string( $message ) );
+		self::$file_logger->warning( $message );
 	}
 
 	/**
@@ -567,6 +591,7 @@ class EE {
 	public static function error( $message, $exit = true ) {
 		if ( ! isset( self::get_runner()->assoc_args['completions'] ) ) {
 			self::$logger->error( self::error_to_string( $message ) );
+			self::$file_logger->error( $message );
 		}
 
 		$return_code = false;
@@ -1051,5 +1076,13 @@ class EE {
 	 */
 	public static function run_command( $args, $assoc_args = array() ) {
 		self::get_runner()->run_command( $args, $assoc_args );
+	}
+
+	public static function db() {
+		if ( empty( self::$db ) ) {
+			self::$db = new EE_DB();
+		}
+
+		return self::$db;
 	}
 }

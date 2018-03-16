@@ -7,6 +7,9 @@ use EE\Utils;
 use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
 use Mustangostang\Spyc;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\LineFormatter;
 
 /**
  * Performs the execution of a command.
@@ -41,6 +44,24 @@ class Runner {
 		}
 
 		return $this->$key;
+	}
+
+	/**
+	 * Function to check and create the root directory for ee4.
+	 */
+	private function init_ee4() {
+
+		if ( ! is_dir( EE_CONF_ROOT ) ) {
+			mkdir( EE_CONF_ROOT );
+		}
+
+		if ( ! is_dir( $this->config['sites_path'] ) ) {
+			mkdir( $this->config['sites_path'] );
+		}
+		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
+		define( 'DB', EE_CONF_ROOT . '/ee4.db' );
+		define( 'LOCALHOST_IP', '127.0.0.1' );
+		define( 'TABLE', 'sites' );
 	}
 
 	/**
@@ -458,6 +479,16 @@ class Runner {
 		}
 
 		EE::set_logger( $logger );
+
+		$dateFormat = 'd-m-Y H:i:s';
+		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
+		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
+		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee4.log', Logger::DEBUG );
+		$stream->setFormatter( $formatter );
+		$file_logger = new \Monolog\Logger( 'ee4' );
+		$file_logger->pushHandler( $stream );
+		$file_logger->info( '::::::::::::::::::::::::ee4 invoked::::::::::::::::::::::::' );
+		EE::set_file_logger( $file_logger );
 	}
 
 	public function get_required_files() {
@@ -627,6 +658,7 @@ class Runner {
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/Sites' );
 		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
+		$this->init_ee4();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
