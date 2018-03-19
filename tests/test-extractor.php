@@ -33,7 +33,9 @@ class Extractor_Test extends PHPUnit_Framework_TestCase {
 		self::$prev_logger = $class_ee_logger->getValue();
 
 		self::$logger = new \EE\Loggers\Execution;
+		$logger_quiet = new \EE\Loggers\Quiet;
 		EE::set_logger( self::$logger );
+		EE::set_file_logger( $logger_quiet );
 
 		// Remove any failed tests detritus.
 		$temp_dirs = Utils\get_temp_dir() . self::$copy_overwrite_files_prefix . '*';
