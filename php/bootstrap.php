@@ -14,15 +14,40 @@ use EE\Bootstrap\BootstrapState;
  */
 function get_bootstrap_steps() {
 	return array(
+		'EE\Bootstrap\LoadUtilityFunctions',
+		'EE\Bootstrap\LoadDispatcher',
+		'EE\Bootstrap\DeclareMainClass',
+		'EE\Bootstrap\DeclareAbstractBaseCommand',
+		'EE\Bootstrap\IncludeFrameworkAutoloader',
 		'EE\Bootstrap\ConfigureRunner',
 		'EE\Bootstrap\InitializeColorization',
 		'EE\Bootstrap\InitializeLogger',
 		'EE\Bootstrap\DefineProtectedCommands',
 		'EE\Bootstrap\LoadRequiredCommand',
 		'EE\Bootstrap\IncludePackageAutoloader',
+		'EE\Bootstrap\IncludeBundledAutoloader',
+		'EE\Bootstrap\RegisterFrameworkCommands',
+		'EE\Bootstrap\IncludeFallbackAutoloader',
 		'EE\Bootstrap\RegisterDeferredCommands',
 		'EE\Bootstrap\LaunchRunner',
 	);
+}
+
+/**
+ * Register the classes needed for the bootstrap process.
+ *
+ * The Composer autoloader is not active yet at this point, so we need to use a
+ * custom autoloader to fetch the bootstrap classes in a flexible way.
+ */
+function prepare_bootstrap() {
+	require_once EE_ROOT . '/php/EE/Autoloader.php';
+
+	$autoloader = new Autoloader();
+
+	$autoloader->add_namespace(
+		'EE\Bootstrap',
+		EE_ROOT . '/php/EE/Bootstrap'
+	)->register();
 }
 
 /**
@@ -41,8 +66,7 @@ function initialize_bootstrap_state() {
  * `process()` method.
  */
 function bootstrap() {
-
-	require_once EE_VENDOR_DIR . '/autoload.php';
+	prepare_bootstrap();
 	$state = initialize_bootstrap_state();
 
 	foreach ( get_bootstrap_steps() as $step ) {
