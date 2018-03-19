@@ -14,5 +14,5 @@ if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
 
 define( 'EE_ROOT', dirname( __DIR__ ) );
 
-include_once EE_ROOT . '/php/ee.php';
+include_once EE_ROOT . '/php/init-ee.php';
 

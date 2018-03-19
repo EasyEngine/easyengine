@@ -15,7 +15,6 @@ if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 	define( 'EE_VENDOR_DIR' , dirname( dirname( EE_ROOT ) ) );
 }
 
-require_once EE_ROOT . '/php/class-ee.php';
 require_once EE_VENDOR_DIR . '/autoload.php';
 require_once EE_ROOT . '/php/utils.php';
 
