@@ -1,15 +1,15 @@
 {
-    "name": "easyengine/ee",
-    "description": "The command line interface for WordPress",
+    "name": "mrrobot47/ee",
+    "description": "The command line interface for EasyEngine",
     "keywords": [
         "cli",
-        "wordpress"
+        "easyengine"
     ],
-    "homepage": "https://ee.org",
+    "homepage": "https://easyengine.io",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/ee/ee/issues",
-        "source": "https://github.com/ee/ee",
+        "issues": "https://github.com/mrrobot47/ee4/issues",
+        "source": "https://github.com/mrrobot47/ee4",
         "docs": "https://make.wordpress.org/cli/handbook/"
     },
     "bin": [
@@ -28,8 +28,8 @@
         "php": ">=5.3.29",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
-        "ee/site-command": "dev-master",
-        "ee/wp-command": "dev-master",
+        "mrrobot47/site-command": "^1.0",
+        "mrrobot47/wp-command": "^1.0",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
         "mustache/mustache": "~2.4",
@@ -80,16 +80,6 @@
             "splitter-location": "php/EE/AutoloadSplitter.php",
             "split-target-prefix-true": "autoload_commands",
             "split-target-prefix-false": "autoload_framework"
-        }
-    },
-    "repositories": {
-        "ee/site-command": {
-            "type": "vcs",
-            "url": "git@git.rtcamp.com:sys/site-command.git"
-        },
-        "ee/wp-command": {
-            "type": "vcs",
-            "url": "git@git.rtcamp.com:sys/wp-command.git"
         }
     }
 }
