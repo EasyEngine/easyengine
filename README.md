@@ -9,7 +9,7 @@ EEv4
 
 ## Installing
 
-Once you've verified requirements, download the [ee.phar](https://raw.github.com/mbtamuli/ee4-builds/master/ee.phar) file using `wget` or `curl`:
+Once you've verified requirements, download the [ee4.phar](https://raw.githubusercontent.com/mrrobot47/ee4-builds/master/ee4.phar) file using `wget` or `curl`:
 
 ```bash
 curl -O https://raw.githubusercontent.com/mbtamuli/ee4-builds/master/ee.phar
