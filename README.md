@@ -12,7 +12,7 @@ EEv4
 Once you've verified requirements, download the [ee4.phar](https://raw.githubusercontent.com/mrrobot47/ee4-builds/master/ee4.phar) file using `wget` or `curl`:
 
 ```bash
-curl -O https://raw.githubusercontent.com/mbtamuli/ee4-builds/master/ee.phar
+curl -O https://raw.githubusercontent.com/mrrobot47/ee4-builds/master/ee4.phar
 ```
 
 Next, check the Phar file to verify that it's working:

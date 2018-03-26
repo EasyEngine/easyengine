@@ -28,7 +28,7 @@
         "php": ">=5.3.29",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
-        "mrrobot47/site-command": "^1.0",
+        "mrrobot47/site-command": "1.1",
         "mrrobot47/wp-command": "^1.0",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc67c7e6e907eb0d250a46fde17c7deb",
+    "content-hash": "c5535e4f84bef0ddd529133f3c4bbe3e",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -408,16 +408,16 @@
         },
         {
             "name": "mrrobot47/site-command",
-            "version": "v1.0",
+            "version": "v1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrrobot47/site-command.git",
-                "reference": "3c97096613fba41e027b5b07d57876f23c507ddc"
+                "reference": "551278bd995ff8f30eb2062b9564cbe684eaae06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrrobot47/site-command/zipball/3c97096613fba41e027b5b07d57876f23c507ddc",
-                "reference": "3c97096613fba41e027b5b07d57876f23c507ddc",
+                "url": "https://api.github.com/repos/mrrobot47/site-command/zipball/551278bd995ff8f30eb2062b9564cbe684eaae06",
+                "reference": "551278bd995ff8f30eb2062b9564cbe684eaae06",
                 "shasum": ""
             },
             "type": "wp-cli-package",
@@ -446,7 +446,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/mrrobot47/site-command",
-            "time": "2018-03-20T13:22:14+00:00"
+            "time": "2018-03-26T06:23:33+00:00"
         },
         {
             "name": "mrrobot47/wp-command",
@@ -2139,12 +2139,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "1b2f1f59ff8fc933e4d61ee45214ff3228e20c75"
+                "reference": "4a272b63452f4d8ff0d48a759e59db9359a9b5b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1b2f1f59ff8fc933e4d61ee45214ff3228e20c75",
-                "reference": "1b2f1f59ff8fc933e4d61ee45214ff3228e20c75",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/4a272b63452f4d8ff0d48a759e59db9359a9b5b7",
+                "reference": "4a272b63452f4d8ff0d48a759e59db9359a9b5b7",
                 "shasum": ""
             },
             "conflict": {
@@ -2217,7 +2217,7 @@
                 "simplesamlphp/simplesamlphp": "<1.15.2",
                 "simplesamlphp/simplesamlphp-module-infocard": "<1.0.1",
                 "socalnick/scn-social-auth": "<1.15.2",
-                "squizlabs/php_codesniffer": ">=1,<2.8.1",
+                "squizlabs/php_codesniffer": ">=1,<2.8.1|>=3,<3.0.1",
                 "stormpath/sdk": ">=0,<9.9.99",
                 "swiftmailer/swiftmailer": ">=4,<5.4.5",
                 "symfony/dependency-injection": ">=2,<2.0.17",
@@ -2246,11 +2246,13 @@
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "willdurand/js-translation-bundle": "<2.1.1",
                 "yiisoft/yii": ">=1.1.14,<1.1.15",
-                "yiisoft/yii2": "<2.0.14",
+                "yiisoft/yii2": "<2.0.15",
                 "yiisoft/yii2-bootstrap": "<2.0.4",
-                "yiisoft/yii2-dev": "<2.0.14",
+                "yiisoft/yii2-dev": "<2.0.15",
+                "yiisoft/yii2-elasticsearch": "<2.0.5",
                 "yiisoft/yii2-gii": "<2.0.4",
                 "yiisoft/yii2-jui": "<2.0.4",
+                "yiisoft/yii2-redis": "<2.0.8",
                 "zendframework/zend-cache": ">=2.4,<2.4.8|>=2.5,<2.5.3",
                 "zendframework/zend-captcha": ">=2,<2.4.9|>=2.5,<2.5.2",
                 "zendframework/zend-crypt": ">=2,<2.4.9|>=2.5,<2.5.2",
@@ -2288,7 +2290,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-03-15T17:53:05+00:00"
+            "time": "2018-03-22T21:16:54+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",

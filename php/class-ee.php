@@ -551,6 +551,7 @@ class EE {
 	 */
 	public static function debug( $message, $group = false ) {
 		self::$logger->debug( self::error_to_string( $message ), $group );
+		self::$file_logger->debug( $message );
 	}
 
 	/**
