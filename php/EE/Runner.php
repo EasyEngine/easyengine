@@ -65,6 +65,34 @@ class Runner {
 	}
 
 	/**
+	 * Start dnsmasq.
+	 */
+	private function init_dnsmasq() {
+		$is_dnsmasq_running = EE::launch( "docker inspect -f '{{.State.Running}}' dnsmasq", false, true );
+
+		if ( ! $is_dnsmasq_running->return_code ) {
+			if ( preg_match( '/false/', $is_dnsmasq_running->stdout ) ) {
+				// Start it.
+				$start_dnsmasq = EE::launch( "docker start dnsmasq", false, true );
+				if ( $start_dnsmasq->return_code ) {
+					EE::error( 'There was some error in starting the dnsmasq container.' );
+				}
+			}
+		} else {
+			$HOME = HOME;
+			// Create it.
+			if ( ! touch( "$HOME/.ee4/ee4_hosts" ) ) {
+				EE::error( 'Could not create dnsmasq host file.' );
+			}
+			$create_dnsmasq = EE::launch( "docker run --name dnsmasq -d -p 127.0.0.1:53:53/udp -v $HOME/.ee4/ee4_hosts:/etc/ee4_hosts --restart always dharmin/dnsmasq-ee", false );
+
+			if ( $create_dnsmasq ) {
+				EE::error( "dnsmasq could not be created." );
+			}
+		}
+	}
+
+	/**
 	 * Register a command for early invocation, generally before WordPress loads.
 	 *
 	 * @param string $when Named execution hook
@@ -659,6 +687,7 @@ class Runner {
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/Sites' );
 		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
 		$this->init_ee4();
+		$this->init_dnsmasq();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
