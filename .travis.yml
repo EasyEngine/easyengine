@@ -25,9 +25,10 @@ script:
   - lsb_release -a
   - unset LANG
   - sudo bash -c 'echo -e "[user]\n\tname = abc\n\temail = root@localhost.com" > /home/travis/.gitconfig'
-  - sudo echo "Travis Banch = $TRAVIS_BRANCH"
+  - BRANCH="${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH}"
+  - sudo echo "Running build for branch = $use_branch"
   - sudo apt-get install -y --force-yes git python3-setuptools python3-dev python3-apt
-  - sudo bash install $TRAVIS_BRANCH
+  - sudo bash install $BRANCH
   - sudo ee --help
   - sudo ee stack install || sudo tail -n50 /var/log/ee/ee.log
   - sudo ee stack install --web || sudo tail -n50 /var/log/ee/ee.log
