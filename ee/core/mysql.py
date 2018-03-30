@@ -133,5 +133,4 @@ class EEMysql():
             return False
         except MySQLConnectionError as e:
             Log.debug(self, str(e))
-            raise MySQLConnectionError
-            #return False
+            return False
