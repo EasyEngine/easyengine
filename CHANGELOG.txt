@@ -1,4 +1,5 @@
-v3.7.5 - Jan 12, 2018
+v3.7.5 - Mar 30, 2018
+- Replace pymysql3 with PyMySQL [critical]
 - Upgrade wp-cli version to 1.4.1
 - Update templates to skip cache for more plugins
 
