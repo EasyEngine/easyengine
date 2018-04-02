@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "c5535e4f84bef0ddd529133f3c4bbe3e",
+    "content-hash": "eadd9cb62b4a7d18b91ff2685df55fc6",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -408,16 +408,16 @@
         },
         {
             "name": "mrrobot47/site-command",
-            "version": "v1.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mrrobot47/site-command.git",
-                "reference": "551278bd995ff8f30eb2062b9564cbe684eaae06"
+                "reference": "2a3c41646e21c06d0c4e0d2a65496e8c523da57d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mrrobot47/site-command/zipball/551278bd995ff8f30eb2062b9564cbe684eaae06",
-                "reference": "551278bd995ff8f30eb2062b9564cbe684eaae06",
+                "url": "https://api.github.com/repos/mrrobot47/site-command/zipball/2a3c41646e21c06d0c4e0d2a65496e8c523da57d",
+                "reference": "2a3c41646e21c06d0c4e0d2a65496e8c523da57d",
                 "shasum": ""
             },
             "type": "wp-cli-package",
@@ -441,12 +441,15 @@
                     "site-command.php"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "homepage": "https://github.com/mrrobot47/site-command",
-            "time": "2018-03-26T06:23:33+00:00"
+            "support": {
+                "source": "https://github.com/mrrobot47/site-command/tree/master",
+                "issues": "https://github.com/mrrobot47/site-command/issues"
+            },
+            "time": "2018-03-27T16:10:43+00:00"
         },
         {
             "name": "mrrobot47/wp-command",
@@ -2466,6 +2469,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "mrrobot47/site-command": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

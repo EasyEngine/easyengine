@@ -1,5 +1,6 @@
-sudo: true
-dist: trusty
+sudo: required
+services:
+  - docker
 
 language: php
 
@@ -19,13 +20,11 @@ cache:
 env:
   global:
     - PATH="$TRAVIS_BUILD_DIR/vendor/bin:$PATH"
+    - DOCKER_COMPOSE_VERSION=1.20.1
 
 matrix:
   include:
     - php: 7.2
-    - php: 7.1
-    - php: 7.0
-    - php: 5.6
 
 before_install:
   - |
@@ -35,12 +34,40 @@ before_install:
     else
       echo "xdebug.ini does not exist"
     fi
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y install docker-ce
 
 install:
   - composer install
 
 before_script:
   - composer validate
+  - pwd && ls -al
 
 script:
-  - vendor/bin/behat
+  - pwd && ls -al
+  - docker --version
+  - docker-compose --version
+  - bin/ee site create test.test --debug
+ # - vendor/bin/behat
+
+  - mkdir test1
+  - cp -R ~/build/mrrobot47/ee4/ee4-config/wp/* test1/
+  - cd test1
+ # - mv config/.env.example .env
+ # - sed -i 's/VIRTUAL_HOST=.*/VIRTUAL_HOST=site1.test/' .env
+ # - pwd && ls -al
+ # - docker network create site1.test
+ # - docker-compose up -d
+  - docker info
+
+after_script:
+  - pwd && ls -al
+  - ls -al ~/.ee4
+  - cat ~/.ee4/ee4.log

@@ -1391,3 +1391,32 @@ function random_password() {
 
 	return implode( $pass );
 }
+
+/**
+ * Log data with deliminators for separate view
+ *
+ * @param String $log_data Data to log
+ *
+ * @TODO: can add withName parameter for future logging.
+ */
+function delem_log( $log_data ) {
+	EE::get_file_logger()->info( "======================== $log_data ========================" );
+}
+
+/**
+ * Format and print debug messages for EE::launch
+ *
+ * @param Object $launch EE::Launch command object
+ */
+function launch_debug( $launch ) {
+	EE::debug( '-----------------------' );
+	EE::debug( "COMMAND: $launch->command" );
+	if ( ! empty( $launch->stdout ) ) {
+		EE::debug( "STDOUT: $launch->stdout" );
+	}
+	if ( ! empty( $launch->stderr ) ) {
+		EE::debug( "STDERR: $launch->stderr" );
+	}
+	EE::debug( "RETURN CODE: $launch->return_code" );
+	EE::debug( '-----------------------' );
+}

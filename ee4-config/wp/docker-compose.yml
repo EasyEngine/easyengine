@@ -24,6 +24,14 @@ services:
     networks:
      - site-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    environment:
+      - VIRTUAL_HOST=pma.${VIRTUAL_HOST}
+    networks:
+      - site-network
+
   php:
     image: rtcamp/wordpress
     depends_on:
