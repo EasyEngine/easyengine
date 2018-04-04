@@ -32,7 +32,7 @@ class EE_DOCKER {
 
 		///////////////PHP//////////////////////
 		$php['service_name'] = array( 'name' => 'php' );
-		$php['image']        = array( 'name' => 'rtcamp/wordpress' );
+		$php['image']        = array( 'name' => 'dharmin/wordpress' );
 		$php['depends_on']   = array( 'name' => 'db' );
 		$php['restart']      = $restart_default;
 		$php['volumes']      = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/php-fpm/php.ini:/usr/local/etc/php/php.ini' ) ) ) );
@@ -41,6 +41,8 @@ class EE_DOCKER {
 				array( 'name' => 'WORDPRESS_DB_HOST' ),
 				array( 'name' => 'WORDPRESS_DB_USER=${MYSQL_USER}' ),
 				array( 'name' => 'WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD}' ),
+				array( 'name' => 'USER_ID=${USER_ID}' ),
+				array( 'name' => 'GROUP_ID=${GROUP_ID}' ),
 			),
 		);
 		$php['networks']     = $network_default;
@@ -48,7 +50,7 @@ class EE_DOCKER {
 
 		///////////////nginx//////////////////////
 		$nginx['service_name'] = array( 'name' => 'nginx' );
-		$nginx['image']        = array( 'name' => 'nginx:latest' );
+		$nginx['image']        = array( 'name' => 'dharmin/nginx:latest' );
 		$nginx['depends_on']   = array( 'name' => 'php' );
 		$nginx['restart']      = $restart_default;
 		if ( in_array( 'le', $filters ) ) {
@@ -56,7 +58,7 @@ class EE_DOCKER {
 		} else {
 			$nginx['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST' ) ) );
 		}
-		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ) ) ) );
+		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ), array('name'=>'./config/nginx/common:/usr/local/openresty/nginx/conf/common') ) ) );
 		$nginx['networks'] = $network_default;
 
 		///////////////phpmyadmin//////////////////////
@@ -138,16 +140,16 @@ class EE_DOCKER {
 		$HOME = HOME;
 
 		switch ( $container ) {
-			case 'traefik-proxy':
+			case 'ee4_traefik-proxy':
 				$command = "docker run -d -p 8080:8080 -p 80:80 -p 443:443 -v /var/run/docker.sock:/var/run/docker.sock -v /dev/null:/etc/traefik/traefik.toml --name ee4_traefik traefik --api --docker --docker.domain=docker.localhost --logLevel=DEBUG";
 				break;
 
-			case 'nginx-proxy':
+			case 'ee4_nginx-proxy':
 				$command = "docker run --name ee4_nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 dharmin/nginx-proxy";
 				break;
 
-			case 'wpredis':
-				$command = "";
+			case 'ee4_redis':
+				$command = "docker run --name ee4_redis -d --restart=always dharmin/redis";
 				break;
 		}
 
