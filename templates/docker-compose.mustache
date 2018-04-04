@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+
+{{#services}}
+  {{#service_name}}
+  {{name}}:
+  {{/service_name}}
+    {{#image}}
+    image: {{name}}
+    {{/image}}
+    {{#depends_on}}
+    depends_on:
+      -  {{name}}
+    {{/depends_on}}
+    {{#restart}}
+    restart: {{name}}
+    {{/restart}}
+    {{#command}}
+    command: {{name}}
+    {{/command}}
+    {{#volumes}}
+    volumes:
+    {{#vol}}
+      -  "{{name}}"
+    {{/vol}}
+    {{/volumes}}
+    {{#environment}}
+    environment:
+    {{#env}}
+      -  {{name}}
+    {{/env}}
+    {{/environment}}
+    {{#networks}}
+    networks:
+      -  {{name}}
+    {{/networks}}
+    
+{{/services}}
+
+{{#network}}
+networks:
+  site-network:
+    external:
+      name: ${VIRTUAL_HOST}
+{{/network}}  

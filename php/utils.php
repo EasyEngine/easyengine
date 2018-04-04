@@ -1408,7 +1408,7 @@ function delem_log( $log_data ) {
  *
  * @param Object $launch EE::Launch command object
  */
-function launch_debug( $launch ) {
+function default_debug( $launch ) {
 	EE::debug( '-----------------------' );
 	EE::debug( "COMMAND: $launch->command" );
 	if ( ! empty( $launch->stdout ) ) {
@@ -1419,4 +1419,18 @@ function launch_debug( $launch ) {
 	}
 	EE::debug( "RETURN CODE: $launch->return_code" );
 	EE::debug( '-----------------------' );
+}
+
+/**
+ * Default Launch command.
+ *
+ * @param Object $launch EE::Launch command object
+ */
+function default_launch( $command ) {
+	$launch = EE::launch( $command, false, true );
+	default_debug( $launch );
+	if ( ! $launch->return_code ) {
+		return true;
+	} 
+	return false;
 }

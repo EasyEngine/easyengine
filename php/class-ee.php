@@ -24,6 +24,8 @@ class EE {
 
 	private static $db;
 
+	private static $docker;
+
 	private static $file_logger;
 
 	/**
@@ -1085,5 +1087,13 @@ class EE {
 		}
 
 		return self::$db;
+	}
+
+	public static function docker() {
+		if ( empty( self::$docker ) ) {
+			self::$docker = new EE_DOCKER();
+		}
+
+		return self::$docker;
 	}
 }

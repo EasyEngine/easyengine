@@ -28,7 +28,7 @@
         "php": ">=5.3.29",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
-        "mrrobot47/site-command": "dev-master",
+        "mrrobot47/site-command": "1.3",
         "mrrobot47/wp-command": "^1.0",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
@@ -80,12 +80,6 @@
             "splitter-location": "php/EE/AutoloadSplitter.php",
             "split-target-prefix-true": "autoload_commands",
             "split-target-prefix-false": "autoload_framework"
-        }
-    },
-    "repositories": {
-        "mrrobot47/site-command": {
-            "type": "vcs",
-            "url": "https://github.com/mrrobot47/site-command.git"
         }
     }
 }
