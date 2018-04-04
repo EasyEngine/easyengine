@@ -363,7 +363,7 @@ class Subcommand extends CompositeCommand {
 			}
 		}
 
-		if ( ! empty( $errors['fatal'] ) ) {
+		if ( ! empty( $errors['fatal'] ) && 'wp' !== $this->name ) {
 			$out = 'Parameter errors:';
 			foreach ( $errors['fatal'] as $key => $error ) {
 				$out .= "\n {$error}";
