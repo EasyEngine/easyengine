@@ -8,16 +8,22 @@ class EE_DOCKER {
 
 	/**
 	 * Generate docker-compose.yml according to requirement.
+	 *
+	 * @param array $filters Array of flags to determine the docker-compose.yml generation.
+	 *                       Empty/Default -> Generates default WordPress docker-compose.yml
+	 *                       ['le']        -> Enables letsencrypt in the generation.
+	 *
+	 * @return String docker-compose.yml content string.
 	 */
-	public static function create_docker_composer( array $filters = [] ) {
+	public static function generate_docker_composer_yml( array $filters = [] ) {
 		$base = array();
 
 		$restart_default = array( 'name' => 'always' );
 		$network_default = array( 'name' => 'site-network' );
 
-		//////////////////DB/////////////////////
+		// db configuration.
 		$db['service_name'] = array( 'name' => 'db' );
-		$db['image']        = array( 'name' => 'mysql:latest' );
+		$db['image']        = array( 'name' => 'easyengine/mysql' );
 		$db['restart']      = $restart_default;
 		$db['volumes']      = array( array( 'vol' => array( 'name' => './app/db:/var/lib/mysql' ) ) );
 		$db['environment']  = array(
@@ -30,9 +36,9 @@ class EE_DOCKER {
 		);
 		$db['networks']     = $network_default;
 
-		///////////////PHP//////////////////////
+		// PHP configuration.
 		$php['service_name'] = array( 'name' => 'php' );
-		$php['image']        = array( 'name' => 'dharmin/wordpress' );
+		$php['image']        = array( 'name' => 'easyengine/php' );
 		$php['depends_on']   = array( 'name' => 'db' );
 		$php['restart']      = $restart_default;
 		$php['volumes']      = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/php-fpm/php.ini:/usr/local/etc/php/php.ini' ) ) ) );
@@ -48,9 +54,9 @@ class EE_DOCKER {
 		$php['networks']     = $network_default;
 
 
-		///////////////nginx//////////////////////
+		// nginx configuration..
 		$nginx['service_name'] = array( 'name' => 'nginx' );
-		$nginx['image']        = array( 'name' => 'dharmin/nginx:latest' );
+		$nginx['image']        = array( 'name' => 'easyengine/nginx' );
 		$nginx['depends_on']   = array( 'name' => 'php' );
 		$nginx['restart']      = $restart_default;
 		if ( in_array( 'le', $filters ) ) {
@@ -58,19 +64,19 @@ class EE_DOCKER {
 		} else {
 			$nginx['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST' ) ) );
 		}
-		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ), array('name'=>'./config/nginx/common:/usr/local/openresty/nginx/conf/common') ) ) );
+		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ), array( 'name' => './config/nginx/common:/usr/local/openresty/nginx/conf/common' ) ) ) );
 		$nginx['networks'] = $network_default;
 
-		///////////////phpmyadmin//////////////////////
+		// PhpMyAdmin configuration.
 		$phpmyadmin['service_name'] = array( 'name' => 'phpmyadmin' );
-		$phpmyadmin['image']        = array( 'name' => 'phpmyadmin/phpmyadmin' );
+		$phpmyadmin['image']        = array( 'name' => 'easyengine/phpmyadmin' );
 		$phpmyadmin['restart']      = $restart_default;
 		$phpmyadmin['environment']  = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=pma.${VIRTUAL_HOST}' ) ) );
 		$phpmyadmin['networks']     = $network_default;
 
-		///////////////mail//////////////////////
+		// mailhog configuration.
 		$mail['service_name'] = array( 'name' => 'mail' );
-		$mail['image']        = array( 'name' => 'mailhog/mailhog' );
+		$mail['image']        = array( 'name' => 'easyengine/mailhog' );
 		$mail['restart']      = $restart_default;
 		$mail['command']      = array( 'name' => '["-invite-jim=false"]' );
 		if ( in_array( 'le', $filters ) ) {
@@ -96,6 +102,13 @@ class EE_DOCKER {
 		return $docker_compose_yml;
 	}
 
+	/**
+	 * Check and Start or create container if not running.
+	 *
+	 * @param String $container Name of the
+	 *
+	 * @return bool success.
+	 */
 	public static function boot_container( $container ) {
 		$status = self::container_status( $container );
 		if ( $status ) {
@@ -126,7 +139,9 @@ class EE_DOCKER {
 	/**
 	 * Function to start the container if it exists but is not running.
 	 *
-	 * @param String $container Container to be started
+	 * @param String $container Container to be started.
+	 *
+	 * @return bool success.
 	 */
 	public static function start_container( $container ) {
 		return default_launch( "docker start $container" );
@@ -134,15 +149,17 @@ class EE_DOCKER {
 
 	/**
 	 * Function to create and start the container if it does not exist.
+	 *
+	 * @param String $container Container to be created.
+	 * @param String $command   Command to launch the container.
+	 *
+	 * @return bool success.
 	 */
 	private function create_container( $container, $command = '' ) {
 
 		$HOME = HOME;
 
 		switch ( $container ) {
-			case 'ee4_traefik-proxy':
-				$command = "docker run -d -p 8080:8080 -p 80:80 -p 443:443 -v /var/run/docker.sock:/var/run/docker.sock -v /dev/null:/etc/traefik/traefik.toml --name ee4_traefik traefik --api --docker --docker.domain=docker.localhost --logLevel=DEBUG";
-				break;
 
 			case 'ee4_nginx-proxy':
 				$command = "docker run --name ee4_nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 dharmin/nginx-proxy";
@@ -156,24 +173,58 @@ class EE_DOCKER {
 		return default_launch( $command );
 	}
 
+	/**
+	 * Create docker network.
+	 *
+	 * @param String $name Name of the network to be created.
+	 *
+	 * @return bool success.
+	 */
 	public static function create_network( $name ) {
 		return default_launch( "docker network create $name" );
 	}
 
+	/**
+	 * Connect to given docker network.
+	 *
+	 * @param String $name       Name of the network that has to be connected.
+	 * @param String $connect_to Name of the network to which connection has to be established.
+	 *
+	 * @return bool success.
+	 */
 	public static function connect_network( $name, $connect_to ) {
 		return default_launch( "docker network connect $name $connect_to" );
 	}
 
+	/**
+	 * Remove docker network.
+	 *
+	 * @param String $name Name of the network to be removed.
+	 *
+	 * @return bool success.
+	 */
 	public static function rm_network( $name ) {
 		return default_launch( "docker network rm $name" );
 	}
 
+	/**
+	 * Disconnect docker network.
+	 *
+	 * @param String $name         Name of the network to be disconnected.
+	 * @param String $connected_to Name of the network from which it has to be disconnected.
+	 *
+	 * @return bool success.
+	 */
 	public static function disconnect_network( $name, $connected_to ) {
 		return default_launch( "docker network disconnect $name $connected_to" );
 	}
 
 	/**
-	 * Function to start the containers.
+	 * Function to boot the containers.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
 	 */
 	public static function docker_compose_up( $dir ) {
 		$chdir_return_code = chdir( $dir );
@@ -190,7 +241,11 @@ class EE_DOCKER {
 	}
 
 	/**
-	 * docker-compose down
+	 * Function to destroy the containers.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
 	 */
 	public static function docker_compose_down( $dir ) {
 		$chdir_return_code = chdir( $dir );
