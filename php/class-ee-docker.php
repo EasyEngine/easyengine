@@ -23,7 +23,7 @@ class EE_DOCKER {
 
 		// db configuration.
 		$db['service_name'] = array( 'name' => 'db' );
-		$db['image']        = array( 'name' => 'easyengine/mysql' );
+		$db['image']        = array( 'name' => 'easyengine/mariadb' );
 		$db['restart']      = $restart_default;
 		$db['volumes']      = array( array( 'vol' => array( 'name' => './app/db:/var/lib/mysql' ) ) );
 		$db['environment']  = array(
@@ -76,7 +76,7 @@ class EE_DOCKER {
 
 		// mailhog configuration.
 		$mail['service_name'] = array( 'name' => 'mail' );
-		$mail['image']        = array( 'name' => 'easyengine/mailhog' );
+		$mail['image']        = array( 'name' => 'easyengine/mail' );
 		$mail['restart']      = $restart_default;
 		$mail['command']      = array( 'name' => '["-invite-jim=false"]' );
 		if ( in_array( 'le', $filters ) ) {
@@ -162,11 +162,11 @@ class EE_DOCKER {
 		switch ( $container ) {
 
 			case 'ee4_nginx-proxy':
-				$command = "docker run --name ee4_nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 dharmin/nginx-proxy";
+				$command = "docker run --name ee4_nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 easyengine/nginx-proxy";
 				break;
 
 			case 'ee4_redis':
-				$command = "docker run --name ee4_redis -d --restart=always dharmin/redis";
+				$command = "docker run --name ee4_redis -d --restart=always easyengine/redis";
 				break;
 		}
 
