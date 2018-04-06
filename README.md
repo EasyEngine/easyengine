@@ -1,4 +1,4 @@
-# EEv4
+# EasyEngine v4
 
 ## Requirements
 
