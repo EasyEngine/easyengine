@@ -27,7 +27,7 @@ class AutoloadSplitter {
 	 * @return bool Whether to split out the class into a separate autoloader.
 	 */
 	public function __invoke( $class, $code ) {
-		return 1 === preg_match( '/\/mrrobot47\/\w+(?:-\w+)*-command\//', $code )
+		return 1 === preg_match( '/\/easyengine\/\w+(?:-\w+)*-command\//', $code )
 			|| 1 === preg_match( '/\/php\/commands\/src\//', $code );
 	}
 }

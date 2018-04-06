@@ -110,7 +110,7 @@ function get_composer_versions( $current_version ) {
 		fwrite( STDERR, sprintf( "Warning: No packages in '%s'." . PHP_EOL, $composer_lock_path ) );
 		return '';
 	}
-	$vendor_versions = array( implode( ' ', array( 'mrrobot47/ee', $current_version, date( 'c' ) ) ) );
+	$vendor_versions = array( implode( ' ', array( 'easyengine/ee', $current_version, date( 'c' ) ) ) );
 	$missing_names = $missing_versions = $missing_references = 0;
 	foreach ( $composer_lock['packages'] as $package ) {
 		if ( isset( $package['name'] ) ) {
@@ -189,7 +189,7 @@ if ( 'cli' === BUILD ) {
 		;
 } else {
 	$finder
-		->in(EE_VENDOR_DIR . '/mrrobot47')
+		->in(EE_VENDOR_DIR . '/easyengine')
 		->in(EE_VENDOR_DIR . '/wp-cli')
 		->in(EE_VENDOR_DIR . '/psr')
 		->in(EE_VENDOR_DIR . '/seld')
