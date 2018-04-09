@@ -36,12 +36,10 @@ git config user.name "Travis CI"
 git config user.email "travis@travis-ci.org"
 git config push.default "current"
 
-fname="easyengine.phar"
-
 if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
-	fname="easyengine-nightly.phar"
+	fname="phar/easyengine-nightly.phar"
 else
-	fname="easyengine.phar"
+	fname="phar/easyengine.phar"
 fi
 
 mv $fname easyengine-builds/$fname
