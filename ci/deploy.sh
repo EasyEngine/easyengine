@@ -12,7 +12,7 @@ if [ -z $DEPLOY_BRANCH ]; then
 	exit
 fi
 
-if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "release-"* ]]; then
+if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "develop-v4" ]]; then
 	echo "Skipping deployment as '$TRAVIS_BRANCH' is not a deploy branch."
 	exit
 fi
@@ -38,7 +38,13 @@ git config push.default "current"
 
 fname="easyengine.phar"
 
-mv easyengine.phar easyengine-builds/$fname
+if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
+	fname="easyengine-nightly.phar"
+else
+	fname="easyengine.phar"
+fi
+
+mv $fname easyengine-builds/$fname
 cd easyengine-builds
 chmod -x $fname
 
