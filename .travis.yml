@@ -17,7 +17,7 @@ before_install:
     fi
 
 install:
-  - composer install
+  - composer install --no-interaction
 
 before_script:
   - composer validate
