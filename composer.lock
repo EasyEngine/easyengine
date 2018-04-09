@@ -268,12 +268,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "85f913a404d336082e25cc06c79990143134ae89"
+                "reference": "f62bd63b04bfe89de794cc08d2d63e6b8a4a48c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/85f913a404d336082e25cc06c79990143134ae89",
-                "reference": "85f913a404d336082e25cc06c79990143134ae89",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/f62bd63b04bfe89de794cc08d2d63e6b8a4a48c4",
+                "reference": "f62bd63b04bfe89de794cc08d2d63e6b8a4a48c4",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -302,7 +302,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-04-06T15:50:47+00:00"
+            "time": "2018-04-09T11:25:52+00:00"
         },
         {
             "name": "easyengine/wp-command",
