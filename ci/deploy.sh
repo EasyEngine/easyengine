@@ -42,7 +42,8 @@ else
 	fname="phar/easyengine.phar"
 fi
 
-mv $fname easyengine-builds/$fname
+mkdir -p easyengine-builds/phar
+mv easyengine.phar easyengine-builds/$fname
 cd easyengine-builds
 chmod -x $fname
 
