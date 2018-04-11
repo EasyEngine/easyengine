@@ -56,7 +56,7 @@ git push
 
 # Trigger docker image build with new phar
 if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
-	curl -H "Content-Type: application/json" --data '{"docker_tag": "nightly"}' -X POST https://registry.hub.docker.com/u/easyengine/base/trigger/"$DOCKER_BUILD_TOKEN"/
-else
 	curl -H "Content-Type: application/json" --data '{"docker_tag": "latest"}' -X POST https://registry.hub.docker.com/u/easyengine/base/trigger/"$DOCKER_BUILD_TOKEN"/
+else
+	curl -H "Content-Type: application/json" --data '{"docker_tag": "stable"}' -X POST https://registry.hub.docker.com/u/easyengine/base/trigger/"$DOCKER_BUILD_TOKEN"/
 fi
