@@ -7,7 +7,7 @@
 
 ## Installing
 
-Once you've verified requirements, download the [setup.sh](rt.cx/eev4) file using `wget` or `curl` and execute it:
+Once you've verified requirements, download the [setup.sh](http://rt.cx/eev4) file using `wget` or `curl` and execute it:
 
 ```bash
 wget rt.cx/eev4 -O ee4-setup && bash ee4-setup
