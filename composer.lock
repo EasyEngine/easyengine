@@ -310,12 +310,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/wp-command.git",
-                "reference": "4eb2ddd64e2fe8485dfb5a31bb3da4864fd0b792"
+                "reference": "24671d90ebf141ee690199388ba99ff44a54b5e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/wp-command/zipball/4eb2ddd64e2fe8485dfb5a31bb3da4864fd0b792",
-                "reference": "4eb2ddd64e2fe8485dfb5a31bb3da4864fd0b792",
+                "url": "https://api.github.com/repos/EasyEngine/wp-command/zipball/24671d90ebf141ee690199388ba99ff44a54b5e5",
+                "reference": "24671d90ebf141ee690199388ba99ff44a54b5e5",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -341,7 +341,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/wp-command",
-            "time": "2018-04-06T15:37:41+00:00"
+            "time": "2018-04-11T12:21:55+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
