@@ -46,6 +46,19 @@ return array(
 		'desc' => 'Absolute path to where all sites will be stored.',
 	),
 
+	'db_path' => array(
+		'runtime' => '=<path>',
+		'file' => '<path>',
+		'default' => null,
+		'desc' => 'Absolute path to where site configuration db is stored.',
+	),
+
+	'ee_installer_version' => array(
+		'file' => '<path>',
+		'default' => null,
+		'desc' => 'EE version to run.',
+	),
+
 	'color' => array(
 		'runtime' => true,
 		'file' => '<bool>',
