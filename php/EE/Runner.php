@@ -59,7 +59,7 @@ class Runner {
 			mkdir( $this->config['sites_path'] );
 		}
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', EE_CONF_ROOT . '/ee4.db' );
+		define( 'DB', $this->config['db_path'] );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 		define( 'TABLE', 'sites' );
 	}
