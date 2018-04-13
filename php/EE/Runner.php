@@ -658,6 +658,7 @@ class Runner {
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee4-sites' );
 		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
+		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 		$this->init_ee4();
 
 		// Enable PHP error reporting to stderr if testing.
