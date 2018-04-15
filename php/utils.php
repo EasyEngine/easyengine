@@ -1343,7 +1343,9 @@ function copy_recursive( $source, $dest ) {
 		) as $item
 	) {
 		if ( $item->isDir() ) {
-			mkdir( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+			if ( ! file_exists( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() ) ) {
+				mkdir( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+			}
 		} else {
 			copy( $item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
 		}
@@ -1431,6 +1433,33 @@ function default_launch( $command ) {
 	default_debug( $launch );
 	if ( ! $launch->return_code ) {
 		return true;
-	} 
+	}
 	return false;
+}
+
+/**
+ * Function to return the type from arguments.
+ *
+ * @param array $assoc_args User input arguments.
+ * @param array $arg_types  Types to check with.
+ * @param mixed $default    Default in case of no match
+ *
+ * @return string Type of site parsed from argument given from user.
+ */
+function get_type( $assoc_args, $arg_types, $default = false ) {
+	$type = '';
+	$cnt  = 0;
+	foreach ( $arg_types as $arg_type ) {
+		if ( get_flag_value( $assoc_args, $arg_type ) ) {
+			$cnt ++;
+			$type = $arg_type;
+		}
+	}
+	if ( $cnt == 1 ) {
+		return $type;
+	} else if ( $cnt == 0 ) {
+		return $default;
+	} else {
+		return false;
+	}
 }
