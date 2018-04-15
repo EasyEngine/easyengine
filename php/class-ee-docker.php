@@ -59,10 +59,14 @@ class EE_DOCKER {
 		$nginx['image']        = array( 'name' => 'easyengine/nginx' );
 		$nginx['depends_on']   = array( 'name' => 'php' );
 		$nginx['restart']      = $restart_default;
+
+		$v_host = in_array( 'wpsubdom', $filters ) ? 'VIRTUAL_HOST=${VIRTUAL_HOST},*.${VIRTUAL_HOST}' : 'VIRTUAL_HOST';
+
 		if ( in_array( 'le', $filters ) ) {
-			$nginx['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST' ), array( 'name' => 'LETSENCRYPT_HOST=${VIRTUAL_HOST}' ), array( 'name' => 'LETSENCRYPT_EMAIL=${VIRTUAL_HOST_EMAIL}' ) ) );
+			$le_v_host            = in_array( 'wpsubdom', $filters ) ? 'LETSENCRYPT_HOST=${VIRTUAL_HOST},*.${VIRTUAL_HOST}' : 'LETSENCRYPT_HOST=${VIRTUAL_HOST}';
+			$nginx['environment'] = array( 'env' => array( array( 'name' => $v_host ), array( 'name' => $le_v_host ), array( 'name' => 'LETSENCRYPT_EMAIL=${VIRTUAL_HOST_EMAIL}' ) ) );
 		} else {
-			$nginx['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST' ) ) );
+			$nginx['environment'] = array( 'env' => array( array( 'name' => $v_host ) ) );
 		}
 		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ), array( 'name' => './config/nginx/common:/usr/local/openresty/nginx/conf/common' ) ) ) );
 		$nginx['networks'] = $network_default;
