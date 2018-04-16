@@ -2,6 +2,7 @@
 
 use \Composer\Semver\Comparator;
 use \EE\Utils;
+use Mustangostang\Spyc;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -27,9 +28,9 @@ class CLI_Command extends EE_Command {
 
 	private function command_to_array( $command ) {
 		$dump = array(
-			'name' => $command->get_name(),
+			'name'        => $command->get_name(),
 			'description' => $command->get_shortdesc(),
-			'longdesc' => $command->get_longdesc(),
+			'longdesc'    => $command->get_longdesc(),
 		);
 
 		foreach ( $command->get_subcommands() as $subcommand ) {
@@ -116,14 +117,14 @@ class CLI_Command extends EE_Command {
 		}
 		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$info = array(
-				'php_binary_path'          => $php_bin,
-				'global_config_path'       => $runner->global_config_path,
-				'project_config_path'      => $runner->project_config_path,
+				'php_binary_path'      => $php_bin,
+				'global_config_path'   => $runner->global_config_path,
+				'project_config_path'  => $runner->project_config_path,
 				'ee_dir_path'          => EE_ROOT,
 				'ee_packages_dir_path' => $packages_dir,
 				'ee_version'           => EE_VERSION,
-				'system_os'                => $system_os,
-				'shell'                    => $shell,
+				'system_os'            => $system_os,
+				'shell'                => $shell,
 			);
 
 			EE::line( json_encode( $info ) );
@@ -155,72 +156,6 @@ class CLI_Command extends EE_Command {
 	}
 
 	/**
-	 * Check to see if there is a newer version of EE available.
-	 *
-	 * Queries the Github releases API. Returns available versions if there are
-	 * updates available, or success message if using the latest release.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--patch]
-	 * : Only list patch updates.
-	 *
-	 * [--minor]
-	 * : Only list minor updates.
-	 *
-	 * [--major]
-	 * : Only list major updates.
-	 *
-	 * [--field=<field>]
-	 * : Prints the value of a single field for each update.
-	 *
-	 * [--fields=<fields>]
-	 * : Limit the output to specific object fields. Defaults to version,update_type,package_url.
-	 *
-	 * [--format=<format>]
-	 * : Render output in a particular format.
-	 * ---
-	 * default: table
-	 * options:
-	 *   - table
-	 *   - csv
-	 *   - json
-	 *   - count
-	 *   - yaml
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Check for update.
-	 *     $ ee cli check-update
-	 *     Success: EE is at the latest version.
-	 *
-	 *     # Check for update and new version is available.
-	 *     $ ee cli check-update
-	 *     +---------+-------------+-------------------------------------------------------------------------------+
-	 *     | version | update_type | package_url                                                                   |
-	 *     +---------+-------------+-------------------------------------------------------------------------------+
-	 *     | 0.24.1  | patch       | https://github.com/ee/ee/releases/download/v0.24.1/ee-0.24.1.phar |
-	 *     +---------+-------------+-------------------------------------------------------------------------------+
-	 *
-	 * @subcommand check-update
-	 */
-	public function check_update( $_, $assoc_args ) {
-		$updates = $this->get_updates( $assoc_args );
-
-		if ( $updates ) {
-			$formatter = new \EE\Formatter(
-				$assoc_args,
-				array( 'version', 'update_type', 'package_url' )
-			);
-			$formatter->display_items( $updates );
-		} elseif ( empty( $assoc_args['format'] ) || 'table' == $assoc_args['format'] ) {
-			$update_type = $this->get_update_type_str( $assoc_args );
-			EE::success( "EE is at the latest{$update_type}version." );
-		}
-	}
-
-	/**
 	 * Update EE to the latest release.
 	 *
 	 * Default behavior is to check the releases API for the newest stable
@@ -228,32 +163,18 @@ class CLI_Command extends EE_Command {
 	 *
 	 * Use `--stable` to install or reinstall the latest stable version.
 	 *
-	 * Use `--nightly` to install the latest built version of the master branch.
+	 * Use `--nightly` to install the latest built version of the develop branch.
 	 * While not recommended for production, nightly contains the latest and
 	 * greatest, and should be stable enough for development and staging
 	 * environments.
 	 *
-	 * Only works for the Phar installation mechanism.
-	 *
 	 * ## OPTIONS
 	 *
-	 * [--patch]
-	 * : Only perform patch updates.
-	 *
-	 * [--minor]
-	 * : Only perform minor updates.
-	 *
-	 * [--major]
-	 * : Only perform major updates.
-	 *
 	 * [--stable]
-	 * : Update to the latest stable release. Skips update check.
+	 * : Update to the latest stable release.
 	 *
 	 * [--nightly]
-	 * : Update to the latest built version of the master branch. Potentially unstable.
-	 *
-	 * [--yes]
-	 * : Do not prompt for confirmation.
+	 * : Update to the latest built version of the develop branch. Potentially unstable.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -265,189 +186,28 @@ class CLI_Command extends EE_Command {
 	 *     Success: Updated EE to 0.24.1.
 	 */
 	public function update( $_, $assoc_args ) {
-		// TODO: Update procedure to update EE
-		//
-		// if ( ! Utils\inside_phar() ) {
-		// 	EE::error( 'You can only self-update Phar files.' );
-		// }
 
-		// $old_phar = realpath( $_SERVER['argv'][0] );
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : Utils\get_home_dir() . '/.ee4/config.yml';
 
-		// if ( ! is_writable( $old_phar ) ) {
-		// 	EE::error( sprintf( '%s is not writable by current user.', $old_phar ) );
-		// } elseif ( ! is_writable( dirname( $old_phar ) ) ) {
-		// 	EE::error( sprintf( '%s is not writable by current user.', dirname( $old_phar ) ) );
-		// }
+		$existing_config = Spyc::YAMLLoad( $config_file_path );
 
-		// if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
-		// 	EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest nightly?', EE_VERSION ), $assoc_args );
-		// 	$download_url = 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/ee-nightly.phar';
-		// 	$md5_url = 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/ee-nightly.phar.md5';
-		// } elseif ( Utils\get_flag_value( $assoc_args, 'stable' ) ) {
-		// 	EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest stable release?', EE_VERSION ), $assoc_args );
-		// 	$download_url = 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/ee.phar';
-		// 	$md5_url = 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/ee.phar.md5';
-		// } else {
+		if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
+			$existing_config['ee_installer_version'] = 'nightly';
+		} else {
+			$existing_config['ee_installer_version'] = 'stable';
+		}
 
-		// 	$updates = $this->get_updates( $assoc_args );
+		$config_file = fopen( $config_file_path, "w" );
+		fwrite( $config_file, Spyc::YAMLDump( $existing_config ) );
+		fclose( $config_file );
 
-		// 	if ( empty( $updates ) ) {
-		// 		$update_type = $this->get_update_type_str( $assoc_args );
-		// 		EE::success( "EE is at the latest{$update_type}version." );
-		// 		return;
-		// 	}
-
-		// 	$newest = $updates[0];
-
-		// 	EE::confirm( sprintf( 'You have version %s. Would you like to update to %s?', EE_VERSION, $newest['version'] ), $assoc_args );
-
-		// 	$download_url = $newest['package_url'];
-		// 	$md5_url = str_replace( '.phar', '.phar.md5', $download_url );
-		// }
-
-		// EE::log( sprintf( 'Downloading from %s...', $download_url ) );
-
-		// $temp = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
-
-		// $headers = array();
-		// $options = array(
-		// 	'timeout' => 600,  // 10 minutes ought to be enough for everybody.
-		// 	'filename' => $temp,
-		// );
-
-		// Utils\http_request( 'GET', $download_url, null, $headers, $options );
-
-		// $md5_response = Utils\http_request( 'GET', $md5_url );
-		// if ( 20 != substr( $md5_response->status_code, 0, 2 ) ) {
-		// 	EE::error( "Couldn't access md5 hash for release (HTTP code {$md5_response->status_code})." );
-		// }
-		// $md5_file = md5_file( $temp );
-		// $release_hash = trim( $md5_response->body );
-		// if ( $md5_file === $release_hash ) {
-		// 	EE::log( 'md5 hash verified: ' . $release_hash );
-		// } else {
-		// 	EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
-		// }
-
-		// $allow_root = EE::get_runner()->config['allow-root'] ? '--allow-root' : '';
-		// $php_binary = Utils\get_php_binary();
-		// $process = EE\Process::create( "{$php_binary} $temp --info {$allow_root}" );
-		// $result = $process->run();
-		// if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version:' ) ) {
-		// 	$multi_line = explode( PHP_EOL, $result->stderr );
-		// 	EE::error_multi_line( $multi_line );
-		// 	EE::error( 'The downloaded PHAR is broken, try running ee cli update again.' );
-		// }
-
-		// EE::log( 'New version works. Proceeding to replace.' );
-
-		// $mode = fileperms( $old_phar ) & 511;
-
-		// if ( false === chmod( $temp, $mode ) ) {
-		// 	EE::error( sprintf( 'Cannot chmod %s.', $temp ) );
-		// }
-
-		// class_exists( '\cli\Colors' ); // This autoloads \cli\Colors - after we move the file we no longer have access to this class.
-
-		// if ( false === rename( $temp, $old_phar ) ) {
-		// 	EE::error( sprintf( 'Cannot move %s to %s', $temp, $old_phar ) );
-		// }
-
-		// if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
-		// 	$updated_version = 'the latest nightly release';
-		// } elseif ( Utils\get_flag_value( $assoc_args, 'stable' ) ) {
-		// 	$updated_version = 'the latest stable release';
-		// } else {
-		// 	$updated_version = $newest['version'];
-		// }
-		// EE::success( sprintf( 'Updated EE to %s.', $updated_version ) );
-	}
-
-	/**
-	 * Returns update information.
-	 */
-	private function get_updates( $assoc_args ) {
-		// TODO: update URLs
-		//
-		// $url = 'https://api.github.com/repos/ee/ee/releases?per_page=100';
-
-		// $options = array(
-		// 	'timeout' => 30,
-		// );
-
-		// $headers = array(
-		// 	'Accept' => 'application/json',
-		// );
-		// if ( $github_token = getenv( 'GITHUB_TOKEN' ) ) {
-		// 	$headers['Authorization'] = 'token ' . $github_token;
-		// }
-
-		// $response = Utils\http_request( 'GET', $url, null, $headers, $options );
-
-		// if ( ! $response->success || 200 !== $response->status_code ) {
-		// 	EE::error( sprintf( 'Failed to get latest version (HTTP code %d).', $response->status_code ) );
-		// }
-
-		// $release_data = json_decode( $response->body );
-
-		// $updates = array(
-		// 	'major'      => false,
-		// 	'minor'      => false,
-		// 	'patch'      => false,
-		// );
-		// foreach ( $release_data as $release ) {
-
-		// 	// Get rid of leading "v" if there is one set.
-		// 	$release_version = $release->tag_name;
-		// 	if ( 'v' === substr( $release_version, 0, 1 ) ) {
-		// 		$release_version = ltrim( $release_version, 'v' );
-		// 	}
-
-		// 	$update_type = Utils\get_named_sem_ver( $release_version, EE_VERSION );
-		// 	if ( ! $update_type ) {
-		// 		continue;
-		// 	}
-
-		// 	if ( ! empty( $updates[ $update_type ] ) && ! Comparator::greaterThan( $release_version, $updates[ $update_type ]['version'] ) ) {
-		// 		continue;
-		// 	}
-
-		// 	$updates[ $update_type ] = array(
-		// 		'version' => $release_version,
-		// 		'update_type' => $update_type,
-		// 		'package_url' => $release->assets[0]->browser_download_url,
-		// 	);
-		// }
-
-		// foreach ( $updates as $type => $value ) {
-		// 	if ( empty( $value ) ) {
-		// 		unset( $updates[ $type ] );
-		// 	}
-		// }
-
-		// foreach ( array( 'major', 'minor', 'patch' ) as $type ) {
-		// 	if ( true === \EE\Utils\get_flag_value( $assoc_args, $type ) ) {
-		// 		return ! empty( $updates[ $type ] ) ? array( $updates[ $type ] ) : false;
-		// 	}
-		// }
-
-		// if ( empty( $updates ) && preg_match( '#-alpha-(.+)$#', EE_VERSION, $matches ) ) {
-		// 	$version_url = 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/NIGHTLY_VERSION';
-		// 	$response = Utils\http_request( 'GET', $version_url );
-		// 	if ( ! $response->success || 200 !== $response->status_code ) {
-		// 		EE::error( sprintf( 'Failed to get current nightly version (HTTP code %d)', $response->status_code ) );
-		// 	}
-		// 	$nightly_version = trim( $response->body );
-		// 	if ( EE_VERSION != $nightly_version ) {
-		// 		$updates['nightly'] = array(
-		// 			'version'        => $nightly_version,
-		// 			'update_type'    => 'nightly',
-		// 			'package_url'    => 'https://raw.githubusercontent.com/ee/builds/gh-pages/phar/ee-nightly.phar',
-		// 		);
-		// 	}
-		// }
-
-		return array_values( $updates );
+		file_put_contents( EE_CONF_ROOT . '/update.sh', file_get_contents( 'http://rt.cx/eev4' ) );
+		if ( \EE\Utils\default_launch( 'bash ' . EE_CONF_ROOT . '/update.sh' ) ) {
+			EE::success( 'Update complete.' );
+			unlink( EE_CONF_ROOT . '/update.sh' );
+		} else {
+			EE::error( 'There was some error in running update. Please check logs and re-run update.' );
+		}
 	}
 
 	/**
@@ -494,10 +254,10 @@ class CLI_Command extends EE_Command {
 			// Copy current config values to $spec
 			foreach ( $spec as $key => $value ) {
 				$current = null;
-				if ( isset( $config[0][ $key ] ) ) {
-					$current = $config[0][ $key ];
+				if ( isset( $config[0][$key] ) ) {
+					$current = $config[0][$key];
 				}
-				$spec[ $key ]['current'] = $current;
+				$spec[$key]['current'] = $current;
 			}
 		}
 
@@ -516,7 +276,7 @@ class CLI_Command extends EE_Command {
 	 *     # Dump the list of installed commands.
 	 *     $ ee cli cmd-dump
 	 *     {"name":"ee","description":"Manage WordPress through the command-line.","longdesc":"\n\n## GLOBAL PARAMETERS\n\n  --path=<path>\n      Path to the WordPress files.\n\n  --ssh=<ssh>\n      Perform operation against a remote server over SSH (or a container using scheme of "docker" or "docker-compose").\n\n  --url=<url>\n      Pretend request came from given URL. In multisite, this argument is how the target site is specified. \n\n  --user=<id|login|email>\n
-	 *
+     *
 	 * @subcommand cmd-dump
 	 */
 	public function cmd_dump() {
@@ -542,7 +302,7 @@ class CLI_Command extends EE_Command {
 	 *     eval-file
 	 */
 	public function completions( $_, $assoc_args ) {
-		$line = substr( $assoc_args['line'], 0, $assoc_args['point'] );
+		$line  = substr( $assoc_args['line'], 0, $assoc_args['point'] );
 		$compl = new \EE\Completions( $line );
 		$compl->render();
 	}
@@ -571,12 +331,12 @@ class CLI_Command extends EE_Command {
 	 *     # List all available aliases.
 	 *     $ ee cli alias
 	 *     ---
-	 *     @all: Run command against every registered alias.
-	 *     @prod:
+	 * @all   : Run command against every registered alias.
+	 * @prod  :
 	 *       ssh: runcommand@runcommand.io~/webapps/production
-	 *     @dev:
+	 * @dev   :
 	 *       ssh: vagrant@192.168.50.10/srv/www/runcommand.dev
-	 *     @both:
+	 * @both  :
 	 *       - @prod
 	 *       - @dev
 	 *
@@ -597,6 +357,7 @@ class CLI_Command extends EE_Command {
 				break;
 			}
 		}
+
 		return $update_type;
 	}
 
