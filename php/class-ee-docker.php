@@ -83,11 +83,7 @@ class EE_DOCKER {
 		$mail['image']        = array( 'name' => 'easyengine/mail' );
 		$mail['restart']      = $restart_default;
 		$mail['command']      = array( 'name' => '["-invite-jim=false"]' );
-		if ( in_array( 'le', $filters ) ) {
-			$mail['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ), array( 'name' => 'LETSENCRYPT_HOST=${VIRTUAL_HOST}' ), array( 'name' => 'LETSENCRYPT_EMAIL=${VIRTUAL_HOST_EMAIL}' ) ) );
-		} else {
-			$mail['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ) ) );
-		}
+		$mail['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ) ) );
 		$mail['networks'] = $network_default;
 
 		$base[] = $db;
