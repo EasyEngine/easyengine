@@ -159,7 +159,7 @@ class EE_DOCKER {
 	 *
 	 * @return bool success.
 	 */
-	private function create_container( $container, $command = '' ) {
+	public static function create_container( $container, $command = '' ) {
 
 		$HOME = HOME;
 
