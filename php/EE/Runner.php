@@ -522,6 +522,12 @@ class Runner {
 		{
 			list( $args, $assoc_args, $this->runtime_config ) = $configurator->parse_args( $argv );
 
+			// foo --help  ->  help foo
+            if ( isset( $assoc_args['help'] ) ) {
+                array_unshift( $args, 'help' );
+                unset( $assoc_args['help'] );
+            }
+
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
 			$configurator->merge_array( $this->runtime_config );
