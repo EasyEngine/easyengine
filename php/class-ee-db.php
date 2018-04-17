@@ -140,28 +140,47 @@ class EE_DB {
 		return $select_data;
 	}
 
-	/**
-	 * Check if a site entry exists in the database.
-	 *
-	 * @param String $site_name Name of the site to be checked.
-	 *
-	 * @return bool Success.
-	 */
-	public static function site_in_db( $site_name ) {
 
+	/**
+	 * Update row in table.
+	 *
+	 * @param        $data
+	 * @param        $where
+	 *
+	 * @return bool
+	 */
+	public static function update( $data, $where ) {
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
 
-		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
+		$table_name = TABLE;
 
-		if ( $site ) {
-			return true;
-		} else {
-			return false;
+		$fields     = array();
+		$conditions = array();
+		foreach ( $data as $key => $value ) {
+			$fields[] = "`$key`='" . $value . "'";
 		}
-	}
+		foreach ( $where as $key => $value ) {
+			$conditions[] = "`$key`='" . $value . "'";
+		}
+		$fields     = implode( ', ', $fields );
+		$conditions = implode( ' AND ', $conditions );
+		if ( ! empty( $fields ) ) {
+			$update_query      = "UPDATE `$table_name` SET $fields WHERE $conditions";
+			$update_query_exec = self::$db->exec( $update_query );
+			if ( ! $update_query_exec ) {
+				EE::debug( self::$db->lastErrorMsg() );
+				self::$db->close();
+			} else {
+				self::$db->close();
 
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Delete data from table.
@@ -194,5 +213,27 @@ class EE_DB {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Check if a site entry exists in the database.
+	 *
+	 * @param String $site_name Name of the site to be checked.
+	 *
+	 * @return bool Success.
+	 */
+	public static function site_in_db( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
+
+		if ( $site ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
