@@ -83,8 +83,8 @@ class EE_DOCKER {
 		$mail['image']        = array( 'name' => 'easyengine/mail' );
 		$mail['restart']      = $restart_default;
 		$mail['command']      = array( 'name' => '["-invite-jim=false"]' );
-		$mail['environment'] = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ) ) );
-		$mail['networks'] = $network_default;
+		$mail['environment']  = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ) ) );
+		$mail['networks']     = $network_default;
 
 		$base[] = $db;
 		$base[] = $php;
@@ -123,6 +123,13 @@ class EE_DOCKER {
 	}
 
 	public static function container_status( $container ) {
+		$exec_command = 'which docker';
+		exec( $exec_command, $out, $ret );
+		EE::debug( 'COMMAND: ' . $exec_command );
+		EE::debug( 'RETURN CODE: ' . $ret );
+		if ( $ret ) {
+			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
+		}
 		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container", false, true );
 		default_debug( $status );
 		if ( ! $status->return_code ) {
