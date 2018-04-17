@@ -170,7 +170,12 @@ class EE_DOCKER {
 				break;
 		}
 
-		return default_launch( $command );
+		$launch = EE::launch( $command, false, true );
+		default_debug( $launch );
+		if ( ! $launch->return_code ) {
+			return true;
+		}
+		EE::error( $launch->stderr );
 	}
 
 	/**
