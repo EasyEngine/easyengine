@@ -233,15 +233,10 @@ class EE_DOCKER {
 	public static function docker_compose_up( $dir ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
-			$docker_compose_up = EE::launch( "docker-compose up -d", false, true );
-			default_debug( $docker_compose_up );
-
-			if ( $docker_compose_up->return_code ) {
-				throw new Exception( 'There was some error in docker-compose up.' );
-			}
-		} else {
-			throw new Exception( 'Error in changing directory.' );
+			return default_launch( 'docker-compose up -d' );
 		}
+
+		return false;
 	}
 
 	/**
