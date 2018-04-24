@@ -11,7 +11,7 @@ EasyEngine Developer Docs
 
 1. Before starting refer the [core repository structure](https://github.com/EasyEngine/easyengine/blob/develop-v4/docs/core-repo-structure.md) and the [structure for multiple repositories](https://github.com/EasyEngine/easyengine/blob/develop-v4/docs/structure-for-multiple-repos.md).
 
-2. Fork the template repository and rename it to the command you want to create. This will now look like `author/command-name` in your github.
+2. Fork the [command template repository](https://github.com/EasyEngine/command-template) and rename it to the command you want to create. This will now look like `author/command-name` in your github.
 
 3. Update the `name` and `homepage` in the `composer.json` of the  cloned repository. If the name is not updated properly then composer update/install with it will fail. 
 
