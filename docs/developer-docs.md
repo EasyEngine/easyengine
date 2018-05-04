@@ -23,7 +23,7 @@ git clone git@github.com:EasyEngine/easyengine.git && git checkout develop-v4
 ```
 "author/command-name": "dev-master"
 ```
-Also, append the follwing section in the `composer.json`:
+Also, append the following section in the `composer.json`:
 ```
 "repositories": {
     "author/command-name": {
@@ -44,6 +44,6 @@ Success: Hello world.
     * Go to your repository directory: `cd vendor/author/command-name`.
     * Try `git remote -v`, if you have already put the proper url and used `--prefer-source` during composer install then the `remote origin` will have your github url.
     * In case that is missing, do `git remote add origin git@github.com:author/command-name.git`.
-    * Make changes inside the vendor directory itself to view your changes directly and keep commiting them regularly.
+    * Make changes inside the vendor directory itself to view your changes directly and keep committing them regularly.
 
 Note: We are working on scaffold command and these manual steps will be replaced very soon.

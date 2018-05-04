@@ -15,4 +15,4 @@ Docker Files
 
 7. phpmyadmin: EasyEngine db image uses [phpmyadmin](https://github.com/phpmyadmin/docker) image.
 
-8. base: EasyEngine base image has been created by EasyEngine to facilitate the usage of EasyEngine v4 without any software dependency. Pulling and using this image will create the enviournment required to run EasyEngine and create the sites from this container with the help of the wrapper-script. The wrapper-script simply passes the parameters/arguments/flags given to it directly to the easyengine phar inside the easyengine base container for execution and running of EasyEngine. 
+8. base: EasyEngine base image has been created by EasyEngine to facilitate the usage of EasyEngine v4 without any software dependency. Pulling and using this image will create the environment required to run EasyEngine and create the sites from this container with the help of the wrapper-script. The wrapper-script simply passes the parameters/arguments/flags given to it directly to the easyengine phar inside the easyengine base container for execution and running of EasyEngine. 
