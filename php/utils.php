@@ -1463,3 +1463,45 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
 		return false;
 	}
 }
+
+/**
+ * Render a collection of items as an ASCII table.
+ *
+ * Given a collection of items with a consistent data structure:
+ *
+ * ```
+ * $items = array(
+ *     array( 'key1'   => 'value1'),
+ *     array( 'key2'   => 'value2'),
+ * );
+ * ```
+ *
+ * Render `$items` as an ASCII table:
+ *
+ * ```
+ * EE\Utils\format_table( $items );
+ *
+ * # +------+--------+
+ * # | key1 | value1 |
+ * # +------+--------+
+ * # | key2 | value2 |
+ * # +------+--------+
+ * ```
+ *
+ * @param array $items An array of items to output.
+ *
+ * @return null
+ */
+function format_table( $items ) {
+	$item_table = new \cli\Table();
+	$item_table->setRows( $items );
+	$item_table->setRenderer( new \cli\table\Ascii() );
+	$lines = array_slice( $item_table->getDisplayLines(), 3 );
+	array_pop( $lines );
+	$delem = $item_table->getDisplayLines()[0];
+	foreach ( $lines as $line ) {
+		\EE::log( $delem );
+		\EE::log( $line );
+	}
+	\EE::log( $delem );
+}
