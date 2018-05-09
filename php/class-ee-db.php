@@ -33,6 +33,7 @@ class EE_DB {
 						id INTEGER NOT NULL, 
 						sitename VARCHAR, 
 						site_type VARCHAR, 
+						site_title VARCHAR, 
 						proxy_type VARCHAR, 
 						cache_type VARCHAR, 
 						site_path VARCHAR, 
@@ -45,15 +46,14 @@ class EE_DB {
 						db_user VARCHAR, 
 						db_password VARCHAR, 
 						db_host VARCHAR, 
-						is_hhvm BOOLEAN DEFAULT 0, 
-						is_pagespeed BOOLEAN DEFAULT 0, 
+						wp_user VARCHAR, 
+						wp_pass VARCHAR, 
+						email VARCHAR, 
 						php_version VARCHAR, 
 						PRIMARY KEY (id), 
 						UNIQUE (sitename), 
 						CHECK (is_enabled IN (0, 1)), 
-						CHECK (is_ssl IN (0, 1)), 
-						CHECK (is_hhvm IN (0, 1)), 
-						CHECK (is_pagespeed IN (0, 1))
+						CHECK (is_ssl IN (0, 1))
 					);";
 		self::$db->exec( $query );
 	}
