@@ -166,14 +166,19 @@ class EE_DOCKER {
 
 		$HOME = HOME;
 
-		switch ( $container ) {
+		$nginx_proxy_name = 'ee4_nginx-proxy';
 
+		switch ( $container ) {
 			case 'ee4_nginx-proxy':
-				$command = "docker run --name ee4_nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 easyengine/nginx-proxy";
+				$command = "docker run --name $nginx_proxy_name -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy";
 				break;
 
 			case 'ee4_redis':
 				$command = "docker run --name ee4_redis -d --restart=always easyengine/redis";
+				break;
+
+			case 'letsencrypt':
+				$command = "docker run --name letsencrypt -d -v $HOME/.ee4/nginx/certs:/etc/nginx/certs:rw -v /var/run/docker.sock:/var/run/docker.sock:ro --volumes-from $nginx_proxy_name jrcs/letsencrypt-nginx-proxy-companion";
 				break;
 		}
 
