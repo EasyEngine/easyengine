@@ -86,7 +86,7 @@ class EEStackUpgradeController(CementBaseController):
         Log.info(self, "Updating apt-cache, please wait...")
         EEAptGet.update(self)
         Log.info(self, "Installing packages, please wait ...")
-        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial' or EEVariables.ee_platform_codename == 'bionic'):
             EEAptGet.install(self, EEVariables.ee_php5_6 + EEVariables.ee_php_extra)
         else:
             EEAptGet.install(self, EEVariables.ee_php)

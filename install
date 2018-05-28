@@ -58,14 +58,14 @@ readonly ee_distro_version=$(lsb_release -sc)
 if [ "$ee_linux_distro" != "Ubuntu" ] && [ "$ee_linux_distro" != "Debian" ]; then
     ee_lib_echo_fail "EasyEngine (ee) is made for Ubuntu and Debian only as of now"
     ee_lib_echo_fail "You are free to fork EasyEngine (ee): https://github.com/EasyEngine/easyengine/fork"
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04 and Debian 7.x/8.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 14.04/16.04/18.04 and Debian 7.x/8.x"
     exit 100
 fi
 
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
-lsb_release -d | egrep -e "12.04|14.04|16.04|wheezy|jessie" &>> /dev/null
+lsb_release -d | egrep -e "14.04|16.04|18.04|wheezy|jessie" &>> /dev/null
 if [ "$?" -ne "0" ]; then
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 12.04/14.04/16.04 LTS and Debian 7.x/8.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 14.04/16.04/18.04 LTS and Debian 7.x/8.x/9.x"
     exit 100
 fi
 
@@ -88,9 +88,9 @@ fi
 function ee_install_dep()
 {
     if [ "$ee_linux_distro" == "Ubuntu" ]; then
-        apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
+        apt-get -y install build-essential curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar software-properties-common || ee_lib_error "Unable to install pre depedencies, exit status " 1
     elif [ "$ee_linux_distro" == "Debian" ]; then
-        apt-get -y install gcc curl gzip python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
+        apt-get -y install build-essential curl gzip dirmngr python3 python3-apt python3-setuptools python3-dev sqlite3 git tar python-software-properties || ee_lib_error "Unable to pre depedencies, exit status " 1
     fi
 
     # Generating Locale
@@ -761,8 +761,11 @@ if [ -f /usr/local/sbin/easyengine ]; then
         ee_lib_error "Not updating EasyEngine to $ee_version_new, exit status = " 1
     fi
 elif [ ! -f /usr/local/bin/ee ]; then
+    ee_lib_echo "Installing depedencies" | tee -ai $ee_install_log
     ee_install_dep | tee -ai $ee_install_log
+    ee_lib_echo "Installing EasyEngine $ee_branch" | tee -ai $ee_install_log
     ee_install | tee -ai $ee_install_log
+    ee_lib_echo "Running post-install steps" | tee -ai $ee_install_log
     secure_ee_db | tee -ai $EE_INSTALL_LOG
     ee_git_init | tee -ai $ee_install_log
 
