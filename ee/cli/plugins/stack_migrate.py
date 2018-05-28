@@ -21,8 +21,6 @@ class EEStackMigrateController(CementBaseController):
             (['--mariadb'],
                 dict(help="Migrate database to MariaDB",
                      action='store_true')),
-            # (['--PHP'],
-            #    dict(help="update to html site", action='store_true')),
             ]
 
     @expose(hide=True)
