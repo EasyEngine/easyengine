@@ -65,7 +65,7 @@ fi
 # EasyEngine (ee) only support all Ubuntu/Debian distro except the distro reached EOL
 lsb_release -d | egrep -e "14.04|16.04|18.04|wheezy|jessie" &>> /dev/null
 if [ "$?" -ne "0" ]; then
-    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 14.04/16.04/18.04 LTS and Debian 7.x/8.x/9.x"
+    ee_lib_echo_fail "EasyEngine (ee) only support Ubuntu 14.04/16.04/18.04 LTS and Debian 7.x/8.x"
     exit 100
 fi
 
