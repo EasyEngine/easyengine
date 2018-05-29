@@ -22,7 +22,9 @@ class EEDownload():
                 if not os.path.exists(directory):
                     os.makedirs(directory)
                 Log.info(self, "Downloading {0:20}".format(pkg_name), end=' ')
-                urllib.request.urlretrieve(url, filename)
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response, open(filename, 'wb') as out_file:
+                    out_file.write(response.read())
                 Log.info(self, "{0}".format("[" + Log.ENDC + "Done"
                                             + Log.OKBLUE + "]"))
             except urllib.error.URLError as e:
