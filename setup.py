@@ -58,7 +58,7 @@ if not os.path.isfile('/root/.gitconfig'):
       shutil.copy2(os.path.expanduser("~")+'/.gitconfig', '/root/.gitconfig')
 
 setup(name='ee',
-      version='3.7.5',
+      version='3.8.0',
       description=long_description,
       long_description=long_description,
       classifiers=[],
@@ -86,7 +86,7 @@ setup(name='ee',
           'PyMySQL == 0.8.0',
           'psutil == 3.1.1',
           'sh',
-          'sqlalchemy',
+          'SQLAlchemy',
           ],
       data_files=[('/etc/ee', ['config/ee.conf']),
                   ('/etc/ee/plugins.d', conf),

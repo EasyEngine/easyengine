@@ -1,3 +1,10 @@
+v3.8.0 - May 29, 2018
+- Add support for Ubuntu 18.04 and remove support for Ubuntu 12.04
+- Nginx build for EasyEngine updated to 1.14.0
+- Update WP-CLI version to 1.5.1
+- Update Roundcube to 1.3.6
+- Update Adminer to 4.6.2
+
 v3.7.5 - Mar 30, 2018
 - Replace pymysql3 with PyMySQL [critical]
 - Upgrade wp-cli version to 1.4.1

@@ -717,7 +717,7 @@ def site_package_check(self, stype):
 
     if not self.app.pargs.php7 and stype in ['php', 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
         Log.debug(self, "Setting apt_packages variable for PHP")
-        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial' or EEVariables.ee_platform_codename == 'bionic'):
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6 + EEVariables.ee_php_extra
         else:
@@ -725,7 +725,7 @@ def site_package_check(self, stype):
                 apt_packages = apt_packages + EEVariables.ee_php
 
     if self.app.pargs.php7 and stype in [ 'mysql', 'wp', 'wpsubdir', 'wpsubdomain']:
-        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial'):
+        if (EEVariables.ee_platform_codename == 'trusty' or EEVariables.ee_platform_codename == 'xenial' or EEVariables.ee_platform_codename == 'bionic'):
             Log.debug(self, "Setting apt_packages variable for PHP 5.6")
             if not EEAptGet.is_installed(self, 'php5.6-fpm'):
                 apt_packages = apt_packages + EEVariables.ee_php5_6
