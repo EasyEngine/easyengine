@@ -523,7 +523,7 @@ class Runner {
 			list( $args, $assoc_args, $this->runtime_config ) = $configurator->parse_args( $argv );
 
 			// foo --help  ->  help foo
-            if ( isset( $assoc_args['help'] ) ) {
+            if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
                 array_unshift( $args, 'help' );
                 unset( $assoc_args['help'] );
             }
