@@ -86,11 +86,20 @@ class EE_DOCKER {
 		$mail['environment']  = array( 'env' => array( array( 'name' => 'VIRTUAL_HOST=mail.${VIRTUAL_HOST}' ), array( 'name' => 'VIRTUAL_PORT=8025' ) ) );
 		$mail['networks']     = $network_default;
 
+		// redis configuration.
+		$redis['service_name'] = array( 'name' => 'redis' );
+		$redis['image']        = array( 'name' => 'easyengine/redis' );
+		$redis['networks']     = $network_default;
+
 		$base[] = $db;
 		$base[] = $php;
 		$base[] = $nginx;
 		$base[] = $mail;
 		$base[] = $phpmyadmin;
+
+		if ( in_array( 'wpredis', $filters ) ) {
+			$base[] = $redis;
+		}
 
 		$binding = array(
 			'services' => $base,
@@ -173,10 +182,6 @@ class EE_DOCKER {
 				$command = "docker run --name $nginx_proxy_name -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy";
 				break;
 
-			case 'ee4_redis':
-				$command = "docker run --name ee4_redis -d --restart=always easyengine/redis";
-				break;
-
 			case 'letsencrypt':
 				$command = "docker run --name letsencrypt -d -v $HOME/.ee4/nginx/certs:/etc/nginx/certs:rw -v /var/run/docker.sock:/var/run/docker.sock:ro --volumes-from $nginx_proxy_name jrcs/letsencrypt-nginx-proxy-companion";
 				break;
@@ -235,6 +240,32 @@ class EE_DOCKER {
 	public static function disconnect_network( $name, $connected_to ) {
 		return default_launch( "docker network disconnect $name $connected_to" );
 	}
+
+
+	/**
+	 * Function to connect site network to appropriate containers.
+	 */
+	public function connect_site_network_to( $site_name, $to_container ) {
+
+		if ( self::connect_network( $site_name, $to_container ) ) {
+			EE::success( "Site connected to $to_container." );
+		} else {
+			throw new Exception( "There was some error connecting to $to_container." );
+		}
+	}
+
+	/**
+	 * Function to disconnect site network from appropriate containers.
+	 */
+	public function disconnect_site_network_from( $site_name, $from_container ) {
+
+		if ( self::disconnect_network( $site_name, $from_container ) ) {
+			EE::log( "[$site_name] Disconnected from Docker network of $from_container" );
+		} else {
+			EE::warning( "Error in disconnecting from Docker network of $from_container" );
+		}
+	}
+
 
 	/**
 	 * Function to boot the containers.
