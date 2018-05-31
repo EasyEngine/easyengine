@@ -67,11 +67,11 @@ class Runner {
 	/**
 	 * Register a command for early invocation, generally before WordPress loads.
 	 *
-	 * @param string                   $when Named execution hook
+	 * @param string $when Named execution hook
 	 * @param EE\Dispatcher\Subcommand $command
 	 */
 	public function register_early_invoke( $when, $command ) {
-		$this->_early_invoke[$when][] = array_slice( Dispatcher\get_path( $command ), 1 );
+		$this->_early_invoke[ $when ][] = array_slice( Dispatcher\get_path( $command ), 1 );
 	}
 
 	/**
@@ -80,13 +80,13 @@ class Runner {
 	 * @param string $when Named execution hook
 	 */
 	private function do_early_invoke( $when ) {
-		if ( ! isset( $this->_early_invoke[$when] ) ) {
+		if ( ! isset( $this->_early_invoke[ $when ] ) ) {
 			return;
 		}
 
 		// Search the value of @when from the command method.
 		$real_when = '';
-		$r         = $this->find_command_to_run( $this->arguments );
+		$r = $this->find_command_to_run( $this->arguments );
 		if ( is_array( $r ) ) {
 			list( $command, $final_args, $cmd_path ) = $r;
 
@@ -99,7 +99,7 @@ class Runner {
 			}
 		}
 
-		foreach ( $this->_early_invoke[$when] as $path ) {
+		foreach ( $this->_early_invoke[ $when ] as $path ) {
 			if ( $this->cmd_starts_with( $path ) ) {
 				if ( empty( $real_when ) || ( $real_when && $real_when === $when ) ) {
 					$this->_run_command_and_exit();
@@ -116,10 +116,10 @@ class Runner {
 	public function get_global_config_path() {
 
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
-			$config_path                     = getenv( 'EE_CONFIG_PATH' );
+			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path                     = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -175,7 +175,6 @@ class Runner {
 		} else {
 			$packages_dir = Utils\get_home_dir() . '/.ee4/packages/';
 		}
-
 		return $packages_dir;
 	}
 
@@ -187,7 +186,6 @@ class Runner {
 	 * Given positional arguments, find the command to execute.
 	 *
 	 * @param array $args
-	 *
 	 * @return array|string Command, args, and path on success; error message on failure
 	 */
 	public function find_command_to_run( $args ) {
@@ -199,16 +197,15 @@ class Runner {
 
 		while ( ! empty( $args ) && $command->can_have_subcommands() ) {
 			$cmd_path[] = $args[0];
-			$full_name  = implode( ' ', $cmd_path );
+			$full_name = implode( ' ', $cmd_path );
 
 			$subcommand = $command->find_subcommand( $args );
 
 			if ( ! $subcommand ) {
 				if ( count( $cmd_path ) > 1 ) {
-					$child       = array_pop( $cmd_path );
+					$child = array_pop( $cmd_path );
 					$parent_name = implode( ' ', $cmd_path );
-					$suggestion  = $this->get_subcommand_suggestion( $child, $command );
-
+					$suggestion = $this->get_subcommand_suggestion( $child, $command );
 					return sprintf(
 						"'%s' is not a registered subcommand of '%s'. See 'ee help %s' for available subcommands.%s",
 						$child,
@@ -243,9 +240,9 @@ class Runner {
 	/**
 	 * Find the EE command to run given arguments, and invoke it.
 	 *
-	 * @param array $args       Positional arguments including command name
-	 * @param array $assoc_args Associative arguments for the command.
-	 * @param array $options    Configuration options for the function.
+	 * @param array $args        Positional arguments including command name
+	 * @param array $assoc_args  Associative arguments for the command.
+	 * @param array $options     Configuration options for the function.
 	 */
 	public function run_command( $args, $assoc_args = array(), $options = array() ) {
 
@@ -260,15 +257,14 @@ class Runner {
 
 		$extra_args = array();
 
-		if ( isset( $this->extra_config[$name] ) ) {
-			$extra_args = $this->extra_config[$name];
+		if ( isset( $this->extra_config[ $name ] ) ) {
+			$extra_args = $this->extra_config[ $name ];
 		}
 
 		EE::debug( 'Running command: ' . $name, 'bootstrap' );
 		try {
 			$command->invoke( $final_args, $assoc_args, $extra_args );
-		}
-		catch ( EE\Iterators\Exception $e ) {
+		} catch ( EE\Iterators\Exception $e ) {
 			EE::error( $e->getMessage() );
 		}
 	}
@@ -310,7 +306,6 @@ class Runner {
 	 * scheme of "docker" or "docker-compose").
 	 *
 	 * @param string $connection_string Passed connection string.
-	 *
 	 * @return void
 	 */
 	private function run_ssh_command( $connection_string ) {
@@ -333,16 +328,16 @@ class Runner {
 		}
 
 		$ee_binary = 'ee';
-		$ee_args   = array_slice( $GLOBALS['argv'], 1 );
+		$ee_args = array_slice( $GLOBALS['argv'], 1 );
 
 		if ( $this->alias && ! empty( $ee_args[0] ) && $this->alias === $ee_args[0] ) {
 			array_shift( $ee_args );
 			$runtime_alias = array();
-			foreach ( $this->aliases[$this->alias] as $key => $value ) {
+			foreach ( $this->aliases[ $this->alias ] as $key => $value ) {
 				if ( 'ssh' === $key ) {
 					continue;
 				}
-				$runtime_alias[$key] = $value;
+				$runtime_alias[ $key ] = $value;
 			}
 			if ( ! empty( $runtime_alias ) ) {
 				$encoded_alias = json_encode(
@@ -350,17 +345,17 @@ class Runner {
 						$this->alias => $runtime_alias,
 					)
 				);
-				$ee_binary     = "EE_RUNTIME_ALIAS='{$encoded_alias}' {$ee_binary} {$this->alias}";
+				$ee_binary = "EE_RUNTIME_ALIAS='{$encoded_alias}' {$ee_binary} {$this->alias}";
 			}
 		}
 
 		foreach ( $ee_args as $k => $v ) {
 			if ( preg_match( '#--ssh=#', $v ) ) {
-				unset( $ee_args[$k] );
+				unset( $ee_args[ $k ] );
 			}
 		}
 
-		$ee_command      = $pre_cmd . $env_vars . $ee_binary . ' ' . implode( ' ', array_map( 'escapeshellarg', $ee_args ) );
+		$ee_command = $pre_cmd . $env_vars . $ee_binary . ' ' . implode( ' ', array_map( 'escapeshellarg', $ee_args ) );
 		$escaped_command = $this->generate_ssh_command( $bits, $ee_command );
 
 		passthru( $escaped_command, $exit_code );
@@ -376,7 +371,6 @@ class Runner {
 	 *
 	 * @param array  $bits       Parsed connection string.
 	 * @param string $ee_command EE command to run.
-	 *
 	 * @return string
 	 */
 	private function generate_ssh_command( $bits, $ee_command ) {
@@ -384,11 +378,11 @@ class Runner {
 
 		// Set default values.
 		foreach ( array( 'scheme', 'user', 'host', 'port', 'path' ) as $bit ) {
-			if ( ! isset( $bits[$bit] ) ) {
-				$bits[$bit] = null;
+			if ( ! isset( $bits[ $bit ] ) ) {
+				$bits[ $bit ] = null;
 			}
 
-			EE::debug( 'SSH ' . $bit . ': ' . $bits[$bit], 'bootstrap' );
+			EE::debug( 'SSH ' . $bit . ': ' . $bits[ $bit ], 'bootstrap' );
 		}
 
 		$is_tty = function_exists( 'posix_isatty' ) && posix_isatty( STDOUT );
@@ -457,7 +451,6 @@ class Runner {
 	 */
 	public function is_command_disabled( $command ) {
 		$path = implode( ' ', array_slice( \EE\Dispatcher\get_path( $command ), 1 ) );
-
 		return in_array( $path, $this->config['disabled_commands'] );
 	}
 
@@ -514,14 +507,14 @@ class Runner {
 
 		// File config
 		{
-			$this->global_config_path  = $this->get_global_config_path();
+			$this->global_config_path = $this->get_global_config_path();
 			$this->project_config_path = $this->get_project_config_path();
 
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
-			$config                          = $configurator->to_array();
+			$config = $configurator->to_array();
 			$this->_required_files['global'] = $config[0]['require'];
 			$configurator->merge_yml( $this->project_config_path, $this->alias );
-			$config                           = $configurator->to_array();
+			$config = $configurator->to_array();
 			$this->_required_files['project'] = $config[0]['require'];
 		}
 
@@ -530,10 +523,10 @@ class Runner {
 			list( $args, $assoc_args, $this->runtime_config ) = $configurator->parse_args( $argv );
 
 			// foo --help  ->  help foo
-			if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
-				array_unshift( $args, 'help' );
-				unset( $assoc_args['help'] );
-			}
+            if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
+                array_unshift( $args, 'help' );
+                unset( $assoc_args['help'] );
+            }
 
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
@@ -543,9 +536,9 @@ class Runner {
 		list( $this->config, $this->extra_config ) = $configurator->to_array();
 		$this->aliases = $configurator->get_aliases();
 		if ( count( $this->aliases ) && ! isset( $this->aliases['@all'] ) ) {
-			$this->aliases         = array_reverse( $this->aliases );
+			$this->aliases = array_reverse( $this->aliases );
 			$this->aliases['@all'] = 'Run command against every registered alias.';
-			$this->aliases         = array_reverse( $this->aliases );
+			$this->aliases = array_reverse( $this->aliases );
 		}
 		$this->_required_files['runtime'] = $this->config['require'];
 	}
@@ -554,39 +547,38 @@ class Runner {
 	 * Ensures that vars are present in config. If they aren't, attempts to
 	 * create config file and add vars in it.
 	 *
-	 * @param $var     Variable to check.
+	 * @param $var Variable to check.
 	 * @param $default Default value to use if $var is not set.
 	 */
-	private function ensure_present_in_config( $var, $default ) {
+	private function ensure_present_in_config( $var, $default) {
 
-		if ( empty( $this->config[$var] ) ) {
-			$this->config[$var] = $default;
+		if ( empty($this->config[$var]) ) {
+			$this->config[$var] =  $default ;
 
-			$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : Utils\get_home_dir() . '/.ee4/config.yml';
-			$config_dir_path  = dirname( $config_file_path );
+			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_dir_path = dirname( $config_file_path );
 
 			if ( file_exists( $config_file_path ) ) {
 				if ( is_readable( $config_file_path ) ) {
 					if ( is_writable( $config_file_path ) ) {
-						$existing_config = Spyc::YAMLLoad( $config_file_path );
+						$existing_config = Spyc::YAMLLoad ( $config_file_path );
 						$this->add_var_to_config_file( $var, $config_file_path, $existing_config );
-
 						return;
 					}
-					EE::error( "The config file {$config_file_path} is not writable. Please set a config path which is writable in EE_CONFIG_PATH environment variable." );
+					EE::error("The config file {$config_file_path} is not writable. Please set a config path which is writable in EE_CONFIG_PATH environment variable.");
 				}
-				EE::error( "The config file {$config_file_path} is not readable. Please select a config path which is readable in EE_CONFIG_PATH environment variable." );
-			} else {
+				EE::error("The config file {$config_file_path} is not readable. Please select a config path which is readable in EE_CONFIG_PATH environment variable.");
+			}
+			else {
 				if ( is_writable( $config_dir_path ) ) {
 					$this->add_var_to_config_file( $var, $config_file_path );
-
 					return;
 				}
-				$mkdir_success = mkdir( $config_dir_path, 0755, true );
+				$mkdir_success = mkdir ( $config_dir_path , 0755, true );
 				if ( ! $mkdir_success ) {
-					EE::error( "The config file path ${$config_dir_path} is not writable. Please select a config path which is writable in EE_CONFIG_PATH environment variable." );
+					EE::error("The config file path ${$config_dir_path} is not writable. Please select a config path which is writable in EE_CONFIG_PATH environment variable.");
 				}
-				$this->add_var_to_config_file( $var, $config_file_path );
+				$this->add_var_to_config_file($var, $config_file_path );
 			}
 		}
 	}
@@ -648,30 +640,30 @@ class Runner {
 
 		foreach ( $aliases as $alias ) {
 			EE::log( $alias );
-			$args           = implode( ' ', array_map( 'escapeshellarg', $this->arguments ) );
-			$assoc_args     = Utils\assoc_args_to_str( $this->assoc_args );
+			$args = implode( ' ', array_map( 'escapeshellarg', $this->arguments ) );
+			$assoc_args = Utils\assoc_args_to_str( $this->assoc_args );
 			$runtime_config = Utils\assoc_args_to_str( $this->runtime_config );
-			$full_command   = "EE_CONFIG_PATH={$config_path} {$php_bin} {$script_path} {$alias} {$args}{$assoc_args}{$runtime_config}";
-			$proc           = Utils\proc_open_compat( $full_command, array( STDIN, STDOUT, STDERR ), $pipes );
+			$full_command = "EE_CONFIG_PATH={$config_path} {$php_bin} {$script_path} {$alias} {$args}{$assoc_args}{$runtime_config}";
+			$proc = Utils\proc_open_compat( $full_command, array( STDIN, STDOUT, STDERR ), $pipes );
 			proc_close( $proc );
 		}
 	}
 
 	private function set_alias( $alias ) {
-		$orig_config  = $this->config;
-		$alias_config = $this->aliases[$this->alias];
+		$orig_config = $this->config;
+		$alias_config = $this->aliases[ $this->alias ];
 		$this->config = array_merge( $orig_config, $alias_config );
 		foreach ( $alias_config as $key => $_ ) {
-			if ( isset( $orig_config[$key] ) && ! is_null( $orig_config[$key] ) ) {
-				$this->assoc_args[$key] = $orig_config[$key];
+			if ( isset( $orig_config[ $key ] ) && ! is_null( $orig_config[ $key ] ) ) {
+				$this->assoc_args[ $key ] = $orig_config[ $key ];
 			}
 		}
 	}
 
 	public function start() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir() . '/ee4-sites' );
-		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir() . '/.ee4/ee4.db' );
+		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee4-sites' );
+		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 		$this->init_ee4();
 
@@ -692,14 +684,14 @@ class Runner {
 
 			if ( '@all' === $this->alias && is_string( $this->aliases['@all'] ) ) {
 				$aliases = array_keys( $this->aliases );
-				$k       = array_search( '@all', $aliases );
-				unset( $aliases[$k] );
+				$k = array_search( '@all', $aliases );
+				unset( $aliases[ $k ] );
 				$this->run_alias_group( $aliases );
 				exit;
 			}
 
 			if ( ! array_key_exists( $this->alias, $this->aliases ) ) {
-				$error_msg  = "Alias '{$this->alias}' not found.";
+				$error_msg = "Alias '{$this->alias}' not found.";
 				$suggestion = Utils\get_suggestion( $this->alias, array_keys( $this->aliases ), $threshold = 2 );
 				if ( $suggestion ) {
 					$error_msg .= PHP_EOL . "Did you mean '{$suggestion}'?";
@@ -707,9 +699,9 @@ class Runner {
 				EE::error( $error_msg );
 			}
 			// Numerically indexed means a group of aliases
-			if ( isset( $this->aliases[$this->alias][0] ) ) {
-				$group_aliases = $this->aliases[$this->alias];
-				$all_aliases   = array_keys( $this->aliases );
+			if ( isset( $this->aliases[ $this->alias ][0] ) ) {
+				$group_aliases = $this->aliases[ $this->alias ];
+				$all_aliases = array_keys( $this->aliases );
 				if ( $diff = array_diff( $group_aliases, $all_aliases ) ) {
 					EE::error( "Group '{$this->alias}' contains one or more invalid aliases: " . implode( ', ', $diff ) );
 				}
@@ -732,7 +724,6 @@ class Runner {
 
 		if ( $this->config['ssh'] ) {
 			$this->run_ssh_command( $this->config['ssh'] );
-
 			return;
 		}
 
@@ -779,12 +770,11 @@ class Runner {
 			$days_between_checks = 1;
 		}
 
-		$cache     = EE::get_cache();
+		$cache = EE::get_cache();
 		$cache_key = 'ee-update-check';
 		// Bail early on the first check, so we don't always check on an unwritable cache.
 		if ( ! $cache->has( $cache_key ) ) {
 			$cache->write( $cache_key, time() );
-
 			return;
 		}
 
