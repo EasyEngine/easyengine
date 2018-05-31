@@ -11,7 +11,7 @@ class EE_DOCKER {
 	 *
 	 * @param array $filters Array of flags to determine the docker-compose.yml generation.
 	 *                       Empty/Default -> Generates default WordPress docker-compose.yml
-	 *                       ['le']        -> Enables letsencrypt in the generation.
+	 *                       ['wpsubdom']  -> Generates Subdomain WordPress docker-compose.yml
 	 *
 	 * @return String docker-compose.yml content string.
 	 */
@@ -62,12 +62,7 @@ class EE_DOCKER {
 
 		$v_host = in_array( 'wpsubdom', $filters ) ? 'VIRTUAL_HOST=${VIRTUAL_HOST},*.${VIRTUAL_HOST}' : 'VIRTUAL_HOST';
 
-		if ( in_array( 'le', $filters ) ) {
-			$le_v_host            = in_array( 'wpsubdom', $filters ) ? 'LETSENCRYPT_HOST=${VIRTUAL_HOST},*.${VIRTUAL_HOST}' : 'LETSENCRYPT_HOST=${VIRTUAL_HOST}';
-			$nginx['environment'] = array( 'env' => array( array( 'name' => $v_host ), array( 'name' => $le_v_host ), array( 'name' => 'LETSENCRYPT_EMAIL=${VIRTUAL_HOST_EMAIL}' ) ) );
-		} else {
-			$nginx['environment'] = array( 'env' => array( array( 'name' => $v_host ) ) );
-		}
+		$nginx['environment'] = array( 'env' => array( array( 'name' => $v_host ) ) );
 		$nginx['volumes']  = array( array( 'vol' => array( array( 'name' => './app/src:/var/www/html' ), array( 'name' => './config/nginx/default.conf:/etc/nginx/conf.d/default.conf' ), array( 'name' => './logs/nginx:/var/log/nginx' ), array( 'name' => './config/nginx/common:/usr/local/openresty/nginx/conf/common' ) ) ) );
 		$nginx['networks'] = $network_default;
 
@@ -182,9 +177,6 @@ class EE_DOCKER {
 				$command = "docker run --name $nginx_proxy_name -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $HOME/.ee4/nginx/certs:/etc/nginx/certs -v $HOME/.ee4/nginx/dhparam:/etc/nginx/dhparam -v $HOME/.ee4/nginx/conf.d:/etc/nginx/conf.d -v $HOME/.ee4/nginx/htpasswd:/etc/nginx/htpasswd -v $HOME/.ee4/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $HOME/.ee4:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy";
 				break;
 
-			case 'letsencrypt':
-				$command = "docker run --name letsencrypt -d -v $HOME/.ee4/nginx/certs:/etc/nginx/certs:rw -v /var/run/docker.sock:/var/run/docker.sock:ro --volumes-from $nginx_proxy_name jrcs/letsencrypt-nginx-proxy-companion";
-				break;
 		}
 
 		$launch = EE::launch( $command, false, true );
