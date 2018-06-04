@@ -7,7 +7,7 @@ EasyEngine Developer Docs
 * PHP
 * Composer
 
-Before starting refer the [core repository structure](docs/core-repo-structure.md) and the [structure for multiple repositories](docs/structure-for-multiple-repos.md).
+Before starting refer the [core repository structure](core-repo-structure.md) and the [structure for multiple repositories](structure-for-multiple-repos.md).
 
 ## Steps for working on core repository
 
