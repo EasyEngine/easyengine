@@ -591,39 +591,6 @@ class Runner {
 		fclose( $config_file );
 	}
 
-	private function check_root() {
-		if ( $this->config['allow-root'] ) {
-			return; # they're aware of the risks!
-		}
-		if ( count( $this->arguments ) >= 2 && 'cli' === $this->arguments[0] && in_array( $this->arguments[1], array( 'update', 'info' ), true ) ) {
-			return; # make it easier to update root-owned copies
-		}
-		if ( ! function_exists( 'posix_geteuid' ) ) {
-			return; # posix functions not available
-		}
-		if ( posix_geteuid() !== 0 ) {
-			return; # not root
-		}
-
-		EE::error(
-			"YIKES! It looks like you're running this as root. You probably meant to " .
-			"run this as the user that your WordPress install exists under.\n" .
-			"\n" .
-			"If you REALLY mean to run this as root, we won't stop you, but just " .
-			'bear in mind that any code on this site will then have full control of ' .
-			"your server, making it quite DANGEROUS.\n" .
-			"\n" .
-			"If you'd like to continue as root, please run this again, adding this " .
-			"flag:  --allow-root\n" .
-			"\n" .
-			"If you'd like to run it as the user that this site is under, you can " .
-			"run the following to become the respective user:\n" .
-			"\n" .
-			"    sudo -u USER -i -- ee <command>\n" .
-			"\n"
-		);
-	}
-
 	private function run_alias_group( $aliases ) {
 		Utils\check_proc_available( 'group alias' );
 
@@ -676,7 +643,6 @@ class Runner {
 		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
 		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
 
-		$this->check_root();
 		if ( $this->alias ) {
 			if ( '@all' === $this->alias && ! isset( $this->aliases['@all'] ) ) {
 				EE::error( "Cannot use '@all' when no aliases are registered." );
