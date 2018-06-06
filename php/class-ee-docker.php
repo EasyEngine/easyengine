@@ -9,11 +9,12 @@ class EE_DOCKER {
 	/**
 	 * Check and Start or create container if not running.
 	 *
-	 * @param String $container Name of the
+	 * @param String $container Name of the container.
+	 * @param String $command   Command to launch that container if needed.
 	 *
 	 * @return bool success.
 	 */
-	public static function boot_container( $container ) {
+	public static function boot_container( $container, $command = '' ) {
 		$status = self::container_status( $container );
 		if ( $status ) {
 			if ( 'exited' === $status ) {
@@ -22,7 +23,7 @@ class EE_DOCKER {
 				return true;
 			}
 		} else {
-			return self::create_container( $container );
+			return self::create_container( $container, $command );
 		}
 	}
 
@@ -66,18 +67,7 @@ class EE_DOCKER {
 	 *
 	 * @return bool success.
 	 */
-	public static function create_container( $container, $command = '' ) {
-
-		$HOME       = HOME;
-		$proxy_name = 'ee4_traefik';
-
-		switch ( $container ) {
-
-			case 'ee4_traefik':
-				$command = "docker run -d -p 8080:8080 -p 80:80 -p 443:443 -v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.ee4/traefik/traefik.toml:/etc/traefik/traefik.toml -v $HOME/.ee4/traefik/acme.json:/etc/traefik/acme.json --name $proxy_name traefik --logLevel=DEBUG";
-				break;
-
-		}
+	public static function create_container( $container, $command ) {
 
 		$launch = EE::launch( $command, false, true );
 		default_debug( $launch );
