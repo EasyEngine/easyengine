@@ -38,10 +38,10 @@ git clone git@github.com:EasyEngine/easyengine.git && git checkout develop-v4
 
 ```"your-username/site-command": "dev-master"```
 
-4. Append the following section in the `composer.json` for development:
+4. Append the following section in the `composer.json` for development, eg. for site-command:
 ```
 "repositories": {
-    "author/command-name": {
+    "janedoe/site-command": {
         "type": "path",
         "url": "path/to/your/forked/repository"
     }
@@ -79,7 +79,7 @@ Also, append the following section in the `composer.json` for development:
 }
 ```
 
-Or, you can add your repository to packagist and run `composer reqiure author/name`.
+Or, you can add your repository to packagist and run `composer reqiure author/command-name`.
 
 5. Run `composer update` in the core repository after this.
 6. After that, try running the default command `hello-world` given in the template, it should give a success message as below by running it from the easyengine repository root:
@@ -87,10 +87,5 @@ Or, you can add your repository to packagist and run `composer reqiure author/na
 $ ./bin/ee hello-world
 Success: Hello world.
 ```
-7. Your repository will be in the vendor directory. 
-    * Go to your repository directory: `cd vendor/author/command-name`.
-    * Try `git remote -v`, if you have already put the proper url and used `--prefer-source` during composer install then the `remote origin` will have your github url.
-    * In case that is missing, do `git remote add origin git@github.com:author/command-name.git`.
-    * Make changes inside the vendor directory itself to view your changes directly and keep committing them regularly.
 
-Note: We are working on scaffold command and these manual steps will be replaced very soon.
+Note: These manual steps for setting up a new EasyEngine command will be replaced by a scaffold command.
