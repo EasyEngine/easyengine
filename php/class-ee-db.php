@@ -236,4 +236,27 @@ class EE_DB {
 			return false;
 		}
 	}
+
+	/**
+	 * Check if a site entry exists in the database as well as if it is enbaled.
+	 *
+	 * @param String $site_name Name of the site to be checked.
+	 *
+	 * @return bool true  if site is enabled,
+	 *              false if disabled or site does not exists.
+	 */
+	public static function site_enabled( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( array( 'id', 'is_enabled' ), array( 'sitename' => $site_name ) );
+
+		if ( 1 === count( $site ) ) {
+			return $site[0]['is_enabled'];
+		}
+
+		return false;
+	}
 }
