@@ -1,7 +1,7 @@
 Docker Files
 ============
 
-1. nginx-proxy: EasyEngine nginx-proxy uses [jwilder/nginx-proxy](https://github.com/jwilder/nginx-proxy) as the base. Nginx-proxy sets up a container running nginx and docker-gen. docker-gen generates reverse proxy configs for nginx and reloads nginx when containers are started and stopped. The root permission in this image have been changed with user permission in the EasyEngine image.
+1. traefik: EasyEngine traefik uses [traefik](https://github.com/containous/traefik) for load-balancing. Træfik is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
 
 2. nginx: EasyEngine nginx image uses [openresty](https://github.com/openresty/docker-openresty) as the base. It is a full-fledged web application nginx server. Multiple additional modules have been added to make it similar to the EasyEngine version 3 nginx server as well as to add EasyEngine's custom configuration on top of it.
 
