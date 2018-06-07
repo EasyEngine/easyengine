@@ -818,7 +818,7 @@ class EE {
 	 * @param array $assoc_args Associative arguments to include when calling the command.
 	 * @param bool $exit_on_error Whether to exit if the command returns an elevated return code.
 	 * @param bool $return_detailed Whether to return an exit status (default) or detailed execution results.
-	 * @param array $runtime_args Override one or more global args (path,url,user,allow-root)
+	 * @param array $runtime_args Override one or more global args (path,url,user)
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch_self( $command, $args = array(), $assoc_args = array(), $exit_on_error = true, $return_detailed = false, $runtime_args = array() ) {
@@ -826,7 +826,6 @@ class EE {
 			'path',
 			'url',
 			'user',
-			'allow-root',
 		);
 
 		foreach ( $reused_runtime_args as $key ) {
