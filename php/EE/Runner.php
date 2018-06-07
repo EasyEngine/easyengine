@@ -480,10 +480,18 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			touch ('/tmp/temp_ee4.log');
+			$file_logging_path = '/tmp/temp_ee4.log';
+		}
+		else {
+			$file_logging_path = EE_CONF_ROOT . '/ee4.log';
+		}
+
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee4.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( $file_logging_path , Logger::DEBUG );
 		$stream->setFormatter( $formatter );
 		$file_logger = new \Monolog\Logger( 'ee4' );
 		$file_logger->pushHandler( $stream );
@@ -662,6 +670,12 @@ class Runner {
 
 	public function start() {
 
+		// // Protect 'cli info' from most of the runtime,
+		// // except when the command will be run over SSH
+		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			$this->_run_command_and_exit();
+		}
+
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee4-sites' );
 		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
@@ -714,12 +728,6 @@ class Runner {
 
 		if ( empty( $this->arguments ) ) {
 			$this->arguments[] = 'help';
-		}
-
-		// Protect 'cli info' from most of the runtime,
-		// except when the command will be run over SSH
-		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
-			$this->_run_command_and_exit();
 		}
 
 		if ( $this->config['ssh'] ) {
