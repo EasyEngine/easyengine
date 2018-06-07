@@ -202,8 +202,8 @@ class CLI_Command extends EE_Command {
 			$md5_url      = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine-nightly.phar.md5';
 		} elseif ( Utils\get_flag_value( $assoc_args, 'stable' ) ) {
 			EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest stable release?', EE_VERSION ), $assoc_args );
-			$download_url = 'https://raw.githubusercontent.com/kirtangajjar/easyengine-builds/master/phar/easyengine.phar';
-			$md5_url      = 'https://raw.githubusercontent.com/kirtangajjar/easyengine-builds/master/phar/easyengine.phar.md5';
+			$download_url = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar';
+			$md5_url      = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar.md5';
 		} else {
 			$updates = $this->get_updates( $assoc_args );
 			if ( empty( $updates ) ) {
@@ -230,11 +230,11 @@ class CLI_Command extends EE_Command {
 		}
 		$md5_file = md5_file( $temp );
 		$release_hash = trim( $md5_response->body );
-		// if ( $md5_file === $release_hash ) {
-		// 	EE::log( 'md5 hash verified: ' . $release_hash );
-		// } else {
-		// 	EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
-		// }
+		if ( $md5_file === $release_hash ) {
+			EE::log( 'md5 hash verified: ' . $release_hash );
+		} else {
+			EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
+		}
 		$php_binary = Utils\get_php_binary();
 		$process = EE\Process::create( "{$php_binary} $temp cli info" );
 		$result = $process->run();

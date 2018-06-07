@@ -480,9 +480,8 @@ class Runner {
 
 		EE::set_logger( $logger );
 
-		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
-			touch ('/tmp/temp_ee4.log');
-			$file_logging_path = '/tmp/temp_ee4.log';
+		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			$file_logging_path = '/dev/null';
 		}
 		else {
 			$file_logging_path = EE_CONF_ROOT . '/ee4.log';
@@ -639,7 +638,7 @@ class Runner {
 
 		// // Protect 'cli info' from most of the runtime,
 		// // except when the command will be run over SSH
-		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$this->_run_command_and_exit();
 		}
 
