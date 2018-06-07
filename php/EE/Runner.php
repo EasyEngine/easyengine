@@ -55,24 +55,6 @@ class Runner {
 			mkdir( EE_CONF_ROOT );
 		}
 
-		if ( ! is_dir( EE_CONF_ROOT . '/traefik' ) ) {
-			mkdir( EE_CONF_ROOT . '/traefik' );
-			touch( EE_CONF_ROOT . '/traefik/acme.json' );
-			chmod( EE_CONF_ROOT . '/traefik/acme.json', 600 );
-			file_put_contents(
-				EE_CONF_ROOT . '/traefik/traefik.toml', '################################################################
-# API and dashboard configuration
-################################################################
-[api]
-################################################################
-# Docker configuration backend
-################################################################
-[docker]
-domain = "docker.local"
-watch = true'
-			);
-		}
-
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
 			mkdir( $this->config['sites_path'] );
 		}
