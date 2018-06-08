@@ -180,7 +180,7 @@ class CLI_Command extends EE_Command {
 	 *
 	 *     # Update CLI.
 	 *     You have version 0.24.0. Would you like to update to 0.24.1? [y/n] y
-	 *     Downloading from https://github.com/ee/ee/releases
+	 *     Downloading from https://github.com/ee/ee/releases/download/v4.0.0/ee-4.0.0.phar...
 	 *     $ ee cli update/download/v0.24.1/ee-0.24.1.phar...
 	 *     New version works. Proceeding to replace.
 	 *     Success: Updated EE to 0.24.1.
@@ -209,18 +209,19 @@ class CLI_Command extends EE_Command {
 			if ( empty( $updates ) ) {
 				$update_type = $this->get_update_type_str( $assoc_args );
 				EE::success( "EasyEngine is at the latest{$update_type}version." );
+
 				return;
 			}
 			$newest = $updates[0];
 			EE::confirm( sprintf( 'You have version %s. Would you like to update to %s?', EE_VERSION, $newest['version'] ), $assoc_args );
 			$download_url = $newest['package_url'];
-			$md5_url = str_replace( '.phar', '.phar.md5', $download_url );
+			$md5_url      = str_replace( '.phar', '.phar.md5', $download_url );
 		}
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
-		$temp = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
+		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
 		$options = array(
-			'timeout' => 600,  // 10 minutes ought to be enough for everybody.
+			'timeout'  => 600,  // 10 minutes ought to be enough for everybody.
 			'filename' => $temp,
 		);
 		Utils\http_request( 'GET', $download_url, null, $headers, $options );
@@ -228,7 +229,7 @@ class CLI_Command extends EE_Command {
 		if ( 20 != substr( $md5_response->status_code, 0, 2 ) ) {
 			EE::error( "Couldn't access md5 hash for release (HTTP code {$md5_response->status_code})." );
 		}
-		$md5_file = md5_file( $temp );
+		$md5_file     = md5_file( $temp );
 		$release_hash = trim( $md5_response->body );
 		if ( $md5_file === $release_hash ) {
 			EE::log( 'md5 hash verified: ' . $release_hash );
@@ -236,8 +237,8 @@ class CLI_Command extends EE_Command {
 			EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
 		}
 		$php_binary = Utils\get_php_binary();
-		$process = EE\Process::create( "{$php_binary} $temp cli info" );
-		$result = $process->run();
+		$process    = EE\Process::create( "{$php_binary} $temp cli info" );
+		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );
 			EE::error_multi_line( $multi_line );
@@ -262,11 +263,11 @@ class CLI_Command extends EE_Command {
 		EE::success( sprintf( 'Updated WP-CLI to %s.', $updated_version ) );
 	}
 
-		/**
+	/**
 	 * Returns update information.
 	 */
 	private function get_updates( $assoc_args ) {
-		$url = 'https://api.github.com/repos/EasyEngine/easyengine/releases?per_page=100';
+		$url     = 'https://api.github.com/repos/EasyEngine/easyengine/releases?per_page=100';
 		$options = array(
 			'timeout' => 30,
 		);
@@ -281,10 +282,10 @@ class CLI_Command extends EE_Command {
 			EE::error( sprintf( 'Failed to get latest version (HTTP code %d).', $response->status_code ) );
 		}
 		$release_data = json_decode( $response->body );
-		$updates = array(
-			'major'      => false,
-			'minor'      => false,
-			'patch'      => false,
+		$updates      = array(
+			'major' => false,
+			'minor' => false,
+			'patch' => false,
 		);
 		foreach ( $release_data as $release ) {
 			// Get rid of leading "v" if there is one set.
@@ -296,40 +297,41 @@ class CLI_Command extends EE_Command {
 			if ( ! $update_type ) {
 				continue;
 			}
-			if ( ! empty( $updates[ $update_type ] ) && ! Comparator::greaterThan( $release_version, $updates[ $update_type ]['version'] ) ) {
+			if ( ! empty( $updates[$update_type] ) && ! Comparator::greaterThan( $release_version, $updates[$update_type]['version'] ) ) {
 				continue;
 			}
-			$updates[ $update_type ] = array(
-				'version' => $release_version,
+			$updates[$update_type] = array(
+				'version'     => $release_version,
 				'update_type' => $update_type,
 				'package_url' => $release->assets[0]->browser_download_url,
 			);
 		}
 		foreach ( $updates as $type => $value ) {
 			if ( empty( $value ) ) {
-				unset( $updates[ $type ] );
+				unset( $updates[$type] );
 			}
 		}
 		foreach ( array( 'major', 'minor', 'patch' ) as $type ) {
 			if ( true === \EE\Utils\get_flag_value( $assoc_args, $type ) ) {
-				return ! empty( $updates[ $type ] ) ? array( $updates[ $type ] ) : false;
+				return ! empty( $updates[$type] ) ? array( $updates[$type] ) : false;
 			}
 		}
 		if ( empty( $updates ) && preg_match( '#-alpha-(.+)$#', EE_VERSION, $matches ) ) {
 			$version_url = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/NIGHTLY_VERSION';
-			$response = Utils\http_request( 'GET', $version_url );
+			$response    = Utils\http_request( 'GET', $version_url );
 			if ( ! $response->success || 200 !== $response->status_code ) {
 				EE::error( sprintf( 'Failed to get current nightly version (HTTP code %d)', $response->status_code ) );
 			}
 			$nightly_version = trim( $response->body );
 			if ( EE_VERSION != $nightly_version ) {
 				$updates['nightly'] = array(
-					'version'        => $nightly_version,
-					'update_type'    => 'nightly',
-					'package_url'    => 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine-nightly.phar	',
+					'version'     => $nightly_version,
+					'update_type' => 'nightly',
+					'package_url' => 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine-nightly.phar',
 				);
 			}
 		}
+
 		return array_values( $updates );
 	}
 
