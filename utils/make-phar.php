@@ -223,8 +223,7 @@ $finder
 	->ignoreDotFiles(false)
 	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
 	->name('*.mustache')
-	->name('.env.mustache')
-	->name('*.ini');
+	->name('.env.mustache');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
