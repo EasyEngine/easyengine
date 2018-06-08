@@ -98,7 +98,7 @@ class EE {
 
 		if ( ! $cache ) {
 			$home = Utils\get_home_dir();
-			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee4/cache";
+			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee/cache";
 
 			// 6 months, 300mb
 			$cache = new FileCache( $dir, 15552000, 314572800 );
@@ -843,7 +843,7 @@ class EE {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONFIG_PATH . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
