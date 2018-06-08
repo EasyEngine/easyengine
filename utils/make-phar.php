@@ -220,8 +220,11 @@ $finder = new Finder();
 
 $finder
 	->files()
+	->ignoreDotFiles(false)
 	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
-	->name('*.mustache');
+	->name('*.mustache')
+	->name('.env.mustache')
+	->name('*.ini');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
