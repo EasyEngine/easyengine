@@ -222,9 +222,7 @@ $finder
 	->files()
 	->ignoreVCS(true)
 	->ignoreDotFiles(false)
-	->in( EE_ROOT . '/templates')
-	->in( EE_ROOT . '/ee4-config')
-	;
+	->in( EE_ROOT . '/templates');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
