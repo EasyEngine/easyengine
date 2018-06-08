@@ -843,7 +843,7 @@ class EE {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_CONFIG_PATH . '/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 

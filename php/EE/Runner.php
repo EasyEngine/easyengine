@@ -120,7 +120,7 @@ class Runner {
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
 			// $config_path = Utils\get_home_dir() . '/.ee/config.yml';
-			$config_path = EE_CONFIG_PATH . '/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -556,7 +556,7 @@ class Runner {
 		if ( empty($this->config[$var]) ) {
 			$this->config[$var] =  $default ;
 
-			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : EE_CONFIG_PATH . '/config.yml';
+			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : EE_CONF_ROOT . '/config.yml';
 			$config_dir_path = dirname( $config_file_path );
 
 			if ( file_exists( $config_file_path ) ) {
@@ -602,7 +602,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_CONFIG_PATH . '/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
@@ -631,7 +631,7 @@ class Runner {
 	public function start() {
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
-		$this->ensure_present_in_config( 'db_path', EE_CONFIG_PATH. '/ee.db' );
+		$this->ensure_present_in_config( 'db_path', EE_CONF_ROOT . '/ee.db' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 		$this->init_ee();
 

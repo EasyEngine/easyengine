@@ -187,7 +187,7 @@ class CLI_Command extends EE_Command {
 	 */
 	public function update( $_, $assoc_args ) {
 
-		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONFIG_PATH . '/config.yml';
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
 
 		$existing_config = Spyc::YAMLLoad( $config_file_path );
 
