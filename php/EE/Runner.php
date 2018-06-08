@@ -54,7 +54,6 @@ class Runner {
 		if ( ! is_dir( EE_CONF_ROOT ) ) {
 			$user = getenv('USER');
 			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
-			shell_exec("sudo chown -R $user: " . EE_CONF_ROOT);
 		}
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
@@ -486,13 +485,6 @@ class Runner {
 		EE::set_logger( $logger );
 
 		$this->init_ee();
-
-		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
-			$file_logging_path = '/dev/null';
-		}
-		else {
-			$file_logging_path = EE_CONF_ROOT . '/ee4.log';
-		}
 
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
