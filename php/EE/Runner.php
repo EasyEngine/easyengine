@@ -177,7 +177,7 @@ class Runner {
 		if ( getenv( 'EE_PACKAGES_DIR' ) ) {
 			$packages_dir = Utils\trailingslashit( getenv( 'EE_PACKAGES_DIR' ) );
 		} else {
-			$packages_dir = Utils\get_home_dir() . '/.ee/packages/';
+			$packages_dir = EE_CONF_ROOT . '/packages';
 		}
 		return $packages_dir;
 	}
