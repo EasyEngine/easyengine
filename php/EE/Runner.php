@@ -484,7 +484,7 @@ class Runner {
 			$file_logging_path = '/dev/null';
 		}
 		else {
-			$file_logging_path = EE_CONF_ROOT . '/ee4.log';
+			$file_logging_path = EE_CONF_ROOT . '/ee.log';
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
