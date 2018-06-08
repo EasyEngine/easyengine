@@ -168,6 +168,7 @@ $finder
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->in(EE_VENDOR_DIR . '/monolog')
+	->in(EE_VENDOR_DIR . '/yosymfony')
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
 	->exclude('examples')
