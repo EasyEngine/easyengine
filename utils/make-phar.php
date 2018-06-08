@@ -216,10 +216,22 @@ foreach ( $finder as $file ) {
 	add_file( $phar, $file );
 }
 
-// other files
 $finder = new Finder();
+
 $finder
 	->files()
+	->ignoreDotFiles(false)
+	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
+	->name('*.mustache')
+	->name('.env.mustache');
+
+foreach ( $finder as $file ) {
+	add_file( $phar, $file );
+}
+
+// other files
+$finder = new Finder();
+$finder->files()
 	->ignoreVCS(true)
 	->ignoreDotFiles(false)
 	->in( EE_ROOT . '/templates');
