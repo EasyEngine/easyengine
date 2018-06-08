@@ -96,7 +96,7 @@ class CLI_Command extends EE_Command {
 	 *     PHP version: 7.1.12-1+ubuntu16.04.1+deb.sury.org+1
 	 *     php.ini used:    /etc/php/7.1/cli/php.ini
 	 *     EE root dir:    phar://ee.phar
-	 *     EE packages dir:    /home/person/.ee4/packages/
+	 *     EE packages dir:    /home/person/.ee/packages/
 	 *     EE global config:
 	 *     EE project config:
 	 *     EE version: 1.5.0
@@ -187,7 +187,7 @@ class CLI_Command extends EE_Command {
 	 */
 	public function update( $_, $assoc_args ) {
 
-		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : Utils\get_home_dir() . '/.ee4/config.yml';
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
 
 		$existing_config = Spyc::YAMLLoad( $config_file_path );
 

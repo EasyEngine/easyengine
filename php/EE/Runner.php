@@ -47,19 +47,23 @@ class Runner {
 	}
 
 	/**
-	 * Function to check and create the root directory for ee4.
+	 * Function to check and create the root directory for ee.
 	 */
-	private function init_ee4() {
+	private function init_ee() {
 
 		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			mkdir( EE_CONF_ROOT );
+			$user = getenv('USER');
+			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
 		}
+
+		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
+		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
 			mkdir( $this->config['sites_path'] );
 		}
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', $this->config['db_path'] );
+		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 		define( 'TABLE', 'sites' );
 	}
@@ -119,7 +123,7 @@ class Runner {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -173,7 +177,7 @@ class Runner {
 		if ( getenv( 'EE_PACKAGES_DIR' ) ) {
 			$packages_dir = Utils\trailingslashit( getenv( 'EE_PACKAGES_DIR' ) );
 		} else {
-			$packages_dir = Utils\get_home_dir() . '/.ee4/packages/';
+			$packages_dir = EE_CONF_ROOT . '/packages';
 		}
 		return $packages_dir;
 	}
@@ -480,14 +484,16 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		$this->init_ee();
+
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee4.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee.log', Logger::DEBUG );
 		$stream->setFormatter( $formatter );
-		$file_logger = new \Monolog\Logger( 'ee4' );
+		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );
-		$file_logger->info( '::::::::::::::::::::::::ee4 invoked::::::::::::::::::::::::' );
+		$file_logger->info( '::::::::::::::::::::::::ee invoked::::::::::::::::::::::::' );
 		EE::set_file_logger( $file_logger );
 	}
 
@@ -555,7 +561,7 @@ class Runner {
 		if ( empty($this->config[$var]) ) {
 			$this->config[$var] =  $default ;
 
-			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : EE_CONF_ROOT . '/config.yml';
 			$config_dir_path = dirname( $config_file_path );
 
 			if ( file_exists( $config_file_path ) ) {
@@ -591,39 +597,6 @@ class Runner {
 		fclose( $config_file );
 	}
 
-	private function check_root() {
-		if ( $this->config['allow-root'] ) {
-			return; # they're aware of the risks!
-		}
-		if ( count( $this->arguments ) >= 2 && 'cli' === $this->arguments[0] && in_array( $this->arguments[1], array( 'update', 'info' ), true ) ) {
-			return; # make it easier to update root-owned copies
-		}
-		if ( ! function_exists( 'posix_geteuid' ) ) {
-			return; # posix functions not available
-		}
-		if ( posix_geteuid() !== 0 ) {
-			return; # not root
-		}
-
-		EE::error(
-			"YIKES! It looks like you're running this as root. You probably meant to " .
-			"run this as the user that your WordPress install exists under.\n" .
-			"\n" .
-			"If you REALLY mean to run this as root, we won't stop you, but just " .
-			'bear in mind that any code on this site will then have full control of ' .
-			"your server, making it quite DANGEROUS.\n" .
-			"\n" .
-			"If you'd like to continue as root, please run this again, adding this " .
-			"flag:  --allow-root\n" .
-			"\n" .
-			"If you'd like to run it as the user that this site is under, you can " .
-			"run the following to become the respective user:\n" .
-			"\n" .
-			"    sudo -u USER -i -- ee <command>\n" .
-			"\n"
-		);
-	}
-
 	private function run_alias_group( $aliases ) {
 		Utils\check_proc_available( 'group alias' );
 
@@ -634,7 +607,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
@@ -662,10 +635,6 @@ class Runner {
 
 	public function start() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee4-sites' );
-		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
-		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
-		$this->init_ee4();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
@@ -676,7 +645,6 @@ class Runner {
 		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
 		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
 
-		$this->check_root();
 		if ( $this->alias ) {
 			if ( '@all' === $this->alias && ! isset( $this->aliases['@all'] ) ) {
 				EE::error( "Cannot use '@all' when no aliases are registered." );
