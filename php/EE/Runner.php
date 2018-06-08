@@ -52,14 +52,19 @@ class Runner {
 	private function init_ee() {
 
 		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			mkdir( EE_CONF_ROOT );
+			$user = getenv('USER');
+			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
+			shell_exec("sudo chown -R $user: " . EE_CONF_ROOT);
 		}
+
+		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
+		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
 			mkdir( $this->config['sites_path'] );
 		}
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', $this->config['db_path'] );
+		define( 'DB', EE_CONF_ROOT.'/easyengine.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 		define( 'TABLE', 'sites' );
 	}
@@ -480,6 +485,15 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		$this->init_ee();
+
+		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			$file_logging_path = '/dev/null';
+		}
+		else {
+			$file_logging_path = EE_CONF_ROOT . '/ee4.log';
+		}
+
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
@@ -629,10 +643,6 @@ class Runner {
 
 	public function start() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
-		$this->ensure_present_in_config( 'db_path', EE_CONF_ROOT . '/ee.db' );
-		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
-		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
