@@ -259,7 +259,7 @@ class CLI_Command extends EE_Command {
 		} else {
 			$updated_version = $newest['version'];
 		}
-		EE::success( sprintf( 'Updated WP-CLI to %s.', $updated_version ) );
+		EE::success( sprintf( 'Updated EE to %s.', $updated_version ) );
 	}
 
 	/**
