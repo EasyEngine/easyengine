@@ -57,6 +57,7 @@ class Runner {
 		}
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
+		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
