@@ -1490,7 +1490,6 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  *
  * @param array $items An array of items to output.
  *
- * @return null
  */
 function format_table( $items ) {
 	$item_table = new \cli\Table();
@@ -1504,4 +1503,73 @@ function format_table( $items ) {
 		\EE::log( $line );
 	}
 	\EE::log( $delem );
+}
+
+/**
+ * Get the site-name from the path from where ee is running if it is a valid site path.
+ *
+ * @return bool|String Name of the site or false in failure.
+ */
+function get_site_name() {
+	$sites = EE::db()::select( array( 'sitename' ) );
+
+	if ( $sites ) {
+		$cwd          = getcwd();
+		$name_in_path = explode( '/', $cwd );
+		$site_name    = array_intersect( array_flatten( $sites ), $name_in_path );
+
+		if ( 1 === count( $site_name ) ) {
+			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $site_name[0] ) );
+			if ( $path ) {
+				$site_path = $path[0]['site_path'];
+				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
+					return $site_name[0];
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
+ *
+ * @param array $args The passed arguments.
+ * @param String $command The command passing the arguments to aut=detect site-name.
+ *
+ * @return array Arguments with site-name set.
+ */
+function set_site_arg( $args, $command ) {
+	if ( isset( $args[0] ) ) {
+		if ( EE::db()::site_in_db( $args[0] ) ) {
+			return $args;
+		}
+	}
+	$site_name = get_site_name();
+	if ( $site_name ) {
+		array_unshift( $args, $site_name );
+	} else {
+		EE::error( "Could not find the site you wish to run $command command on.\nEither pass it as an argument: `ee $command <site-name>` \nor run `ee $command` from inside the site folder." );
+	}
+
+	return $args;
+}
+
+/**
+ * Function to flatten a multi-dimensional array.
+ *
+ * @param array $array Mulit-dimensional input array.
+ *
+ * @return array Resultant flattened array.
+ */
+function array_flatten( array $array ) {
+	$return = array();
+	array_walk_recursive(
+		$array, function ( $a ) use ( &$return ) {
+		$return[] = $a;
+	}
+	);
+
+	return $return;
 }
