@@ -3,4 +3,4 @@
 # called by Travis CI
 
 php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quite  > /dev/null
-php easyengine.phar cli version
+sudo php easyengine.phar cli version
