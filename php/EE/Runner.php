@@ -530,10 +530,9 @@ class Runner {
 
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
 			$config = $configurator->to_array();
-			$this->_required_files['global'] = $config[0]['require'];
 			$configurator->merge_yml( $this->project_config_path, $this->alias );
 			$config = $configurator->to_array();
-			$this->_required_files['project'] = $config[0]['require'];
+			//$this->_required_files['project'] = $config[0]['require'];
 		}
 
 		// Runtime config and args
@@ -593,7 +592,7 @@ class Runner {
 			$this->aliases['@all'] = 'Run command against every registered alias.';
 			$this->aliases = array_reverse( $this->aliases );
 		}
-		$this->_required_files['runtime'] = $this->config['require'];
+		//$this->_required_files['runtime'] = $this->config['require'];
 	}
 
 	/**
@@ -734,11 +733,6 @@ class Runner {
 		// except when the command will be run over SSH
 		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$this->_run_command_and_exit();
-		}
-
-		if ( $this->config['ssh'] ) {
-			$this->run_ssh_command( $this->config['ssh'] );
-			return;
 		}
 
 		// First try at showing man page.

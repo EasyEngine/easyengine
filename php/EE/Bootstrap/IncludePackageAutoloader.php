@@ -23,12 +23,12 @@ final class IncludePackageAutoloader extends AutoloaderStep {
 		}
 
 		$runner        = new RunnerInstance();
-		$skip_packages = $runner()->config['skip-packages'];
-		if ( true === $skip_packages ) {
-			\EE::debug( 'Skipped loading packages.', 'bootstrap' );
+		//$skip_packages = $runner()->config['skip-packages'];
+		// if ( true === $skip_packages ) {
+		// 	\EE::debug( 'Skipped loading packages.', 'bootstrap' );
 
-			return false;
-		}
+		// 	return false;
+		// }
 
 		$autoloader_path = $runner()->get_packages_dir_path() . 'vendor/autoload.php';
 
