@@ -29,7 +29,7 @@ function extract_from_phar( $path ) {
 	copy( $path, $tmp_path );
 
 	register_shutdown_function(
-		function() use ( $tmp_path ) {
+		function () use ( $tmp_path ) {
 			if ( file_exists( $tmp_path ) ) {
 				unlink( $tmp_path );
 			}
@@ -46,6 +46,7 @@ function load_dependencies() {
 		} elseif ( file_exists( dirname( dirname( EE_ROOT ) ) . '/autoload.php' ) ) {
 			require dirname( dirname( EE_ROOT ) ) . '/autoload.php';
 		}
+
 		return;
 	}
 
@@ -66,7 +67,7 @@ function load_dependencies() {
 }
 
 function get_vendor_paths() {
-	$vendor_paths = array(
+	$vendor_paths        = array(
 		EE_ROOT . '/../../../vendor',  // part of a larger project / installed via Composer (preferred)
 		EE_ROOT . '/vendor',           // top-level project / installed as Git clone
 	);
@@ -77,6 +78,7 @@ function get_vendor_paths() {
 			array_unshift( $vendor_paths, EE_ROOT . '/../../../' . $composer->config->{'vendor-dir'} );
 		}
 	}
+
 	return $vendor_paths;
 }
 
@@ -110,6 +112,7 @@ function load_command( $name ) {
  *
  * @param array|object Either a plain array or another iterator
  * @param callback The function to apply to an element
+ *
  * @return object An iterator that applies the given callback(s)
  */
 function iterator_map( $it, $fn ) {
@@ -130,9 +133,11 @@ function iterator_map( $it, $fn ) {
 
 /**
  * Search for file by walking up the directory tree until the first file is found or until $stop_check($dir) returns true
+ *
  * @param string|array The files (or file) to search for
  * @param string|null The directory to start searching from; defaults to CWD
  * @param callable Function which is passed the current dir each time a directory level is traversed
+ *
  * @return null|string Null if the file was not found
  */
 function find_file_upward( $files, $dir = null, $stop_check = null ) {
@@ -159,6 +164,7 @@ function find_file_upward( $files, $dir = null, $stop_check = null ) {
 		}
 		$dir = $parent_dir;
 	}
+
 	return null;
 }
 
@@ -175,6 +181,7 @@ function is_path_absolute( $path ) {
  * Composes positional arguments into a command string.
  *
  * @param array
+ *
  * @return string
  */
 function args_to_str( $args ) {
@@ -185,6 +192,7 @@ function args_to_str( $args ) {
  * Composes associative arguments into a command string.
  *
  * @param array
+ *
  * @return string
  */
 function assoc_args_to_str( $assoc_args ) {
@@ -262,17 +270,18 @@ function esc_cmd( $cmd ) {
  * #   value: bar
  * ```
  *
- * @access public
+ * @access   public
  * @category Output
  *
- * @param string        $format     Format to use: 'table', 'json', 'csv', 'yaml', 'ids', 'count'
- * @param array         $items      An array of items to output.
- * @param array|string  $fields     Named fields for each item of data. Can be array or comma-separated list.
+ * @param string       $format Format to use: 'table', 'json', 'csv', 'yaml', 'ids', 'count'
+ * @param array        $items  An array of items to output.
+ * @param array|string $fields Named fields for each item of data. Can be array or comma-separated list.
+ *
  * @return null
  */
 function format_items( $format, $items, $fields ) {
 	$assoc_args = compact( 'format', 'fields' );
-	$formatter = new \EE\Formatter( $assoc_args );
+	$formatter  = new \EE\Formatter( $assoc_args );
 	$formatter->display_items( $items );
 }
 
@@ -281,9 +290,9 @@ function format_items( $format, $items, $fields ) {
  *
  * @access public
  *
- * @param resource $fd         File descriptor
- * @param array    $rows       Array of rows to output
- * @param array    $headers    List of CSV columns (optional)
+ * @param resource $fd      File descriptor
+ * @param array    $rows    Array of rows to output
+ * @param array    $headers List of CSV columns (optional)
  */
 function write_csv( $fd, $rows, $headers = array() ) {
 	if ( ! empty( $headers ) ) {
@@ -304,6 +313,7 @@ function write_csv( $fd, $rows, $headers = array() ) {
  *
  * @param array|object Associative array or object to pick fields from
  * @param array List of fields to pick
+ *
  * @return array
  */
 function pick_fields( $item, $fields ) {
@@ -312,7 +322,7 @@ function pick_fields( $item, $fields ) {
 	$values = array();
 
 	foreach ( $fields as $field ) {
-		$values[ $field ] = isset( $item->$field ) ? $item->$field : null;
+		$values[$field] = isset( $item->$field ) ? $item->$field : null;
 	}
 
 	return $values;
@@ -321,10 +331,11 @@ function pick_fields( $item, $fields ) {
 /**
  * Launch system's $EDITOR for the user to edit some text.
  *
- * @access public
+ * @access   public
  * @category Input
  *
- * @param  string  $content  Some form of text to edit (e.g. post content)
+ * @param  string $content Some form of text to edit (e.g. post content)
+ *
  * @return string|bool       Edited text, if file is saved from editor; false, if no change to file.
  */
 function launch_editor_for_input( $input, $filename = 'EE' ) {
@@ -338,7 +349,7 @@ function launch_editor_for_input( $input, $filename = 'EE' ) {
 		$tmpfile = preg_replace( '|\.[^.]*$|', '', $tmpfile );
 		$tmpfile .= '-' . substr( md5( mt_rand() ), 0, 6 );
 		$tmpfile = $tmpdir . $tmpfile . '.tmp';
-		$fp = fopen( $tmpfile, 'xb' );
+		$fp      = fopen( $tmpfile, 'xb' );
 		if ( ! $fp && is_writable( $tmpdir ) && file_exists( $tmpfile ) ) {
 			$tmpfile = '';
 			continue;
@@ -361,8 +372,8 @@ function launch_editor_for_input( $input, $filename = 'EE' ) {
 	}
 
 	$descriptorspec = array( STDIN, STDOUT, STDERR );
-	$process = proc_open_compat( "$editor " . escapeshellarg( $tmpfile ), $descriptorspec, $pipes );
-	$r = proc_close( $process );
+	$process        = proc_open_compat( "$editor " . escapeshellarg( $tmpfile ), $descriptorspec, $pipes );
+	$r              = proc_close( $process );
 	if ( $r ) {
 		exit( $r );
 	}
@@ -393,7 +404,8 @@ function mustache_render( $template_name, $data = array() ) {
 	$m = new \Mustache_Engine(
 		array(
 			'escape' => function ( $val ) {
-				return $val; },
+				return $val;
+			},
 		)
 	);
 
@@ -407,12 +419,13 @@ function mustache_render( $template_name, $data = array() ) {
  * advances with `$progress->tick()`, and completes with `$progress->finish()`.
  * Process bar also indicates elapsed time and expected total time.
  *
- * @access public
+ * @access   public
  * @category Output
  *
  * @param string  $message  Text to display before the progress bar.
  * @param integer $count    Total number of ticks to be performed.
  * @param int     $interval Optional. The interval in milliseconds between updates. Default 100.
+ *
  * @return cli\progress\Bar|EE\NoOp
  */
 function make_progress_bar( $message, $count, $interval = 100 ) {
@@ -446,7 +459,7 @@ function is_windows() {
  * Replace magic constants in some PHP source code.
  *
  * @param string $source The PHP code to manipulate.
- * @param string $path The path to use instead of the magic constants
+ * @param string $path   The path to use instead of the magic constants
  */
 function replace_path_consts( $source, $path ) {
 	$replacements = array(
@@ -467,15 +480,16 @@ function replace_path_consts( $source, $path ) {
  *
  * @access public
  *
- * @param string $method    HTTP method (GET, POST, DELETE, etc.)
- * @param string $url       URL to make the HTTP request to.
- * @param array $headers    Add specific headers to the request.
- * @param array $options
+ * @param string $method  HTTP method (GET, POST, DELETE, etc.)
+ * @param string $url     URL to make the HTTP request to.
+ * @param array  $headers Add specific headers to the request.
+ * @param array  $options
+ *
  * @return object
  */
 function http_request( $method, $url, $data = null, $headers = array(), $options = array() ) {
 
-	$cert_path = '/rmccue/requests/library/Requests/Transport/cacert.pem';
+	$cert_path     = '/rmccue/requests/library/Requests/Transport/cacert.pem';
 	$halt_on_error = ! isset( $options['halt_on_error'] ) || (bool) $options['halt_on_error'];
 	if ( inside_phar() ) {
 		// cURL can't read Phar archives
@@ -500,7 +514,8 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 
 	try {
 		return \Requests::request( $url, $headers, $data, $method, $options );
-	} catch ( \Requests_Exception $ex ) {
+	}
+	catch ( \Requests_Exception $ex ) {
 		// CURLE_SSL_CACERT_BADFILE only defined for PHP >= 7.
 		if ( 'curlerror' !== $ex->getType() || ! in_array( curl_errno( $ex->getData() ), array( CURLE_SSL_CONNECT_ERROR, CURLE_SSL_CERTPROBLEM, 77 /*CURLE_SSL_CACERT_BADFILE*/ ), true ) ) {
 			$error_msg = sprintf( "Failed to get url '%s': %s.", $url, $ex->getMessage() );
@@ -514,7 +529,8 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 		$options['verify'] = false;
 		try {
 			return \Requests::request( $url, $headers, $data, $method, $options );
-		} catch ( \Requests_Exception $ex ) {
+		}
+		catch ( \Requests_Exception $ex ) {
 			$error_msg = sprintf( "Failed to get non-verified url '%s' %s.", $url, $ex->getMessage() );
 			if ( $halt_on_error ) {
 				EE::error( $error_msg );
@@ -533,6 +549,7 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
  *
  * @param  string $current_version
  * @param  string $new_version
+ *
  * @return string
  */
 function increment_version( $current_version, $new_version ) {
@@ -546,20 +563,20 @@ function increment_version( $current_version, $new_version ) {
 			break;
 
 		case 'patch':
-			$current_version[0][2]++;
+			$current_version[0][2] ++;
 
 			$current_version = array( $current_version[0] ); // drop possible pre-release info
 			break;
 
 		case 'minor':
-			$current_version[0][1]++;
+			$current_version[0][1] ++;
 			$current_version[0][2] = 0;
 
 			$current_version = array( $current_version[0] ); // drop possible pre-release info
 			break;
 
 		case 'major':
-			$current_version[0][0]++;
+			$current_version[0][0] ++;
 			$current_version[0][1] = 0;
 			$current_version[0][2] = 0;
 
@@ -585,6 +602,7 @@ function increment_version( $current_version, $new_version ) {
  *
  * @param string $new_version
  * @param string $original_version
+ *
  * @return string $name 'major', 'minor', 'patch'
  */
 function get_named_sem_ver( $new_version, $original_version ) {
@@ -594,7 +612,7 @@ function get_named_sem_ver( $new_version, $original_version ) {
 	}
 
 	$parts = explode( '-', $original_version );
-	$bits = explode( '.', $parts[0] );
+	$bits  = explode( '.', $parts[0] );
 	$major = $bits[0];
 	if ( isset( $bits[1] ) ) {
 		$minor = $bits[1];
@@ -621,22 +639,23 @@ function get_named_sem_ver( $new_version, $original_version ) {
  * function provides a safer alternative to using
  * `isset( $assoc_args['quiet'] )` or similar.
  *
- * @access public
+ * @access   public
  * @category Input
  *
- * @param array  $assoc_args  Arguments array.
- * @param string $flag        Flag to get the value.
- * @param mixed  $default     Default value for the flag. Default: NULL
+ * @param array  $assoc_args Arguments array.
+ * @param string $flag       Flag to get the value.
+ * @param mixed  $default    Default value for the flag. Default: NULL
+ *
  * @return mixed
  */
 function get_flag_value( $assoc_args, $flag, $default = null ) {
-	return isset( $assoc_args[ $flag ] ) ? $assoc_args[ $flag ] : $default;
+	return isset( $assoc_args[$flag] ) ? $assoc_args[$flag] : $default;
 }
 
 /**
  * Get the home directory.
  *
- * @access public
+ * @access   public
  * @category System
  *
  * @return string
@@ -654,10 +673,11 @@ function get_home_dir() {
 /**
  * Appends a trailing slash.
  *
- * @access public
+ * @access   public
  * @category System
  *
  * @param string $string What to add the trailing slash to.
+ *
  * @return string String with trailing slash added.
  */
 function trailingslashit( $string ) {
@@ -668,6 +688,7 @@ function trailingslashit( $string ) {
  * Convert Windows EOLs to *nix.
  *
  * @param string $str String to convert.
+ *
  * @return string String with carriage return / newline pairs reduced to newlines.
  */
 function normalize_eols( $str ) {
@@ -677,7 +698,7 @@ function normalize_eols( $str ) {
 /**
  * Get the system's temp directory. Warns user if it isn't writable.
  *
- * @access public
+ * @access   public
  * @category System
  *
  * @return string
@@ -712,18 +733,20 @@ function get_temp_dir() {
  *
  * @return mixed
  */
-function parse_ssh_url( $url, $component = -1 ) {
+function parse_ssh_url( $url, $component = - 1 ) {
 	preg_match( '#^((docker|docker\-compose|ssh|vagrant):)?(([^@:]+)@)?([^:/~]+)(:([\d]*))?((/|~)(.+))?$#', $url, $matches );
 	$bits = array();
-	foreach ( array(
-		2 => 'scheme',
-		4 => 'user',
-		5 => 'host',
-		7 => 'port',
-		8 => 'path',
-	) as $i => $key ) {
-		if ( ! empty( $matches[ $i ] ) ) {
-			$bits[ $key ] = $matches[ $i ];
+	foreach (
+		array(
+			2 => 'scheme',
+			4 => 'user',
+			5 => 'host',
+			7 => 'port',
+			8 => 'path',
+		) as $i => $key
+	) {
+		if ( ! empty( $matches[$i] ) ) {
+			$bits[$key] = $matches[$i];
 		}
 	}
 
@@ -757,7 +780,7 @@ function parse_ssh_url( $url, $component = -1 ) {
 /**
  * Report the results of the same operation against multiple resources.
  *
- * @access public
+ * @access   public
  * @category Input
  *
  * @param string       $noun      Resource being affected (e.g. plugin)
@@ -768,8 +791,8 @@ function parse_ssh_url( $url, $component = -1 ) {
  * @param null|integer $skips     Optional. Number of skipped operations. Default null (don't show skips).
  */
 function report_batch_operation_results( $noun, $verb, $total, $successes, $failures, $skips = null ) {
-	$plural_noun = $noun . 's';
-	$past_tense_verb = past_tense_verb( $verb );
+	$plural_noun           = $noun . 's';
+	$past_tense_verb       = past_tense_verb( $verb );
 	$past_tense_verb_upper = ucfirst( $past_tense_verb );
 	if ( $failures ) {
 		$failed_skipped_message = null === $skips ? '' : " ({$failures} failed" . ( $skips ? ", {$skips} skipped" : '' ) . ')';
@@ -792,26 +815,29 @@ function report_batch_operation_results( $noun, $verb, $total, $successes, $fail
 /**
  * Parse a string of command line arguments into an $argv-esqe variable.
  *
- * @access public
+ * @access   public
  * @category Input
  *
  * @param string $arguments
+ *
  * @return array
  */
 function parse_str_to_argv( $arguments ) {
 	preg_match_all( '/(?<=^|\s)([\'"]?)(.+?)(?<!\\\\)\1(?=$|\s)/', $arguments, $matches );
 	$argv = isset( $matches[0] ) ? $matches[0] : array();
 	$argv = array_map(
-		function( $arg ) {
+		function ( $arg ) {
 			foreach ( array( '"', "'" ) as $char ) {
-				if ( substr( $arg, 0, 1 ) === $char && substr( $arg, -1 ) === $char ) {
-					$arg = substr( $arg, 1, -1 );
+				if ( substr( $arg, 0, 1 ) === $char && substr( $arg, - 1 ) === $char ) {
+					$arg = substr( $arg, 1, - 1 );
 					break;
 				}
 			}
-				return $arg;
+
+			return $arg;
 		}, $argv
 	);
+
 	return $argv;
 }
 
@@ -822,6 +848,7 @@ function parse_str_to_argv( $arguments ) {
  *
  * @param string $path
  * @param string $suffix
+ *
  * @return string
  */
 function basename( $path, $suffix = '' ) {
@@ -852,7 +879,7 @@ function isPiped() {
 		return filter_var( $shellPipe, FILTER_VALIDATE_BOOLEAN );
 	}
 
-	return (function_exists( 'posix_isatty' ) && ! posix_isatty( STDOUT ));
+	return ( function_exists( 'posix_isatty' ) && ! posix_isatty( STDOUT ) );
 }
 
 /**
@@ -900,8 +927,8 @@ function expand_globs( $paths, $flags = 'default' ) {
  * @copyright Copyright (c) 2005-2015 Zend Technologies USA Inc. (http://www.zend.com)
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  *
- * @param string $pattern Filename pattern.
- * @param void $dummy_flags Not used.
+ * @param string $pattern     Filename pattern.
+ * @param void   $dummy_flags Not used.
  *
  * @return array Array of paths.
  */
@@ -911,22 +938,22 @@ function glob_brace( $pattern, $dummy_flags = null ) {
 	if ( ! $next_brace_sub ) {
 		// Find the end of the subpattern in a brace expression.
 		$next_brace_sub = function ( $pattern, $current ) {
-			$length  = strlen( $pattern );
-			$depth   = 0;
+			$length = strlen( $pattern );
+			$depth  = 0;
 
 			while ( $current < $length ) {
-				if ( '\\' === $pattern[ $current ] ) {
-					if ( ++$current === $length ) {
+				if ( '\\' === $pattern[$current] ) {
+					if ( ++ $current === $length ) {
 						break;
 					}
-					$current++;
+					$current ++;
 				} else {
-					if ( ( '}' === $pattern[ $current ] && 0 === $depth-- ) || ( ',' === $pattern[ $current ] && 0 === $depth ) ) {
+					if ( ( '}' === $pattern[$current] && 0 === $depth -- ) || ( ',' === $pattern[$current] && 0 === $depth ) ) {
 						break;
 					}
 
-					if ( '{' === $pattern[ $current++ ] ) {
-						$depth++;
+					if ( '{' === $pattern[$current ++] ) {
+						$depth ++;
 					}
 				}
 			}
@@ -938,10 +965,10 @@ function glob_brace( $pattern, $dummy_flags = null ) {
 	$length = strlen( $pattern );
 
 	// Find first opening brace.
-	for ( $begin = 0; $begin < $length; $begin++ ) {
-		if ( '\\' === $pattern[ $begin ] ) {
-			$begin++;
-		} elseif ( '{' === $pattern[ $begin ] ) {
+	for ( $begin = 0; $begin < $length; $begin ++ ) {
+		if ( '\\' === $pattern[$begin] ) {
+			$begin ++;
+		} elseif ( '{' === $pattern[$begin] ) {
 			break;
 		}
 	}
@@ -954,26 +981,26 @@ function glob_brace( $pattern, $dummy_flags = null ) {
 	$rest = $next;
 
 	// Point `$rest` to matching closing brace.
-	while ( '}' !== $pattern[ $rest ] ) {
+	while ( '}' !== $pattern[$rest] ) {
 		if ( null === ( $rest = $next_brace_sub( $pattern, $rest + 1 ) ) ) {
 			return glob( $pattern );
 		}
 	}
 
 	$paths = array();
-	$p = $begin + 1;
+	$p     = $begin + 1;
 
 	// For each comma-separated subpattern.
 	do {
 		$subpattern = substr( $pattern, 0, $begin )
-					. substr( $pattern, $p, $next - $p )
-					. substr( $pattern, $rest + 1 );
+			. substr( $pattern, $p, $next - $p )
+			. substr( $pattern, $rest + 1 );
 
 		if ( $result = glob_brace( $subpattern ) ) {
 			$paths = array_merge( $paths, $result );
 		}
 
-		if ( '}' === $pattern[ $next ] ) {
+		if ( '}' === $pattern[$next] ) {
 			break;
 		}
 
@@ -1003,38 +1030,38 @@ function glob_brace( $pattern, $dummy_flags = null ) {
 function get_suggestion( $target, array $options, $threshold = 2 ) {
 
 	$suggestion_map = array(
-		'add' => 'create',
-		'check' => 'check-update',
+		'add'        => 'create',
+		'check'      => 'check-update',
 		'capability' => 'cap',
-		'clear' => 'flush',
-		'decrement' => 'decr',
-		'del' => 'delete',
-		'directory' => 'dir',
-		'exec' => 'eval',
-		'exec-file' => 'eval-file',
-		'increment' => 'incr',
-		'language' => 'locale',
-		'lang' => 'locale',
-		'new' => 'create',
-		'number' => 'count',
-		'remove' => 'delete',
-		'regen' => 'regenerate',
-		'rep' => 'replace',
-		'repl' => 'replace',
-		'trash' => 'delete',
-		'v' => 'version',
+		'clear'      => 'flush',
+		'decrement'  => 'decr',
+		'del'        => 'delete',
+		'directory'  => 'dir',
+		'exec'       => 'eval',
+		'exec-file'  => 'eval-file',
+		'increment'  => 'incr',
+		'language'   => 'locale',
+		'lang'       => 'locale',
+		'new'        => 'create',
+		'number'     => 'count',
+		'remove'     => 'delete',
+		'regen'      => 'regenerate',
+		'rep'        => 'replace',
+		'repl'       => 'replace',
+		'trash'      => 'delete',
+		'v'          => 'version',
 	);
 
-	if ( array_key_exists( $target, $suggestion_map ) && in_array( $suggestion_map[ $target ], $options, true ) ) {
-		return $suggestion_map[ $target ];
+	if ( array_key_exists( $target, $suggestion_map ) && in_array( $suggestion_map[$target], $options, true ) ) {
+		return $suggestion_map[$target];
 	}
 
 	if ( empty( $options ) ) {
 		return '';
 	}
 	foreach ( $options as $option ) {
-		$distance = levenshtein( $option, $target );
-		$levenshtein[ $option ] = $distance;
+		$distance             = levenshtein( $option, $target );
+		$levenshtein[$option] = $distance;
 	}
 
 	// Sort known command strings by distance to user entry.
@@ -1045,7 +1072,7 @@ function get_suggestion( $target, array $options, $threshold = 2 ) {
 	$suggestion = key( $levenshtein );
 
 	// Only return a suggestion if below a given threshold.
-	return $levenshtein[ $suggestion ] <= $threshold && $suggestion !== $target
+	return $levenshtein[$suggestion] <= $threshold && $suggestion !== $target
 		? (string) $suggestion
 		: '';
 }
@@ -1090,7 +1117,7 @@ function is_bundled_command( $command ) {
 	static $classes;
 
 	if ( null === $classes ) {
-		$classes = array();
+		$classes   = array();
 		$class_map = EE_VENDOR_DIR . '/composer/autoload_commands_classmap.php';
 		if ( file_exists( EE_VENDOR_DIR . '/composer/' ) ) {
 			$classes = include $class_map;
@@ -1115,7 +1142,7 @@ function is_bundled_command( $command ) {
  * @return string
  */
 function force_env_on_nix_systems( $command ) {
-	$env_prefix = '/usr/bin/env ';
+	$env_prefix     = '/usr/bin/env ';
 	$env_prefix_len = strlen( $env_prefix );
 	if ( is_windows() ) {
 		if ( 0 === strncmp( $command, $env_prefix, $env_prefix_len ) ) {
@@ -1126,6 +1153,7 @@ function force_env_on_nix_systems( $command ) {
 			$command = $env_prefix . $command;
 		}
 	}
+
 	return $command;
 }
 
@@ -1149,6 +1177,7 @@ function check_proc_available( $context = null, $return = false ) {
 			EE::error( $msg );
 		}
 	}
+
 	return true;
 }
 
@@ -1163,18 +1192,19 @@ function past_tense_verb( $verb ) {
 	static $irregular = array(
 		'reset' => 'reset',
 	);
-	if ( isset( $irregular[ $verb ] ) ) {
-		return $irregular[ $verb ];
+	if ( isset( $irregular[$verb] ) ) {
+		return $irregular[$verb];
 	}
-	$last = substr( $verb, -1 );
+	$last = substr( $verb, - 1 );
 	if ( 'e' === $last ) {
-		$verb = substr( $verb, 0, -1 );
+		$verb = substr( $verb, 0, - 1 );
 	} elseif ( 'y' === $last && ! preg_match( '/[aeiou]y$/', $verb ) ) {
-		$verb = substr( $verb, 0, -1 ) . 'i';
+		$verb = substr( $verb, 0, - 1 ) . 'i';
 	} elseif ( preg_match( '/^[^aeiou]*[aeiou][^aeiouhwxy]$/', $verb ) ) {
 		// Rule of thumb that most (all?) one-voweled regular verbs ending in vowel + consonant (excluding "h", "w", "x", "y") double their final consonant - misses many cases (eg "submit").
 		$verb .= $last;
 	}
+
 	return $verb . 'ed';
 }
 
@@ -1183,7 +1213,7 @@ function past_tense_verb( $verb ) {
  *
  * Environment values permit specific binaries to be indicated.
  *
- * @access public
+ * @access   public
  * @category System
  *
  * @return string
@@ -1221,12 +1251,12 @@ function get_php_binary() {
  *
  * @access public
  *
- * @param string $command Command to execute.
- * @param array $descriptorspec Indexed array of descriptor numbers and their values.
- * @param array &$pipes Indexed array of file pointers that correspond to PHP's end of any pipes that are created.
- * @param string $cwd Initial working directory for the command.
- * @param array $env Array of environment variables.
- * @param array $other_options Array of additional options (Windows only).
+ * @param string $command        Command to execute.
+ * @param array  $descriptorspec Indexed array of descriptor numbers and their values.
+ * @param array  &$pipes         Indexed array of file pointers that correspond to PHP's end of any pipes that are created.
+ * @param string $cwd            Initial working directory for the command.
+ * @param array  $env            Array of environment variables.
+ * @param array  $other_options  Array of additional options (Windows only).
  *
  * @return string Command stripped of any environment variable settings.
  */
@@ -1235,6 +1265,7 @@ function proc_open_compat( $cmd, $descriptorspec, &$pipes, $cwd = null, $env = n
 		// Need to encompass the whole command in double quotes - PHP bug https://bugs.php.net/bug.php?id=49139
 		$cmd = '"' . _proc_open_compat_win_env( $cmd, $env ) . '"';
 	}
+
 	return proc_open( $cmd, $descriptorspec, $pipes, $cwd, $env, $other_options );
 }
 
@@ -1245,7 +1276,7 @@ function proc_open_compat( $cmd, $descriptorspec, &$pipes, $cwd = null, $env = n
  * @access private
  *
  * @param string $command Command to execute.
- * @param array &$env Array of existing environment variables. Will be modified if any settings in command.
+ * @param array  &$env    Array of existing environment variables. Will be modified if any settings in command.
  *
  * @return string Command stripped of any environment variable settings.
  */
@@ -1256,9 +1287,10 @@ function _proc_open_compat_win_env( $cmd, &$env ) {
 			if ( null === $env ) {
 				$env = array();
 			}
-			$env[ $matches[1] ] = isset( $matches[2][0] ) && '"' === $matches[2][0] ? substr( $matches[2], 1, -1 ) : $matches[2];
+			$env[$matches[1]] = isset( $matches[2][0] ) && '"' === $matches[2][0] ? substr( $matches[2], 1, - 1 ) : $matches[2];
 		}
 	}
+
 	return $cmd;
 }
 
@@ -1300,8 +1332,8 @@ function parse_shell_arrays( $assoc_args, $array_arguments ) {
 	}
 
 	foreach ( $array_arguments as $key ) {
-		if ( array_key_exists( $key, $assoc_args ) && is_json( $assoc_args[ $key ] ) ) {
-			$assoc_args[ $key ] = json_decode( $assoc_args[ $key ], $assoc = true );
+		if ( array_key_exists( $key, $assoc_args ) && is_json( $assoc_args[$key] ) ) {
+			$assoc_args[$key] = json_decode( $assoc_args[$key], $assoc = true );
 		}
 	}
 
@@ -1434,6 +1466,7 @@ function default_launch( $command ) {
 	if ( ! $launch->return_code ) {
 		return true;
 	}
+
 	return false;
 }
 
@@ -1490,7 +1523,6 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  *
  * @param array $items An array of items to output.
  *
- * @return null
  */
 function format_table( $items ) {
 	$item_table = new \cli\Table();
@@ -1504,4 +1536,73 @@ function format_table( $items ) {
 		\EE::log( $line );
 	}
 	\EE::log( $delem );
+}
+
+/**
+ * Get the site-name from the path from where ee is running if it is a valid site path.
+ *
+ * @return bool|String Name of the site or false in failure.
+ */
+function get_site_name() {
+	$sites = EE::db()::select( array( 'sitename' ) );
+
+	if ( $sites ) {
+		$cwd          = getcwd();
+		$name_in_path = explode( '/', $cwd );
+		$site_name    = array_intersect( array_flatten( $sites ), $name_in_path );
+
+		if ( 1 === count( $site_name ) ) {
+			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $site_name[0] ) );
+			if ( $path ) {
+				$site_path = $path[0]['site_path'];
+				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
+					return $site_name[0];
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
+ *
+ * @param array $args The passed arguments.
+ * @param String $command The command passing the arguments to aut=detect site-name.
+ *
+ * @return array Arguments with site-name set.
+ */
+function set_site_arg( $args, $command ) {
+	if ( isset( $args[0] ) ) {
+		if ( EE::db()::site_in_db( $args[0] ) ) {
+			return $args;
+		}
+	}
+	$site_name = get_site_name();
+	if ( $site_name ) {
+		array_unshift( $args, $site_name );
+	} else {
+		EE::error( "Could not find the site you wish to run $command command on.\nEither pass it as an argument: `ee $command <site-name>` \nor run `ee $command` from inside the site folder." );
+	}
+
+	return $args;
+}
+
+/**
+ * Function to flatten a multi-dimensional array.
+ *
+ * @param array $array Mulit-dimensional input array.
+ *
+ * @return array Resultant flattened array.
+ */
+function array_flatten( array $array ) {
+	$return = array();
+	array_walk_recursive(
+		$array, function ( $a ) use ( &$return ) {
+		$return[] = $a;
+	}
+	);
+
+	return $return;
 }
