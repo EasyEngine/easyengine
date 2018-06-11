@@ -1,4 +1,4 @@
-sudo: true
+sudo: required
 
 language: php
 php: 7.1
