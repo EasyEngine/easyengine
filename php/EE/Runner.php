@@ -485,7 +485,6 @@ class Runner {
 
 		EE::set_logger( $logger );
 
-		$this->init_ee();
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$file_logging_path = '/dev/null';
 		}
@@ -541,7 +540,7 @@ class Runner {
 				unset( $assoc_args['help'] );
 			}
 
-			if ( isset( $assoc_args['version'] ) ) {
+			if ( empty( $args ) && isset( $assoc_args['version'] ) ) {
 				array_unshift( $args, 'version' );
 				array_unshift( $args, 'cli' );
                 unset( $assoc_args['version'] );
@@ -677,6 +676,7 @@ class Runner {
 
 	public function start() {
 
+		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
