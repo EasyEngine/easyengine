@@ -271,12 +271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "de002f79eb6a1df8b556f78d07f494358a37d47b"
+                "reference": "884d3b48a18d5a0063a8c2ecf38b256b93cf0735"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/de002f79eb6a1df8b556f78d07f494358a37d47b",
-                "reference": "de002f79eb6a1df8b556f78d07f494358a37d47b",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/884d3b48a18d5a0063a8c2ecf38b256b93cf0735",
+                "reference": "884d3b48a18d5a0063a8c2ecf38b256b93cf0735",
                 "shasum": ""
             },
             "require": {
@@ -308,7 +308,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-06-11T15:52:47+00:00"
+            "time": "2018-06-11T20:59:51+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
