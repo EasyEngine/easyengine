@@ -4,35 +4,6 @@
 
 return array(
 
-	'ssh' => array(
-		'runtime' => '=[<scheme>:][<user>@]<host|container>[:<port>][<path>]',
-		'file' => '[<scheme>:][<user>@]<host|container>[:<port>][<path>]',
-		'desc' => 'Perform operation against a remote server over SSH (or a container using scheme of "docker", "docker-compose", "vagrant").',
-	),
-
-	# Used by wp-cli to control wp site remotely.
-	# Might be useful in future for controlling ee remotely.
-	// 'http' => array(
-	// 	'runtime' => '=<http>',
-	// 	'file' => '<http>',
-	// 	'desc' => 'Reserved for future.',
-	// ),
-
-	'skip-packages' => array(
-		'runtime'   => '',
-		'file'      => '<bool>',
-		'desc'      => 'Skip loading all installed packages.',
-		'default'   => false,
-	),
-
-	'require' => array(
-		'runtime' => '=<path>',
-		'file' => '<path>',
-		'desc' => 'Load PHP file before running the command (may be used more than once).',
-		'multiple' => true,
-		'default' => array(),
-	),
-
 	'disabled_commands' => array(
 		'file' => '<list>',
 		'default' => array(),
