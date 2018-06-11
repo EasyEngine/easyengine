@@ -485,6 +485,8 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		$this->init_ee();
+
 		if ( ! is_writable( EE_CONF_ROOT ) ) {
 			EE::err( 'Please run `ee` as root user.' );
 		}
@@ -679,8 +681,6 @@ class Runner {
 	}
 
 	public function start() {
-
-		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
