@@ -613,6 +613,38 @@ class EE {
 	}
 
 	/**
+	 * Display error message prefixed with "Error: " and exit script without writing to log file.
+	 *
+	 * Use `EE::error()` instead when error is to be logged.
+	 *
+	 * @access public
+	 * @category Output
+	 *
+	 * @param string|EE_Error  $message Message to write to STDERR.
+	 * @param boolean|integer  $exit    True defaults to exit(1).
+	 * @return null
+	 */
+	public static function err( $message, $exit = true ) {
+		if ( ! isset( self::get_runner()->assoc_args['completions'] ) ) {
+			self::$logger->error( self::error_to_string( $message ) );
+		}
+
+		$return_code = false;
+		if ( true === $exit ) {
+			$return_code = 1;
+		} elseif ( is_int( $exit ) && $exit >= 1 ) {
+			$return_code = $exit;
+		}
+
+		if ( $return_code ) {
+			if ( self::$capture_exit ) {
+				throw new ExitException( null, $return_code );
+			}
+			exit( $return_code );
+		}
+	}
+
+	/**
 	 * Halt script execution with a specific return code.
 	 *
 	 * Permits script execution to be overloaded by `EE::runcommand()`
