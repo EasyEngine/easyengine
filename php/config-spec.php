@@ -46,11 +46,11 @@ return array(
 		'desc' => 'Absolute path to where all sites will be stored.',
 	),
 
-	'db_path' => array(
-		'runtime' => '=<path>',
-		'file' => '<path>',
+	'locale' => array(
+		'runtime' => '=<locale>',
+		'file'    => '<locale>',
 		'default' => null,
-		'desc' => 'Absolute path to where site configuration db is stored.',
+		'desc'    => 'Locale for WordPress.',
 	),
 
 	'ee_installer_version' => array(

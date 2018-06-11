@@ -57,6 +57,7 @@ class Runner {
 		}
 
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
+		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
@@ -484,7 +485,6 @@ class Runner {
 
 		EE::set_logger( $logger );
 
-		$this->init_ee();
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$file_logging_path = '/dev/null';
 		}
@@ -535,10 +535,45 @@ class Runner {
 			list( $args, $assoc_args, $this->runtime_config ) = $configurator->parse_args( $argv );
 
 			// foo --help  ->  help foo
-            if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
-                array_unshift( $args, 'help' );
-                unset( $assoc_args['help'] );
+			if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
+				array_unshift( $args, 'help' );
+				unset( $assoc_args['help'] );
+			}
+
+			if ( empty( $args ) && isset( $assoc_args['version'] ) ) {
+				array_unshift( $args, 'version' );
+				array_unshift( $args, 'cli' );
+                unset( $assoc_args['version'] );
             }
+			
+			// ee3 backward compatibility to wp-cli flags
+			$wp_compat_array_map = array(
+				'user' => 'admin_user',
+				'pass' => 'admin_pass',
+				'email' => 'admin_email'
+			);
+
+			foreach ( $wp_compat_array_map as $from => $to ) {
+				if ( isset( $assoc_args[$from] ) ) {
+					$assoc_args[$to] = $assoc_args[$from];
+					unset( $assoc_args[$from] );
+				}
+			}
+
+			// backward compatibility message
+			$unsupported_create_old_args = array(
+				'w3tc',
+				'wpsc',
+				'wpfc',
+				'pagespeed',
+			);
+
+			$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
+
+			$old_args = implode(' --',$old_arg);
+			if ( isset($args[1]) && 'create' === $args[1] && ! empty ($old_arg) ) {
+				\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
+			}
 
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
@@ -641,6 +676,7 @@ class Runner {
 
 	public function start() {
 
+		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
