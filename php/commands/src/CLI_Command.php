@@ -153,6 +153,17 @@ class CLI_Command extends EE_Command {
 				\EE::line( $line );
 			}
 		}
+
+		if ( '/tmp' === getcwd() ) {
+			$this->migrate();
+		}
+	}
+
+	/**
+	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
+	 */
+	private function migrate() {
+
 	}
 
 	/**
@@ -259,7 +270,7 @@ class CLI_Command extends EE_Command {
 		} else {
 			$updated_version = $newest['version'];
 		}
-		EE::success( sprintf( 'Updated WP-CLI to %s.', $updated_version ) );
+		EE::success( sprintf( 'Updated EE to %s.', $updated_version ) );
 	}
 
 	/**

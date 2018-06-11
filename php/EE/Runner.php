@@ -726,6 +726,12 @@ class Runner {
 			$this->arguments[] = 'help';
 		}
 
+		// Protect 'cli info' from most of the runtime,
+		// except when the command will be run over SSH
+		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			$this->_run_command_and_exit();
+		}
+
 		if ( $this->config['ssh'] ) {
 			$this->run_ssh_command( $this->config['ssh'] );
 			return;
