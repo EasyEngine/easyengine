@@ -486,7 +486,7 @@ class Runner {
 		}
 
 		if ( ! is_writable( EE_CONF_ROOT ) ) {
-			EE::err( 'Please run `ee` as root user.' );
+			EE::err( 'Please run `ee` with root privileges.' );
 		}
 
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
@@ -624,7 +624,7 @@ class Runner {
 					$this->add_var_to_config_file( $var, $config_file_path );
 					return;
 				}
-				EE::err("Please run `ee` as root user.");
+				EE::err("Please run `ee` with root privileges.");
 			}
 		}
 	}
