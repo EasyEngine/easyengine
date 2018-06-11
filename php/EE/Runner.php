@@ -485,6 +485,10 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		if ( ! is_writable( EE_CONF_ROOT ) ) {
+			EE::err( 'Please run `ee` as root user.' );
+		}
+
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$file_logging_path = '/dev/null';
 		}
@@ -623,7 +627,7 @@ class Runner {
 				}
 				$mkdir_success = mkdir ( $config_dir_path , 0755, true );
 				if ( ! $mkdir_success ) {
-					EE::error("The config file path ${$config_dir_path} is not writable. Please select a config path which is writable in EE_CONFIG_PATH environment variable.");
+					EE::err("The config file path ${$config_dir_path} is not writable.\n Please run `ee` it as root user.");
 				}
 				$this->add_var_to_config_file($var, $config_file_path );
 			}
