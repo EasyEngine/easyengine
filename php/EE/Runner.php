@@ -47,19 +47,19 @@ class Runner {
 	}
 
 	/**
-	 * Function to check and create the root directory for ee4.
+	 * Function to check and create the root directory for ee.
 	 */
-	private function init_ee4() {
+	private function init_ee() {
 
-		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			mkdir( EE_CONF_ROOT );
-		}
+		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
+		$this->ensure_present_in_config( 'locale', 'en_US' );
+		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
 		if ( ! is_dir( $this->config['sites_path'] ) ) {
 			mkdir( $this->config['sites_path'] );
 		}
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', EE_CONF_ROOT . '/ee4.db' );
+		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 		define( 'TABLE', 'sites' );
 	}
@@ -119,7 +119,7 @@ class Runner {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -173,7 +173,7 @@ class Runner {
 		if ( getenv( 'EE_PACKAGES_DIR' ) ) {
 			$packages_dir = Utils\trailingslashit( getenv( 'EE_PACKAGES_DIR' ) );
 		} else {
-			$packages_dir = Utils\get_home_dir() . '/.ee4/packages/';
+			$packages_dir = EE_CONF_ROOT . '/packages';
 		}
 		return $packages_dir;
 	}
@@ -480,14 +480,30 @@ class Runner {
 
 		EE::set_logger( $logger );
 
+		// Create the config directory if not exist for file logger to initialize.
+		if ( ! is_dir( EE_CONF_ROOT ) ) {
+			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
+		}
+
+		if ( ! is_writable( EE_CONF_ROOT ) ) {
+			EE::err( 'Please run `ee` with root privileges.' );
+		}
+
+		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+			$file_logging_path = '/dev/null';
+		}
+		else {
+			$file_logging_path = EE_CONF_ROOT . '/ee.log';
+		}
+
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee4.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee.log', Logger::DEBUG );
 		$stream->setFormatter( $formatter );
-		$file_logger = new \Monolog\Logger( 'ee4' );
+		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );
-		$file_logger->info( '::::::::::::::::::::::::ee4 invoked::::::::::::::::::::::::' );
+		$file_logger->info( '::::::::::::::::::::::::ee invoked::::::::::::::::::::::::' );
 		EE::set_file_logger( $file_logger );
 	}
 
@@ -512,15 +528,55 @@ class Runner {
 
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
 			$config = $configurator->to_array();
-			$this->_required_files['global'] = $config[0]['require'];
 			$configurator->merge_yml( $this->project_config_path, $this->alias );
 			$config = $configurator->to_array();
-			$this->_required_files['project'] = $config[0]['require'];
+			//$this->_required_files['project'] = $config[0]['require'];
 		}
 
 		// Runtime config and args
 		{
 			list( $args, $assoc_args, $this->runtime_config ) = $configurator->parse_args( $argv );
+
+			// foo --help  ->  help foo
+			if ( isset( $assoc_args['help'] ) && ! in_array( 'wp', $args ) ) {
+				array_unshift( $args, 'help' );
+				unset( $assoc_args['help'] );
+			}
+
+			if ( empty( $args ) && isset( $assoc_args['version'] ) ) {
+				array_unshift( $args, 'version' );
+				array_unshift( $args, 'cli' );
+                unset( $assoc_args['version'] );
+            }
+			
+			// ee3 backward compatibility to wp-cli flags
+			$wp_compat_array_map = array(
+				'user' => 'admin_user',
+				'pass' => 'admin_pass',
+				'email' => 'admin_email'
+			);
+
+			foreach ( $wp_compat_array_map as $from => $to ) {
+				if ( isset( $assoc_args[$from] ) ) {
+					$assoc_args[$to] = $assoc_args[$from];
+					unset( $assoc_args[$from] );
+				}
+			}
+
+			// backward compatibility message
+			$unsupported_create_old_args = array(
+				'w3tc',
+				'wpsc',
+				'wpfc',
+				'pagespeed',
+			);
+
+			$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
+
+			$old_args = implode(' --',$old_arg);
+			if ( isset($args[1]) && 'create' === $args[1] && ! empty ($old_arg) ) {
+				\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
+			}
 
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
@@ -534,7 +590,7 @@ class Runner {
 			$this->aliases['@all'] = 'Run command against every registered alias.';
 			$this->aliases = array_reverse( $this->aliases );
 		}
-		$this->_required_files['runtime'] = $this->config['require'];
+		//$this->_required_files['runtime'] = $this->config['require'];
 	}
 
 	/**
@@ -549,7 +605,7 @@ class Runner {
 		if ( empty($this->config[$var]) ) {
 			$this->config[$var] =  $default ;
 
-			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : EE_CONF_ROOT . '/config.yml';
 			$config_dir_path = dirname( $config_file_path );
 
 			if ( file_exists( $config_file_path ) ) {
@@ -568,11 +624,7 @@ class Runner {
 					$this->add_var_to_config_file( $var, $config_file_path );
 					return;
 				}
-				$mkdir_success = mkdir ( $config_dir_path , 0755, true );
-				if ( ! $mkdir_success ) {
-					EE::error("The config file path ${$config_dir_path} is not writable. Please select a config path which is writable in EE_CONFIG_PATH environment variable.");
-				}
-				$this->add_var_to_config_file($var, $config_file_path );
+				EE::err("Please run `ee` with root privileges.");
 			}
 		}
 	}
@@ -585,39 +637,6 @@ class Runner {
 		fclose( $config_file );
 	}
 
-	private function check_root() {
-		if ( $this->config['allow-root'] ) {
-			return; # they're aware of the risks!
-		}
-		if ( count( $this->arguments ) >= 2 && 'cli' === $this->arguments[0] && in_array( $this->arguments[1], array( 'update', 'info' ), true ) ) {
-			return; # make it easier to update root-owned copies
-		}
-		if ( ! function_exists( 'posix_geteuid' ) ) {
-			return; # posix functions not available
-		}
-		if ( posix_geteuid() !== 0 ) {
-			return; # not root
-		}
-
-		EE::error(
-			"YIKES! It looks like you're running this as root. You probably meant to " .
-			"run this as the user that your WordPress install exists under.\n" .
-			"\n" .
-			"If you REALLY mean to run this as root, we won't stop you, but just " .
-			'bear in mind that any code on this site will then have full control of ' .
-			"your server, making it quite DANGEROUS.\n" .
-			"\n" .
-			"If you'd like to continue as root, please run this again, adding this " .
-			"flag:  --allow-root\n" .
-			"\n" .
-			"If you'd like to run it as the user that this site is under, you can " .
-			"run the following to become the respective user:\n" .
-			"\n" .
-			"    sudo -u USER -i -- ee <command>\n" .
-			"\n"
-		);
-	}
-
 	private function run_alias_group( $aliases ) {
 		Utils\check_proc_available( 'group alias' );
 
@@ -628,7 +647,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
@@ -656,9 +675,7 @@ class Runner {
 
 	public function start() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee4-sites' );
-		$this->ensure_present_in_config( 'db_path', Utils\get_home_dir(). '/.ee4/ee4.db' );
-		$this->init_ee4();
+		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
@@ -669,7 +686,6 @@ class Runner {
 		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
 		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
 
-		$this->check_root();
 		if ( $this->alias ) {
 			if ( '@all' === $this->alias && ! isset( $this->aliases['@all'] ) ) {
 				EE::error( "Cannot use '@all' when no aliases are registered." );
@@ -711,13 +727,8 @@ class Runner {
 
 		// Protect 'cli info' from most of the runtime,
 		// except when the command will be run over SSH
-		if ( 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
 			$this->_run_command_and_exit();
-		}
-
-		if ( $this->config['ssh'] ) {
-			$this->run_ssh_command( $this->config['ssh'] );
-			return;
 		}
 
 		// First try at showing man page.

@@ -17,7 +17,7 @@
     ],
     "config": {
         "platform": {
-            "php": "5.3.29"
+            "php": "7.1"
         },
         "sort-packages": true
     },
@@ -28,7 +28,6 @@
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
         "easyengine/site-command": "dev-master",
-        "easyengine/wp-command": "dev-master",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
         "mustache/mustache": "~2.4",

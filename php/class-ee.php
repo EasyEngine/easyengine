@@ -98,7 +98,7 @@ class EE {
 
 		if ( ! $cache ) {
 			$home = Utils\get_home_dir();
-			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee4/cache";
+			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee/cache";
 
 			// 6 months, 300mb
 			$cache = new FileCache( $dir, 15552000, 314572800 );
@@ -613,6 +613,38 @@ class EE {
 	}
 
 	/**
+	 * Display error message prefixed with "Error: " and exit script without writing to log file.
+	 *
+	 * Use `EE::error()` instead when error is to be logged.
+	 *
+	 * @access public
+	 * @category Output
+	 *
+	 * @param string|EE_Error  $message Message to write to STDERR.
+	 * @param boolean|integer  $exit    True defaults to exit(1).
+	 * @return null
+	 */
+	public static function err( $message, $exit = true ) {
+		if ( ! isset( self::get_runner()->assoc_args['completions'] ) ) {
+			self::$logger->error( self::error_to_string( $message ) );
+		}
+
+		$return_code = false;
+		if ( true === $exit ) {
+			$return_code = 1;
+		} elseif ( is_int( $exit ) && $exit >= 1 ) {
+			$return_code = $exit;
+		}
+
+		if ( $return_code ) {
+			if ( self::$capture_exit ) {
+				throw new ExitException( null, $return_code );
+			}
+			exit( $return_code );
+		}
+	}
+
+	/**
 	 * Halt script execution with a specific return code.
 	 *
 	 * Permits script execution to be overloaded by `EE::runcommand()`
@@ -818,7 +850,7 @@ class EE {
 	 * @param array $assoc_args Associative arguments to include when calling the command.
 	 * @param bool $exit_on_error Whether to exit if the command returns an elevated return code.
 	 * @param bool $return_detailed Whether to return an exit status (default) or detailed execution results.
-	 * @param array $runtime_args Override one or more global args (path,url,user,allow-root)
+	 * @param array $runtime_args Override one or more global args (path,url,user)
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch_self( $command, $args = array(), $assoc_args = array(), $exit_on_error = true, $return_detailed = false, $runtime_args = array() ) {
@@ -826,7 +858,6 @@ class EE {
 			'path',
 			'url',
 			'user',
-			'allow-root',
 		);
 
 		foreach ( $reused_runtime_args as $key ) {
@@ -844,7 +875,7 @@ class EE {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = Utils\get_home_dir() . '/.ee4/config.yml';
+			$config_path = EE_CONF_ROOT . '/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 

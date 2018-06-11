@@ -5,7 +5,7 @@ define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
 define( 'EE_START_MICROTIME', microtime( true ) );
 define( 'HOME', $_SERVER['HOME'] );
-define( 'EE_CONF_ROOT', HOME . '/.ee4' );
+define( 'EE_CONF_ROOT', '/opt/easyengine' );
 define( 'EE_SITE_CONF_ROOT', EE_ROOT . '/ee4-config' );
 
 if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {

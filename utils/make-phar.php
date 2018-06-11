@@ -168,6 +168,7 @@ $finder
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->in(EE_VENDOR_DIR . '/monolog')
+	->in(EE_VENDOR_DIR . '/yosymfony')
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
 	->exclude('examples')
@@ -216,15 +217,25 @@ foreach ( $finder as $file ) {
 	add_file( $phar, $file );
 }
 
-// other files
 $finder = new Finder();
+
 $finder
 	->files()
+	->ignoreDotFiles(false)
+	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
+	->name('*.mustache')
+	->name('.env.mustache');
+
+foreach ( $finder as $file ) {
+	add_file( $phar, $file );
+}
+
+// other files
+$finder = new Finder();
+$finder->files()
 	->ignoreVCS(true)
 	->ignoreDotFiles(false)
-	->in( EE_ROOT . '/templates')
-	->in( EE_ROOT . '/ee4-config')
-	;
+	->in( EE_ROOT . '/templates');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );

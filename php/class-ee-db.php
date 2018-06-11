@@ -33,6 +33,7 @@ class EE_DB {
 						id INTEGER NOT NULL, 
 						sitename VARCHAR, 
 						site_type VARCHAR, 
+						site_title VARCHAR, 
 						proxy_type VARCHAR, 
 						cache_type VARCHAR, 
 						site_path VARCHAR, 
@@ -43,17 +44,17 @@ class EE_DB {
 						storage_db VARCHAR, 
 						db_name VARCHAR, 
 						db_user VARCHAR, 
-						db_password VARCHAR, 
+						db_password VARCHAR,
+						db_root_password VARCHAR, 
 						db_host VARCHAR, 
-						is_hhvm BOOLEAN DEFAULT 0, 
-						is_pagespeed BOOLEAN DEFAULT 0, 
+						wp_user VARCHAR, 
+						wp_pass VARCHAR, 
+						email VARCHAR, 
 						php_version VARCHAR, 
 						PRIMARY KEY (id), 
 						UNIQUE (sitename), 
 						CHECK (is_enabled IN (0, 1)), 
-						CHECK (is_ssl IN (0, 1)), 
-						CHECK (is_hhvm IN (0, 1)), 
-						CHECK (is_pagespeed IN (0, 1))
+						CHECK (is_ssl IN (0, 1))
 					);";
 		self::$db->exec( $query );
 	}
@@ -140,28 +141,47 @@ class EE_DB {
 		return $select_data;
 	}
 
-	/**
-	 * Check if a site entry exists in the database.
-	 *
-	 * @param String $site_name Name of the site to be checked.
-	 *
-	 * @return bool Success.
-	 */
-	public static function site_in_db( $site_name ) {
 
+	/**
+	 * Update row in table.
+	 *
+	 * @param        $data
+	 * @param        $where
+	 *
+	 * @return bool
+	 */
+	public static function update( $data, $where ) {
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
 
-		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
+		$table_name = TABLE;
 
-		if ( $site ) {
-			return true;
-		} else {
-			return false;
+		$fields     = array();
+		$conditions = array();
+		foreach ( $data as $key => $value ) {
+			$fields[] = "`$key`='" . $value . "'";
 		}
-	}
+		foreach ( $where as $key => $value ) {
+			$conditions[] = "`$key`='" . $value . "'";
+		}
+		$fields     = implode( ', ', $fields );
+		$conditions = implode( ' AND ', $conditions );
+		if ( ! empty( $fields ) ) {
+			$update_query      = "UPDATE `$table_name` SET $fields WHERE $conditions";
+			$update_query_exec = self::$db->exec( $update_query );
+			if ( ! $update_query_exec ) {
+				EE::debug( self::$db->lastErrorMsg() );
+				self::$db->close();
+			} else {
+				self::$db->close();
 
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Delete data from table.
@@ -191,6 +211,51 @@ class EE_DB {
 			self::$db->close();
 
 			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a site entry exists in the database.
+	 *
+	 * @param String $site_name Name of the site to be checked.
+	 *
+	 * @return bool Success.
+	 */
+	public static function site_in_db( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
+
+		if ( $site ) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Check if a site entry exists in the database as well as if it is enbaled.
+	 *
+	 * @param String $site_name Name of the site to be checked.
+	 *
+	 * @return bool true  if site is enabled,
+	 *              false if disabled or site does not exists.
+	 */
+	public static function site_enabled( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( array( 'id', 'is_enabled' ), array( 'sitename' => $site_name ) );
+
+		if ( 1 === count( $site ) ) {
+			return $site[0]['is_enabled'];
 		}
 
 		return false;

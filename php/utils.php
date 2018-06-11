@@ -1343,7 +1343,9 @@ function copy_recursive( $source, $dest ) {
 		) as $item
 	) {
 		if ( $item->isDir() ) {
-			mkdir( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+			if ( ! file_exists( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() ) ) {
+				mkdir( $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
+			}
 		} else {
 			copy( $item, $dest . DIRECTORY_SEPARATOR . $iterator->getSubPathName() );
 		}
@@ -1431,6 +1433,144 @@ function default_launch( $command ) {
 	default_debug( $launch );
 	if ( ! $launch->return_code ) {
 		return true;
-	} 
+	}
 	return false;
+}
+
+/**
+ * Function to return the type from arguments.
+ *
+ * @param array $assoc_args User input arguments.
+ * @param array $arg_types  Types to check with.
+ * @param mixed $default    Default in case of no match
+ *
+ * @return string Type of site parsed from argument given from user.
+ */
+function get_type( $assoc_args, $arg_types, $default = false ) {
+	$type = '';
+	$cnt  = 0;
+	foreach ( $arg_types as $arg_type ) {
+		if ( get_flag_value( $assoc_args, $arg_type ) ) {
+			$cnt ++;
+			$type = $arg_type;
+		}
+	}
+	if ( $cnt == 1 ) {
+		return $type;
+	} else if ( $cnt == 0 ) {
+		return $default;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Render a collection of items as an ASCII table.
+ *
+ * Given a collection of items with a consistent data structure:
+ *
+ * ```
+ * $items = array(
+ *     array( 'key1'   => 'value1'),
+ *     array( 'key2'   => 'value2'),
+ * );
+ * ```
+ *
+ * Render `$items` as an ASCII table:
+ *
+ * ```
+ * EE\Utils\format_table( $items );
+ *
+ * # +------+--------+
+ * # | key1 | value1 |
+ * # +------+--------+
+ * # | key2 | value2 |
+ * # +------+--------+
+ * ```
+ *
+ * @param array $items An array of items to output.
+ *
+ */
+function format_table( $items ) {
+	$item_table = new \cli\Table();
+	$item_table->setRows( $items );
+	$item_table->setRenderer( new \cli\table\Ascii() );
+	$lines = array_slice( $item_table->getDisplayLines(), 3 );
+	array_pop( $lines );
+	$delem = $item_table->getDisplayLines()[0];
+	foreach ( $lines as $line ) {
+		\EE::log( $delem );
+		\EE::log( $line );
+	}
+	\EE::log( $delem );
+}
+
+/**
+ * Get the site-name from the path from where ee is running if it is a valid site path.
+ *
+ * @return bool|String Name of the site or false in failure.
+ */
+function get_site_name() {
+	$sites = EE::db()::select( array( 'sitename' ) );
+
+	if ( $sites ) {
+		$cwd          = getcwd();
+		$name_in_path = explode( '/', $cwd );
+		$site_name    = array_intersect( array_flatten( $sites ), $name_in_path );
+
+		if ( 1 === count( $site_name ) ) {
+			$name = reset( $site_name );
+			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $name ) );
+			if ( $path ) {
+				$site_path = $path[0]['site_path'];
+				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
+					return $name;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
+ *
+ * @param array $args The passed arguments.
+ * @param String $command The command passing the arguments to aut=detect site-name.
+ *
+ * @return array Arguments with site-name set.
+ */
+function set_site_arg( $args, $command ) {
+	if ( isset( $args[0] ) ) {
+		if ( EE::db()::site_in_db( $args[0] ) ) {
+			return $args;
+		}
+	}
+	$site_name = get_site_name();
+	if ( $site_name ) {
+		array_unshift( $args, $site_name );
+	} else {
+		EE::error( "Could not find the site you wish to run $command command on.\nEither pass it as an argument: `ee $command <site-name>` \nor run `ee $command` from inside the site folder." );
+	}
+
+	return $args;
+}
+
+/**
+ * Function to flatten a multi-dimensional array.
+ *
+ * @param array $array Mulit-dimensional input array.
+ *
+ * @return array Resultant flattened array.
+ */
+function array_flatten( array $array ) {
+	$return = array();
+	array_walk_recursive(
+		$array, function ( $a ) use ( &$return ) {
+		$return[] = $a;
+	}
+	);
+
+	return $return;
 }
