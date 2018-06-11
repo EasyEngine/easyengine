@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dff0a4c2d5e6300dd3e30a277bb5c6ee",
+    "content-hash": "60cb6927fc84af7853527d6849f128d4",
     "packages": [
         {
             "name": "composer/ca-bundle",
@@ -271,12 +271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "d021d7ace1e8acc8817c5d00613eb66e0d78b7e5"
+                "reference": "de002f79eb6a1df8b556f78d07f494358a37d47b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/d021d7ace1e8acc8817c5d00613eb66e0d78b7e5",
-                "reference": "d021d7ace1e8acc8817c5d00613eb66e0d78b7e5",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/de002f79eb6a1df8b556f78d07f494358a37d47b",
+                "reference": "de002f79eb6a1df8b556f78d07f494358a37d47b",
                 "shasum": ""
             },
             "require": {
@@ -308,46 +308,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-06-08T21:20:53+00:00"
-        },
-        {
-            "name": "easyengine/wp-command",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/EasyEngine/wp-command.git",
-                "reference": "ac24266486a60653bac0024bbdc3731ff1fa1edd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/wp-command/zipball/ac24266486a60653bac0024bbdc3731ff1fa1edd",
-                "reference": "ac24266486a60653bac0024bbdc3731ff1fa1edd",
-                "shasum": ""
-            },
-            "type": "ee-cli-package",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
-                "bundled": true,
-                "commands": [
-                    "wp"
-                ]
-            },
-            "autoload": {
-                "psr-4": {
-                    "": "src/"
-                },
-                "files": [
-                    "wp-command.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "homepage": "https://github.com/easyengine/wp-command",
-            "time": "2018-05-16T11:51:52+00:00"
+            "time": "2018-06-11T15:52:47+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -2607,7 +2568,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "easyengine/site-command": 20,
-        "easyengine/wp-command": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
