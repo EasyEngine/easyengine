@@ -51,11 +51,6 @@ class Runner {
 	 */
 	private function init_ee() {
 
-		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			$user = getenv('USER');
-			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
-		}
-
 		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
@@ -485,7 +480,10 @@ class Runner {
 
 		EE::set_logger( $logger );
 
-		$this->init_ee();
+		// Create the config directory if not exist for file logger to initialize.
+		if ( ! is_dir( EE_CONF_ROOT ) ) {
+			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
+		}
 
 		if ( ! is_writable( EE_CONF_ROOT ) ) {
 			EE::err( 'Please run `ee` as root user.' );
@@ -626,11 +624,7 @@ class Runner {
 					$this->add_var_to_config_file( $var, $config_file_path );
 					return;
 				}
-				$mkdir_success = mkdir ( $config_dir_path , 0755, true );
-				if ( ! $mkdir_success ) {
-					EE::err("The config file path ${$config_dir_path} is not writable.\n Please run `ee` it as root user.");
-				}
-				$this->add_var_to_config_file($var, $config_file_path );
+				EE::err("Please run `ee` as root user.");
 			}
 		}
 	}
@@ -680,6 +674,8 @@ class Runner {
 	}
 
 	public function start() {
+
+		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
