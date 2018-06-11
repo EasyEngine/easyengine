@@ -1519,11 +1519,12 @@ function get_site_name() {
 		$site_name    = array_intersect( array_flatten( $sites ), $name_in_path );
 
 		if ( 1 === count( $site_name ) ) {
-			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $site_name[0] ) );
+			$name = reset( $site_name );
+			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $name ) );
 			if ( $path ) {
 				$site_path = $path[0]['site_path'];
 				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
-					return $site_name[0];
+					return $name;
 				}
 			}
 		}
