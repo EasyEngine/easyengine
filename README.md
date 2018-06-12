@@ -11,15 +11,6 @@
 
 ## Installing
 
-### Mac
-
-Once you have verified the requirements exist, download the `easyengine.phar` file using `wget` or `curl` and give it executable permissions:
-
-```bash
-wget -O /usr/local/bin/ee https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar
-chmod +x /usr/local/bin/ee
-```
-
 ### Linux
 
 For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04 and Debian 8.
