@@ -489,7 +489,7 @@ class Runner {
 			EE::err( 'Please run `ee` with root privileges.' );
 		}
 
-		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
 			$file_logging_path = '/dev/null';
 		}
 		else {
@@ -727,7 +727,7 @@ class Runner {
 
 		// Protect 'cli info' from most of the runtime,
 		// except when the command will be run over SSH
-		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] && ! $this->config['ssh'] ) {
+		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
 			$this->_run_command_and_exit();
 		}
 
