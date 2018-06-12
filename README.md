@@ -6,7 +6,7 @@
 
 * Docker
 * Docker-Compose
-* PHP CLI
+* PHP CLI (>=7.1)
 * PHP Modules - `curl`, `sqlite3`, `pcntl`
 
 ## Installing
