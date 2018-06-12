@@ -6,19 +6,10 @@
 
 * Docker
 * Docker-Compose
-* PHP CLI
+* PHP CLI (>=7.1)
 * PHP Modules - `curl`, `sqlite3`, `pcntl`
 
 ## Installing
-
-### Mac
-
-Once you have verified the requirements exist, download the `easyengine.phar` file using `wget` or `curl` and give it executable permissions:
-
-```bash
-wget -O /usr/local/bin/ee https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar
-chmod +x /usr/local/bin/ee
-```
 
 ### Linux
 
