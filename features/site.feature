@@ -27,7 +27,8 @@ Feature: Site Command
 
   Scenario Outline: 'site create' is running successfully
     When I run 'sudo bin/ee site create <site> --wp'
-    # When I run 'echo <site>'
+    Then The site '<site>' should have webroot
+    Then The site '<site>' should have WordPress
     Then Request on '<site>' should contain following headers:
     | header           |
     | HTTP/1.1 200 OK  |
@@ -38,32 +39,36 @@ Feature: Site Command
       | site       |
       | hello.test |
 
-  # Scenario Outline: List the sites
-  #   When I run 'sudo bin/ee site list'
-  #   Then STDOUT should return something like
-  #    """
-  #     List of Sites:
+  Scenario Outline: List the sites
+    When I run 'sudo bin/ee site list'
+    Then STDOUT should return something like
+     """
+      List of Sites:
 
-  #      - hello.test
-  #      - world.test
-  #    """
+      hello.test
+     """
 
-  #   Examples:
-  #     | site       |
-  #     | hello.test |
-  #     | world.test |
+    Examples:
+      | site       |
+      | hello.test |
 
 
-  # Scenario Outline: Delete the sites
-  #   When I run 'sudo bin/ee site delete <site>'
-  #   Then The '<site>' containers should be removed
-  #   And The '<site>' webroot should be removed
-  #   And The '<site>' db entry should be removed
+  Scenario Outline: Delete the sites
+    When I run 'sudo bin/ee site delete <site>'
+    Then The '<site>' db entry should be removed
+    And The '<site>' webroot should be removed
+    And Following containers of site '<site>' should be removed:
+      | container  |
+      | nginx      |
+      | php        |
+      | db         |
+      | redis      |
+      | phpmyadmin |
 
-  #   Examples:
-  #     | site       |
-  #     | hello.test |
-  #     | world.test |
+
+    Examples:
+      | site       |
+      | hello.test |
 
 
 #Scenario: Site Clean-up works properly

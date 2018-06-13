@@ -35,13 +35,13 @@ class FeatureContext extends BehatContext implements \Behat\Behat\Context\Closur
 	 * @AfterFeature
 	 */
 	public static function cleanup( FeatureEvent $event ) {
-		// $sites = ( array_column( array_slice( $event->getFeature()->getScenarios()[1]->getExamples()->getRows(), 1 ), 0 ) );
-		// $out   = shell_exec( "bin/ee site list" );
+	// 	$sites = ( array_column( array_slice( $event->getFeature()->getScenarios()[1]->getExamples()->getRows(), 1 ), 0 ) );
+	// 	$out   = shell_exec( "bin/ee site list" );
 
-		// foreach ( $sites as $site ) {
-		// 	if ( strpos( $out, $site ) !== false ) {
-		// 		exec( "bin/ee site delete $site" );
-		// 	}
-		// }
+	// 	foreach ( $sites as $site ) {
+	// 		if ( strpos( $out, $site ) !== false ) {
+	// 			exec( "bin/ee site delete $site" );
+	// 		}
+	// 	}
 	}
 }
