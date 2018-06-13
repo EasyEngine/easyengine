@@ -16,6 +16,27 @@ $steps->Then(
 		}
 	}
 );
+$steps->Then(
+	'/^Request on \'([^\']*)\' should contain following headers:$/', function ( $world, $site, $table ) {
+		$url = 'http://' . $site;
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL,$url );
+		curl_setopt( $ch, CURLOPT_HEADER, true );
+		curl_setopt( $ch, CURLOPT_NOBODY, true );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		$headers = curl_exec( $ch );
+		curl_close ($ch);
+
+		$rows = $table->getHash();
+
+		foreach ( $rows as $row ) {
+			if( strpos( $headers, $row['header'] ) === false ) {
+				throw new Exception( "Unable to find ". $row['header'] ."\nActual output is : " . $headers );
+			}
+		}
+	}
+);
 
 
 $steps->Then(
