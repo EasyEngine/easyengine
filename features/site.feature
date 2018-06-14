@@ -39,25 +39,24 @@ Feature: Site Command
       | site       |
       | hello.test |
 
-  Scenario Outline: List the sites
-    When I run 'sudo bin/ee site list'
-    Then STDOUT should return something like
+ Scenario: List the sites
+   When I run 'sudo bin/ee site list'
+   Then STDOUT should return exactly
+    """
+    List of all Sites:
+
+    hello.test
+    """
+
+  Scenario: Delete the sites
+    When I run 'sudo bin/ee site delete hello.test'
+    Then STDOUT should return exactly
      """
-      List of Sites:
-
-      hello.test
+     Error: Site hello.test does not exist.
      """
-
-    Examples:
-      | site       |
-      | hello.test |
-
-
-  Scenario Outline: Delete the sites
-    When I run 'sudo bin/ee site delete <site>'
-    Then The '<site>' db entry should be removed
-    And The '<site>' webroot should be removed
-    And Following containers of site '<site>' should be removed:
+    And The 'hello.test' db entry should be removed
+    And The 'hello.test' webroot should be removed
+    And Following containers of site 'hello.test' should be removed:
       | container  |
       | nginx      |
       | php        |
@@ -65,10 +64,6 @@ Feature: Site Command
       | redis      |
       | phpmyadmin |
 
-
-    Examples:
-      | site       |
-      | hello.test |
 
 
 #Scenario: Site Clean-up works properly

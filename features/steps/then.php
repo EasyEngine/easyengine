@@ -1,15 +1,15 @@
 <?php
 
 $steps->Then(
-	"/^STDOUT should return (something like|exactly)$/", function ( $world, $condition, $string ) {
+	"/^STDOUT should(\ not)? return (something like|exactly)$/", function ( $world, $not, $condition, $string ) {
 	if ( "exactly" === $condition ) {
-		if ( (string) $string !== $world->output ) {
+		if ( ((string) $string !== $world->output) && !$not ) {
 			throw new Exception(
 				"Actual output is:\n" . $world->output
 			);
 		}
 	} else if ( "something like" === $condition ) {
-		if ( strpos( $world->output, (string) $string ) !== false ) {
+		if ( (strpos( $world->output, (string) $string ) !== false) && !$not ) {
 			throw new Exception( "Actual output is : " . $world->output );
 		}
 	}
@@ -54,28 +54,13 @@ $steps->Then(
 }
 );
 
-// $steps->Then(
-// 	'/^The \'([^\']*)\' containers should be removed$/', function ( $world, $site ) {
-// 	$containers = array( 'php', 'nginx', 'db', 'mail' );
-// 	$base_name  = implode( '', explode( '.', $site ) );
-
-// 	foreach ( $containers as $container ) {
-// 		$container_name = $base_name . '_' . $container . '_1';
-// 		exec( "docker inspect -f '{{.State.Running}}' $container_name > /dev/null 2>&1", $exec_out, $return );
-// 		if ( ! $return ) {
-// 			throw new Exception( "$container_name has not been removed!" );
-// 		}
-// 	}
-// }
-// );
-
 $steps->Then(
 	'/^Following containers of site \'([^\']*)\' should be removed:$/', function ( $world, $site, $table ) {
 
 	$containers = $table->getHash();
 
 	foreach ( $containers as $container ) {
-		$container_name = 'hellotest_' . $container . '_1';
+		$container_name = 'hellotest_' . $container['container'] . '_1';
 		exec( "docker inspect -f '{{.State.Running}}' $container_name > /dev/null 2>&1", $exec_out, $return );
 		if ( ! $return ) {
 			throw new Exception( "$container_name has not been removed!" );
@@ -94,7 +79,7 @@ $steps->Then(
 
 $steps->Then(
 	'/^The \'([^\']*)\' db entry should be removed$/', function ( $world, $site ) {
-	$out = shell_exec( "bin/ee site list" );
+	$out = shell_exec( "sudo bin/ee site list" );
 	if ( strpos( $out, $site ) !== false ) {
 		throw new Exception( "$site db entry not been removed!" );
 	}
