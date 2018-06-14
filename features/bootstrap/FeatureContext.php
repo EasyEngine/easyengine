@@ -1,7 +1,7 @@
 <?php
 
-use Behat\Behat\Context\BehatContext,
-	Behat\Behat\Exception\PendingException;
+use Behat\Behat\Context\Context;
+
 
 use Behat\Gherkin\Node\PyStringNode,
 	Behat\Gherkin\Node\TableNode,
@@ -9,39 +9,56 @@ use Behat\Gherkin\Node\PyStringNode,
 
 use Behat\Behat\Event\FeatureEvent;
 
-class FeatureContext extends BehatContext implements \Behat\Behat\Context\ClosuredContextInterface {
-	public $output;
+class FeatureContext implements Context {
+	public $command;
 	public $webroot_path;
-
+	
+	
 	/**
-	 * Returns array of step definition files (*.php).
-	 *
-	 * @return array
-	 */
-	public function getStepDefinitionResources() {
-		return glob( __DIR__ . '/../steps/*.php' );
-	}
+     * @When I run :arg1
+     */
+    public function iRun($arg1)
+    {
+        throw new PendingException();
+    }
 
-	/**
-	 * Returns array of hook definition files (*.php).
-	 *
-	 * @return array
-	 */
-	public function getHookDefinitionResources() {
-		return array();
-	}
+    /**
+     * @Then STDOUT should return exactly
+     */
+    public function stdoutShouldReturnExactly(PyStringNode $string)
+    {
+        throw new PendingException();
+    }
 
-	/**
-	 * @AfterFeature
-	 */
-	public static function cleanup( FeatureEvent $event ) {
-	// 	$sites = ( array_column( array_slice( $event->getFeature()->getScenarios()[1]->getExamples()->getRows(), 1 ), 0 ) );
-	// 	$out   = shell_exec( "bin/ee site list" );
+    /**
+     * @Then STDERR should be empty
+     */
+    public function stderrShouldBeEmpty()
+    {
+        throw new PendingException();
+    }
 
-	// 	foreach ( $sites as $site ) {
-	// 		if ( strpos( $out, $site ) !== false ) {
-	// 			exec( "bin/ee site delete $site" );
-	// 		}
-	// 	}
-	}
+    /**
+     * @Then The :arg1 db entry should be removed
+     */
+    public function theDbEntryShouldBeRemoved($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then The :arg1 webroot should be removed
+     */
+    public function theWebrootShouldBeRemoved($arg1)
+    {
+        throw new PendingException();
+    }
+
+    /**
+     * @Then Following containers of site :arg1 should be removed:
+     */
+    public function followingContainersOfSiteShouldBeRemoved($arg1, TableNode $table)
+    {
+        throw new PendingException();
+    }
 }

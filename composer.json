@@ -48,7 +48,7 @@
         "wp-cli/php-cli-tools": "~0.11.2"
     },
     "require-dev": {
-        "behat/behat": "2.5.*",
+        "behat/behat": "3.4.*",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
         "phpunit/phpunit": "3.7.*",
         "roave/security-advisories": "dev-master",
