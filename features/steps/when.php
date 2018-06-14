@@ -6,7 +6,8 @@ include_once( __DIR__ . '/../../php/utils.php' );
 $steps->When(
 	"/^I run \'([^\']*)\'$/",
 	function ( $world, $command ) {
-		$launch = EE::launch($command);
-		$world->output = trim( implode( "\n", $launch->output ) );
+		$world->command = EE::launch($command, false, true);
+//		$world->output = trim( implode( "\n", $launch->stdout) );
+		$a=1;
 	}
 );

@@ -1,7 +1,7 @@
 <?php
 
 $steps->Then(
-	"/^STDOUT should(\ not)? return (something like|exactly)$/", function ( $world, $not, $condition, $string ) {
+	"/^STDOUT should(\ not)? (something like|exactly)$/", function ( $world, $not, $condition, $string ) {
 	if ( "exactly" === $condition ) {
 		if ( ((string) $string !== $world->output) && !$not ) {
 			throw new Exception(
@@ -15,6 +15,23 @@ $steps->Then(
 	}
 }
 );
+
+$steps->Then(
+	"/^(STDOUT|STDERR) should be empty$/", function ( $world, $stream ) {
+		if($stream === 'STDERR') {
+			$output = $world->command->stderr;
+		}
+		else {
+			$output = $world->command->stdout;
+		}
+		if ( $output !== '' ) {
+			throw new Exception(
+				"Actual output is:\n" . $output
+			);
+		}
+}
+);
+
 $steps->Then(
 	'/^Request on \'([^\']*)\' should contain following headers:$/', function ( $world, $site, $table ) {
 	$url = 'http://' . $site;
