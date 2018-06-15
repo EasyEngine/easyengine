@@ -803,21 +803,24 @@ class EE {
 	/**
 	 * Launch an arbitrary external process that takes over I/O.
 	 *
-	 * @access public
+	 * @access   public
 	 * @category Execution
 	 *
-	 * @param string $command External process to launch.
-	 * @param boolean $exit_on_error Whether to exit if the command returns an elevated return code.
+	 * @param string  $command         External process to launch.
+	 * @param boolean $exit_on_error   Whether to exit if the command returns an elevated return code.
 	 * @param boolean $return_detailed Whether to return an exit status (default) or detailed execution results.
+	 * @param array   $env             Environment variables to set when running the command.
+	 * @param string  $cwd             Directory to execute the command in.
+	 *
 	 * @return int|ProcessRun The command exit status, or a ProcessRun object for full details.
 	 */
-	public static function launch( $command, $exit_on_error = true, $return_detailed = false ) {
+	public static function launch( $command, $exit_on_error = true, $return_detailed = false, $env = array(), $cwd = null ) {
 		Utils\check_proc_available( 'launch' );
 
-		$proc = Process::create( $command );
+		$proc    = Process::create( $command, $cwd, $env );
 		$results = $proc->run();
 
-		if ( -1 == $results->return_code ) {
+		if ( - 1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
 		}
 
