@@ -78,3 +78,11 @@ ee site list
 ```
 
 EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
+
+
+## Test
+
+EasyEngine is currently using [behat](http://behat.org/) v3.4.x functional tests. The tests for site-command are inside the `features/` directory in the core repository and can be run using 
+```
+vendor/bin/behat
+```
