@@ -4,6 +4,7 @@ include_once(__DIR__ . '/../../php/class-ee.php');
 include_once(__DIR__ . '/../../php/utils.php');
 
 use Behat\Behat\Context\Context;
+use Behat\Behat\Hook\Scope\AfterFeatureScope;
 
 
 use Behat\Gherkin\Node\PyStringNode,
@@ -146,8 +147,8 @@ class FeatureContext implements Context
 	/**
 	 * @AfterFeature
 	 */
-	public static function cleanup(AfterScenarioScope $scope)
+	public static function cleanup(AfterFeatureScope $scope)
 	{
-		exec("bin/ee site delete hello.test");
+		exec("sudo bin/ee site delete hello.test");
 	}
 }
