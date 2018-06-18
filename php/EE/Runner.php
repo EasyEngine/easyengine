@@ -482,11 +482,11 @@ class Runner {
 
 		// Create the config directory if not exist for file logger to initialize.
 		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			shell_exec('sudo mkdir -p ' . EE_CONF_ROOT);
+			shell_exec('mkdir -p ' . EE_CONF_ROOT);
 		}
 
 		if ( ! is_writable( EE_CONF_ROOT ) ) {
-			EE::err( 'Please run `ee` with root privileges.' );
+			EE::err( 'Config root: ' . EE_CONF_ROOT . ' is not writable by EasyEngine' );
 		}
 
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
@@ -548,7 +548,7 @@ class Runner {
 				array_unshift( $args, 'cli' );
                 unset( $assoc_args['version'] );
             }
-			
+
 			// ee3 backward compatibility to wp-cli flags
 			$wp_compat_array_map = array(
 				'user' => 'admin_user',
@@ -624,7 +624,7 @@ class Runner {
 					$this->add_var_to_config_file( $var, $config_file_path );
 					return;
 				}
-				EE::err("Please run `ee` with root privileges.");
+				EE::err("Configuration directory: $config_dir_path is not writable by EasyEngine.");
 			}
 		}
 	}
