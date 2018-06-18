@@ -127,7 +127,7 @@ class EE_DOCKER {
 	/**
 	 * Function to connect site network to appropriate containers.
 	 */
-	public function connect_site_network_to( $site_name, $to_container ) {
+	public static function connect_site_network_to( $site_name, $to_container ) {
 
 		if ( self::connect_network( $site_name, $to_container ) ) {
 			EE::success( "Site connected to $to_container." );
