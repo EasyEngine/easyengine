@@ -814,13 +814,13 @@ class EE {
 	 *
 	 * @return int|ProcessRun The command exit status, or a ProcessRun object for full details.
 	 */
-	public static function launch( $command, $exit_on_error = true, $return_detailed = false, $env = array(), $cwd = null ) {
+	public static function launch( $command, $exit_on_error = true, $return_detailed = false, $env = null, $cwd = null ) {
 		Utils\check_proc_available( 'launch' );
 
 		$proc    = Process::create( $command, $cwd, $env );
 		$results = $proc->run();
 
-		if ( - 1 == $results->return_code ) {
+		if ( -1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
 		}
 
