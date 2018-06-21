@@ -1381,12 +1381,16 @@ function delete_dir( $dir ) {
 
 /**
  * Function to generate random password.
+ *
+ * @param int $length Length of random password required.
+ *
+ * @return string Random Password of specified length.
  */
-function random_password() {
+function random_password( $length = 12 ) {
 	$alphabet    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 	$pass        = array();
 	$alphaLength = strlen( $alphabet ) - 1;
-	for ( $i = 0; $i < 12; $i ++ ) {
+	for ( $i = 0; $i < $length; $i ++ ) {
 		$n      = rand( 0, $alphaLength );
 		$pass[] = $alphabet[$n];
 	}
@@ -1425,16 +1429,50 @@ function default_debug( $launch ) {
 
 /**
  * Default Launch command.
+ * This takes care of executing the command as well as debugging it to terminal as well as file.
  *
- * @param Object $launch EE::Launch command object
+ * @param string $command The command to be executed via EE::launch();
+ * @param array  $env     Environment variables to set when running the command.
+ * @param string $cwd     Directory to execute the command in.
+ *
+ * @return bool True if executed successfully. False if failed.
  */
-function default_launch( $command ) {
-	$launch = EE::launch( $command, false, true );
+function default_launch( $command, $env = null, $cwd = null ) {
+	$launch = EE::launch( $command, false, true, $env, $cwd );
 	default_debug( $launch );
 	if ( ! $launch->return_code ) {
 		return true;
 	}
+
 	return false;
+}
+
+/**
+ * Function that takes care of executing the command as well as debugging it to terminal as well as file.
+ *
+ * @param string $command The command to be executed via exec();
+ *
+ * @return bool True if executed successfully. False if failed.
+ */
+function default_exec( $command ) {
+	exec( $command, $out, $return_code );
+	EE::debug( 'COMMAND: ' . $command );
+	EE::debug( 'STDOUT: ' . implode( $out ) );
+	EE::debug( 'RETURN CODE: ' . $return_code );
+	if ( ! $return_code ) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Function that takes care of executing the command as well as debugging it to terminal as well as file.
+ *
+ * @param string $command The command to be executed via shell_exec();
+ */
+function default_shell_exec( $command ) {
+	EE::debug( 'COMMAND: ' . $command );
+	EE::debug( 'STDOUT: ' . shell_exec( $command ) );
 }
 
 /**
