@@ -187,6 +187,9 @@ class CLI_Command extends EE_Command {
 	 * [--nightly]
 	 * : Update to the latest built version of the develop branch. Potentially unstable.
 	 *
+	 * [--yes]
+	 * : Do not prompt for confirmation.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Update CLI.

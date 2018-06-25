@@ -16,6 +16,28 @@ class FeatureContext implements Context
 	public $webroot_path;
 
 	/**
+	 * @Given ee phar is generated
+	 */
+	public function eePharIsPresent()
+	{
+		// Checks if phar already exists, replaces it
+		if(file_exists('ee-old.phar')) {
+			// Below exec call is required as currenly `ee cli update` is ran with root
+			// which updates ee.phar with root privileges.
+			exec("sudo rm ee.phar");
+			copy('ee-old.phar','ee.phar');
+			return 0;
+		}
+		exec("php -dphar.readonly=0 utils/make-phar.php ee.phar", $output, $return_status);
+		if (0 !== $return_status) {
+			throw new Exception("Unable to generate phar" . $return_status);
+		}
+
+		// Cache generaed phar as it is expensive to generate one
+		copy('ee.phar','ee-old.phar');
+	}
+
+	/**
 	 * @Given :command is installed
 	 */
 	public function isInstalled($command)
@@ -32,6 +54,15 @@ class FeatureContext implements Context
 	public function iRun($command)
 	{
 		$this->command = EE::launch($command, false, true);
+	}
+	/**
+	 * @Then return value should be 0
+	 */
+	public function returnCodeShouldBe0()
+	{
+		if ( 0 !== $this->command->return_code ) {
+			throw new Exception("Actual return code is not zero: \n" . $this->command);
+		}
 	}
 
 	/**
@@ -150,5 +181,11 @@ class FeatureContext implements Context
 	public static function cleanup(AfterFeatureScope $scope)
 	{
 		exec("sudo bin/ee site delete hello.test");
+		if(file_exists('ee.phar')) {
+			unlink('ee.phar');
+		}
+		if(file_exists('ee-old.phar')) {
+			unlink('ee-old.phar');
+		}
 	}
 }
