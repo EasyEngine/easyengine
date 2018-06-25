@@ -28,6 +28,7 @@
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
         "easyengine/site-command": "dev-master",
+        "easyengine/shell-command": "dev-master",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
         "mustache/mustache": "~2.4",
