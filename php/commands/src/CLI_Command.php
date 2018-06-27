@@ -259,7 +259,8 @@ class CLI_Command extends EE_Command {
 		if ( false === chmod( $temp, $mode ) ) {
 			EE::error( sprintf( 'Cannot chmod %s.', $temp ) );
 		}
-		class_exists( '\cli\Colors' ); // This autoloads \cli\Colors - after we move the file we no longer have access to this class.
+		class_exists( '\cli\Streams' ); // This autoloads \cli\Streams - after we move the file we no longer have access to this class.
+		class_exists( '\cli\Colors' ); // This autoloads \cli\Colors
 		if ( false === rename( $temp, $old_phar ) ) {
 			EE::error( sprintf( 'Cannot move %s to %s', $temp, $old_phar ) );
 		}
