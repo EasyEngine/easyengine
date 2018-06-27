@@ -1,60 +1,62 @@
-Feature: Create WordPress site
+Feature: Site Command
 
-  Scenario: ee site command working correctly
+  Scenario: ee throws error when run without root
     Given 'bin/ee' is installed
     When I run 'bin/ee'
+    Then STDERR should return exactly
+    """
+    Error: Please run `ee` with root privileges.
+    """
+
+  Scenario: ee executable is command working correctly
+    Given 'bin/ee' is installed
+    When I run 'sudo bin/ee'
     Then STDOUT should return something like
-     """
-     NAME
+    """
+    NAME
 
-     ee
-     """
+      ee
+    """
 
-  Scenario Outline: Created site is running successfully
-    When I run 'bin/ee site create <site> --wp'
-    Then The '<site>' should have webroot
-    And The '<site>' should have tables
-
-    Examples:
-      | site       |
-      | hello.test |
-      | world.test |
-
-  Scenario Outline: List the sites
-    When I run 'bin/ee site list'
+  Scenario: Check site command is present
+    When I run 'sudo bin/ee site'
     Then STDOUT should return something like
-     """
-      List of Sites:
+    """
+    usage: ee site
+    """
 
-       - hello.test
-       - world.test
-     """
+  Scenario: Create site successfully
+    When I run 'sudo bin/ee site create hello.test --wp'
+    Then The site 'hello.test' should have webroot
+    And The site 'hello.test' should have WordPress
+    And Request on 'hello.test' should contain following headers:
+    | header           |
+    | HTTP/1.1 200 OK  |
 
-    Examples:
-      | site       |
-      | hello.test |
-      | world.test |
+  Scenario: List the sites
+    When I run 'sudo bin/ee site list'
+    Then STDOUT should return exactly
+    """
+    List of all Sites:
 
+    hello.test
+    """
 
-  Scenario Outline: Delete the sites
-    When I run 'bin/ee site delete <site>'
-    Then The '<site>' containers should be removed
-    And The '<site>' webroot should be removed
-    And The '<site>' db entry should be removed
-
-    Examples:
-      | site       |
-      | hello.test |
-      | world.test |
-
-
-#Scenario: Site Clean-up works properly
-#    When I cleanup test 'bin/ee site create <site>'
-#    Then The '<site>' containers should be removed
-#    And The '<site>' webroot should be removed
-#    And The '<site>' db entry should be removed
-#
-#    Examples:
-#      | site       |
-#      | hello.test |
-#      | world.test |
+  Scenario: Delete the sites
+    When I run 'sudo bin/ee site delete hello.test'
+    Then STDOUT should return something like
+    """
+    Site hello.test deleted.
+    """
+    And STDERR should return exactly
+    """
+    """
+    And The 'hello.test' db entry should be removed
+    And The 'hello.test' webroot should be removed
+    And Following containers of site 'hello.test' should be removed:
+      | container  |
+      | nginx      |
+      | php        |
+      | db         |
+      | redis      |
+      | phpmyadmin |
