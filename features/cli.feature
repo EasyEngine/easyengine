@@ -12,5 +12,5 @@ Feature: CLI Command
 
   Scenario: ee update works properly
     Given ee phar is generated
-    When I run 'php ee.phar cli update --yes'
+    When I run 'sudo php ee.phar cli update --yes'
     Then return value should be 0

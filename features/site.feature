@@ -53,7 +53,7 @@ Feature: Site Command
     """
     And The 'hello.test' db entry should be removed
     And The 'hello.test' webroot should be removed
-    And Following containers of site 'abc.test' should be removed:
+    And Following containers of site 'hello.test' should be removed:
       | container  |
       | nginx      |
       | php        |
