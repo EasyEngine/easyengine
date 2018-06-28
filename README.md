@@ -28,152 +28,50 @@ chmod +x /usr/local/bin/ee
 
 ## Usage
 
-## Basic Commands
-Currently there are three top level commands of `ee`.
- * [ee site](#ee-site)
- * [ee shell](#ee-shell)
- * [ee cli](#ee-cli)
+To get started with EasyEngine and create a wordpress site, run
 
-Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
-
-### ee site
-Contains basic site management commands
-
-`site` command contains following subcommand
- * [ee site create](#ee-site-create)
- * [ee site delete](#ee-site-delete)
- * [ee site disable](#ee-site-disable)
- * [ee site enable](#ee-site-enable)
- * [ee site info](#ee-site-info)
- * [ee site list](#ee-site-list)
- * [ee site start](#ee-site-start)
- * [ee site stop](#ee-site-stop)
- * [ee site restart](#ee-site-restart)
- * [ee site reload](#ee-site-reload)
-
-#### ee site create
-Runs the site creation.
-
-```bash
-ee site create example.com --wp                 # install wordpress without any page caching
-ee site create example.com --wpredis            # install wordpress + redis caching
-ee site create example.com --wpsubir            # install wpmu-subdirectory without any page caching
-ee site create example.com --wpsubir --wpredis  # install wpmu-subdirectory + redis caching
-ee site create example.com --wpsubdom           # install wpmu-subdomain without any page caching
-ee site create example.com --wpsubdom --wpredis # install wpmu-subdomain + redis caching
+```
+ee site create example.com
 ```
 
-#### ee site delete
-Deletes an existing EasyEngine site.
+Need a wordpress site with caching? Try
 
-```bash
-ee site delete example.com
+```
+ee site create example.com --wpredis
 ```
 
-#### ee site disable
-Disables a website. It will stop and remove the docker containers of the website if they are running.
-
-```bash
-ee site disable example.com
+Need a wordpress multi-site with page cache?
+```
+ee site create example.com --wpsubdir --wpredis
 ```
 
-#### ee site enable
-Enables a website. It will start the docker containers of the website if they are stopped.
-
-```bash
-ee site enable example.com
+Want to play around with your new site?
 ```
-
-#### ee site info
-Display all the relevant site information, credentials and useful links.
-
-```bash
-ee site info example.com
-```
-
-#### ee site list
-Lists the created websites.
-
-```bash
-ee site list
-```
-
-#### ee site start
-Starts containers associated with site.
-
-```bash
-ee site start example.com
-ee site start example.com --nginx
-```
-
-#### ee site stop
-Stops containers associated with site.
-
-```bash
-ee site stop example.com
-ee site stop example.com --nginx
-```
-
-#### ee site restart
-Restarts containers associated with site.
-
-```bash
-ee site restart example.com
-ee site restart example.com --nginx
-```
-
-#### ee site reload
-Reload services in containers without restarting container(s) associated with site.
-
-```bash
-ee site reload example.com
-ee site reload example.com --nginx
-```
-
-### ee shell
-Gives you a shell where you can manage and interact with your site.
-
-```bash
 ee shell example.com
 ```
 
-### ee cli
-Commands to manage easyengine itself
+Want to know more? Checkout readme of these commands -
+ * [site command](https://github.com/EasyEngine/site-command/)
+ * [shell command](https://github.com/EasyEngine/shell-command/)
 
-`cli` command has following subcommands:
- * [ee cli info](#ee-cli-info)
- * [ee cli update](#ee-cli-update)
- * [ee cli version](#ee-cli-version)
- * [ee cli has-command](#ee-cli-has-command)
+Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
 
-#### ee cli info
-Print various details about the EE environment.
+## Development
 
-```bash
-ee cli info
-```
-#### ee cli update
-Updates EasyEngine to the latest release.
+Development of easyengine is done entirely on GitHub.
 
-```bash
-ee cli update
-```
-#### ee cli version
-Print EasyEngine version.
+We've used [wp-cli](https://github.com/wp-cli/wp-cli/) framework as a base and built EasyEngine on top of it.
 
-```bash
-ee cli version
-```
-#### ee cli has-command
-Detects if a command exists
+This repo contains main core of easyengine (the framework). 
+All top level commands(except `ee cli`) i.e. `ee site`, `ee shell` have their own repos.
 
-```bash
-ee cli has-command site
-```
+Currently we have following commands which are bundled by default in EasyEngine:
 
-## Tests
+* [site command](https://github.com/EasyEngine/site-command/)
+* [shell command](https://github.com/EasyEngine/shell-command/)
 
-EasyEngine is currently using [behat](http://behat.org/) v3.4.x functional tests. The tests for site-command are inside the `features/` directory in the core repository and can be run using 
-```
-vendor/bin/behat
-```
+In future, community will be able to make their own packages and commands!
+
+## Contributing
+
+We warmheartedly welcome all contributions however and in whatever capacity you can either through Pull Requests or by reporting Issues. You can contribute here or in any of the above mentioned commands repo.
