@@ -127,7 +127,7 @@ class EE_DOCKER {
 	/**
 	 * Function to connect site network to appropriate containers.
 	 */
-	public function connect_site_network_to( $site_name, $to_container ) {
+	public static function connect_site_network_to( $site_name, $to_container ) {
 
 		if ( self::connect_network( $site_name, $to_container ) ) {
 			EE::success( "Site connected to $to_container." );
@@ -139,7 +139,7 @@ class EE_DOCKER {
 	/**
 	 * Function to disconnect site network from appropriate containers.
 	 */
-	public function disconnect_site_network_from( $site_name, $from_container ) {
+	public static function disconnect_site_network_from( $site_name, $from_container ) {
 
 		if ( self::disconnect_network( $site_name, $from_container ) ) {
 			EE::log( "[$site_name] Disconnected from Docker network of $from_container" );

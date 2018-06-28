@@ -1381,12 +1381,16 @@ function delete_dir( $dir ) {
 
 /**
  * Function to generate random password.
+ *
+ * @param int $length Length of random password required.
+ *
+ * @return string Random Password of specified length.
  */
-function random_password() {
+function random_password( $length = 12 ) {
 	$alphabet    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 	$pass        = array();
 	$alphaLength = strlen( $alphabet ) - 1;
-	for ( $i = 0; $i < 12; $i ++ ) {
+	for ( $i = 0; $i < $length; $i ++ ) {
 		$n      = rand( 0, $alphaLength );
 		$pass[] = $alphabet[$n];
 	}
@@ -1425,16 +1429,50 @@ function default_debug( $launch ) {
 
 /**
  * Default Launch command.
+ * This takes care of executing the command as well as debugging it to terminal as well as file.
  *
- * @param Object $launch EE::Launch command object
+ * @param string $command The command to be executed via EE::launch();
+ * @param array  $env     Environment variables to set when running the command.
+ * @param string $cwd     Directory to execute the command in.
+ *
+ * @return bool True if executed successfully. False if failed.
  */
-function default_launch( $command ) {
-	$launch = EE::launch( $command, false, true );
+function default_launch( $command, $env = null, $cwd = null ) {
+	$launch = EE::launch( $command, false, true, $env, $cwd );
 	default_debug( $launch );
 	if ( ! $launch->return_code ) {
 		return true;
 	}
+
 	return false;
+}
+
+/**
+ * Function that takes care of executing the command as well as debugging it to terminal as well as file.
+ *
+ * @param string $command The command to be executed via exec();
+ *
+ * @return bool True if executed successfully. False if failed.
+ */
+function default_exec( $command ) {
+	exec( $command, $out, $return_code );
+	EE::debug( 'COMMAND: ' . $command );
+	EE::debug( 'STDOUT: ' . implode( $out ) );
+	EE::debug( 'RETURN CODE: ' . $return_code );
+	if ( ! $return_code ) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Function that takes care of executing the command as well as debugging it to terminal as well as file.
+ *
+ * @param string $command The command to be executed via shell_exec();
+ */
+function default_shell_exec( $command ) {
+	EE::debug( 'COMMAND: ' . $command );
+	EE::debug( 'STDOUT: ' . shell_exec( $command ) );
 }
 
 /**
@@ -1537,11 +1575,12 @@ function get_site_name() {
  * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
  *
  * @param array $args The passed arguments.
- * @param String $command The command passing the arguments to aut=detect site-name.
+ * @param String $command The command passing the arguments to auto-detect site-name.
+ * @param bool $arg_zero Site-name will be present in the first argument. Default true.
  *
  * @return array Arguments with site-name set.
  */
-function set_site_arg( $args, $command ) {
+function set_site_arg( $args, $command, $arg_zero=true ) {
 	if ( isset( $args[0] ) ) {
 		if ( EE::db()::site_in_db( $args[0] ) ) {
 			return $args;
@@ -1549,6 +1588,9 @@ function set_site_arg( $args, $command ) {
 	}
 	$site_name = get_site_name();
 	if ( $site_name ) {
+		if ( isset( $args[0] ) && $arg_zero ) {
+			EE::error( $args[0] . " is not a valid site-name. Did you mean `ee $command $site_name`?" );
+		}
 		array_unshift( $args, $site_name );
 	} else {
 		EE::error( "Could not find the site you wish to run $command command on.\nEither pass it as an argument: `ee $command <site-name>` \nor run `ee $command` from inside the site folder." );

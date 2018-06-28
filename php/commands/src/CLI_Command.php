@@ -167,6 +167,72 @@ class CLI_Command extends EE_Command {
 	}
 
 	/**
+	 * Check to see if there is a newer version of EE available.
+	 *
+	 * Queries the Github releases API. Returns available versions if there are
+	 * updates available, or success message if using the latest release.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--patch]
+	 * : Only list patch updates.
+	 *
+	 * [--minor]
+	 * : Only list minor updates.
+	 *
+	 * [--major]
+	 * : Only list major updates.
+	 *
+	 * [--field=<field>]
+	 * : Prints the value of a single field for each update.
+	 *
+	 * [--fields=<fields>]
+	 * : Limit the output to specific object fields. Defaults to version,update_type,package_url.
+	 *
+	 * [--format=<format>]
+	 * : Render output in a particular format.
+	 * ---
+	 * default: table
+	 * options:
+	 *   - table
+	 *   - csv
+	 *   - json
+	 *   - count
+	 *   - yaml
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Check for update.
+	 *     $ ee cli check-update
+	 *     Success: EE is at the latest version.
+	 *
+	 *     # Check for update and new version is available.
+	 *     $ ee cli check-update
+	 *     +---------+-------------+------------------------------------------------------------------------------------------+
+	 *     | version | update_type | package_url                                                                              |
+	 *     +---------+-------------+------------------------------------------------------------------------------------------+
+	 *     | 0.24.1  | patch       | https://github.com/EasyEngine/easyengine/releases/download/v4.0.0-beta.1/easyengine.phar |
+	 *     +---------+-------------+------------------------------------------------------------------------------------------+
+	 *
+	 * @subcommand check-update
+	 */
+	public function check_update( $_, $assoc_args ) {
+		$updates = $this->get_updates( $assoc_args );
+
+		if ( $updates ) {
+			$formatter = new \EE\Formatter(
+				$assoc_args,
+				array( 'version', 'update_type', 'package_url' )
+			);
+			$formatter->display_items( $updates );
+		} elseif ( empty( $assoc_args['format'] ) || 'table' == $assoc_args['format'] ) {
+			$update_type = $this->get_update_type_str( $assoc_args );
+			EE::success( "EasyEngine is at the latest{$update_type}version." );
+		}
+	}
+
+	/**
 	 * Update EE to the latest release.
 	 *
 	 * Default behavior is to check the releases API for the newest stable
@@ -186,6 +252,9 @@ class CLI_Command extends EE_Command {
 	 *
 	 * [--nightly]
 	 * : Update to the latest built version of the develop branch. Potentially unstable.
+	 *
+	 * [--yes]
+	 * : Do not prompt for confirmation.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -259,7 +328,8 @@ class CLI_Command extends EE_Command {
 		if ( false === chmod( $temp, $mode ) ) {
 			EE::error( sprintf( 'Cannot chmod %s.', $temp ) );
 		}
-		class_exists( '\cli\Colors' ); // This autoloads \cli\Colors - after we move the file we no longer have access to this class.
+		class_exists( '\cli\Streams' ); // This autoloads \cli\Streams - after we move the file we no longer have access to this class.
+		class_exists( '\cli\Colors' ); // This autoloads \cli\Colors
 		if ( false === rename( $temp, $old_phar ) ) {
 			EE::error( sprintf( 'Cannot move %s to %s', $temp, $old_phar ) );
 		}

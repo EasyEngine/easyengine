@@ -47,6 +47,7 @@ class EE_DB {
 						db_password VARCHAR,
 						db_root_password VARCHAR, 
 						db_host VARCHAR, 
+						db_port VARCHAR, 
 						wp_user VARCHAR, 
 						wp_pass VARCHAR, 
 						email VARCHAR, 
