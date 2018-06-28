@@ -153,13 +153,13 @@ Print various details about the EE environment.
 ee cli info
 ```
 #### ee cli update
-Update EE to the latest release.
+Updates EasyEngine to the latest release.
 
 ```bash
 ee cli update
 ```
 #### ee cli version
-Print EE version.
+Print EasyEngine version.
 
 ```bash
 ee cli version
