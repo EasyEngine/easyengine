@@ -267,16 +267,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "dev-master",
+            "version": "v1.0.0-beta.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "884d3b48a18d5a0063a8c2ecf38b256b93cf0735"
+                "reference": "ef914e38bd2a3f24ea54f7ad5ce393fd058b2840"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/884d3b48a18d5a0063a8c2ecf38b256b93cf0735",
-                "reference": "884d3b48a18d5a0063a8c2ecf38b256b93cf0735",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/ef914e38bd2a3f24ea54f7ad5ce393fd058b2840",
+                "reference": "ef914e38bd2a3f24ea54f7ad5ce393fd058b2840",
                 "shasum": ""
             },
             "require": {
@@ -308,7 +308,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-06-11T20:59:51+00:00"
+            "time": "2018-06-28T17:50:46+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
