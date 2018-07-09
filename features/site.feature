@@ -41,7 +41,7 @@ Feature: Site Command
     """
 
   Scenario: Delete the sites
-    When I run 'sudo bin/ee site delete hello.test'
+    When I run 'sudo bin/ee site delete hello.test --yes'
     Then STDOUT should return something like
     """
     Site hello.test deleted.
