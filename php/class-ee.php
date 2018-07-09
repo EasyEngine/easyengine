@@ -707,6 +707,22 @@ class EE {
 	}
 
 	/**
+	 * Get user input for some question.
+	 *
+	 * @access   public
+	 * @category Input
+	 *
+	 * @param string $question Question to display before the prompt.
+	 *
+	 * @return string input from user.
+	 */
+	public static function input( $question ) {
+		fwrite( STDOUT, $question );
+
+		return strtolower( trim( fgets( STDIN ) ) );
+	}
+
+	/**
 	 * Read value from a positional argument or from STDIN.
 	 *
 	 * @param array $args The list of positional arguments.
