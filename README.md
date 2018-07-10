@@ -16,7 +16,7 @@
 For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04 and Debian 8.
 
 ```bash
-wget -qO ee rt.cx/ee4beta && sudo bash ee
+wget -qO ee https://rt.cx/ee4beta && sudo bash ee
 ```
 
 Even if the script doesn't work for your distribution, you can manually install the dependencies and then run the following commands to install EasyEngine
