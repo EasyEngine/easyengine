@@ -9,6 +9,10 @@ class EE_DB {
 			self::init_db();
 		}
 	}
+	
+	public function __destruct() {
+		self::$db->close();
+	}
 
 	/**
 	 * Function to initialize db and db connection.
@@ -30,33 +34,41 @@ class EE_DB {
 	public static function create() {
 		self::$db = new SQLite3( DB );
 		$query    = "CREATE TABLE sites (
-						id INTEGER NOT NULL, 
-						sitename VARCHAR, 
-						site_type VARCHAR, 
-						site_title VARCHAR, 
-						proxy_type VARCHAR, 
-						cache_type VARCHAR, 
-						site_path VARCHAR, 
-						created_on DATETIME, 
-						is_enabled BOOLEAN DEFAULT 1, 
-						is_ssl BOOLEAN DEFAULT 0, 
-						storage_fs VARCHAR, 
-						storage_db VARCHAR, 
-						db_name VARCHAR, 
-						db_user VARCHAR, 
-						db_password VARCHAR,
-						db_root_password VARCHAR, 
-						db_host VARCHAR, 
-						db_port VARCHAR, 
-						wp_user VARCHAR, 
-						wp_pass VARCHAR, 
-						email VARCHAR, 
-						php_version VARCHAR, 
-						PRIMARY KEY (id), 
-						UNIQUE (sitename), 
-						CHECK (is_enabled IN (0, 1)), 
-						CHECK (is_ssl IN (0, 1))
-					);";
+			id INTEGER NOT NULL, 
+			sitename VARCHAR, 
+			site_type VARCHAR, 
+			site_title VARCHAR, 
+			proxy_type VARCHAR, 
+			cache_type VARCHAR, 
+			site_path VARCHAR, 
+			created_on DATETIME, 
+			is_enabled BOOLEAN DEFAULT 1, 
+			is_ssl BOOLEAN DEFAULT 0, 
+			storage_fs VARCHAR, 
+			storage_db VARCHAR, 
+			db_name VARCHAR, 
+			db_user VARCHAR, 
+			db_password VARCHAR,
+			db_root_password VARCHAR, 
+			db_host VARCHAR, 
+			db_port VARCHAR, 
+			wp_user VARCHAR, 
+			wp_pass VARCHAR, 
+			email VARCHAR, 
+			php_version VARCHAR, 
+			PRIMARY KEY (id), 
+			UNIQUE (sitename), 
+			CHECK (is_enabled IN (0, 1)), 
+			CHECK (is_ssl IN (0, 1))
+		);";
+
+		self::$db->exec( $query );
+
+		$query    = "CREATE TABLE migrations (
+			migration VARCHAR,
+			timestamp DATETIME
+		);";
+
 		self::$db->exec( $query );
 	}
 
@@ -67,13 +79,12 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function insert( $data ) {
+	public static function insert( $data, $table_name='sites' ) {
 
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
 
-		$table_name = TABLE;
 
 		$fields  = '`' . implode( '`, `', array_keys( $data ) ) . '`';
 		$formats = '"' . implode( '", "', $data ) . '"';
@@ -84,10 +95,7 @@ class EE_DB {
 
 		if ( ! $insert_query_exec ) {
 			EE::debug( self::$db->lastErrorMsg() );
-			self::$db->close();
 		} else {
-			self::$db->close();
-
 			return true;
 		}
 
@@ -101,13 +109,11 @@ class EE_DB {
 	 *
 	 * @return array|bool
 	 */
-	public static function select( $columns = array(), $where = array() ) {
+	public static function select( $columns = array(), $where = array(), $table_name='sites' ) {
 
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
-
-		$table_name = TABLE;
 
 		$conditions = array();
 		if ( empty( $columns ) ) {
@@ -151,12 +157,10 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function update( $data, $where ) {
+	public static function update( $data, $where, $table_name='sites' ) {
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
-
-		$table_name = TABLE;
 
 		$fields     = array();
 		$conditions = array();
@@ -173,10 +177,7 @@ class EE_DB {
 			$update_query_exec = self::$db->exec( $update_query );
 			if ( ! $update_query_exec ) {
 				EE::debug( self::$db->lastErrorMsg() );
-				self::$db->close();
 			} else {
-				self::$db->close();
-
 				return true;
 			}
 		}
@@ -191,9 +192,7 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function delete( $where ) {
-
-		$table_name = TABLE;
+	public static function delete( $where, $table_name='sites' ) {
 
 		$conditions = array();
 		foreach ( $where as $key => $value ) {
@@ -207,10 +206,7 @@ class EE_DB {
 
 		if ( ! $delete_query_exec ) {
 			EE::debug( self::$db->lastErrorMsg() );
-			self::$db->close();
 		} else {
-			self::$db->close();
-
 			return true;
 		}
 
@@ -260,5 +256,21 @@ class EE_DB {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns all migrations from table.
+	 */
+	public static function get_migrations() {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$sites = self::select( [ 'migration' ], [], 'migrations' );
+		if( empty( $sites ) ) {
+			return [];
+		}
+		return array_column( $sites, 'migration' );
 	}
 }

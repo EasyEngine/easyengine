@@ -74,7 +74,7 @@ function add_file( $phar, $path ) {
 				$strips = array(
 					'\/(?:behat|gherkin)\/src\/',
 					'\/phpunit\/',
-					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process)[^\/]+\/',
+					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer)[^\/]+\/',
 					'\/composer\/spdx-licenses\/',
 					'\/Composer\/(?:Command\/|Compiler\.php|Console\/|Downloader\/Pear|Installer\/Pear|Question\/|Repository\/Pear|SelfUpdate\/)',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
@@ -167,8 +167,13 @@ $finder
 	->in(EE_VENDOR_DIR . '/ramsey/array_column')
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
+	->in(EE_VENDOR_DIR . '/symfony/polyfill-ctype')
 	->in(EE_VENDOR_DIR . '/monolog')
-	->in(EE_VENDOR_DIR . '/yosymfony')
+	->in(EE_VENDOR_DIR . '/guzzlehttp')
+	->in(EE_VENDOR_DIR . '/acmephp')
+	->in(EE_VENDOR_DIR . '/league')
+	->in(EE_VENDOR_DIR . '/webmozart')
+
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
 	->exclude('examples')
@@ -197,6 +202,7 @@ if ( 'cli' === BUILD ) {
 		->in(EE_VENDOR_DIR . '/symfony/console')
 		->in(EE_VENDOR_DIR . '/symfony/filesystem')
 		->in(EE_VENDOR_DIR . '/symfony/process')
+		->in(EE_VENDOR_DIR . '/symfony/serializer')
 		->in(EE_VENDOR_DIR . '/justinrainbow/json-schema')
 		->exclude('demo')
 		->exclude('nb/oxymel/OxymelTest.php')

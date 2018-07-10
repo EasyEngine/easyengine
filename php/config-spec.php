@@ -24,6 +24,13 @@ return array(
 		'desc'    => 'Locale for WordPress.',
 	),
 
+	'le-mail' => array(
+		'runtime' => '=<le-mail>',
+		'file'    => '<le-mail>',
+		'default' => null,
+		'desc'    => 'Mail-id to be used for letsencrypt.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,

@@ -61,7 +61,6 @@ class Runner {
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
 		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
-		define( 'TABLE', 'sites' );
 	}
 
 	/**
@@ -549,11 +548,12 @@ class Runner {
                 unset( $assoc_args['version'] );
             }
 
-			// ee3 backward compatibility to wp-cli flags
+			// ee3 backward compatibility flags
 			$wp_compat_array_map = array(
-				'user' => 'admin_user',
-				'pass' => 'admin_pass',
-				'email' => 'admin_email'
+				'user'  => 'admin_user',
+				'pass'  => 'admin_pass',
+				'email' => 'admin_email',
+				'le'    => 'letsencrypt',
 			);
 
 			foreach ( $wp_compat_array_map as $from => $to ) {
@@ -597,34 +597,34 @@ class Runner {
 	 * Ensures that vars are present in config. If they aren't, attempts to
 	 * create config file and add vars in it.
 	 *
-	 * @param $var Variable to check.
+	 * @param $var     Variable to check.
 	 * @param $default Default value to use if $var is not set.
 	 */
-	private function ensure_present_in_config( $var, $default) {
-
-		if ( empty($this->config[$var]) ) {
-			$this->config[$var] =  $default ;
-
-			$config_file_path = getenv('EE_CONFIG_PATH') ? getenv('EE_CONFIG_PATH') : EE_CONF_ROOT . '/config.yml';
-			$config_dir_path = dirname( $config_file_path );
+	public function ensure_present_in_config( $var, $default ) {
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
+		$existing_config  = Spyc::YAMLLoad( $config_file_path );
+		if ( ! isset( $existing_config[$var] ) ) {
+			$this->config[$var] = $default;
+			$config_dir_path    = dirname( $config_file_path );
 
 			if ( file_exists( $config_file_path ) ) {
 				if ( is_readable( $config_file_path ) ) {
 					if ( is_writable( $config_file_path ) ) {
-						$existing_config = Spyc::YAMLLoad ( $config_file_path );
+						$existing_config = Spyc::YAMLLoad( $config_file_path );
 						$this->add_var_to_config_file( $var, $config_file_path, $existing_config );
+
 						return;
 					}
-					EE::error("The config file {$config_file_path} is not writable. Please set a config path which is writable in EE_CONFIG_PATH environment variable.");
+					EE::error( "The config file {$config_file_path} is not writable. Please set a config path which is writable in EE_CONFIG_PATH environment variable." );
 				}
-				EE::error("The config file {$config_file_path} is not readable. Please select a config path which is readable in EE_CONFIG_PATH environment variable.");
-			}
-			else {
+				EE::error( "The config file {$config_file_path} is not readable. Please select a config path which is readable in EE_CONFIG_PATH environment variable." );
+			} else {
 				if ( is_writable( $config_dir_path ) ) {
 					$this->add_var_to_config_file( $var, $config_file_path );
+
 					return;
 				}
-				EE::err("Configuration directory: $config_dir_path is not writable by EasyEngine.");
+				EE::err( "Configuration directory: $config_dir_path is not writable by EasyEngine." );
 			}
 		}
 	}
