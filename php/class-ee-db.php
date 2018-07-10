@@ -66,7 +66,7 @@ class EE_DB {
 
 		$query    = "CREATE TABLE migrations (
 			migration VARCHAR,
-			timestamp DATETIME,
+			timestamp DATETIME
 		);";
 
 		self::$db->exec( $query );
