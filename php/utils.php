@@ -1437,7 +1437,7 @@ function default_debug( $launch ) {
  *
  * @return bool True if executed successfully. False if failed.
  */
-function default_launch( $command, $env = null, $cwd = null, $echo_stdout = false, $echo_stderr = false ) {
+function default_launch( $command, $echo_stdout = false, $echo_stderr = false, $env = null, $cwd = null ) {
 	$launch = EE::launch( $command, false, true, $env, $cwd );
 	default_debug( $launch );
 
