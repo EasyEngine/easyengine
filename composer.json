@@ -27,7 +27,7 @@
         "php": ">=5.3.29",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
-        "easyengine/site-command": "v1.0.0-beta.2",
+        "easyengine/site-command": "v1.0.0-beta.3",
         "easyengine/shell-command": "v1.0.0-beta.1",
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
