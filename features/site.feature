@@ -34,16 +34,14 @@ Feature: Site Command
     | HTTP/1.1 200 OK  |
 
   Scenario: List the sites
-    When I run 'sudo bin/ee site list'
+    When I run 'sudo bin/ee site list --format=text'
     Then STDOUT should return exactly
     """
-    List of all Sites:
-
     hello.test
     """
 
   Scenario: Delete the sites
-    When I run 'sudo bin/ee site delete hello.test'
+    When I run 'sudo bin/ee site delete hello.test --yes'
     Then STDOUT should return something like
     """
     Site hello.test deleted.
