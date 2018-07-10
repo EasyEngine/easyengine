@@ -548,11 +548,12 @@ class Runner {
                 unset( $assoc_args['version'] );
             }
 
-			// ee3 backward compatibility to wp-cli flags
+			// ee3 backward compatibility flags
 			$wp_compat_array_map = array(
-				'user' => 'admin_user',
-				'pass' => 'admin_pass',
-				'email' => 'admin_email'
+				'user'  => 'admin_user',
+				'pass'  => 'admin_pass',
+				'email' => 'admin_email',
+				'le'    => 'letsencrypt',
 			);
 
 			foreach ( $wp_compat_array_map as $from => $to ) {
