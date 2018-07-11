@@ -18,7 +18,7 @@ before_install:
 
 install:
   - composer install --no-interaction
-  - ./ci/test-env-install.sh
+  - sudo ./ci/test-env-install.sh
 
 before_script:
   - composer validate

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 function setup_test_requirements() {
     # Adding software-properties-common for add-apt-repository.
     apt-get install -y software-properties-common
