@@ -21,6 +21,7 @@ install:
 
 before_script:
   - composer validate
+  - ./vendor/bin/behat
   - ./ci/prepare.sh
 
 jobs:
