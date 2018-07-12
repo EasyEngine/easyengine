@@ -6,6 +6,22 @@ location = /wp-login.php {
   include fastcgi_params;
   fastcgi_pass php7;
 }
+location = /xmlrpc.php {
+  limit_req zone=one burst=1 nodelay;
+  include fastcgi_params;
+  fastcgi_pass php7;
+}
+# limit access to avoid resource exhaustion attack CVE-2018-6389
+location = /wp-admin/load-scripts.php {
+  limit_req zone=one burst=3 nodelay;
+  include fastcgi_params;
+  fastcgi_pass php7;
+}
+location = /wp-admin/load-styles.php {
+  limit_req zone=one burst=3 nodelay;
+  include fastcgi_params;
+  fastcgi_pass php7;
+}
 # Disable wp-config.txt
 location = /wp-config.txt {
   deny all;
