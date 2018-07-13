@@ -152,14 +152,21 @@ class EE_DOCKER {
 	/**
 	 * Function to boot the containers.
 	 *
-	 * @param String $dir Path to docker-compose.yml.
+	 * @param String $dir      Path to docker-compose.yml.
+	 * @param array  $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_up( $dir ) {
+	public static function docker_compose_up( $dir, $services = [] ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
-			return default_launch( 'docker-compose up -d' );
+			if ( empty( $services ) ) {
+				return default_launch( 'docker-compose up -d' );
+			} else {
+				$all_services = implode( ' ', $services );
+
+				return default_launch( "docker-compose up -d $all_services" );
+			}
 		}
 
 		return false;
@@ -168,14 +175,21 @@ class EE_DOCKER {
 	/**
 	 * Function to destroy the containers.
 	 *
-	 * @param String $dir Path to docker-compose.yml.
+	 * @param String $dir      Path to docker-compose.yml.
+	 * @param array  $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_down( $dir ) {
+	public static function docker_compose_down( $dir, $services = [] ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
-			return default_launch( 'docker-compose down' );
+			if ( empty( $services ) ) {
+				return default_launch( 'docker-compose up -d' );
+			} else {
+				$all_services = implode( ' ', $services );
+
+				return default_launch( "docker-compose up $all_services -d" );
+			}
 		}
 
 		return false;
