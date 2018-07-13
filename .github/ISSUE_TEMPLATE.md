@@ -4,6 +4,6 @@ If you feel the issue is a EasyEngine core specific issue, please attach the out
 
 System Information
 - [ ] lsb_release -a
-- [ ] ee -v
-- [ ] ee info
+- [ ] ee cli version
+- [ ] ee cli info
 - [ ] wp --allow-root --info
