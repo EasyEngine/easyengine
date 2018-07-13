@@ -9,7 +9,7 @@ class EE_DB {
 			self::init_db();
 		}
 	}
-	
+
 	public function __destruct() {
 		self::$db->close();
 	}
@@ -34,7 +34,7 @@ class EE_DB {
 	public static function create() {
 		self::$db = new SQLite3( DB );
 		$query    = "CREATE TABLE sites (
-			id INTEGER NOT NULL, 
+			id INTEGER NOT NULL,
 			sitename VARCHAR, 
 			site_type VARCHAR, 
 			site_title VARCHAR, 
@@ -56,17 +56,29 @@ class EE_DB {
 			wp_pass VARCHAR, 
 			email VARCHAR, 
 			php_version VARCHAR, 
-			PRIMARY KEY (id), 
+			PRIMARY KEY (id),
 			UNIQUE (sitename), 
-			CHECK (is_enabled IN (0, 1)), 
+			CHECK (is_enabled IN (0, 1)),
 			CHECK (is_ssl IN (0, 1))
 		);";
 
-		self::$db->exec( $query );
-
-		$query    = "CREATE TABLE migrations (
+		$query .= "CREATE TABLE migrations (
 			migration VARCHAR,
 			timestamp DATETIME
+		);";
+
+		$query .= "CREATE TABLE services (
+			id INTEGER NOT NULL,
+			sitename VARCHAR,
+			phpmyadmin BOOLEAN DEFAULT 0,
+			mailhog BOOLEAN DEFAULT 0,
+			postfix BOOLEAN DEFAULT 0,
+			phpredisadmin BOOLEAN DEFAULT 0,
+			adminer BOOLEAN DEFAULT 0,
+			anemometer BOOLEAN DEFAULT 0,
+			debug BOOLEAN DEFAULT 0,
+			PRIMARY KEY (id),
+			FOREIGN KEY (id) REFERENCES sites(id)
 		);";
 
 		self::$db->exec( $query );
@@ -79,7 +91,7 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function insert( $data, $table_name='sites' ) {
+	public static function insert( $data, $table_name = 'sites' ) {
 
 		if ( empty ( self::$db ) ) {
 			self::init_db();
@@ -109,7 +121,7 @@ class EE_DB {
 	 *
 	 * @return array|bool
 	 */
-	public static function select( $columns = array(), $where = array(), $table_name='sites' ) {
+	public static function select( $columns = array(), $where = array(), $table_name = 'sites', $limit = null ) {
 
 		if ( empty ( self::$db ) ) {
 			self::init_db();
@@ -132,6 +144,10 @@ class EE_DB {
 
 		if ( ! empty( $conditions ) ) {
 			$select_data_query .= " WHERE $conditions";
+		}
+
+		if ( ! empty( $limit ) ) {
+			$select_data_query .= " LIMIT $limit";
 		}
 
 		$select_data_exec = self::$db->query( $select_data_query );
@@ -157,7 +173,7 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function update( $data, $where, $table_name='sites' ) {
+	public static function update( $data, $where, $table_name = 'sites' ) {
 		if ( empty ( self::$db ) ) {
 			self::init_db();
 		}
@@ -192,7 +208,7 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function delete( $where, $table_name='sites' ) {
+	public static function delete( $where, $table_name = 'sites' ) {
 
 		$conditions = array();
 		foreach ( $where as $key => $value ) {
@@ -268,9 +284,10 @@ class EE_DB {
 		}
 
 		$sites = self::select( [ 'migration' ], [], 'migrations' );
-		if( empty( $sites ) ) {
+		if ( empty( $sites ) ) {
 			return [];
 		}
+
 		return array_column( $sites, 'migration' );
 	}
 }
