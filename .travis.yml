@@ -18,9 +18,11 @@ before_install:
 
 install:
   - composer install --no-interaction
+  - sudo ./ci/test-env-install.sh
 
 before_script:
   - composer validate
+  - ./vendor/bin/behat
   - ./ci/prepare.sh
 
 jobs:
