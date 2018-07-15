@@ -172,26 +172,21 @@ class EE_DOCKER {
 		return false;
 	}
 
-	/**
+		/**
 	 * Function to destroy the containers.
 	 *
 	 * @param String $dir      Path to docker-compose.yml.
-	 * @param array  $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_down( $dir, $services = [] ) {
+	public static function docker_compose_down( $dir ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
-			if ( empty( $services ) ) {
-				return default_launch( 'docker-compose up -d' );
-			} else {
-				$all_services = implode( ' ', $services );
 
-				return default_launch( "docker-compose up $all_services -d" );
-			}
+			return default_launch( 'docker-compose down' );		
 		}
 
 		return false;
 	}
+
 }
