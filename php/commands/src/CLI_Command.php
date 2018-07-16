@@ -162,7 +162,7 @@ class CLI_Command extends EE_Command {
 	/**
 	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
 	 */
-	public function migrate() {
+	private function migrate() {
 		EE\Migration\Executor::execute_migrations();
 	}
 
@@ -486,6 +486,20 @@ class CLI_Command extends EE_Command {
 	 */
 	public function cmd_dump() {
 		echo json_encode( $this->command_to_array( EE::get_root_command() ) );
+	}
+
+	/**
+	 * Uninstalls easyengine completely along with all sites
+	 *
+	 * @subcommand self-uninstall
+	 */
+	public function self_uninstall() {
+		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data) ?");
+		Utils\default_launch("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
+		$home = Utils\get_home_dir();
+		Utils\default_launch("rm -rf $home/.ee/");
+		Utils\default_launch("rm -rf $home/ee-sites/");
+		Utils\default_launch("rm -rf " . EE_CONF_ROOT);
 	}
 
 	/**
