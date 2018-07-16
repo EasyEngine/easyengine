@@ -491,10 +491,17 @@ class CLI_Command extends EE_Command {
 	/**
 	 * Uninstalls easyengine completely along with all sites
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--yes]
+	 * : Do not prompt for confirmation.
+	 *
 	 * @subcommand self-uninstall
 	 */
-	public function self_uninstall() {
-		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data) ?");
+	public function self_uninstall( $args, $assoc_args ) {
+
+		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data) ?", $assoc_args);
+
 		Utils\default_launch("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
 		$home = Utils\get_home_dir();
 		Utils\default_launch("rm -rf $home/.ee/");
