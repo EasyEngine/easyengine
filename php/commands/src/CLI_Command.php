@@ -506,7 +506,7 @@ class CLI_Command extends EE_Command {
 		$home = Utils\get_home_dir();
 		Utils\default_launch("rm -rf $home/.ee/");
 		Utils\default_launch("rm -rf $home/ee-sites/");
-		Utils\default_launch("rm -rf " . EE_CONF_ROOT);
+		Utils\default_launch("rm -rf /opt/easyengine/");
 	}
 
 	/**

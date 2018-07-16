@@ -108,8 +108,8 @@ class FeatureContext implements Context
 		if(file_exists("$home/ee-sites/")){
 			throw new Exception("~/ee-sites/ has not been removed");
 		}
-		if(file_exists(EE_CONF_ROOT)){
-			throw new Exception(EE_CONF_ROOT . "has not been removed");
+		if(file_exists('/opt/easyengine/')){
+			throw new Exception("/opt/easyengine/ has not been removed");
 		}
 	}
 
