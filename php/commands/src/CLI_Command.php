@@ -1,8 +1,8 @@
 <?php
 
 use \Composer\Semver\Comparator;
+use \Symfony\Component\Filesystem\Filesystem;
 use \EE\Utils;
-use Mustangostang\Spyc;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -505,7 +505,16 @@ class CLI_Command extends EE_Command {
 		Utils\default_launch("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
 		$home = Utils\get_home_dir();
 		Utils\default_launch("rm -rf $home/.ee/");
-		Utils\default_launch("rm -rf $home/ee-sites/");
+
+		$records = EE::db()->select(['site_path']);
+
+		if( $records !== false ) {
+			$sites_paths = array_column($records, 'site_path');
+			$fs = new Filesystem();
+			$fs->remove($sites_paths);
+		}
+
+		Utils\default_launch("rm -df $home/ee-sites/");
 		Utils\default_launch("rm -rf /opt/easyengine/");
 	}
 
