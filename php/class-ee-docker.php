@@ -60,6 +60,28 @@ class EE_DOCKER {
 	}
 
 	/**
+	 * Function to stop a container
+	 *
+	 * @param String $container Container to be stopped.
+	 *
+	 * @return bool success.
+	 */
+	public static function stop_container( $container ) {
+		return default_launch( "docker stop $container" );
+	}
+
+	/**
+	 * Function to restart a container
+	 *
+	 * @param String $container Container to be restarted.
+	 *
+	 * @return bool success.
+	 */
+	public static function restart_container( $container ) {
+		return default_launch( "docker restart $container" );
+	}
+
+	/**
 	 * Function to create and start the container if it does not exist.
 	 *
 	 * @param String $container Container to be created.
@@ -183,7 +205,7 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 
-			return default_launch( 'docker-compose down' );		
+			return default_launch( 'docker-compose down' );
 		}
 
 		return false;
