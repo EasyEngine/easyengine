@@ -24,7 +24,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=5.3.29",
+        "php": ">=7.0",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
         "easyengine/cron-command": "v1.0.0-beta.1",
