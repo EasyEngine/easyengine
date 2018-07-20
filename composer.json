@@ -33,7 +33,6 @@
         "justinrainbow/json-schema": "~5.2.5",
         "monolog/monolog": "^1.23",
         "mustache/mustache": "~2.4",
-        "ramsey/array_column": "~1.1",
         "rmccue/requests": "~1.6",
         "symfony/config": "^2.7|^3.0",
         "symfony/console": "^2.7|^3.0",
