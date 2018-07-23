@@ -7,8 +7,7 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 
 
-use Behat\Gherkin\Node\PyStringNode,
-	Behat\Gherkin\Node\TableNode;
+use Behat\Gherkin\Node\PyStringNode;
 
 class FeatureContext implements Context
 {
@@ -94,88 +93,23 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then The :site db entry should be removed
+	 * @Then ee should be deleted
 	 */
-	public function theDbEntryShouldBeRemoved($site)
+	public function eeShouldBeDeleted()
 	{
-		$out = shell_exec("sudo bin/ee site list");
-		if (strpos($out, $site) !== false) {
-			throw new Exception("$site db entry not been removed!");
+		$result = EE::launch("docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\" | wc -l", false, true);
+		if( trim($result->stdout) !== '0' ) {
+			throw new Exception("All containers have not been removed.");
 		}
-
-	}
-
-	/**
-	 * @Then The :site webroot should be removed
-	 */
-	public function theWebrootShouldBeRemoved($site)
-	{
-		if (file_exists(getenv('HOME') . "/ee-sites/" . $site)) {
-			throw new Exception("Webroot has not been removed!");
+		$home = getenv('HOME');
+		if(file_exists("$home/.ee/")){
+			throw new Exception("~/.ee/ has not been removed");
 		}
-	}
-
-	/**
-	 * @Then Following containers of site :site should be removed:
-	 */
-	public function followingContainersOfSiteShouldBeRemoved($site, TableNode $table)
-	{
-		$containers = $table->getHash();
-		$site_name = implode(explode('.', $site));
-
-		foreach ($containers as $container) {
-
-			$sevice = $container['container'];
-			$container_name = $site_name . '_' . $sevice . '_1';
-
-			exec("docker inspect -f '{{.State.Running}}' $container_name > /dev/null 2>&1", $exec_out, $return);
-			if (!$return) {
-				throw new Exception("$container_name has not been removed!");
-			}
+		if(file_exists("$home/ee-sites/")){
+			throw new Exception("~/ee-sites/ has not been removed");
 		}
-	}
-
-	/**
-	 * @Then The site :site should have webroot
-	 */
-	public function theSiteShouldHaveWebroot($site)
-	{
-		if (!file_exists(getenv('HOME') . "/ee-sites/" . $site)) {
-			throw new Exception("Webroot has not been created!");
-		}
-	}
-
-	/**
-	 * @Then The site :site should have WordPress
-	 */
-	public function theSiteShouldHaveWordpress($site)
-	{
-		if (!file_exists(getenv('HOME') . "/ee-sites/" . $site . "/app/src/wp-config.php")) {
-			throw new Exception("WordPress data not found!");
-		}
-	}
-
-	/**
-	 * @Then Request on :site should contain following headers:
-	 */
-	public function requestOnShouldContainFollowingHeaders($site, TableNode $table)
-	{
-		$url = 'http://' . $site;
-
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_HEADER, true);
-		curl_setopt($ch, CURLOPT_NOBODY, true);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$headers = curl_exec($ch);
-		curl_close($ch);
-
-		$rows = $table->getHash();
-
-		foreach ($rows as $row) {
-			if (strpos($headers, $row['header']) === false) {
-				throw new Exception("Unable to find " . $row['header'] . "\nActual output is : " . $headers);
-			}
+		if(file_exists('/opt/easyengine/')){
+			throw new Exception("/opt/easyengine/ has not been removed");
 		}
 	}
 
@@ -184,7 +118,6 @@ class FeatureContext implements Context
 	 */
 	public static function cleanup(AfterFeatureScope $scope)
 	{
-		exec("sudo bin/ee site delete hello.test");
 		if(file_exists('ee.phar')) {
 			unlink('ee.phar');
 		}

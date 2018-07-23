@@ -14,3 +14,7 @@ Feature: CLI Command
     Given ee phar is generated
     When I run 'sudo php ee.phar cli update --yes'
     Then return value should be 0
+
+  Scenario: ee uninstall works properly
+    When I run 'sudo bin/ee cli self-uninstall --yes'
+    Then ee should be deleted

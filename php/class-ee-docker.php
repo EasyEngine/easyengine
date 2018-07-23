@@ -60,6 +60,28 @@ class EE_DOCKER {
 	}
 
 	/**
+	 * Function to stop a container
+	 *
+	 * @param String $container Container to be stopped.
+	 *
+	 * @return bool success.
+	 */
+	public static function stop_container( $container ) {
+		return default_launch( "docker stop $container" );
+	}
+
+	/**
+	 * Function to restart a container
+	 *
+	 * @param String $container Container to be restarted.
+	 *
+	 * @return bool success.
+	 */
+	public static function restart_container( $container ) {
+		return default_launch( "docker restart $container" );
+	}
+
+	/**
 	 * Function to create and start the container if it does not exist.
 	 *
 	 * @param String $container Container to be created.
@@ -152,32 +174,41 @@ class EE_DOCKER {
 	/**
 	 * Function to boot the containers.
 	 *
-	 * @param String $dir Path to docker-compose.yml.
+	 * @param String $dir      Path to docker-compose.yml.
+	 * @param array  $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_up( $dir ) {
+	public static function docker_compose_up( $dir, $services = [] ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
-			return default_launch( 'docker-compose up -d' );
+			if ( empty( $services ) ) {
+				return default_launch( 'docker-compose up -d' );
+			} else {
+				$all_services = implode( ' ', $services );
+
+				return default_launch( "docker-compose up -d $all_services" );
+			}
 		}
 
 		return false;
 	}
 
-	/**
+		/**
 	 * Function to destroy the containers.
 	 *
-	 * @param String $dir Path to docker-compose.yml.
+	 * @param String $dir      Path to docker-compose.yml.
 	 *
 	 * @return bool success.
 	 */
 	public static function docker_compose_down( $dir ) {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
+
 			return default_launch( 'docker-compose down' );
 		}
 
 		return false;
 	}
+
 }

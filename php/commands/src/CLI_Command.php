@@ -1,8 +1,8 @@
 <?php
 
 use \Composer\Semver\Comparator;
+use \Symfony\Component\Filesystem\Filesystem;
 use \EE\Utils;
-use Mustangostang\Spyc;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -162,7 +162,7 @@ class CLI_Command extends EE_Command {
 	/**
 	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
 	 */
-	public function migrate() {
+	private function migrate() {
 		EE\Migration\Executor::execute_migrations();
 	}
 
@@ -486,6 +486,40 @@ class CLI_Command extends EE_Command {
 	 */
 	public function cmd_dump() {
 		echo json_encode( $this->command_to_array( EE::get_root_command() ) );
+	}
+
+	/**
+	 * Uninstalls easyengine completely along with all sites
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--yes]
+	 * : Do not prompt for confirmation.
+	 *
+	 * @subcommand self-uninstall
+	 */
+	public function self_uninstall( $args, $assoc_args ) {
+
+		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args);
+
+		Utils\default_launch("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
+		$home = Utils\get_home_dir();
+		Utils\default_launch("rm -rf $home/.ee/");
+
+		$records = EE::db()->select(['site_path']);
+
+		if( $records !== false ) {
+			$sites_paths = array_column($records, 'site_path');
+			$fs = new Filesystem();
+			$fs->remove($sites_paths);
+		}
+
+		Utils\default_launch("rm -df $home/ee-sites/");
+		Utils\default_launch("rm -rf /opt/easyengine/");
+
+		if ( Utils\inside_phar() ) {
+			unlink( realpath( $_SERVER['argv'][0] ) );
+		}
 	}
 
 	/**
