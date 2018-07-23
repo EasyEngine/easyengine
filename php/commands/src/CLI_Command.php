@@ -516,6 +516,10 @@ class CLI_Command extends EE_Command {
 
 		Utils\default_launch("rm -df $home/ee-sites/");
 		Utils\default_launch("rm -rf /opt/easyengine/");
+
+		if ( Utils\inside_phar() ) {
+			unlink( realpath( $_SERVER['argv'][0] ) );
+		}
 	}
 
 	/**
