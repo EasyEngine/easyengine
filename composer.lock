@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53ee6a10e1195979b78c7a84bcff3413",
+    "content-hash": "b109c4c2b63f6aa91c0a297a81282e74",
     "packages": [
         {
             "name": "acmephp/core",
@@ -393,6 +393,49 @@
             "time": "2018-04-30T10:33:04+00:00"
         },
         {
+            "name": "easyengine/cron-command",
+            "version": "v1.0.0-beta.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/EasyEngine/cron-command.git",
+                "reference": "34b27c0b638a5dec73645eb39bd943850f7f973c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/34b27c0b638a5dec73645eb39bd943850f7f973c",
+                "reference": "34b27c0b638a5dec73645eb39bd943850f7f973c",
+                "shasum": ""
+            },
+            "type": "ee-cli-package",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                },
+                "bundled": true,
+                "commands": [
+                    "cron add",
+                    "cron delete",
+                    "cron list",
+                    "cron run-now"
+                ]
+            },
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                },
+                "files": [
+                    "cron-command.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Manages cron jobs in EasyEngine",
+            "homepage": "https://github.com/easyengine/cron-command",
+            "time": "2018-07-23T15:34:42+00:00"
+        },
+        {
             "name": "easyengine/shell-command",
             "version": "v1.0.0-beta.1",
             "source": {
@@ -434,16 +477,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v1.0.0-beta.3",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "d0f22148631e014f2e7a86a8f9c6bcb8c6491fa7"
+                "reference": "71fa9c5fae8022a9cc431f351e0100101c303dda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/d0f22148631e014f2e7a86a8f9c6bcb8c6491fa7",
-                "reference": "d0f22148631e014f2e7a86a8f9c6bcb8c6491fa7",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/71fa9c5fae8022a9cc431f351e0100101c303dda",
+                "reference": "71fa9c5fae8022a9cc431f351e0100101c303dda",
                 "shasum": ""
             },
             "require": {
@@ -481,7 +524,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-07-10T18:35:34+00:00"
+            "time": "2018-07-23T15:42:41+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2963,12 +3006,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "731d60f7fc78a8816dae7049df255cd55e30c313"
+                "reference": "053766d789f6393e5bc0896635d35abf8d2d362e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/731d60f7fc78a8816dae7049df255cd55e30c313",
-                "reference": "731d60f7fc78a8816dae7049df255cd55e30c313",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/053766d789f6393e5bc0896635d35abf8d2d362e",
+                "reference": "053766d789f6393e5bc0896635d35abf8d2d362e",
                 "shasum": ""
             },
             "conflict": {
@@ -3017,7 +3060,7 @@
                 "kreait/firebase-php": ">=3.2,<3.8.1",
                 "laravel/framework": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.40|>=5.6,<5.6.15",
                 "laravel/socialite": ">=1,<1.0.99|>=2,<2.0.10",
-                "magento/magento1ce": ">=1.5.0.1,<1.9.3.2",
+                "magento/magento1ce": "<1.9.3.9",
                 "magento/magento1ee": ">=1.9,<1.14.3.2",
                 "magento/product-community-edition": ">=2,<2.2.5",
                 "monolog/monolog": ">=1.8,<1.12",
@@ -3075,7 +3118,8 @@
                 "thelia/thelia": ">=2.1,<2.1.2|>=2.1.0-beta1,<2.1.3",
                 "titon/framework": ">=0,<9.9.99",
                 "twig/twig": "<1.20",
-                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.22|>=8,<8.7.5",
+                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.30|>=8,<8.7.17|>=9,<9.3.2",
+                "typo3/cms-core": ">=8,<8.7.17|>=9,<9.3.2",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "willdurand/js-translation-bundle": "<2.1.1",
@@ -3124,7 +3168,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-07-09T14:09:25+00:00"
+            "time": "2018-07-18T13:51:34+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -3235,30 +3279,31 @@
         },
         {
             "name": "wimg/php-compatibility",
-            "version": "8.1.0",
+            "version": "8.2.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/wimg/PHPCompatibility.git",
-                "reference": "4ac01e4fe8faaa4f8d3b3cd06ea92e5418ce472e"
+                "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
+                "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wimg/PHPCompatibility/zipball/4ac01e4fe8faaa4f8d3b3cd06ea92e5418ce472e",
-                "reference": "4ac01e4fe8faaa4f8d3b3cd06ea92e5418ce472e",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
+                "reference": "eaf613c1a8265bcfd7b0ab690783f2aef519f78a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3",
-                "squizlabs/php_codesniffer": "^2.2 || ^3.0.2"
+                "squizlabs/php_codesniffer": "^2.3 || ^3.0.2"
             },
             "conflict": {
                 "squizlabs/php_codesniffer": "2.6.2"
             },
             "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0"
+                "phpunit/phpunit": "~4.5 || ^5.0 || ^6.0 || ^7.0"
             },
             "suggest": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3"
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically.",
+                "roave/security-advisories": "dev-master || Helps prevent installing dependencies with known security issues."
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -3268,7 +3313,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "LGPL-3.0-or-later"
             ],
             "authors": [
                 {
@@ -3283,7 +3328,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2017-12-27T21:58:38+00:00"
+            "time": "2018-07-17T13:42:26+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
