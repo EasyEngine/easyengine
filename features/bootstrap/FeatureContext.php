@@ -7,8 +7,7 @@ use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 
 
-use Behat\Gherkin\Node\PyStringNode,
-	Behat\Gherkin\Node\TableNode;
+use Behat\Gherkin\Node\PyStringNode;
 
 class FeatureContext implements Context
 {
@@ -93,7 +92,27 @@ class FeatureContext implements Context
 		}
 	}
 
-	
+	/**
+	 * @Then ee should be deleted
+	 */
+	public function eeShouldBeDeleted()
+	{
+		$result = EE::launch("docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\" | wc -l", false, true);
+		if( trim($result->stdout) !== '0' ) {
+			throw new Exception("All containers have not been removed.");
+		}
+		$home = getenv('HOME');
+		if(file_exists("$home/.ee/")){
+			throw new Exception("~/.ee/ has not been removed");
+		}
+		if(file_exists("$home/ee-sites/")){
+			throw new Exception("~/ee-sites/ has not been removed");
+		}
+		if(file_exists('/opt/easyengine/')){
+			throw new Exception("/opt/easyengine/ has not been removed");
+		}
+	}
+
 	/**
 	 * @AfterFeature
 	 */
