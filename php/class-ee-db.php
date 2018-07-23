@@ -81,6 +81,13 @@ class EE_DB {
 			FOREIGN KEY (id) REFERENCES sites(id)
 		);";
 
+		$query .= "CREATE TABLE cron (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			sitename VARCHAR,
+			command VARCHAR,
+			schedule VARCHAR, 
+		);";
+
 		self::$db->exec( $query );
 	}
 
