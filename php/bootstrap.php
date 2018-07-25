@@ -26,6 +26,7 @@ function get_bootstrap_steps() {
 		'EE\Bootstrap\LoadRequiredCommand',
 		'EE\Bootstrap\IncludePackageAutoloader',
 		'EE\Bootstrap\IncludeBundledAutoloader',
+		'EE\Bootstrap\LoadSiteUtilityFunctions',
 		'EE\Bootstrap\RegisterFrameworkCommands',
 		'EE\Bootstrap\IncludeFallbackAutoloader',
 		'EE\Bootstrap\RegisterDeferredCommands',
