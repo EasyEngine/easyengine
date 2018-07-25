@@ -1,6 +1,7 @@
 <?php
 
 namespace EE\Migration;
+use EE\RevertableStepProcessor;
 use function EE\Utils\default_launch;
 
 /**
@@ -13,6 +14,7 @@ class Containers {
 
 		$sites       = \EE_DB::select( [ 'sitename', 'site_path', 'site_type', 'cache_type', 'is_ssl', 'db_host' ] );
 		$site_docker = new \Site_Docker();
+		$rsp = new RevertableStepProcessor();
 
 		foreach ( $sites as $site ) {
 
@@ -23,18 +25,34 @@ class Containers {
 
 			$docker_compose_contents = $site_docker->generate_docker_compose_yml( $data );
 			$docker_compose_path     = $site['site_path'] . '/docker-compose.yml';
+			$docker_compose_backup_path     = $site['site_path'] . '/docker-compose.yml';
 
-			if ( ! default_launch( "cd ${site['site_path']} && mv docker-compose.yml docker-compose.yml._bak" ) ) {
-				EE::error( "Unable to find docker-compose.yml in ${site['site_path']} or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there?" );
-			}
+			$rsp->execute_step(
+				function () use ( $site ) {
+					if ( ! default_launch( "cd ${site['site_path']} && mv docker-compose.yml docker-compose.yml._bak" ) ) {
+						throw new \Exception( "Unable to find docker-compose.yml in ${site['site_path']} or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there?" );
+					}
+				}, function () {}
+			);
 
-			file_put_contents( $docker_compose_path, $docker_compose_contents );
+			$rsp->execute_step(
+				function () use ( $site, $docker_compose_backup_path, $docker_compose_path ) {
 
-			$container_upgraded = default_launch( "cd ${site['site_path']} && docker-compose up -d", true, true );
+					file_put_contents( $docker_compose_path, $docker_compose_contents );
+					$container_upgraded = default_launch( "cd ${site['site_path']} && docker-compose up -d", true, true );
 
-			if ( ! $container_upgraded ) {
-				EE::error( "Unable to upgrade containers of ${site['sitename']} site. Please check logs for more details." );
-			}
+					if ( ! $container_upgraded ) {
+						throw new \Exception( "Unable to upgrade containers of ${site['sitename']} site. Please check logs for more details." );
+					}
+				}, function () use ( $docker_compose_backup_path, $docker_compose_path ) {
+					rename( $docker_compose_backup_path, $docker_compose_path );
+					$container_downgraded = default_launch( "cd ${site['site_path']} && docker-compose up -d", true, true );
+
+					if ( ! $container_downgraded ) {
+						throw new \Exception( "Unable to downgrade containers of ${site['sitename']} site. Please check logs for more details." );
+					}
+				}
+			);
 		}
 	}
 
