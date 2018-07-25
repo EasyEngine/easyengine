@@ -228,7 +228,7 @@ $finder = new Finder();
 $finder
 	->files()
 	->ignoreDotFiles(false)
-	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
+	->in(EE_VENDOR_DIR . '/easyengine/*-command/templates')
 	->name('*.mustache')
 	->name('.env.mustache');
 
