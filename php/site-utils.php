@@ -61,3 +61,214 @@ function auto_site_name( $args, $command, $function, $arg_zero = true ) {
 
 	return $args;
 }
+
+
+/**
+ * Function to check all the required configurations needed to create the site.
+ *
+ * Boots up the container if it is stopped or not running.
+ */
+function init_checks() {
+	$proxy_type = EE_PROXY_TYPE;
+	if ( 'running' !== EE::docker()::container_status( $proxy_type ) ) {
+		/**
+		 * Checking ports.
+		 */
+		@fsockopen( 'localhost', 80, $port_80_exit_status );
+		@fsockopen( 'localhost', 443, $port_443_exit_status );
+
+		// if any/both the port/s is/are occupied.
+		if ( ! ( $port_80_exit_status && $port_443_exit_status ) ) {
+			EE::error( 'Cannot create/start proxy container. Please make sure port 80 and 443 are free.' );
+		} else {
+			$EE_CONF_ROOT     = EE_CONF_ROOT;
+			$ee_proxy_command = "docker run --name $proxy_type -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy:v" . EE_VERSION;
+
+
+			if ( EE::docker()::boot_container( $proxy_type, $ee_proxy_command ) ) {
+				EE::success( "$proxy_type container is up." );
+			} else {
+				EE::error( "There was some error in starting $proxy_type container. Please check logs." );
+			}
+		}
+	}
+}
+
+/**
+ * Creates site root directory if does not exist.
+ * Throws error if it does exist.
+ *
+ * @param string $site_root Root directory of the site.
+ * @param string $site_name Name of the site.
+ */
+function create_site_root( $site_root, $site_name ) {
+	$fs = new Filesystem();
+	if ( $fs->exists( $site_root ) ) {
+		EE::error( "Webroot directory for site $site_name already exists." );
+	}
+
+	$whoami            = EE::launch( 'whoami', false, true );
+	$terminal_username = rtrim( $whoami->stdout );
+
+	$fs->mkdir( $site_root );
+	$fs->chown( $site_root, $terminal_username );
+}
+
+/**
+ * Function to setup site network.
+ *
+ * @param string $site_name Name of the site.
+ *
+ * @throws \Exception when network start fails.
+ */
+function setup_site_network( $site_name ) {
+	$proxy_type = EE_PROXY_TYPE;
+	if ( EE::docker()::create_network( $site_name ) ) {
+		EE::success( 'Network started.' );
+	} else {
+		throw new \Exception( 'There was some error in starting the network.' );
+	}
+
+	EE::docker()::connect_site_network_to( $site_name, $proxy_type );
+
+}
+
+/**
+ * Adds www to non-www redirection to site
+ *
+ * @param string $site_name Name of the site.
+ * @param bool   $le        Specifying if letsencrypt is enabled or not.
+ */
+function add_site_redirects( $site_name, $le ) {
+	$fs               = new Filesystem();
+	$confd_path       = EE_CONF_ROOT . '/nginx/conf.d/';
+	$config_file_path = $confd_path . $site_name . '-redirect.conf';
+	$has_www          = strpos( $site_name, 'www.' ) === 0;
+
+	if ( $has_www ) {
+		$site_name_without_www = ltrim( $site_name, '.www' );
+		// ee site create www.example.com --le
+		if ( $le ) {
+			$content = "
+server {
+	listen  80;
+	listen  443;
+	server_name  $site_name_without_www;
+	return  301 https://$site_name\$request_uri;
+}";
+		} // ee site create www.example.com
+		else {
+			$content = "
+server {
+	listen  80;
+	server_name  $site_name_without_www;
+	return  301 http://$site_name\$request_uri;
+}";
+		}
+	} else {
+		$site_name_with_www = 'www.' . $site_name;
+		// ee site create example.com --le
+		if ( $le ) {
+
+			$content = "
+server {
+	listen  80;
+	listen  443;
+	server_name  $site_name_with_www;
+	return  301 https://$site_name\$request_uri;
+}";
+		} // ee site create example.com
+		else {
+			$content = "
+server {
+	listen  80;
+	server_name  $site_name_with_www;
+	return  301 http://$site_name\$request_uri;
+}";
+		}
+	}
+	$fs->dumpFile( $config_file_path, ltrim( $content, PHP_EOL ) );
+}
+
+/**
+ * Function to create entry in /etc/hosts.
+ *
+ * @param string $site_name Name of the site.
+ */
+function create_etc_hosts_entry( $site_name ) {
+
+	$host_line = LOCALHOST_IP . "\t$site_name";
+	$etc_hosts = file_get_contents( '/etc/hosts' );
+	if ( ! preg_match( "/\s+$site_name\$/m", $etc_hosts ) ) {
+		if ( EE\Utils\default_launch( "/bin/bash -c 'echo \"$host_line\" >> /etc/hosts'" ) ) {
+			EE::success( 'Host entry successfully added.' );
+		} else {
+			EE::warning( "Failed to add $site_name in host entry, Please do it manually!" );
+		}
+	} else {
+		EE::log( 'Host entry already exists.' );
+	}
+}
+
+
+/**
+ * Checking site is running or not.
+ *
+ * @param string $site_name Name of the site.
+ *
+ * @throws \Exception when fails to connect to site.
+ */
+function site_status_check( $site_name ) {
+	EE::log( 'Checking and verifying site-up status. This may take some time.' );
+	$httpcode = 000;
+	$ch       = curl_init( $site_name );
+	curl_setopt( $ch, CURLOPT_HEADER, true );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+
+	$i = 0;
+	while ( 200 !== $httpcode && 302 !== $httpcode ) {
+		EE::debug( "$site_name status httpcode: $httpcode" );
+		curl_exec( $ch );
+		$httpcode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		EE::log( '.' );
+		sleep( 2 );
+		if ( $i ++ > 60 ) {
+			break;
+		}
+	}
+	if ( 200 !== $httpcode && 302 !== $httpcode ) {
+		throw new \Exception( 'Problem connecting to site!' );
+	}
+
+}
+
+/**
+ * Function to pull the latest images and bring up the site containers.
+ *
+ * @param string $site_root Root directory of the site.
+ *
+ * @throws \Exception when docker-compose up fails.
+ */
+function start_site_containers( $site_root ) {
+	EE::log( 'Pulling latest images. This may take some time.' );
+	chdir( $site_root );
+	\EE\Utils\default_launch( 'docker-compose pull' );
+	EE::log( 'Starting site\'s services.' );
+	if ( ! EE::docker()::docker_compose_up( $site_root ) ) {
+		throw new \Exception( 'There was some error in docker-compose up.' );
+	}
+}
+
+
+/**
+ * Generic function to run a docker compose command. Must be ran inside correct directory.
+ */
+function run_compose_command( $action, $container, $action_to_display = null, $service_to_display = null ) {
+	$display_action  = $action_to_display ? $action_to_display : $action;
+	$display_service = $service_to_display ? $service_to_display : $container;
+
+	\EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
+	\EE\Utils\default_launch( "docker-compose $action $container", true, true );
+}
