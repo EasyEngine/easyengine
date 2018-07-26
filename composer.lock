@@ -3329,6 +3329,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "acmephp/core": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
