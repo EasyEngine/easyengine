@@ -225,6 +225,86 @@ abstract class EE_Site_Command {
 		\EE\Utils\delem_log( 'site disable end' );
 	}
 
+		/**
+	 * Restarts containers associated with site.
+	 * When no service(--nginx etc.) is specified, all site containers will be restarted.
+	 *
+	 * [<site-name>]
+	 * : Name of the site.
+	 *
+	 * [--all]
+	 * : Restart all containers of site.
+	 *
+	 * [--nginx]
+	 * : Restart nginx container of site.
+	 */
+	public function restart( $args, $assoc_args ) {
+		\EE\Utils\delem_log( 'site restart start' );
+		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+		$no_service_specified = count( $assoc_args ) === 0;
+
+		$this->populate_site_info( $args );
+
+		chdir( $this->site_root );
+
+		if ( $all || $no_service_specified ) {
+			$containers = [ 'nginx' ];
+		} else {
+			$containers = array_keys( $assoc_args );
+		}
+
+		foreach ( $containers as $container ) {
+			EE\Siteutils\run_compose_command( 'restart', $container, null, 'all services' );
+		}
+		\EE\Utils\delem_log( 'site restart stop' );
+	}
+
+	/**
+	 * Reload services in containers without restarting container(s) associated with site.
+	 * When no service(--nginx etc.) is specified, all services will be reloaded.
+	 *
+	 * <site-name>
+	 * : Name of the site.
+	 *
+	 * [--all]
+	 * : Reload all services of site(which are supported).
+	 *
+	 * [--nginx]
+	 * : Reload nginx service in container.
+	 *
+	 */
+	public function reload( $args, $assoc_args ) {
+		\EE\Utils\delem_log( 'site reload start' );
+		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+		$no_service_specified = count( $assoc_args ) === 0;
+
+		$this->populate_site_info( $args );
+
+		chdir( $this->site_root );
+
+		if ( $all || $no_service_specified ) {
+			$this->reload_services( [ 'nginx' ] );
+		} else {
+			$this->reload_services( array_keys( $assoc_args ) );
+		}
+		\EE\Utils\delem_log( 'site reload stop' );
+	}
+
+	/**
+	 * Executes reload commands. It needs seperate handling as commands to reload each service is different.
+	 */
+	private function reload_services( $services ) {
+		$reload_command = [
+			'nginx' => 'nginx sh -c \'nginx -t && service openresty reload\'',
+		];
+
+		foreach ( $services as $service ) {
+			\EE\SiteUtils\run_compose_command( 'exec', $reload_command[$service], 'reload', $service );
+		}
+	}
+	
 	public function create( $args, $assoc_args ) {}
 
 }
