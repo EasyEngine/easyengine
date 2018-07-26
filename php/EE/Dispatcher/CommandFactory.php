@@ -68,7 +68,14 @@ class CommandFactory {
 	 */
 	private static function create_subcommand( $parent, $name, $callable, $reflection ) {
 		$doc_comment = self::get_doc_comment( $reflection );
-		$docparser = new \EE\DocParser( $doc_comment );
+		$docparser   = new \EE\DocParser( $doc_comment );
+
+		while ( $docparser->has_tag( 'inheritdoc' ) ) {
+			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
+
+			$doc_comment = self::get_doc_comment( $inherited_method );
+			$docparser   = new \EE\DocParser( $doc_comment );
+		}
 
 		if ( is_array( $callable ) ) {
 			if ( ! $name ) {
