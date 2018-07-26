@@ -50,16 +50,15 @@ class RevertableStepProcessor {
 	 */
 	public function execute() {
 		for ( $i = $this->execution_index ; $i < count( $this->steps ); $i++ ) {
+			$context = $this->steps[ $i ]['context'];
 			try {
+				echo "Executing $context... ";
 				call_user_func( $this->steps[ $i ]['up'] );
 				$this->execution_index++;
+				echo "done.\n";
 			} catch ( \Exception $e ) {
-				$this->steps[ $i ]['up'];
-				$context = $this->steps[ $i ]['context'];
 				$exception_message = $e->getMessage();
-
-				echo  "Encountered error while processing \"$context\". Exception: $exception_message\n";
-
+				echo  "\nEncountered error while processing $context. Exception: $exception_message\n";
 				$this->rollback();
 				return false;
 			}
@@ -71,12 +70,17 @@ class RevertableStepProcessor {
 	 * Rolls back all executed steps.
 	 */
 	public function rollback() {
+		$context = $this->steps[ $this->execution_index ]['context'];
 		while ( $this->execution_index >= 0 ) {
 			try {
+				echo "Reverting $context... ";
 				call_user_func( $this->steps[ $this->execution_index ]['down'] );
-				$this->execution_index--;
+				echo "done.\n";
 			} catch ( \Exception $e ) {
-				echo 'Encountered error while reverting step. If possible, do it manually' ;
+				$exception_message = $e->getMessage();
+				echo "\nEncountered error while reverting $context: $exception_message. If possible, do it manually\n" ;
+			} finally {
+				$this->execution_index--;
 			}
 		}
 	}
