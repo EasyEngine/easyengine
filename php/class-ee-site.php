@@ -304,7 +304,77 @@ abstract class EE_Site_Command {
 			\EE\SiteUtils\run_compose_command( 'exec', $reload_command[$service], 'reload', $service );
 		}
 	}
-	
+
+	/**
+	 * Runs the acme le registration and authorization.
+	 *
+	 * @param string $site_name Name of the site for ssl.
+	 * @param string $site_root Webroot of the site.
+	 * @param bool   $wildcard  SSL with wildcard or not.
+	 *
+	 * @ignorecommand
+	 */
+	public function init_le( $site_name, $site_root, $wildcard = false ) {
+		$this->site_name = $site_name;
+		$this->site_root = $site_root;
+		$client          = new Site_Letsencrypt();
+		$this->le_mail   = EE::get_runner()->config['le-mail'] ?? EE::input( 'Enter your mail id: ' );
+		EE::get_runner()->ensure_present_in_config( 'le-mail', $this->le_mail );
+		if ( ! $client->register( $this->le_mail ) ) {
+			$this->le = false;
+
+			return;
+		}
+
+		$domains = $wildcard ? [ "*.$this->site_name", $this->site_name ] : [ $this->site_name ];
+		if ( ! $client->authorize( $domains, $this->site_root, $wildcard ) ) {
+			$this->le = false;
+
+			return;
+		}
+		if ( $wildcard ) {
+			echo \cli\Colors::colorize( "%YIMPORTANT:%n Run `ee site le $this->site_name` once the dns changes have propogated to complete the certification generation and installation.", null );
+		} else {
+			$this->le( [], [], $wildcard );
+		}
+	}
+
+
+	/**
+	 * Runs the acme le.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <site-name>
+	 * : Name of website.
+	 *
+	 * [--force]
+	 * : Force renewal.
+	 */
+	public function le( $args = [], $assoc_args = [], $wildcard = false ) {
+		if ( ! isset( $this->site_name ) ) {
+			$this->populate_site_info( $args );
+		}
+		if ( ! isset( $this->le_mail ) ) {
+			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
+		}
+		$force   = \EE\Utils\get_flag_value( $assoc_args, 'force' );
+		$domains = $wildcard ? [ "*.$this->site_name", $this->site_name ] : [ $this->site_name ];
+		$client  = new Site_Letsencrypt();
+		if ( ! $client->check( $domains, $wildcard ) ) {
+			$this->le = false;
+
+			return;
+		}
+		if ( $wildcard ) {
+			$client->request( "*.$this->site_name", [ $this->site_name ], $this->le_mail, $force );
+		} else {
+			$client->request( $this->site_name, [], $this->le_mail, $force );
+			$client->cleanup( $this->site_root );
+		}
+		EE::launch( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
+	}
+
 	public function create( $args, $assoc_args ) {}
 
 }
