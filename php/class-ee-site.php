@@ -1,11 +1,19 @@
 <?php
 
+use \Symfony\Component\Filesystem\Filesystem;
+
 /**
  * Base class for Site command
  *
  * @package ee
  */
 abstract class EE_Site_Command {
+	private $fs;
+	private $le;
+	private $le_mail;
+	private $site_name;
+	private $site_root;
+	private $site_type;
 
 	public function __construct() {}
 
