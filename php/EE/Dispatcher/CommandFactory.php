@@ -120,11 +120,12 @@ class CommandFactory {
 		$container = new CompositeCommand( $parent, $name, $docparser );
 
 		foreach ( $reflection->getMethods() as $method ) {
-			if ( ! self::is_good_method( $method ) ) {
+			$method_docparser = new \EE\DocParser( self::get_doc_comment( $method ) );
+			if ( ! self::is_good_method( $method ) || self::should_ignore_method( $method_docparser ) ) {
 				continue;
 			}
 
-			$class = is_object( $callable ) ? $callable : $reflection->name;
+			$class      = is_object( $callable ) ? $callable : $reflection->name;
 			$subcommand = self::create_subcommand( $container, false, array( $class, $method->name ), $method );
 
 			$subcommand_name = $subcommand->get_name();
@@ -161,6 +162,17 @@ class CommandFactory {
 	 */
 	private static function is_good_method( $method ) {
 		return $method->isPublic() && ! $method->isStatic() && 0 !== strpos( $method->getName(), '__' );
+	}
+
+	/**
+	 * Check whether a method should be ignored.
+	 *
+	 * @param ReflectionMethod $method
+	 *
+	 * @return bool
+	 */
+	private static function should_ignore_method( $docparser ) {
+		return $docparser->has_tag( 'ignorecommand' );
 	}
 
 	/**
