@@ -181,11 +181,51 @@ abstract class EE_Site_Command {
 		EE::log( "Site $site_name deleted." );
 	}
 
+	/**
+	 * Enables a website. It will start the docker containers of the website if they are stopped.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<site-name>]
+	 * : Name of website to be enabled.
+	 */
+	public function up( $args, $assoc_args ) {
+		\EE\Utils\delem_log( 'site enable start' );
+		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$this->populate_site_info( $args );
+		EE::log( "Enabling site $this->site_name." );
+		if ( EE::docker()::docker_compose_up( $this->site_root ) ) {
+			EE::db()::update( [ 'is_enabled' => '1' ], [ 'sitename' => $this->site_name ] );
+			EE::success( "Site $this->site_name enabled." );
+		} else {
+			EE::error( "There was error in enabling $this->site_name. Please check logs." );
+		}
+		\EE\Utils\delem_log( 'site enable end' );
+	}
+
+	/**
+	 * Disables a website. It will stop and remove the docker containers of the website if they are running.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [<site-name>]
+	 * : Name of website to be disabled.
+	 */
+	public function down( $args, $assoc_args ) {
+		\EE\Utils\delem_log( 'site disable start' );
+		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$this->populate_site_info( $args );
+		EE::log( "Disabling site $this->site_name." );
+		if ( EE::docker()::docker_compose_down( $this->site_root ) ) {
+			EE::db()::update( [ 'is_enabled' => '0' ], [ 'sitename' => $this->site_name ] );
+			EE::success( "Site $this->site_name disabled." );
+		} else {
+			EE::error( "There was error in disabling $this->site_name. Please check logs." );
+		}
+		\EE\Utils\delem_log( 'site disable end' );
+	}
+
 	public function create( $args, $assoc_args ) {}
-
-	public function up( $args, $assoc_args ) {}
-
-	public function down( $args, $assoc_args ) {}
 
 }
 
