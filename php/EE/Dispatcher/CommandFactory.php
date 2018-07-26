@@ -68,7 +68,7 @@ class CommandFactory {
 	 */
 	private static function create_subcommand( $parent, $name, $callable, $reflection ) {
 		$doc_comment = self::get_doc_comment( $reflection );
-		$docparser   = new \EE\DocParser( $doc_comment );
+		$docparser = self::get_inherited_docparser( $doc_comment, $reflection );
 
 		while ( $docparser->has_tag( 'inheritdoc' ) ) {
 			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
@@ -120,8 +120,8 @@ class CommandFactory {
 		$container = new CompositeCommand( $parent, $name, $docparser );
 
 		foreach ( $reflection->getMethods() as $method ) {
-			$method_docparser = new \EE\DocParser( self::get_doc_comment( $method ) );
-			if ( ! self::is_good_method( $method ) || self::should_ignore_method( $method_docparser ) ) {
+			$method_doc_comment = self::get_doc_comment( $method );
+			if ( ! self::is_good_method( $method ) || self::should_ignore_method( $method_doc_comment, $method ) ) {
 				continue;
 			}
 
@@ -165,13 +165,31 @@ class CommandFactory {
 	}
 
 	/**
+	 * @param string           $doc_comment
+	 * @param ReflectionMethod $reflection
+	 */
+	private static function get_inherited_docparser( $doc_comment, $reflection ) {
+		$docparser = new \EE\DocParser( $doc_comment );
+		while ( $docparser->has_tag( 'inheritdoc' ) ) {
+			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
+
+			$doc_comment = self::get_doc_comment( $inherited_method );
+			$docparser   = new \EE\DocParser( $doc_comment );
+		}
+
+		return $docparser;
+	}
+
+	/**
 	 * Check whether a method should be ignored.
 	 *
 	 * @param ReflectionMethod $method
 	 *
 	 * @return bool
 	 */
-	private static function should_ignore_method( $docparser ) {
+	private static function should_ignore_method( $doc_comment, $reflection ) {
+		$docparser = self::get_inherited_docparser( $doc_comment, $reflection );
+
 		return $docparser->has_tag( 'ignorecommand' );
 	}
 
