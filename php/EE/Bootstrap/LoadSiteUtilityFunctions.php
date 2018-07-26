@@ -20,6 +20,7 @@ final class LoadSiteUtilityFunctions implements BootstrapStep {
 	 */
 	public function process( BootstrapState $state ) {
 		require_once EE_ROOT . '/php/site-utils.php';
+		require_once EE_ROOT . '/php/class-ee-site-letsencrypt.php';
 
 		return $state;
 	}
