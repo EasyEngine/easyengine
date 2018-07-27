@@ -375,6 +375,26 @@ abstract class EE_Site_Command {
 		EE::launch( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
 	}
 
+	/**
+	 * Populate basic site info from db.
+	 */
+	private function populate_site_info( $args ) {
+
+		$this->site_name = \EE\Utils\remove_trailing_slash( $args[0] );
+
+		if ( EE::db()::site_in_db( $this->site_name ) ) {
+
+			$db_select = EE::db()::select( [], array( 'sitename' => $this->site_name ) );
+
+			$this->site_type = $db_select[0]['site_type'];
+			$this->site_root = $db_select[0]['site_path'];
+			$this->le        = $db_select[0]['is_ssl'];
+
+		} else {
+			EE::error( "Site $this->site_name does not exist." );
+		}
+	}
+
 	public function create( $args, $assoc_args ) {}
 
 }
