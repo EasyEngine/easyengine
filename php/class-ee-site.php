@@ -225,7 +225,7 @@ abstract class EE_Site_Command {
 		\EE\Utils\delem_log( 'site disable end' );
 	}
 
-		/**
+	/**
 	 * Restarts containers associated with site.
 	 * When no service(--nginx etc.) is specified, all site containers will be restarted.
 	 *
@@ -238,7 +238,7 @@ abstract class EE_Site_Command {
 	 * [--nginx]
 	 * : Restart nginx container of site.
 	 */
-	public function restart( $args, $assoc_args ) {
+	public function restart( $args, $assoc_args, $whitelisted_containers = [] ) {
 		\EE\Utils\delem_log( 'site restart start' );
 		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
@@ -249,7 +249,7 @@ abstract class EE_Site_Command {
 		chdir( $this->site_root );
 
 		if ( $all || $no_service_specified ) {
-			$containers = [ 'nginx' ];
+			$containers = $whitelisted_containers;
 		} else {
 			$containers = array_keys( $assoc_args );
 		}
@@ -274,7 +274,7 @@ abstract class EE_Site_Command {
 	 * : Reload nginx service in container.
 	 *
 	 */
-	public function reload( $args, $assoc_args ) {
+	public function reload( $args, $assoc_args, $whitelisted_containers = [] ) {
 		\EE\Utils\delem_log( 'site reload start' );
 		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
@@ -285,7 +285,7 @@ abstract class EE_Site_Command {
 		chdir( $this->site_root );
 
 		if ( $all || $no_service_specified ) {
-			$this->reload_services( [ 'nginx' ] );
+			$this->reload_services( $whitelisted_containers );
 		} else {
 			$this->reload_services( array_keys( $assoc_args ) );
 		}
@@ -378,4 +378,3 @@ abstract class EE_Site_Command {
 	public function create( $args, $assoc_args ) {}
 
 }
-
