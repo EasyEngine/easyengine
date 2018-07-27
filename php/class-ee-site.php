@@ -274,10 +274,13 @@ abstract class EE_Site_Command {
 	 * : Reload nginx service in container.
 	 *
 	 */
-	public function reload( $args, $assoc_args, $whitelisted_containers = [] ) {
+	public function reload( $args, $assoc_args, $whitelisted_containers = [], $reload_commands = [] ) {
 		\EE\Utils\delem_log( 'site reload start' );
-		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
-		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$all  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+		if ( ! array_key_exists( 'nginx', $reload_commands ) ) {
+			$reload_commands['nginx'] = 'nginx sh -c \'nginx -t && service openresty reload\'';
+		}
 		$no_service_specified = count( $assoc_args ) === 0;
 
 		$this->populate_site_info( $args );
@@ -285,9 +288,9 @@ abstract class EE_Site_Command {
 		chdir( $this->site_root );
 
 		if ( $all || $no_service_specified ) {
-			$this->reload_services( $whitelisted_containers );
+			$this->reload_services( $whitelisted_containers, $reload_commands );
 		} else {
-			$this->reload_services( array_keys( $assoc_args ) );
+			$this->reload_services( array_keys( $assoc_args ), $reload_commands );
 		}
 		\EE\Utils\delem_log( 'site reload stop' );
 	}
@@ -295,13 +298,9 @@ abstract class EE_Site_Command {
 	/**
 	 * Executes reload commands. It needs seperate handling as commands to reload each service is different.
 	 */
-	private function reload_services( $services ) {
-		$reload_command = [
-			'nginx' => 'nginx sh -c \'nginx -t && service openresty reload\'',
-		];
-
+	private function reload_services( $services, $reload_commands ) {
 		foreach ( $services as $service ) {
-			\EE\SiteUtils\run_compose_command( 'exec', $reload_command[$service], 'reload', $service );
+			\EE\SiteUtils\run_compose_command( 'exec', $reload_commands[$service], 'reload', $service );
 		}
 	}
 
