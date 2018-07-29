@@ -673,9 +673,60 @@ class Runner {
 		}
 	}
 
-	public function start() {
+	public function route() {
 
 		$this->init_ee();
+
+		if ( 'site' !== $this->arguments[0] && 'site' !== $this->arguments[1] ) {
+			return;
+		}
+
+		if ( isset( $this->assoc_args['type'] ) ) {
+			$key            = array_search( 'site', $this->arguments );
+			$new_args       = $this->arguments;
+			$new_args[$key] = $this->assoc_args['type'];
+
+			if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
+				$this->arguments = $new_args;
+				unset( $this->assoc_args['type'] );
+
+				return;
+			}
+		}
+
+		$r = $this->find_command_to_run( $this->arguments );
+		list( $command, $final_args, $cmd_path ) = $r;
+
+		if ( is_string( $r ) ) {
+			EE::error( $r );
+		}
+
+		$synopsis = ( explode( ' ', $command->get_synopsis() ) );
+		$command  = array_shift( $cmd_path );
+		$function = implode( ' ', $cmd_path );
+
+		$args_search_one = array_search( '[<site-name>]', $synopsis );
+		$args_search_two = array_search( '<site-name>', $synopsis );
+		$arg_position    = false !== $args_search_one ? $args_search_one : $args_search_two;
+
+		if ( false === $arg_position ) {
+			return;
+		}
+
+		$site_name = \EE\SiteUtils\auto_site_name( $final_args, $command, $function, $arg_position )[$arg_position];
+
+		$type           = EE::db()::get_site_command( $site_name );
+		$key            = array_search( 'site', $this->arguments );
+		$new_args       = $this->arguments;
+		$new_args[$key] = $type;
+
+		if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
+			$this->arguments = $new_args;
+		}
+
+	}
+
+	public function start() {
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
