@@ -36,25 +36,25 @@ function get_site_name() {
 /**
  * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
  *
- * @param array  $args     The passed arguments.
- * @param String $command  The command passing the arguments to auto-detect site-name.
- * @param String $function The function passing the arguments to auto-detect site-name.
- * @param bool   $arg_zero Site-name will be present in the first argument. Default true.
+ * @param array   $args     The passed arguments.
+ * @param String  $command  The command passing the arguments to auto-detect site-name.
+ * @param String  $function The function passing the arguments to auto-detect site-name.
+ * @param integer $arg_pos  Argument position where Site-name will be present.
  *
  * @return array Arguments with site-name set.
  */
-function auto_site_name( $args, $command, $function, $arg_zero = true ) {
-	if ( isset( $args[0] ) ) {
-		if ( EE::db()::site_in_db( $args[0] ) ) {
+function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
+	if ( isset( $args[$arg_pos] ) ) {
+		if ( EE::db()::site_in_db( $args[$arg_pos] ) ) {
 			return $args;
 		}
 	}
 	$site_name = get_site_name();
 	if ( $site_name ) {
-		if ( isset( $args[0] ) && $arg_zero ) {
-			EE::error( $args[0] . " is not a valid site-name. Did you mean `ee $command $function $site_name`?" );
+		if ( isset( $args[$arg_pos] ) ) {
+			EE::error( $args[$arg_pos] . " is not a valid site-name. Did you mean `ee $command $function $site_name`?" );
 		}
-		array_unshift( $args, $site_name );
+		array_splice( $args, $arg_pos, 0, $site_name );
 	} else {
 		EE::error( "Could not find the site you wish to run $command $function command on.\nEither pass it as an argument: `ee $command $function <site-name>` \nor run `ee $command $function` from inside the site folder." );
 	}
