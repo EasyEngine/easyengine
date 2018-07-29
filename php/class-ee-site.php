@@ -255,7 +255,7 @@ abstract class EE_Site_Command {
 		}
 
 		foreach ( $containers as $container ) {
-			EE\Siteutils\run_compose_command( 'restart', $container, null, 'all services' );
+			EE\Siteutils\run_compose_command( 'restart', $container );
 		}
 		\EE\Utils\delem_log( 'site restart stop' );
 	}
@@ -264,7 +264,7 @@ abstract class EE_Site_Command {
 	 * Reload services in containers without restarting container(s) associated with site.
 	 * When no service(--nginx etc.) is specified, all services will be reloaded.
 	 *
-	 * <site-name>
+	 * [<site-name>]
 	 * : Name of the site.
 	 *
 	 * [--all]
