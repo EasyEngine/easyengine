@@ -38,6 +38,7 @@ class EE_DB {
 			sitename VARCHAR,
 			site_type VARCHAR,
 			site_title VARCHAR,
+			site_command VARCHAR,
 			proxy_type VARCHAR,
 			cache_type VARCHAR,
 			site_path VARCHAR,
@@ -279,6 +280,24 @@ class EE_DB {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get site type.
+	 *
+	 * @param String $site_name Name of the site.
+	 *
+	 * @return string type of site.
+	 */
+	public static function get_site_command( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( array( 'site_type' ), array( 'sitename' => $site_name ) );
+
+		return $site[0]['site_type'];
 	}
 
 	/**
