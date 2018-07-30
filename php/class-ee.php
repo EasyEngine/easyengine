@@ -852,6 +852,47 @@ class EE {
 	}
 
 	/**
+	 * Launch an arbitrary external process that takes over I/O.
+	 *
+	 * @access   public
+	 * @category Execution
+	 *
+	 * @param string $command     External process to launch.
+	 * @param bool   $echo_stdout Print stdout to terminal. Default false.
+	 * @param bool   $echo_stderr Print stderr to terminal. Default false.
+	 *
+	 * @return bool True if executed successfully. False if failed.
+	 */
+	public static function exec( $command, $echo_stdout = false, $echo_stderr = false ) {
+		Utils\check_proc_available( 'exec' );
+
+		$proc    = Process::create( $command, null, null );
+		$results = $proc->run();
+
+		if ( - 1 == $results->return_code ) {
+			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
+		}
+
+		EE::debug( '-----------------------' );
+		EE::debug( "COMMAND: $command" );
+
+		EE\Utils\default_debug( $results, true );
+
+		if ( $echo_stdout ) {
+			echo $results->stdout;
+		}
+		if ( $echo_stderr ) {
+			echo $results->stderr;
+		}
+		if ( ! $results->return_code ) {
+			return true;
+		}
+
+		return false;
+
+	}
+
+	/**
 	 * Run a EE command in a new process reusing the current runtime arguments.
 	 *
 	 * Use `EE::runcommand()` instead, which is easier to use and works better.
