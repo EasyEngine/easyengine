@@ -232,7 +232,7 @@ function site_status_check( $site_name ) {
 		EE::debug( "$site_name status httpcode: $httpcode" );
 		curl_exec( $ch );
 		$httpcode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-		EE::log( '.' );
+		echo '.';
 		sleep( 2 );
 		if ( $i ++ > 60 ) {
 			break;
