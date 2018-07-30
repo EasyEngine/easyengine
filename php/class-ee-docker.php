@@ -1,8 +1,6 @@
 <?php
 
 use function \EE\Utils\default_debug;
-use function \EE\Utils\default_launch;
-use function \EE\Utils\mustache_render;
 
 class EE_DOCKER {
 
@@ -23,7 +21,7 @@ class EE_DOCKER {
 				return true;
 			}
 		} else {
-			return self::create_container( $container, $command );
+			return self::create_container( $command );
 		}
 	}
 
@@ -35,7 +33,7 @@ class EE_DOCKER {
 		if ( $ret ) {
 			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
 		}
-		$status = default_launch( "docker inspect -f '{{.State.Running}}' $container" );
+		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container" );
 		default_debug( $status );
 		if ( ! $status->return_code ) {
 			if ( preg_match( '/true/', $status->stdout ) ) {
@@ -56,7 +54,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function start_container( $container ) {
-		return default_launch( "docker start $container" );
+		return EE::exec( "docker start $container" );
 	}
 
 	/**
@@ -67,7 +65,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function stop_container( $container ) {
-		return default_launch( "docker stop $container" );
+		return EE::exec( "docker stop $container" );
 	}
 
 	/**
@@ -78,25 +76,19 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function restart_container( $container ) {
-		return default_launch( "docker restart $container" );
+		return EE::exec( "docker restart $container" );
 	}
 
 	/**
 	 * Function to create and start the container if it does not exist.
 	 *
-	 * @param String $container Container to be created.
 	 * @param String $command   Command to launch the container.
 	 *
 	 * @return bool success.
 	 */
-	public static function create_container( $container, $command ) {
+	public static function create_container( $command ) {
 
-		$launch = default_launch( $command );
-		default_debug( $launch );
-		if ( ! $launch->return_code ) {
-			return true;
-		}
-		EE::error( $launch->stderr );
+		return EE::exec( $command, true, true, true );
 	}
 
 	/**
@@ -107,7 +99,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function create_network( $name ) {
-		return default_launch( "docker network create $name" );
+		return EE::exec( "docker network create $name" );
 	}
 
 	/**
@@ -119,7 +111,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function connect_network( $name, $connect_to ) {
-		return default_launch( "docker network connect $name $connect_to" );
+		return EE::exec( "docker network connect $name $connect_to" );
 	}
 
 	/**
@@ -130,7 +122,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function rm_network( $name ) {
-		return default_launch( "docker network rm $name" );
+		return EE::exec( "docker network rm $name" );
 	}
 
 	/**
@@ -142,7 +134,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function disconnect_network( $name, $connected_to ) {
-		return default_launch( "docker network disconnect $name $connected_to" );
+		return EE::exec( "docker network disconnect $name $connected_to" );
 	}
 
 
@@ -183,11 +175,11 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 			if ( empty( $services ) ) {
-				return default_launch( 'docker-compose up -d' );
+				return EE::exec( 'docker-compose up -d' );
 			} else {
 				$all_services = implode( ' ', $services );
 
-				return default_launch( "docker-compose up -d $all_services" );
+				return EE::exec( "docker-compose up -d $all_services" );
 			}
 		}
 
@@ -205,7 +197,7 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 
-			return default_launch( 'docker-compose down' );
+			return EE::exec( 'docker-compose down' );
 		}
 
 		return false;
