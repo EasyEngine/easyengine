@@ -35,7 +35,7 @@ class EE_DOCKER {
 		if ( $ret ) {
 			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
 		}
-		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container", false, true );
+		$status = default_launch( "docker inspect -f '{{.State.Running}}' $container" );
 		default_debug( $status );
 		if ( ! $status->return_code ) {
 			if ( preg_match( '/true/', $status->stdout ) ) {
@@ -91,7 +91,7 @@ class EE_DOCKER {
 	 */
 	public static function create_container( $container, $command ) {
 
-		$launch = EE::launch( $command, false, true );
+		$launch = default_launch( $command );
 		default_debug( $launch );
 		if ( ! $launch->return_code ) {
 			return true;
