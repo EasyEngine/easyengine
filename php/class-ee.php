@@ -857,13 +857,14 @@ class EE {
 	 * @access   public
 	 * @category Execution
 	 *
-	 * @param string $command     External process to launch.
-	 * @param bool   $echo_stdout Print stdout to terminal. Default false.
-	 * @param bool   $echo_stderr Print stderr to terminal. Default false.
+	 * @param string  $command        External process to launch.
+	 * @param bool    $echo_stdout    Print stdout to terminal. Default false.
+	 * @param bool    $echo_stderr    Print stderr to terminal. Default false.
+	 * @param boolean $exit_on_error  Exit if the command returns an elevated return code with stderr.
 	 *
 	 * @return bool True if executed successfully. False if failed.
 	 */
-	public static function exec( $command, $echo_stdout = false, $echo_stderr = false ) {
+	public static function exec( $command, $echo_stdout = false, $echo_stderr = false, $exit_on_error = false ) {
 		Utils\check_proc_available( 'exec' );
 
 		$proc    = Process::create( $command, null, null );
@@ -881,13 +882,15 @@ class EE {
 		if ( $echo_stdout ) {
 			echo $results->stdout;
 		}
-		if ( $echo_stderr ) {
+		if ( $echo_stderr && ! $exit_on_error ) {
 			echo $results->stderr;
 		}
 		if ( ! $results->return_code ) {
 			return true;
 		}
-
+		if( $exit_on_error ) {
+			EE::error( $results->stderr );
+		}
 		return false;
 
 	}
