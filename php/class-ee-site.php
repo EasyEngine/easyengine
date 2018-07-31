@@ -115,10 +115,8 @@ abstract class EE_Site_Command {
 	 *  Level - 3: Disconnect & remove network and try to remove containers. The containers may not have been created.
 	 *  Level - 4: Remove containers.
 	 *  Level - 5: Remove db entry.
-	 *
-	 * @ignorecommand
 	 */
-	public function delete_site( $level, $site_name, $site_root ) {
+	protected function delete_site( $level, $site_name, $site_root ) {
 		$this->fs   = new Filesystem();
 		$proxy_type = EE_PROXY_TYPE;
 		if ( $level >= 3 ) {
@@ -317,10 +315,8 @@ abstract class EE_Site_Command {
 	 * @param string $site_name Name of the site for ssl.
 	 * @param string $site_root Webroot of the site.
 	 * @param bool   $wildcard  SSL with wildcard or not.
-	 *
-	 * @ignorecommand
 	 */
-	public function init_le( $site_name, $site_root, $wildcard = false ) {
+	protected function init_le( $site_name, $site_root, $wildcard = false ) {
 		$this->site_name = $site_name;
 		$this->site_root = $site_root;
 		$client          = new Site_Letsencrypt();
