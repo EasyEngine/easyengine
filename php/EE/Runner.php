@@ -709,7 +709,7 @@ class Runner {
 		$args_search_two = array_search( '<site-name>', $synopsis );
 		$arg_position    = false !== $args_search_one ? $args_search_one : $args_search_two;
 
-		if ( false === $arg_position ) {
+		if ( false === $arg_position || 'create' === $function ) {
 			return;
 		}
 
