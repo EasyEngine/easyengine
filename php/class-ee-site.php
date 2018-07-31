@@ -390,11 +390,11 @@ abstract class EE_Site_Command {
 
 		if ( EE::db()::site_in_db( $this->site_name ) ) {
 
-			$db_select = EE::db()::select( [], array( 'sitename' => $this->site_name ) );
+			$db_select = $this->db::select( [], [ 'sitename' => $this->site_name ], 'sites', 1 );
 
-			$this->site_type = $db_select[0]['site_type'];
-			$this->site_root = $db_select[0]['site_path'];
-			$this->le        = $db_select[0]['is_ssl'];
+			$this->site_type = $db_select['site_type'];
+			$this->site_root = $db_select['site_path'];
+			$this->le        = $db_select['is_ssl'];
 
 		} else {
 			EE::error( "Site $this->site_name does not exist." );

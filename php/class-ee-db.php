@@ -125,6 +125,8 @@ class EE_DB {
 	/**
 	 * @param array $columns
 	 * @param array $where
+	 * @param string $table_name
+	 * @param int|null $limit
 	 * Select data from the database.
 	 *
 	 * @return array|bool
@@ -167,6 +169,10 @@ class EE_DB {
 		}
 		if ( empty( $select_data ) ) {
 			return false;
+		}
+
+		if ( 1 === $limit ) {
+			return $select_data[0];
 		}
 
 		return $select_data;
@@ -295,9 +301,9 @@ class EE_DB {
 			self::init_db();
 		}
 
-		$site = self::select( array( 'site_type' ), array( 'sitename' => $site_name ) );
+		$site = self::select( [ 'site_type' ], [ 'sitename' => $site_name ], 'sites', 1 );
 
-		return $site[0]['site_type'];
+		return $site['site_type'];
 	}
 
 	/**
