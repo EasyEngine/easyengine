@@ -74,11 +74,11 @@ function init_checks() {
 		/**
 		 * Checking ports.
 		 */
-		@fsockopen( 'localhost', 80, $port_80_exit_status );
-		@fsockopen( 'localhost', 443, $port_443_exit_status );
+		$port_80_status  = get_curl_info( 'localhost', 80, true );
+		$port_443_status = get_curl_info( 'localhost', 443, true );
 
 		// if any/both the port/s is/are occupied.
-		if ( ! ( $port_80_exit_status && $port_443_exit_status ) ) {
+		if ( ! ( $port_80_status && $port_443_status ) ) {
 			EE::error( 'Cannot create/start proxy container. Please make sure port 80 and 443 are free.' );
 		} else {
 			$EE_CONF_ROOT     = EE_CONF_ROOT;
@@ -220,18 +220,11 @@ function create_etc_hosts_entry( $site_name ) {
  */
 function site_status_check( $site_name ) {
 	EE::log( 'Checking and verifying site-up status. This may take some time.' );
-	$httpcode = 000;
-	$ch       = curl_init( $site_name );
-	curl_setopt( $ch, CURLOPT_HEADER, true );
-	curl_setopt( $ch, CURLOPT_NOBODY, true );
-	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
-
-	$i = 0;
+	$httpcode = get_curl_info( $site_name );
+	$i        = 0;
 	while ( 200 !== $httpcode && 302 !== $httpcode ) {
 		EE::debug( "$site_name status httpcode: $httpcode" );
-		curl_exec( $ch );
-		$httpcode = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		$httpcode = get_curl_info( $site_name );
 		echo '.';
 		sleep( 2 );
 		if ( $i ++ > 60 ) {
@@ -242,6 +235,31 @@ function site_status_check( $site_name ) {
 		throw new \Exception( 'Problem connecting to site!' );
 	}
 
+}
+
+/**
+ * Function to get httpcode or port occupancy info.
+ *
+ * @param string $url     url to get info about.
+ * @param int $port       The port to check.
+ * @param bool $port_info Return port info or httpcode.
+ *
+ * @return bool|int port occupied or httpcode.
+ */
+function get_curl_info( $url, $port = 80, $port_info = false ) {
+
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_HEADER, true );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $ch, CURLOPT_PORT, $port );
+	curl_exec( $ch );
+	if ( $port_info ) {
+		return empty( curl_getinfo( $ch, CURLINFO_PRIMARY_IP ) );
+	}
+
+	return curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 }
 
 /**
