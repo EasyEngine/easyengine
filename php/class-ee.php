@@ -830,11 +830,16 @@ class EE {
 	 *
 	 * @return int|ProcessRun The command exit status, or a ProcessRun object for full details.
 	 */
-	public static function launch( $command, $exit_on_error = true, $return_detailed = false, $env = null, $cwd = null ) {
+	public static function launch( $command, $exit_on_error = false, $return_detailed = true, $env = null, $cwd = null ) {
 		Utils\check_proc_available( 'launch' );
+
+		self::debug( '-----------------------' );
+		self::debug( "COMMAND: $command" );
 
 		$proc    = Process::create( $command, $cwd, $env );
 		$results = $proc->run();
+
+		self::debug_run_command( $results );
 
 		if ( -1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
@@ -857,27 +862,27 @@ class EE {
 	 * @access   public
 	 * @category Execution
 	 *
-	 * @param string  $command        External process to launch.
-	 * @param bool    $echo_stdout    Print stdout to terminal. Default false.
-	 * @param bool    $echo_stderr    Print stderr to terminal. Default false.
-	 * @param boolean $exit_on_error  Exit if the command returns an elevated return code with stderr.
+	 * @param string  $command       External process to launch.
+	 * @param bool    $echo_stdout   Print stdout to terminal. Default false.
+	 * @param bool    $echo_stderr   Print stderr to terminal. Default false.
+	 * @param boolean $exit_on_error Exit if the command returns an elevated return code with stderr.
 	 *
 	 * @return bool True if executed successfully. False if failed.
 	 */
 	public static function exec( $command, $echo_stdout = false, $echo_stderr = false, $exit_on_error = false ) {
 		Utils\check_proc_available( 'exec' );
 
+		self::debug( '-----------------------' );
+		self::debug( "COMMAND: $command" );
+
 		$proc    = Process::create( $command, null, null );
 		$results = $proc->run();
+
+		self::debug_run_command( $results );
 
 		if ( - 1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
 		}
-
-		EE::debug( '-----------------------' );
-		EE::debug( "COMMAND: $command" );
-
-		EE\Utils\default_debug( $results, true );
 
 		if ( $echo_stdout ) {
 			echo $results->stdout;
@@ -888,9 +893,10 @@ class EE {
 		if ( ! $results->return_code ) {
 			return true;
 		}
-		if( $exit_on_error ) {
-			EE::error( $results->stderr );
+		if ( $exit_on_error ) {
+			exit( $results->return_code );
 		}
+
 		return false;
 
 	}
@@ -948,6 +954,22 @@ class EE {
 		$full_command = "EE_CONFIG_PATH={$config_path} {$php_bin} {$script_path} {$command} {$args} {$assoc_args}";
 
 		return self::launch( $full_command, $exit_on_error, $return_detailed );
+	}
+
+	/**
+	 * Format and print debug messages for external command launch.
+	 *
+	 * @param Object $launch       external command object.
+	 */
+	private static function debug_run_command( $launch ) {
+		if ( ! empty( $launch->stdout ) ) {
+			self::debug( "STDOUT: $launch->stdout" );
+		}
+		if ( ! empty( $launch->stderr ) ) {
+			self::debug( "STDERR: $launch->stderr" );
+		}
+		self::debug( "RETURN CODE: $launch->return_code" );
+		self::debug( '-----------------------' );
 	}
 
 	/**

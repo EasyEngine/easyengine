@@ -1410,60 +1410,6 @@ function delem_log( $log_data ) {
 }
 
 /**
- * Format and print debug messages for EE::launch
- *
- * @param Object $launch       EE::Launch command object.
- * @param bool   $skip_command Skip logging command.
- */
-function default_debug( $launch, $skip_command = false ) {
-	if ( ! $skip_command ) {
-		EE::debug( '-----------------------' );
-		EE::debug( "COMMAND: $launch->command" );
-	}
-	if ( ! empty( $launch->stdout ) ) {
-		EE::debug( "STDOUT: $launch->stdout" );
-	}
-	if ( ! empty( $launch->stderr ) ) {
-		EE::debug( "STDERR: $launch->stderr" );
-	}
-	EE::debug( "RETURN CODE: $launch->return_code" );
-	EE::debug( '-----------------------' );
-}
-
-/**
- * Default Launch command.
- * This takes care of executing the command as well as debugging it to terminal as well as file.
- *
- * @param string $command     The command to be executed via EE::launch();
- * @param bool   $echo_stdout Print stdout to terminal. Default false.
- * @param bool   $echo_stderr Print stderr to terminal. Default false.
- * @param array  $env         Environment variables to set when running the command.
- * @param string $cwd         Directory to execute the command in.
- *
- * @return bool True if executed successfully. False if failed.
- */
-function default_launch( $command, $echo_stdout = false, $echo_stderr = false, $env = null, $cwd = null ) {
-
-	EE::debug( '-----------------------' );
-	EE::debug( "COMMAND: $command" );
-
-	$launch = EE::launch( $command, false, true, $env, $cwd );
-	default_debug( $launch, true );
-
-	if ( $echo_stdout ) {
-		echo $launch->stdout;
-	}
-	if ( $echo_stderr ) {
-		echo $launch->stderr;
-	}
-	if ( ! $launch->return_code ) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
  * Function that takes care of executing the command as well as debugging it to terminal as well as file.
  *
  * @param string $command The command to be executed via exec();
