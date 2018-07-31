@@ -677,23 +677,29 @@ class Runner {
 
 		$this->init_ee();
 
-		if ( 'site' !== $this->arguments[0] && 'site' !== $this->arguments[1] ) {
+		// Run routing only for `site` command.
+		if ( 'site' !== $this->arguments[0] ) {
 			return;
 		}
 
 		if ( isset( $this->assoc_args['type'] ) ) {
-			$key            = array_search( 'site', $this->arguments );
-			$new_args       = $this->arguments;
-			$new_args[$key] = $this->assoc_args['type'];
 
-			if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
+			$key              = array_search( 'site', $this->arguments );
+			$new_args         = $this->arguments;
+			$new_args[ $key ] = $this->assoc_args['type'];
+
+			// Check if the type is not default html and then search for a command registered with the type.
+			if ( ( 'html' !== $this->assoc_args['type'] ) && is_array( $this->find_command_to_run( $new_args ) ) ) {
+				// If the command with type is found. Update the arguments and replace `site` with value of type.
 				$this->arguments = $new_args;
-				unset( $this->assoc_args['type'] );
-
-				return;
 			}
+			// Remove the type parameter.
+			unset( $this->assoc_args['type'] );
+
+			return;
 		}
 
+		// If type parameter is not specified. Then type needs to be determined from site-name.
 		$r = $this->find_command_to_run( $this->arguments );
 		list( $command, $final_args, $cmd_path ) = $r;
 
@@ -701,24 +707,31 @@ class Runner {
 			EE::error( $r );
 		}
 
+		// Get the command synopsis to figure out the position of site-name and get it.
 		$synopsis = ( explode( ' ', $command->get_synopsis() ) );
 		$command  = array_shift( $cmd_path );
 		$function = implode( ' ', $cmd_path );
 
+		// Search for the site-name position in args.
 		$args_search_one = array_search( '[<site-name>]', $synopsis );
 		$args_search_two = array_search( '<site-name>', $synopsis );
 		$arg_position    = false !== $args_search_one ? $args_search_one : $args_search_two;
 
+		// return if site-name is not applicable or if it is create function as in create the site will not yet be registered in db.
 		if ( false === $arg_position || 'create' === $function ) {
 			return;
 		}
 
-		$site_name = \EE\SiteUtils\auto_site_name( $final_args, $command, $function, $arg_position )[$arg_position];
+		// Now that the position of site-name is figured, get the site-name.
+		$site_name = \EE\SiteUtils\auto_site_name( $final_args, $command, $function, $arg_position )[ $arg_position ];
 
-		$type           = EE::db()::get_site_command( $site_name );
-		$key            = array_search( 'site', $this->arguments );
-		$new_args       = $this->arguments;
-		$new_args[$key] = $type;
+		// Getting the type of the respective site-name from database.
+		$type = EE::db()::get_site_command( $site_name );
+
+		// Replacing `site` with appropriate type command if the function called for it exists.
+		$key              = array_search( 'site', $this->arguments );
+		$new_args         = $this->arguments;
+		$new_args[ $key ] = $type;
 
 		if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
 			$this->arguments = $new_args;
