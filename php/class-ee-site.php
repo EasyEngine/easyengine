@@ -386,7 +386,7 @@ abstract class EE_Site_Command {
 
 		if ( EE::db()::site_in_db( $this->site_name ) ) {
 
-			$db_select = $this->db::select( [], [ 'sitename' => $this->site_name ], 'sites', 1 );
+			$db_select = EE::db()::select( [], [ 'sitename' => $this->site_name ], 'sites', 1 );
 
 			$this->site_type = $db_select['site_type'];
 			$this->site_root = $db_select['site_path'];
