@@ -1,7 +1,5 @@
 <?php
 
-use function \EE\Utils\default_debug;
-
 class EE_DOCKER {
 
 	/**
@@ -34,7 +32,6 @@ class EE_DOCKER {
 			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
 		}
 		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container" );
-		default_debug( $status );
 		if ( ! $status->return_code ) {
 			if ( preg_match( '/true/', $status->stdout ) ) {
 				return 'running';
