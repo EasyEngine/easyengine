@@ -188,11 +188,18 @@ abstract class EE_Site_Command {
 	 *
 	 * [<site-name>]
 	 * : Name of website to be enabled.
+	 *
+	 * [--force]
+	 * : Force execution of site up.
 	 */
 	public function up( $args, $assoc_args ) {
 		\EE\Utils\delem_log( 'site enable start' );
-		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$force = \EE\Utils\get_flag_value( $assoc_args, 'force' );
+		$args  = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
+		if ( EE::db()::site_enabled( $this->site_name ) && ! $force ) {
+			EE::error( "$this->site_name is already enabled!" );
+		}
 		EE::log( "Enabling site $this->site_name." );
 		if ( EE::docker()::docker_compose_up( $this->site_root ) ) {
 			EE::db()::update( [ 'is_enabled' => '1' ], [ 'sitename' => $this->site_name ] );
