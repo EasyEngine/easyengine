@@ -11,6 +11,7 @@ use \Symfony\Component\Filesystem\Filesystem;
  * @return bool|String Name of the site or false in failure.
  */
 function get_site_name() {
+
 	$sites = EE::db()::select( array( 'sitename' ) );
 
 	if ( $sites ) {
@@ -34,25 +35,27 @@ function get_site_name() {
 }
 
 /**
- * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
+ * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed
+ * in the args. If the site-name could not be found it will throw an error.
  *
- * @param array   $args     The passed arguments.
- * @param String  $command  The command passing the arguments to auto-detect site-name.
- * @param String  $function The function passing the arguments to auto-detect site-name.
- * @param integer $arg_pos  Argument position where Site-name will be present.
+ * @param array $args      The passed arguments.
+ * @param String $command  The command passing the arguments to auto-detect site-name.
+ * @param String $function The function passing the arguments to auto-detect site-name.
+ * @param integer $arg_pos Argument position where Site-name will be present.
  *
  * @return array Arguments with site-name set.
  */
 function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
-	if ( isset( $args[$arg_pos] ) ) {
-		if ( EE::db()::site_in_db( $args[$arg_pos] ) ) {
+
+	if ( isset( $args[ $arg_pos ] ) ) {
+		if ( EE::db()::site_in_db( $args[ $arg_pos ] ) ) {
 			return $args;
 		}
 	}
 	$site_name = get_site_name();
 	if ( $site_name ) {
-		if ( isset( $args[$arg_pos] ) ) {
-			EE::error( $args[$arg_pos] . " is not a valid site-name. Did you mean `ee $command $function $site_name`?" );
+		if ( isset( $args[ $arg_pos ] ) ) {
+			EE::error( $args[ $arg_pos ] . " is not a valid site-name. Did you mean `ee $command $function $site_name`?" );
 		}
 		array_splice( $args, $arg_pos, 0, $site_name );
 	} else {
@@ -69,6 +72,7 @@ function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
  * Boots up the container if it is stopped or not running.
  */
 function init_checks() {
+
 	$proxy_type = EE_PROXY_TYPE;
 	if ( 'running' !== EE::docker()::container_status( $proxy_type ) ) {
 		/**
@@ -102,6 +106,7 @@ function init_checks() {
  * @param string $site_name Name of the site.
  */
 function create_site_root( $site_root, $site_name ) {
+
 	$fs = new Filesystem();
 	if ( $fs->exists( $site_root ) ) {
 		EE::error( "Webroot directory for site $site_name already exists." );
@@ -122,6 +127,7 @@ function create_site_root( $site_root, $site_name ) {
  * @throws \Exception when network start fails.
  */
 function setup_site_network( $site_name ) {
+
 	$proxy_type = EE_PROXY_TYPE;
 	if ( EE::docker()::create_network( $site_name ) ) {
 		EE::success( 'Network started.' );
@@ -137,9 +143,10 @@ function setup_site_network( $site_name ) {
  * Adds www to non-www redirection to site
  *
  * @param string $site_name Name of the site.
- * @param bool   $le        Specifying if letsencrypt is enabled or not.
+ * @param bool $le          Specifying if letsencrypt is enabled or not.
  */
 function add_site_redirects( $site_name, $le ) {
+
 	$fs               = new Filesystem();
 	$confd_path       = EE_CONF_ROOT . '/nginx/conf.d/';
 	$config_file_path = $confd_path . $site_name . '-redirect.conf';
@@ -219,6 +226,7 @@ function create_etc_hosts_entry( $site_name ) {
  * @throws \Exception when fails to connect to site.
  */
 function site_status_check( $site_name ) {
+
 	EE::log( 'Checking and verifying site-up status. This may take some time.' );
 	$httpcode = get_curl_info( $site_name );
 	$i        = 0;
@@ -270,6 +278,7 @@ function get_curl_info( $url, $port = 80, $port_info = false ) {
  * @throws \Exception when docker-compose up fails.
  */
 function start_site_containers( $site_root ) {
+
 	EE::log( 'Pulling latest images. This may take some time.' );
 	chdir( $site_root );
 	\EE\Utils\default_launch( 'docker-compose pull' );
@@ -282,8 +291,14 @@ function start_site_containers( $site_root ) {
 
 /**
  * Generic function to run a docker compose command. Must be ran inside correct directory.
+ *
+ * @param string $action             docker-compose action to run.
+ * @param string $container          The container on which action has to be run.
+ * @param string $action_to_display  The action message to be displayed.
+ * @param string $service_to_display The service message to be displayed.
  */
 function run_compose_command( $action, $container, $action_to_display = null, $service_to_display = null ) {
+
 	$display_action  = $action_to_display ? $action_to_display : $action;
 	$display_service = $service_to_display ? $service_to_display : $container;
 

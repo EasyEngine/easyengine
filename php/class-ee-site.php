@@ -43,10 +43,11 @@ abstract class EE_Site_Command {
 	 * @subcommand list
 	 */
 	public function _list( $args, $assoc_args ) {
-		\EE\Utils\delem_log( 'site list start' );
-		$format   = \EE\Utils\get_flag_value( $assoc_args, 'format' );
-		$enabled  = \EE\Utils\get_flag_value( $assoc_args, 'enabled' );
-		$disabled = \EE\Utils\get_flag_value( $assoc_args, 'disabled' );
+
+		EE\Utils\delem_log( 'site list start' );
+		$format   = EE\Utils\get_flag_value( $assoc_args, 'format' );
+		$enabled  = EE\Utils\get_flag_value( $assoc_args, 'enabled' );
+		$disabled = EE\Utils\get_flag_value( $assoc_args, 'disabled' );
 
 		$where = array();
 
@@ -76,12 +77,12 @@ abstract class EE_Site_Command {
 				}, $sites
 			);
 
-			$formatter = new \EE\Formatter( $assoc_args, [ 'site', 'status' ] );
+			$formatter = new EE\Formatter( $assoc_args, [ 'site', 'status' ] );
 
 			$formatter->display_items( $result );
 		}
 
-		\EE\Utils\delem_log( 'site list end' );
+		EE\Utils\delem_log( 'site list end' );
 	}
 
 
@@ -97,11 +98,12 @@ abstract class EE_Site_Command {
 	 * : Do not prompt for confirmation.
 	 */
 	public function delete( $args, $assoc_args ) {
-		\EE\Utils\delem_log( 'site delete start' );
+
+		EE\Utils\delem_log( 'site delete start' );
 		$this->populate_site_info( $args );
 		EE::confirm( "Are you sure you want to delete $this->site_name?", $assoc_args );
 		$this->delete_site( 5, $this->site_name, $this->site_root );
-		\EE\Utils\delem_log( 'site delete end' );
+		EE\Utils\delem_log( 'site delete end' );
 	}
 
 	/**
@@ -117,13 +119,14 @@ abstract class EE_Site_Command {
 	 *  Level - 5: Remove db entry.
 	 */
 	protected function delete_site( $level, $site_name, $site_root ) {
+
 		$this->fs   = new Filesystem();
 		$proxy_type = EE_PROXY_TYPE;
 		if ( $level >= 3 ) {
 			if ( EE::docker()::docker_compose_down( $site_root ) ) {
 				EE::log( "[$site_name] Docker Containers removed." );
 			} else {
-				\EE\Utils\default_launch( "docker rm -f $(docker ps -q -f=label=created_by=EasyEngine -f=label=site_name=$site_name)" );
+				EE\Utils\default_launch( "docker rm -f $(docker ps -q -f=label=created_by=EasyEngine -f=label=site_name=$site_name)" );
 				if ( $level > 3 ) {
 					EE::warning( 'Error in removing docker containers.' );
 				}
@@ -145,8 +148,7 @@ abstract class EE_Site_Command {
 		if ( $this->fs->exists( $site_root ) ) {
 			try {
 				$this->fs->remove( $site_root );
-			}
-			catch ( Exception $e ) {
+			} catch ( Exception $e ) {
 				EE::debug( $e );
 				EE::error( 'Could not remove site root. Please check if you have sufficient rights.' );
 			}
@@ -164,8 +166,7 @@ abstract class EE_Site_Command {
 				$cert_files = [ $conf_certs, $conf_var, $crt_file, $key_file ];
 				try {
 					$this->fs->remove( $cert_files );
-				}
-				catch ( Exception $e ) {
+				} catch ( Exception $e ) {
 					EE::warning( $e );
 				}
 
@@ -191,9 +192,10 @@ abstract class EE_Site_Command {
 	 * : Force execution of site up.
 	 */
 	public function up( $args, $assoc_args ) {
-		\EE\Utils\delem_log( 'site enable start' );
-		$force = \EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$args  = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+
+		EE\Utils\delem_log( 'site enable start' );
+		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
+		$args  = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
 		if ( EE::db()::site_enabled( $this->site_name ) && ! $force ) {
 			EE::error( "$this->site_name is already enabled!" );
@@ -205,7 +207,7 @@ abstract class EE_Site_Command {
 		} else {
 			EE::error( "There was error in enabling $this->site_name. Please check logs." );
 		}
-		\EE\Utils\delem_log( 'site enable end' );
+		EE\Utils\delem_log( 'site enable end' );
 	}
 
 	/**
@@ -217,8 +219,9 @@ abstract class EE_Site_Command {
 	 * : Name of website to be disabled.
 	 */
 	public function down( $args, $assoc_args ) {
-		\EE\Utils\delem_log( 'site disable start' );
-		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+
+		EE\Utils\delem_log( 'site disable start' );
+		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
 		EE::log( "Disabling site $this->site_name." );
 		if ( EE::docker()::docker_compose_down( $this->site_root ) ) {
@@ -227,7 +230,7 @@ abstract class EE_Site_Command {
 		} else {
 			EE::error( "There was error in disabling $this->site_name. Please check logs." );
 		}
-		\EE\Utils\delem_log( 'site disable end' );
+		EE\Utils\delem_log( 'site disable end' );
 	}
 
 	/**
@@ -244,9 +247,10 @@ abstract class EE_Site_Command {
 	 * : Restart nginx container of site.
 	 */
 	public function restart( $args, $assoc_args, $whitelisted_containers = [] ) {
-		\EE\Utils\delem_log( 'site restart start' );
-		$args                 = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
-		$all                  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+
+		EE\Utils\delem_log( 'site restart start' );
+		$args                 = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$all                  = EE\Utils\get_flag_value( $assoc_args, 'all' );
 		$no_service_specified = count( $assoc_args ) === 0;
 
 		$this->populate_site_info( $args );
@@ -262,7 +266,7 @@ abstract class EE_Site_Command {
 		foreach ( $containers as $container ) {
 			EE\Siteutils\run_compose_command( 'restart', $container );
 		}
-		\EE\Utils\delem_log( 'site restart stop' );
+		EE\Utils\delem_log( 'site restart stop' );
 	}
 
 	/**
@@ -280,9 +284,10 @@ abstract class EE_Site_Command {
 	 *
 	 */
 	public function reload( $args, $assoc_args, $whitelisted_containers = [], $reload_commands = [] ) {
-		\EE\Utils\delem_log( 'site reload start' );
-		$args = \EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
-		$all  = \EE\Utils\get_flag_value( $assoc_args, 'all' );
+
+		EE\Utils\delem_log( 'site reload start' );
+		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
+		$all  = EE\Utils\get_flag_value( $assoc_args, 'all' );
 		if ( ! array_key_exists( 'nginx', $reload_commands ) ) {
 			$reload_commands['nginx'] = 'nginx sh -c \'nginx -t && service openresty reload\'';
 		}
@@ -297,15 +302,19 @@ abstract class EE_Site_Command {
 		} else {
 			$this->reload_services( array_keys( $assoc_args ), $reload_commands );
 		}
-		\EE\Utils\delem_log( 'site reload stop' );
+		EE\Utils\delem_log( 'site reload stop' );
 	}
 
 	/**
-	 * Executes reload commands. It needs seperate handling as commands to reload each service is different.
+	 * Executes reload commands. It needs separate handling as commands to reload each service is different.
+	 *
+	 * @param array $services        Services to reload.
+	 * @param array $reload_commands Commands to reload the services.
 	 */
 	private function reload_services( $services, $reload_commands ) {
+
 		foreach ( $services as $service ) {
-			\EE\SiteUtils\run_compose_command( 'exec', $reload_commands[$service], 'reload', $service );
+			EE\SiteUtils\run_compose_command( 'exec', $reload_commands[ $service ], 'reload', $service );
 		}
 	}
 
@@ -314,9 +323,10 @@ abstract class EE_Site_Command {
 	 *
 	 * @param string $site_name Name of the site for ssl.
 	 * @param string $site_root Webroot of the site.
-	 * @param bool   $wildcard  SSL with wildcard or not.
+	 * @param bool $wildcard    SSL with wildcard or not.
 	 */
 	protected function init_le( $site_name, $site_root, $wildcard = false ) {
+
 		$this->site_name = $site_name;
 		$this->site_root = $site_root;
 		$client          = new Site_Letsencrypt();
@@ -354,13 +364,14 @@ abstract class EE_Site_Command {
 	 * : Force renewal.
 	 */
 	public function le( $args = [], $assoc_args = [], $wildcard = false ) {
+
 		if ( ! isset( $this->site_name ) ) {
 			$this->populate_site_info( $args );
 		}
 		if ( ! isset( $this->le_mail ) ) {
 			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
 		}
-		$force   = \EE\Utils\get_flag_value( $assoc_args, 'force' );
+		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$domains = $wildcard ? [ "*.$this->site_name", $this->site_name ] : [ $this->site_name ];
 		$client  = new Site_Letsencrypt();
 		if ( ! $client->check( $domains, $wildcard ) ) {
@@ -382,7 +393,7 @@ abstract class EE_Site_Command {
 	 */
 	private function populate_site_info( $args ) {
 
-		$this->site_name = \EE\Utils\remove_trailing_slash( $args[0] );
+		$this->site_name = EE\Utils\remove_trailing_slash( $args[0] );
 
 		if ( EE::db()::site_in_db( $this->site_name ) ) {
 
