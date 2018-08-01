@@ -26,7 +26,7 @@
 		<exclude name="PHPCompatibility.PHP.DeprecatedIniDirectives.magic_quotes_runtimeDeprecatedRemoved"/>
 		<exclude name="PHPCompatibility.PHP.DeprecatedIniDirectives.magic_quotes_sybaseDeprecatedRemoved"/>
 	</rule>
-	<config name="testVersion" value="5.3-"/>
+	<config name="testVersion" value="7.0-"/>
 
 	<rule ref="WordPress-Core">
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.Found" />

@@ -164,7 +164,6 @@ $finder
 	->in(EE_VENDOR_DIR . '/mustache')
 	->in(EE_VENDOR_DIR . '/rmccue/requests')
 	->in(EE_VENDOR_DIR . '/composer')
-	->in(EE_VENDOR_DIR . '/ramsey/array_column')
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-ctype')
