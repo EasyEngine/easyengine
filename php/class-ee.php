@@ -1132,11 +1132,7 @@ class EE {
 	}
 
 	public static function db() {
-		if ( empty( self::$db ) ) {
-			self::$db = new EE_DB();
-		}
-
-		return self::$db;
+		return new EE_DB();
 	}
 
 	public static function docker() {

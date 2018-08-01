@@ -3,6 +3,9 @@
 class EE_DB {
 
 	private static $db;
+	private $tables;
+	private $where;
+	private $limit;
 
 	public function __construct() {
 		if ( empty( self::$db ) ) {
@@ -17,9 +20,9 @@ class EE_DB {
 	/**
 	 * Function to initialize db and db connection.
 	 */
-	public static function init_db() {
+	private static function init_db() {
 		if ( ! ( file_exists( DB ) ) ) {
-			self::$db = self::create();
+			self::$db = self::create_required_tables();
 		} else {
 			self::$db = new SQLite3( DB );
 			if ( ! self::$db ) {
@@ -31,9 +34,9 @@ class EE_DB {
 	/**
 	 * Sqlite database creation.
 	 */
-	public static function create() {
+	private static function create_required_tables() {
 		self::$db = new SQLite3( DB );
-		$query    = "CREATE TABLE sites (
+		$query    = 'CREATE TABLE sites (
 			id INTEGER NOT NULL,
 			sitename VARCHAR,
 			site_type VARCHAR,
@@ -61,14 +64,14 @@ class EE_DB {
 			UNIQUE (sitename),
 			CHECK (is_enabled IN (0, 1)),
 			CHECK (is_ssl IN (0, 1))
-		);";
+		);';
 
-		$query .= "CREATE TABLE migrations (
+		$query .= 'CREATE TABLE migrations (
 			migration VARCHAR,
 			timestamp DATETIME
-		);";
+		);';
 
-		$query .= "CREATE TABLE services (
+		$query .= 'CREATE TABLE services (
 			id INTEGER NOT NULL,
 			sitename VARCHAR,
 			phpmyadmin BOOLEAN DEFAULT 0,
@@ -80,16 +83,28 @@ class EE_DB {
 			debug BOOLEAN DEFAULT 0,
 			PRIMARY KEY (id),
 			FOREIGN KEY (id) REFERENCES sites(id)
-		);";
+		);';
 
-		$query .= "CREATE TABLE cron (
+		$query .= 'CREATE TABLE cron (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			sitename VARCHAR,
 			command VARCHAR,
 			schedule VARCHAR
-		);";
+		);';
 
 		self::$db->exec( $query );
+	}
+
+	/**
+	 * Select table to do operation on.
+	 *
+	 * @param array $data in key value pair.
+	 *
+	 * @return bool
+	 */
+	public function table() {
+		$this->tables = func_get_args();
+		return $this;
 	}
 
 	/**
@@ -99,83 +114,94 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function insert( $data, $table_name = 'sites' ) {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
-
-
-		$fields  = '`' . implode( '`, `', array_keys( $data ) ) . '`';
-		$formats = '"' . implode( '", "', $data ) . '"';
-
-		$insert_query = "INSERT INTO `$table_name` ($fields) VALUES ($formats);";
-
-		$insert_query_exec = self::$db->exec( $insert_query );
-
-		if ( ! $insert_query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
-		} else {
-			return true;
-		}
-
-		return false;
+	public function where() {
+		$this->where = func_get_args();
+		return $this;
 	}
 
 	/**
-	 * @param array $columns
-	 * @param array $where
-	 * @param string $table_name
-	 * @param int|null $limit
-	 * Select data from the database.
+	 * Insert row in table.
 	 *
-	 * @return array|bool
+	 * @param array $data in key value pair.
+	 *
+	 * @return bool
 	 */
-	public static function select( $columns = array(), $where = array(), $table_name = 'sites', $limit = null ) {
+	public function limit( $limit ) {
+		$this->limit = $limit;
+		return $this;
+	}
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+	/**
+	 * Insert row in table.
+	 *
+	 * @param array $data in key value pair.
+	 *
+	 * @return bool
+	 */
+	public function insert( $data ) {
+
+		$fields  = implode( ', ', array_keys( $data ) );
+		$values = '"' . implode( '", "', $data ) . '"';
+
+		if ( empty( $this->table ) ) {
+			throw new Exception( 'Insert: No table specified' );
 		}
 
-		$conditions = array();
-		if ( empty( $columns ) ) {
-			$columns = '*';
-		} else {
-			$columns = implode( ', ', $columns );
+		if( count( $this->table ) > 1) {
+			throw new Exception( 'Insert: Multiple table specified' );
 		}
+		$table = $this->tables[0];
 
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
-		}
+		$query = "INSERT INTO `$table` ($fields) VALUES ($values);";
 
-		$conditions = implode( ' AND ', $conditions );
+		$query_exec = self::$db->exec( $query );
 
-		$select_data_query = "SELECT {$columns} FROM `$table_name`";
-
-		if ( ! empty( $conditions ) ) {
-			$select_data_query .= " WHERE $conditions";
-		}
-
-		if ( ! empty( $limit ) ) {
-			$select_data_query .= " LIMIT $limit";
-		}
-
-		$select_data_exec = self::$db->query( $select_data_query );
-		$select_data      = array();
-		if ( $select_data_exec ) {
-			while ( $row = $select_data_exec->fetchArray( SQLITE3_ASSOC ) ) {
-				$select_data[] = $row;
-			}
-		}
-		if ( empty( $select_data ) ) {
+		if ( ! $query_exec ) {
+			EE::debug( self::$db->lastErrorMsg() );
 			return false;
 		}
 
-		if ( 1 === $limit ) {
-			return $select_data[0];
+		return true;
+	}
+
+	/**
+	 * Select data from the database.
+	 *
+	 * @return array
+	 */
+	public function select( ...$args ) {
+
+		if ( null === $this->tables ) {
+			throw new Exception( 'Select: No table specified' );
 		}
 
-		return $select_data;
+		$tables = implode( ', ', $this->tables );
+
+		if ( empty( $args ) ) {
+			$columns = '*';
+		} else {
+			$columns = implode( ', ', $args );
+		}
+
+		$query = "SELECT $columns FROM $tables" ;
+
+		if ( null !== $this->where ) {
+			$conditions = implode( ' AND ', $this->where );
+			$query .= " WHERE $conditions";
+		}
+		if ( null !== $this->limit ) {
+			$query .= ' LIMIT ' . $this->limit;
+		}
+
+		$query_exec = self::$db->query( $query );
+		$result     = array();
+
+		if ( $query_exec ) {
+			while ( $row = $query_exec->fetchArray( SQLITE3_ASSOC ) ) {
+				$result[] = $row;
+			}
+		}
+		return $result;
 	}
 
 
@@ -187,32 +213,35 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function update( $data, $where, $table_name = 'sites' ) {
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+	public function update( ...$values ) {
+		if ( empty( $this->tables ) ) {
+			throw new Exception( 'Update: No table specified' );
 		}
 
-		$fields     = array();
-		$conditions = array();
-		foreach ( $data as $key => $value ) {
-			$fields[] = "`$key`='" . $value . "'";
-		}
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
-		}
-		$fields     = implode( ', ', $fields );
-		$conditions = implode( ' AND ', $conditions );
-		if ( ! empty( $fields ) ) {
-			$update_query      = "UPDATE `$table_name` SET $fields WHERE $conditions";
-			$update_query_exec = self::$db->exec( $update_query );
-			if ( ! $update_query_exec ) {
-				EE::debug( self::$db->lastErrorMsg() );
-			} else {
-				return true;
-			}
+		if ( empty( $this->where ) ) {
+			throw new Exception( 'Delete: No where clause specified' );
 		}
 
-		return false;
+		if( count( $this->tables ) > 1) {
+			throw new Exception( 'Update: Multiple table specified' );
+		}
+		$table = $this->tables[0];
+
+		$values     = implode( ', ', $values );
+		$conditions = implode( ' AND ', $this->where );
+
+		if ( empty( $values ) ) {
+			return false;
+		}
+
+		$table = $this->tables[0];
+		$query      = "UPDATE `$table` SET $values WHERE $conditions";
+		$query_exec = self::$db->exec( $query );
+		if ( ! $query_exec ) {
+			EE::debug( self::$db->lastErrorMsg() );
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -222,19 +251,27 @@ class EE_DB {
 	 *
 	 * @return bool
 	 */
-	public static function delete( $where, $table_name = 'sites' ) {
-
-		$conditions = array();
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
+	public function delete() {
+		if ( empty( $this->tables ) ) {
+			throw new Exception( 'Delete: No table specified' );
 		}
 
-		$conditions   = implode( ' AND ', $conditions );
-		$delete_query = "DELETE FROM `$table_name` WHERE $conditions";
+		if ( empty( $this->where ) ) {
+			throw new Exception( 'Delete: No where clause specified' );
+		}
 
-		$delete_query_exec = self::$db->exec( $delete_query );
+		if( count( $this->tables ) > 1) {
+			throw new Exception( 'Delete: Multiple table specified' );
+		}
 
-		if ( ! $delete_query_exec ) {
+		$table = $this->tables[0];
+
+		$conditions   = implode( ' AND ', $this->where );
+		$query = "DELETE FROM `$table` WHERE $conditions";
+
+		$query_exec = self::$db->exec( $query );
+
+		if ( ! $query_exec ) {
 			EE::debug( self::$db->lastErrorMsg() );
 		} else {
 			return true;
@@ -252,17 +289,16 @@ class EE_DB {
 	 */
 	public static function site_in_db( $site_name ) {
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
-
-		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
+		$site = self::select(
+			array( 'id' ), array(
+				'sitename' => $site_name,
+			)
+		);
 
 		if ( $site ) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 	}
 
 	/**
@@ -275,11 +311,11 @@ class EE_DB {
 	 */
 	public static function site_enabled( $site_name ) {
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
-
-		$site = self::select( array( 'id', 'is_enabled' ), array( 'sitename' => $site_name ) );
+		$site = self::select(
+			array( 'id', 'is_enabled' ), array(
+				'sitename' => $site_name,
+			)
+		);
 
 		if ( 1 === count( $site ) ) {
 			return $site[0]['is_enabled'];
@@ -310,10 +346,6 @@ class EE_DB {
 	 * Returns all migrations from table.
 	 */
 	public static function get_migrations() {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
 
 		$sites = self::select( [ 'migration' ], [], 'migrations' );
 		if ( empty( $sites ) ) {
