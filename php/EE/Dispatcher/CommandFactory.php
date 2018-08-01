@@ -68,7 +68,14 @@ class CommandFactory {
 	 */
 	private static function create_subcommand( $parent, $name, $callable, $reflection ) {
 		$doc_comment = self::get_doc_comment( $reflection );
-		$docparser = new \EE\DocParser( $doc_comment );
+		$docparser = self::get_inherited_docparser( $doc_comment, $reflection );
+
+		while ( $docparser->has_tag( 'inheritdoc' ) ) {
+			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
+
+			$doc_comment = self::get_doc_comment( $inherited_method );
+			$docparser   = new \EE\DocParser( $doc_comment );
+		}
 
 		if ( is_array( $callable ) ) {
 			if ( ! $name ) {
@@ -113,11 +120,12 @@ class CommandFactory {
 		$container = new CompositeCommand( $parent, $name, $docparser );
 
 		foreach ( $reflection->getMethods() as $method ) {
-			if ( ! self::is_good_method( $method ) ) {
+			$method_doc_comment = self::get_doc_comment( $method );
+			if ( ! self::is_good_method( $method ) || self::should_ignore_method( $method_doc_comment, $method ) ) {
 				continue;
 			}
 
-			$class = is_object( $callable ) ? $callable : $reflection->name;
+			$class      = is_object( $callable ) ? $callable : $reflection->name;
 			$subcommand = self::create_subcommand( $container, false, array( $class, $method->name ), $method );
 
 			$subcommand_name = $subcommand->get_name();
@@ -154,6 +162,35 @@ class CommandFactory {
 	 */
 	private static function is_good_method( $method ) {
 		return $method->isPublic() && ! $method->isStatic() && 0 !== strpos( $method->getName(), '__' );
+	}
+
+	/**
+	 * @param string           $doc_comment
+	 * @param ReflectionMethod $reflection
+	 */
+	private static function get_inherited_docparser( $doc_comment, $reflection ) {
+		$docparser = new \EE\DocParser( $doc_comment );
+		while ( $docparser->has_tag( 'inheritdoc' ) ) {
+			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
+
+			$doc_comment = self::get_doc_comment( $inherited_method );
+			$docparser   = new \EE\DocParser( $doc_comment );
+		}
+
+		return $docparser;
+	}
+
+	/**
+	 * Check whether a method should be ignored.
+	 *
+	 * @param ReflectionMethod $method
+	 *
+	 * @return bool
+	 */
+	private static function should_ignore_method( $doc_comment, $reflection ) {
+		$docparser = self::get_inherited_docparser( $doc_comment, $reflection );
+
+		return $docparser->has_tag( 'ignorecommand' );
 	}
 
 	/**
