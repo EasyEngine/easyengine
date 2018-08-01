@@ -425,6 +425,6 @@ abstract class EE_Site_Command {
 		}
 	}
 
-	public function create( $args, $assoc_args ) {}
+	abstract public function create( $args, $assoc_args );
 
 }
