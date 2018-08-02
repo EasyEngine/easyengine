@@ -38,6 +38,7 @@ class EE_DB {
 			sitename VARCHAR,
 			site_type VARCHAR,
 			site_title VARCHAR,
+			site_command VARCHAR,
 			proxy_type VARCHAR,
 			cache_type VARCHAR,
 			site_path VARCHAR,
@@ -124,6 +125,8 @@ class EE_DB {
 	/**
 	 * @param array $columns
 	 * @param array $where
+	 * @param string $table_name
+	 * @param int|null $limit
 	 * Select data from the database.
 	 *
 	 * @return array|bool
@@ -166,6 +169,10 @@ class EE_DB {
 		}
 		if ( empty( $select_data ) ) {
 			return false;
+		}
+
+		if ( 1 === $limit ) {
+			return $select_data[0];
 		}
 
 		return $select_data;
@@ -279,6 +286,24 @@ class EE_DB {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get site type.
+	 *
+	 * @param String $site_name Name of the site.
+	 *
+	 * @return string type of site.
+	 */
+	public static function get_site_command( $site_name ) {
+
+		if ( empty ( self::$db ) ) {
+			self::init_db();
+		}
+
+		$site = self::select( [ 'site_type' ], [ 'sitename' => $site_name ], 'sites', 1 );
+
+		return $site['site_type'];
 	}
 
 	/**

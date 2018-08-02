@@ -522,7 +522,7 @@ class Runner {
 
 		// File config
 		{
-			$this->global_config_path = $this->get_global_config_path();
+			$this->global_config_path  = $this->get_global_config_path();
 			$this->project_config_path = $this->get_project_config_path();
 
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
@@ -545,21 +545,36 @@ class Runner {
 			if ( empty( $args ) && isset( $assoc_args['version'] ) ) {
 				array_unshift( $args, 'version' );
 				array_unshift( $args, 'cli' );
-                unset( $assoc_args['version'] );
-            }
+				unset( $assoc_args['version'] );
+			}
+
+			$ee3_compat_array_map_to_type = [
+				'wp'       => 'wp',
+				'wpsubdom' => 'wp',
+				'wpsubdir' => 'wp',
+				'wpredis'  => 'wp',
+				'html'     => 'html',
+			];
+
+			foreach ( $ee3_compat_array_map_to_type as $from => $to ) {
+				if ( isset( $assoc_args[ $from ] ) ) {
+					$assoc_args['type'] = $to;
+					unset( $assoc_args[ $from ] );
+				}
+			}
 
 			// ee3 backward compatibility flags
-			$wp_compat_array_map = array(
+			$wp_compat_array_map = [
 				'user'  => 'admin_user',
 				'pass'  => 'admin_pass',
 				'email' => 'admin_email',
 				'le'    => 'letsencrypt',
-			);
+			];
 
 			foreach ( $wp_compat_array_map as $from => $to ) {
-				if ( isset( $assoc_args[$from] ) ) {
-					$assoc_args[$to] = $assoc_args[$from];
-					unset( $assoc_args[$from] );
+				if ( isset( $assoc_args[ $from ] ) ) {
+					$assoc_args[ $to ] = $assoc_args[ $from ];
+					unset( $assoc_args[ $from ] );
 				}
 			}
 
@@ -573,8 +588,8 @@ class Runner {
 
 			$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
 
-			$old_args = implode(' --',$old_arg);
-			if ( isset($args[1]) && 'create' === $args[1] && ! empty ($old_arg) ) {
+			$old_args = implode( ' --', $old_arg );
+			if ( isset( $args[1] ) && 'create' === $args[1] && ! empty ( $old_arg ) ) {
 				\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
 			}
 
@@ -586,9 +601,9 @@ class Runner {
 		list( $this->config, $this->extra_config ) = $configurator->to_array();
 		$this->aliases = $configurator->get_aliases();
 		if ( count( $this->aliases ) && ! isset( $this->aliases['@all'] ) ) {
-			$this->aliases = array_reverse( $this->aliases );
+			$this->aliases         = array_reverse( $this->aliases );
 			$this->aliases['@all'] = 'Run command against every registered alias.';
-			$this->aliases = array_reverse( $this->aliases );
+			$this->aliases         = array_reverse( $this->aliases );
 		}
 		//$this->_required_files['runtime'] = $this->config['require'];
 	}
@@ -673,9 +688,73 @@ class Runner {
 		}
 	}
 
-	public function start() {
+	public function route() {
 
 		$this->init_ee();
+
+		// Run routing only for `site` command.
+		if ( ! isset( $this->arguments[0] ) || 'site' !== $this->arguments[0] ) {
+			return;
+		}
+
+		if ( isset( $this->assoc_args['type'] ) ) {
+
+			$key              = array_search( 'site', $this->arguments );
+			$new_args         = $this->arguments;
+			$new_args[ $key ] = $this->assoc_args['type'];
+
+			// Check if the type is not default html and then search for a command registered with the type.
+			if ( ( 'html' !== $this->assoc_args['type'] ) && is_array( $this->find_command_to_run( $new_args ) ) ) {
+				// If the command with type is found. Update the arguments and replace `site` with value of type.
+				$this->arguments = $new_args;
+			}
+			// Remove the type parameter.
+			unset( $this->assoc_args['type'] );
+
+			return;
+		}
+
+		// If type parameter is not specified. Then type needs to be determined from site-name.
+		$r = $this->find_command_to_run( $this->arguments );
+		list( $command, $final_args, $cmd_path ) = $r;
+
+		if ( is_string( $r ) ) {
+			EE::error( $r );
+		}
+
+		// Get the command synopsis to figure out the position of site-name and get it.
+		$synopsis = ( explode( ' ', $command->get_synopsis() ) );
+		$command  = array_shift( $cmd_path );
+		$function = implode( ' ', $cmd_path );
+
+		// Search for the site-name position in args.
+		$args_search_one = array_search( '[<site-name>]', $synopsis );
+		$args_search_two = array_search( '<site-name>', $synopsis );
+		$arg_position    = false !== $args_search_one ? $args_search_one : $args_search_two;
+
+		// return if site-name is not applicable or if it is create function as in create the site will not yet be registered in db.
+		if ( false === $arg_position || 'create' === $function ) {
+			return;
+		}
+
+		// Now that the position of site-name is figured, get the site-name.
+		$site_name = \EE\SiteUtils\auto_site_name( $final_args, $command, $function, $arg_position )[ $arg_position ];
+
+		// Getting the type of the respective site-name from database.
+		$type = EE::db()::get_site_command( $site_name );
+
+		// Replacing `site` with appropriate type command if the function called for it exists.
+		$key              = array_search( 'site', $this->arguments );
+		$new_args         = $this->arguments;
+		$new_args[ $key ] = $type;
+
+		if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
+			$this->arguments = $new_args;
+		}
+
+	}
+
+	public function start() {
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
