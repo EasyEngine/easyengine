@@ -19,7 +19,7 @@ class EE_DOCKER {
 				return true;
 			}
 		} else {
-			return self::create_container( $command );
+			return EE::exec( $command );
 		}
 	}
 
@@ -74,18 +74,6 @@ class EE_DOCKER {
 	 */
 	public static function restart_container( $container ) {
 		return EE::exec( "docker restart $container" );
-	}
-
-	/**
-	 * Function to create and start the container if it does not exist.
-	 *
-	 * @param String $command   Command to launch the container.
-	 *
-	 * @return bool success.
-	 */
-	public static function create_container( $command ) {
-
-		return EE::exec( $command, true, true, true );
 	}
 
 	/**
