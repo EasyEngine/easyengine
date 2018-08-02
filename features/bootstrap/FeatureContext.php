@@ -1,5 +1,11 @@
 <?php
+/**
+ * Behat tests.
+ *
+ * @package ee-cli
+ */
 
+/* Start: Loading required files to enable EE::launch() in tests. */
 define( 'EE_ROOT', __DIR__ . '/../..' );
 
 include_once( EE_ROOT . '/php/class-ee.php' );
@@ -27,7 +33,7 @@ $iterator   = new \DirectoryIterator( $logger_dir );
 include_once "$logger_dir/Base.php";
 
 foreach ( $iterator as $filename ) {
-	if ( '.php' !== substr( $filename, - 4 ) ) {
+	if ( '.php' !== pathinfo( $filename, PATHINFO_EXTENSION ) ) {
 		continue;
 	}
 
@@ -35,6 +41,7 @@ foreach ( $iterator as $filename ) {
 }
 $runner = \EE::get_runner();
 $runner->init_logger();
+/* End. Loading required files to enable EE::launch() in tests. */
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
