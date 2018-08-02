@@ -140,7 +140,7 @@ abstract class EE_Site_Command {
 			if ( EE::docker()::docker_compose_down( $site_root ) ) {
 				EE::log( "[$site_name] Docker Containers removed." );
 			} else {
-				EE\Utils\default_launch( "docker rm -f $(docker ps -q -f=label=created_by=EasyEngine -f=label=site_name=$site_name)" );
+				EE::exec( "docker rm -f $(docker ps -q -f=label=created_by=EasyEngine -f=label=site_name=$site_name)" );
 				if ( $level > 3 ) {
 					EE::warning( 'Error in removing docker containers.' );
 				}
