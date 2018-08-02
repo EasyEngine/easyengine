@@ -1,12 +1,11 @@
 <?php
 
-define('EE_ROOT',__DIR__ . '/../..');
+define( 'EE_ROOT', __DIR__ . '/../..' );
 
-include_once(EE_ROOT . '/php/class-ee.php');
-include_once(EE_ROOT . '/php/EE/Runner.php');
-include_once(EE_ROOT . '/php/utils.php');
+include_once( EE_ROOT . '/php/class-ee.php' );
+include_once( EE_ROOT . '/php/EE/Runner.php' );
+include_once( EE_ROOT . '/php/utils.php' );
 
-// Can be used by plugins/themes to check if EE is running or not
 define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
 define( 'EE_CONF_ROOT', '/opt/easyengine' );
