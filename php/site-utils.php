@@ -281,7 +281,7 @@ function start_site_containers( $site_root ) {
 
 	EE::log( 'Pulling latest images. This may take some time.' );
 	chdir( $site_root );
-	\EE::exec( 'docker-compose pull' );
+	EE::exec( 'docker-compose pull' );
 	EE::log( 'Starting site\'s services.' );
 	if ( ! EE::docker()::docker_compose_up( $site_root ) ) {
 		throw new \Exception( 'There was some error in docker-compose up.' );
@@ -302,6 +302,6 @@ function run_compose_command( $action, $container, $action_to_display = null, $s
 	$display_action  = $action_to_display ? $action_to_display : $action;
 	$display_service = $service_to_display ? $service_to_display : $container;
 
-	\EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
-	\EE::exec( "docker-compose $action $container", true, true );
+	EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
+	EE::exec( "docker-compose $action $container", true, true );
 }
