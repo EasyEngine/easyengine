@@ -1,14 +1,14 @@
 <?php
 
-// This file needs to parse without error in PHP < 5.3
+// This file needs to parse without error in PHP < 7.0
 
 if ( 'cli' !== PHP_SAPI ) {
 	echo "Only CLI access.\n";
 	die( -1 );
 }
 
-if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
-	printf( "Error: EE requires PHP %s or newer. You are running version %s.\n", '5.3.0', PHP_VERSION );
+if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
+	printf( "Error: EE requires PHP %s or newer. You are running version %s.\n", '7.0', PHP_VERSION );
 	die( -1 );
 }
 
