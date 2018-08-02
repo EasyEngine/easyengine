@@ -1,7 +1,41 @@
 <?php
 
-include_once(__DIR__ . '/../../php/class-ee.php');
-include_once(__DIR__ . '/../../php/utils.php');
+define('EE_ROOT',__DIR__ . '/../..');
+
+include_once(EE_ROOT . '/php/class-ee.php');
+include_once(EE_ROOT . '/php/EE/Runner.php');
+include_once(EE_ROOT . '/php/utils.php');
+
+// Can be used by plugins/themes to check if EE is running or not
+define( 'EE', true );
+define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
+define( 'EE_CONF_ROOT', '/opt/easyengine' );
+
+require_once EE_ROOT . '/php/bootstrap.php';
+
+if ( ! class_exists( 'EE\Runner' ) ) {
+	require_once EE_ROOT . '/php/EE/Runner.php';
+}
+
+if ( ! class_exists( 'EE\Configurator' ) ) {
+	require_once EE_ROOT . '/php/EE/Configurator.php';
+}
+
+$logger_dir = EE_ROOT . '/php/EE/Loggers';
+$iterator   = new \DirectoryIterator( $logger_dir );
+
+// Make sure the base class is declared first.
+include_once "$logger_dir/Base.php";
+
+foreach ( $iterator as $filename ) {
+	if ( '.php' !== substr( $filename, - 4 ) ) {
+		continue;
+	}
+
+	include_once "$logger_dir/$filename";
+}
+$runner = \EE::get_runner();
+$runner->init_logger();
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
