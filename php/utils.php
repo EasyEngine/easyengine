@@ -1392,7 +1392,7 @@ function random_password( $length = 12 ) {
 	$alphaLength = strlen( $alphabet ) - 1;
 	for ( $i = 0; $i < $length; $i ++ ) {
 		$n      = rand( 0, $alphaLength );
-		$pass[] = $alphabet[$n];
+		$pass[] = $alphabet[ $n ];
 	}
 
 	return implode( $pass );
@@ -1441,10 +1441,10 @@ function default_launch( $command, $echo_stdout = false, $echo_stderr = false, $
 	$launch = EE::launch( $command, false, true, $env, $cwd );
 	default_debug( $launch );
 
-	if( $echo_stdout ) {
+	if ( $echo_stdout ) {
 		echo $launch->stdout;
 	}
-	if( $echo_stderr ) {
+	if ( $echo_stderr ) {
 		echo $launch->stderr;
 	}
 	if ( ! $launch->return_code ) {
@@ -1501,7 +1501,7 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
 	}
 	if ( $cnt == 1 ) {
 		return $type;
-	} else if ( $cnt == 0 ) {
+	} elseif ( $cnt == 0 ) {
 		return $default;
 	} else {
 		return false;
@@ -1564,7 +1564,11 @@ function get_site_name() {
 
 		if ( 1 === count( $site_name ) ) {
 			$name = reset( $site_name );
-			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $name ) );
+			$path = EE::db()::select(
+				array( 'site_path' ), array(
+					'sitename' => $name,
+				)
+			);
 			if ( $path ) {
 				$site_path = $path[0]['site_path'];
 				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
@@ -1578,15 +1582,14 @@ function get_site_name() {
 }
 
 /**
- * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed in the args. If the site-name could not be found it will throw an error.
+ * @param      $args
+ * @param      $command
+ * @param bool $arg_zero
  *
- * @param array $args The passed arguments.
- * @param String $command The command passing the arguments to auto-detect site-name.
- * @param bool $arg_zero Site-name will be present in the first argument. Default true.
- *
- * @return array Arguments with site-name set.
+ * @return mixed
+ * @throws EE\ExitException
  */
-function set_site_arg( $args, $command, $arg_zero=true ) {
+function set_site_arg( $args, $command, $arg_zero = true ) {
 	if ( isset( $args[0] ) ) {
 		if ( EE::db()::site_in_db( $args[0] ) ) {
 			return $args;
@@ -1616,27 +1619,32 @@ function array_flatten( array $array ) {
 	$return = array();
 	array_walk_recursive(
 		$array, function ( $a ) use ( &$return ) {
-		$return[] = $a;
-	}
+			$return[] = $a;
+		}
 	);
 
 	return $return;
 }
 
-function get_callable_name(callable $callable) {
-	if (is_string($callable)) {
-		return trim($callable);
-	} else if (is_array($callable)) {
-		if (is_object($callable[0])) {
-			return sprintf("%s::%s", get_class($callable[0]), trim($callable[1]));
+/**
+ * Gets name of callable in string. Helpful while displaying it in error messages
+ *
+ * @param callable $callable Callable object
+ *
+ * @return string
+ */
+function get_callable_name( callable $callable ) {
+	if ( is_string( $callable ) ) {
+		return trim( $callable );
+	} elseif ( is_array( $callable ) ) {
+		if ( is_object( $callable[0] ) ) {
+			return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
 		} else {
-			return sprintf("%s::%s", trim($callable[0]), trim($callable[1]));
+			return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
 		}
-	} else if ($callable instanceof \Closure) {
+	} elseif ( $callable instanceof \Closure ) {
 		return 'closure';
 	} else {
 		return 'unknown';
 	}
 }
-
-function no_op() {}
