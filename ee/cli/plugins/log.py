@@ -92,10 +92,10 @@ class EELogShowController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/5.6/slow.log', 'a').close()
+            open('/var/log/php/5.6/fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/5.6/slow.log',
+                                   '/var/log/php/5.6/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
@@ -231,10 +231,10 @@ class EELogResetController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/5.6/slow.log', 'a').close()
+            open('/var/log/php/5.6/fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/5.6/slow.log',
+                                   '/var/log/php/5.6/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
@@ -359,10 +359,10 @@ class EELogGzipController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/5.6/slow.log', 'a').close()
+            open('/var/log/php/5.6/fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/5.6/slow.log',
+                                   '/var/log/php/5.6/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
@@ -496,10 +496,10 @@ class EELogMailController(CementBaseController):
             self.msg = self.msg + ["/var/log/nginx/*access.log"]
 
         if self.app.pargs.fpm:
-            open('/var/log/php5/slow.log', 'a').close()
-            open('/var/log/php5/fpm.log', 'a').close()
-            self.msg = self.msg + ['/var/log/php5/slow.log',
-                                   '/var/log/php5/fpm.log']
+            open('/var/log/php/5.6/slow.log', 'a').close()
+            open('/var/log/php/5.6/fpm.log', 'a').close()
+            self.msg = self.msg + ['/var/log/php/5.6/slow.log',
+                                   '/var/log/php/5.6/fpm.log']
         if self.app.pargs.mysql:
             # MySQL debug will not work for remote MySQL
             if EEVariables.ee_mysql_host is "localhost":
