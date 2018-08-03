@@ -559,7 +559,9 @@ class Runner {
 			foreach ( $ee3_compat_array_map_to_type as $from => $to ) {
 				if ( isset( $assoc_args[ $from ] ) ) {
 					$assoc_args['type'] = $to;
-					unset( $assoc_args[ $from ] );
+					if ( $to === $assoc_args[ $from ] ) {
+						unset( $assoc_args[ $from ] );
+					}
 				}
 			}
 
@@ -751,6 +753,8 @@ class Runner {
 		if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
 			$this->arguments = $new_args;
 		}
+		var_dump($this->arguments,$this->assoc_args);
+		EE::err('');
 
 	}
 
