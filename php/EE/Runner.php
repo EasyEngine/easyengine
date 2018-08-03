@@ -753,8 +753,6 @@ class Runner {
 		if ( is_array( $this->find_command_to_run( $new_args ) ) ) {
 			$this->arguments = $new_args;
 		}
-		var_dump($this->arguments,$this->assoc_args);
-		EE::err('');
 
 	}
 
