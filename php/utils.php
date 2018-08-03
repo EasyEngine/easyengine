@@ -1506,65 +1506,6 @@ function format_table( $items ) {
 }
 
 /**
- * Get the site-name from the path from where ee is running if it is a valid site path.
- *
- * @return bool|String Name of the site or false in failure.
- */
-function get_site_name() {
-	$sites = EE::db()::select( array( 'sitename' ) );
-
-	if ( $sites ) {
-		$cwd          = getcwd();
-		$name_in_path = explode( '/', $cwd );
-		$site_name    = array_intersect( array_flatten( $sites ), $name_in_path );
-
-		if ( 1 === count( $site_name ) ) {
-			$name = reset( $site_name );
-			$path = EE::db()::select(
-				array( 'site_path' ), array(
-					'sitename' => $name,
-				)
-			);
-			if ( $path ) {
-				$site_path = $path[0]['site_path'];
-				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
-					return $name;
-				}
-			}
-		}
-	}
-
-	return false;
-}
-
-/**
- * @param      $args
- * @param      $command
- * @param bool $arg_zero
- *
- * @return mixed
- * @throws EE\ExitException
- */
-function set_site_arg( $args, $command, $arg_zero = true ) {
-	if ( isset( $args[0] ) ) {
-		if ( EE::db()::site_in_db( $args[0] ) ) {
-			return $args;
-		}
-	}
-	$site_name = get_site_name();
-	if ( $site_name ) {
-		if ( isset( $args[0] ) && $arg_zero ) {
-			EE::error( $args[0] . " is not a valid site-name. Did you mean `ee $command $site_name`?" );
-		}
-		array_unshift( $args, $site_name );
-	} else {
-		EE::error( "Could not find the site you wish to run $command command on.\nEither pass it as an argument: `ee $command <site-name>` \nor run `ee $command` from inside the site folder." );
-	}
-
-	return $args;
-}
-
-/**
  * Function to flatten a multi-dimensional array.
  *
  * @param array $array Mulit-dimensional input array.
