@@ -1392,7 +1392,7 @@ function random_password( $length = 12 ) {
 	$alphaLength = strlen( $alphabet ) - 1;
 	for ( $i = 0; $i < $length; $i ++ ) {
 		$n      = rand( 0, $alphaLength );
-		$pass[] = $alphabet[$n];
+		$pass[] = $alphabet[ $n ];
 	}
 
 	return implode( $pass );
@@ -1457,7 +1457,7 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
 	}
 	if ( $cnt == 1 ) {
 		return $type;
-	} else if ( $cnt == 0 ) {
+	} elseif ( $cnt == 0 ) {
 		return $default;
 	} else {
 		return false;
@@ -1516,9 +1516,32 @@ function array_flatten( array $array ) {
 	$return = array();
 	array_walk_recursive(
 		$array, function ( $a ) use ( &$return ) {
-		$return[] = $a;
-	}
+			$return[] = $a;
+		}
 	);
 
 	return $return;
+}
+
+/**
+ * Gets name of callable in string. Helpful while displaying it in error messages
+ *
+ * @param callable $callable Callable object
+ *
+ * @return string
+ */
+function get_callable_name( callable $callable ) {
+	if ( is_string( $callable ) ) {
+		return trim( $callable );
+	} elseif ( is_array( $callable ) ) {
+		if ( is_object( $callable[0] ) ) {
+			return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
+		} else {
+			return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
+		}
+	} elseif ( $callable instanceof \Closure ) {
+		return 'closure';
+	} else {
+		return 'unknown';
+	}
 }

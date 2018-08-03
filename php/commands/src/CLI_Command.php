@@ -163,7 +163,10 @@ class CLI_Command extends EE_Command {
 	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
 	 */
 	private function migrate() {
-		EE\Migration\Executor::execute_migrations();
+		$rsp = new \EE\RevertableStepProcessor();
+		$rsp->add_step( 'ee-migrations', 'EE\Migration\Executor::execute_migrations' );
+		$rsp->add_step( 'site-migration', 'EE\Migration\Containers::start_container_migration' );
+		$rsp->execute();
 	}
 
 	/**
