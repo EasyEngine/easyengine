@@ -4,7 +4,7 @@
 
 **Update:** [We are working on next major release (v4) which will be in PHP and based on WP-CLI](https://easyengine.io/blog/easyengine-v4-development-begins/).
 
-<img src="https://d3qt5vpr7p9rgn.cloudfront.net/wp-content/uploads/2013/08/easy-engine-logo-2-RS1-240x184.png" alt="EasyEngine Logo" align="right" />
+<img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
 
 EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress sites running on nginx web-server.
 
