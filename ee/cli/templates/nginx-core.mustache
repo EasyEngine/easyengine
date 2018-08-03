@@ -4,8 +4,10 @@
 
 server_tokens off;
 reset_timedout_connection on;
-add_header X-Powered-By "EasyEngine {{version}}";
+add_header X-Powered-By "EasyEngine";
 add_header rt-Fastcgi-Cache $upstream_cache_status;
+add_header "X-UA-Compatible" "IE=Edge";
+add_header X-Content-Type-Options nosniff;
 
 # Limit Request
 limit_req_status 403;
@@ -35,8 +37,10 @@ log_format rt_cache '$remote_addr $upstream_response_time $upstream_cache_status
 # GZip settings
 gzip_vary on;
 gzip_proxied any;
-gzip_comp_level 6;
+gzip_comp_level 5;
+gzip_min_length 256;
 gzip_buffers 16 8k;
+# Cloudfront users should change gzip_http_version 1.1 to 1.0;
 gzip_http_version 1.1;
 # Compress all output labeled with one of the following MIME-types.
 gzip_types
