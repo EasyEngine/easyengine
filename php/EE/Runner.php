@@ -522,7 +522,7 @@ class Runner {
 
 		// File config
 		{
-			$this->global_config_path = $this->get_global_config_path();
+			$this->global_config_path  = $this->get_global_config_path();
 			$this->project_config_path = $this->get_project_config_path();
 
 			$configurator->merge_yml( $this->global_config_path, $this->alias );
@@ -545,21 +545,38 @@ class Runner {
 			if ( empty( $args ) && isset( $assoc_args['version'] ) ) {
 				array_unshift( $args, 'version' );
 				array_unshift( $args, 'cli' );
-                unset( $assoc_args['version'] );
-            }
+				unset( $assoc_args['version'] );
+			}
+
+			$ee3_compat_array_map_to_type = [
+				'wp'       => 'wp',
+				'wpsubdom' => 'wp',
+				'wpsubdir' => 'wp',
+				'wpredis'  => 'wp',
+				'html'     => 'html',
+			];
+
+			foreach ( $ee3_compat_array_map_to_type as $from => $to ) {
+				if ( isset( $assoc_args[ $from ] ) ) {
+					$assoc_args['type'] = $to;
+					if ( $to === $assoc_args[ $from ] ) {
+						unset( $assoc_args[ $from ] );
+					}
+				}
+			}
 
 			// ee3 backward compatibility flags
-			$wp_compat_array_map = array(
+			$wp_compat_array_map = [
 				'user'  => 'admin_user',
 				'pass'  => 'admin_pass',
 				'email' => 'admin_email',
 				'le'    => 'letsencrypt',
-			);
+			];
 
 			foreach ( $wp_compat_array_map as $from => $to ) {
-				if ( isset( $assoc_args[$from] ) ) {
-					$assoc_args[$to] = $assoc_args[$from];
-					unset( $assoc_args[$from] );
+				if ( isset( $assoc_args[ $from ] ) ) {
+					$assoc_args[ $to ] = $assoc_args[ $from ];
+					unset( $assoc_args[ $from ] );
 				}
 			}
 
@@ -573,8 +590,8 @@ class Runner {
 
 			$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
 
-			$old_args = implode(' --',$old_arg);
-			if ( isset($args[1]) && 'create' === $args[1] && ! empty ($old_arg) ) {
+			$old_args = implode( ' --', $old_arg );
+			if ( isset( $args[1] ) && 'create' === $args[1] && ! empty ( $old_arg ) ) {
 				\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
 			}
 
@@ -586,9 +603,9 @@ class Runner {
 		list( $this->config, $this->extra_config ) = $configurator->to_array();
 		$this->aliases = $configurator->get_aliases();
 		if ( count( $this->aliases ) && ! isset( $this->aliases['@all'] ) ) {
-			$this->aliases = array_reverse( $this->aliases );
+			$this->aliases         = array_reverse( $this->aliases );
 			$this->aliases['@all'] = 'Run command against every registered alias.';
-			$this->aliases = array_reverse( $this->aliases );
+			$this->aliases         = array_reverse( $this->aliases );
 		}
 		//$this->_required_files['runtime'] = $this->config['require'];
 	}
@@ -678,7 +695,7 @@ class Runner {
 		$this->init_ee();
 
 		// Run routing only for `site` command.
-		if ( 'site' !== $this->arguments[0] ) {
+		if ( ! isset( $this->arguments[0] ) || 'site' !== $this->arguments[0] ) {
 			return;
 		}
 

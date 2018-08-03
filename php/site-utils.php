@@ -207,7 +207,7 @@ function create_etc_hosts_entry( $site_name ) {
 	$host_line = LOCALHOST_IP . "\t$site_name";
 	$etc_hosts = file_get_contents( '/etc/hosts' );
 	if ( ! preg_match( "/\s+$site_name\$/m", $etc_hosts ) ) {
-		if ( EE\Utils\default_launch( "/bin/bash -c 'echo \"$host_line\" >> /etc/hosts'" ) ) {
+		if ( EE::exec( "/bin/bash -c 'echo \"$host_line\" >> /etc/hosts'" ) ) {
 			EE::success( 'Host entry successfully added.' );
 		} else {
 			EE::warning( "Failed to add $site_name in host entry, Please do it manually!" );
@@ -281,7 +281,7 @@ function start_site_containers( $site_root ) {
 
 	EE::log( 'Pulling latest images. This may take some time.' );
 	chdir( $site_root );
-	\EE\Utils\default_launch( 'docker-compose pull' );
+	EE::exec( 'docker-compose pull' );
 	EE::log( 'Starting site\'s services.' );
 	if ( ! EE::docker()::docker_compose_up( $site_root ) ) {
 		throw new \Exception( 'There was some error in docker-compose up.' );
@@ -302,6 +302,6 @@ function run_compose_command( $action, $container, $action_to_display = null, $s
 	$display_action  = $action_to_display ? $action_to_display : $action;
 	$display_service = $service_to_display ? $service_to_display : $container;
 
-	\EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
-	\EE\Utils\default_launch( "docker-compose $action $container", true, true );
+	EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
+	EE::exec( "docker-compose $action $container", true, true );
 }

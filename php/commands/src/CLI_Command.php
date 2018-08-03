@@ -505,9 +505,9 @@ class CLI_Command extends EE_Command {
 
 		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args);
 
-		Utils\default_launch("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
+		EE::exec("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
 		$home = Utils\get_home_dir();
-		Utils\default_launch("rm -rf $home/.ee/");
+		EE::exec("rm -rf $home/.ee/");
 
 		$records = EE::db()->select(['site_path']);
 
@@ -517,8 +517,8 @@ class CLI_Command extends EE_Command {
 			$fs->remove($sites_paths);
 		}
 
-		Utils\default_launch("rm -df $home/ee-sites/");
-		Utils\default_launch("rm -rf /opt/easyengine/");
+		EE::exec("rm -df $home/ee-sites/");
+		EE::exec("rm -rf /opt/easyengine/");
 
 		if ( Utils\inside_phar() ) {
 			unlink( realpath( $_SERVER['argv'][0] ) );
