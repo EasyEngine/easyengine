@@ -1,10 +1,10 @@
 # [EasyEngine](https://easyengine.io/)
 
+<img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
+
 [![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg)](https://travis-ci.org/EasyEngine/easyengine) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
 **Update:** [We are working on next major release (v4) which will be in PHP and based on WP-CLI](https://easyengine.io/blog/easyengine-v4-development-begins/).
-
-<img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
 
 EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress sites running on nginx web-server.
 
