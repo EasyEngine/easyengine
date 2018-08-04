@@ -305,3 +305,40 @@ function run_compose_command( $action, $container, $action_to_display = null, $s
 	EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
 	EE::exec( "docker-compose $action $container", true, true );
 }
+
+/**
+ * Function to copy and configure files needed for postfix.
+ *
+ * @param string $site_name     Name of the site to configure postfix files for.
+ * @param string $site_conf_dir Configuration directory of the site `site_root/config`.
+ */
+function set_postfix_files( $site_name, $site_conf_dir ) {
+
+	$fs = new Filesystem();
+	$fs->mkdir( $site_conf_dir . '/postfix' );
+	$fs->mkdir( $site_conf_dir . '/postfix/ssl' );
+	$ssl_dir = $site_conf_dir . '/postfix/ssl';
+
+	if ( ! EE::exec( sprintf( "openssl req -new -x509 -nodes -days 365 -subj \"/CN=smtp.%s\" -out $ssl_dir/server.crt -keyout $ssl_dir/server.key", $site_name ) )
+	     && EE::exec( "chmod 0600 $ssl_dir/server.key" ) ) {
+		throw new Exception( 'Unable to generate ssl key for postfix' );
+	}
+}
+
+/**
+ * Function to execute docker-compose exec calls to postfix to get it configured and running for the site.
+ *
+ * @param string $site_name Name of the for which postfix has to be configured.
+ * @param strin $site_root  Site root.
+ */
+function configure_postfix( $site_name, $site_root ) {
+
+	chdir( $site_root );
+	EE::exec( 'docker-compose exec postfix postconf -e \'relayhost =\'' );
+	EE::exec( 'docker-compose exec postfix postconf -e \'smtpd_recipient_restrictions = permit_mynetworks\'' );
+	$launch      = EE::launch( sprintf( '$(docker inspect -f \'{{ with (index .IPAM.Config 0) }}{{ .Subnet }}{{ end }}\' %s', $site_name ) );
+	$subnet_cidr = trim( $launch->stdout );
+	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'mynetworks = %s 127.0.0.0/8\'', $subnet_cidr ) );
+	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'myhostname = %s\'', $subnet_cidr ) );
+	EE::exec( 'docker-compose exec postfix postconf -e \'syslog_name = $myhostname\'' );
+}
