@@ -395,7 +395,7 @@ abstract class EE_Site_Command {
 			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
 		}
 		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$domains = $this->wildcard ? [ "*.$this->site['name']", $this->site['name'] ] : [ $this->site['name'] ];
+		$domains = $this->wildcard ? [ '*.' . $this->site['name'], $this->site['name'] ] : [ $this->site['name'] ];
 		$client  = new Site_Letsencrypt();
 		if ( ! $client->check( $domains, $this->wildcard ) ) {
 			$this->le = false;
@@ -403,7 +403,7 @@ abstract class EE_Site_Command {
 			return;
 		}
 		if ( $this->wildcard ) {
-			$client->request( "*.$this->site['name']", [ $this->site['name'] ], $this->le_mail, $force );
+			$client->request( '*.' . $this->site['name'], [ $this->site['name'] ], $this->le_mail, $force );
 		} else {
 			$client->request( $this->site['name'], [], $this->le_mail, $force );
 			$client->cleanup( $this->site['root'] );
