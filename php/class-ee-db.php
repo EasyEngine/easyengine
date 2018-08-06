@@ -45,6 +45,7 @@ class EE_DB {
 			created_on DATETIME,
 			is_enabled BOOLEAN DEFAULT 1,
 			is_ssl BOOLEAN DEFAULT 0,
+			is_ssl_wildcard BOOLEAN DEFAULT 0,
 			storage_fs VARCHAR,
 			storage_db VARCHAR,
 			db_name VARCHAR,
