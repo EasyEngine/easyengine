@@ -341,4 +341,5 @@ function configure_postfix( $site_name, $site_root ) {
 	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'mynetworks = %s 127.0.0.0/8\'', $subnet_cidr ) );
 	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'myhostname = %s\'', $site_name ) );
 	EE::exec( 'docker-compose exec postfix postconf -e \'syslog_name = $myhostname\'' );
+	EE::exec( 'docker-compose restart postfix' );
 }
