@@ -339,6 +339,6 @@ function configure_postfix( $site_name, $site_root ) {
 	$launch      = EE::launch( sprintf( 'docker inspect -f \'{{ with (index .IPAM.Config 0) }}{{ .Subnet }}{{ end }}\' %s', $site_name ) );
 	$subnet_cidr = trim( $launch->stdout );
 	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'mynetworks = %s 127.0.0.0/8\'', $subnet_cidr ) );
-	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'myhostname = %s\'', $subnet_cidr ) );
+	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'myhostname = %s\'', $site_name ) );
 	EE::exec( 'docker-compose exec postfix postconf -e \'syslog_name = $myhostname\'' );
 }
