@@ -301,9 +301,9 @@ class EE_DB {
 			self::init_db();
 		}
 
-		$site = self::select( [ 'site_type' ], [ 'sitename' => $site_name ], 'sites', 1 );
+		$site = self::select( [ 'site_command' ], [ 'sitename' => $site_name ], 'sites', 1 );
 
-		return $site['site_type'];
+		return $site['site_command'];
 	}
 
 	/**
