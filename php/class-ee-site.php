@@ -19,6 +19,11 @@ abstract class EE_Site_Command {
 	private $le;
 
 	/**
+	 * @var bool $wildcard Whether the site is letsencrypt type is wildcard or not.
+	 */
+	private $wildcard;
+
+	/**
 	 * @var string $le_mail Mail id to be used for letsencrypt registration and certificate generation.
 	 */
 	private $le_mail;
@@ -343,6 +348,7 @@ abstract class EE_Site_Command {
 
 		$this->site['name'] = $site_name;
 		$this->site['root'] = $site_root;
+		$this->wildcard     = $wildcard;
 		$client             = new Site_Letsencrypt();
 		$this->le_mail      = EE::get_runner()->config['le-mail'] ?? EE::input( 'Enter your mail id: ' );
 		EE::get_runner()->ensure_present_in_config( 'le-mail', $this->le_mail );
@@ -364,7 +370,7 @@ abstract class EE_Site_Command {
 		if ( $wildcard ) {
 			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['name'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
 		} else {
-			$this->le( [], [], $wildcard );
+			$this->le( [], [] );
 		}
 	}
 
@@ -380,7 +386,7 @@ abstract class EE_Site_Command {
 	 * [--force]
 	 * : Force renewal.
 	 */
-	public function le( $args = [], $assoc_args = [], $wildcard = false ) {
+	public function le( $args = [], $assoc_args = [] ) {
 
 		if ( ! isset( $this->site['name'] ) ) {
 			$this->populate_site_info( $args );
@@ -389,14 +395,14 @@ abstract class EE_Site_Command {
 			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
 		}
 		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$domains = $wildcard ? [ "*.$this->site['name']", $this->site['name'] ] : [ $this->site['name'] ];
+		$domains = $this->wildcard ? [ "*.$this->site['name']", $this->site['name'] ] : [ $this->site['name'] ];
 		$client  = new Site_Letsencrypt();
-		if ( ! $client->check( $domains, $wildcard ) ) {
+		if ( ! $client->check( $domains, $this->wildcard ) ) {
 			$this->le = false;
 
 			return;
 		}
-		if ( $wildcard ) {
+		if ( $this->wildcard ) {
 			$client->request( "*.$this->site['name']", [ $this->site['name'] ], $this->le_mail, $force );
 		} else {
 			$client->request( $this->site['name'], [], $this->le_mail, $force );
@@ -419,6 +425,7 @@ abstract class EE_Site_Command {
 			$this->site['type'] = $db_select['site_type'];
 			$this->site['root'] = $db_select['site_path'];
 			$this->le           = $db_select['is_ssl'];
+			$this->wildcard     = $db_select['is_ssl_wildcard'];
 
 		} else {
 			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
