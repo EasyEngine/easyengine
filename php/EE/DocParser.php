@@ -92,6 +92,17 @@ class DocParser {
 	}
 
 	/**
+	 * Check if a given tag is present (e.g. "@alias" or "@subcommand")
+	 *
+	 * @param string $name Name for the tag, without '@'.
+	 *
+	 * @return bool
+	 */
+	public function has_tag( $name ) {
+		return preg_match( '|^@' . $name . '|m', $this->docComment, $matches );
+	}
+
+	/**
 	 * Get the command's synopsis.
 	 *
 	 * @return string

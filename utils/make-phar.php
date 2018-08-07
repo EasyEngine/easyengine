@@ -164,7 +164,6 @@ $finder
 	->in(EE_VENDOR_DIR . '/mustache')
 	->in(EE_VENDOR_DIR . '/rmccue/requests')
 	->in(EE_VENDOR_DIR . '/composer')
-	->in(EE_VENDOR_DIR . '/ramsey/array_column')
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-ctype')
@@ -228,7 +227,7 @@ $finder = new Finder();
 $finder
 	->files()
 	->ignoreDotFiles(false)
-	->in(EE_VENDOR_DIR . '/easyengine/site-command/templates')
+	->in(EE_VENDOR_DIR . '/easyengine/*-command/templates')
 	->name('*.mustache')
 	->name('.env.mustache');
 
