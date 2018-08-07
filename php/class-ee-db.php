@@ -2,32 +2,44 @@
 
 class EE_DB {
 
-	private static $db;
+	/**
+	 * @var PDO Instance of PDO class
+	 */
+	private static $pdo;
 	private $tables;
+	private $select;
 	private $where;
 	private $limit;
+	private $offset;
 
 	public function __construct() {
-		if ( empty( self::$db ) ) {
+		if ( empty( self::$pdo ) ) {
 			self::init_db();
 		}
-	}
 
-	public function __destruct() {
-		self::$db->close();
+		$this->select = '';
+		$this->tables = '';
+		$this->limit = '';
+		$this->offset = '';
+		$this->where = [
+			'query_string' => null,
+			'binding' => null
+		];
 	}
 
 	/**
 	 * Function to initialize db and db connection.
 	 */
 	private static function init_db() {
+		try {
+			self::$pdo = new PDO( 'sqlite:' . DB );
+		}
+		catch ( PDOException $exception ) {
+			EE::error( $exception->getMessage() );
+		}
+
 		if ( ! ( file_exists( DB ) ) ) {
-			self::$db = self::create_required_tables();
-		} else {
-			self::$db = new SQLite3( DB );
-			if ( ! self::$db ) {
-				EE::error( self::$db->lastErrorMsg() );
-			}
+			self::create_required_tables();
 		}
 	}
 
@@ -35,7 +47,6 @@ class EE_DB {
 	 * Sqlite database creation.
 	 */
 	private static function create_required_tables() {
-		self::$db = new SQLite3( DB );
 		$query    = 'CREATE TABLE sites (
 			id INTEGER NOT NULL,
 			sitename VARCHAR,
@@ -92,18 +103,129 @@ class EE_DB {
 			schedule VARCHAR
 		);';
 
-		self::$db->exec( $query );
+		try {
+			self::$pdo->exec( $query );
+		} catch ( PDOException $exception) {
+			EE::error( 'Encountered Error while creating table: ' . $exception->getMessage() );
+		}
 	}
 
 	/**
-	 * Select table to do operation on.
+	 * Selects table to do operation on.
 	 *
-	 * @param array $data in key value pair.
+	 * @param ...$args Tables to run query on.
 	 *
-	 * @return bool
+	 * @return EE_DB
 	 */
-	public function table() {
-		$this->tables = func_get_args();
+	public function table( ...$args ) {
+		$this->tables = implode(', ', $args);
+
+		return $this;
+	}
+
+	/**
+	 * Adds where condition in query.
+	 *
+	 * i.e. where('id', 100) or where('id', '>', 100)
+	 *   or where([
+	 *         [ 'id', '<', 100 ],
+	 *         [ 'name', 'ee' ]
+	 *      ])
+	 *
+	 * Supported operators are: '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in'
+	 *
+	 * @param ...$args One or more where condition.
+	 *
+	 * @return EE_DB
+	 */
+	public function where( ...$args ) {
+		$args = func_get_args();
+		$conditions = [];
+
+		if ( 'array' === gettype( $args[0] ) ) {
+			foreach ( $args[0] as $condition ) {
+				$conditions[] = $this->getWhereCondition( $condition );
+			}
+		} else {
+			$conditions[] = $this->getWhereCondition( $args );
+		}
+
+		$this->where = [
+			'query_string' => ' WHERE '. implode( ' AND ', array_column( $conditions, 'query_string' ) ),
+			'bindings' => array_column( $conditions, 'binding' ),
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Returns a query fragment for where clause
+	 *
+	 * If the param given is ['column', 100], it returns ['column = ?', 100]
+	 * If the param given is ['column', '>', 100], it returns ['column > ?', 100]
+	 *
+	 * @param array $condition An array of format [column, operator, value] or [column, value]
+	 *
+	 * @throws Exception
+	 *
+	 * @return array prepared query string and its corresponding binding
+	 */
+	private function get_where_fragment( $condition ) {
+		$column = $condition[0];
+		$operator = '=';
+
+		if ( 'string' !== gettype( $column ) ) {
+			throw new Exception( 'Where clause column must be of type string' );
+		}
+
+		if ( isset( $condition[2] ) ) {
+			$operator         = $condition[1];
+			$allowed_operators = [ '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in' ];
+
+			if ( ! in_array( strtolower( $operator ), $allowed_operators ) ) {
+				throw new Exception( 'Where clause operator should be in one of following: ' . implode( ' ', $allowed_operators ) );
+			}
+
+			$value = $condition[2];
+		} elseif ( isset( $condition[1] ) ) {
+			$value = $condition[1];
+		} else {
+			throw new Exception( 'Where clause value must be set' );
+		}
+
+		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer' ], true ) ) {
+			throw new Exception( 'Where clause operator and value must be string' );
+		}
+
+		return [
+			'query_string' => "$column $operator ?",
+			'binding' => $value,
+		] ;
+	}
+
+	/**
+	 * Adds limit to query.
+	 *
+	 * @param int $limit Limit value.
+	 *
+	 * @return EE_DB
+	 */
+	public function limit( int $limit ) {
+		$this->limit = ' LIMIT ' . (string) $limit;
+
+		return $this;
+	}
+
+	/**
+	 * Adds offset to query.
+	 *
+	 * @param int $offset Offset of query
+	 *
+	 * @return EE_DB
+	 */
+	public function offset ( int $offset ) {
+		$this->offset = ' OFFSET ' . (string) $offset;
+
 		return $this;
 	}
 
@@ -112,52 +234,34 @@ class EE_DB {
 	 *
 	 * @param array $data in key value pair.
 	 *
-	 * @return bool
-	 */
-	public function where() {
-		$this->where = func_get_args();
-		return $this;
-	}
-
-	/**
-	 * Insert row in table.
-	 *
-	 * @param array $data in key value pair.
-	 *
-	 * @return bool
-	 */
-	public function limit( $limit ) {
-		$this->limit = $limit;
-		return $this;
-	}
-
-	/**
-	 * Insert row in table.
-	 *
-	 * @param array $data in key value pair.
+	 * @throws Exception If no table or more than one tables are specified
 	 *
 	 * @return bool
 	 */
 	public function insert( $data ) {
 
 		$fields  = implode( ', ', array_keys( $data ) );
-		$values = '"' . implode( '", "', $data ) . '"';
+		$values = implode( array_fill(0, count( $data ), '?' ) );
 
-		if ( empty( $this->table ) ) {
+		if ( empty( $this->tables ) ) {
 			throw new Exception( 'Insert: No table specified' );
 		}
 
-		if( count( $this->table ) > 1) {
+		if( count( $this->tables ) > 1 ) {
 			throw new Exception( 'Insert: Multiple table specified' );
 		}
-		$table = $this->tables[0];
 
-		$query = "INSERT INTO `$table` ($fields) VALUES ($values);";
+		$query = "INSERT INTO $this->tables ($fields) VALUES ($values);";
 
-		$query_exec = self::$db->exec( $query );
+		$pdo_statement = self::$pdo->prepare( $query );
+		$bindings = array_values( $data );
 
-		if ( ! $query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
+		foreach ( $bindings as $key => $value ) {
+			$pdo_statement->bindValue($key+1, $value );
+		}
+
+		if( ! $result ) {
+			EE::debug( self::$pdo->errorInfo() );
 			return false;
 		}
 
@@ -167,15 +271,13 @@ class EE_DB {
 	/**
 	 * Select data from the database.
 	 *
-	 * @return array
+	 * @param array $args Columns to select
+	 *
+	 * @throws Exception If no tables are specified
+	 *
+	 * @return EE_DB
 	 */
 	public function select( ...$args ) {
-
-		if ( null === $this->tables ) {
-			throw new Exception( 'Select: No table specified' );
-		}
-
-		$tables = implode( ', ', $this->tables );
 
 		if ( empty( $args ) ) {
 			$columns = '*';
@@ -183,62 +285,128 @@ class EE_DB {
 			$columns = implode( ', ', $args );
 		}
 
-		$query = "SELECT $columns FROM $tables" ;
+		$this->select = $columns;
 
-		if ( null !== $this->where ) {
-			$conditions = implode( ' AND ', $this->where );
-			$query .= " WHERE $conditions";
-		}
-		if ( null !== $this->limit ) {
-			$query .= ' LIMIT ' . $this->limit;
-		}
-
-		$query_exec = self::$db->query( $query );
-		$result     = array();
-
-		if ( $query_exec ) {
-			while ( $row = $query_exec->fetchArray( SQLITE3_ASSOC ) ) {
-				$result[] = $row;
-			}
-		}
-		return $result;
+		return $this;
 	}
 
+	/**
+	 * Fetches all records from current query
+	 *
+	 * @return array All records
+	 * @throws Exception
+	 */
+	public function get() {
+		$pdo_statement = $this->common_retrival_function();
+
+		if( !$pdo_statement ) {
+			return false;
+		}
+
+		return $pdo_statement->fetchAll();
+	}
+
+	/**
+	 * Fetches first record from current query
+	 *
+	 * @return array Record
+	 * @throws Exception
+	 */
+	public function first() {
+		$pdo_statement = $this->common_retrival_function();
+
+		if( !$pdo_statement ) {
+			return false;
+		}
+
+		return $pdo_statement->fetch();
+	}
+
+	/**
+	 * Common retrival function that runs current 'select' query.
+	 * Other methods (like get and first) can use this to provide higher level functionality on top of it
+	 *
+	 * @return bool|PDOStatement
+	 * @throws Exception
+	 */
+	private function common_retrival_function() {
+		if ( null === $this->tables ) {
+			throw new Exception( 'Select: No table specified' );
+		}
+
+		$where = $this->where['query_string'];
+		$this->select === '' ? $this->select = '*' : '';
+
+		$query = "SELECT $this->select FROM $this->tables{$where}{$this->limit}{$this->offset};" ;
+
+		$pdo_statement = self::$pdo->prepare( $query );
+		$pdo_statement ->setFetchMode( PDO::FETCH_ASSOC );
+
+		$bindings = $this->where['bindings'] ?? [];
+
+		foreach ( $bindings as $key => $value ) {
+			$pdo_statement->bindValue($key+1, $value );
+		}
+
+		$result = $pdo_statement->execute();
+
+		if( ! $result ) {
+			EE::debug( self::$pdo->errorInfo() );
+			return false;
+		}
+
+		return $pdo_statement;
+	}
 
 	/**
 	 * Update row in table.
 	 *
-	 * @param        $data
-	 * @param        $where
+	 * @param array $values Associative array of columns and their values
+	 *
+	 * @throws Exception If no table are specified or multiple table are specified or no where clause are specified
 	 *
 	 * @return bool
 	 */
-	public function update( ...$values ) {
+	public function update( $values ) {
 		if ( empty( $this->tables ) ) {
 			throw new Exception( 'Update: No table specified' );
 		}
 
 		if ( empty( $this->where ) ) {
-			throw new Exception( 'Delete: No where clause specified' );
+			throw new Exception( 'Update: No where clause specified' );
 		}
 
-		if( count( $this->tables ) > 1) {
+		if ( count( $this->tables ) > 1 ) {
 			throw new Exception( 'Update: Multiple table specified' );
 		}
-		$table = $this->tables[0];
-
-		$values     = implode( ', ', $values );
-		$conditions = implode( ' AND ', $this->where );
 
 		if ( empty( $values ) ) {
 			return false;
 		}
 
-		$table = $this->tables[0];
-		$query      = "UPDATE `$table` SET $values WHERE $conditions";
-		$query_exec = self::$db->exec( $query );
+		$set_keys = array_keys( $values );
+		$set_values = array_values( $values );
+		$where_values = $this->where['binding'];
+
+		$set_clause = implode( $set_keys, ' = ?, ' ) . ' = ?';
+
+		$query         = "UPDATE $this->tables SET $set_clause{$this->where['query_string']}";
+		$pdo_statement = self::$pdo->query( $query );
+
+		$counter = 0;  //We need counter here as we need to bind values of both  SET and WHERE clauses
+
+		foreach ( $set_values as $value ) {
+			$pdo_statement->bindValue( ++ $counter, $value );
+		}
+
+		foreach ( $where_values as $value ) {
+			$pdo_statement->bindValue( ++ $counter, $value );
+		}
+
+		$result = $pdo_statement->execute();
+
 		if ( ! $query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
+			EE::debug( self::$pdo->errorInfo() );
 			return false;
 		}
 		return true;
@@ -247,9 +415,9 @@ class EE_DB {
 	/**
 	 * Delete data from table.
 	 *
-	 * @param        $where
+	 * @throws Exception If no table are specified or multiple table are specified or no where clause are specified
 	 *
-	 * @return bool
+	 * @return bool Success.
 	 */
 	public function delete() {
 		if ( empty( $this->tables ) ) {
@@ -260,40 +428,41 @@ class EE_DB {
 			throw new Exception( 'Delete: No where clause specified' );
 		}
 
-		if( count( $this->tables ) > 1) {
+		if( count( $this->tables ) > 1 ) {
 			throw new Exception( 'Delete: Multiple table specified' );
 		}
 
-		$table = $this->tables[0];
+		$query = "DELETE FROM $this->tables{$this->where['query_string']}";
 
-		$conditions   = implode( ' AND ', $this->where );
-		$query = "DELETE FROM `$table` WHERE $conditions";
+		$pdo_statement = self::$pdo->query( $query );
 
-		$query_exec = self::$db->exec( $query );
-
-		if ( ! $query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
-		} else {
-			return true;
+		foreach ( $this->where['bindings'] as $key => $binding ) {
+			$pdo_statement->bindValue( $key+1, $value );
 		}
 
-		return false;
+		if ( ! $result ) {
+			EE::debug( self::$pdo->errorInfo() );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
 	 * Check if a site entry exists in the database.
 	 *
-	 * @param String $site_name Name of the site to be checked.
+	 * @param string $site_name Name of the site to be checked.
+	 *
+	 * @throws Exception
 	 *
 	 * @return bool Success.
 	 */
 	public static function site_in_db( $site_name ) {
 
-		$site = self::select(
-			array( 'id' ), array(
-				'sitename' => $site_name,
-			)
-		);
+		$site = self::table( 'sites' )
+			->select( 'id' )
+			->where( 'sitename', $site_name )
+			->first();
 
 		if ( $site ) {
 			return true;
@@ -306,19 +475,20 @@ class EE_DB {
 	 *
 	 * @param String $site_name Name of the site to be checked.
 	 *
+	 * @throws Exception
+	 *
 	 * @return bool true  if site is enabled,
 	 *              false if disabled or site does not exists.
 	 */
 	public static function site_enabled( $site_name ) {
 
-		$site = self::select(
-			array( 'id', 'is_enabled' ), array(
-				'sitename' => $site_name,
-			)
-		);
+		$site = self::table( 'sites' )
+			->select( 'id', 'is_enabled' )
+			->where( 'sitename', $site_name )
+			->first();
 
-		if ( 1 === count( $site ) ) {
-			return $site[0]['is_enabled'];
+		if ( $site ) {
+			return $site['is_enabled'];
 		}
 
 		return false;
@@ -329,17 +499,17 @@ class EE_DB {
 	 *
 	 * @param String $site_name Name of the site.
 	 *
+	 * @throws Exception
+	 *
 	 * @return string type of site.
 	 */
 	public static function get_site_command( $site_name ) {
+		$site = self::table( 'sites' )
+			->select( 'site_command' )
+			->where( 'sitename', $site_name )
+			->get();
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
-
-		$site = self::select( [ 'site_type' ], [ 'sitename' => $site_name ], 'sites', 1 );
-
-		return $site['site_type'];
+		return $site['site_command'];
 	}
 
 	/**
@@ -347,11 +517,10 @@ class EE_DB {
 	 */
 	public static function get_migrations() {
 
-		$sites = self::select( [ 'migration' ], [], 'migrations' );
-		if ( empty( $sites ) ) {
-			return [];
-		}
+		$migrations = self::table( 'migrations' )
+			->select(  'migration')
+			->get();
 
-		return array_column( $sites, 'migration' );
+		return array_column( $migrations, 'migration' );
 	}
 }
