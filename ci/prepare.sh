@@ -9,4 +9,4 @@ if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
     echo $version > VERSION
 fi
 
-php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quite  > /dev/null
+php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quiet
