@@ -90,6 +90,8 @@ function init_checks() {
 
 
 			if ( EE::docker()::boot_container( $proxy_type, $ee_proxy_command ) ) {
+				$fs = new Filesystem();
+				$fs->dumpFile( "$EE_CONF_ROOT/nginx/conf.d/custom.conf", file_get_contents( EE_ROOT . '/templates/custom.conf.mustache' ) );
 				EE::success( "$proxy_type container is up." );
 			} else {
 				EE::error( "There was some error in starting $proxy_type container. Please check logs." );

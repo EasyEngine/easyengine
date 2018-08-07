@@ -4,8 +4,135 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce373bec5efe99ef70c424b1b5960dd7",
+    "content-hash": "64eddeb5dcc2884dacdcb4c2e199cdba",
     "packages": [
+        {
+            "name": "acmephp/core",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acmephp/core.git",
+                "reference": "910ca7b0edd25a54466050d9de276364f63cece1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/acmephp/core/zipball/910ca7b0edd25a54466050d9de276364f63cece1",
+                "reference": "910ca7b0edd25a54466050d9de276364f63cece1",
+                "shasum": ""
+            },
+            "require": {
+                "acmephp/ssl": "^1.0-alpha2",
+                "ext-openssl": "*",
+                "guzzlehttp/guzzle": "^6.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.22",
+                "symfony/process": "^3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AcmePhp\\Core\\": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Titouan Galopin",
+                    "email": "galopintitouan@gmail.com",
+                    "homepage": "http://titouangalopin.com"
+                },
+                {
+                    "name": "Jérémy Derussé",
+                    "homepage": "https://twitter.com/jderusse"
+                }
+            ],
+            "description": "Raw implementation of the ACME protocol in PHP",
+            "homepage": "https://github.com/acmephp/core",
+            "keywords": [
+                "acmephp",
+                "certificate",
+                "csr",
+                "encryption",
+                "https",
+                "letsencrypt",
+                "openssl",
+                "ssl",
+                "x509"
+            ],
+            "time": "2018-07-06T19:04:41+00:00"
+        },
+        {
+            "name": "acmephp/ssl",
+            "version": "1.0.0-beta4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acmephp/ssl.git",
+                "reference": "fef7a791ae3a2e2921cd47cdceb6c10790c880bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/acmephp/ssl/zipball/fef7a791ae3a2e2921cd47cdceb6c10790c880bc",
+                "reference": "fef7a791ae3a2e2921cd47cdceb6c10790c880bc",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": ">=5.5.0",
+                "webmozart/assert": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.22",
+                "sllh/php-cs-fixer-styleci-bridge": "^1.5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AcmePhp\\Ssl\\": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Titouan Galopin",
+                    "email": "galopintitouan@gmail.com",
+                    "homepage": "http://titouangalopin.com"
+                },
+                {
+                    "name": "Jérémy Derussé",
+                    "homepage": "https://twitter.com/jderusse"
+                }
+            ],
+            "description": "PHP wrapper around OpenSSL extension providing SSL encoding, decoding, parsing and signing features",
+            "homepage": "https://github.com/acmephp/ssl",
+            "keywords": [
+                "acmephp",
+                "certificate",
+                "csr",
+                "https",
+                "openssl",
+                "ssl",
+                "x509"
+            ],
+            "time": "2016-12-28T23:53:27+00:00"
+        },
         {
             "name": "composer/ca-bundle",
             "version": "1.1.1",
@@ -3231,6 +3358,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "acmephp/core": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
