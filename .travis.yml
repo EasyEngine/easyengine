@@ -29,7 +29,7 @@ script:
   - ./ci/test-commands.sh
 
 after_script:
-- cat /opt/easyengine/ee.log
+  - cat /opt/easyengine/ee.log
 
 jobs:
   include:
