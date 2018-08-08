@@ -48,33 +48,26 @@ class EE_DB {
 	private static function create_required_tables() {
 		$query = 'CREATE TABLE sites (
 			id INTEGER NOT NULL,
-			sitename VARCHAR,
+			site_name VARCHAR,
 			site_type VARCHAR,
-			site_title VARCHAR,
-			site_command VARCHAR,
-			proxy_type VARCHAR,
-			cache_type VARCHAR,
+			cache_enabled VARCHAR,
 			site_path VARCHAR,
-			created_on DATETIME,
 			is_enabled BOOLEAN DEFAULT 1,
 			is_ssl BOOLEAN DEFAULT 0,
 			is_ssl_wildcard BOOLEAN DEFAULT 0,
-			storage_fs VARCHAR,
-			storage_db VARCHAR,
-			db_name VARCHAR,
-			db_user VARCHAR,
-			db_password VARCHAR,
-			db_root_password VARCHAR,
-			db_host VARCHAR,
-			db_port VARCHAR,
-			wp_user VARCHAR,
-			wp_pass VARCHAR,
-			email VARCHAR,
-			php_version VARCHAR,
 			PRIMARY KEY (id),
-			UNIQUE (sitename),
+			UNIQUE (site_name),
 			CHECK (is_enabled IN (0, 1)),
 			CHECK (is_ssl IN (0, 1))
+		);';
+
+		$query .= 'CREATE TABLE site_meta (
+			id INTEGER NOT NULL,
+			site_id INTEGER NOT NULL,
+			meta_key VARCHAR,
+			meta_value VARCHAR,
+			PRIMARY KEY (id),
+			FOREIGN KEY (site_id) REFERENCES sites(id)
 		);';
 
 		$query .= 'CREATE TABLE migrations (
@@ -82,25 +75,12 @@ class EE_DB {
 			timestamp DATETIME
 		);';
 
-		$query .= 'CREATE TABLE services (
-			id INTEGER NOT NULL,
-			sitename VARCHAR,
-			phpmyadmin BOOLEAN DEFAULT 0,
-			mailhog BOOLEAN DEFAULT 0,
-			postfix BOOLEAN DEFAULT 0,
-			phpredisadmin BOOLEAN DEFAULT 0,
-			adminer BOOLEAN DEFAULT 0,
-			anemometer BOOLEAN DEFAULT 0,
-			debug BOOLEAN DEFAULT 0,
-			PRIMARY KEY (id),
-			FOREIGN KEY (id) REFERENCES sites(id)
-		);';
-
 		$query .= 'CREATE TABLE cron (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			sitename VARCHAR,
+			site_name VARCHAR,
 			command VARCHAR,
-			schedule VARCHAR
+			schedule VARCHAR,
+			FOREIGN KEY (site_name) REFERENCES sites(site_name)
 		);';
 
 		try {
