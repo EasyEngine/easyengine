@@ -63,17 +63,19 @@ abstract class EE_Site_Command {
 		$enabled  = EE\Utils\get_flag_value( $assoc_args, 'enabled' );
 		$disabled = EE\Utils\get_flag_value( $assoc_args, 'disabled' );
 
-		$where = array();
+		$query = EE::db()
+			->table( 'sites' )
+			->select( 'sitename', 'is_enabled' );
 
 		if ( $enabled && ! $disabled ) {
-			$where['is_enabled'] = 1;
+			$query->where( 'is_enabled', true );
 		} elseif ( $disabled && ! $enabled ) {
-			$where['is_enabled'] = 0;
+			$query->where( 'is_enabled', false );
 		}
 
-		$sites = EE::db()::select( array( 'sitename', 'is_enabled' ), $where );
+		$sites = $query->get();
 
-		if ( ! $sites ) {
+		if ( empty ( $sites ) ) {
 			EE::error( 'No sites found!' );
 		}
 
@@ -185,7 +187,7 @@ abstract class EE_Site_Command {
 				}
 
 			}
-			if ( EE::db()::delete( array( 'sitename' => $site_name ) ) ) {
+			if ( EE::db()->table( 'sites' )->where( 'sitename', $site_name )->delete() )  {
 				EE::log( 'Removing database entry.' );
 			} else {
 				EE::error( 'Could not remove the database entry' );
@@ -211,12 +213,12 @@ abstract class EE_Site_Command {
 		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$args  = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
-		if ( EE::db()::site_enabled( $this->site['name'] ) && ! $force ) {
+		if ( EE::db()->site_enabled( $this->site['name'] ) && ! $force ) {
 			EE::error( sprintf( '%s is already enabled!', $this->site['name'] ) );
 		}
 		EE::log( "Enabling site $this->site['name']." );
 		if ( EE::docker()::docker_compose_up( $this->site['root'] ) ) {
-			EE::db()::update( [ 'is_enabled' => '1' ], [ 'sitename' => $this->site['name'] ] );
+			EE::db()->table( 'site' )->where( 'sitename', $this->site['name'])->update( [ 'is_enabled' => '1' ] );
 			EE::success( "Site $this->site['name'] enabled." );
 		} else {
 			EE::error( sprintf( 'There was error in enabling %s. Please check logs.', $this->site['name'] ) );

@@ -200,6 +200,7 @@ class EE_DB {
 	 *
 	 * @param ...$args One or more where condition.
 	 *
+	 * @throws Exception
 	 * @return EE_DB
 	 */
 	public function where( ...$args ) {
@@ -208,10 +209,10 @@ class EE_DB {
 
 		if ( 'array' === gettype( $args[0] ) ) {
 			foreach ( $args[0] as $condition ) {
-				$conditions[] = $this->getWhereCondition( $condition );
+				$conditions[] = $this->get_where_fragment( $condition );
 			}
 		} else {
-			$conditions[] = $this->getWhereCondition( $args );
+			$conditions[] = $this->get_where_fragment( $args );
 		}
 
 		$this->where = [
@@ -521,7 +522,7 @@ class EE_DB {
 			throw new Exception( 'Where clause value must be set' );
 		}
 
-		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer' ], true ) ) {
+		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer', 'boolean' ], true ) ) {
 			throw new Exception( 'Where clause operator and value must be string' );
 		}
 
