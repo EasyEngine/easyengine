@@ -194,7 +194,7 @@ class EE_DOCKER {
 		return false;
 	}
 
-		/**
+	/**
 	 * Function to destroy the containers.
 	 *
 	 * @param String $dir      Path to docker-compose.yml.

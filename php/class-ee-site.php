@@ -241,7 +241,7 @@ abstract class EE_Site_Command {
 		$this->populate_site_info( $args );
 		EE::log( sprintf( 'Disabling site %s.', $this->site['name'] ) );
 		if ( EE::docker()::docker_compose_down( $this->site['root'] ) ) {
-			EE::db()::update( [ 'is_enabled' => '0' ], [ 'sitename' => $this->site['name'] ] );
+			EE::db()->table( 'sites' )->where( 'sitename', $this->site['name'] )->update( [ 'is_enabled' => '0' ] );
 			EE::success( sprintf( 'Site %s disabled.', $this->site['name'] ) );
 		} else {
 			EE::error( sprintf( 'There was error in disabling %s. Please check logs.', $this->site['name'] ) );
@@ -414,9 +414,9 @@ abstract class EE_Site_Command {
 
 		$this->site['name'] = EE\Utils\remove_trailing_slash( $args[0] );
 
-		if ( EE::db()::site_in_db( $this->site['name'] ) ) {
+		if ( EE::db()->site_in_db( $this->site['name'] ) ) {
 
-			$db_select = EE::db()::select( [], [ 'sitename' => $this->site['name'] ], 'sites', 1 );
+			$db_select = EE::db()->table( 'sites' )->where( 'sitename', $this->site['name'] )->first();
 
 			$this->site['type'] = $db_select['site_type'];
 			$this->site['root'] = $db_select['site_path'];

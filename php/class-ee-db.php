@@ -23,7 +23,7 @@ class EE_DB {
 		$this->offset = '';
 		$this->where  = [
 			'query_string' => null,
-			'binding'      => null
+			'bindings'      => null,
 		];
 	}
 
@@ -33,8 +33,7 @@ class EE_DB {
 	private static function init_db() {
 		try {
 			self::$pdo = new PDO( 'sqlite:' . DB );
-		}
-		catch ( PDOException $exception ) {
+		} catch ( PDOException $exception ) {
 			EE::error( $exception->getMessage() );
 		}
 
@@ -105,8 +104,7 @@ class EE_DB {
 
 		try {
 			self::$pdo->exec( $query );
-		}
-		catch ( PDOException $exception ) {
+		} catch ( PDOException $exception ) {
 			EE::error( 'Encountered Error while creating table: ' . $exception->getMessage() );
 		}
 	}
@@ -121,8 +119,8 @@ class EE_DB {
 	 * @return bool Success.
 	 */
 	public static function site_in_db( $site_name ) {
-
-		$site = self::table( 'sites' )
+		$db = new EE_DB();
+		$site = $db->table( 'sites' )
 			->select( 'id' )
 			->where( 'sitename', $site_name )
 			->first();
@@ -141,7 +139,7 @@ class EE_DB {
 	 * @throws Exception
 	 */
 	public function first() {
-		$pdo_statement = $this->common_retrival_function();
+		$pdo_statement = $this->common_retrieval_function();
 
 		if ( ! $pdo_statement ) {
 			return false;
@@ -157,7 +155,7 @@ class EE_DB {
 	 * @return bool|PDOStatement
 	 * @throws Exception
 	 */
-	private function common_retrival_function() {
+	private function common_retrieval_function() {
 		if ( null === $this->tables ) {
 			throw new Exception( 'Select: No table specified' );
 		}
@@ -172,8 +170,8 @@ class EE_DB {
 
 		$bindings = $this->where['bindings'] ?? [];
 
-		foreach ( $bindings as $key => $value ) {
-			$pdo_statement->bindValue( $key + 1, $value );
+		foreach ( $bindings as $key => $binding ) {
+			$pdo_statement->bindValue( $key + 1, $binding );
 		}
 
 		$result = $pdo_statement->execute();
@@ -270,7 +268,8 @@ class EE_DB {
 	 */
 	public static function site_enabled( $site_name ) {
 
-		$site = self::table( 'sites' )
+		$db = new EE_DB();
+		$site = $db->table( 'sites' )
 			->select( 'id', 'is_enabled' )
 			->where( 'sitename', $site_name )
 			->first();
@@ -292,10 +291,11 @@ class EE_DB {
 	 * @return string type of site.
 	 */
 	public static function get_site_command( $site_name ) {
-		$site = self::table( 'sites' )
+		$db = new EE_DB();
+		$site = $db->table( 'sites' )
 			->select( 'site_command' )
 			->where( 'sitename', $site_name )
-			->get();
+			->first();
 
 		return $site['site_command'];
 	}
@@ -307,7 +307,7 @@ class EE_DB {
 	 * @throws Exception
 	 */
 	public function get() {
-		$pdo_statement = $this->common_retrival_function();
+		$pdo_statement = $this->common_retrieval_function();
 
 		if ( ! $pdo_statement ) {
 			return false;
@@ -321,7 +321,8 @@ class EE_DB {
 	 */
 	public static function get_migrations() {
 
-		$migrations = self::table( 'migrations' )
+		$db = new EE_DB();
+		$migrations = $db->table( 'migrations' )
 			->select( 'migration' )
 			->get();
 
@@ -372,7 +373,7 @@ class EE_DB {
 			throw new Exception( 'Insert: No table specified' );
 		}
 
-		if ( count( $this->tables ) > 1 ) {
+		if ( strpos( $this->tables, ',' ) !== false ) {
 			throw new Exception( 'Insert: Multiple table specified' );
 		}
 
@@ -412,7 +413,7 @@ class EE_DB {
 			throw new Exception( 'Update: No where clause specified' );
 		}
 
-		if ( count( $this->tables ) > 1 ) {
+		if ( strpos( $this->tables, ',' ) !== false ) {
 			throw new Exception( 'Update: Multiple table specified' );
 		}
 
@@ -421,8 +422,8 @@ class EE_DB {
 		}
 
 		$set_keys     = array_keys( $values );
-		$set_values   = array_values( $values );
-		$where_values = $this->where['binding'];
+		$set_bindings   = array_values( $values );
+		$where_bindings = $this->where['bindings'];
 
 		$set_clause = implode( $set_keys, ' = ?, ' ) . ' = ?';
 
@@ -431,17 +432,17 @@ class EE_DB {
 
 		$counter = 0;  //We need counter here as we need to bind values of both  SET and WHERE clauses
 
-		foreach ( $set_values as $value ) {
-			$pdo_statement->bindValue( ++ $counter, $value );
+		foreach ( $set_bindings as $binding ) {
+			$pdo_statement->bindValue( ++ $counter, $binding );
 		}
 
-		foreach ( $where_values as $value ) {
-			$pdo_statement->bindValue( ++ $counter, $value );
+		foreach ( $where_bindings as $binding ) {
+			$pdo_statement->bindValue( ++ $counter, $binding );
 		}
 
 		$result = $pdo_statement->execute();
 
-		if ( ! $query_exec ) {
+		if ( ! $result ) {
 			EE::debug( self::$pdo->errorInfo() );
 
 			return false;
@@ -466,7 +467,7 @@ class EE_DB {
 			throw new Exception( 'Delete: No where clause specified' );
 		}
 
-		if ( count( $this->tables ) > 1 ) {
+		if ( strpos( $this->tables, ',' ) !== false ) {
 			throw new Exception( 'Delete: Multiple table specified' );
 		}
 
@@ -475,8 +476,10 @@ class EE_DB {
 		$pdo_statement = self::$pdo->query( $query );
 
 		foreach ( $this->where['bindings'] as $key => $binding ) {
-			$pdo_statement->bindValue( $key + 1, $value );
+			$pdo_statement->bindValue( $key + 1, $binding );
 		}
+
+		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
 			EE::debug( self::$pdo->errorInfo() );
