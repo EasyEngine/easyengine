@@ -207,7 +207,7 @@ function create_etc_hosts_entry( $site_name ) {
 	$host_line = LOCALHOST_IP . "\t$site_name";
 	$etc_hosts = file_get_contents( '/etc/hosts' );
 	if ( ! preg_match( "/\s+$site_name\$/m", $etc_hosts ) ) {
-		if ( EE\Utils\default_launch( "/bin/bash -c 'echo \"$host_line\" >> /etc/hosts'" ) ) {
+		if ( EE::exec( "/bin/bash -c 'echo \"$host_line\" >> /etc/hosts'" ) ) {
 			EE::success( 'Host entry successfully added.' );
 		} else {
 			EE::warning( "Failed to add $site_name in host entry, Please do it manually!" );
@@ -281,7 +281,7 @@ function start_site_containers( $site_root ) {
 
 	EE::log( 'Pulling latest images. This may take some time.' );
 	chdir( $site_root );
-	\EE\Utils\default_launch( 'docker-compose pull' );
+	EE::exec( 'docker-compose pull' );
 	EE::log( 'Starting site\'s services.' );
 	if ( ! EE::docker()::docker_compose_up( $site_root ) ) {
 		throw new \Exception( 'There was some error in docker-compose up.' );
@@ -302,6 +302,44 @@ function run_compose_command( $action, $container, $action_to_display = null, $s
 	$display_action  = $action_to_display ? $action_to_display : $action;
 	$display_service = $service_to_display ? $service_to_display : $container;
 
-	\EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
-	\EE\Utils\default_launch( "docker-compose $action $container", true, true );
+	EE::log( ucfirst( $display_action ) . 'ing ' . $display_service );
+	EE::exec( "docker-compose $action $container", true, true );
+}
+
+/**
+ * Function to copy and configure files needed for postfix.
+ *
+ * @param string $site_name     Name of the site to configure postfix files for.
+ * @param string $site_conf_dir Configuration directory of the site `site_root/config`.
+ */
+function set_postfix_files( $site_name, $site_conf_dir ) {
+
+	$fs = new Filesystem();
+	$fs->mkdir( $site_conf_dir . '/postfix' );
+	$fs->mkdir( $site_conf_dir . '/postfix/ssl' );
+	$ssl_dir = $site_conf_dir . '/postfix/ssl';
+
+	if ( ! EE::exec( sprintf( "openssl req -new -x509 -nodes -days 365 -subj \"/CN=smtp.%s\" -out $ssl_dir/server.crt -keyout $ssl_dir/server.key", $site_name ) )
+	     && EE::exec( "chmod 0600 $ssl_dir/server.key" ) ) {
+		throw new Exception( 'Unable to generate ssl key for postfix' );
+	}
+}
+
+/**
+ * Function to execute docker-compose exec calls to postfix to get it configured and running for the site.
+ *
+ * @param string $site_name Name of the for which postfix has to be configured.
+ * @param strin $site_root  Site root.
+ */
+function configure_postfix( $site_name, $site_root ) {
+
+	chdir( $site_root );
+	EE::exec( 'docker-compose exec postfix postconf -e \'relayhost =\'' );
+	EE::exec( 'docker-compose exec postfix postconf -e \'smtpd_recipient_restrictions = permit_mynetworks\'' );
+	$launch      = EE::launch( sprintf( 'docker inspect -f \'{{ with (index .IPAM.Config 0) }}{{ .Subnet }}{{ end }}\' %s', $site_name ) );
+	$subnet_cidr = trim( $launch->stdout );
+	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'mynetworks = %s 127.0.0.0/8\'', $subnet_cidr ) );
+	EE::exec( sprintf( 'docker-compose exec postfix postconf -e \'myhostname = %s\'', $site_name ) );
+	EE::exec( 'docker-compose exec postfix postconf -e \'syslog_name = $myhostname\'' );
+	EE::exec( 'docker-compose restart postfix' );
 }

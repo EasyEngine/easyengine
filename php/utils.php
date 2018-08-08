@@ -1392,7 +1392,7 @@ function random_password( $length = 12 ) {
 	$alphaLength = strlen( $alphabet ) - 1;
 	for ( $i = 0; $i < $length; $i ++ ) {
 		$n      = rand( 0, $alphaLength );
-		$pass[] = $alphabet[$n];
+		$pass[] = $alphabet[ $n ];
 	}
 
 	return implode( $pass );
@@ -1407,50 +1407,6 @@ function random_password( $length = 12 ) {
  */
 function delem_log( $log_data ) {
 	EE::get_file_logger()->info( "======================== $log_data ========================" );
-}
-
-/**
- * Format and print debug messages for EE::launch
- *
- * @param Object $launch EE::Launch command object
- */
-function default_debug( $launch ) {
-	EE::debug( '-----------------------' );
-	EE::debug( "COMMAND: $launch->command" );
-	if ( ! empty( $launch->stdout ) ) {
-		EE::debug( "STDOUT: $launch->stdout" );
-	}
-	if ( ! empty( $launch->stderr ) ) {
-		EE::debug( "STDERR: $launch->stderr" );
-	}
-	EE::debug( "RETURN CODE: $launch->return_code" );
-	EE::debug( '-----------------------' );
-}
-
-/**
- * Default Launch command.
- * This takes care of executing the command as well as debugging it to terminal as well as file.
- *
- * @param string $command The command to be executed via EE::launch();
- * @param array  $env     Environment variables to set when running the command.
- * @param string $cwd     Directory to execute the command in.
- *
- * @return bool True if executed successfully. False if failed.
- */
-function default_launch( $command, $echo_stdout = false, $echo_stderr = false, $env = null, $cwd = null ) {
-	$launch = EE::launch( $command, false, true, $env, $cwd );
-	default_debug( $launch );
-
-	if( $echo_stdout ) {
-		echo $launch->stdout;
-	}
-	if( $echo_stderr ) {
-		echo $launch->stderr;
-	}
-	if ( ! $launch->return_code ) {
-		return true;
-	}
-	return false;
 }
 
 /**
@@ -1501,7 +1457,7 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
 	}
 	if ( $cnt == 1 ) {
 		return $type;
-	} else if ( $cnt == 0 ) {
+	} elseif ( $cnt == 0 ) {
 		return $default;
 	} else {
 		return false;
@@ -1560,9 +1516,32 @@ function array_flatten( array $array ) {
 	$return = array();
 	array_walk_recursive(
 		$array, function ( $a ) use ( &$return ) {
-		$return[] = $a;
-	}
+			$return[] = $a;
+		}
 	);
 
 	return $return;
+}
+
+/**
+ * Gets name of callable in string. Helpful while displaying it in error messages
+ *
+ * @param callable $callable Callable object
+ *
+ * @return string
+ */
+function get_callable_name( callable $callable ) {
+	if ( is_string( $callable ) ) {
+		return trim( $callable );
+	} elseif ( is_array( $callable ) ) {
+		if ( is_object( $callable[0] ) ) {
+			return sprintf( '%s::%s', get_class( $callable[0] ), trim( $callable[1] ) );
+		} else {
+			return sprintf( '%s::%s', trim( $callable[0] ), trim( $callable[1] ) );
+		}
+	} elseif ( $callable instanceof \Closure ) {
+		return 'closure';
+	} else {
+		return 'unknown';
+	}
 }

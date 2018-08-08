@@ -29,6 +29,7 @@
         "composer/semver": "~1.0",
         "easyengine/cron-command": "v1.0.0-beta.1",
         "easyengine/site-command": "v1.0.0",
+        "easyengine/site-wp-command": "dev-develop",
         "easyengine/shell-command": "v1.0.0-beta.1",
         "ext-openssl": "*",
         "guzzlehttp/guzzle": "^6.0",
