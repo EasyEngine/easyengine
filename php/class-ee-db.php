@@ -31,14 +31,17 @@ class EE_DB {
 	 * Function to initialize db and db connection.
 	 */
 	private static function init_db() {
-		try {
-			self::$pdo = new PDO( 'sqlite:' . DB );
-		} catch ( PDOException $exception ) {
-			EE::error( $exception->getMessage() );
-		}
 
 		if ( ! ( file_exists( DB ) ) ) {
 			self::create_required_tables();
+			return;
+		}
+
+		try {
+			self::$pdo = new PDO( 'sqlite:' . DB );
+			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		} catch ( PDOException $exception ) {
+			EE::error( $exception->getMessage() );
 		}
 	}
 
@@ -46,8 +49,15 @@ class EE_DB {
 	 * Sqlite database creation.
 	 */
 	private static function create_required_tables() {
+		try {
+			self::$pdo = new PDO( 'sqlite:' . DB );
+			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		} catch ( PDOException $exception ) {
+			EE::error( $exception->getMessage() );
+		}
+
 		$query = 'CREATE TABLE sites (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER,
 			site_url VARCHAR,
 			site_type VARCHAR,
 			site_fs_path VARCHAR,
@@ -76,30 +86,33 @@ class EE_DB {
 			site_auth_scope VARCHAR,
 			site_auth_username VARCHAR,
 			site_auth_password VARCHAR,
+			PRIMARY KEY (id),
 			UNIQUE (site_url),
-			CHECK (site_enabled IN (0, 1)),
-			CHECK (site_ssl IN (0, 1))
+			CHECK (site_enabled IN (0, 1))
 		);';
 
 		$query .= 'CREATE TABLE site_meta (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER,
 			site_id INTEGER NOT NULL,
 			meta_key VARCHAR,
 			meta_value VARCHAR,
+			PRIMARY KEY (id),
 			FOREIGN KEY (site_id) REFERENCES sites(id)
 		);';
 
 		$query .= 'CREATE TABLE migrations (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER,
 			migration VARCHAR,
-			timestamp DATETIME
+			timestamp DATETIME,
+			PRIMARY KEY (id)
 		);';
 
 		$query .= 'CREATE TABLE cron (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id INTEGER,
 			site_url VARCHAR,
 			command VARCHAR,
 			schedule VARCHAR,
+			PRIMARY KEY (id),
 			FOREIGN KEY (site_url) REFERENCES sites(site_url)
 		);';
 
@@ -108,29 +121,6 @@ class EE_DB {
 		} catch ( PDOException $exception ) {
 			EE::error( 'Encountered Error while creating table: ' . $exception->getMessage() );
 		}
-	}
-
-	/**
-	 * Check if a site entry exists in the database.
-	 *
-	 * @param string $site_name Name of the site to be checked.
-	 *
-	 * @throws Exception
-	 *
-	 * @return bool Success.
-	 */
-	public static function site_in_db( $site_name ) {
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'id' )
-			->where( 'sitename', $site_name )
-			->first();
-
-		if ( $site ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -258,50 +248,6 @@ class EE_DB {
 	}
 
 	/**
-	 * Check if a site entry exists in the database as well as if it is enbaled.
-	 *
-	 * @param String $site_name Name of the site to be checked.
-	 *
-	 * @throws Exception
-	 *
-	 * @return bool true  if site is enabled,
-	 *              false if disabled or site does not exists.
-	 */
-	public static function site_enabled( $site_name ) {
-
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'id', 'is_enabled' )
-			->where( 'sitename', $site_name )
-			->first();
-
-		if ( $site ) {
-			return $site['is_enabled'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get site type.
-	 *
-	 * @param String $site_name Name of the site.
-	 *
-	 * @throws Exception
-	 *
-	 * @return string type of site.
-	 */
-	public static function get_site_command( $site_name ) {
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'site_command' )
-			->where( 'sitename', $site_name )
-			->first();
-
-		return $site['site_command'];
-	}
-
-	/**
 	 * Fetches all records from current query
 	 *
 	 * @return array All records
@@ -318,16 +264,13 @@ class EE_DB {
 	}
 
 	/**
-	 * Returns all migrations from table.
+	 * Fetches all records from current query.
+	 *
+	 * @return array All records
+	 * @throws Exception
 	 */
-	public static function get_migrations() {
-
-		$db = new EE_DB();
-		$migrations = $db->table( 'migrations' )
-			->select( 'migration' )
-			->get();
-
-		return array_column( $migrations, 'migration' );
+	public function all() {
+		return $this->get();
 	}
 
 	/**
@@ -386,6 +329,8 @@ class EE_DB {
 		foreach ( $bindings as $key => $value ) {
 			$pdo_statement->bindValue( $key + 1, $value );
 		}
+
+		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
 			EE::debug( self::$pdo->errorInfo() );
