@@ -44,8 +44,6 @@ bashcompinit
 source /FULL/PATH/TO/ee-completion.bash
 ```
 
-Note: Currently tab completions will only work for users with `root` priviledges.
-
 ## Usage
 
 To get started with EasyEngine and create a wordpress site, run
