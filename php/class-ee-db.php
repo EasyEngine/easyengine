@@ -47,40 +47,60 @@ class EE_DB {
 	 */
 	private static function create_required_tables() {
 		$query = 'CREATE TABLE sites (
-			id INTEGER NOT NULL,
-			site_name VARCHAR,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			site_url VARCHAR,
 			site_type VARCHAR,
-			cache_enabled VARCHAR,
-			site_path VARCHAR,
-			is_enabled BOOLEAN DEFAULT 1,
-			is_ssl BOOLEAN DEFAULT 0,
-			is_ssl_wildcard BOOLEAN DEFAULT 0,
-			PRIMARY KEY (id),
-			UNIQUE (site_name),
-			CHECK (is_enabled IN (0, 1)),
-			CHECK (is_ssl IN (0, 1))
+			site_fs_path VARCHAR,
+			site_enabled BOOLEAN,
+			site_ssl VARCHAR,
+			nginx_browser_cache VARCHAR,
+			nginx_fullpage_cache VARCHAR,
+			php_version VARCHAR,
+			php_opcache VARCHAR,
+			db_name VARCHAR,
+			db_user VARCHAR,
+			db_password VARCHAR,
+			db_root_password VARCHAR,
+			db_host VARCHAR,
+			db_port VARCHAR,
+			db_cache VARCHAR,
+			app_admin_url VARCHAR,
+			app_admin_email VARCHAR,
+			app_admin_username VARCHAR,
+			app_admin_password VARCHAR,
+			app_object_cache VARCHAR,
+			app_mail VARCHAR,
+			admin_tools VARCHAR,
+			created_on DATETIME,
+			modified_on DATETIME,
+			site_auth_scope VARCHAR,
+			site_auth_username VARCHAR,
+			site_auth_password VARCHAR,
+			UNIQUE (site_url),
+			CHECK (site_enabled IN (0, 1)),
+			CHECK (site_ssl IN (0, 1))
 		);';
 
 		$query .= 'CREATE TABLE site_meta (
-			id INTEGER NOT NULL,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			site_id INTEGER NOT NULL,
 			meta_key VARCHAR,
 			meta_value VARCHAR,
-			PRIMARY KEY (id),
 			FOREIGN KEY (site_id) REFERENCES sites(id)
 		);';
 
 		$query .= 'CREATE TABLE migrations (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			migration VARCHAR,
 			timestamp DATETIME
 		);';
 
 		$query .= 'CREATE TABLE cron (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			site_name VARCHAR,
+			site_url VARCHAR,
 			command VARCHAR,
 			schedule VARCHAR,
-			FOREIGN KEY (site_name) REFERENCES sites(site_name)
+			FOREIGN KEY (site_url) REFERENCES sites(site_url)
 		);';
 
 		try {
