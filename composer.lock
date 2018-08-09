@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9ebd9fc7860aeb09f61cd723c966f8a3",
+    "content-hash": "64eddeb5dcc2884dacdcb4c2e199cdba",
     "packages": [
         {
             "name": "acmephp/core",
@@ -191,26 +191,26 @@
         },
         {
             "name": "composer/composer",
-            "version": "1.6.5",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "b184a92419cc9a9c4c6a09db555a94d441cb11c9"
+                "reference": "39edb2f375679a4eba19e69e9c9491e302976983"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/b184a92419cc9a9c4c6a09db555a94d441cb11c9",
-                "reference": "b184a92419cc9a9c4c6a09db555a94d441cb11c9",
+                "url": "https://api.github.com/repos/composer/composer/zipball/39edb2f375679a4eba19e69e9c9491e302976983",
+                "reference": "39edb2f375679a4eba19e69e9c9491e302976983",
                 "shasum": ""
             },
             "require": {
                 "composer/ca-bundle": "^1.0",
                 "composer/semver": "^1.0",
                 "composer/spdx-licenses": "^1.2",
+                "composer/xdebug-handler": "^1.1",
                 "justinrainbow/json-schema": "^3.0 || ^4.0 || ^5.0",
                 "php": "^5.3.2 || ^7.0",
                 "psr/log": "^1.0",
-                "seld/cli-prompt": "^1.0",
                 "seld/jsonlint": "^1.4",
                 "seld/phar-utils": "^1.0",
                 "symfony/console": "^2.7 || ^3.0 || ^4.0",
@@ -236,7 +236,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6-dev"
+                    "dev-master": "1.7-dev"
                 }
             },
             "autoload": {
@@ -267,7 +267,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2018-05-04T09:44:59+00:00"
+            "time": "2018-08-03T13:39:07+00:00"
         },
         {
             "name": "composer/semver",
@@ -393,17 +393,61 @@
             "time": "2018-04-30T10:33:04+00:00"
         },
         {
-            "name": "easyengine/cron-command",
-            "version": "v1.0.0-beta.1",
+            "name": "composer/xdebug-handler",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/EasyEngine/cron-command.git",
-                "reference": "34b27c0b638a5dec73645eb39bd943850f7f973c"
+                "url": "https://github.com/composer/xdebug-handler.git",
+                "reference": "c919dc6c62e221fc6406f861ea13433c0aa24f08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/34b27c0b638a5dec73645eb39bd943850f7f973c",
-                "reference": "34b27c0b638a5dec73645eb39bd943850f7f973c",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/c919dc6c62e221fc6406f861ea13433c0aa24f08",
+                "reference": "c919dc6c62e221fc6406f861ea13433c0aa24f08",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.2 || ^7.0",
+                "psr/log": "^1.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Composer\\XdebugHandler\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "John Stevenson",
+                    "email": "john-stevenson@blueyonder.co.uk"
+                }
+            ],
+            "description": "Restarts a process without xdebug.",
+            "keywords": [
+                "Xdebug",
+                "performance"
+            ],
+            "time": "2018-04-11T15:42:36+00:00"
+        },
+        {
+            "name": "easyengine/cron-command",
+            "version": "v1.0.0-beta.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/EasyEngine/cron-command.git",
+                "reference": "7dae17ada7c93c3d4cac7854baa996410302d46e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/7dae17ada7c93c3d4cac7854baa996410302d46e",
+                "reference": "7dae17ada7c93c3d4cac7854baa996410302d46e",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -433,7 +477,7 @@
             ],
             "description": "Manages cron jobs in EasyEngine",
             "homepage": "https://github.com/easyengine/cron-command",
-            "time": "2018-07-23T15:34:42+00:00"
+            "time": "2018-08-06T19:59:01+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -477,25 +521,17 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v1.0.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "71fa9c5fae8022a9cc431f351e0100101c303dda"
+                "reference": "a3f5ba5ef7a9966958214a9ff38114da836a688d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/71fa9c5fae8022a9cc431f351e0100101c303dda",
-                "reference": "71fa9c5fae8022a9cc431f351e0100101c303dda",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/a3f5ba5ef7a9966958214a9ff38114da836a688d",
+                "reference": "a3f5ba5ef7a9966958214a9ff38114da836a688d",
                 "shasum": ""
-            },
-            "require": {
-                "acmephp/core": "dev-master",
-                "ext-openssl": "*",
-                "guzzlehttp/guzzle": "^6.0",
-                "league/flysystem": "^1.0.19",
-                "symfony/serializer": "^3.0",
-                "webmozart/assert": "^1.0"
             },
             "type": "ee-cli-package",
             "extra": {
@@ -524,20 +560,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-07-23T15:42:41+00:00"
+            "time": "2018-08-06T19:23:14+00:00"
         },
         {
             "name": "easyengine/site-wp-command",
-            "version": "dev-develop",
+            "version": "v1.0.0-beta.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-wp-command.git",
-                "reference": "804716ed48adb56d48bf2d13177e9f4ca815737f"
+                "reference": "8234aab6ca091969ce9950b5dccd75c0dedcc3f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-wp-command/zipball/804716ed48adb56d48bf2d13177e9f4ca815737f",
-                "reference": "804716ed48adb56d48bf2d13177e9f4ca815737f",
+                "url": "https://api.github.com/repos/EasyEngine/site-wp-command/zipball/8234aab6ca091969ce9950b5dccd75c0dedcc3f9",
+                "reference": "8234aab6ca091969ce9950b5dccd75c0dedcc3f9",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -561,7 +597,7 @@
             ],
             "description": "EasyEngine package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-wp-command",
-            "time": "2018-08-01T12:42:45+00:00"
+            "time": "2018-08-06T18:28:59+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1214,54 +1250,6 @@
             "time": "2016-10-13T00:11:37+00:00"
         },
         {
-            "name": "seld/cli-prompt",
-            "version": "1.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Seldaek/cli-prompt.git",
-                "reference": "a19a7376a4689d4d94cab66ab4f3c816019ba8dd"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/cli-prompt/zipball/a19a7376a4689d4d94cab66ab4f3c816019ba8dd",
-                "reference": "a19a7376a4689d4d94cab66ab4f3c816019ba8dd",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Seld\\CliPrompt\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be"
-                }
-            ],
-            "description": "Allows you to prompt for user input on the command line, and optionally hide the characters they type",
-            "keywords": [
-                "cli",
-                "console",
-                "hidden",
-                "input",
-                "prompt"
-            ],
-            "time": "2017-03-18T11:32:45+00:00"
-        },
-        {
             "name": "seld/jsonlint",
             "version": "1.7.1",
             "source": {
@@ -1778,25 +1766,28 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae"
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
-                "reference": "7cc359f1b7b80fc25ed7796be7d96adc9b354bae",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
+                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -1829,20 +1820,20 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-04-30T19:57:29+00:00"
+            "time": "2018-08-06T14:22:27+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171"
+                "reference": "d0cd638f4634c16d8df4508e847f14e9e43168b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/3296adf6a6454a050679cde90f95350ad604b171",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d0cd638f4634c16d8df4508e847f14e9e43168b8",
+                "reference": "d0cd638f4634c16d8df4508e847f14e9e43168b8",
                 "shasum": ""
             },
             "require": {
@@ -1854,7 +1845,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -1888,7 +1879,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-04-26T10:06:28+00:00"
+            "time": "2018-08-06T14:22:27+00:00"
         },
         {
             "name": "symfony/process",
@@ -3367,7 +3358,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "easyengine/site-wp-command": 20,
+        "acmephp/core": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

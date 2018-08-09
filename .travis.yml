@@ -22,8 +22,12 @@ install:
 
 before_script:
   - composer validate
-  - sudo ./vendor/bin/behat
   - ./ci/prepare.sh
+  - sudo ./vendor/bin/behat
+  - ./ci/test-commands.sh
+
+after_script:
+  - cat /opt/easyengine/ee.log
 
 jobs:
   include:

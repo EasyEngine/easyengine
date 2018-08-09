@@ -26,23 +26,46 @@ wget -O /usr/local/bin/ee https://raw.githubusercontent.com/EasyEngine/easyengin
 chmod +x /usr/local/bin/ee
 ```
 
+### Tab completions
+
+EasyEngine also comes with a tab completion script for Bash and ZSH. Just download [ee-completion.bash](https://raw.githubusercontent.com/EasyEngine/easyengine/develop-v4/utils/ee-completion.bash) and source it from `~/.bash_profile`:
+
+```bash
+source /FULL/PATH/TO/ee-completion.bash
+```
+
+Don't forget to run `source ~/.bash_profile` afterwards.
+
+If using zsh for your shell, you may need to load and start `bashcompinit` before sourcing. Put the following in your `.zshrc`:
+
+```bash
+autoload bashcompinit
+bashcompinit
+source /FULL/PATH/TO/ee-completion.bash
+```
+
 ## Usage
 
 To get started with EasyEngine and create a wordpress site, run
 
 ```
-ee site create example.com
+ee site create example.com --type=wp
 ```
 
 Need a wordpress site with caching? Try
 
 ```
-ee site create example.com --wpredis
+ee site create example.com --type=wp --cache
 ```
 
 Need a wordpress multi-site with page cache?
 ```
-ee site create example.com --wpsubdir --wpredis
+ee site create example.com --type=wp --mu=wpsubdir --cache
+```
+
+Need a plain and simple html site?
+```
+ee site create example.com
 ```
 
 Want to play around with your new site?
@@ -52,6 +75,8 @@ ee shell example.com
 
 Want to know more? Checkout readme of these commands -
  * [site command](https://github.com/EasyEngine/site-command/)
+ * [site-wp command](https://github.com/EasyEngine/site-wp-command/)
+ * [cron command](https://github.com/EasyEngine/cron-command/)
  * [shell command](https://github.com/EasyEngine/shell-command/)
 
 Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
@@ -62,7 +87,7 @@ Development of easyengine is done entirely on GitHub.
 
 We've used [wp-cli](https://github.com/wp-cli/wp-cli/) framework as a base and built EasyEngine on top of it.
 
-This repo contains main core of easyengine (the framework). 
+This repo contains main core of easyengine (the framework).
 All top level commands(except `ee cli`) i.e. `ee site`, `ee shell` have their own repos.
 
 Currently we have following commands which are bundled by default in EasyEngine:

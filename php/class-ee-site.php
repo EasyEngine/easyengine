@@ -221,7 +221,7 @@ abstract class EE_Site_Command {
 		if ( EE::db()->site_enabled( $this->site['name'] ) && ! $force ) {
 			EE::error( sprintf( '%s is already enabled!', $this->site['name'] ) );
 		}
-		EE::log( "Enabling site $this->site['name']." );
+		EE::log( sprintf( 'Enabling site %s.', $this->site['name'] ) );
 		if ( EE::docker()::docker_compose_up( $this->site['root'] ) ) {
 			EE::db()->table( 'site' )->where( 'sitename', $this->site['name'])->update( [ 'is_enabled' => '1' ] );
 			EE::success( "Site $this->site['name'] enabled." );
