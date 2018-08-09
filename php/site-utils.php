@@ -35,7 +35,7 @@ function get_site_name() {
 }
 
 /**
- * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed
+ * Function to set the site-name in the args when ee is running in a site directory and the site-name has not been passed
  * in the args. If the site-name could not be found it will throw an error.
  *
  * @param array $args      The passed arguments.
