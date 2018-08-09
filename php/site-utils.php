@@ -59,7 +59,7 @@ function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
 		}
 		array_splice( $args, $arg_pos, 0, $site_name );
 	} else {
-		EE::error( "Could not find the site you wish to run $command $function command on.\nEither pass it as an argument: `ee $command $function <site-name>` \nor run `ee $command $function` from inside the site folder." );
+		EE::error( "Could not find the site you wish to run $command $function command on.\nEither pass it as an argument: `ee $command $function <site-name>` \nor run `ee $command $function` from inside the site directory." );
 	}
 
 	return $args;
