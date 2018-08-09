@@ -160,7 +160,7 @@ class CLI_Command extends EE_Command {
 	}
 
 	/**
-	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
+	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp directory
 	 */
 	private function migrate() {
 		$rsp = new \EE\RevertableStepProcessor();

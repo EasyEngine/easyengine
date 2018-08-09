@@ -1,6 +1,6 @@
 Internal-API
 ============
-This folder contains the main part of EasyEngine cli.
+This directory contains the main part of EasyEngine cli.
 
 * It conatins the `cli-command` which handles the most basic required functions like: `version, update` etc.
 

@@ -35,7 +35,7 @@ function get_site_name() {
 }
 
 /**
- * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed
+ * Function to set the site-name in the args when ee is running in a site directory and the site-name has not been passed
  * in the args. If the site-name could not be found it will throw an error.
  *
  * @param array $args      The passed arguments.
@@ -59,7 +59,7 @@ function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
 		}
 		array_splice( $args, $arg_pos, 0, $site_name );
 	} else {
-		EE::error( "Could not find the site you wish to run $command $function command on.\nEither pass it as an argument: `ee $command $function <site-name>` \nor run `ee $command $function` from inside the site folder." );
+		EE::error( "Could not find the site you wish to run $command $function command on.\nEither pass it as an argument: `ee $command $function <site-name>` \nor run `ee $command $function` from inside the site directory." );
 	}
 
 	return $args;
