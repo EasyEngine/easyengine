@@ -72,13 +72,13 @@ abstract class EE_Site_Command
 
 		$sites = Site::all();
 
-		if ( $enabled && !$disabled ) {
+		if ( $enabled && ! $disabled ) {
 			$sites = Site::where( 'is_enabled', true );
-		} elseif ( $disabled && !$enabled ) {
+		} elseif ( $disabled && ! $enabled ) {
 			$sites = Site::where( 'is_enabled', false );
 		}
 
-		if ( empty ( $sites ) ) {
+		if ( empty( $sites ) ) {
 			EE::error( 'No sites found!' );
 		}
 
@@ -190,8 +190,8 @@ abstract class EE_Site_Command
 				}
 			}
 
-			if ( Site::find_by_url( $site_name )->delete() ) {
-				EE::log( 'Removing database entry.' );
+			if ( Site::find( $site_name )->delete() ) {
+				EE::log( 'Removed database entry.' );
 			} else {
 				EE::error( 'Could not remove the database entry' );
 			}
