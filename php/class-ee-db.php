@@ -338,7 +338,7 @@ class EE_DB {
 			return false;
 		}
 
-		return true;
+		return self::$pdo->lastInsertId();
 	}
 
 	/**

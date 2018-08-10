@@ -72,12 +72,10 @@ class Executor {
             EE::log( "Migrating: $migrations[0]" );
             $migration->up();
 
-            $migration_model = new Migration([
+            Migration::create([
                 'migration' => $migrations[0],
                 'timestamp' => date('Y-m-d H:i:s'),
             ]);
-
-            $migration_model->save();
 
             $migration->status = 'complete';
             EE::log( "Migrated: $migrations[0]" );

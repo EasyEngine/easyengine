@@ -48,8 +48,8 @@ abstract class Base extends \ArrayObject
 	 * @return mixed Value of property
 	 */
 	public function __get( string $name ) {
-		if ( isset( $this->fields[$name] ) ) {
-			return $this->fields[$name];
+		if ( isset( $this->fields[ $name ] ) ) {
+			return $this->fields[ $name ];
 		}
 
 		throw new \Exception( "Unable to find variable: $name" );
@@ -66,7 +66,7 @@ abstract class Base extends \ArrayObject
 	 * @param mixed  $value Value of property to set
 	 */
 	public function __set( string $name, $value ) {
-		$this->fields[$name] = $value;
+		$this->fields[ $name ] = $value;
 	}
 
 	/**
@@ -126,7 +126,7 @@ abstract class Base extends \ArrayObject
 	 *
 	 * @throws \Exception
 	 *
-	 * @return mixed Model
+	 * @return static
 	 */
 	public static function find( string $pk ) {
 		return static::single_array_to_model(
@@ -138,16 +138,37 @@ abstract class Base extends \ArrayObject
 	}
 
 	/**
+	 * Throws exception if model is not found
+	 *
 	 * @param string $pk
 	 *
-	 * @return static
 	 * @throws \Exception
+	 *
+	 * @return static
 	 */
 	public static function find_or_fail( string $pk ) {
 		$model = static::find( $pk );
 
 		if ( ! $model ) {
-			throw new \Exception( 'Unable to find ' . __CLASS__ . ' : ' );
+			throw new \Exception( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $pk ) );
+		}
+		return $model;
+	}
+
+	/**
+	 * Exits with error if model is not found
+	 *
+	 * @param string $pk
+	 *
+	 * @throws \Exception
+	 *
+	 * @return static
+	 */
+	public static function find_or_error( string $pk ) {
+		$model = static::find( $pk );
+
+		if ( ! $model ) {
+			EE::error( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $pk ) );
 		}
 		return $model;
 	}
@@ -170,17 +191,16 @@ abstract class Base extends \ArrayObject
 	}
 
 	/**
-	 * Saves current model into database
+	 * Creates new entity in DB
 	 *
+	 * @param array $columns Columns and values to insert
+	 *
+	 * @return static
 	 * @throws \Exception
-	 *
-	 * @return bool Model saved successfully
 	 */
-	public function save() {
-		return EE::db()
-			->table( static::$table )
-			->where( static::$primary_key, $this[static::$primary_key] )
-			->update( $this->fields );
+	public static function create( $columns = [] ) {
+		$new_model_id = EE::db()->table( static::$table )->insert( $columns );
+		return self::find( $new_model_id );
 	}
 
 	/**
@@ -190,11 +210,39 @@ abstract class Base extends \ArrayObject
 	 *
 	 * @return bool Model saved successfully
 	 */
+	public function save() {
+		return EE::db()
+			->table( static::$table )
+			->where( static::$primary_key, $this[ static::$primary_key ] )
+			->update( $this->fields );
+	}
+
+	/**
+	 * Deletes current model from database
+	 *
+	 * @throws \Exception
+	 *
+	 * @return bool Model deleted` successfully
+	 */
 	public function delete() {
 		return EE::db()
 			->table( static::$table )
 			->where( static::$primary_key, $this->id )
 			->delete();
+	}
+
+	/**
+	 * Updates current model from database
+	 *
+	 * @throws \Exception
+	 *
+	 * @return bool Model updated successfully
+	 */
+	public function update( $columns ) {
+		return EE::db()
+			->table( static::$table )
+			->where( static::$primary_key, $this->id )
+			->update( $columns );
 	}
 
 	/**
