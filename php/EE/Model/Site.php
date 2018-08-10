@@ -34,16 +34,6 @@ class Site extends Base {
 	}
 
 	/**
-	 * @param $url
-	 *
-	 * @return Site
-	 * @throws \Exception
-	 */
-	public static function find_by_url( $url ) {
-		return Site::where( 'site_url', $url )->first();
-	}
-
-	/**
 	 * Check if a site entry exists in the database as well as if it is enbaled.
 	 *
 	 * @param String $site_name Name of the site to be checked.

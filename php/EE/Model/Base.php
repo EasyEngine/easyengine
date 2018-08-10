@@ -81,6 +81,16 @@ abstract class Base extends \ArrayObject
 	}
 
 	/**
+	 * Removes a property from model
+	 * It's done by removing it from $fields array
+	 *
+	 * @param string $name  Name of property to unset
+	 */
+	public function __unset( $name ) {
+		unset( $this->fields[ $name ] );
+	}
+
+	/**
 	 * Overriding offsetGet for correct behaviour while accessing object properties by array index.
 	 *
 	 * @param string|int $index Name of property to check
@@ -117,6 +127,17 @@ abstract class Base extends \ArrayObject
 	 */
 	public function offsetExists( $index ) {
 		return $this->__isset( $index );
+	}
+
+	/**
+	 * Overriding offsetUnset for correct behaviour while deleting object properties by array index.
+	 *
+	 * @param string|int $index Name of property to check
+	 *
+	 * @throws \Exception
+	 */
+	public function offsetUnset( $index ) {
+		$this->__unset( $index );
 	}
 
 	/**
