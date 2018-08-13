@@ -435,8 +435,8 @@ abstract class EE_Site_Command
 
 			$this->site['type'] = $site->site_type;
 			$this->site['root'] = $site->site_fs_path;
-			$this->le = $site->site_ssl !== 'no';
-			$this->wildcard = $site->site_ssl === 'wildcard';
+			$this->le = null !== $site->site_ssl;
+			$this->wildcard = 'wildcard' === $site->site_ssl;
 		} else {
 			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
 		}
