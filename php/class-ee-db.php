@@ -74,6 +74,7 @@ class EE_DB {
 			db_root_password     VARCHAR,
 			db_host              VARCHAR,
 			db_port              VARCHAR,
+			app_site_type        VARCHAR,
 			app_admin_url        VARCHAR,
 			app_admin_email      VARCHAR,
 			app_admin_username   VARCHAR,
@@ -310,7 +311,7 @@ class EE_DB {
 	public function insert( $data ) {
 
 		$fields = implode( ', ', array_keys( $data ) );
-		$values = implode( array_fill( 0, count( $data ), '?' ) );
+		$values = implode( ', ', array_fill( 0, count( $data ), '?' ) );
 
 		if ( empty( $this->tables ) ) {
 			throw new Exception( 'Insert: No table specified' );
