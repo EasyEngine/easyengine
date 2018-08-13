@@ -48,7 +48,7 @@ abstract class Base extends \ArrayObject
 	 * @return mixed Value of property
 	 */
 	public function __get( string $name ) {
-		if ( isset( $this->fields[ $name ] ) ) {
+		if ( array_key_exists( $name, $this->fields ) ) {
 			return $this->fields[ $name ];
 		}
 
@@ -104,9 +104,10 @@ abstract class Base extends \ArrayObject
 	}
 
 	/**
-	 * Overriding offsetGet for correct behaviour while saving object properties by array index.
+	 * Overriding offsetSet for correct behaviour while saving object properties by array index.
 	 *
 	 * @param string|int $index Name of property to check
+	 * @param mixed  $value Value of property to set
 	 *
 	 * @throws \Exception
 	 *
@@ -143,35 +144,42 @@ abstract class Base extends \ArrayObject
 	/**
 	 * Returns single model fetched by primary key
 	 *
-	 * @param string $pk primary key of model
+	 * @param string $value value to find
+	 * @param string $column Column to find in. Defaults to primary key
 	 *
 	 * @throws \Exception
 	 *
 	 * @return static
 	 */
-	public static function find( string $pk ) {
-		return static::single_array_to_model(
-			EE::db()
-				->table( static::$table )
-				->where( static::$primary_key, $pk )
-				->first()
-		);
+	public static function find( string $value, string $column = null ) {
+		$primary_key_column = $column ?? static::$primary_key;
+		$model = EE::db()
+			->table( static::$table )
+			->where( $primary_key_column, $value )
+			->first();
+
+		if( $model === false ) {
+			return false;
+		}
+
+		return static::single_array_to_model( $model );
 	}
 
 	/**
 	 * Throws exception if model is not found
 	 *
-	 * @param string $pk
+	 * @param string $value value to find
+	 * @param string $column Column to find in. Defaults to primary key
 	 *
 	 * @throws \Exception
 	 *
 	 * @return static
 	 */
-	public static function find_or_fail( string $pk ) {
-		$model = static::find( $pk );
+	public static function find_or_fail( string $value, string $column = null ) {
+		$model = static::find( $value, $column );
 
 		if ( ! $model ) {
-			throw new \Exception( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $pk ) );
+			throw new \Exception( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $value ) );
 		}
 		return $model;
 	}
@@ -179,17 +187,18 @@ abstract class Base extends \ArrayObject
 	/**
 	 * Exits with error if model is not found
 	 *
-	 * @param string $pk
+	 * @param string $value value to find
+	 * @param string $column Column to find in. Defaults to primary key
 	 *
 	 * @throws \Exception
 	 *
 	 * @return static
 	 */
-	public static function find_or_error( string $pk ) {
-		$model = static::find( $pk );
+	public static function find_or_error( string $value, string $column = null ) {
+		$model = static::find( $value, $column );
 
 		if ( ! $model ) {
-			EE::error( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $pk ) );
+			EE::error( sprintf( 'Unable to find %s : with primary key: %s and value: %s', __CLASS__, static::$primary_key, $value ) );
 		}
 		return $model;
 	}
@@ -220,8 +229,7 @@ abstract class Base extends \ArrayObject
 	 * @throws \Exception
 	 */
 	public static function create( $columns = [] ) {
-		$new_model_id = EE::db()->table( static::$table )->insert( $columns );
-		return self::find( $new_model_id );
+		return  EE::db()->table( static::$table )->insert( $columns );
 	}
 
 	/**
