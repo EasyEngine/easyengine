@@ -354,16 +354,16 @@ abstract class EE_Site_Command {
 		}
 
 		if ( ! $parent_site ) {
-			throw new Exception( 'Unable to find existing site: ' . $parent_site );
+			throw new Exception( 'Unable to find existing site: ' . $parent_site_name );
 		}
 
 
 		if ( ! $parent_site['is_ssl'] ) {
-			throw new Exception( "Cannot inherit from $parent_site as site does not have SSL cert" );
+			throw new Exception( "Cannot inherit from $parent_site_name as site does not have SSL cert" . var_dump( $parent_site ) );
 		}
 
 		if ( ! $parent_site['site_ssl_wildcard'] ) {
-			throw new Exception( "Cannot inherit from $parent_site as site does not have wildcard SSL cert" );
+			throw new Exception( "Cannot inherit from $parent_site_name as site does not have wildcard SSL cert" );
 		}
 
 		// We don't have to do anything now as nginx-proxy handles everything for us.
