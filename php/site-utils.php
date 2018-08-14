@@ -145,9 +145,9 @@ function setup_site_network( $site_name ) {
  * Adds www to non-www redirection to site
  *
  * @param string $site_name Name of the site.
- * @param bool $le          Specifying if letsencrypt is enabled or not.
+ * @param bool $ssl          Specifying if ssl is enabled or not.
  */
-function add_site_redirects( $site_name, $le ) {
+function add_site_redirects( $site_name, $ssl ) {
 
 	$fs               = new Filesystem();
 	$confd_path       = EE_CONF_ROOT . '/nginx/conf.d/';
@@ -157,7 +157,7 @@ function add_site_redirects( $site_name, $le ) {
 	if ( $has_www ) {
 		$site_name_without_www = ltrim( $site_name, '.www' );
 		// ee site create www.example.com --le
-		if ( $le ) {
+		if ( $ssl ) {
 			$content = "
 server {
 	listen  80;
@@ -177,7 +177,7 @@ server {
 	} else {
 		$site_name_with_www = 'www.' . $site_name;
 		// ee site create example.com --le
-		if ( $le ) {
+		if ( $ssl ) {
 
 			$content = "
 server {

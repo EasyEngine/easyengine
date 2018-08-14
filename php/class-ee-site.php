@@ -14,14 +14,14 @@ abstract class EE_Site_Command {
 	private $fs;
 
 	/**
-	 * @var bool $le Whether the site is letsencrypt or not.
-	 */
-	private $le;
-
-	/**
 	 * @var bool $wildcard Whether the site is letsencrypt type is wildcard or not.
 	 */
 	private $wildcard;
+
+	/**
+	 * @var bool $ssl Whether the site has SSL or not.
+	 */
+	private $ssl;
 
 	/**
 	 * @var string $le_mail Mail id to be used for letsencrypt registration and certificate generation.
@@ -175,7 +175,7 @@ abstract class EE_Site_Command {
 		}
 
 		if ( $level > 4 ) {
-			if ( $this->le ) {
+			if ( $this->ssl ) {
 				EE::log( 'Removing ssl certs.' );
 				$crt_file   = EE_CONF_ROOT . "/nginx/certs/$site_name.crt";
 				$key_file   = EE_CONF_ROOT . "/nginx/certs/$site_name.key";
@@ -340,6 +340,39 @@ abstract class EE_Site_Command {
 	/**
 	 * Runs the acme le registration and authorization.
 	 *
+	 * @param string $site_name      Name of the site for ssl.
+	 * @param string $needs_wildcard Does site needs wildcard.
+	 *
+	 * @throws Exception
+	 */
+	protected function inherit_certs( $site_name, $needs_wildcard ) {
+		$parent_site_name = implode( '.', array_slice( explode( '.', $site_name ), 1 ) );
+		$parent_site      = EE::db()::select( [ 'is_ssl', 'site_ssl_wildcard' ], [ 'sitename' => $parent_site_name ] )[0];
+
+		if ( $needs_wildcard ) {
+			throw new Exception( '--wildcard cannot be used with --ssl=inherit' );
+		}
+
+		if ( ! $parent_site ) {
+			throw new Exception( 'Unable to find existing site: ' . $parent_site );
+		}
+
+
+		if ( ! $parent_site['is_ssl'] ) {
+			throw new Exception( "Cannot inherit from $parent_site as site does not have SSL cert" );
+		}
+
+		if ( ! $parent_site['site_ssl_wildcard'] ) {
+			throw new Exception( "Cannot inherit from $parent_site as site does not have wildcard SSL cert" );
+		}
+
+		// We don't have to do anything now as nginx-proxy handles everything for us.
+		EE::success( 'Inherited certs from parent' );
+	}
+
+		/**
+	 * Runs the acme le registration and authorization.
+	 *
 	 * @param string $site_name Name of the site for ssl.
 	 * @param string $site_root Webroot of the site.
 	 * @param bool $wildcard    SSL with wildcard or not.
@@ -353,7 +386,7 @@ abstract class EE_Site_Command {
 		$this->le_mail      = EE::get_runner()->config['le-mail'] ?? EE::input( 'Enter your mail id: ' );
 		EE::get_runner()->ensure_present_in_config( 'le-mail', $this->le_mail );
 		if ( ! $client->register( $this->le_mail ) ) {
-			$this->le = false;
+			$this->ssl = false;
 
 			return;
 		}
@@ -363,7 +396,7 @@ abstract class EE_Site_Command {
 			$this->site['name']
 		] : [ $this->site['name'] ];
 		if ( ! $client->authorize( $domains, $this->site['root'], $wildcard ) ) {
-			$this->le = false;
+			$this->ssl = false;
 
 			return;
 		}
@@ -398,7 +431,7 @@ abstract class EE_Site_Command {
 		$domains = $this->wildcard ? [ '*.' . $this->site['name'], $this->site['name'] ] : [ $this->site['name'] ];
 		$client  = new Site_Letsencrypt();
 		if ( ! $client->check( $domains, $this->wildcard ) ) {
-			$this->le = false;
+			$this->ssl = false;
 
 			return;
 		}
@@ -424,8 +457,8 @@ abstract class EE_Site_Command {
 
 			$this->site['type'] = $db_select['site_type'];
 			$this->site['root'] = $db_select['site_path'];
-			$this->le           = $db_select['is_ssl'];
-			$this->wildcard     = $db_select['is_ssl_wildcard'];
+			$this->ssl          = $db_select['is_ssl'];
+			$this->wildcard     = $db_select['site_ssl_wildcard'];
 
 		} else {
 			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
