@@ -7,8 +7,7 @@ use EE;
 /**
  * Base EE Model class.
  */
-abstract class Base extends \ArrayObject
-{
+abstract class Base extends \ArrayObject {
 
 	/**
 	 * @var string Table that current model will write to
@@ -133,9 +132,9 @@ abstract class Base extends \ArrayObject
 	/**
 	 * Overriding offsetUnset for correct behaviour while deleting object properties by array index.
 	 *
-	 * @param string|int $index Name of property to check
-	 *
 	 * @throws \Exception
+	 *
+	 * @param string|int $index Name of property to check
 	 */
 	public function offsetUnset( $index ) {
 		$this->__unset( $index );
@@ -208,16 +207,17 @@ abstract class Base extends \ArrayObject
 	 *
 	 * @param array $columns Columns to select
 	 *
-	 * @return array Array of models
 	 * @throws \Exception
+	 *
+	 * @return array Array of models
 	 */
 	public static function all( $columns = [] ) {
-		return static::many_array_to_model(
-			EE::db()
-				->table( static::$table )
-				->select( ...$columns )
-				->get()
-		);
+		$models = EE::db()
+			->table( static::$table )
+			->select( ...$columns )
+			->get();
+
+		return static::many_array_to_model( $models );
 	}
 
 	/**
@@ -225,11 +225,12 @@ abstract class Base extends \ArrayObject
 	 *
 	 * @param array $columns Columns and values to insert
 	 *
-	 * @return static
 	 * @throws \Exception
+	 *
+	 * @return bool Model created successfully
 	 */
 	public static function create( $columns = [] ) {
-		return  EE::db()->table( static::$table )->insert( $columns );
+		return EE::db()->table( static::$table )->insert( $columns );
 	}
 
 	/**
@@ -240,10 +241,14 @@ abstract class Base extends \ArrayObject
 	 * @return bool Model saved successfully
 	 */
 	public function save() {
+		$fields = array_merge( $this->fields, [
+			'modified_on' => date( 'Y-m-d H:i:s' ),
+		] );
+
 		return EE::db()
 			->table( static::$table )
 			->where( static::$primary_key, $this[ static::$primary_key ] )
-			->update( $this->fields );
+			->update( $fields );
 	}
 
 	/**
@@ -251,7 +256,7 @@ abstract class Base extends \ArrayObject
 	 *
 	 * @throws \Exception
 	 *
-	 * @return bool Model deleted` successfully
+	 * @return bool Model deleted successfully
 	 */
 	public function delete() {
 		return EE::db()

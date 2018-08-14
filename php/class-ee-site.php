@@ -8,8 +8,7 @@ use \EE\Model\Site;
  *
  * @package ee
  */
-abstract class EE_Site_Command
-{
+abstract class EE_Site_Command {
 	/**
 	 * @var Filesystem $fs Symfony Filesystem object.
 	 */
@@ -435,8 +434,8 @@ abstract class EE_Site_Command
 
 			$this->site['type'] = $site->site_type;
 			$this->site['root'] = $site->site_fs_path;
-			$this->le = null !== $site->site_ssl;
-			$this->wildcard = 'wildcard' === $site->site_ssl;
+			$this->le           = ( null !== $site->site_ssl );
+			$this->wildcard     = ( 'wildcard' === $site->site_ssl );
 		} else {
 			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
 		}

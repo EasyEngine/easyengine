@@ -126,15 +126,12 @@ class EE_DB {
 	/**
 	 * Fetches first record from current query
 	 *
-	 * @return array Record
 	 * @throws Exception
+	 *
+	 * @return array Record
 	 */
 	public function first() {
 		$pdo_statement = $this->common_retrieval_function();
-
-		if ( ! $pdo_statement ) {
-			return false;
-		}
 
 		return $pdo_statement->fetch();
 	}
@@ -143,8 +140,9 @@ class EE_DB {
 	 * Common retrival function that runs current 'select' query.
 	 * Other methods (like get and first) can use this to provide higher level functionality on top of it
 	 *
-	 * @return bool|PDOStatement
 	 * @throws Exception
+	 *
+	 * @return bool|PDOStatement
 	 */
 	private function common_retrieval_function() {
 		if ( null === $this->tables ) {
@@ -152,7 +150,10 @@ class EE_DB {
 		}
 
 		$where = $this->where['query_string'];
-		$this->select === '' ? $this->select = '*' : '';
+
+		if ( empty( $this->select ) ) {
+			$this->select = '*';
+		}
 
 		$query = "SELECT $this->select FROM $this->tables{$where}{$this->limit}{$this->offset};";
 
@@ -168,9 +169,9 @@ class EE_DB {
 		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
-			EE::debug( self::$pdo->errorInfo() );
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
 
-			return false;
+			throw new PDOException( self::$pdo->errorInfo() );
 		}
 
 		return $pdo_statement;
@@ -190,6 +191,7 @@ class EE_DB {
 	 * @param ...$args One or more where condition.
 	 *
 	 * @throws Exception
+	 *
 	 * @return EE_DB
 	 */
 	public function where( ...$args ) {
@@ -235,6 +237,23 @@ class EE_DB {
 	}
 
 	/**
+	 * Fetches all records from current query
+	 *
+	 * @throws Exception
+	 *
+	 * @return array All records
+	 */
+	public function get() {
+		$pdo_statement = $this->common_retrieval_function();
+
+		if ( ! $pdo_statement ) {
+			return false;
+		}
+
+		return $pdo_statement->fetchAll();
+	}
+
+	/**
 	 * Selects table to do operation on.
 	 *
 	 * @param ...$args Tables to run query on.
@@ -248,26 +267,11 @@ class EE_DB {
 	}
 
 	/**
-	 * Fetches all records from current query
-	 *
-	 * @return array All records
-	 * @throws Exception
-	 */
-	public function get() {
-		$pdo_statement = $this->common_retrieval_function();
-
-		if ( ! $pdo_statement ) {
-			return false;
-		}
-
-		return $pdo_statement->fetchAll();
-	}
-
-	/**
 	 * Fetches all records from current query.
 	 *
-	 * @return array All records
 	 * @throws Exception
+	 *
+	 * @return array All records
 	 */
 	public function all() {
 		return $this->get();
@@ -333,9 +337,9 @@ class EE_DB {
 		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
-			EE::debug( self::$pdo->errorInfo() );
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
 
-			return false;
+			throw new PDOException( self::$pdo->errorInfo() );
 		}
 
 		return self::$pdo->lastInsertId();
@@ -389,9 +393,9 @@ class EE_DB {
 		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
-			EE::debug( self::$pdo->errorInfo() );
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
 
-			return false;
+			throw new PDOException( self::$pdo->errorInfo() );
 		}
 
 		return true;
@@ -428,9 +432,9 @@ class EE_DB {
 		$result = $pdo_statement->execute();
 
 		if ( ! $result ) {
-			EE::debug( self::$pdo->errorInfo() );
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
 
-			return false;
+			throw new PDOException( self::$pdo->errorInfo() );
 		}
 
 		return true;
@@ -451,6 +455,10 @@ class EE_DB {
 	private function get_where_fragment( $condition ) {
 		$column   = $condition[0];
 		$operator = '=';
+
+		if ( ! is_array( $condition ) || empty( $condition ) || count( $condition ) > 3 ) {
+			throw new Exception( 'Where clause must non empty array with lets than 3 elements' );
+		}
 
 		if ( 'string' !== gettype( $column ) ) {
 			throw new Exception( 'Where clause column must be of type string' );

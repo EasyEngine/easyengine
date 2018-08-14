@@ -7,74 +7,33 @@ namespace EE\Model;
  */
 class Site extends Base {
 
+	/**
+	 * @var string Table of the model from where it will be stored/retrived
+	 */
 	protected static $table = 'sites';
+
+	/**
+	 * @var string Primary/Unique key of the table
+	 */
 	protected static $primary_key = 'site_url';
 
 	/**
-	 * Check if a site entry exists in the database.
+	 * Saves current model into database
 	 *
-	 * @param string $site_name Name of the site to be checked.
+	 * @throws \Exception
 	 *
-	 * @throws Exception
-	 *
-	 * @return bool Success.
+	 * @return bool Model saved successfully
 	 */
-	public static function site_in_db( $site_name ) {
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'id' )
-			->where( 'site_name', $site_name )
-			->first();
+	public function save() {
+		$fields = array_merge( $this->fields, [
+			'modified_on' => date( 'Y-m-d H:i:s' ),
+		] );
 
-		if ( $site ) {
-			return true;
-		}
-
-		return false;
+		return EE::db()
+			->table( static::$table )
+			->where( static::$primary_key, $this[ static::$primary_key ] )
+			->update( $fields );
 	}
 
-	/**
-	 * Check if a site entry exists in the database as well as if it is enbaled.
-	 *
-	 * @param String $site_name Name of the site to be checked.
-	 *
-	 * @throws Exception
-	 *
-	 * @return bool true  if site is enabled,
-	 *              false if disabled or site does not exists.
-	 */
-	public static function site_enabled( $site_name ) {
-
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'id', 'site_enabled' )
-			->where( 'site_name', $site_name )
-			->first();
-
-		if ( $site ) {
-			return $site['site_enabled'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get site type.
-	 *
-	 * @param String $site_name Name of the site.
-	 *
-	 * @throws Exception
-	 *
-	 * @return string type of site.
-	 */
-	public static function get_site_command( $site_name ) {
-		$db = new EE_DB();
-		$site = $db->table( 'sites' )
-			->select( 'site_command' )
-			->where( 'site_name', $site_name )
-			->first();
-
-		return $site['site_command'];
-	}
 
 }
