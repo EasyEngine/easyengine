@@ -232,7 +232,7 @@ function site_status_check( $site_name ) {
 	EE::log( 'Checking and verifying site-up status. This may take some time.' );
 	$httpcode = get_curl_info( $site_name );
 	$i        = 0;
-	while ( 200 !== $httpcode && 302 !== $httpcode ) {
+	while ( 200 !== $httpcode && 302 !== $httpcode && 301 !== $httpcode ) {
 		EE::debug( "$site_name status httpcode: $httpcode" );
 		$httpcode = get_curl_info( $site_name );
 		echo '.';
@@ -241,7 +241,7 @@ function site_status_check( $site_name ) {
 			break;
 		}
 	}
-	if ( 200 !== $httpcode && 302 !== $httpcode ) {
+	if ( 200 !== $httpcode && 302 !== $httpcode && 301 !== $httpcode ) {
 		throw new \Exception( 'Problem connecting to site!' );
 	}
 
@@ -260,8 +260,8 @@ function get_curl_info( $url, $port = 80, $port_info = false ) {
 
 	$ch = curl_init( $url );
 	curl_setopt( $ch, CURLOPT_HEADER, true );
-	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
 	curl_setopt( $ch, CURLOPT_PORT, $port );
 	curl_exec( $ch );
