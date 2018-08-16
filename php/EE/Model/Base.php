@@ -7,7 +7,7 @@ use EE;
 /**
  * Base EE Model class.
  */
-abstract class Base extends \ArrayObject {
+abstract class Base {
 
 	/**
 	 * @var string Table that current model will write to
@@ -87,57 +87,6 @@ abstract class Base extends \ArrayObject {
 	 */
 	public function __unset( $name ) {
 		unset( $this->fields[ $name ] );
-	}
-
-	/**
-	 * Overriding offsetGet for correct behaviour while accessing object properties by array index.
-	 *
-	 * @param string|int $index Name of property to check
-	 *
-	 * @throws \Exception
-	 *
-	 * @return bool
-	 */
-	public function offsetGet( $index ) {
-		return $this->__get( $index );
-	}
-
-	/**
-	 * Overriding offsetSet for correct behaviour while saving object properties by array index.
-	 *
-	 * @param string|int $index Name of property to check
-	 * @param mixed  $value Value of property to set
-	 *
-	 * @throws \Exception
-	 *
-	 * @return bool
-	 */
-	public function offsetSet( $index, $value ) {
-		return $this->__set( $index, $value );
-	}
-
-	/**
-	 * Overriding offsetGet for correct behaviour while checking array_key_exists.
-	 *
-	 * @param string|int $index Name of property to check
-	 *
-	 * @throws \Exception
-	 *
-	 * @return bool
-	 */
-	public function offsetExists( $index ) {
-		return $this->__isset( $index );
-	}
-
-	/**
-	 * Overriding offsetUnset for correct behaviour while deleting object properties by array index.
-	 *
-	 * @param string|int $index Name of property to check
-	 *
-	 * @throws \Exception
-	 */
-	public function offsetUnset( $index ) {
-		$this->__unset( $index );
 	}
 
 	/**
