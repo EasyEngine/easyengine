@@ -452,13 +452,14 @@ class EE_DB {
 	 *
 	 * @return array prepared query string and its corresponding binding
 	 */
-	private function get_where_fragment( $condition ) {
+	private function get_where_fragment( array $condition ) {
+
+		if ( empty( $condition ) || count( $condition ) > 3 ) {
+			throw new Exception( 'Where clause array must non empty with less than 3 elements' );
+		}
+
 		$column   = $condition[0];
 		$operator = '=';
-
-		if ( ! is_array( $condition ) || empty( $condition ) || count( $condition ) > 3 ) {
-			throw new Exception( 'Where clause must non empty array with lets than 3 elements' );
-		}
 
 		if ( 'string' !== gettype( $column ) ) {
 			throw new Exception( 'Where clause column must be of type string' );
