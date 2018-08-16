@@ -391,12 +391,23 @@ abstract class EE_Site_Command {
 			return;
 		}
 
-		$domains = $wildcard ? [
-			sprintf( '*.%s', $this->site['name'] ),
-			$this->site['name']
-		] : [ $this->site['name'] ];
+
+		$domains = [ $this->site['name'] ];
+		$has_www = strpos( $site_name, 'www.' ) === 0;
+
+		if ( $wildcard ) {
+			$domains[] = "*.{$this->site['name']}";
+		}
+
+		if ( $has_www ) {
+			$site_name_without_www = ltrim( $site_name, 'www.' );
+			$domains[]             = $site_name_without_www;
+		} else {
+			$site_name_with_www = 'www.' . $site_name;
+			$domains[]          = $site_name_with_www;
+		}
 		if ( ! $client->authorize( $domains, $this->site['root'], $wildcard ) ) {
-			$this->ssl = false;
+			$this->le = false;
 
 			return;
 		}
