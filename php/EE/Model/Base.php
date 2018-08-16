@@ -132,9 +132,9 @@ abstract class Base extends \ArrayObject {
 	/**
 	 * Overriding offsetUnset for correct behaviour while deleting object properties by array index.
 	 *
-	 * @throws \Exception
-	 *
 	 * @param string|int $index Name of property to check
+	 *
+	 * @throws \Exception
 	 */
 	public function offsetUnset( $index ) {
 		$this->__unset( $index );
