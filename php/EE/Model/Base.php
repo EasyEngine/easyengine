@@ -61,7 +61,7 @@ abstract class Base {
 	 *
 	 * @throws \Exception
 	 *
-	 * @return static
+	 * @return bool|static
 	 */
 	public static function find( string $value, string $column = null ) {
 		$primary_key_column = $column ?? static::$primary_key;

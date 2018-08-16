@@ -23,7 +23,7 @@ class EE_DB {
 		$this->offset = '';
 		$this->where  = [
 			'query_string' => null,
-			'bindings'      => null,
+			'bindings'     => null,
 		];
 	}
 
@@ -34,6 +34,7 @@ class EE_DB {
 
 		if ( ! ( file_exists( DB ) ) ) {
 			self::create_required_tables();
+
 			return;
 		}
 
@@ -215,6 +216,56 @@ class EE_DB {
 	}
 
 	/**
+	 * Returns a query fragment for where clause
+	 *
+	 * If the param given is ['column', 100], it returns ['column = ?', 100]
+	 * If the param given is ['column', '>', 100], it returns ['column > ?', 100]
+	 *
+	 * @param array $condition An array of format [column, operator, value] or [column, value]
+	 *
+	 * @throws Exception
+	 *
+	 * @return array prepared query string and its corresponding binding
+	 */
+	private function get_where_fragment( array $condition ) {
+
+		if ( empty( $condition ) || count( $condition ) > 3 ) {
+			throw new Exception( 'Where clause array must non empty with less than 3 elements' );
+		}
+
+		$column   = $condition[0];
+		$operator = '=';
+
+		if ( 'string' !== gettype( $column ) ) {
+			throw new Exception( 'Where clause column must be of type string' );
+		}
+
+		if ( isset( $condition[2] ) ) {
+			$operator          = $condition[1];
+			$allowed_operators = [ '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in' ];
+
+			if ( ! in_array( strtolower( $operator ), $allowed_operators ) ) {
+				throw new Exception( 'Where clause operator should be in one of following: ' . implode( ' ', $allowed_operators ) );
+			}
+
+			$value = $condition[2];
+		} elseif ( isset( $condition[1] ) ) {
+			$value = $condition[1];
+		} else {
+			throw new Exception( 'Where clause value must be set' );
+		}
+
+		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer', 'boolean' ], true ) ) {
+			throw new Exception( 'Where clause operator and value must be string' );
+		}
+
+		return [
+			'query_string' => "$column $operator ?",
+			'binding'      => $value,
+		];
+	}
+
+	/**
 	 * Select data from the database.
 	 *
 	 * @param array $args Columns to select
@@ -234,23 +285,6 @@ class EE_DB {
 		$this->select = $columns;
 
 		return $this;
-	}
-
-	/**
-	 * Fetches all records from current query
-	 *
-	 * @throws Exception
-	 *
-	 * @return array All records
-	 */
-	public function get() {
-		$pdo_statement = $this->common_retrieval_function();
-
-		if ( ! $pdo_statement ) {
-			return false;
-		}
-
-		return $pdo_statement->fetchAll();
 	}
 
 	/**
@@ -275,6 +309,23 @@ class EE_DB {
 	 */
 	public function all() {
 		return $this->get();
+	}
+
+	/**
+	 * Fetches all records from current query
+	 *
+	 * @throws Exception
+	 *
+	 * @return array All records
+	 */
+	public function get() {
+		$pdo_statement = $this->common_retrieval_function();
+
+		if ( ! $pdo_statement ) {
+			return false;
+		}
+
+		return $pdo_statement->fetchAll();
 	}
 
 	/**
@@ -371,7 +422,7 @@ class EE_DB {
 			return false;
 		}
 
-		$set_keys     = array_keys( $values );
+		$set_keys       = array_keys( $values );
 		$set_bindings   = array_values( $values );
 		$where_bindings = $this->where['bindings'];
 
@@ -438,55 +489,5 @@ class EE_DB {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns a query fragment for where clause
-	 *
-	 * If the param given is ['column', 100], it returns ['column = ?', 100]
-	 * If the param given is ['column', '>', 100], it returns ['column > ?', 100]
-	 *
-	 * @param array $condition An array of format [column, operator, value] or [column, value]
-	 *
-	 * @throws Exception
-	 *
-	 * @return array prepared query string and its corresponding binding
-	 */
-	private function get_where_fragment( array $condition ) {
-
-		if ( empty( $condition ) || count( $condition ) > 3 ) {
-			throw new Exception( 'Where clause array must non empty with less than 3 elements' );
-		}
-
-		$column   = $condition[0];
-		$operator = '=';
-
-		if ( 'string' !== gettype( $column ) ) {
-			throw new Exception( 'Where clause column must be of type string' );
-		}
-
-		if ( isset( $condition[2] ) ) {
-			$operator          = $condition[1];
-			$allowed_operators = [ '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in' ];
-
-			if ( ! in_array( strtolower( $operator ), $allowed_operators ) ) {
-				throw new Exception( 'Where clause operator should be in one of following: ' . implode( ' ', $allowed_operators ) );
-			}
-
-			$value = $condition[2];
-		} elseif ( isset( $condition[1] ) ) {
-			$value = $condition[1];
-		} else {
-			throw new Exception( 'Where clause value must be set' );
-		}
-
-		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer', 'boolean' ], true ) ) {
-			throw new Exception( 'Where clause operator and value must be string' );
-		}
-
-		return [
-			'query_string' => "$column $operator ?",
-			'binding'      => $value,
-		];
 	}
 }
