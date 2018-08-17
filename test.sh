@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# called by Travis CI
-
-# Add certificates
-./vendor/easyengine/site-command/ci/add-test-certs.sh > /dev/null
-
 if [[ $TRAVIS_COMMIT_MESSAGE = *"[BREAKING CHANGES]"* ]]; then
 	pattern='\<REPO\>.*\b'
 
@@ -27,11 +22,6 @@ if [[ $TRAVIS_COMMIT_MESSAGE = *"[BREAKING CHANGES]"* ]]; then
 		repo_branch=${repo_with_branch#*\:}
 		sudo rm -r "$repo_name"
 		git clone https://github.com/"$owner_name"/"$repo_name".git -b "$repo_branch"
-		pushd "$repo_name"
-		echo "Updated to easyengine/$repo_name to $owner_name/$repo_name"
-		git remote -v
-		git branch
-		popd
 	done
 
 	popd
@@ -43,3 +33,4 @@ find vendor/easyengine -type d -name 'features' | while read repo; do
 	echo "Running tests for $repo_name"
 	sudo ./vendor/bin/behat	
 done
+
