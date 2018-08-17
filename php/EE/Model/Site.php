@@ -1,6 +1,7 @@
 <?php
 
 namespace EE\Model;
+use EE;
 
 /**
  * Site model class.
@@ -29,11 +30,11 @@ class Site extends Base {
 			'modified_on' => date( 'Y-m-d H:i:s' ),
 		] );
 
+		$primary_key_column = static::$primary_key;
+
 		return EE::db()
 			->table( static::$table )
-			->where( static::$primary_key, $this[ static::$primary_key ] )
+			->where( $primary_key_column, $this->$primary_key_column )
 			->update( $fields );
 	}
-
-
 }

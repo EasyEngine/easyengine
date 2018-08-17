@@ -88,8 +88,8 @@ abstract class EE_Site_Command {
 		} else {
 			$result = array_map(
 				function ( $site ) {
-					$site['site'] = $site['site_url'];
-					$site['status'] = $site['site_enabled'] ? 'enabled' : 'disabled';
+					$site->site = $site->site_url;
+					$site->status = $site->site_enabled ? 'enabled' : 'disabled';
 
 					return $site;
 				}, $sites
