@@ -5,10 +5,17 @@
 # Add certificates
 ./vendor/easyengine/site-command/ci/add-test-certs.sh > /dev/null
 
-echo "Commit msg: $TRAVIS_COMMIT_MESSAGE"
+if [[ "false" != "$TRAVIS_PULL_REQUEST" ]]; then
+	commit_msg="$(git --no-pager log -2 --pretty=%B)"
+else
+	commit_msg=$TRAVIS_COMMIT_MESSAGE
+fi
+
+echo "Commit msg: $commit_msg"
+
 echo "Starting test suite for other commands"
 
-if [[ $TRAVIS_COMMIT_MESSAGE = *"[BREAKING CHANGES]"* ]]; then
+if [[ $commit_msg = *"[BREAKING CHANGES]"* ]]; then
 
 	echo "[BREAKING CHANGES] found."
 	pattern='\<REPO\>.*\b'
