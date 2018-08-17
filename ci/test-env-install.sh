@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-function setup_test_requirements() {
+function setup_php() {
     # Adding software-properties-common for add-apt-repository.
     apt-get install -y software-properties-common
     # Adding ondrej/php repository for installing php, this works for all ubuntu flavours.
@@ -23,4 +23,23 @@ function setup_test_requirements() {
     fi
 }
 
-setup_test_requirements
+function setup_docker() {
+    echo "Installing Docker"
+    # Making sure wget and curl are installed.
+    apt update && apt-get install wget curl -y
+    # Running standard docker installation.
+    wget --quiet get.docker.com -O docker-setup.sh
+    sh docker-setup.sh
+    
+    echo "Installing Docker-Compose"
+    # Running standard docker-compose installation.
+    curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+}
+
+function setup_dependencies {
+    setup_docker
+    setup_php
+}
+
+setup_dependencies
