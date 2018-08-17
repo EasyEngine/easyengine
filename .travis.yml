@@ -23,6 +23,8 @@ install:
 before_script:
   - composer validate
   - ./ci/prepare.sh
+
+script:
   - sudo ./vendor/bin/behat
   - ./ci/test-commands.sh
 
@@ -33,7 +35,7 @@ jobs:
   include:
     - stage: deploy
       env: DEPLOY_BRANCH=master-v4
-      script: ./ci/deploy.sh
+      after_success: ./ci/deploy.sh
 
 cache:
   directories:
