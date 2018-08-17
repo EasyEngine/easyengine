@@ -24,7 +24,7 @@ before_script:
   - composer validate
   - ./ci/prepare.sh
   - sudo ./vendor/bin/behat
-  - ./ci/test-commands.sh
+  - bash -x ci/test-commands.sh 
 
 after_script:
   - cat /opt/easyengine/ee.log

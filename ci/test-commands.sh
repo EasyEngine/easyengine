@@ -5,7 +5,12 @@
 # Add certificates
 ./vendor/easyengine/site-command/ci/add-test-certs.sh > /dev/null
 
+echo "Commit msg: $TRAVIS_COMMIT_MESSAGE"
+echo "Starting test suite for other commands"
+
 if [[ $TRAVIS_COMMIT_MESSAGE = *"[BREAKING CHANGES]"* ]]; then
+
+	echo "[BREAKING CHANGES] found."
 	pattern='\<REPO\>.*\b'
 
 	declare -a repos
