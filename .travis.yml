@@ -6,6 +6,7 @@ php: 7.0
 env:
   global:
     - PATH="$TRAVIS_BUILD_DIR/vendor/bin:$PATH"
+    - COMPOSE_INTERACTIVE_NO_CLI=true
 
 before_install:
   - |
