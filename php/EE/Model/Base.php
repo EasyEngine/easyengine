@@ -245,9 +245,11 @@ abstract class Base {
 			]
 		);
 
+		$primary_key_column = static::$primary_key;
+
 		return EE::db()
 			->table( static::$table )
-			->where( static::$primary_key, $this[static::$primary_key] )
+			->where( $primary_key_column, $this->$primary_key_column )
 			->update( $fields );
 	}
 
@@ -259,9 +261,11 @@ abstract class Base {
 	 * @return bool Model deleted successfully
 	 */
 	public function delete() {
+		$primary_key_column = static::$primary_key;
+
 		return EE::db()
 			->table( static::$table )
-			->where( static::$primary_key, $this->id )
+			->where( $primary_key_column, $this->$primary_key_column )
 			->delete();
 	}
 
@@ -273,9 +277,11 @@ abstract class Base {
 	 * @return bool Model updated successfully
 	 */
 	public function update( $columns ) {
+		$primary_key_column = static::$primary_key;
+
 		return EE::db()
 			->table( static::$table )
-			->where( static::$primary_key, $this->id )
+			->where( $primary_key_column, $this->$primary_key_column )
 			->update( $columns );
 	}
 }

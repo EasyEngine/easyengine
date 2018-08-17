@@ -83,7 +83,7 @@ abstract class EE_Site_Command {
 
 		if ( 'text' === $format ) {
 			foreach ( $sites as $site ) {
-				EE::log( $site['site_url'] );
+				EE::log( $site->site_url );
 			}
 		} else {
 			$result = array_map(
@@ -95,7 +95,7 @@ abstract class EE_Site_Command {
 				}, $sites
 			);
 
-			$formatter = new EE\Formatter( $assoc_args, ['site', 'status'] );
+			$formatter = new EE\Formatter( $assoc_args, [ 'site', 'status' ] );
 
 			$formatter->display_items( $result );
 		}
