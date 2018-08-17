@@ -40,6 +40,7 @@ if [[ $commit_message = *"[BREAKING CHANGES]"* ]]; then
 			popd
 		done
 	popd
+	composer du
 fi
 
 find vendor/easyengine -type d -name 'features' | while read repo; do
