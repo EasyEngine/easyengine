@@ -15,10 +15,20 @@ before_install:
     else
       echo "xdebug.ini does not exist"
     fi
-  - [ "$TRAVIS_BRANCH" != "master-v4" ] && sed -i '/easyengine.*/s/:\ \".*\"/:\ \"develop\"/' composer.json
+  - |
+    # Update commands in composer.json to develop if branch is not master.
+    if [[ "$TRAVIS_BRANCH" != "master-v4" ]]; then
+      sed -i '/easyengine.*/s/:\ \".*\"/:\ \"develop\"/' composer.json
+    fi
 
 install:
-  - [ "$TRAVIS_BRANCH" = "master-v4" ] && composer install --no-interaction || composer update
+  - |
+    # Update commands in composer.json to develop if branch is not master.
+    if [[ "$TRAVIS_BRANCH" = "master-v4" ]]; then
+      composer install --no-interaction
+    else
+      composer update
+    fi
   - sudo ./ci/test-env-install.sh
 
 before_script:
