@@ -18,7 +18,7 @@ before_install:
   - |
     # Update commands in composer.json to develop if branch is not master.
     if [[ "$TRAVIS_BRANCH" != "master-v4" ]]; then
-      sed -i '/easyengine.*/s/:\ \".*\"/:\ \"develop\"/' composer.json
+      sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
       cat composer.json
     fi
 
