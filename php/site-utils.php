@@ -276,17 +276,18 @@ function get_curl_info( $url, $port = 80, $port_info = false ) {
 /**
  * Function to pull the latest images and bring up the site containers.
  *
- * @param string $site_root Root directory of the site.
+ * @param string $site_root  Root directory of the site.
+ * @param array  $containers The minimum required conatainers to start the site. Default null, leads to starting of all containers.
  *
  * @throws \Exception when docker-compose up fails.
  */
-function start_site_containers( $site_root ) {
+function start_site_containers( $site_root, $containers = [] ) {
 
 	EE::log( 'Pulling latest images. This may take some time.' );
 	chdir( $site_root );
 	EE::exec( 'docker-compose pull' );
 	EE::log( 'Starting site\'s services.' );
-	if ( ! EE::docker()::docker_compose_up( $site_root ) ) {
+	if ( ! EE::docker()::docker_compose_up( $site_root, $containers ) ) {
 		throw new \Exception( 'There was some error in docker-compose up.' );
 	}
 }
