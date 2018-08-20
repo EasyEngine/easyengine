@@ -3,6 +3,7 @@
 namespace EE\SiteUtils;
 
 use \EE;
+use EE\Model\Site;
 use \Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -11,20 +12,20 @@ use \Symfony\Component\Filesystem\Filesystem;
  * @return bool|String Name of the site or false in failure.
  */
 function get_site_name() {
+	$sites = Site::all( [ 'site_url' ] );
 
-	$sites = EE::db()::select( array( 'sitename' ) );
-
-	if ( $sites ) {
-		$cwd          = getcwd();
+	if ( ! empty( $sites ) ) {
+		$cwd = getcwd();
 		$name_in_path = explode( '/', $cwd );
-		$site_name    = array_intersect( EE\Utils\array_flatten( $sites ), $name_in_path );
+
+		$site_name = array_intersect( array_column( $sites, 'site_url' ), $name_in_path );
 
 		if ( 1 === count( $site_name ) ) {
 			$name = reset( $site_name );
-			$path = EE::db()::select( array( 'site_path' ), array( 'sitename' => $name ) );
+			$path = Site::find( $name );
 			if ( $path ) {
-				$site_path = $path[0]['site_path'];
-				if ( $site_path === substr( $cwd, 0, strlen( $site_path ) ) ) {
+				$site_path = $path['site_fs_path'];
+				if ( substr( $cwd, 0, strlen( $site_path ) ) === $site_path ) {
 					return $name;
 				}
 			}
@@ -48,7 +49,7 @@ function get_site_name() {
 function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
 
 	if ( isset( $args[ $arg_pos ] ) ) {
-		if ( EE::db()::site_in_db( $args[ $arg_pos ] ) ) {
+		if ( Site::find( $args[ $arg_pos ] ) ) {
 			return $args;
 		}
 	}

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="EE">
-	<description>WordPress Coding Standards for EE</description>
+	<description>Coding Standards for EasyEngine</description>
 
 	<!-- Show sniff codes in all reports, and progress while running -->
 	<arg value="sp"/>
@@ -33,6 +33,8 @@
 		<exclude name="WordPress.NamingConventions.ValidVariableName.NotSnakeCaseMemberVar" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.MemberNotSnakeCase" />
 		<exclude name="WordPress.NamingConventions.ValidVariableName.NotSnakeCase" />
+		<exclude name="WordPress.DB.RestrictedFunctions" />
+		<exclude name="WordPress.DB.RestrictedClasses" />
 	</rule>
 	<rule ref="WordPress.Files.FileName">
 		<properties>
