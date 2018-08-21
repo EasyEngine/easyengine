@@ -87,7 +87,8 @@ function init_checks() {
 			EE::error( 'Cannot create/start proxy container. Please make sure port 80 and 443 are free.' );
 		} else {
 			$EE_CONF_ROOT     = EE_CONF_ROOT;
-			$ee_proxy_command = "docker run --name $proxy_type -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy:v" . EE_VERSION;
+			$img_versions     = EE\Utils\get_image_versions();
+			$ee_proxy_command = "docker run --name $proxy_type -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy:" . $img_versions['easyengine/nginx-proxy'];
 
 
 			if ( EE::docker()::boot_container( $proxy_type, $ee_proxy_command ) ) {

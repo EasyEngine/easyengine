@@ -1545,3 +1545,24 @@ function get_callable_name( callable $callable ) {
 		return 'unknown';
 	}
 }
+
+/**
+ * Function to get the docker image versions stored in img-versions.json file.
+ *
+ * @return array Docker image versions.
+ */
+function get_image_versions() {
+
+	$img_version_file = file_get_contents( EE_ROOT . '/img-versions.json' );
+	if ( empty( $img_version_file ) ) {
+		EE::error( 'Image version file is empty. Can\'t proceed further.' );
+	}
+	$img_versions = json_decode( $img_version_file, true );
+	$json_error   = json_last_error();
+	if ( $json_error != JSON_ERROR_NONE ) {
+		EE::debug( 'Json last error: ' . $json_error );
+		EE::error( 'Error decoding image version file.' );
+	}
+
+	return $img_versions;
+}
