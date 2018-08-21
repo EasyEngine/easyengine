@@ -24,7 +24,7 @@ function get_site_name() {
 			$name = reset( $site_name );
 			$path = Site::find( $name );
 			if ( $path ) {
-				$site_path = $path['site_fs_path'];
+				$site_path = $path->site_fs_path;
 				if ( substr( $cwd, 0, strlen( $site_path ) ) === $site_path ) {
 					return $name;
 				}
