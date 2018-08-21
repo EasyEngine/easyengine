@@ -153,15 +153,21 @@ function reload_proxy_configuration() {
 /**
  * Adds www to non-www redirection to site
  *
- * @param string $site_name Name of the site.
- * @param bool $ssl          Specifying if ssl is enabled or not.
+ * @param string $site_name name of the site.
+ * @param bool $ssl         enable ssl or not.
+ * @param bool $inherit     inherit cert or not.
  */
-function add_site_redirects( $site_name, $ssl ) {
+function add_site_redirects( string $site_name, $ssl, $inherit ) {
 
 	$fs               = new Filesystem();
 	$confd_path       = EE_CONF_ROOT . '/nginx/conf.d/';
 	$config_file_path = $confd_path . $site_name . '-redirect.conf';
 	$has_www          = strpos( $site_name, 'www.' ) === 0;
+	$cert_site_name   = $site_name;
+
+	if ( $inherit ) {
+		$cert_site_name = implode( '.', array_slice( explode( '.', $site_name ), 1 ) );
+	}
 
 	if ( $has_www ) {
 		$site_name_without_www = ltrim( $site_name, '.www' );
@@ -182,8 +188,8 @@ server {
 	ssl_session_timeout 5m;
 	ssl_session_cache shared:SSL:50m;
 	ssl_session_tickets off;
-	ssl_certificate /etc/nginx/certs/$site_name.crt;
-	ssl_certificate_key /etc/nginx/certs/$site_name.key;
+	ssl_certificate /etc/nginx/certs/$cert_site_name.crt;
+	ssl_certificate_key /etc/nginx/certs/$cert_site_name.key;
 	server_name  $site_name_without_www;
 	return  301 https://$site_name\$request_uri;
 }";
@@ -216,8 +222,8 @@ server {
 	ssl_session_timeout 5m;
 	ssl_session_cache shared:SSL:50m;
 	ssl_session_tickets off;
-	ssl_certificate /etc/nginx/certs/$site_name.crt;
-	ssl_certificate_key /etc/nginx/certs/$site_name.key;
+	ssl_certificate /etc/nginx/certs/$cert_site_name.crt;
+	ssl_certificate_key /etc/nginx/certs/$cert_site_name.key;
 	server_name  $site_name_with_www;
 	return  301 https://$site_name\$request_uri;
 }";
