@@ -174,6 +174,18 @@ abstract class EE_Site_Command {
 			EE::log( "[$site_name] site root removed." );
 		}
 
+		$config_file_path = EE_CONF_ROOT . '/nginx/conf.d/' . $site_name . '-redirect.conf';
+
+		if ( $this->fs->exists( $config_file_path ) ) {
+			try {
+				$this->fs->remove( $config_file_path );
+			} catch ( Exception $e ) {
+				EE::debug( $e );
+				EE::error( 'Could not remove site redirection file. Please check if you have sufficient rights.' );
+			}
+		}
+
+
 		if ( $level > 4 ) {
 			if ( $this->ssl ) {
 				EE::log( 'Removing ssl certs.' );
@@ -378,6 +390,7 @@ abstract class EE_Site_Command {
 	 * @param bool $wildcard    SSL with wildcard or not.
 	 */
 	protected function init_le( $site_name, $site_root, $wildcard = false ) {
+		EE::debug("Wildcard in init_le: $wildcard" );
 
 		$this->site['name'] = $site_name;
 		$this->site['root'] = $site_root;
@@ -391,21 +404,8 @@ abstract class EE_Site_Command {
 			return;
 		}
 
+		$domains = $this->get_cert_domains( $site_name, $wildcard );
 
-		$domains = [ $this->site['name'] ];
-		$has_www = strpos( $site_name, 'www.' ) === 0;
-
-		if ( $wildcard ) {
-			$domains[] = "*.{$this->site['name']}";
-		}
-
-		if ( $has_www ) {
-			$site_name_without_www = ltrim( $site_name, 'www.' );
-			$domains[]             = $site_name_without_www;
-		} else {
-			$site_name_with_www = 'www.' . $site_name;
-			$domains[]          = $site_name_with_www;
-		}
 		if ( ! $client->authorize( $domains, $this->site['root'], $wildcard ) ) {
 			$this->le = false;
 
@@ -415,6 +415,44 @@ abstract class EE_Site_Command {
 			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['name'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
 		} else {
 			$this->le( [], [] );
+		}
+	}
+
+	/**
+	 * Returns all domains required by cert
+	 *
+	 * @param string $site_name Name of site
+	 * @param $wildcard  Wildcard cert required?
+	 *
+	 * @return array
+	 */
+	private function get_cert_domains( string $site_name, $wildcard ) : array {
+		$domains = [ $site_name ];
+		$has_www = strpos( $site_name, 'www.' ) === 0;
+
+		if ( $wildcard ) {
+			$domains[] = "*.{$site_name}";
+		} else {
+			$domains[] = $this->get_www_domain( $site_name );
+		}
+		return $domains;
+	}
+
+	/**
+	 * If the domain has www in it, returns a domain without www in it.
+	 * Else returns a domain with www in it.
+	 *
+	 * @param string $site_name Name of site
+	 *
+	 * @return string Domain name with or without www
+	 */
+	private function get_www_domain( string $site_name ) : string {
+		$has_www = strpos( $site_name, 'www.' ) === 0;
+
+		if ( $has_www ) {
+			return ltrim( $site_name, 'www.' );
+		} else {
+			return  'www.' . $site_name;
 		}
 	}
 
@@ -439,17 +477,23 @@ abstract class EE_Site_Command {
 			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
 		}
 		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$domains = $this->wildcard ? [ '*.' . $this->site['name'], $this->site['name'] ] : [ $this->site['name'] ];
+
+		EE::debug( "Wildcard in le() $this->wildcard" );
+
+		$domains = $this->get_cert_domains( $this->site['name'], $this->wildcard );
+
 		$client  = new Site_Letsencrypt();
 		if ( ! $client->check( $domains, $this->wildcard ) ) {
 			$this->ssl = false;
 
 			return;
 		}
-		if ( $this->wildcard ) {
-			$client->request( '*.' . $this->site['name'], [ $this->site['name'] ], $this->le_mail, $force );
-		} else {
-			$client->request( $this->site['name'], [], $this->le_mail, $force );
+
+		$san = array_values( array_diff( $domains, [ $this->site['name'] ] ) );
+
+		$client->request( $this->site['name'], $san, $this->le_mail, $force );
+
+		if ( ! $this->wildcard ) {
 			$client->cleanup( $this->site['root'] );
 		}
 		EE::launch( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
