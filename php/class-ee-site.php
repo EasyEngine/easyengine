@@ -119,8 +119,8 @@ abstract class EE_Site_Command {
 
 		EE\Utils\delem_log( 'site delete start' );
 		$this->populate_site_info( $args );
-		EE::confirm( sprintf( 'Are you sure you want to delete %s?', $this->site['name'] ), $assoc_args );
-		$this->delete_site( 5, $this->site['name'], $this->site['root'] );
+		EE::confirm( sprintf( 'Are you sure you want to delete %s?', $this->site['url'] ), $assoc_args );
+		$this->delete_site( 5, $this->site['url'], $this->site['root'] );
 		EE\Utils\delem_log( 'site delete end' );
 	}
 
@@ -227,7 +227,7 @@ abstract class EE_Site_Command {
 		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
-		$site  = Site::find( $this->site['name'] );
+		$site  = Site::find( $this->site['url'] );
 
 		if ( $site->site_enabled && ! $force ) {
 			EE::error( sprintf( '%s is already enabled!', $site->site_url ) );
@@ -259,7 +259,7 @@ abstract class EE_Site_Command {
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
 
-		$site = Site::find($this->site['name']);
+		$site = Site::find($this->site['url']);
 
 		EE::log( sprintf( 'Disabling site %s.', $site->site_url ) );
 
@@ -267,9 +267,9 @@ abstract class EE_Site_Command {
 			$site->site_enabled = 0;
 			$site->save();
 
-			EE::success( sprintf( 'Site %s disabled.', $this->site['name'] ) );
+			EE::success( sprintf( 'Site %s disabled.', $this->site['url'] ) );
 		} else {
-			EE::error( sprintf( 'There was error in disabling %s. Please check logs.', $this->site['name'] ) );
+			EE::error( sprintf( 'There was error in disabling %s. Please check logs.', $this->site['url'] ) );
 		}
 		EE\Utils\delem_log( 'site disable end' );
 	}
@@ -424,7 +424,7 @@ abstract class EE_Site_Command {
 	protected function init_le( $site_name, $site_root, $wildcard = false ) {
 		EE::debug("Wildcard in init_le: $wildcard" );
 
-		$this->site['name'] = $site_name;
+		$this->site['url'] = $site_name;
 		$this->site['root'] = $site_root;
 		$this->wildcard = $wildcard;
 		$client = new Site_Letsencrypt();
@@ -444,7 +444,7 @@ abstract class EE_Site_Command {
 			return;
 		}
 		if ( $wildcard ) {
-			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['name'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
+			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['url'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
 		} else {
 			$this->le( [], [] );
 		}
@@ -502,7 +502,7 @@ abstract class EE_Site_Command {
 	 */
 	public function le( $args = [], $assoc_args = [] ) {
 
-		if ( !isset( $this->site['name'] ) ) {
+		if ( !isset( $this->site['url'] ) ) {
 			$this->populate_site_info( $args );
 		}
 
@@ -511,7 +511,7 @@ abstract class EE_Site_Command {
 		}
 
 		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$domains = $this->get_cert_domains( $this->site['name'], $this->wildcard );
+		$domains = $this->get_cert_domains( $this->site['url'], $this->wildcard );
 		$client  = new Site_Letsencrypt();
 
 		if ( ! $client->check( $domains, $this->wildcard ) ) {
@@ -519,8 +519,8 @@ abstract class EE_Site_Command {
 			return;
 		}
 
-		$san = array_values( array_diff( $domains, [ $this->site['name'] ] ) );
-		$client->request( $this->site['name'], $san, $this->le_mail, $force );
+		$san = array_values( array_diff( $domains, [ $this->site['url'] ] ) );
+		$client->request( $this->site['url'], $san, $this->le_mail, $force );
 
 		if ( ! $this->wildcard ) {
 			$client->cleanup( $this->site['root'] );
@@ -533,8 +533,8 @@ abstract class EE_Site_Command {
 	 */
 	private function populate_site_info( $args ) {
 
-		$this->site['name'] = EE\Utils\remove_trailing_slash( $args[0] );
-		$site = Site::find( $this->site['name'] );
+		$this->site['url'] = EE\Utils\remove_trailing_slash( $args[0] );
+		$site = Site::find( $this->site['url'] );
 		if ( $site ) {
 
 			$db_select = $site->site_url;
@@ -544,7 +544,7 @@ abstract class EE_Site_Command {
 			$this->ssl          = $site->site_ssl;
 			$this->wildcard     = $site->site_ssl_wildcard;
 		} else {
-			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
+			EE::error( sprintf( 'Site %s does not exist.', $this->site['url'] ) );
 		}
 	}
 
