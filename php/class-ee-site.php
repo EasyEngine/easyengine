@@ -369,7 +369,6 @@ abstract class EE_Site_Command {
 			throw new Exception( 'Unable to find existing site: ' . $parent_site_name );
 		}
 
-
 		if ( ! $parent_site['is_ssl'] ) {
 			throw new Exception( "Cannot inherit from $parent_site_name as site does not have SSL cert" . var_dump( $parent_site ) );
 		}
@@ -382,7 +381,30 @@ abstract class EE_Site_Command {
 		EE::success( 'Inherited certs from parent' );
 	}
 
-		/**
+	/**
+	 * Runs SSL procedure.
+	 *
+	 * @param string $site_name Name of the site for ssl.
+	 * @param string $site_root Webroot of the site.
+	 * @param string $ssl_type  Type of ssl cert to issue.
+	 * @param bool   $wildcard  SSL with wildcard or not.
+	 *
+	 * @throws \EE\ExitException If --ssl flag has unrecognized value
+	 */
+	protected function init_ssl( $site_name, $site_root, $ssl_type, $wildcard = false ) {
+		EE::debug( 'Starting SSL procedure' );
+		if ( 'le' === $ssl_type ) {
+			EE::debug( 'Initializing LE' );
+			$this->init_le( $site_name, $site_root, $wildcard );
+		} elseif ( 'inherit' === $ssl_type ) {
+			EE::debug( 'Inheriting certs' );
+			$this->inherit_certs( $site_name, $wildcard );
+		} else {
+			EE::error( "Unrecognized value in --ssl flag: $ssl_type" );
+		}
+	}
+
+	/**
 	 * Runs the acme le registration and authorization.
 	 *
 	 * @param string $site_name Name of the site for ssl.
