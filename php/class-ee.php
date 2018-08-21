@@ -12,8 +12,6 @@ use Mustangostang\Spyc;
  */
 class EE {
 
-	private static $configurator;
-
 	private static $logger;
 
 	private static $hooks = array(), $hooks_passed = array();
@@ -21,8 +19,6 @@ class EE {
 	private static $capture_exit = false;
 
 	private static $deferred_additions = array();
-
-	private static $db;
 
 	private static $docker;
 
@@ -1198,11 +1194,7 @@ class EE {
 	}
 
 	public static function db() {
-		if ( empty( self::$db ) ) {
-			self::$db = new EE_DB();
-		}
-
-		return self::$db;
+		return new EE_DB();
 	}
 
 	public static function docker() {

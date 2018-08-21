@@ -1,10 +1,5 @@
 <?php
 
-if ( posix_geteuid() ) {
-	fwrite( STDERR, "\033[1;31mError:\033[0m Please run `ee` with root privileges." );
-	exit( 1 );
-}
-
 // Can be used by plugins/themes to check if EE is running or not
 define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );

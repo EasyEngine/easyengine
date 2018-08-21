@@ -8,9 +8,7 @@ use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
 use Mustangostang\Spyc;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Monolog\Formatter\LineFormatter;
-
+use EE\Model\Site;
 /**
  * Performs the execution of a command.
  *
@@ -744,7 +742,7 @@ class Runner {
 		$site_name = \EE\SiteUtils\auto_site_name( $final_args, $command, $function, $arg_position )[ $arg_position ];
 
 		// Getting the type of the respective site-name from database.
-		$type = EE::db()::get_site_command( $site_name );
+		$type = Site::find( $site_name )->site_type;
 
 		// Replacing `site` with appropriate type command if the function called for it exists.
 		$key              = array_search( 'site', $this->arguments );
