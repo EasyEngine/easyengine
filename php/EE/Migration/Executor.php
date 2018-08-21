@@ -3,6 +3,7 @@
 namespace EE\Migration;
 
 use \EE;
+use \EE\Model\Migration;
 use \EE\Utils;
 use Symfony\Component\Finder\Finder;
 
@@ -45,10 +46,10 @@ class Executor {
         if( empty( $migrations ) ) {
             return;
         }
-        
+
         $migration_path = self::get_migration_path( $migrations[0] );
         $migration_class_name = self::get_migration_class_name( $migrations[0] );
-        
+
         if( ! file_exists( $migration_path ) ) {
             EE::error( "Unable to find migration file at $migration_path", false );
             throw new Exception();
@@ -70,12 +71,12 @@ class Executor {
         try {
             EE::log( "Migrating: $migrations[0]" );
             $migration->up();
-            
-            \EE::db()->insert([
+
+            Migration::create([
                 'migration' => $migrations[0],
-                'timestamp' => date('Y-m-d H:i:s')
-            ], 'migrations' );
-            
+                'timestamp' => date('Y-m-d H:i:s'),
+            ]);
+
             $migration->status = 'complete';
             EE::log( "Migrated: $migrations[0]" );
             $remaining_migrations = array_splice( $migrations, 1, count( $migrations ) );
@@ -93,7 +94,7 @@ class Executor {
     }
 
     private static function get_migrations_to_execute() {
-        return array_values( 
+        return array_values(
             array_diff(
                 self::get_migrations_from_fs(),
                 self::get_migrations_from_db()
@@ -102,7 +103,7 @@ class Executor {
     }
 
     private static function get_migrations_from_db() {
-        return \EE::db()->get_migrations();
+        return Migration::all();
     }
 
     private static function get_migrations_from_fs() {
