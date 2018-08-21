@@ -142,6 +142,15 @@ function setup_site_network( $site_name ) {
 }
 
 /**
+ * Reloads configuration of ee-nginx-proxy container
+ *
+ * @return bool
+ */
+function reload_proxy_configuration() {
+	return EE::exec( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
+}
+
+/**
  * Adds www to non-www redirection to site
  *
  * @param string $site_name Name of the site.
