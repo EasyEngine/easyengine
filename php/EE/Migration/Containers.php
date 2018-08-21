@@ -37,15 +37,17 @@ class Containers {
 	 * Pulls new images of all containers used by easyengine
 	 */
 	private static function pull_new_images() {
-		self::pull_or_error( 'easyengine/php', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/cron', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/redis', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/nginx', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/postfix', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/mailhog', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/mariadb', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/phpmyadmin', 'v' . EE_VERSION );
-		self::pull_or_error( 'easyengine/nginx-proxy', 'v' . EE_VERSION );
+
+		$img_versions = EE\Utils\get_image_versions();		
+		self::pull_or_error( 'easyengine/php', $img_versions['easyengine/php'] );
+		self::pull_or_error( 'easyengine/cron', $img_versions['easyengine/cron'] );
+		self::pull_or_error( 'easyengine/redis', $img_versions['easyengine/redis'] );
+		self::pull_or_error( 'easyengine/nginx', $img_versions['easyengine/nginx'] );
+		self::pull_or_error( 'easyengine/postfix', $img_versions['easyengine/postfix'] );
+		self::pull_or_error( 'easyengine/mailhog', $img_versions['easyengine/mailhog'] );
+		self::pull_or_error( 'easyengine/mariadb', $img_versions['easyengine/mariadb'] );
+		self::pull_or_error( 'easyengine/phpmyadmin', $img_versions['easyengine/phpmyadmin'] );
+		self::pull_or_error( 'easyengine/nginx-proxy', $img_versions['easyengine/nginx-proxy'] );
 	}
 
 	/**
