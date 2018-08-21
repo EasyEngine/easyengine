@@ -1,4 +1,5 @@
 {
+    "easyengine/cron": "v4.0.0-beta.5",
     "easyengine/mailhog": "v4.0.0-beta.5",
     "easyengine/mariadb": "v4.0.0-beta.5",
     "easyengine/nginx-proxy": "v4.0.0-beta.5",
