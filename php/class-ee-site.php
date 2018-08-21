@@ -431,7 +431,7 @@ abstract class EE_Site_Command {
 		$this->le_mail = EE::get_runner()->config['le-mail'] ?? EE::input( 'Enter your mail id: ' );
 		EE::get_runner()->ensure_present_in_config( 'le-mail', $this->le_mail );
 		if ( ! $client->register( $this->le_mail ) ) {
-			$this->ssl = false;
+			$this->ssl = null;
 
 			return;
 		}
@@ -515,7 +515,7 @@ abstract class EE_Site_Command {
 		$client  = new Site_Letsencrypt();
 
 		if ( ! $client->check( $domains, $this->wildcard ) ) {
-			$this->ssl = false;
+			$this->ssl = null;
 			return;
 		}
 
@@ -541,8 +541,8 @@ abstract class EE_Site_Command {
 
 			$this->site['type'] = $site->site_type;
 			$this->site['root'] = $site->site_fs_path;
-			$this->ssl          = ( null !== $site->site_ssl );
-			$this->wildcard     = ( 'wildcard' === $site->site_ssl );
+			$this->ssl          = $site->site_ssl;
+			$this->wildcard     = $site->site_ssl_wildcard;
 		} else {
 			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
 		}
