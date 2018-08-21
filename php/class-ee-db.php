@@ -2,95 +2,357 @@
 
 class EE_DB {
 
-	private static $db;
+	/**
+	 * @var PDO Instance of PDO class
+	 */
+	private static $pdo;
+	private $tables;
+	private $select;
+	private $where;
+	private $limit;
+	private $offset;
 
 	public function __construct() {
-		if ( empty( self::$db ) ) {
+		if ( empty( self::$pdo ) ) {
 			self::init_db();
 		}
-	}
 
-	public function __destruct() {
-		self::$db->close();
+		$this->select = '';
+		$this->tables = '';
+		$this->limit  = '';
+		$this->offset = '';
+		$this->where  = [
+			'query_string' => null,
+			'bindings'     => null,
+		];
 	}
 
 	/**
 	 * Function to initialize db and db connection.
 	 */
-	public static function init_db() {
+	private static function init_db() {
+
 		if ( ! ( file_exists( DB ) ) ) {
-			self::$db = self::create();
-		} else {
-			self::$db = new SQLite3( DB );
-			if ( ! self::$db ) {
-				EE::error( self::$db->lastErrorMsg() );
-			}
+			self::create_required_tables();
+
+			return;
+		}
+
+		try {
+			self::$pdo = new PDO( 'sqlite:' . DB );
+			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		} catch ( PDOException $exception ) {
+			EE::error( $exception->getMessage() );
 		}
 	}
 
 	/**
 	 * Sqlite database creation.
 	 */
-	public static function create() {
-		self::$db = new SQLite3( DB );
-		$query    = "CREATE TABLE sites (
-			id INTEGER NOT NULL,
-			sitename VARCHAR,
-			site_type VARCHAR,
-			site_title VARCHAR,
-			site_command VARCHAR,
-			proxy_type VARCHAR,
-			cache_type VARCHAR,
-			site_path VARCHAR,
-			created_on DATETIME,
-			is_enabled BOOLEAN DEFAULT 1,
-			is_ssl BOOLEAN DEFAULT 0,
-			site_ssl_wildcard BOOLEAN DEFAULT 0,
-			storage_fs VARCHAR,
-			storage_db VARCHAR,
-			db_name VARCHAR,
-			db_user VARCHAR,
-			db_password VARCHAR,
-			db_root_password VARCHAR,
-			db_host VARCHAR,
-			db_port VARCHAR,
-			wp_user VARCHAR,
-			wp_pass VARCHAR,
-			email VARCHAR,
-			php_version VARCHAR,
-			PRIMARY KEY (id),
-			UNIQUE (sitename),
-			CHECK (is_enabled IN (0, 1)),
-			CHECK (is_ssl IN (0, 1))
-		);";
+	private static function create_required_tables() {
+		try {
+			self::$pdo = new PDO( 'sqlite:' . DB );
+			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+		} catch ( PDOException $exception ) {
+			EE::error( $exception->getMessage() );
+		}
 
-		$query .= "CREATE TABLE migrations (
+		$query = 'CREATE TABLE sites (
+			id                   INTEGER  NOT NULL,
+			site_url             VARCHAR  NOT NULL,
+			site_type            VARCHAR  NOT NULL,
+			site_fs_path         VARCHAR  NOT NULL,
+			site_enabled         BOOLEAN  NOT NULL DEFAULT 1,
+			site_ssl             VARCHAR,
+			site_ssl_wildcard    BOOLEAN  NOT NULL DEFAULT 0,
+			cache_nginx_browser  BOOLEAN  NOT NULL DEFAULT 0,
+			cache_nginx_fullpage BOOLEAN  NOT NULL DEFAULT 0,
+			cache_mysql_query    BOOLEAN  NOT NULL DEFAULT 0,
+			cache_app_object     BOOLEAN  NOT NULL DEFAULT 0,
+			php_version          VARCHAR,
+			db_name              VARCHAR,
+			db_user              VARCHAR,
+			db_password          VARCHAR,
+			db_root_password     VARCHAR,
+			db_host              VARCHAR,
+			db_port              VARCHAR,
+			app_sub_type         VARCHAR,
+			app_admin_url        VARCHAR,
+			app_admin_email      VARCHAR,
+			app_admin_username   VARCHAR,
+			app_admin_password   VARCHAR,
+			app_mail             VARCHAR,
+			admin_tools          BOOLEAN  NOT NULL DEFAULT 0,
+			created_on           DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			modified_on          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			site_auth_scope      VARCHAR,
+			site_auth_username   VARCHAR,
+			site_auth_password   VARCHAR,
+			PRIMARY KEY (id),
+			UNIQUE (site_url),
+			CHECK (site_enabled IN (0, 1))
+		);';
+
+		$query .= 'CREATE TABLE site_meta (
+			id INTEGER,
+			site_id INTEGER NOT NULL,
+			meta_key VARCHAR,
+			meta_value VARCHAR,
+			PRIMARY KEY (id),
+			FOREIGN KEY (site_id) REFERENCES sites(id)
+		);';
+
+		$query .= 'CREATE TABLE migrations (
+			id INTEGER,
 			migration VARCHAR,
-			timestamp DATETIME
-		);";
+			timestamp DATETIME,
+			PRIMARY KEY (id)
+		);';
 
-		$query .= "CREATE TABLE services (
-			id INTEGER NOT NULL,
-			sitename VARCHAR,
-			phpmyadmin BOOLEAN DEFAULT 0,
-			mailhog BOOLEAN DEFAULT 0,
-			postfix BOOLEAN DEFAULT 0,
-			phpredisadmin BOOLEAN DEFAULT 0,
-			adminer BOOLEAN DEFAULT 0,
-			anemometer BOOLEAN DEFAULT 0,
-			debug BOOLEAN DEFAULT 0,
-			PRIMARY KEY (id),
-			FOREIGN KEY (id) REFERENCES sites(id)
-		);";
-
-		$query .= "CREATE TABLE cron (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			sitename VARCHAR,
+		$query .= 'CREATE TABLE cron (
+			id INTEGER,
+			site_url VARCHAR,
 			command VARCHAR,
-			schedule VARCHAR
-		);";
+			schedule VARCHAR,
+			PRIMARY KEY (id),
+			FOREIGN KEY (site_url) REFERENCES sites(site_url)
+		);';
 
-		self::$db->exec( $query );
+		try {
+			self::$pdo->exec( $query );
+		} catch ( PDOException $exception ) {
+			EE::error( 'Encountered Error while creating table: ' . $exception->getMessage() );
+		}
+	}
+
+	/**
+	 * Fetches first record from current query
+	 *
+	 * @throws Exception
+	 *
+	 * @return array Record
+	 */
+	public function first() {
+		$pdo_statement = $this->common_retrieval_function();
+
+		return $pdo_statement->fetch();
+	}
+
+	/**
+	 * Common retrival function that runs current 'select' query.
+	 * Other methods (like get and first) can use this to provide higher level functionality on top of it
+	 *
+	 * @throws Exception
+	 *
+	 * @return bool|PDOStatement
+	 */
+	private function common_retrieval_function() {
+		if ( null === $this->tables ) {
+			throw new Exception( 'Select: No table specified' );
+		}
+
+		$where = $this->where['query_string'];
+
+		if ( empty( $this->select ) ) {
+			$this->select = '*';
+		}
+
+		$query = "SELECT $this->select FROM $this->tables{$where}{$this->limit}{$this->offset};";
+
+		$pdo_statement = self::$pdo->prepare( $query );
+		$pdo_statement->setFetchMode( PDO::FETCH_ASSOC );
+
+		$bindings = $this->where['bindings'] ?? [];
+
+		foreach ( $bindings as $key => $binding ) {
+			$pdo_statement->bindValue( $key + 1, $binding );
+		}
+
+		$result = $pdo_statement->execute();
+
+		if ( ! $result ) {
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
+
+			throw new PDOException( self::$pdo->errorInfo() );
+		}
+
+		return $pdo_statement;
+	}
+
+	/**
+	 * Adds where condition in query.
+	 *
+	 * i.e. where('id', 100) or where('id', '>', 100)
+	 *   or where([
+	 *         [ 'id', '<', 100 ],
+	 *         [ 'name', 'ee' ]
+	 *      ])
+	 *
+	 * Supported operators are: '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in'
+	 *
+	 * @param ...$args One or more where condition.
+	 *
+	 * @throws Exception
+	 *
+	 * @return EE_DB
+	 */
+	public function where( ...$args ) {
+		$args       = func_get_args();
+		$conditions = [];
+
+		if ( 'array' === gettype( $args[0] ) ) {
+			foreach ( $args[0] as $condition ) {
+				$conditions[] = $this->get_where_fragment( $condition );
+			}
+		} else {
+			$conditions[] = $this->get_where_fragment( $args );
+		}
+
+		$this->where = [
+			'query_string' => ' WHERE ' . implode( ' AND ', array_column( $conditions, 'query_string' ) ),
+			'bindings'     => array_column( $conditions, 'binding' ),
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Returns a query fragment for where clause
+	 *
+	 * If the param given is ['column', 100], it returns ['column = ?', 100]
+	 * If the param given is ['column', '>', 100], it returns ['column > ?', 100]
+	 *
+	 * @param array $condition An array of format [column, operator, value] or [column, value]
+	 *
+	 * @throws Exception
+	 *
+	 * @return array prepared query string and its corresponding binding
+	 */
+	private function get_where_fragment( array $condition ) {
+
+		if ( empty( $condition ) || count( $condition ) > 3 ) {
+			throw new Exception( 'Where clause array must non empty with less than 3 elements' );
+		}
+
+		$column   = $condition[0];
+		$operator = '=';
+
+		if ( 'string' !== gettype( $column ) ) {
+			throw new Exception( 'Where clause column must be of type string' );
+		}
+
+		if ( isset( $condition[2] ) ) {
+			$operator          = $condition[1];
+			$allowed_operators = [ '=', '<', '>', '<=', '>=', '==', '!=', '<>', 'like', 'in' ];
+
+			if ( ! in_array( strtolower( $operator ), $allowed_operators ) ) {
+				throw new Exception( 'Where clause operator should be in one of following: ' . implode( ' ', $allowed_operators ) );
+			}
+
+			$value = $condition[2];
+		} elseif ( isset( $condition[1] ) ) {
+			$value = $condition[1];
+		} else {
+			throw new Exception( 'Where clause value must be set' );
+		}
+
+		if ( 'string' !== gettype( $operator ) || ! in_array( gettype( $value ), [ 'string', 'integer', 'boolean' ], true ) ) {
+			throw new Exception( 'Where clause operator and value must be string' );
+		}
+
+		return [
+			'query_string' => "$column $operator ?",
+			'binding'      => $value,
+		];
+	}
+
+	/**
+	 * Select data from the database.
+	 *
+	 * @param array $args Columns to select
+	 *
+	 * @throws Exception If no tables are specified
+	 *
+	 * @return EE_DB
+	 */
+	public function select( ...$args ) {
+
+		if ( empty( $args ) ) {
+			$columns = '*';
+		} else {
+			$columns = implode( ', ', $args );
+		}
+
+		$this->select = $columns;
+
+		return $this;
+	}
+
+	/**
+	 * Selects table to do operation on.
+	 *
+	 * @param ...$args Tables to run query on.
+	 *
+	 * @return EE_DB
+	 */
+	public function table( ...$args ) {
+		$this->tables = implode( ', ', $args );
+
+		return $this;
+	}
+
+	/**
+	 * Fetches all records from current query.
+	 *
+	 * @throws Exception
+	 *
+	 * @return array All records
+	 */
+	public function all() {
+		return $this->get();
+	}
+
+	/**
+	 * Fetches all records from current query
+	 *
+	 * @throws Exception
+	 *
+	 * @return array All records
+	 */
+	public function get() {
+		$pdo_statement = $this->common_retrieval_function();
+
+		if ( ! $pdo_statement ) {
+			return false;
+		}
+
+		return $pdo_statement->fetchAll();
+	}
+
+	/**
+	 * Adds limit to query.
+	 *
+	 * @param int $limit Limit value.
+	 *
+	 * @return EE_DB
+	 */
+	public function limit( int $limit ) {
+		$this->limit = ' LIMIT ' . (string) $limit;
+
+		return $this;
+	}
+
+	/**
+	 * Adds offset to query.
+	 *
+	 * @param int $offset Offset of query
+	 *
+	 * @return EE_DB
+	 */
+	public function offset( int $offset ) {
+		$this->offset = ' OFFSET ' . (string) $offset;
+
+		return $this;
 	}
 
 	/**
@@ -98,229 +360,135 @@ class EE_DB {
 	 *
 	 * @param array $data in key value pair.
 	 *
+	 * @throws Exception If no table or more than one tables are specified
+	 *
 	 * @return bool
 	 */
-	public static function insert( $data, $table_name = 'sites' ) {
+	public function insert( $data ) {
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+		$fields = implode( ', ', array_keys( $data ) );
+		$values = implode( ', ', array_fill( 0, count( $data ), '?' ) );
+
+		if ( empty( $this->tables ) ) {
+			throw new Exception( 'Insert: No table specified' );
 		}
 
-
-		$fields  = '`' . implode( '`, `', array_keys( $data ) ) . '`';
-		$formats = '"' . implode( '", "', $data ) . '"';
-
-		$insert_query = "INSERT INTO `$table_name` ($fields) VALUES ($formats);";
-
-		$insert_query_exec = self::$db->exec( $insert_query );
-
-		if ( ! $insert_query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
-		} else {
-			return true;
+		if ( strpos( $this->tables, ',' ) !== false ) {
+			throw new Exception( 'Insert: Multiple table specified' );
 		}
 
-		return false;
+		$query = "INSERT INTO $this->tables ($fields) VALUES ($values);";
+
+		$pdo_statement = self::$pdo->prepare( $query );
+		$bindings      = array_values( $data );
+
+		foreach ( $bindings as $key => $value ) {
+			$pdo_statement->bindValue( $key + 1, $value );
+		}
+
+		$result = $pdo_statement->execute();
+
+		if ( ! $result ) {
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
+
+			throw new PDOException( self::$pdo->errorInfo() );
+		}
+
+		return self::$pdo->lastInsertId();
 	}
-
-	/**
-	 * @param array $columns
-	 * @param array $where
-	 * @param string $table_name
-	 * @param int|null $limit
-	 * Select data from the database.
-	 *
-	 * @return array|bool
-	 */
-	public static function select( $columns = array(), $where = array(), $table_name = 'sites', $limit = null ) {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
-		}
-
-		$conditions = array();
-		if ( empty( $columns ) ) {
-			$columns = '*';
-		} else {
-			$columns = implode( ', ', $columns );
-		}
-
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
-		}
-
-		$conditions = implode( ' AND ', $conditions );
-
-		$select_data_query = "SELECT {$columns} FROM `$table_name`";
-
-		if ( ! empty( $conditions ) ) {
-			$select_data_query .= " WHERE $conditions";
-		}
-
-		if ( ! empty( $limit ) ) {
-			$select_data_query .= " LIMIT $limit";
-		}
-
-		$select_data_exec = self::$db->query( $select_data_query );
-		$select_data      = array();
-		if ( $select_data_exec ) {
-			while ( $row = $select_data_exec->fetchArray( SQLITE3_ASSOC ) ) {
-				$select_data[] = $row;
-			}
-		}
-		if ( empty( $select_data ) ) {
-			return false;
-		}
-
-		if ( 1 === $limit ) {
-			return $select_data[0];
-		}
-
-		return $select_data;
-	}
-
 
 	/**
 	 * Update row in table.
 	 *
-	 * @param        $data
-	 * @param        $where
+	 * @param array $values Associative array of columns and their values
+	 *
+	 * @throws Exception If no table are specified or multiple table are specified or no where clause are specified
 	 *
 	 * @return bool
 	 */
-	public static function update( $data, $where, $table_name = 'sites' ) {
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+	public function update( $values ) {
+		if ( empty( $this->tables ) ) {
+			throw new Exception( 'Update: No table specified' );
 		}
 
-		$fields     = array();
-		$conditions = array();
-		foreach ( $data as $key => $value ) {
-			$fields[] = "`$key`='" . $value . "'";
-		}
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
-		}
-		$fields     = implode( ', ', $fields );
-		$conditions = implode( ' AND ', $conditions );
-		if ( ! empty( $fields ) ) {
-			$update_query      = "UPDATE `$table_name` SET $fields WHERE $conditions";
-			$update_query_exec = self::$db->exec( $update_query );
-			if ( ! $update_query_exec ) {
-				EE::debug( self::$db->lastErrorMsg() );
-			} else {
-				return true;
-			}
+		if ( empty( $this->where ) ) {
+			throw new Exception( 'Update: No where clause specified' );
 		}
 
-		return false;
+		if ( strpos( $this->tables, ',' ) !== false ) {
+			throw new Exception( 'Update: Multiple table specified' );
+		}
+
+		if ( empty( $values ) ) {
+			return false;
+		}
+
+		$set_keys       = array_keys( $values );
+		$set_bindings   = array_values( $values );
+		$where_bindings = $this->where['bindings'];
+
+		$set_clause = implode( $set_keys, ' = ?, ' ) . ' = ?';
+
+		$query         = "UPDATE $this->tables SET $set_clause{$this->where['query_string']}";
+		$pdo_statement = self::$pdo->query( $query );
+
+		$counter = 0;  //We need counter here as we need to bind values of both  SET and WHERE clauses
+
+		foreach ( $set_bindings as $binding ) {
+			$pdo_statement->bindValue( ++ $counter, $binding );
+		}
+
+		foreach ( $where_bindings as $binding ) {
+			$pdo_statement->bindValue( ++ $counter, $binding );
+		}
+
+		$result = $pdo_statement->execute();
+
+		if ( ! $result ) {
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
+
+			throw new PDOException( self::$pdo->errorInfo() );
+		}
+
+		return true;
 	}
 
 	/**
 	 * Delete data from table.
 	 *
-	 * @param        $where
-	 *
-	 * @return bool
-	 */
-	public static function delete( $where, $table_name = 'sites' ) {
-
-		$conditions = array();
-		foreach ( $where as $key => $value ) {
-			$conditions[] = "`$key`='" . $value . "'";
-		}
-
-		$conditions   = implode( ' AND ', $conditions );
-		$delete_query = "DELETE FROM `$table_name` WHERE $conditions";
-
-		$delete_query_exec = self::$db->exec( $delete_query );
-
-		if ( ! $delete_query_exec ) {
-			EE::debug( self::$db->lastErrorMsg() );
-		} else {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check if a site entry exists in the database.
-	 *
-	 * @param String $site_name Name of the site to be checked.
+	 * @throws Exception If no table are specified or multiple table are specified or no where clause are specified
 	 *
 	 * @return bool Success.
 	 */
-	public static function site_in_db( $site_name ) {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+	public function delete() {
+		if ( empty( $this->tables ) ) {
+			throw new Exception( 'Delete: No table specified' );
 		}
 
-		$site = self::select( array( 'id' ), array( 'sitename' => $site_name ) );
-
-		if ( $site ) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Check if a site entry exists in the database as well as if it is enbaled.
-	 *
-	 * @param String $site_name Name of the site to be checked.
-	 *
-	 * @return bool true  if site is enabled,
-	 *              false if disabled or site does not exists.
-	 */
-	public static function site_enabled( $site_name ) {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+		if ( empty( $this->where ) ) {
+			throw new Exception( 'Delete: No where clause specified' );
 		}
 
-		$site = self::select( array( 'id', 'is_enabled' ), array( 'sitename' => $site_name ) );
-
-		if ( 1 === count( $site ) ) {
-			return $site[0]['is_enabled'];
+		if ( strpos( $this->tables, ',' ) !== false ) {
+			throw new Exception( 'Delete: Multiple table specified' );
 		}
 
-		return false;
-	}
+		$query = "DELETE FROM $this->tables{$this->where['query_string']}";
 
-	/**
-	 * Get site type.
-	 *
-	 * @param String $site_name Name of the site.
-	 *
-	 * @return string type of site.
-	 */
-	public static function get_site_command( $site_name ) {
+		$pdo_statement = self::$pdo->query( $query );
 
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+		foreach ( $this->where['bindings'] as $key => $binding ) {
+			$pdo_statement->bindValue( $key + 1, $binding );
 		}
 
-		$site = self::select( [ 'site_command' ], [ 'sitename' => $site_name ], 'sites', 1 );
+		$result = $pdo_statement->execute();
 
-		return $site['site_command'];
-	}
+		if ( ! $result ) {
+			EE::debug( implode( ' ', self::$pdo->errorInfo() ) );
 
-	/**
-	 * Returns all migrations from table.
-	 */
-	public static function get_migrations() {
-
-		if ( empty ( self::$db ) ) {
-			self::init_db();
+			throw new PDOException( self::$pdo->errorInfo() );
 		}
 
-		$sites = self::select( [ 'migration' ], [], 'migrations' );
-		if ( empty( $sites ) ) {
-			return [];
-		}
-
-		return array_column( $sites, 'migration' );
+		return true;
 	}
 }

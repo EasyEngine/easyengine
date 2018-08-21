@@ -15,14 +15,27 @@ before_install:
     else
       echo "xdebug.ini does not exist"
     fi
+  - |
+    # Update commands in composer.json to develop if branch is not master.
+    if [[ "$TRAVIS_BRANCH" != "master-v4" ]]; then
+      sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+    fi
 
 install:
-  - composer install --no-interaction
+  - |
+    # Run composer install for master else update.
+    if [[ "$TRAVIS_BRANCH" = "master-v4" ]]; then
+      composer install --no-interaction
+    else
+      composer update
+    fi
   - sudo ./ci/test-env-install.sh
 
 before_script:
   - composer validate
   - ./ci/prepare.sh
+
+script:
   - sudo ./vendor/bin/behat
   - ./ci/test-commands.sh
 
@@ -33,7 +46,7 @@ jobs:
   include:
     - stage: deploy
       env: DEPLOY_BRANCH=master-v4
-      script: ./ci/deploy.sh
+      after_success: ./ci/deploy.sh
 
 cache:
   directories:

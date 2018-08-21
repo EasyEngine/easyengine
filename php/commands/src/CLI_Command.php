@@ -3,6 +3,7 @@
 use \Composer\Semver\Comparator;
 use \Symfony\Component\Filesystem\Filesystem;
 use \EE\Utils;
+use \EE\Model\Site;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -503,22 +504,22 @@ class CLI_Command extends EE_Command {
 	 */
 	public function self_uninstall( $args, $assoc_args ) {
 
-		EE::confirm("Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args);
+		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
 
-		EE::exec("docker rm -f $(docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\")");
+		EE::exec( 'docker rm -f $(docker ps -aqf label=org.label-schema.vendor="EasyEngine")' );
 		$home = Utils\get_home_dir();
-		EE::exec("rm -rf $home/.ee/");
+		EE::exec( "rm -rf $home/.ee/" );
 
-		$records = EE::db()->select(['site_path']);
+		$records = Site::all( [ 'site_fs_path' ] );
 
-		if( $records !== false ) {
-			$sites_paths = array_column($records, 'site_path');
+		if ( ! empty( $records ) ) {
+			$sites_paths = array_column( $records, 'site_fs_path' );
 			$fs = new Filesystem();
-			$fs->remove($sites_paths);
+			$fs->remove( $sites_paths );
 		}
 
-		EE::exec("rm -df $home/ee-sites/");
-		EE::exec("rm -rf /opt/easyengine/");
+		EE::exec( "rm -df $home/ee-sites/" );
+		EE::exec( "rm -rf /opt/easyengine/" );
 
 		if ( Utils\inside_phar() ) {
 			unlink( realpath( $_SERVER['argv'][0] ) );
