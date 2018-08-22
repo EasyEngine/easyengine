@@ -48,6 +48,10 @@ jobs:
       env: DEPLOY_BRANCH=master-v4
       after_success: ./ci/deploy.sh
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 branches:
   only:
     - develop-v4
