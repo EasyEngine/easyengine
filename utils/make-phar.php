@@ -172,7 +172,6 @@ $finder
 	->in(EE_VENDOR_DIR . '/acmephp')
 	->in(EE_VENDOR_DIR . '/league')
 	->in(EE_VENDOR_DIR . '/webmozart')
-
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
 	->exclude('examples')
@@ -180,8 +179,8 @@ $finder
 	->exclude('test')
 	->exclude('tests')
 	->exclude('Test')
-	->exclude('Tests')
-	;
+	->exclude('Tests');
+
 if ( 'cli' === BUILD ) {
 	$finder
 		->in(EE_VENDOR_DIR . '/wp-cli/mustangostang-spyc')
@@ -217,6 +216,21 @@ if ( 'cli' === BUILD ) {
 		->exclude('composer/composer/src/Composer/SelfUpdate')
 		;
 }
+
+foreach ( $finder as $file ) {
+	add_file( $phar, $file );
+}
+
+$finder = new Finder();
+$finder
+	->files()
+	->ignoreVCS(true)
+	->name('img-versions.json')
+	->in( EE_ROOT )
+	->exclude( EE_ROOT . 'php/')
+	->exclude( EE_ROOT . 'templates/')
+	->exclude( EE_ROOT . 'vendor/')
+;
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );

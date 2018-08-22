@@ -144,60 +144,47 @@ function setup_site_network( $site_name ) {
 }
 
 /**
+ * Reloads configuration of ee-nginx-proxy container
+ *
+ * @return bool
+ */
+function reload_proxy_configuration() {
+	return EE::exec( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
+}
+
+/**
  * Adds www to non-www redirection to site
  *
- * @param string $site_name Name of the site.
- * @param bool $le          Specifying if letsencrypt is enabled or not.
+ * @param string $site_name name of the site.
+ * @param bool   $ssl       enable ssl or not.
+ * @param bool   $inherit   inherit cert or not.
  */
-function add_site_redirects( $site_name, $le ) {
+function add_site_redirects( string $site_name, bool $ssl, bool $inherit ) {
 
 	$fs               = new Filesystem();
 	$confd_path       = EE_CONF_ROOT . '/nginx/conf.d/';
 	$config_file_path = $confd_path . $site_name . '-redirect.conf';
 	$has_www          = strpos( $site_name, 'www.' ) === 0;
+	$cert_site_name   = $site_name;
+
+	if ( $inherit ) {
+		$cert_site_name = implode( '.', array_slice( explode( '.', $site_name ), 1 ) );
+	}
 
 	if ( $has_www ) {
-		$site_name_without_www = ltrim( $site_name, '.www' );
-		// ee site create www.example.com --le
-		if ( $le ) {
-			$content = "
-server {
-	listen  80;
-	listen  443;
-	server_name  $site_name_without_www;
-	return  301 https://$site_name\$request_uri;
-}";
-		} // ee site create www.example.com
-		else {
-			$content = "
-server {
-	listen  80;
-	server_name  $site_name_without_www;
-	return  301 http://$site_name\$request_uri;
-}";
-		}
+		$server_name = ltrim( $site_name, '.www' );
 	} else {
-		$site_name_with_www = 'www.' . $site_name;
-		// ee site create example.com --le
-		if ( $le ) {
-
-			$content = "
-server {
-	listen  80;
-	listen  443;
-	server_name  $site_name_with_www;
-	return  301 https://$site_name\$request_uri;
-}";
-		} // ee site create example.com
-		else {
-			$content = "
-server {
-	listen  80;
-	server_name  $site_name_with_www;
-	return  301 http://$site_name\$request_uri;
-}";
-		}
+		$server_name = 'www.' . $site_name;
 	}
+
+	$conf_data = [
+		'site_name'      => $site_name,
+		'cert_site_name' => $cert_site_name,
+		'server_name'    => $server_name,
+		'ssl'            => $ssl,
+	];
+
+	$content = EE\Utils\mustache_render( EE_ROOT . '/templates/redirect.conf.mustache', $conf_data );
 	$fs->dumpFile( $config_file_path, ltrim( $content, PHP_EOL ) );
 }
 
@@ -234,7 +221,7 @@ function site_status_check( $site_name ) {
 	EE::log( 'Checking and verifying site-up status. This may take some time.' );
 	$httpcode = get_curl_info( $site_name );
 	$i        = 0;
-	while ( 200 !== $httpcode && 302 !== $httpcode ) {
+	while ( 200 !== $httpcode && 302 !== $httpcode && 301 !== $httpcode ) {
 		EE::debug( "$site_name status httpcode: $httpcode" );
 		$httpcode = get_curl_info( $site_name );
 		echo '.';
@@ -243,7 +230,7 @@ function site_status_check( $site_name ) {
 			break;
 		}
 	}
-	if ( 200 !== $httpcode && 302 !== $httpcode ) {
+	if ( 200 !== $httpcode && 302 !== $httpcode && 301 !== $httpcode ) {
 		throw new \Exception( 'Problem connecting to site!' );
 	}
 
@@ -262,8 +249,8 @@ function get_curl_info( $url, $port = 80, $port_info = false ) {
 
 	$ch = curl_init( $url );
 	curl_setopt( $ch, CURLOPT_HEADER, true );
-	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
 	curl_setopt( $ch, CURLOPT_PORT, $port );
 	curl_exec( $ch );

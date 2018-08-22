@@ -1,6 +1,9 @@
 # EasyEngine v4
 
+<img width="150" height="150" src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
+
 [![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine)
+[![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
 ## Requirements
 
@@ -100,3 +103,8 @@ In future, community will be able to make their own packages and commands!
 ## Contributing
 
 We warmheartedly welcome all contributions however and in whatever capacity you can either through Pull Requests or by reporting Issues. You can contribute here or in any of the above mentioned commands repo.
+
+## Donations
+
+[![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
+[![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
