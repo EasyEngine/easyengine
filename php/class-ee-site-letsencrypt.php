@@ -160,23 +160,24 @@ class Site_Letsencrypt {
 		foreach ( $authorizationChallengesToSolve as $authorizationChallenge ) {
 			EE::debug( 'Solving authorization challenge: Domain: ' . $authorizationChallenge->getDomain() . ' Challenge: ' . print_r( $authorizationChallenge->toArray(), true ) );
 			$solver->solve( $authorizationChallenge );
+
+			if ( ! $wildcard ) {
+				$token   = $authorizationChallenge->toArray()['token'];
+				$payload = $authorizationChallenge->toArray()['payload'];
+				EE::launch( "mkdir -p $site_root/app/src/.well-known/acme-challenge/" );
+				EE::debug( "Creating challange file $site_root/app/src/.well-known/acme-challenge/$token" );
+				file_put_contents( "$site_root/app/src/.well-known/acme-challenge/$token", $payload );
+				EE::launch( "chown www-data: $site_root/app/src/.well-known/acme-challenge/$token" );
+			}
 		}
 
 		$this->repository->storeCertificateOrder( $domains, $order );
 
-		if ( ! $wildcard ) {
-			$token   = $authorizationChallenge->toArray()['token'];
-			$payload = $authorizationChallenge->toArray()['payload'];
-			EE::launch( "mkdir -p $site_root/app/src/.well-known/acme-challenge/" );
-			EE::debug( "Creating challange file $site_root/app/src/.well-known/acme-challenge/$token" );
-			file_put_contents( "$site_root/app/src/.well-known/acme-challenge/$token", $payload );
-			EE::launch( "chown www-data: $site_root/app/src/.well-known/acme-challenge/$token" );
-		}
 		return true;
 	}
 
 	public function check( Array $domains, $wildcard = false ) {
-		EE::debug( 'Starting check with solver ' . $wildcard ? 'dns' : 'http' );
+		EE::debug( ('Starting check with solver ') . ($wildcard ? 'dns' : 'http') );
 		$solver    = $wildcard ? new SimpleDnsSolver( null, new ConsoleOutput() ) : new SimpleHttpSolver();
 		$validator = new ChainValidator(
 			[

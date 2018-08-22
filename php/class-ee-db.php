@@ -64,6 +64,7 @@ class EE_DB {
 			site_fs_path         VARCHAR  NOT NULL,
 			site_enabled         BOOLEAN  NOT NULL DEFAULT 1,
 			site_ssl             VARCHAR,
+			site_ssl_wildcard    BOOLEAN  NOT NULL DEFAULT 0,
 			cache_nginx_browser  BOOLEAN  NOT NULL DEFAULT 0,
 			cache_nginx_fullpage BOOLEAN  NOT NULL DEFAULT 0,
 			cache_mysql_query    BOOLEAN  NOT NULL DEFAULT 0,

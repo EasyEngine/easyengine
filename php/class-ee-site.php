@@ -15,14 +15,14 @@ abstract class EE_Site_Command {
 	private $fs;
 
 	/**
-	 * @var bool $le Whether the site is letsencrypt or not.
-	 */
-	private $le;
-
-	/**
 	 * @var bool $wildcard Whether the site is letsencrypt type is wildcard or not.
 	 */
 	private $wildcard;
+
+	/**
+	 * @var bool $ssl Whether the site has SSL or not.
+	 */
+	private $ssl;
 
 	/**
 	 * @var string $le_mail Mail id to be used for letsencrypt registration and certificate generation.
@@ -119,8 +119,8 @@ abstract class EE_Site_Command {
 
 		EE\Utils\delem_log( 'site delete start' );
 		$this->populate_site_info( $args );
-		EE::confirm( sprintf( 'Are you sure you want to delete %s?', $this->site['name'] ), $assoc_args );
-		$this->delete_site( 5, $this->site['name'], $this->site['root'] );
+		EE::confirm( sprintf( 'Are you sure you want to delete %s?', $this->site['url'] ), $assoc_args );
+		$this->delete_site( 5, $this->site['url'], $this->site['root'] );
 		EE\Utils\delem_log( 'site delete end' );
 	}
 
@@ -173,8 +173,20 @@ abstract class EE_Site_Command {
 			EE::log( "[$site_name] site root removed." );
 		}
 
+		$config_file_path = EE_CONF_ROOT . '/nginx/conf.d/' . $site_name . '-redirect.conf';
+
+		if ( $this->fs->exists( $config_file_path ) ) {
+			try {
+				$this->fs->remove( $config_file_path );
+			} catch ( Exception $e ) {
+				EE::debug( $e );
+				EE::error( 'Could not remove site redirection file. Please check if you have sufficient rights.' );
+			}
+		}
+
+
 		if ( $level > 4 ) {
-			if ( $this->le ) {
+			if ( $this->ssl ) {
 				EE::log( 'Removing ssl certs.' );
 				$crt_file = EE_CONF_ROOT . "/nginx/certs/$site_name.crt";
 				$key_file = EE_CONF_ROOT . "/nginx/certs/$site_name.key";
@@ -215,7 +227,7 @@ abstract class EE_Site_Command {
 		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
-		$site = Site::find( $this->site['name'] );
+		$site  = Site::find( $this->site['url'] );
 
 		if ( $site->site_enabled && ! $force ) {
 			EE::error( sprintf( '%s is already enabled!', $site->site_url ) );
@@ -247,7 +259,7 @@ abstract class EE_Site_Command {
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$this->populate_site_info( $args );
 
-		$site = Site::find($this->site['name']);
+		$site = Site::find($this->site['url']);
 
 		EE::log( sprintf( 'Disabling site %s.', $site->site_url ) );
 
@@ -255,9 +267,9 @@ abstract class EE_Site_Command {
 			$site->site_enabled = 0;
 			$site->save();
 
-			EE::success( sprintf( 'Site %s disabled.', $this->site['name'] ) );
+			EE::success( sprintf( 'Site %s disabled.', $this->site['url'] ) );
 		} else {
-			EE::error( sprintf( 'There was error in disabling %s. Please check logs.', $this->site['name'] ) );
+			EE::error( sprintf( 'There was error in disabling %s. Please check logs.', $this->site['url'] ) );
 		}
 		EE\Utils\delem_log( 'site disable end' );
 	}
@@ -350,37 +362,127 @@ abstract class EE_Site_Command {
 	/**
 	 * Runs the acme le registration and authorization.
 	 *
+	 * @param string $site_name      Name of the site for ssl.
+	 *
+	 * @throws Exception
+	 */
+	protected function inherit_certs( $site_name ) {
+		$parent_site_name = implode( '.', array_slice( explode( '.', $site_name ), 1 ) );
+		$parent_site      = Site::find( $parent_site_name, [ 'site_ssl', 'site_ssl_wildcard' ] );
+
+		if ( ! $parent_site ) {
+			throw new Exception( 'Unable to find existing site: ' . $parent_site_name );
+		}
+
+		if ( ! $parent_site->site_ssl ) {
+			throw new Exception( "Cannot inherit from $parent_site_name as site does not have SSL cert" . var_dump( $parent_site ) );
+		}
+
+		if ( ! $parent_site->site_ssl_wildcard ) {
+			throw new Exception( "Cannot inherit from $parent_site_name as site does not have wildcard SSL cert" );
+		}
+
+		// We don't have to do anything now as nginx-proxy handles everything for us.
+		EE::success( 'Inherited certs from parent' );
+	}
+
+	/**
+	 * Runs SSL procedure.
+	 *
+	 * @param string $site_name Name of the site for ssl.
+	 * @param string $site_root Webroot of the site.
+	 * @param string $ssl_type  Type of ssl cert to issue.
+	 * @param bool   $wildcard  SSL with wildcard or not.
+	 *
+	 * @throws \EE\ExitException If --ssl flag has unrecognized value
+	 */
+	protected function init_ssl( $site_name, $site_root, $ssl_type, $wildcard = false ) {
+		EE::debug( 'Starting SSL procedure' );
+		if ( 'le' === $ssl_type ) {
+			EE::debug( 'Initializing LE' );
+			$this->init_le( $site_name, $site_root, $wildcard );
+		} elseif ( 'inherit' === $ssl_type ) {
+			if ( $wildcard ) {
+				EE::error( 'Cannot use --wildcard with --ssl=inherit', false );
+			}
+			EE::debug( 'Inheriting certs' );
+			$this->inherit_certs( $site_name );
+		} else {
+			EE::error( "Unrecognized value in --ssl flag: $ssl_type" );
+		}
+	}
+
+	/**
+	 * Runs the acme le registration and authorization.
+	 *
 	 * @param string $site_name Name of the site for ssl.
 	 * @param string $site_root Webroot of the site.
 	 * @param bool   $wildcard  SSL with wildcard or not.
 	 */
 	protected function init_le( $site_name, $site_root, $wildcard = false ) {
+		EE::debug( "Wildcard in init_le: $wildcard" );
 
-		$this->site['name'] = $site_name;
+		$this->site['url'] = $site_name;
 		$this->site['root'] = $site_root;
 		$this->wildcard = $wildcard;
 		$client = new Site_Letsencrypt();
 		$this->le_mail = EE::get_runner()->config['le-mail'] ?? EE::input( 'Enter your mail id: ' );
 		EE::get_runner()->ensure_present_in_config( 'le-mail', $this->le_mail );
-		if ( !$client->register( $this->le_mail ) ) {
-			$this->le = false;
+		if ( ! $client->register( $this->le_mail ) ) {
+			$this->ssl = null;
 
 			return;
 		}
 
-		$domains = $wildcard ? [
-			sprintf( '*.%s', $this->site['name'] ),
-			$this->site['name']
-		] : [$this->site['name']];
-		if ( !$client->authorize( $domains, $this->site['root'], $wildcard ) ) {
+		$domains = $this->get_cert_domains( $site_name, $wildcard );
+
+		if ( ! $client->authorize( $domains, $this->site['root'], $wildcard ) ) {
 			$this->le = false;
 
 			return;
 		}
 		if ( $wildcard ) {
-			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['name'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
+			echo \cli\Colors::colorize( '%YIMPORTANT:%n Run `ee site le ' . $this->site['url'] . '` once the dns changes have propogated to complete the certification generation and installation.', null );
 		} else {
 			$this->le( [], [] );
+		}
+	}
+
+	/**
+	 * Returns all domains required by cert
+	 *
+	 * @param string $site_name Name of site
+	 * @param $wildcard  Wildcard cert required?
+	 *
+	 * @return array
+	 */
+	private function get_cert_domains( string $site_name, $wildcard ) : array {
+		$domains = [ $site_name ];
+		$has_www = ( strpos( $site_name, 'www.' ) === 0 );
+
+		if ( $wildcard ) {
+			$domains[] = "*.{$site_name}";
+		} else {
+			$domains[] = $this->get_www_domain( $site_name );
+		}
+		return $domains;
+	}
+
+	/**
+	 * If the domain has www in it, returns a domain without www in it.
+	 * Else returns a domain with www in it.
+	 *
+	 * @param string $site_name Name of site
+	 *
+	 * @return string Domain name with or without www
+	 */
+	private function get_www_domain( string $site_name ) : string {
+		$has_www = ( strpos( $site_name, 'www.' ) === 0 );
+
+		if ( $has_www ) {
+			return ltrim( $site_name, 'www.' );
+		} else {
+			return  'www.' . $site_name;
 		}
 	}
 
@@ -398,24 +500,27 @@ abstract class EE_Site_Command {
 	 */
 	public function le( $args = [], $assoc_args = [] ) {
 
-		if ( !isset( $this->site['name'] ) ) {
+		if ( !isset( $this->site['url'] ) ) {
 			$this->populate_site_info( $args );
 		}
+
 		if ( !isset( $this->le_mail ) ) {
 			$this->le_mail = EE::get_config( 'le-mail' ) ?? EE::input( 'Enter your mail id: ' );
 		}
-		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
-		$domains = $this->wildcard ? ['*.' . $this->site['name'], $this->site['name']] : [$this->site['name']];
-		$client = new Site_Letsencrypt();
-		if ( !$client->check( $domains, $this->wildcard ) ) {
-			$this->le = false;
 
+		$force   = EE\Utils\get_flag_value( $assoc_args, 'force' );
+		$domains = $this->get_cert_domains( $this->site['url'], $this->wildcard );
+		$client  = new Site_Letsencrypt();
+
+		if ( ! $client->check( $domains, $this->wildcard ) ) {
+			$this->ssl = null;
 			return;
 		}
-		if ( $this->wildcard ) {
-			$client->request( '*.' . $this->site['name'], [$this->site['name']], $this->le_mail, $force );
-		} else {
-			$client->request( $this->site['name'], [], $this->le_mail, $force );
+
+		$san = array_values( array_diff( $domains, [ $this->site['url'] ] ) );
+		$client->request( $this->site['url'], $san, $this->le_mail, $force );
+
+		if ( ! $this->wildcard ) {
 			$client->cleanup( $this->site['root'] );
 		}
 		EE::launch( 'docker exec ee-nginx-proxy sh -c "/app/docker-entrypoint.sh /usr/local/bin/docker-gen /app/nginx.tmpl /etc/nginx/conf.d/default.conf; /usr/sbin/nginx -s reload"' );
@@ -426,18 +531,18 @@ abstract class EE_Site_Command {
 	 */
 	private function populate_site_info( $args ) {
 
-		$this->site['name'] = EE\Utils\remove_trailing_slash( $args[0] );
-		$site = Site::find( $this->site['name'] );
+		$this->site['url'] = EE\Utils\remove_trailing_slash( $args[0] );
+		$site = Site::find( $this->site['url'] );
 		if ( $site ) {
 
 			$db_select = $site->site_url;
 
 			$this->site['type'] = $site->site_type;
 			$this->site['root'] = $site->site_fs_path;
-			$this->le           = ( null !== $site->site_ssl );
-			$this->wildcard     = ( 'wildcard' === $site->site_ssl );
+			$this->ssl          = $site->site_ssl;
+			$this->wildcard     = $site->site_ssl_wildcard;
 		} else {
-			EE::error( sprintf( 'Site %s does not exist.', $this->site['name'] ) );
+			EE::error( sprintf( 'Site %s does not exist.', $this->site['url'] ) );
 		}
 	}
 
