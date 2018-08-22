@@ -178,10 +178,10 @@ function add_site_redirects( string $site_name, bool $ssl, bool $inherit ) {
 	}
 
 	$conf_data = [
-		'site_name' => $site_name,
+		'site_name'      => $site_name,
 		'cert_site_name' => $cert_site_name,
-		'server_name' => $server_name,
-		'ssl' => $ssl,
+		'server_name'    => $server_name,
+		'ssl'            => $ssl,
 	];
 
 	$content = EE\Utils\mustache_render( EE_ROOT . '/templates/redirect.conf.mustache', $conf_data );
