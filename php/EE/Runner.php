@@ -546,7 +546,7 @@ class Runner {
 				unset( $assoc_args['version'] );
 			}
 
-			if ( 'site' === $args[0] ) {
+			if ( isset( $args[0] ) && 'site' === $args[0] ) {
 
 				$ee3_compat_array_map_to_type = [
 					'wp'       => [ 'type' => 'wp' ],
