@@ -56,18 +56,19 @@ abstract class Base {
 	/**
 	 * Returns single model fetched by primary key
 	 *
-	 * @param string $value  value to find
-	 * @param string $column Column to find in. Defaults to primary key
+	 * @param string $value        value to find
+	 * @param array  $columns      Columns to select.
 	 *
 	 * @throws \Exception
 	 *
 	 * @return bool|static
 	 */
-	public static function find( string $value, string $column = null ) {
-		$primary_key_column = $column ?? static::$primary_key;
-		$model              = EE::db()
+	public static function find( string $value, array $columns = [] ) {
+
+		$model = EE::db()
 			->table( static::$table )
-			->where( $primary_key_column, $value )
+			->select( ...$columns )
+			->where( static::$primary_key, $value )
 			->first();
 
 		if ( false === $model ) {
