@@ -363,17 +363,12 @@ abstract class EE_Site_Command {
 	 * Runs the acme le registration and authorization.
 	 *
 	 * @param string $site_name      Name of the site for ssl.
-	 * @param string $needs_wildcard Does site needs wildcard.
 	 *
 	 * @throws Exception
 	 */
-	protected function inherit_certs( $site_name, $needs_wildcard ) {
+	protected function inherit_certs( $site_name ) {
 		$parent_site_name = implode( '.', array_slice( explode( '.', $site_name ), 1 ) );
 		$parent_site      = Site::find( $parent_site_name, [ 'site_ssl', 'site_ssl_wildcard' ] );
-
-		if ( $needs_wildcard ) {
-			throw new Exception( '--wildcard cannot be used with --ssl=inherit' );
-		}
 
 		if ( ! $parent_site ) {
 			throw new Exception( 'Unable to find existing site: ' . $parent_site_name );
@@ -407,8 +402,11 @@ abstract class EE_Site_Command {
 			EE::debug( 'Initializing LE' );
 			$this->init_le( $site_name, $site_root, $wildcard );
 		} elseif ( 'inherit' === $ssl_type ) {
+			if ( $wildcard ) {
+				EE::error( 'Cannot use --wildcard with --ssl=inherit', false );
+			}
 			EE::debug( 'Inheriting certs' );
-			$this->inherit_certs( $site_name, $wildcard );
+			$this->inherit_certs( $site_name );
 		} else {
 			EE::error( "Unrecognized value in --ssl flag: $ssl_type" );
 		}
@@ -422,7 +420,7 @@ abstract class EE_Site_Command {
 	 * @param bool   $wildcard  SSL with wildcard or not.
 	 */
 	protected function init_le( $site_name, $site_root, $wildcard = false ) {
-		EE::debug("Wildcard in init_le: $wildcard" );
+		EE::debug( "Wildcard in init_le: $wildcard" );
 
 		$this->site['url'] = $site_name;
 		$this->site['root'] = $site_root;
