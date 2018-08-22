@@ -458,7 +458,7 @@ abstract class EE_Site_Command {
 	 */
 	private function get_cert_domains( string $site_name, $wildcard ) : array {
 		$domains = [ $site_name ];
-		$has_www = strpos( $site_name, 'www.' ) === 0;
+		$has_www = ( strpos( $site_name, 'www.' ) === 0 );
 
 		if ( $wildcard ) {
 			$domains[] = "*.{$site_name}";
@@ -477,7 +477,7 @@ abstract class EE_Site_Command {
 	 * @return string Domain name with or without www
 	 */
 	private function get_www_domain( string $site_name ) : string {
-		$has_www = strpos( $site_name, 'www.' ) === 0;
+		$has_www = ( strpos( $site_name, 'www.' ) === 0 );
 
 		if ( $has_www ) {
 			return ltrim( $site_name, 'www.' );
