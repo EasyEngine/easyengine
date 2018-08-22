@@ -37,4 +37,23 @@ class Site extends Base {
 			->where( $primary_key_column, $this->$primary_key_column )
 			->update( $fields );
 	}
+
+
+	/**
+	 * Returns if site is enabled
+	 *
+	 * @param string $site_url Name of site to check
+	 *
+	 * @throws \Exception
+	 *
+	 * @return bool Site enabled
+	 */
+	public static function enabled( string $site_url ) : bool {
+		$site = static::find( $site_url, [ 'site_enabled' ] );
+
+		if ( $site && $site->site_enabled ) {
+			return true;
+		}
+		return false;
+	}
 }
