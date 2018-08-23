@@ -86,13 +86,20 @@ function init_checks() {
 		if ( ! ( $port_80_status && $port_443_status ) ) {
 			EE::error( 'Cannot create/start proxy container. Please make sure port 80 and 443 are free.' );
 		} else {
-			$EE_CONF_ROOT     = EE_CONF_ROOT;
-			$img_versions     = EE\Utils\get_image_versions();
-			$ee_proxy_command = "docker run --name $proxy_type -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html easyengine/nginx-proxy:" . $img_versions['easyengine/nginx-proxy'];
 
+			$fs = new Filesystem();
 
-			if ( EE::docker()::boot_container( $proxy_type, $ee_proxy_command ) ) {
-				$fs = new Filesystem();
+			if ( ! $fs->exists( EE_CONF_ROOT . '/docker-compose.yml' ) ) {
+				generate_global_docker_compose_yml( $fs );
+			}
+
+			$EE_CONF_ROOT = EE_CONF_ROOT;
+			if ( ! EE::docker()::docker_network_exists( 'ee-global-network' ) ) {
+				if ( ! EE::exec( 'docker network create ee-global-network' ) ) {
+					EE::error( 'Unable to create network ee-global-network' );
+				}
+			}
+			if ( EE::docker()::docker_compose_up( EE_CONF_ROOT, [ 'nginx-proxy' ] ) ) {
 				$fs->dumpFile( "$EE_CONF_ROOT/nginx/conf.d/custom.conf", file_get_contents( EE_ROOT . '/templates/custom.conf.mustache' ) );
 				EE::success( "$proxy_type container is up." );
 			} else {
@@ -100,6 +107,44 @@ function init_checks() {
 			}
 		}
 	}
+}
+
+
+function generate_global_docker_compose_yml( Filesystem $fs ) {
+	$img_versions = EE\Utils\get_image_versions();
+
+	$data     = [
+		'services' => [
+			'name'           => 'nginx-proxy',
+			'container_name' => 'ee-nginx-proxy',
+			'image'          => 'easyengine/nginx-proxy:' . $img_versions['easyengine/nginx-proxy'],
+			'restart'        => 'always',
+			'ports'          => [
+				'80:80',
+				'443:443',
+			],
+			'environment'    => [
+				'LOCAL_USER_ID=' . posix_geteuid(),
+				'LOCAL_GROUP_ID=' . posix_getegid(),
+			],
+			'volumes'        => [
+				EE_CONF_ROOT . '/nginx/certs:/etc/nginx/certs ',
+				EE_CONF_ROOT . '/nginx/dhparam:/etc/nginx/dhparam',
+				EE_CONF_ROOT . '/nginx/conf.d:/etc/nginx/conf.d',
+				EE_CONF_ROOT . '/nginx/htpasswd:/etc/nginx/htpasswd',
+				EE_CONF_ROOT . '/nginx/vhost.d:/etc/nginx/vhost.d',
+				EE_CONF_ROOT . ':/app/ee4',
+				'/usr/share/nginx/html',
+				'/var/run/docker.sock:/tmp/docker.sock:ro',
+			],
+			'networks'       => [
+				'global-network',
+				'site-network',
+			],
+		],
+	];
+	$contents = EE\Utils\mustache_render( EE_ROOT . '/templates/global_docker_compose.yml.mustache', $data );
+	$fs->dumpFile( EE_CONF_ROOT . '/docker-compose.yml', $contents );
 }
 
 /**
