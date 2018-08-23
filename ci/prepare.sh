@@ -5,7 +5,7 @@
 if [[ "$TRAVIS_BRANCH" != $DEPLOY_BRANCH ]]; then
     version=$(head -n 1 VERSION)
     version="$(echo $version | xargs)"
-    version+="-nightly"
+    version+="-nightly-$(git rev-parse --short HEAD)"
     echo $version > VERSION
     sed -i 's/\:\ \"\(.*\)\"/\:\ \"\1-nightly\"/g' img-versions.json
 fi
