@@ -309,30 +309,24 @@ class Site_Letsencrypt {
 		EE::log( 'Certificate stored' );
 
 		// Post-generate actions
-		$this->moveCertsToNginxProxy( $response );
+		$this->moveCertsToNginxProxy( $domain );
 	}
 
-	private function moveCertsToNginxProxy( CertificateResponse $response ) {
-		$domain      = $response->getCertificateRequest()->getDistinguishedName()->getCommonName();
-		$privateKey  = $response->getCertificateRequest()->getKeyPair()->getPrivateKey();
-		$certificate = $response->getCertificate();
-
+	private function moveCertsToNginxProxy( string $domain ) {
 		// To handle wildcard certs
 		$domain = ltrim( $domain, '*.' );
 
-		file_put_contents( EE_CONF_ROOT . '/nginx/certs/' . $domain . '.key', $privateKey->getPEM() );
+		$key_source_file   = strtr( $this->conf_dir . '/' . Repository::PATH_DOMAIN_KEY_PRIVATE, [ '{domain}' => $domain ] );
+		$crt_source_file   = strtr( $this->conf_dir . '/' . Repository::PATH_DOMAIN_CERT_FULLCHAIN, [ '{domain}' => $domain ] );
+		$chain_source_file = strtr( $this->conf_dir . '/' . Repository::PATH_DOMAIN_CERT_CHAIN, [ '{domain}' => $domain ] );
 
-		// Issuer chain
-		$issuerChain = array_map(
-			function ( Certificate $certificate ) {
-				return $certificate->getPEM();
-			}, $certificate->getIssuerChain()
-		);
+		$key_dest_file   = EE_CONF_ROOT . '/nginx/certs/' . $domain . '.key';
+		$crt_dest_file   = EE_CONF_ROOT . '/nginx/certs/' . $domain . '.crt';
+		$chain_dest_file = EE_CONF_ROOT . '/nginx/certs/' . $domain . '.chain.pem';
 
-		// Full chain
-		$fullChainPem = $certificate->getPEM() . "\n" . implode( "\n", $issuerChain );
-
-		file_put_contents( EE_CONF_ROOT . '/nginx/certs/' . $domain . '.crt', $fullChainPem );
+		copy( $key_source_file, $key_dest_file );
+		copy( $crt_source_file, $crt_dest_file );
+		copy( $chain_source_file, $chain_dest_file );
 	}
 
 	/**
@@ -401,7 +395,7 @@ class Site_Letsencrypt {
 			$this->log( 'Certificate stored' );
 
 			// Post-generate actions
-			$this->moveCertsToNginxProxy( $response );
+			$this->moveCertsToNginxProxy( $domain );
 			EE::log( 'Certificate renewed successfully!' );
 
 		}
