@@ -171,6 +171,10 @@ class EE_DOCKER {
 		return false;
 	}
 
+	public static function docker_network_exists( string $network ) {
+		return EE::exec( "docker network inspect $network" );
+	}
+
 	/**
 	 * Function to destroy the containers.
 	 *
