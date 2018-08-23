@@ -40,6 +40,7 @@ script:
   - ./ci/test-commands.sh
 
 after_script:
+  - cat /opt/easyengine/install.log
   - cat /opt/easyengine/ee.log
 
 jobs:
