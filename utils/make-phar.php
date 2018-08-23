@@ -249,6 +249,16 @@ foreach ( $finder as $file ) {
 	add_file( $phar, $file );
 }
 
+$finder
+	->files()
+	->ignoreDotFiles(false)
+	->in(EE_VENDOR_DIR . '/easyengine/*-command/')
+	->name('ee-*.json');
+
+foreach ( $finder as $file ) {
+	add_file( $phar, $file );
+}
+
 // other files
 $finder = new Finder();
 $finder->files()
