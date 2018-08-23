@@ -313,8 +313,6 @@ class Site_Letsencrypt {
 	}
 
 	private function moveCertsToNginxProxy( string $domain ) {
-		// To handle wildcard certs
-		$domain = ltrim( $domain, '*.' );
 
 		$key_source_file   = strtr( $this->conf_dir . '/' . Repository::PATH_DOMAIN_KEY_PRIVATE, [ '{domain}' => $domain ] );
 		$crt_source_file   = strtr( $this->conf_dir . '/' . Repository::PATH_DOMAIN_CERT_FULLCHAIN, [ '{domain}' => $domain ] );
