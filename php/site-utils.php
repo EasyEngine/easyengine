@@ -139,7 +139,6 @@ function generate_global_docker_compose_yml( Filesystem $fs ) {
 			],
 			'networks'       => [
 				'global-network',
-				'site-network',
 			],
 		],
 	];
@@ -166,26 +165,6 @@ function create_site_root( $site_root, $site_name ) {
 
 	$fs->mkdir( $site_root );
 	$fs->chown( $site_root, $terminal_username );
-}
-
-/**
- * Function to setup site network.
- *
- * @param string $site_name Name of the site.
- *
- * @throws \Exception when network start fails.
- */
-function setup_site_network( $site_name ) {
-
-	$proxy_type = EE_PROXY_TYPE;
-	if ( EE::docker()::create_network( $site_name ) ) {
-		EE::success( 'Network started.' );
-	} else {
-		throw new \Exception( 'There was some error in starting the network.' );
-	}
-
-	EE::docker()::connect_site_network_to( $site_name, $proxy_type );
-
 }
 
 /**
