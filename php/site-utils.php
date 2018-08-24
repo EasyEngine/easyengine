@@ -128,7 +128,7 @@ function generate_global_docker_compose_yml( Filesystem $fs ) {
 				'LOCAL_GROUP_ID=' . posix_getegid(),
 			],
 			'volumes'        => [
-				EE_CONF_ROOT . '/nginx/certs:/etc/nginx/certs ',
+				EE_CONF_ROOT . '/nginx/certs:/etc/nginx/certs',
 				EE_CONF_ROOT . '/nginx/dhparam:/etc/nginx/dhparam',
 				EE_CONF_ROOT . '/nginx/conf.d:/etc/nginx/conf.d',
 				EE_CONF_ROOT . '/nginx/htpasswd:/etc/nginx/htpasswd',
