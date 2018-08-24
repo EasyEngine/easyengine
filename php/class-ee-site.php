@@ -149,18 +149,6 @@ abstract class EE_Site_Command {
 					EE::warning( 'Error in removing docker containers.' );
 				}
 			}
-
-			EE::docker()::disconnect_site_network_from( $site_name, $proxy_type );
-		}
-
-		if ( $level >= 2 ) {
-			if ( EE::docker()::rm_network( $site_name ) ) {
-				EE::log( "[$site_name] Docker container removed from network $proxy_type." );
-			} else {
-				if ( $level > 2 ) {
-					EE::warning( "Error in removing Docker container from network $proxy_type" );
-				}
-			}
 		}
 
 		if ( $this->fs->exists( $site_root ) ) {

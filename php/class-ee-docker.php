@@ -172,6 +172,17 @@ class EE_DOCKER {
 	}
 
 	/**
+	 * Function to check if a network exists
+	 *
+	 * @param string $network Name/ID of network to check
+	 *
+	 * @return bool Network exists or not
+	 */
+	public static function docker_network_exists( string $network ) {
+		return EE::exec( "docker network inspect $network" );
+	}
+
+	/**
 	 * Function to destroy the containers.
 	 *
 	 * @param String $dir      Path to docker-compose.yml.
