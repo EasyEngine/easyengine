@@ -109,7 +109,11 @@ function init_checks() {
 	}
 }
 
-
+/**
+ * Generates global docker-compose.yml at EE_CONF_ROOT
+ *
+ * @param Filesystem $fs Filesystem object to write file
+ */
 function generate_global_docker_compose_yml( Filesystem $fs ) {
 	$img_versions = EE\Utils\get_image_versions();
 
@@ -142,6 +146,7 @@ function generate_global_docker_compose_yml( Filesystem $fs ) {
 			],
 		],
 	];
+
 	$contents = EE\Utils\mustache_render( EE_ROOT . '/templates/global_docker_compose.yml.mustache', $data );
 	$fs->dumpFile( EE_CONF_ROOT . '/docker-compose.yml', $contents );
 }

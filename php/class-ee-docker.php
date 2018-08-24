@@ -171,6 +171,13 @@ class EE_DOCKER {
 		return false;
 	}
 
+	/**
+	 * Function to check if a network exists
+	 *
+	 * @param string $network Name/ID of network to check
+	 *
+	 * @return bool Network exists or not
+	 */
 	public static function docker_network_exists( string $network ) {
 		return EE::exec( "docker network inspect $network" );
 	}
