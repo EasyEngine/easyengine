@@ -95,7 +95,7 @@ function init_checks() {
 
 			$EE_CONF_ROOT = EE_CONF_ROOT;
 			if ( ! EE::docker()::docker_network_exists( 'ee-global-network' ) ) {
-				if ( ! EE::exec( 'docker network create ee-global-network' ) ) {
+				if ( ! EE::docker()::create_network( 'ee-global-network' ) ) {
 					EE::error( 'Unable to create network ee-global-network' );
 				}
 			}
