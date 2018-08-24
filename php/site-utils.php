@@ -137,7 +137,6 @@ function generate_global_docker_compose_yml( Filesystem $fs ) {
 				EE_CONF_ROOT . '/nginx/conf.d:/etc/nginx/conf.d',
 				EE_CONF_ROOT . '/nginx/htpasswd:/etc/nginx/htpasswd',
 				EE_CONF_ROOT . '/nginx/vhost.d:/etc/nginx/vhost.d',
-				EE_CONF_ROOT . ':/app/ee4',
 				'/usr/share/nginx/html',
 				'/var/run/docker.sock:/tmp/docker.sock:ro',
 			],
