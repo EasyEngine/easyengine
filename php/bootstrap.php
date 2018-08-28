@@ -29,7 +29,6 @@ function get_bootstrap_steps() {
 		'EE\Bootstrap\RegisterFrameworkCommands',
 		'EE\Bootstrap\IncludeFallbackAutoloader',
 		'EE\Bootstrap\RegisterDeferredCommands',
-		'EE\Bootstrap\RouteSiteCommands',
 		'EE\Bootstrap\LaunchRunner',
 	);
 }
