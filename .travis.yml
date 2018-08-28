@@ -8,6 +8,7 @@ env:
     - PATH="$TRAVIS_BUILD_DIR/vendor/bin:$PATH"
 
 before_install:
+  - sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
   - |
     # Remove Xdebug for a huge performance increase:
     if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
@@ -62,3 +63,8 @@ notifications:
   email:
     on_success: never
     on_failure: change
+
+addons:
+  apt:
+    packages:
+      - docker-ce
