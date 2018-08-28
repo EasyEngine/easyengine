@@ -413,14 +413,14 @@ class Subcommand extends CompositeCommand {
 			unset( $assoc_args[ $key ] );
 		}
 
-		$path = get_path( $this->get_parent() );
+		$path   = get_path( $this->get_parent() );
 		$parent = implode( ' ', array_slice( $path, 1 ) );
-		$cmd = $this->name;
+		$cmd    = $this->name;
 		if ( $parent ) {
-			EE::do_hook( "before_invoke:{$parent}" );
+			EE::do_hook( "before_invoke:{$parent}", $args, $assoc_args );
 			$cmd = $parent . ' ' . $cmd;
 		}
-		EE::do_hook( "before_invoke:{$cmd}" );
+		EE::do_hook( "before_invoke:{$cmd}", $args, $assoc_args );
 
 		call_user_func( $this->when_invoked, $args, array_merge( $extra_args, $assoc_args ) );
 
