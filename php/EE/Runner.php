@@ -613,8 +613,10 @@ class Runner {
 	 * Ensures that vars are present in config. If they aren't, attempts to
 	 * create config file and add vars in it.
 	 *
-	 * @param $var     Variable to check.
-	 * @param $default Default value to use if $var is not set.
+	 * @param $var     string Variable to check.
+	 * @param $default string Default value to use if $var is not set.
+	 *
+	 * @throws ExitException
 	 */
 	public function ensure_present_in_config( $var, $default ) {
 		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
