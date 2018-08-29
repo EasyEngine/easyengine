@@ -9,6 +9,8 @@ use \Symfony\Component\Filesystem\Filesystem;
 /**
  * Get the site-name from the path from where ee is running if it is a valid site path.
  *
+ * @throws \Exception
+ *
  * @return bool|String Name of the site or false in failure.
  */
 function get_site_name() {
@@ -39,14 +41,16 @@ function get_site_name() {
  * Function to set the site-name in the args when ee is running in a site folder and the site-name has not been passed
  * in the args. If the site-name could not be found it will throw an error.
  *
- * @param array $args      The passed arguments.
- * @param String $command  The command passing the arguments to auto-detect site-name.
- * @param String $function The function passing the arguments to auto-detect site-name.
- * @param integer $arg_pos Argument position where Site-name will be present.
+ * @param array   $args     The passed arguments.
+ * @param string  $command  The command passing the arguments to auto-detect site-name.
+ * @param string  $function The function passing the arguments to auto-detect site-name.
+ * @param integer $arg_pos  Argument position where Site-name will be present.
+ *
+ * @throws EE\ExitException
  *
  * @return array Arguments with site-name set.
  */
-function auto_site_name( $args, $command, $function, $arg_pos = 0 ) {
+function auto_site_name( array $args, string $command, string $function, int $arg_pos = 0 ) : array {
 
 	if ( isset( $args[ $arg_pos ] ) ) {
 		if ( Site::find( $args[ $arg_pos ] ) ) {
@@ -156,6 +160,8 @@ function generate_global_docker_compose_yml( Filesystem $fs ) {
  *
  * @param string $site_root Root directory of the site.
  * @param string $site_name Name of the site.
+ *
+ * @throws EE\ExitException
  */
 function create_site_root( $site_root, $site_name ) {
 
@@ -331,6 +337,8 @@ function run_compose_command( $action, $container, $action_to_display = null, $s
  *
  * @param string $site_name     Name of the site to configure postfix files for.
  * @param string $site_conf_dir Configuration directory of the site `site_root/config`.
+ *
+ * @throws \Exception
  */
 function set_postfix_files( $site_name, $site_conf_dir ) {
 
@@ -340,8 +348,8 @@ function set_postfix_files( $site_name, $site_conf_dir ) {
 	$ssl_dir = $site_conf_dir . '/postfix/ssl';
 
 	if ( ! EE::exec( sprintf( "openssl req -new -x509 -nodes -days 365 -subj \"/CN=smtp.%s\" -out $ssl_dir/server.crt -keyout $ssl_dir/server.key", $site_name ) )
-	     && EE::exec( "chmod 0600 $ssl_dir/server.key" ) ) {
-		throw new Exception( 'Unable to generate ssl key for postfix' );
+		&& EE::exec( "chmod 0600 $ssl_dir/server.key" ) ) {
+		throw new \Exception( 'Unable to generate ssl key for postfix' );
 	}
 }
 
@@ -349,7 +357,7 @@ function set_postfix_files( $site_name, $site_conf_dir ) {
  * Function to execute docker-compose exec calls to postfix to get it configured and running for the site.
  *
  * @param string $site_name Name of the for which postfix has to be configured.
- * @param strin $site_root  Site root.
+ * @param string $site_root  Site root.
  */
 function configure_postfix( $site_name, $site_root ) {
 
