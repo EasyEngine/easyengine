@@ -119,7 +119,7 @@ abstract class EE_Site_Command {
 
 		EE\Utils\delem_log( 'site delete start' );
 		$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-		$site = $this->get_site( $site_url );
+		$site = $this->get_site_or_exit( $site_url );
 		EE::confirm( sprintf( 'Are you sure you want to delete %s?', $site->site_url ), $assoc_args );
 		$this->delete_site( 5, $site->site_url, $site->site_fs_path );
 		EE\Utils\delem_log( 'site delete end' );
@@ -219,7 +219,7 @@ abstract class EE_Site_Command {
 		$force = EE\Utils\get_flag_value( $assoc_args, 'force' );
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 		$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-		$site  = $this->get_site( $site_url );
+		$site  = $this->get_site_or_exit( $site_url );
 
 		if ( $site->site_enabled && ! $force ) {
 			EE::error( sprintf( '%s is already enabled!', $site->site_url ) );
@@ -251,7 +251,7 @@ abstract class EE_Site_Command {
 		$args = EE\SiteUtils\auto_site_name( $args, 'site', __FUNCTION__ );
 
 		$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-		$site = $this->get_site( $site_url );
+		$site = $this->get_site_or_exit( $site_url );
 
 		EE::log( sprintf( 'Disabling site %s.', $site->site_url ) );
 
@@ -286,7 +286,7 @@ abstract class EE_Site_Command {
 		$all = EE\Utils\get_flag_value( $assoc_args, 'all' );
 		$no_service_specified = count( $assoc_args ) === 0;
 		$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-		$site = $this->get_site( $site_url );
+		$site = $this->get_site_or_exit( $site_url );
 
 		chdir( $site->site_fs_path );
 
@@ -328,7 +328,7 @@ abstract class EE_Site_Command {
 
 		$no_service_specified = count( $assoc_args ) === 0;
 		$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-		$site = $this->get_site( $site_url );
+		$site = $this->get_site_or_exit( $site_url );
 
 		chdir( $site->site_fs_path );
 
@@ -499,7 +499,7 @@ abstract class EE_Site_Command {
 			$args     = \EE\SiteUtils\auto_site_name( $args, '', __FUNCTION__ );
 
 			$site_url = \EE\Utils\remove_trailing_slash( $args[0] );
-			$site = $this->get_site( $site_url );
+			$site = $this->get_site_or_exit( $site_url );
 
 			$site_config['url'] = $site_url;
 			$site_config['ssl_wildcard'] = $site->site_ssl_wildcard;
@@ -529,14 +529,14 @@ abstract class EE_Site_Command {
 	}
 
 	/**
-	 * Populate basic site info from db.
+	 * Returns site if found else exits.
 	 *
-	 * @param string $site_url URL of site to work on
+	 * @param string $site_url url of site to find
 	 *
 	 * @throws \EE\ExitException
 	 * @return Site
 	 */
-	private function get_site( string $site_url ) : Site {
+	private function get_site_or_exit( string $site_url ) : Site {
 
 		$site = Site::find( $site_url );
 
