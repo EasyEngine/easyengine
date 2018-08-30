@@ -25,7 +25,6 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0",
-        "acmephp/core": "dev-master",
         "composer/composer": "^1.2.0",
         "composer/semver": "~1.0",
         "easyengine/admin-tools-command": "dev-develop",
@@ -35,10 +34,7 @@
         "easyengine/site-command": "v2.0.0",
         "easyengine/site-wp-command": "v1.0.0-beta.1",
         "easyengine/shell-command": "v1.0.0-beta.1",
-        "ext-openssl": "*",
-        "guzzlehttp/guzzle": "^6.0",
         "justinrainbow/json-schema": "~5.2.5",
-        "league/flysystem": "^1.0.19",
         "monolog/monolog": "^1.23",
         "mustache/mustache": "~2.4",
         "rmccue/requests": "~1.6",
@@ -50,10 +46,8 @@
         "symfony/filesystem": "^2.7|^3.0",
         "symfony/finder": "^2.7|^3.0",
         "symfony/process": "^2.1|^3.0",
-        "symfony/serializer": "^3.0",
         "symfony/translation": "^2.7|^3.0",
         "symfony/yaml": "^2.7|^3.0",
-        "webmozart/assert": "^1.0",
         "wp-cli/autoload-splitter": "^0.1.5",
         "wp-cli/mustangostang-spyc": "^0.6.3",
         "wp-cli/php-cli-tools": "~0.11.2"
@@ -74,8 +68,7 @@
             "EE": "php"
         },
         "psr-4": {
-            "": "php/commands/src",
-            "AcmePhp\\Cli\\": "php/AcmePhp/Cli"
+            "": "php/commands/src"
         }
     },
     "extra": {
