@@ -118,6 +118,16 @@ class EE_DB {
 			FOREIGN KEY (site_url) REFERENCES sites(site_url)
 		);';
 
+		$query .= 'CREATE TABLE auth_users (
+			id INTEGER,
+			site_url VARCHAR NOT NULL,
+			username VARCHAR NOT NULL,
+			password VARCHAR NOT NULL,
+			scope    VARCHAR NOT NULL,
+			PRIMARY KEY (id),
+			CHECK (scope IN (\'admin-tools\', \'site\', \'custom\'))
+		);';
+
 		try {
 			self::$pdo->exec( $query );
 		} catch ( PDOException $exception ) {
