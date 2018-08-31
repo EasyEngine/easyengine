@@ -4,11 +4,10 @@
 
 namespace EE\Utils;
 
-use \Composer\Semver\Comparator;
-use \Composer\Semver\Semver;
-use \EE;
-use \EE\Dispatcher;
-use \EE\Iterators\Transform;
+use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
+use EE;
+use EE\Iterators\Transform;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -421,6 +420,20 @@ function make_progress_bar( $message, $count, $interval = 100 ) {
 	}
 
 	return new \cli\progress\Bar( $message, $count, $interval );
+}
+
+/**
+ * Checks if an array is associative array
+ * @param array $arr array to check
+ *
+ * @return bool
+ */
+function is_assoc( array $arr ) {
+	if ( array() === $arr ) {
+		return false;
+	}
+
+	return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
 }
 
 function parse_url( $url ) {
