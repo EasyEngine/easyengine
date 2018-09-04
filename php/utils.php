@@ -424,16 +424,23 @@ function make_progress_bar( $message, $count, $interval = 100 ) {
 
 /**
  * Checks if an array is associative array
+ *
  * @param array $arr array to check
  *
  * @return bool
  */
-function is_assoc( array $arr ) {
-	if ( array() === $arr ) {
-		return false;
+function is_assoc( $arr ) {
+
+	$is_assoc = false;
+
+	foreach ( $arr as $key => $value ) {
+		if ( is_string( $key ) ) {
+			$is_assoc = true;
+			break;
+		}
 	}
 
-	return array_keys( $arr ) !== range( 0, count( $arr ) - 1 );
+	return $is_assoc;
 }
 
 function parse_url( $url ) {
