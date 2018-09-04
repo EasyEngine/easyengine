@@ -124,8 +124,7 @@ class EE_DB {
 			username VARCHAR NOT NULL,
 			password VARCHAR NOT NULL,
 			scope    VARCHAR NOT NULL,
-			PRIMARY KEY (id),
-			CHECK (scope IN (\'admin-tools\', \'site\', \'custom\'))
+			PRIMARY KEY (id)
 		);';
 
 		try {
