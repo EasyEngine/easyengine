@@ -84,7 +84,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function create_network( $name ) {
-		return EE::exec( "docker network create $name" );
+		return EE::exec( "docker network create $name --label=org.label-schema.vendor=\"EasyEngine\" " );
 	}
 
 	/**
