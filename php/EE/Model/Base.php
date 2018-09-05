@@ -17,12 +17,17 @@ abstract class Base {
 	/**
 	 * @var string Primary key of current model
 	 */
-	protected static $primary_key;
+	protected static $primary_key = 'id';
 
 	/**
 	 * @var string It will contain an array of all fields that are present in database in table
 	 */
 	protected $fields;
+
+	/**
+	 * @var bool Weather the model needs timestamp whenever it's updated
+	 */
+	protected static $needs_update_timestamp = false;
 
 	/**
 	 * Base constructor.
@@ -161,13 +166,13 @@ abstract class Base {
 	 * Returns all model with condition
 	 *
 	 * @param string|array $column Column to search in
-	 * @param string|int   $value  Value to match
+	 * @param string       $value  Value to match
 	 *
 	 * @throws \Exception
 	 *
 	 * @return array
 	 */
-	public static function where( $column, $value ) {
+	public static function where( $column, $value='' ) {
 		return static::many_array_to_model(
 			EE::db()
 				->table( static::$table )
@@ -240,11 +245,15 @@ abstract class Base {
 	 * @return bool Model saved successfully
 	 */
 	public function save() {
-		$fields = array_merge(
-			$this->fields, [
-				'modified_on' => date( 'Y-m-d H:i:s' ),
-			]
-		);
+		$fields = $this->fields;
+
+		if ( static::$needs_update_timestamp ) {
+			$fields = array_merge(
+				$fields, [
+					'modified_on' => date( 'Y-m-d H:i:s' ),
+				]
+			);
+		}
 
 		$primary_key_column = static::$primary_key;
 

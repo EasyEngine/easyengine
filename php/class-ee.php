@@ -1,10 +1,10 @@
 <?php
 
-use \EE\ExitException;
-use \EE\Dispatcher;
-use \EE\FileCache;
-use \EE\Process;
-use \EE\Utils;
+use EE\Dispatcher;
+use EE\ExitException;
+use EE\FileCache;
+use EE\Process;
+use EE\Utils;
 use Mustangostang\Spyc;
 
 /**
@@ -919,20 +919,6 @@ class EE {
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch_self( $command, $args = array(), $assoc_args = array(), $exit_on_error = true, $return_detailed = false, $runtime_args = array() ) {
-		$reused_runtime_args = array(
-			'path',
-			'url',
-			'user',
-		);
-
-		foreach ( $reused_runtime_args as $key ) {
-			if ( isset( $runtime_args[ $key ] ) ) {
-				$assoc_args[ $key ] = $runtime_args[ $key ];
-			} elseif ( $value = self::get_runner()->config[ $key ] ) {
-				$assoc_args[ $key ] = $value;
-			}
-		}
-
 		$php_bin = escapeshellarg( Utils\get_php_binary() );
 
 		$script_path = $GLOBALS['argv'][0];
