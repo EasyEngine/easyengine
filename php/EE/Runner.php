@@ -546,54 +546,6 @@ class Runner {
 				unset( $assoc_args['version'] );
 			}
 
-			if ( isset( $args[0] ) && 'site' === $args[0] ) {
-
-				$ee3_compat_array_map_to_type = [
-					'wp'       => [ 'type' => 'wp' ],
-					'wpsubdom' => [ 'type' => 'wp', 'mu' => 'subdom' ],
-					'wpsubdir' => [ 'type' => 'wp', 'mu' => 'subdir' ],
-					'wpredis'  => [ 'type' => 'wp', 'cache' => true ],
-					'html'     => [ 'type' => 'html' ],
-				];
-
-				foreach ( $ee3_compat_array_map_to_type as $from => $to ) {
-					if ( isset( $assoc_args[ $from ] ) ) {
-						$assoc_args = array_merge( $assoc_args, $to );
-						unset( $assoc_args[ $from ] );
-					}
-				}
-
-				// ee3 backward compatibility flags
-				$wp_compat_array_map = [
-					'user'  => 'admin_user',
-					'pass'  => 'admin_pass',
-					'email' => 'admin_email',
-					'le'    => 'letsencrypt',
-				];
-
-				foreach ( $wp_compat_array_map as $from => $to ) {
-					if ( isset( $assoc_args[ $from ] ) ) {
-						$assoc_args[ $to ] = $assoc_args[ $from ];
-						unset( $assoc_args[ $from ] );
-					}
-				}
-
-				// backward compatibility message
-				$unsupported_create_old_args = array(
-					'w3tc',
-					'wpsc',
-					'wpfc',
-					'pagespeed',
-				);
-
-				$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
-
-				$old_args = implode( ' --', $old_arg );
-				if ( isset( $args[1] ) && 'create' === $args[1] && ! empty ( $old_arg ) ) {
-					\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
-				}
-			}
-
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
 			$configurator->merge_array( $this->runtime_config );
