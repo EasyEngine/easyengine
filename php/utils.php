@@ -1508,10 +1508,11 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  * # +------+--------+
  * ```
  *
- * @param array $items An array of items to output.
+ * @param array $items   An array of items to output.
+ * @param bool $log_data To log table in file or not.
  *
  */
-function format_table( $items ) {
+function format_table( $items, $log_in_file = false ) {
 	$item_table = new \cli\Table();
 	$item_table->setRows( $items );
 	$item_table->setRenderer( new \cli\table\Ascii() );
@@ -1519,8 +1520,13 @@ function format_table( $items ) {
 	array_pop( $lines );
 	$delem = $item_table->getDisplayLines()[0];
 	foreach ( $lines as $line ) {
-		\EE::log( $delem );
-		\EE::log( $line );
+		if ( $log_in_file ) {
+			\EE::log( $delem );
+			\EE::log( $line );
+		} else {
+			\EE::line( $delem );
+			\EE::line( $line );
+		}
 	}
 	\EE::log( $delem );
 }
