@@ -4,11 +4,10 @@
 
 namespace EE\Utils;
 
-use \Composer\Semver\Comparator;
-use \Composer\Semver\Semver;
-use \EE;
-use \EE\Dispatcher;
-use \EE\Iterators\Transform;
+use Composer\Semver\Comparator;
+use Composer\Semver\Semver;
+use EE;
+use EE\Iterators\Transform;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -421,6 +420,27 @@ function make_progress_bar( $message, $count, $interval = 100 ) {
 	}
 
 	return new \cli\progress\Bar( $message, $count, $interval );
+}
+
+/**
+ * Checks if an array is associative array
+ *
+ * @param array $arr array to check
+ *
+ * @return bool
+ */
+function is_assoc( $arr ) {
+
+	$is_assoc = false;
+
+	foreach ( $arr as $key => $value ) {
+		if ( is_string( $key ) ) {
+			$is_assoc = true;
+			break;
+		}
+	}
+
+	return $is_assoc;
 }
 
 function parse_url( $url ) {
@@ -1488,19 +1508,27 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  * # +------+--------+
  * ```
  *
- * @param array $items An array of items to output.
+ * @param array $items   An array of items to output.
+ * @param bool $log_data To log table in file or not.
  *
  */
-function format_table( $items ) {
+function format_table( $items, $log_in_file = false ) {
 	$item_table = new \cli\Table();
 	$item_table->setRows( $items );
 	$item_table->setRenderer( new \cli\table\Ascii() );
 	$lines = array_slice( $item_table->getDisplayLines(), 3 );
 	array_pop( $lines );
 	$delem = $item_table->getDisplayLines()[0];
-	foreach ( $lines as $line ) {
-		\EE::log( $delem );
-		\EE::log( $line );
+	if ( $log_in_file ) {
+		foreach ( $lines as $line ) {
+			\EE::log( $delem );
+			\EE::log( $line );
+		}
+	} else {
+		foreach ( $lines as $line ) {
+			\EE::line( $delem );
+			\EE::line( $line );
+		}
 	}
 	\EE::log( $delem );
 }
@@ -1544,4 +1572,25 @@ function get_callable_name( callable $callable ) {
 	} else {
 		return 'unknown';
 	}
+}
+
+/**
+ * Function to get the docker image versions stored in img-versions.json file.
+ *
+ * @return array Docker image versions.
+ */
+function get_image_versions() {
+
+	$img_version_file = file_get_contents( EE_ROOT . '/img-versions.json' );
+	if ( empty( $img_version_file ) ) {
+		EE::error( 'Image version file is empty. Can\'t proceed further.' );
+	}
+	$img_versions = json_decode( $img_version_file, true );
+	$json_error   = json_last_error();
+	if ( $json_error != JSON_ERROR_NONE ) {
+		EE::debug( 'Json last error: ' . $json_error );
+		EE::error( 'Error decoding image version file.' );
+	}
+
+	return $img_versions;
 }

@@ -84,7 +84,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function create_network( $name ) {
-		return EE::exec( "docker network create $name" );
+		return EE::exec( "docker network create $name --label=org.label-schema.vendor=\"EasyEngine\" " );
 	}
 
 	/**
@@ -171,7 +171,18 @@ class EE_DOCKER {
 		return false;
 	}
 
-		/**
+	/**
+	 * Function to check if a network exists
+	 *
+	 * @param string $network Name/ID of network to check
+	 *
+	 * @return bool Network exists or not
+	 */
+	public static function docker_network_exists( string $network ) {
+		return EE::exec( "docker network inspect $network" );
+	}
+
+	/**
 	 * Function to destroy the containers.
 	 *
 	 * @param String $dir      Path to docker-compose.yml.

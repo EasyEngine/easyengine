@@ -8,6 +8,7 @@ env:
     - PATH="$TRAVIS_BUILD_DIR/vendor/bin:$PATH"
 
 before_install:
+  - sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
   - |
     # Remove Xdebug for a huge performance increase:
     if [ -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ]; then
@@ -15,25 +16,39 @@ before_install:
     else
       echo "xdebug.ini does not exist"
     fi
+  - |
+    # Update commands in composer.json to develop if branch is not master.
+    if [[ "$TRAVIS_BRANCH" != "master-v4" ]]; then
+      sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+    fi
 
 install:
-  - composer install --no-interaction
+  - |
+    # Run composer install for master else update.
+    if [[ "$TRAVIS_BRANCH" = "master-v4" ]]; then
+      composer install --no-interaction
+    else
+      composer update
+    fi
   - sudo ./ci/test-env-install.sh
 
 before_script:
   - composer validate
   - ./ci/prepare.sh
+
+script:
   - sudo ./vendor/bin/behat
   - ./ci/test-commands.sh
 
 after_script:
+  - cat /opt/easyengine/install.log
   - cat /opt/easyengine/ee.log
 
 jobs:
   include:
     - stage: deploy
       env: DEPLOY_BRANCH=master-v4
-      script: ./ci/deploy.sh
+      after_success: ./ci/deploy.sh
 
 cache:
   directories:
@@ -48,3 +63,8 @@ notifications:
   email:
     on_success: never
     on_failure: change
+
+addons:
+  apt:
+    packages:
+      - docker-ce

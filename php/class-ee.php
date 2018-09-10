@@ -1,18 +1,16 @@
 <?php
 
-use \EE\ExitException;
-use \EE\Dispatcher;
-use \EE\FileCache;
-use \EE\Process;
-use \EE\Utils;
+use EE\Dispatcher;
+use EE\ExitException;
+use EE\FileCache;
+use EE\Process;
+use EE\Utils;
 use Mustangostang\Spyc;
 
 /**
  * Various utilities for EE commands.
  */
 class EE {
-
-	private static $configurator;
 
 	private static $logger;
 
@@ -21,8 +19,6 @@ class EE {
 	private static $capture_exit = false;
 
 	private static $deferred_additions = array();
-
-	private static $db;
 
 	private static $docker;
 
@@ -484,19 +480,20 @@ class EE {
 	}
 
 	/**
-	 * Display informational message without prefix, and ignore `--quiet`.
+	 * Display informational message without prefix.
 	 *
-	 * Message is written to STDOUT. `EE::log()` is typically recommended;
-	 * `EE::line()` is included for historical compat.
+	 * Should only be used for displaying sensitive info which should be skipped from log file.
+	 * `EE::log()` is typically recommended for everything else.
 	 *
-	 * @access public
+	 * @access   public
 	 * @category Output
 	 *
 	 * @param string $message Message to display to the end user.
+	 *
 	 * @return null
 	 */
 	public static function line( $message = '' ) {
-		echo $message . "\n";
+		self::$logger->info( $message );
 	}
 
 	/**
@@ -822,19 +819,21 @@ class EE {
 	 * @access   public
 	 * @category Execution
 	 *
-	 * @param string  $command         External process to launch.
+	 * @param string $command          External process to launch.
 	 * @param boolean $exit_on_error   Whether to exit if the command returns an elevated return code.
 	 * @param boolean $return_detailed Whether to return an exit status (default) or detailed execution results.
-	 * @param array   $env             Environment variables to set when running the command.
-	 * @param string  $cwd             Directory to execute the command in.
+	 * @param array $obfuscate         Parts of the command that need to be obfuscated.
+	 * @param array $env               Environment variables to set when running the command.
+	 * @param string $cwd              Directory to execute the command in.
 	 *
 	 * @return int|ProcessRun The command exit status, or a ProcessRun object for full details.
 	 */
-	public static function launch( $command, $exit_on_error = false, $return_detailed = true, $env = null, $cwd = null ) {
+	public static function launch( $command, $exit_on_error = false, $return_detailed = true, $obfuscate = [], $env = null, $cwd = null ) {
 		Utils\check_proc_available( 'launch' );
 
+		$command_to_log = empty( $obfuscate ) ? $command : str_replace( $obfuscate, '******', $command );
 		self::debug( '-----------------------' );
-		self::debug( "COMMAND: $command" );
+		self::debug( "COMMAND: $command_to_log" );
 
 		$proc    = Process::create( $command, $cwd, $env );
 		$results = $proc->run();
@@ -862,18 +861,20 @@ class EE {
 	 * @access   public
 	 * @category Execution
 	 *
-	 * @param string  $command       External process to launch.
-	 * @param bool    $echo_stdout   Print stdout to terminal. Default false.
-	 * @param bool    $echo_stderr   Print stderr to terminal. Default false.
+	 * @param string $command        External process to launch.
+	 * @param bool $echo_stdout      Print stdout to terminal. Default false.
+	 * @param bool $echo_stderr      Print stderr to terminal. Default false.
+	 * @param array $obfuscate       Parts of the command that need to be obfuscated.
 	 * @param boolean $exit_on_error Exit if the command returns an elevated return code with stderr.
 	 *
 	 * @return bool True if executed successfully. False if failed.
 	 */
-	public static function exec( $command, $echo_stdout = false, $echo_stderr = false, $exit_on_error = false ) {
+	public static function exec( $command, $echo_stdout = false, $echo_stderr = false, $obfuscate = [], $exit_on_error = false ) {
 		Utils\check_proc_available( 'exec' );
 
+		$command_to_log = empty( $obfuscate ) ? $command : str_replace( $obfuscate, '******', $command );
 		self::debug( '-----------------------' );
-		self::debug( "COMMAND: $command" );
+		self::debug( "COMMAND: $command_to_log" );
 
 		$proc    = Process::create( $command, null, null );
 		$results = $proc->run();
@@ -923,20 +924,6 @@ class EE {
 	 * @return int|ProcessRun The command exit status, or a ProcessRun instance
 	 */
 	public static function launch_self( $command, $args = array(), $assoc_args = array(), $exit_on_error = true, $return_detailed = false, $runtime_args = array() ) {
-		$reused_runtime_args = array(
-			'path',
-			'url',
-			'user',
-		);
-
-		foreach ( $reused_runtime_args as $key ) {
-			if ( isset( $runtime_args[ $key ] ) ) {
-				$assoc_args[ $key ] = $runtime_args[ $key ];
-			} elseif ( $value = self::get_runner()->config[ $key ] ) {
-				$assoc_args[ $key ] = $value;
-			}
-		}
-
 		$php_bin = escapeshellarg( Utils\get_php_binary() );
 
 		$script_path = $GLOBALS['argv'][0];
@@ -1198,11 +1185,7 @@ class EE {
 	}
 
 	public static function db() {
-		if ( empty( self::$db ) ) {
-			self::$db = new EE_DB();
-		}
-
-		return self::$db;
+		return new EE_DB();
 	}
 
 	public static function docker() {
