@@ -64,15 +64,6 @@ class EE_DB {
 			PRIMARY KEY (id)
 		);';
 
-		$query .= 'CREATE TABLE auth_users (
-			id INTEGER,
-			site_url VARCHAR NOT NULL,
-			username VARCHAR NOT NULL,
-			password VARCHAR NOT NULL,
-			scope    VARCHAR NOT NULL,
-			PRIMARY KEY (id)
-		);';
-
 		try {
 			self::$pdo->exec( $query );
 		} catch ( PDOException $exception ) {

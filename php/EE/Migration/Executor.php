@@ -118,6 +118,13 @@ class Executor {
         }
     }
 
+	/**
+	 *  Get migrations need to be executed.
+	 *
+	 * @param $path path to the migration directory.
+	 *
+	 * @return array
+	 */
     private static function get_migrations_to_execute( $path ) {
         return array_values(
             array_diff(
@@ -127,10 +134,22 @@ class Executor {
         );
     }
 
+	/**
+	 * Get already migrated migrations.
+	 *
+	 * @return array
+	 */
     private static function get_migrations_from_db() {
         return Migration::get_migrations();
     }
 
+	/**
+	 * Get migrations from filesystem.
+	 *
+	 * @param $path path to the migrations on filesystem.
+	 *
+	 * @return array
+	 */
     private static function get_migrations_from_fs( $path ) {
         // array_slice is used to remove . and .. returned by scandir()
         $migrations = array_slice( scandir( $path ), 2 );
@@ -140,6 +159,13 @@ class Executor {
         return $migrations;
     }
 
+	/**
+	 * Get path of the migration file.
+	 *
+	 * @param $migration_name name of a migration file.
+	 *
+	 * @return string path of a migration file.
+	 */
 	private static function get_migration_path( $migration_name ) {
 		preg_match( '/^\d*[_]([a-zA-Z-]*)[_]/', $migration_name, $matches );
 
