@@ -242,6 +242,7 @@ $finder
 	->files()
 	->ignoreDotFiles(false)
 	->in(EE_VENDOR_DIR . '/easyengine/*-command/templates')
+	->in(EE_VENDOR_DIR . '/easyengine/site-type-*/templates')
 	->name('*.mustache')
 	->name('.env.mustache');
 
