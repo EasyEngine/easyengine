@@ -9,34 +9,59 @@ use Symfony\Component\Finder\Finder;
 
 class Executor {
 
-    const MIGRATION_PATH = EE_ROOT . '/migrations';
+	/**
+	 * Executes all pending migrations
+	 */
+	public static function execute_migrations() {
 
-    /**
-     * Executes all pending migrations
-     */
-    public static function execute_migrations() {
+		Utils\delem_log( "ee migration start" );
+		EE::log( "Migrating EasyEngine data to new version" );
 
-        Utils\delem_log( "ee migration start" );
-        EE::log( "Migrating EasyEngine data to new version" );
+		$migration_paths = self::get_migration_paths();
 
-        $migrations = self::get_migrations_to_execute();
+		if ( empty( $migration_paths ) ) {
+			EE::success( 'Nothing to migrate' );
+			exit( 0 );
+		}
 
-        if( empty( $migrations ) ) {
-            EE::success( "Noting to migrate" );
-            exit( 0 );
-        }
+		$migrations = [];
 
-        sort( $migrations );
+		foreach ( $migration_paths as $package_path ) {
+			$migrations[] = self::get_migrations_to_execute( $package_path );
+		}
 
-        try {
-            self::execute_migration_stack( $migrations );
-        } catch( \Throwable $e ) {
-            Utils\delem_log( "ee migration ended abruptly" );
-            exit( 1 );
-        }
+		$migrations = array_merge( ...$migrations );
 
-        EE::success( "Successfully migrated EasyEngine" );
-    }
+		if ( empty( $migrations ) ) {
+			EE::success( 'Nothing to migrate' );
+		}
+
+		sort( $migrations );
+
+		try {
+			self::execute_migration_stack( $migrations );
+		} catch ( \Throwable $e ) {
+			Utils\delem_log( 'ee migration ended abruptly' );
+			exit( 1 );
+		}
+
+		EE::success( "Successfully migrated EasyEngine" );
+	}
+
+	/**
+	 * @return array of available migration paths
+	 */
+	private static function get_migration_paths() {
+
+		$migration_paths = glob( EE_ROOT . '/vendor/easyengine/*/migrations' );
+		$ee_path         = glob( EE_ROOT . '/migrations' );
+
+		// set migration path for easyengine.
+		if ( ! empty( $ee_path ) ) {
+			$migration_paths[] = $ee_path[0];
+		}
+		return $migration_paths;
+	}
 
     /**
      * Executes all migrations passed to it recursively.
@@ -47,7 +72,7 @@ class Executor {
             return;
         }
 
-        $migration_path = self::get_migration_path( $migrations[0] );
+        $migration_path = self::    get_migration_path( $migrations[0] );
         $migration_class_name = self::get_migration_class_name( $migrations[0] );
 
         if( ! file_exists( $migration_path ) ) {
@@ -93,39 +118,46 @@ class Executor {
         }
     }
 
-    private static function get_migrations_to_execute() {
+    private static function get_migrations_to_execute( $path ) {
         return array_values(
             array_diff(
-                self::get_migrations_from_fs(),
+                self::get_migrations_from_fs( $path ),
                 self::get_migrations_from_db()
             )
         );
     }
 
     private static function get_migrations_from_db() {
-        return Migration::all();
+        return Migration::get_migrations();
     }
 
-    private static function get_migrations_from_fs() {
+    private static function get_migrations_from_fs( $path ) {
         // array_slice is used to remove . and .. returned by scandir()
-        $migrations = array_slice( scandir( self::MIGRATION_PATH ), 2 );
+        $migrations = array_slice( scandir( $path ), 2 );
         array_walk( $migrations, function( &$migration, $index ) {
             $migration = rtrim( $migration, '.php' );
         });
         return $migrations;
     }
 
-    private static function get_migration_path( $migration_name ) {
-        return self::MIGRATION_PATH . $migration_name . '.php' ;
-    }
+	private static function get_migration_path( $migration_name ) {
+		preg_match( '/^\d*[_]([a-zA-Z-]*)[_]/', $migration_name, $matches );
+
+		if ( 'easyengine' === $matches[1] ) {
+			return EE_ROOT . "/migrations/$migration_name.php";
+		} else {
+			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/$migration_name.php";
+		}
+
+	}
 
     private static function get_migration_class_name( $migration_name ) {
-        // Convet snake_case to CamelCase
-        $class_name = self::camelize( $migration_name );
-        // Replace dot with underscore
-        $class_name  = str_replace( '.', '_', $class_name );
-        // Remove date from it
-        $class_name = preg_replace( '/^\d*(?=[A-Z])/', '', $class_name );
+	    // Remove date and package name from it
+	    $class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', $migration_name );
+	    // Convet snake_case to CamelCase
+	    $class_name = self::camelize( $class_name );
+	    // Replace dot with underscore
+	    $class_name  = str_replace( '.', '_', $class_name );
 
         return "\EE\Migration\\$class_name";
     }
