@@ -1519,11 +1519,13 @@ function format_table( $items, $log_in_file = false ) {
 	$lines = array_slice( $item_table->getDisplayLines(), 3 );
 	array_pop( $lines );
 	$delem = $item_table->getDisplayLines()[0];
-	foreach ( $lines as $line ) {
-		if ( $log_in_file ) {
+	if ( $log_in_file ) {
+		foreach ( $lines as $line ) {
 			\EE::log( $delem );
 			\EE::log( $line );
-		} else {
+		}
+	} else {
+		foreach ( $lines as $line ) {
 			\EE::line( $delem );
 			\EE::line( $line );
 		}
