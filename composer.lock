@@ -777,12 +777,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "8440ab9351148ccb5977f654450e9ba8dbc26fe9"
+                "reference": "a1b4154d2a53d83c19c7ad1ca17017119b401678"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/8440ab9351148ccb5977f654450e9ba8dbc26fe9",
-                "reference": "8440ab9351148ccb5977f654450e9ba8dbc26fe9",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/a1b4154d2a53d83c19c7ad1ca17017119b401678",
+                "reference": "a1b4154d2a53d83c19c7ad1ca17017119b401678",
                 "shasum": ""
             },
             "require-dev": {
@@ -798,7 +798,10 @@
             "autoload": {
                 "psr-4": {
                     "": "src/"
-                }
+                },
+                "files": [
+                    "site-type-php.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -806,7 +809,7 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-09-06T12:10:44+00:00"
+            "time": "2018-09-10T14:58:43+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
