@@ -3,7 +3,7 @@
 <img width="150" height="150" src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
 
 [![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine)
-[![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
+[![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/) [![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://packagist.org/packages/easyengine/easyengine) [![Latest Unstable Version](https://poser.pugx.org/easyengine/easyengine/v/unstable)](https://packagist.org/packages/easyengine/easyengine) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
 
 ## Requirements
 
