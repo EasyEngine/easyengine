@@ -138,8 +138,8 @@ class Runner {
 	 */
 	public function get_project_config_path() {
 		$config_files = array(
-			'/config/ee.local.yml',
-			'/config/ee.yml',
+			'ee.local.yml',
+			'ee.yml',
 		);
 
 		// Stop looking upward when we find we have emerged from a subdirectory
