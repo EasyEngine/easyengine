@@ -570,6 +570,10 @@ class Runner {
 			$this->config[$var] = $default;
 			$config_dir_path    = dirname( $config_file_path );
 
+			if ( ! is_dir( $config_dir_path ) ) {
+				mkdir( $config_dir_path );
+			}
+
 			if ( file_exists( $config_file_path ) ) {
 				if ( is_readable( $config_file_path ) ) {
 					if ( is_writable( $config_file_path ) ) {
