@@ -4,7 +4,7 @@
 define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
 define( 'EE_START_MICROTIME', microtime( true ) );
-define( 'EE_OPT_ROOT', '/opt/easyengine' );
+define( 'EE_ROOT_DIR', '/opt/easyengine' );
 define( 'EE_PROXY_TYPE', 'ee-nginx-proxy' );
 
 if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
