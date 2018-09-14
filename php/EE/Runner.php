@@ -54,6 +54,11 @@ class Runner {
 
 		define( 'DB', EE_ROOT_DIR.'/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+
+		$db_dir = dirname( DB );
+		if ( ! is_dir( $db_dir ) ) {
+			mkdir( $db_dir );
+		}
 	}
 
 	/**
