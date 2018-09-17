@@ -3,12 +3,12 @@
 namespace EE;
 
 use EE;
-use EE\Utils;
 use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
-use Mustangostang\Spyc;
+use EE\Utils;
 use Monolog\Logger;
-use EE\Model\Site;
+use Mustangostang\Spyc;
+
 /**
  * Performs the execution of a command.
  *
@@ -59,6 +59,24 @@ class Runner {
 		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
 		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+
+		$cache = EE::get_cache();
+
+		if ( ! $cache->has( 'migrated' ) || '1' !== $cache->read( 'migrated' ) ) {
+			if ( ! $this->migrate() ) {
+				EE::error( 'There was some error while migrating.' );
+			}
+			$cache->write( 'migrated', '1' );
+		}
+	}
+
+	/**
+	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
+	 */
+	private function migrate() {
+		$rsp = new \EE\RevertableStepProcessor();
+		$rsp->add_step( 'ee-migrations', 'EE\Migration\Executor::execute_migrations' );
+		return $rsp->execute();
 	}
 
 	/**
