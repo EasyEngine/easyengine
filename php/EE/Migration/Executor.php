@@ -2,14 +2,13 @@
 
 namespace EE\Migration;
 
-use \EE;
-use \EE\Model\Migration;
-use \EE\Utils;
-use Symfony\Component\Finder\Finder;
+use EE;
+use EE\Model\Migration;
+use EE\Utils;
 
 class Executor {
 
-    const MIGRATION_PATH = EE_ROOT . '/migrations';
+    const MIGRATION_PATH = EE_ROOT . '/migrations/';
 
     /**
      * Executes all pending migrations
@@ -17,13 +16,12 @@ class Executor {
     public static function execute_migrations() {
 
         Utils\delem_log( "ee migration start" );
-        EE::log( "Migrating EasyEngine data to new version" );
+        EE::log( "Executing migrations" );
 
         $migrations = self::get_migrations_to_execute();
 
         if( empty( $migrations ) ) {
             EE::success( "Noting to migrate" );
-            exit( 0 );
         }
 
         sort( $migrations );
@@ -103,13 +101,18 @@ class Executor {
     }
 
     private static function get_migrations_from_db() {
-        return Migration::all();
+        return array_column( Migration::all(), 'migration' );
     }
 
     private static function get_migrations_from_fs() {
         // array_slice is used to remove . and .. returned by scandir()
-        $migrations = array_slice( scandir( self::MIGRATION_PATH ), 2 );
-        array_walk( $migrations, function( &$migration, $index ) {
+		$migrations = scandir( self::MIGRATION_PATH );
+
+		if( ! Utils\inside_phar() ) {
+			$migrations = array_slice( scandir( self::MIGRATION_PATH ), 2 );
+		}
+
+		array_walk( $migrations, function( &$migration, $index ) {
             $migration = rtrim( $migration, '.php' );
         });
         return $migrations;
