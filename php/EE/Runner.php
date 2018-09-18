@@ -2,9 +2,11 @@
 
 namespace EE;
 
+use Composer\Semver\Comparator;
 use EE;
 use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
+use EE\Model\Option;
 use EE\Utils;
 use Monolog\Logger;
 use Mustangostang\Spyc;
@@ -60,14 +62,7 @@ class Runner {
 		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 
-		$cache = EE::get_cache();
-
-		if ( ! $cache->has( 'migrated' ) || '1' !== $cache->read( 'migrated' ) ) {
-			if ( ! $this->migrate() ) {
-				EE::error( 'There was some error while migrating.' );
-			}
-			$cache->write( 'migrated', '1' );
-		}
+		$this->maybe_trigger_migration();
 	}
 
 	/**
@@ -794,6 +789,23 @@ class Runner {
 		EE::run_command( array( 'cli', 'update' ) );
 		// If the Phar was replaced, we can't proceed with the original process.
 		exit;
+	}
+
+	/**
+	 * Triggers migration if current phar version > version in ee_option table
+	 */
+	private function maybe_trigger_migration() {
+		$db_version = Option::get( 'version' );
+		$current_version = preg_replace( '/-nightly$/', '', EE_VERSION );
+
+		if ( Comparator::lessThan( $current_version, $db_version ) ) {
+			EE::error( 'It seems you\'re not running latest version. Please download and run latest version of EasyEngine' );
+		} elseif ( Comparator::greaterThan( $current_version, $db_version ) ) {
+			if ( ! $this->migrate() ) {
+				EE::error( 'There was some error while migrating. Please check logs.' );
+			}
+			Option::set( 'version', $current_version );
+		}
 	}
 
 	/**
