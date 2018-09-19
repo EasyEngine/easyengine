@@ -21,7 +21,7 @@ class Executor {
         $migrations = self::get_migrations_to_execute();
 
         if( empty( $migrations ) ) {
-            EE::success( "Noting to migrate" );
+            EE::success( "Nothing to migrate" );
             return;
         }
 
