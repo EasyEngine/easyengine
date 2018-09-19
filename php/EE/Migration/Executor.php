@@ -22,6 +22,7 @@ class Executor {
 
         if( empty( $migrations ) ) {
             EE::success( "Noting to migrate" );
+            return;
         }
 
         sort( $migrations );
@@ -105,11 +106,11 @@ class Executor {
     }
 
     private static function get_migrations_from_fs() {
-        // array_slice is used to remove . and .. returned by scandir()
 		$migrations = scandir( self::MIGRATION_PATH );
 
 		if( ! Utils\inside_phar() ) {
-			$migrations = array_slice( scandir( self::MIGRATION_PATH ), 2 );
+			// array_slice is used to remove . and .. returned by scandir()
+			$migrations = array_slice( $migrations, 2 );
 		}
 
 		array_walk( $migrations, function( &$migration, $index ) {
