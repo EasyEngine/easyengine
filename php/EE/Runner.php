@@ -795,7 +795,7 @@ class Runner {
 	 * Triggers migration if current phar version > version in ee_option table
 	 */
 	private function maybe_trigger_migration() {
-		$db_version = Option::get( 'version' );
+		$db_version      = Option::get( 'version' );
 		$current_version = preg_replace( '/-nightly$/', '', EE_VERSION );
 
 		if ( Comparator::lessThan( $current_version, $db_version ) ) {
