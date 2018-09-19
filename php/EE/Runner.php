@@ -796,16 +796,26 @@ class Runner {
 	 */
 	private function maybe_trigger_migration() {
 		$db_version      = Option::get( 'version' );
-		$current_version = preg_replace( '/-nightly$/', '', EE_VERSION );
+		$current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
+
+		if ( ! $db_version ) {
+			$this->trigger_migration( $current_version );
+			return;
+		}
 
 		if ( Comparator::lessThan( $current_version, $db_version ) ) {
 			EE::error( 'It seems you\'re not running latest version. Please download and run latest version of EasyEngine' );
 		} elseif ( Comparator::greaterThan( $current_version, $db_version ) ) {
-			if ( ! $this->migrate() ) {
-				EE::error( 'There was some error while migrating. Please check logs.' );
-			}
-			Option::set( 'version', $current_version );
+			EE::log( 'Executing migrations. This might take some time.' );
+			$this->trigger_migration( $current_version );
 		}
+	}
+
+	private function trigger_migration( $version ) {
+		if ( ! $this->migrate() ) {
+			EE::error( 'There was some error while migrating. Please check logs.' );
+		}
+		Option::set( 'version', $version );
 	}
 
 	/**

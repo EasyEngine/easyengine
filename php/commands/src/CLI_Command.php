@@ -306,6 +306,8 @@ class CLI_Command extends EE_Command {
 			EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
 		}
 
+		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
+
 		$php_binary = Utils\get_php_binary();
 		$process    = EE\Process::create( "{$php_binary} $temp cli info" );
 		$result     = $process->run();
