@@ -111,6 +111,12 @@ class Executor {
 			}
 			EE::log( "Reverting: $migrations[0]" );
 			$migration->down();
+			// remove db entry in 'migration' table when reverting migrations.
+			$migrated = Migration::where( 'migration', $migrations[0] );
+			if ( ! empty( $migrated ) ) {
+				$migrated[0]->delete();
+			}
+
 			EE::log( "Reverted: $migrations[0]" );
 			throw $e;
 		}
