@@ -16,12 +16,12 @@ class Executor {
     public static function execute_migrations() {
 
         Utils\delem_log( "ee migration start" );
-        EE::log( "Executing migrations" );
+        EE::debug( "Executing migrations" );
 
         $migrations = self::get_migrations_to_execute();
 
         if( empty( $migrations ) ) {
-            EE::success( "Nothing to migrate" );
+            EE::debug( "Nothing to migrate" );
             return;
         }
 
@@ -34,7 +34,7 @@ class Executor {
             exit( 1 );
         }
 
-        EE::success( "Successfully migrated EasyEngine" );
+        EE::debug( "Successfully migrated EasyEngine" );
     }
 
     /**
@@ -68,7 +68,7 @@ class Executor {
         }
 
         try {
-            EE::log( "Migrating: $migrations[0]" );
+            EE::debug( "Migrating: $migrations[0]" );
             $migration->up();
 
             Migration::create([
@@ -77,7 +77,7 @@ class Executor {
             ]);
 
             $migration->status = 'complete';
-            EE::log( "Migrated: $migrations[0]" );
+            EE::debug( "Migrated: $migrations[0]" );
             $remaining_migrations = array_splice( $migrations, 1, count( $migrations ) );
             self::execute_migration_stack( $remaining_migrations );
         }
@@ -85,9 +85,9 @@ class Executor {
             if( $migration->status !== 'complete' ) {
                 EE::error( "Errors were encountered while processing: $migrations[0]\n" . $e->getMessage(), false );
             }
-            EE::log( "Reverting: $migrations[0]" );
+            EE::debug( "Reverting: $migrations[0]" );
             $migration->down();
-            EE::log( "Reverted: $migrations[0]" );
+            EE::debug( "Reverted: $migrations[0]" );
             throw $e;
         }
     }
