@@ -2,14 +2,13 @@
 
 namespace EE\Migration;
 
-use \EE;
-use \EE\Model\Migration;
-use \EE\Utils;
-use Symfony\Component\Finder\Finder;
+use EE;
+use EE\Model\Migration;
+use EE\Utils;
 
 class Executor {
 
-    const MIGRATION_PATH = EE_ROOT . '/migrations';
+    const MIGRATION_PATH = EE_ROOT . '/migrations/';
 
     /**
      * Executes all pending migrations
@@ -17,13 +16,13 @@ class Executor {
     public static function execute_migrations() {
 
         Utils\delem_log( "ee migration start" );
-        EE::log( "Migrating EasyEngine data to new version" );
+        EE::debug( "Executing migrations" );
 
         $migrations = self::get_migrations_to_execute();
 
         if( empty( $migrations ) ) {
-            EE::success( "Noting to migrate" );
-            exit( 0 );
+            EE::debug( "Nothing to migrate" );
+            return;
         }
 
         sort( $migrations );
@@ -35,7 +34,7 @@ class Executor {
             exit( 1 );
         }
 
-        EE::success( "Successfully migrated EasyEngine" );
+        EE::debug( "Successfully migrated EasyEngine" );
     }
 
     /**
@@ -69,7 +68,7 @@ class Executor {
         }
 
         try {
-            EE::log( "Migrating: $migrations[0]" );
+            EE::debug( "Migrating: $migrations[0]" );
             $migration->up();
 
             Migration::create([
@@ -78,7 +77,7 @@ class Executor {
             ]);
 
             $migration->status = 'complete';
-            EE::log( "Migrated: $migrations[0]" );
+            EE::debug( "Migrated: $migrations[0]" );
             $remaining_migrations = array_splice( $migrations, 1, count( $migrations ) );
             self::execute_migration_stack( $remaining_migrations );
         }
@@ -86,9 +85,9 @@ class Executor {
             if( $migration->status !== 'complete' ) {
                 EE::error( "Errors were encountered while processing: $migrations[0]\n" . $e->getMessage(), false );
             }
-            EE::log( "Reverting: $migrations[0]" );
+            EE::debug( "Reverting: $migrations[0]" );
             $migration->down();
-            EE::log( "Reverted: $migrations[0]" );
+            EE::debug( "Reverted: $migrations[0]" );
             throw $e;
         }
     }
@@ -103,13 +102,18 @@ class Executor {
     }
 
     private static function get_migrations_from_db() {
-        return Migration::all();
+        return array_column( Migration::all(), 'migration' );
     }
 
     private static function get_migrations_from_fs() {
-        // array_slice is used to remove . and .. returned by scandir()
-        $migrations = array_slice( scandir( self::MIGRATION_PATH ), 2 );
-        array_walk( $migrations, function( &$migration, $index ) {
+		$migrations = scandir( self::MIGRATION_PATH );
+
+		if( ! Utils\inside_phar() ) {
+			// array_slice is used to remove . and .. returned by scandir()
+			$migrations = array_slice( $migrations, 2 );
+		}
+
+		array_walk( $migrations, function( &$migration, $index ) {
             $migration = rtrim( $migration, '.php' );
         });
         return $migrations;
