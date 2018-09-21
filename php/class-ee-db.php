@@ -127,6 +127,12 @@ class EE_DB {
 			PRIMARY KEY (id)
 		);';
 
+		$query .= 'CREATE TABLE options (
+			key VARCHAR NOT NULL,
+			value VARCHAR NOT NULL,
+			PRIMARY KEY (key)
+		);';
+
 		try {
 			self::$pdo->exec( $query );
 		} catch ( PDOException $exception ) {

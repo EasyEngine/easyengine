@@ -16,9 +16,9 @@ if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 require EE_VENDOR_DIR . '/autoload.php';
 require EE_ROOT . '/php/utils.php';
 
-use Symfony\Component\Finder\Finder;
-use EE\Utils;
 use EE\Configurator;
+use EE\Utils;
+use Symfony\Component\Finder\Finder;
 
 $configurator = new Configurator( EE_ROOT . '/utils/make-phar-spec.php' );
 
@@ -161,6 +161,7 @@ $finder
 	->ignoreVCS(true)
 	->name('*.php')
 	->in(EE_ROOT . '/php')
+	->in(EE_ROOT . '/migrations')
 	->in(EE_VENDOR_DIR . '/mustache')
 	->in(EE_VENDOR_DIR . '/rmccue/requests')
 	->in(EE_VENDOR_DIR . '/composer')
@@ -219,6 +220,15 @@ if ( 'cli' === BUILD ) {
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
+}
+
+if( 2 === count( scandir(__DIR__ . '/../migrations') ) ) {
+	$finder = new Finder();
+	$finder->directories()->name('migrations')->in(EE_ROOT);
+
+	foreach ( $finder as $file ) {
+		add_file( $phar, $file );
+	}
 }
 
 $finder = new Finder();
