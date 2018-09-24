@@ -14,12 +14,12 @@ class Executor {
 	public static function execute_migrations() {
 
 		Utils\delem_log( 'ee migration start' );
-		EE::debug( "Executing migrations" );
+		EE::debug( 'Executing migrations' );
 
 		$migration_paths = self::get_migration_paths();
 
 		if ( empty( $migration_paths ) ) {
-			EE::debug( "Nothing to migrate" );
+			EE::debug( 'Nothing to migrate' );
 			return;
 		}
 
@@ -158,7 +158,7 @@ class Executor {
 		// array_slice is used to remove . and .. returned by scandir()
 		$migrations = scandir( $path );
 
-		if( ! Utils\inside_phar() ) {
+		if ( ! Utils\inside_phar() ) {
 			// array_slice is used to remove . and .. returned by scandir()
 			$migrations = array_slice( $migrations, 2 );
 		}
