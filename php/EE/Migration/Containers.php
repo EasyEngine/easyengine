@@ -106,7 +106,7 @@ class Containers {
 	private static function migrate_global_containers() {
 
 		// Upgrade nginx-proxy container
-		$existing_nginx_proxy_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ee-nginx-proxy', false, true );
+		$existing_nginx_proxy_image = EE::launch( sprintf( 'docker inspect --format=\'{{.Config.Image}}\' %1$s', EE_PROXY_TYPE ), false, true );
 		if ( 0 === $existing_nginx_proxy_image->return_code ) {
 			self::$rsp->add_step(
 				'upgrade-nginxproxy-container',
@@ -138,12 +138,12 @@ class Containers {
 	public static function nginxproxy_container_up() {
 		$EE_CONF_ROOT      = EE_CONF_ROOT;
 		$nginx_proxy_image = 'easyengine/nginx-proxy:v' . EE_VERSION;
-		$ee_proxy_command  = "docker run --name ee-nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html $nginx_proxy_image";
+		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2%s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
 
-		default_launch( 'docker rm -f ee-nginx-proxy', false, true );
+		default_launch( sprintf( 'docker rm -f %1$s', EE_PROXY_TYPE ), false, true );
 
 		if ( ! default_launch( $ee_proxy_command, false, true ) ) {
-			throw new \Exception( ' Unable to upgrade ee-nginx-proxy container' );
+			throw new \Exception( sprintf( 'Unable to upgrade %1$s container', EE_PROXY_TYPE ) );
 		}
 
 	}
@@ -158,12 +158,12 @@ class Containers {
 	public static function nginxproxy_container_down( $existing_nginx_proxy_image ) {
 		$EE_CONF_ROOT      = EE_CONF_ROOT;
 		$nginx_proxy_image = trim( $existing_nginx_proxy_image->stout );
-		$ee_proxy_command  = "docker run --name ee-nginx-proxy -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v $EE_CONF_ROOT/nginx/certs:/etc/nginx/certs -v $EE_CONF_ROOT/nginx/dhparam:/etc/nginx/dhparam -v $EE_CONF_ROOT/nginx/conf.d:/etc/nginx/conf.d -v $EE_CONF_ROOT/nginx/htpasswd:/etc/nginx/htpasswd -v $EE_CONF_ROOT/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v $EE_CONF_ROOT:/app/ee4 -v /usr/share/nginx/html $nginx_proxy_image";
+		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
 
-		default_launch( 'docker rm -f ee-nginx-proxy', false, true );
+		default_launch( sprintf( 'docker rm -f %1$s', EE_PROXY_TYPE ), false, true );
 
 		if ( ! default_launch( $ee_proxy_command, false, true ) ) {
-			throw new \Exception( ' Unable to restore ee-nginx-proxy container' );
+			throw new \Exception( sprintf( 'Unable to restore %1$s container', EE_PROXY_TYPE ) );
 		}
 	}
 
