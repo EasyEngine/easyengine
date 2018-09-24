@@ -123,8 +123,21 @@ class EE_DB {
 			site_url VARCHAR NOT NULL,
 			username VARCHAR NOT NULL,
 			password VARCHAR NOT NULL,
-			scope    VARCHAR NOT NULL,
 			PRIMARY KEY (id)
+		);';
+
+		$query .= 'CREATE TABLE auth_ips (
+			id INTEGER,
+			site_url VARCHAR NOT NULL,
+			ip       VARCHAR NOT NULL,
+			UNIQUE (site_url, ip),
+			PRIMARY KEY (id)
+		);';
+
+		$query .= 'CREATE TABLE options (
+			key VARCHAR NOT NULL,
+			value VARCHAR NOT NULL,
+			PRIMARY KEY (key)
 		);';
 
 		try {
