@@ -138,7 +138,7 @@ class Containers {
 	public static function nginxproxy_container_up() {
 		$EE_CONF_ROOT      = EE_CONF_ROOT;
 		$nginx_proxy_image = 'easyengine/nginx-proxy:v' . EE_VERSION;
-		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2%s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
+		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
 
 		default_launch( sprintf( 'docker rm -f %1$s', EE_PROXY_TYPE ), false, true );
 
