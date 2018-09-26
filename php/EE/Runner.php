@@ -128,7 +128,7 @@ class Runner {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = EE_ROOT_DIR . '/config/nginx-proxy/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -581,7 +581,7 @@ class Runner {
 	 * @param $default Default value to use if $var is not set.
 	 */
 	public function ensure_present_in_config( $var, $default ) {
-		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/nginx-proxy/config.yml';
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
 		$existing_config  = Spyc::YAMLLoad( $config_file_path );
 		if ( ! isset( $existing_config[$var] ) ) {
 			$this->config[$var] = $default;
@@ -631,7 +631,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_ROOT_DIR . '/config/nginx-proxy/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
