@@ -153,28 +153,6 @@ class Executor {
 	}
 
 	/**
-	 * Get migrations from filesystem.
-	 *
-	 * @param $path path to the migrations on filesystem.
-	 *
-	 * @return array
-	 */
-	private static function get_migrations_from_fs( $path ) {
-		// array_slice is used to remove . and .. returned by scandir()
-		$migrations = scandir( $path );
-
-		if ( ! Utils\inside_phar() ) {
-			// array_slice is used to remove . and .. returned by scandir()
-			$migrations = array_slice( $migrations, 2 );
-		}
-
-		array_walk( $migrations, function ( &$migration, $index ) {
-			$migration = rtrim( $migration, '.php' );
-		} );
-		return $migrations;
-	}
-
-	/**
 	 * Get path of the migration file.
 	 *
 	 * @param $migration_name name of a migration file.
@@ -185,16 +163,16 @@ class Executor {
 		preg_match( '/^\d*[_]([a-zA-Z-]*)[_]/', $migration_name, $matches );
 
 		if ( 'easyengine' === $matches[1] ) {
-			return EE_ROOT . "/migrations/$migration_name.php";
+			return EE_ROOT . "/migrations/$migration_name";
 		} else {
-			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/$migration_name.php";
+			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/$migration_name";
 		}
 
 	}
 
 	private static function get_migration_class_name( $migration_name ) {
 		// Remove date and package name from it
-		$class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', $migration_name );
+		$class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', rtrim( $migration_name, '.php' ) );
 		// Convet snake_case to CamelCase
 		$class_name = self::camelize( $class_name );
 		// Replace dot with underscore
