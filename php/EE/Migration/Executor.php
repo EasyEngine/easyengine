@@ -116,7 +116,7 @@ class Executor {
 			] );
 
 			$migration->status = 'complete';
-			EE::log( "Migrated: $migrations[0]" );
+			EE::debug( "Migrated: $migrations[0]" );
 			$remaining_migrations = array_splice( $migrations, 1, count( $migrations ) );
 			self::execute_migration_stack( $remaining_migrations );
 		} catch ( \Throwable $e ) {
