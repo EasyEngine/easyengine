@@ -42,25 +42,34 @@ class Executor {
 	private static function get_all_migrations() {
 
 		$packages_path = scandir( EE_VENDOR_DIR . '/easyengine' );
-		$packages_path = array_slice( $packages_path, 2 );
 
 		// get migrations from packages.
 		if ( ! empty( $packages_path ) ) {
 			foreach ( $packages_path as $package ) {
-				if ( is_file( $package ) ) {
+				if ( '.' === $package || '..' === $package || is_file( $package ) ) {
 					continue;
 				}
 
 				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations';
 				if ( is_dir( $migration_path ) ) {
-					$migrations[] = array_slice( scandir( $migration_path ), 2 );
+					$files = scandir( $migration_path );
+					if ( \EE\Utils\inside_phar() ) {
+						$migrations[] = $files;
+					} else{
+						$migrations[] = array_slice( $files,2);
+					}
 				}
 			}
 		}
 
 		// get migrations from core.
-		if ( is_dir( EE_ROOT . '/migrations' ) ) {
-			$migrations[] = array_slice( scandir( EE_ROOT . '/migrations' ), 2 );
+		if ( file_exists( EE_ROOT . '/migrations' ) ) {
+			$files = scandir( EE_ROOT . '/migrations' );
+			if ( \EE\Utils\inside_phar() ) {
+				$migrations[] = $files;
+			} else{
+				$migrations[] = array_slice( $files,2);
+			}
 		}
 
 		$migrations = array_merge( ...$migrations );
