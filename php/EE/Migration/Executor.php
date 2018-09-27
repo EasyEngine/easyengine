@@ -5,6 +5,7 @@ namespace EE\Migration;
 use EE;
 use EE\Model\Migration;
 use EE\Utils;
+use Symfony\Component\Finder\Finder;
 
 class Executor {
 
@@ -16,20 +17,7 @@ class Executor {
 		Utils\delem_log( 'ee migration start' );
 		EE::debug( 'Executing migrations' );
 
-		$migration_paths = self::get_migration_paths();
-
-		if ( empty( $migration_paths ) ) {
-			EE::debug( 'Nothing to migrate' );
-			return;
-		}
-
-		$migrations = [];
-
-		foreach ( $migration_paths as $package_path ) {
-			$migrations[] = self::get_migrations_to_execute( $package_path );
-		}
-
-		$migrations = array_merge( ...$migrations );
+		$migrations = self::get_all_migrations();
 
 		if ( empty( $migrations ) ) {
 			EE::debug( 'Nothing to migrate' );
@@ -49,18 +37,35 @@ class Executor {
 	}
 
 	/**
-	 * @return array of available migration paths
+	 * @return array of available migrations
 	 */
-	private static function get_migration_paths() {
+	private static function get_all_migrations() {
 
-		$migration_paths = glob( EE_ROOT . '/vendor/easyengine/*/migrations' );
-		$ee_path         = glob( EE_ROOT . '/migrations' );
+		$packages_path = scandir( EE_VENDOR_DIR . '/easyengine' );
+		$packages_path = array_slice( $packages_path, 2 );
 
-		// set migration path for easyengine.
-		if ( ! empty( $ee_path ) ) {
-			$migration_paths[] = $ee_path[0];
+		// get migrations from packages.
+		if ( ! empty( $packages_path ) ) {
+			foreach ( $packages_path as $package ) {
+				if ( is_file( $package ) ) {
+					continue;
+				}
+
+				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations';
+				if ( is_dir( $migration_path ) ) {
+					$migrations[] = array_slice( scandir( $migration_path ), 2 );
+				}
+			}
 		}
-		return $migration_paths;
+
+		// get migrations from core.
+		if ( is_dir( EE_ROOT . '/migrations' ) ) {
+			$migrations[] = array_slice( scandir( EE_ROOT . '/migrations' ), 2 );
+		}
+
+		$migrations = array_merge( ...$migrations );
+
+		return self::get_migrations_to_execute( $migrations );
 	}
 
 	/**
@@ -129,10 +134,10 @@ class Executor {
 	 *
 	 * @return array
 	 */
-	private static function get_migrations_to_execute( $path ) {
+	private static function get_migrations_to_execute( $migrations ) {
 		return array_values(
 			array_diff(
-				self::get_migrations_from_fs( $path ),
+				$migrations,
 				self::get_migrations_from_db()
 			)
 		);
