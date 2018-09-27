@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function setup_test_requirements() {
-    readonly LOG_FILE="/opt/easyengine/install.log"
+    readonly LOG_FILE="/opt/easyengine/logs/install.log"
     # Adding software-properties-common for add-apt-repository.
     apt-get install -y software-properties-common
     # Adding ondrej/php repository for installing php, this works for all ubuntu flavours.
