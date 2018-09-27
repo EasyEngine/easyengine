@@ -51,17 +51,16 @@ class Runner {
 	 */
 	private function init_ee() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
-		if ( ! is_dir( $this->config['sites_path'] ) ) {
-			mkdir( $this->config['sites_path'] );
-		}
-		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
+		define( 'DB', EE_ROOT_DIR.'/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 
+		$db_dir = dirname( DB );
+		if ( ! is_dir( $db_dir ) ) {
+			mkdir( $db_dir );
+		}
 		$this->maybe_trigger_migration();
 	}
 
@@ -129,7 +128,7 @@ class Runner {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = EE_CONF_ROOT . '/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -183,7 +182,7 @@ class Runner {
 		if ( getenv( 'EE_PACKAGES_DIR' ) ) {
 			$packages_dir = Utils\trailingslashit( getenv( 'EE_PACKAGES_DIR' ) );
 		} else {
-			$packages_dir = EE_CONF_ROOT . '/packages';
+			$packages_dir = EE_ROOT_DIR . '/packages';
 		}
 		return $packages_dir;
 	}
@@ -491,25 +490,25 @@ class Runner {
 		EE::set_logger( $logger );
 
 		// Create the config directory if not exist for file logger to initialize.
-		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			shell_exec('mkdir -p ' . EE_CONF_ROOT);
+		if ( ! is_dir( EE_ROOT_DIR ) ) {
+			shell_exec('mkdir -p ' . EE_ROOT_DIR);
 		}
 
-		if ( ! is_writable( EE_CONF_ROOT ) ) {
-			EE::err( 'Config root: ' . EE_CONF_ROOT . ' is not writable by EasyEngine' );
+		if ( ! is_writable( EE_ROOT_DIR ) ) {
+			EE::err( 'Config root: ' . EE_ROOT_DIR . ' is not writable by EasyEngine' );
 		}
 
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
 			$file_logging_path = '/dev/null';
 		}
 		else {
-			$file_logging_path = EE_CONF_ROOT . '/ee.log';
+			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( EE_ROOT_DIR . '/logs/ee.log', Logger::DEBUG );
 		$stream->setFormatter( $formatter );
 		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );
@@ -582,11 +581,15 @@ class Runner {
 	 * @param $default Default value to use if $var is not set.
 	 */
 	public function ensure_present_in_config( $var, $default ) {
-		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
 		$existing_config  = Spyc::YAMLLoad( $config_file_path );
 		if ( ! isset( $existing_config[$var] ) ) {
 			$this->config[$var] = $default;
 			$config_dir_path    = dirname( $config_file_path );
+
+			if ( ! is_dir( $config_dir_path ) ) {
+				mkdir( $config_dir_path, 0777, true );
+			}
 
 			if ( file_exists( $config_file_path ) ) {
 				if ( is_readable( $config_file_path ) ) {
@@ -628,7 +631,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_CONF_ROOT . '/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 

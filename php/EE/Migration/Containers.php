@@ -136,9 +136,9 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function nginxproxy_container_up() {
-		$EE_CONF_ROOT      = EE_CONF_ROOT;
+		$EE_ROOT_DIR       = EE_ROOT_DIR;
 		$nginx_proxy_image = 'easyengine/nginx-proxy:v' . EE_VERSION;
-		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
+		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_ROOT_DIR, $nginx_proxy_image );
 
 		default_launch( sprintf( 'docker rm -f %1$s', EE_PROXY_TYPE ), false, true );
 
@@ -156,9 +156,9 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function nginxproxy_container_down( $existing_nginx_proxy_image ) {
-		$EE_CONF_ROOT      = EE_CONF_ROOT;
+		$EE_ROOT_DIR       = EE_ROOT_DIR;
 		$nginx_proxy_image = trim( $existing_nginx_proxy_image->stout );
-		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_CONF_ROOT, $nginx_proxy_image );
+		$ee_proxy_command  = sprintf( 'docker run --name %1$s -e LOCAL_USER_ID=`id -u` -e LOCAL_GROUP_ID=`id -g` --restart=always -d -p 80:80 -p 443:443 -v %2$s/nginx/certs:/etc/nginx/certs -v %2$s/nginx/dhparam:/etc/nginx/dhparam -v %2$s/nginx/conf.d:/etc/nginx/conf.d -v %2$s/nginx/htpasswd:/etc/nginx/htpasswd -v %2$s/nginx/vhost.d:/etc/nginx/vhost.d -v /var/run/docker.sock:/tmp/docker.sock:ro -v %2$s:/app/ee4 -v /usr/share/nginx/html %3$s', EE_PROXY_TYPE, $EE_ROOT_DIR, $nginx_proxy_image );
 
 		default_launch( sprintf( 'docker rm -f %1$s', EE_PROXY_TYPE ), false, true );
 
@@ -174,7 +174,7 @@ class Containers {
 	 */
 	public static function cron_container_up() {
 		$cron_image                 = 'easyengine/cron:v' . EE_VERSION;
-		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_CONF_ROOT . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
+		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
 
 		default_launch( 'docker rm -f ee-cron-scheduler', false, true );
 
@@ -192,7 +192,7 @@ class Containers {
 	 */
 	public static function cron_container_down( $existing_cron_image ) {
 		$cron_image                 = trim( $existing_cron_image->stdout );
-		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_CONF_ROOT . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
+		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
 
 		default_launch( 'docker rm -f ee-cron-scheduler', false, true );
 
