@@ -126,10 +126,10 @@ class Executor {
 				EE::error( "Errors were encountered while processing: $migrations[0]\n" . $e->getMessage(), false );
 			}
 			EE::debug( "Reverting: $migrations[0]" );
-			$migration->down();
 			// remove db entry in 'migration' table when reverting migrations.
 			$migrated = Migration::where( 'migration', $migrations[0] );
 			if ( ! empty( $migrated ) ) {
+				$migration->down();
 				$migrated[0]->delete();
 			}
 
