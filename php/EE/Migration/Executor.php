@@ -40,7 +40,7 @@ class Executor {
 	 * @return array of available migrations
 	 */
 	private static function get_all_migrations() {
-
+		$migrations = [];
 		$packages_path = scandir( EE_VENDOR_DIR . '/easyengine' );
 
 		// get migrations from packages.
@@ -63,7 +63,7 @@ class Executor {
 		}
 
 		// get migrations from core.
-		if ( file_exists( EE_ROOT . '/migrations' ) ) {
+		if ( is_dir( EE_ROOT . '/migrations' ) ) {
 			$files = scandir( EE_ROOT . '/migrations' );
 			if ( \EE\Utils\inside_phar() ) {
 				$migrations[] = $files;
@@ -72,7 +72,9 @@ class Executor {
 			}
 		}
 
-		$migrations = array_merge( ...$migrations );
+		if ( ! empty( $migrations ) ) {
+			$migrations = array_merge( ...$migrations );
+		}
 
 		return self::get_migrations_to_execute( $migrations );
 	}
