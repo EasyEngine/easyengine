@@ -222,15 +222,6 @@ foreach ( $finder as $file ) {
 	add_file( $phar, $file );
 }
 
-if( 2 === count( scandir(__DIR__ . '/../migrations') ) ) {
-	$finder = new Finder();
-	$finder->directories()->name('migrations')->in(EE_ROOT);
-
-	foreach ( $finder as $file ) {
-		add_file( $phar, $file );
-	}
-}
-
 $finder = new Finder();
 $finder
 	->files()
@@ -255,6 +246,12 @@ $finder
 	->in(EE_VENDOR_DIR . '/easyengine/site-type-*/templates')
 	->name('*.mustache')
 	->name('.env.mustache');
+
+$finder
+	->files()
+	->ignoreDotFiles(false)
+	->in(EE_VENDOR_DIR . '/easyengine/*/migrations')
+	->name('*.php');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
