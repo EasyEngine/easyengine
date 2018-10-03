@@ -20,7 +20,7 @@ class Option extends Base {
 	 * @throws \Exception
 	 * @return bool Key set or not
 	 */
-	public function set( string $key, string $value ) {
+	public static function set( string $key, string $value ) {
 		$existing_key = static::find( $key );
 
 		if ( empty( $existing_key ) ) {
@@ -45,7 +45,7 @@ class Option extends Base {
 	 * @throws \Exception
 	 * @return bool|Option
 	 */
-	public function get( string $key ) {
+	public static function get( string $key ) {
 		$option = static::find( $key );
 
 		return false === $option ? false : $option->value;
