@@ -76,7 +76,14 @@ class Executor {
 			$migrations = array_merge( ...$migrations );
 		}
 
-		return self::get_migrations_to_execute( $migrations );
+		$migrations = self::get_migrations_to_execute( $migrations );
+
+		return array_filter( $migrations, function ( $file_name ) {
+			if ( preg_match( '/^\d*[_]([a-zA-Z-]*)[_].*(\.php)$/', $file_name ) ) {
+				return true;
+			}
+			return false;
+		} );
 	}
 
 	/**
@@ -173,6 +180,9 @@ class Executor {
 	private static function get_migration_path( $migration_name ) {
 		preg_match( '/^\d*[_]([a-zA-Z-]*)[_]/', $migration_name, $matches );
 
+		if ( empty( $matches[1] ) ) {
+			return '';
+		}
 		if ( 'easyengine' === $matches[1] ) {
 			return EE_ROOT . "/migrations/$migration_name";
 		} else {
