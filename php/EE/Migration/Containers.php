@@ -68,30 +68,30 @@ class Containers {
 	 * Migrates all containers of existing sites
 	 */
 	private static function migrate_site_containers() {
-		$sites       = \EE_DB::select( [ 'sitename', 'site_path', 'site_type', 'cache_type', 'is_ssl', 'db_host' ] );
+		$sites       = \EE_DB::select( [ 'site_url', 'site_fs_path', 'site_type', 'cache_nginx_browser', 'site_ssl', 'db_host' ] );
 		$site_docker = new \Site_Docker();
 
 		foreach ( $sites as $site ) {
 
 			$data   = [];
 			$data[] = $site['site_type'];
-			$data[] = $site['cache_type'];
-			$data[] = $site['is_ssl'];
+			$data[] = $site['cache_nginx_browser'];
+			$data[] = $site['site_ssl'];
 			$data[] = $site['db_host'];
 
 			$docker_compose_contents    = $site_docker->generate_docker_compose_yml( $data );
-			$docker_compose_path        = $site['site_path'] . '/docker-compose.yml';
-			$docker_compose_backup_path = $site['site_path'] . '/docker-compose.yml.bak';
+			$docker_compose_path        = $site['site_fs_path'] . '/docker-compose.yml';
+			$docker_compose_backup_path = $site['site_fs_path'] . '/docker-compose.yml.bak';
 
 			self::$rsp->add_step(
-				"upgrade-${site['sitename']}-copy-compose-file",
+				"upgrade-${site['site_url']}-copy-compose-file",
 				'EE\Migration\Containers::site_copy_compose_file_up',
 				null,
 				[ $site, $docker_compose_path, $docker_compose_backup_path ]
 			);
 
 			self::$rsp->add_step(
-				"upgrade-${site['sitename']}-containers",
+				"upgrade-${site['site_url']}-containers",
 				'EE\Migration\Containers::site_containers_up',
 				'EE\Migration\Containers::site_containers_down',
 				[ $site, $docker_compose_backup_path, $docker_compose_path, $docker_compose_contents ],
@@ -212,7 +212,7 @@ class Containers {
 	 */
 	public static function site_copy_compose_file_up( $site, $docker_compose_path, $docker_compose_backup_path ) {
 		if ( ! default_launch( "cp $docker_compose_path $docker_compose_backup_path" ) ) {
-			throw new \Exception( "Unable to find docker-compose.yml in ${site['site_path']} or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
+			throw new \Exception( "Unable to find docker-compose.yml in ${site['site_fs_path']} or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
 		}
 	}
 
@@ -228,10 +228,10 @@ class Containers {
 	 */
 	public static function site_containers_up( $site, $docker_compose_backup_path, $docker_compose_path, $docker_compose_contents ) {
 		file_put_contents( $docker_compose_path, $docker_compose_contents );
-		$container_upgraded = default_launch( "cd ${site['site_path']} && docker-compose up -d" );
+		$container_upgraded = default_launch( "cd ${site['site_fs_path']} && docker-compose up -d" );
 
 		if ( ! $container_upgraded ) {
-			throw new \Exception( "Unable to upgrade containers of site: ${site['sitename']}. Please check logs for more details." );
+			throw new \Exception( "Unable to upgrade containers of site: ${site['site_url']}. Please check logs for more details." );
 		}
 	}
 
@@ -246,10 +246,10 @@ class Containers {
 	 */
 	public static function site_containers_down( $site, $docker_compose_backup_path, $docker_compose_path ) {
 		rename( $docker_compose_backup_path, $docker_compose_path );
-		$container_downgraded = default_launch( "cd ${site['site_path']} && docker-compose up -d" );
+		$container_downgraded = default_launch( "cd ${site['site_fs_path']} && docker-compose up -d" );
 
 		if ( ! $container_downgraded ) {
-			throw new \Exception( "Unable to downgrade containers of ${site['sitename']} site. Please check logs for more details." );
+			throw new \Exception( "Unable to downgrade containers of ${site['site_url']} site. Please check logs for more details." );
 		}
 	}
 }
