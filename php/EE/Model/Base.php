@@ -166,13 +166,18 @@ abstract class Base {
 	 * Returns all model with condition
 	 *
 	 * @param string|array $column Column to search in
-	 * @param string       $value  Value to match
+	 * @param string $value        Value to match
 	 *
 	 * @throws \Exception
 	 *
 	 * @return array
 	 */
 	public static function where( $column, $value = '' ) {
+
+		if ( is_bool( $value ) ) {
+			$value = (int) $value;
+		}
+
 		return static::many_array_to_model(
 			EE::db()
 				->table( static::$table )
@@ -245,7 +250,14 @@ abstract class Base {
 	 * @return bool Model saved successfully
 	 */
 	public function save() {
+
 		$fields = $this->fields;
+
+		foreach ( $fields as $key => $value ) {
+			if ( is_bool( $value ) ) {
+				$fields[ $key ] = (int) $value;
+			}
+		}
 
 		if ( static::$needs_update_timestamp ) {
 			$fields = array_merge(
