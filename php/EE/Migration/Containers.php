@@ -118,7 +118,7 @@ class Containers {
 		}
 
 		// Upgrade cron container
-		$existing_cron_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ee-cron-scheduler', false, true );
+		$existing_cron_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ' . EE_CRON_SCHEDULER, false, true );
 		if ( 0 === $existing_cron_image->return_code ) {
 			self::$rsp->add_step(
 				'upgrade-cron-container',
@@ -174,12 +174,12 @@ class Containers {
 	 */
 	public static function cron_container_up() {
 		$cron_image                 = 'easyengine/cron:v' . EE_VERSION;
-		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
+		$cron_scheduler_run_command = 'docker run --name ' . EE_CRON_SCHEDULER . ' --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
 
-		default_launch( 'docker rm -f ee-cron-scheduler', false, true );
+		default_launch( 'docker rm -f ' . EE_CRON_SCHEDULER, false, true );
 
 		if ( ! default_launch( $cron_scheduler_run_command, false, true ) ) {
-			throw new \Exception( ' Unable to upgrade ee-cron-scheduler container' );
+			throw new \Exception( ' Unable to upgrade ' . EE_CRON_SCHEDULER . ' container' );
 		}
 	}
 
@@ -192,12 +192,12 @@ class Containers {
 	 */
 	public static function cron_container_down( $existing_cron_image ) {
 		$cron_image                 = trim( $existing_cron_image->stdout );
-		$cron_scheduler_run_command = 'docker run --name ee-cron-scheduler --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
+		$cron_scheduler_run_command = 'docker run --name ' . EE_CRON_SCHEDULER . ' --restart=always -d -v ' . EE_ROOT_DIR . '/cron:/etc/ofelia:ro -v /var/run/docker.sock:/var/run/docker.sock:ro ' . $cron_image;
 
-		default_launch( 'docker rm -f ee-cron-scheduler', false, true );
+		default_launch( 'docker rm -f ' . EE_CRON_SCHEDULER, false, true );
 
 		if ( ! default_launch( $cron_scheduler_run_command, false, true ) ) {
-			throw new \Exception( ' Unable to restore ee-cron-scheduler container' );
+			throw new \Exception( ' Unable to restore ' . EE_CRON_SCHEDULER . ' container' );
 		}
 	}
 
