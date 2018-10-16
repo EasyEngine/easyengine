@@ -22,8 +22,8 @@ class Containers {
 	public static function start_container_migration() {
 		EE\Utils\delem_log( 'Starting container migration' );
 
-		self::$rsp = new RevertableStepProcessor();
-		self::pull_new_images();
+//		self::$rsp = new RevertableStepProcessor();
+		self::docker_image_migration();
 		self::migrate_site_containers();
 		self::migrate_global_containers();
 		if ( ! self::$rsp->execute() ) {
@@ -34,20 +34,27 @@ class Containers {
 	}
 
 	/**
-	 * Pulls new images of all containers used by easyengine
+	 * Migrate all docker images with new version.
 	 */
-	private static function pull_new_images() {
+	private static function docker_image_migration() {
 
-		$img_versions = EE\Utils\get_image_versions();		
-		self::pull_or_error( 'easyengine/php', $img_versions['easyengine/php'] );
-		self::pull_or_error( 'easyengine/cron', $img_versions['easyengine/cron'] );
-		self::pull_or_error( 'easyengine/redis', $img_versions['easyengine/redis'] );
-		self::pull_or_error( 'easyengine/nginx', $img_versions['easyengine/nginx'] );
-		self::pull_or_error( 'easyengine/postfix', $img_versions['easyengine/postfix'] );
-		self::pull_or_error( 'easyengine/mailhog', $img_versions['easyengine/mailhog'] );
-		self::pull_or_error( 'easyengine/mariadb', $img_versions['easyengine/mariadb'] );
-		self::pull_or_error( 'easyengine/phpmyadmin', $img_versions['easyengine/phpmyadmin'] );
-		self::pull_or_error( 'easyengine/nginx-proxy', $img_versions['easyengine/nginx-proxy'] );
+		$img_versions     = EE\Utils\get_image_versions();
+		$current_versions = self::get_current_docker_images_versions();
+
+		$changed_images = [];
+		foreach ( $img_versions as $img => $version ) {
+			if ( $current_versions[ $img ] !== $version ) {
+				$changed_images[ $img ] = $version;
+				self::pull_or_error( $img, $version );
+			}
+		}
+
+		if( empty( $changed_images) ) {
+			return;
+		}
+
+		self::migrate_global_containers();
+
 	}
 
 	/**
@@ -59,9 +66,28 @@ class Containers {
 	 * @throws \Exception
 	 */
 	private static function pull_or_error( $image, $version ) {
-		if ( ! default_launch( "docker pull $image:$version" ) ) {
+		if ( ! \EE::exec( "docker pull $image:$version" ) ) {
 			throw new \Exception( "Unable to pull $image. Please check logs for more details." );
 		}
+	}
+
+	/**
+	 * Get current docker images versions.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	private static function get_current_docker_images_versions() {
+		$images = EE::db()
+			->table( 'options' )
+			->where( 'key', 'like', 'easyengine/%' )
+			->all();
+
+		$images = array_map( function ( $image ) {
+			return [ $image['key'] => $image['value'] ];
+		}, $images );
+
+		return array_merge( ...$images );
 	}
 
 	/**
