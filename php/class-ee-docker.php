@@ -199,4 +199,19 @@ class EE_DOCKER {
 		return false;
 	}
 
+	/**
+	 * Check if a particular service exists in given docker-compose.yml.
+	 *
+	 * @param string $service      Service whose availability needs to be checked.
+	 * @param string $site_fs_path Path to the site root where docker-compose.yml file is present.
+	 *
+	 * @return bool Whether service is available or not.
+	 */
+	public static function service_exists( $service, $site_fs_path ) {
+		chdir( $site_fs_path );
+		$launch   = EE::launch( 'docker-compose config --services' );
+		$services = explode( PHP_EOL, trim( $launch->stdout ) );
+
+		return in_array( $service, $services, true );
+	}
 }
