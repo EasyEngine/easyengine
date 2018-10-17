@@ -70,7 +70,11 @@ class Runner {
 	private function migrate() {
 		$rsp = new \EE\RevertableStepProcessor();
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
-		$rsp->add_step( 'ee-container-migrations', 'EE\Migration\Containers::start_container_migration' );
+
+		$version = Option::where( 'key', 'version' );
+		if ( ! empty( $version ) ) {
+			$rsp->add_step( 'ee-container-migrations', 'EE\Migration\Containers::start_container_migration' );
+		}
 		return $rsp->execute();
 	}
 

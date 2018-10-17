@@ -28,17 +28,7 @@ class InsertDockerImagesVersion extends Base {
 	public function up() {
 
 		EE::log( 'Checking/Pulling required images' );
-		$images = [
-			'easyengine/cron'        => 'v4.0.0-beta.5',
-			'easyengine/mailhog'     => 'v4.0.0-beta.5',
-			'easyengine/mariadb'     => 'v4.0.0-beta.5',
-			'easyengine/nginx-proxy' => 'v4.0.0-beta.6',
-			'easyengine/nginx'       => 'v4.0.0-beta.5',
-			'easyengine/php'         => 'v4.0.0-beta.6',
-			'easyengine/phpmyadmin'  => 'v4.0.0-beta.5',
-			'easyengine/postfix'     => 'v4.0.0-beta.5',
-			'easyengine/redis'       => 'v4.0.0-beta.5',
-		];
+		$images = EE\Utils\get_image_versions();
 
 		$query = '';
 		foreach ( $images as $image => $tag ) {
