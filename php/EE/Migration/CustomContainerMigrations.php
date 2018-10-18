@@ -5,7 +5,6 @@ namespace EE\Migration;
 use EE;
 use EE\Model\Migration;
 use EE\Utils;
-use Symfony\Component\Finder\Finder;
 
 class CustomContainerMigrations {
 
