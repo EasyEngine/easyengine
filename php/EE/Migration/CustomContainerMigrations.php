@@ -7,7 +7,7 @@ use EE\Model\Migration;
 use EE\Utils;
 use Symfony\Component\Finder\Finder;
 
-class Executor {
+class CustomContainerMigrations {
 
 	/**
 	 * Executes all pending migrations
@@ -15,12 +15,12 @@ class Executor {
 	public static function execute_migrations() {
 
 		Utils\delem_log( 'ee migration start' );
-		EE::debug( 'Executing migrations' );
+		EE::debug( 'Executing custom container migrations' );
 
 		$migrations = self::get_all_migrations();
 
 		if ( empty( $migrations ) ) {
-			EE::debug( 'Nothing to migrate' );
+			EE::debug( 'No custom container migration' );
 			return;
 		}
 
@@ -50,7 +50,7 @@ class Executor {
 					continue;
 				}
 
-				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/db';
+				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/container';
 				if ( is_dir( $migration_path ) ) {
 					$files = scandir( $migration_path );
 					if ( \EE\Utils\inside_phar() ) {
@@ -63,8 +63,8 @@ class Executor {
 		}
 
 		// get migrations from core.
-		if ( is_dir( EE_ROOT . '/migrations' ) ) {
-			$files = scandir( EE_ROOT . '/migrations/db' );
+		if ( is_dir( EE_ROOT . '/migrations/container' ) ) {
+			$files = scandir( EE_ROOT . '/migrations/container' );
 			if ( \EE\Utils\inside_phar() ) {
 				$migrations[] = $files;
 			} else{
@@ -184,9 +184,9 @@ class Executor {
 			return '';
 		}
 		if ( 'easyengine' === $matches[1] ) {
-			return EE_ROOT . "/migrations/db/$migration_name";
+			return EE_ROOT . "/migrations/container/$migration_name";
 		} else {
-			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/db/$migration_name";
+			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/container/$migration_name";
 		}
 
 	}

@@ -73,7 +73,8 @@ class Runner {
 
 		$version = Option::where( 'key', 'version' );
 		if ( ! empty( $version ) ) {
-			$rsp->add_step( 'ee-container-migrations', 'EE\Migration\Containers::start_container_migration' );
+			$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
+			$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
 		}
 		return $rsp->execute();
 	}

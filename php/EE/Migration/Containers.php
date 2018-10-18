@@ -23,7 +23,6 @@ class Containers {
 
 		self::$rsp = new RevertableStepProcessor();
 		self::migrate_all_docker_images();
-		self::migrate_custom_container_migrations();
 		// @todo: add doc blocks.
 		// @todo: update database after image migration.
 		if ( ! self::$rsp->execute() ) {
@@ -45,7 +44,7 @@ class Containers {
 		foreach ( $img_versions as $img => $version ) {
 			if ( $current_versions[ $img ] !== $version ) {
 				$changed_images[] = $img;
-				self::pull_or_error( $img, $version );
+//				self::pull_or_error( $img, $version );
 			}
 		}
 
@@ -55,7 +54,33 @@ class Containers {
 
 		self::migrate_global_containers( $changed_images );
 		self::migrate_site_containers( $changed_images );
+		self::save_upgraded_image_versions($current_versions, $img_versions, $changed_images);
 
+	}
+
+	private static function save_upgraded_image_versions( $current_versions, $new_versions, $changed_images) {
+
+		self::$rsp->add_step(
+			'save-image-verions-in-database',
+			'EE\Migration\Containers::create_database_entry',
+			'EE\Migration\Containers::revert_database_entry',
+			[$new_versions, $changed_images],
+			[$current_versions, $changed_images]
+
+		);
+
+	}
+
+	public static function create_database_entry($new_versions, $changed_images) {
+		foreach($changed_images as $image) {
+			EE\Model\Option::update( [ [ 'key', $image ] ], [ 'value' => $new_versions[ $image ] ] );
+		}
+	}
+
+	public static function revert_database_entry($old_version, $changed_images) {
+		foreach($changed_images as $image) {
+			EE\Model\Option::update( [ [ 'key', $image ] ], [ 'value' => $old_version[ $image ] ] );
+		}
 	}
 
 	/**
