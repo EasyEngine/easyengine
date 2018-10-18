@@ -305,7 +305,7 @@ class Containers {
 		chdir( EE_ROOT_DIR . '/services' );
 		if( ! EE::exec( 'docker-compose up -d global-nginx-proxy ' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_PROXY_TYPE ) );
-		};
+		}
 
 	}
 
@@ -336,7 +336,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose up -d global-db' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
-		};
+		}
 	}
 
 	public static function global_db_container_down() {
@@ -344,7 +344,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
-		};
+		}
 	}
 
 	public static function global_redis_container_up() {
@@ -352,7 +352,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose up -d global-redis' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
-		};
+		}
 	}
 
 	public static function global_redis_container_down() {
@@ -389,7 +389,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose up -d docker-compose' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
-		};
+		}
 	}
 
 	/**
