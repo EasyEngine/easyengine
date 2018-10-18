@@ -3,7 +3,6 @@
 namespace EE\Migration;
 
 use EE\RevertableStepProcessor;
-use function EE\Utils\default_launch;
 use EE;
 
 /**
@@ -24,6 +23,7 @@ class Containers {
 
 		self::$rsp = new RevertableStepProcessor();
 		self::migrate_all_docker_images();
+		self::migrate_custom_container_migrations();
 		// @todo: add doc blocks.
 		// @todo: update database after image migration.
 		if ( ! self::$rsp->execute() ) {
@@ -45,7 +45,7 @@ class Containers {
 		foreach ( $img_versions as $img => $version ) {
 			if ( $current_versions[ $img ] !== $version ) {
 				$changed_images[] = $img;
-//				self::pull_or_error( $img, $version );
+				self::pull_or_error( $img, $version );
 			}
 		}
 
@@ -329,8 +329,6 @@ class Containers {
 		if ( $fs->exists( $default_conf_path ) ) {
 			$fs->remove( $default_conf_path );
 		}
-
-		self::revert_global_containers();
 	}
 
 	public static function global_db_container_up() {
@@ -347,8 +345,6 @@ class Containers {
 		if( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
 		};
-
-		self::revert_global_containers();
 	}
 
 	public static function global_redis_container_up() {
@@ -364,8 +360,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
-		};
-		self::revert_global_containers();
+		}
 	}
 
 	public static function is_global_container_image_changed( $changed_image ) {
@@ -409,59 +404,7 @@ class Containers {
 
 		if( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
-		};
-		self::revert_global_containers();
-	}
-
-	/**
-	 * Copies updated docker-compose file site root
-	 *
-	 * @param $site Name of site
-	 * @param $docker_compose_path Path where docker-compose.yml is to be copied
-	 * @param $docker_compose_backup_path Path old docker-compose.yml is to be copied for backup
-	 *
-	 * @throws \Exception
-	 */
-	public static function site_copy_compose_file_up( $site, $docker_compose_path, $docker_compose_backup_path ) {
-		if ( ! default_launch( "cp $docker_compose_path $docker_compose_backup_path" ) ) {
-			throw new \Exception( "Unable to find docker-compose.yml in ${site['site_fs_path']} or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
 		}
 	}
 
-	/**
-	 * Upgrades site container of a site
-	 *
-	 * @param $site Name of site
-	 * @param $docker_compose_backup_path Path of old docker-compose.yml file
-	 * @param $docker_compose_path Path of updated docker-compose.yml file
-	 * @param $docker_compose_contents Contents of updated docker-compose.yml file
-	 *
-	 * @throws \Exception
-	 */
-	public static function site_containers_up( $site, $docker_compose_backup_path, $docker_compose_path, $docker_compose_contents ) {
-		file_put_contents( $docker_compose_path, $docker_compose_contents );
-		$container_upgraded = default_launch( "cd ${site['site_fs_path']} && docker-compose up -d" );
-
-		if ( ! $container_upgraded ) {
-			throw new \Exception( "Unable to upgrade containers of site: ${site['site_url']}. Please check logs for more details." );
-		}
-	}
-
-	/**
-	 * Downgrades container of a site.
-	 *
-	 * @param $site Name of site
-	 * @param $docker_compose_backup_path Path of old docker-compose.yml file
-	 * @param $docker_compose_path Path of updated docker-compose.yml file
-	 *
-	 * @throws \Exception
-	 */
-	public static function site_containers_down( $site, $docker_compose_backup_path, $docker_compose_path ) {
-		rename( $docker_compose_backup_path, $docker_compose_path );
-		$container_downgraded = default_launch( "cd ${site['site_fs_path']} && docker-compose up -d" );
-
-		if ( ! $container_downgraded ) {
-			throw new \Exception( "Unable to downgrade containers of ${site['site_url']} site. Please check logs for more details." );
-		}
-	}
 }
