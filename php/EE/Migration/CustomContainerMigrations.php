@@ -39,7 +39,7 @@ class CustomContainerMigrations {
 	 * @return array of available migrations
 	 */
 	private static function get_all_migrations() {
-		$migrations = [];
+		$migrations    = [];
 		$packages_path = scandir( EE_VENDOR_DIR . '/easyengine' );
 
 		// get migrations from packages.
@@ -54,8 +54,8 @@ class CustomContainerMigrations {
 					$files = scandir( $migration_path );
 					if ( \EE\Utils\inside_phar() ) {
 						$migrations[] = $files;
-					} else{
-						$migrations[] = array_slice( $files,2);
+					} else {
+						$migrations[] = array_slice( $files, 2 );
 					}
 				}
 			}
@@ -66,8 +66,8 @@ class CustomContainerMigrations {
 			$files = scandir( EE_ROOT . '/migrations/container' );
 			if ( \EE\Utils\inside_phar() ) {
 				$migrations[] = $files;
-			} else{
-				$migrations[] = array_slice( $files,2);
+			} else {
+				$migrations[] = array_slice( $files, 2 );
 			}
 		}
 
@@ -120,6 +120,7 @@ class CustomContainerMigrations {
 
 			Migration::create( [
 				'migration' => $migrations[0],
+				'type'      => 'container',
 				'timestamp' => date( 'Y-m-d H:i:s' ),
 			] );
 
@@ -166,7 +167,7 @@ class CustomContainerMigrations {
 	 * @return array
 	 */
 	private static function get_migrations_from_db() {
-		return array_column( Migration::all(), 'migration' );
+		return array_column( Migration::where( 'type', 'container' ), 'migration' );
 	}
 
 	/**
