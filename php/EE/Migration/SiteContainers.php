@@ -79,6 +79,7 @@ class SiteContainers {
 		switch( $site['site_type']) {
 			case 'html':
 				$filters[] = $site['site_type'];
+
 				break;
 
 			case 'php':
@@ -89,19 +90,14 @@ class SiteContainers {
 
 				break;
 
-			case 'wordpress':
+			case 'wp':
 				$filters[] = $site['app_sub_type'];
 				$filters[] = $site['cache_host'];
 				$filters[] = $site['db_host'];
 
 				break;
 		}
-
-		$filters['nohttps'] = false;
-
-		if( 1 === $site['site_ssl']) {
-			$filters['nohttps'] = true;
-		}
+		$filters['nohttps'] = $site['site_ssl'] ? false:true;
 
 		return $filters;
 	}
