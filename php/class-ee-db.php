@@ -60,6 +60,7 @@ class EE_DB {
 		$query = 'CREATE TABLE migrations (
 			id INTEGER,
 			migration VARCHAR,
+			type VARCHAR,
 			timestamp DATETIME,
 			PRIMARY KEY (id)
 		);';
