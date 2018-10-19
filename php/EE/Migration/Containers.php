@@ -50,14 +50,6 @@ class Containers {
 	}
 
 	/**
-	 * Migrate all docker images with new version.
-	 */
-	private static function migrate_all_docker_images() {
-
-
-	}
-
-	/**
 	 * Save updated image version in database.
 	 *
 	 * @param $current_versions array of current image versions.
