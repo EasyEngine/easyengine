@@ -40,7 +40,7 @@ class Executor {
 	 * @return array of available migrations
 	 */
 	private static function get_all_migrations() {
-		$migrations = [];
+		$migrations    = [];
 		$packages_path = scandir( EE_VENDOR_DIR . '/easyengine' );
 
 		// get migrations from packages.
@@ -50,13 +50,13 @@ class Executor {
 					continue;
 				}
 
-				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations';
+				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/db';
 				if ( is_dir( $migration_path ) ) {
 					$files = scandir( $migration_path );
 					if ( \EE\Utils\inside_phar() ) {
 						$migrations[] = $files;
-					} else{
-						$migrations[] = array_slice( $files,2);
+					} else {
+						$migrations[] = array_slice( $files, 2 );
 					}
 				}
 			}
@@ -64,11 +64,11 @@ class Executor {
 
 		// get migrations from core.
 		if ( is_dir( EE_ROOT . '/migrations' ) ) {
-			$files = scandir( EE_ROOT . '/migrations' );
+			$files = scandir( EE_ROOT . '/migrations/db' );
 			if ( \EE\Utils\inside_phar() ) {
 				$migrations[] = $files;
-			} else{
-				$migrations[] = array_slice( $files,2);
+			} else {
+				$migrations[] = array_slice( $files, 2 );
 			}
 		}
 
@@ -121,6 +121,7 @@ class Executor {
 
 			Migration::create( [
 				'migration' => $migrations[0],
+				'type'      => 'db',
 				'timestamp' => date( 'Y-m-d H:i:s' ),
 			] );
 
@@ -167,7 +168,7 @@ class Executor {
 	 * @return array
 	 */
 	private static function get_migrations_from_db() {
-		return array_column( Migration::all(), 'migration' );
+		return array_column( Migration::where( 'type', 'db' ), 'migration' );
 	}
 
 	/**
@@ -184,9 +185,9 @@ class Executor {
 			return '';
 		}
 		if ( 'easyengine' === $matches[1] ) {
-			return EE_ROOT . "/migrations/$migration_name";
+			return EE_ROOT . "/migrations/db/$migration_name";
 		} else {
-			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/$migration_name";
+			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/db/$migration_name";
 		}
 
 	}
