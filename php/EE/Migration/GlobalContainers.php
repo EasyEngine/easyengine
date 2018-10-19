@@ -16,7 +16,7 @@ class GlobalContainers {
 	 */
 	public static function is_global_container_image_changed( $updated_images ) {
 		$global_images = [
-			'easyengine/mariadb',
+			'easyengine/nginx-proxy',
 			'easyengine/mariadb',
 			'easyengine/redis',
 			'easyengine/cron',
