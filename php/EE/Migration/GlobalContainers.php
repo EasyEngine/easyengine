@@ -33,37 +33,43 @@ class GlobalContainers {
 	/**
 	 * Take backup of current global docker-compose.yml file.
 	 *
+	 * @param $source_path string path of global docker-compose.yml
+	 * @param $dest_path   string path of backup file.
+	 *
 	 * @throws \Exception
 	 */
-	public static function backup_global_compose_file() {
-		$global_compose_file_path = EE_ROOT_DIR . '/services/docker-compose.yml';
-		$global_compose_backup_file_path = EE_ROOT_DIR . '/services/docker-compose.yml.backup';
+	public static function backup_global_compose_file( $source_path, $dest_path ) {
 
-		if ( ! EE::exec( "cp $global_compose_file_path $global_compose_backup_file_path" ) ) {
+		if ( ! EE::exec( "cp $source_path $dest_path" ) ) {
 			throw new \Exception( "Unable to find docker-compose.yml or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
 		}
 	}
 
 	/**
-	 * Revert to backed up docker-compose.yml file.
+	 * * Restore  backed up docker-compose.yml file.
+	 *
+	 * @param $source_path string path of backup file.
+	 * @param $dest_path   string path of global docker-compose.yml
 	 *
 	 * @throws \Exception
 	 */
-	public static function revert_global_containers() {
-		$global_compose_file_path = EE_ROOT_DIR . '/services/docker-compose.yml';
-		$global_compose_backup_file_path = EE_ROOT_DIR . '/services/docker-compose.yml.backup';
+	public static function revert_global_containers( $source_path, $dest_path ) {
 
-		rename( $global_compose_backup_file_path, $global_compose_file_path );
+		if ( ! EE::exec( "mv $source_path $dest_path" ) ) {
+			throw new \Exception( 'Unable to restore backup of docker-compose.yml' );
+		}
+
 		chdir( EE_ROOT_DIR . '/services' );
-		$container_downgraded = EE::exec( 'docker-compose up -d' );
 
-		if ( ! $container_downgraded ) {
+		if ( ! EE::exec( 'docker-compose up -d' ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 	}
 
 	/**
-	 * @param $updated_image array of updated images.
+	 * Stop global container and remove them.
+	 *
+	 * @param $updated_image array of newly available images.
 	 *
 	 * @throws \Exception
 	 */
@@ -110,22 +116,20 @@ class GlobalContainers {
 		}
 
 		chdir( EE_ROOT_DIR . '/services' );
-		if( ! EE::exec( 'docker-compose up -d global-nginx-proxy ' ) ) {
+		if ( ! EE::exec( 'docker-compose up -d global-nginx-proxy ' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_PROXY_TYPE ) );
 		}
 	}
 
 	/**
-	 * Downgrades nginx-proxy container
-	 *
-	 * @param $existing_nginx_proxy_image Old nginx-proxy image name
+	 * Remove nginx-proxy container
 	 *
 	 * @throws \Exception
 	 */
-	public static function nginxproxy_container_down( $existing_nginx_proxy_image ) {
+	public static function nginxproxy_container_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec('docker-compose stop global-nginx-proxy && docker-compose rm -f global-nginx-proxy') ) {
+		if ( ! EE::exec( 'docker-compose stop global-nginx-proxy && docker-compose rm -f global-nginx-proxy' ) ) {
 			throw new \Exception( sprintf( 'Unable to stop %1$s container', EE_PROXY_TYPE ) );
 		}
 
@@ -145,7 +149,7 @@ class GlobalContainers {
 	public static function global_db_container_up() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose up -d global-db' ) ) {
+		if ( ! EE::exec( 'docker-compose up -d global-db' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
 		}
 	}
@@ -158,26 +162,26 @@ class GlobalContainers {
 	public static function global_db_container_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
+		if ( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
 		}
 	}
 
 	/**
-	 * Upgrades ee-cron-scheduler container
+	 * Remove ee-cron-scheduler container
 	 *
 	 * @throws \Exception
 	 */
 	public static function cron_container_up() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose up -d docker-compose' ) ) {
+		if ( ! EE::exec( 'docker-compose up -d docker-compose' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
 		}
 	}
 
 	/**
-	 * Downgrades ee-cron-scheduler container
+	 * Remove ee-cron-scheduler container
 	 *
 	 * @param $existing_cron_image Old nginx-proxy image name
 	 *
@@ -186,7 +190,7 @@ class GlobalContainers {
 	public static function cron_container_down( $existing_cron_image ) {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
+		if ( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
 		}
 	}
@@ -199,7 +203,7 @@ class GlobalContainers {
 	public static function global_redis_container_up() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose up -d global-redis' ) ) {
+		if ( ! EE::exec( 'docker-compose up -d global-redis' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
 		}
 	}
@@ -212,7 +216,7 @@ class GlobalContainers {
 	public static function global_redis_container_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
+		if ( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
 		}
 	}
