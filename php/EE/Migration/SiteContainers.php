@@ -19,9 +19,13 @@ class SiteContainers {
 	 * @throws \Exception
 	 */
 	public static function backup_site_docker_compose_file( $source_path, $dest_path ) {
-		if ( ! EE::exec( "cp $source_path $dest_path" ) ) {
-			throw new \Exception( "Unable to find site's docker-compose.yml or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
+		EE::debug( 'Start backing up site\'s docker-compose.yml' );
+		$fs = new Filesystem();
+		if ( ! $fs->exists( $source_path ) ) {
+			throw new \Exception( ' site\'s docker-compose.yml does not exist' );
 		}
+		$fs->copy( $source_path, $dest_path, true );
+		EE::debug( 'Complete backing up site\'s docker-compose.yml' );
 	}
 
 	/**
@@ -29,9 +33,18 @@ class SiteContainers {
 	 *
 	 * @param $source_path string path of backed up docker-compose.yml
 	 * @param $dest_path   string original path of docker-compose.yml
+	 *
+	 * @throws \Exception
 	 */
 	public static function revert_site_docker_compose_file( $source_path, $dest_path ) {
-		rename( $source_path, $dest_path );
+		EE::debug( 'Start restoring site\'s docker-compose.yml' );
+		$fs = new Filesystem();
+		if ( ! $fs->exists( $source_path ) ) {
+			throw new \Exception( ' site\'s docker-compose.yml.backup does not exist' );
+		}
+		$fs->copy( $source_path, $dest_path, true );
+		$fs->remove( $source_path );
+		EE::debug( 'Complete restoring site\'s docker-compose.yml' );
 	}
 
 	/**
@@ -66,12 +79,14 @@ class SiteContainers {
 	 * @param $site_info array of site information.
 	 */
 	public static function generate_site_docker_compose_file( $site_info ) {
+		EE::debug( "Start generating news docker-compose.yml for ${site_info['site_url']}" );
 		$site_docker        = self::get_site_docker_object( $site_info['site_type'] );
 		$filters            = self::get_site_filters( $site_info );
 		$docker_yml_content = $site_docker->generate_docker_compose_yml( $filters );
 
 		$fs = new Filesystem();
 		$fs->dumpFile( $site_info['site_fs_path'] . '/docker-compose.yml', $docker_yml_content );
+		EE::debug( "Complete generating news docker-compose.yml for ${site_info['site_url']}" );
 	}
 
 	/**
@@ -81,7 +96,9 @@ class SiteContainers {
 	 * @param $site_object object of site-type( HTML, PHP, Wordpress ).
 	 */
 	public static function enable_site( $site_info, $site_object ) {
+		EE::debug( "Start enabling ${site_info['site_url']}" );
 		$site_object->enable( [ $site_info['site_url'] ], [] );
+		EE::debug( "Complete enabling ${site_info['site_url']}" );
 	}
 
 	/**
@@ -91,7 +108,9 @@ class SiteContainers {
 	 * @param $site_object object of site-type( HTML, PHP, Wordpress ).
 	 */
 	public static function disable_site( $site_info, $site_object ) {
+		EE::debug( "Start disabling ${site_info['site_url']}" );
 		$site_object->disable( [ $site_info['site_url'] ], [] );
+		EE::debug( "Complete disabling ${site_info['site_url']}" );
 	}
 
 	/**
