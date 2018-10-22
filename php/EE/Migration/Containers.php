@@ -30,7 +30,7 @@ class Containers {
 		foreach ( $img_versions as $img => $version ) {
 			if ( $current_versions[ $img ] !== $version ) {
 				$updated_images[] = $img;
-				self::pull_or_error( $img, $version );
+//				self::pull_or_error( $img, $version );
 			}
 		}
 
@@ -169,9 +169,9 @@ class Containers {
 		);
 
 		// Upgrade nginx-proxy container
-		$existing_nginx_proxy_image = EE::launch( sprintf( 'docker inspect --format=\'{{.Config.Image}}\' %1$s', EE_PROXY_TYPE ), false, true );
-		if ( in_array( 'easyengine/nginx-proxy', $updated_images, true ) && 0 === $existing_nginx_proxy_image->return_code ) {
-			self::$rsp->add_step(
+		$existing_nginx_proxy_image = \EE_DOCKER::container_status( EE_PROXY_TYPE );
+		if ( in_array( 'easyengine/nginx-proxy', $updated_images, true ) && false !== $existing_nginx_proxy_image ) {
+			self::$rsp->add_stelaunchlaunchp(
 				'upgrade-nginxproxy-container',
 				'EE\Migration\GlobalContainers::nginxproxy_container_up',
 				'EE\Migration\GlobalContainers::nginxproxy_container_down',
@@ -181,8 +181,8 @@ class Containers {
 		}
 
 		// Upgrade global-db container
-		$existing_db_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ' . GLOBAL_DB_CONTAINER, false, true );
-		if ( in_array( 'easyengine/mariadb', $updated_images, true ) && 0 === $existing_db_image->return_code ) {
+		$existing_db_image = \EE_DOCKER::container_status( GLOBAL_DB_CONTAINER );
+		if ( in_array( 'easyengine/mariadb', $updated_images, true ) && false !== $existing_db_image ) {
 			self::$rsp->add_step(
 				'upgrade-global-db-container',
 				'EE\Migration\GlobalContainers::global_db_container_up',
@@ -193,8 +193,8 @@ class Containers {
 		}
 
 		// Upgrade cron container
-		$existing_cron_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ' . EE_CRON_SCHEDULER, false, true );
-		if ( in_array( 'easyengine/cron', $updated_images, true ) && 0 === $existing_cron_image->return_code ) {
+		$existing_cron_image = \EE_DOCKER::container_status( EE_CRON_SCHEDULER );
+		if ( in_array( 'easyengine/cron', $updated_images, true ) && false !== $existing_cron_image ) {
 			self::$rsp->add_step(
 				'upgrade-cron-container',
 				'EE\Migration\GlobalContainers::cron_container_up',
@@ -205,8 +205,8 @@ class Containers {
 		}
 
 		// Upgrade redis container
-		$existing_redis_image = EE::launch( 'docker inspect --format=\'{{.Config.Image}}\' ' . GLOBAL_REDIS_CONTAINER, false, true );
-		if ( in_array( 'easyengine/cron', $updated_images, true ) && 0 === $existing_redis_image->return_code ) {
+		$existing_redis_image = \EE_DOCKER::container_status( GLOBAL_REDIS_CONTAINER );
+		if ( in_array( 'easyengine/cron', $updated_images, true ) && false !== $existing_redis_image ) {
 			self::$rsp->add_step(
 				'upgrade-global-redis-container',
 				'EE\Migration\GlobalContainers::global_redis_container_up',
