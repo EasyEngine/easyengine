@@ -10,11 +10,13 @@ use EE;
 class GlobalContainers {
 
 	/**
+	 * Get global containers which has new image update.
+	 *
 	 * @param $updated_images array of updated docker-images
 	 *
-	 * @return bool
+	 * @return array
 	 */
-	public static function is_global_container_image_changed( $updated_images ) {
+	public static function get_updated_global_images( $updated_images ) {
 		$global_images = [
 			'easyengine/nginx-proxy',
 			'easyengine/mariadb',
@@ -22,12 +24,7 @@ class GlobalContainers {
 			'easyengine/cron',
 		];
 
-		$commom_images = array_intersect( $updated_images, $global_images );
-
-		if ( ! empty( $commom_images ) ) {
-			return true;
-		}
-		return false;
+		return array_intersect( $updated_images, $global_images );
 	}
 
 	/**
@@ -69,35 +66,23 @@ class GlobalContainers {
 	/**
 	 * Stop global container and remove them.
 	 *
-	 * @param $updated_image array of newly available images.
+	 * @param $updated_images array of newly available images.
 	 *
 	 * @throws \Exception
 	 */
-	public static function down_global_containers( $updated_image ) {
+	public static function down_global_containers( $updated_images ) {
 
 		chdir( EE_ROOT_DIR . '/services' );
+		$all_global_images = self::get_all_global_images_with_service_name();
 
-		if ( in_array( 'easyengine/nginx-proxy', $updated_image, true ) ) {
-			if ( ! EE::exec( 'docker-compose stop global-nginx-proxy && docker-compose rm -f global-nginx-proxy' ) ) {
-				throw new \Exception( 'Unable to stop ' . EE_PROXY_TYPE . ' container' );
-			}
-		}
+		foreach ( $updated_images as $image_name ) {
+			$global_container_name = $all_global_images[ $image_name ];
+			$global_service_name   = ltrim( $global_container_name, 'ee-' );
 
-		if ( in_array( 'easyengine/mariadb', $updated_image, true ) ) {
-			if ( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
-				throw new \Exception( 'Unable to stop ' . GLOBAL_DB_CONTAINER . 'container' );
-			}
-		}
-
-		if ( in_array( 'easyengine/redis', $updated_image, true ) ) {
-			if ( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
-				throw new \Exception( 'Unable to stop ' . GLOBAL_REDIS_CONTAINER . 'container' );
-			}
-		}
-
-		if ( in_array( 'easyengine/cron', $updated_image, true ) ) {
-			if ( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
-				throw new \Exception( 'Unable to stop ' . GLOBAL_REDIS_CONTAINER . 'container' );
+			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
+				if ( ! EE::exec( "docker-compose stop $global_service_name && docker-compose rm -f $global_service_name" ) ) {
+					throw new \Exception( "Unable to stop $global_container_name container" );
+				}
 			}
 		}
 	}
@@ -107,7 +92,7 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function nginxproxy_container_up() {
+	public static function global_nginx_proxy_up() {
 		$default_conf_path = EE_ROOT_DIR . '/services/nginx-proxy/conf.d/default.conf';
 		$fs                = new \Symfony\Component\Filesystem\Filesystem();
 
@@ -126,7 +111,7 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function nginxproxy_container_down() {
+	public static function global_nginx_proxy_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose stop global-nginx-proxy && docker-compose rm -f global-nginx-proxy' ) ) {
@@ -146,7 +131,7 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_db_container_up() {
+	public static function global_db_up() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose up -d global-db' ) ) {
@@ -159,7 +144,7 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_db_container_down() {
+	public static function global_db_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
@@ -172,7 +157,8 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function cron_container_up() {
+	public static function cron_scheduler_up() {
+		return;
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose up -d docker-compose' ) ) {
@@ -183,11 +169,9 @@ class GlobalContainers {
 	/**
 	 * Remove ee-cron-scheduler container
 	 *
-	 * @param $existing_cron_image Old nginx-proxy image name
-	 *
 	 * @throws \Exception
 	 */
-	public static function cron_container_down( $existing_cron_image ) {
+	public static function cron_scheduler_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
@@ -200,7 +184,7 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_redis_container_up() {
+	public static function global_redis_up() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose up -d global-redis' ) ) {
@@ -213,11 +197,26 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_redis_container_down() {
+	public static function global_redis_down() {
 		chdir( EE_ROOT_DIR . '/services' );
 
 		if ( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
 			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
 		}
+	}
+
+	/**
+	 * Get all global images with it's service name.
+	 *
+	 * @return array
+	 */
+	public static function get_all_global_images() {
+		return [
+			'easyengine/nginx-proxy' => EE_PROXY_TYPE,
+			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
+			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
+//			'easyengine/cron' => EE_CRON_SCHEDULER,
+
+		];
 	}
 }

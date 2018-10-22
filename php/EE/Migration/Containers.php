@@ -30,7 +30,7 @@ class Containers {
 		foreach ( $img_versions as $img => $version ) {
 			if ( $current_versions[ $img ] !== $version ) {
 				$updated_images[] = $img;
-//				self::pull_or_error( $img, $version );
+				self::pull_or_error( $img, $version );
 			}
 		}
 
@@ -137,7 +137,8 @@ class Containers {
 	 */
 	private static function migrate_global_containers( $updated_images ) {
 
-		if ( ! GlobalContainers::is_global_container_image_changed( $updated_images ) ) {
+		$updated_global_images = GlobalContainers::get_updated_global_images( $updated_images );
+		if ( empty( $updated_global_images ) ) {
 			return;
 		}
 
@@ -156,7 +157,7 @@ class Containers {
 			'stop-global-containers',
 			'EE\Migration\GlobalContainers::down_global_containers',
 			null,
-			[ $updated_images ],
+			[ $updated_global_images ],
 			null
 		);
 
@@ -168,52 +169,20 @@ class Containers {
 			null
 		);
 
-		// Upgrade nginx-proxy container
-		$existing_nginx_proxy_image = \EE_DOCKER::container_status( EE_PROXY_TYPE );
-		if ( in_array( 'easyengine/nginx-proxy', $updated_images, true ) && false !== $existing_nginx_proxy_image ) {
-			self::$rsp->add_stelaunchlaunchp(
-				'upgrade-nginxproxy-container',
-				'EE\Migration\GlobalContainers::nginxproxy_container_up',
-				'EE\Migration\GlobalContainers::nginxproxy_container_down',
-				null,
-				null
-			);
-		}
+		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
+		foreach ( $updated_global_images as $image_name ) {
+			$global_container_name = $all_global_images[ $image_name ];
+			$global_service_name   = str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) );
 
-		// Upgrade global-db container
-		$existing_db_image = \EE_DOCKER::container_status( GLOBAL_DB_CONTAINER );
-		if ( in_array( 'easyengine/mariadb', $updated_images, true ) && false !== $existing_db_image ) {
-			self::$rsp->add_step(
-				'upgrade-global-db-container',
-				'EE\Migration\GlobalContainers::global_db_container_up',
-				'EE\Migration\GlobalContainers::global_db_container_down',
-				null,
-				null
-			);
-		}
-
-		// Upgrade cron container
-		$existing_cron_image = \EE_DOCKER::container_status( EE_CRON_SCHEDULER );
-		if ( in_array( 'easyengine/cron', $updated_images, true ) && false !== $existing_cron_image ) {
-			self::$rsp->add_step(
-				'upgrade-cron-container',
-				'EE\Migration\GlobalContainers::cron_container_up',
-				'EE\Migration\GlobalContainers::cron_container_down',
-				null,
-				null
-			);
-		}
-
-		// Upgrade redis container
-		$existing_redis_image = \EE_DOCKER::container_status( GLOBAL_REDIS_CONTAINER );
-		if ( in_array( 'easyengine/cron', $updated_images, true ) && false !== $existing_redis_image ) {
-			self::$rsp->add_step(
-				'upgrade-global-redis-container',
-				'EE\Migration\GlobalContainers::global_redis_container_up',
-				'EE\Migration\GlobalContainers::global_redis_container_down',
-				null,
-				null
-			);
+			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
+				self::$rsp->add_step(
+					"upgrade-$global_container_name-container",
+					"EE\Migration\GlobalContainers::${global_service_name}_up",
+					"EE\Migration\GlobalContainers::${global_service_name}_down",
+					null,
+					null
+				);
+			}
 		}
 	}
 
@@ -229,7 +198,7 @@ class Containers {
 		$db    = new \EE_DB();
 		$sites = ( $db->table( 'sites' )->all() );
 
-		foreach ( $sites as $key => $site ) {
+		foreach ( $sites as $site ) {
 
 			$docker_yml        = $site['site_fs_path'] . '/docker-compose.yml';
 			$docker_yml_backup = $site['site_fs_path'] . '/docker-compose.yml.backup';
@@ -270,9 +239,9 @@ class Containers {
 				self::$rsp->add_step(
 					"upgrade-${site['site_url']}-containers",
 					'EE\Migration\SiteContainers::enable_site',
-					null,
+					'EE\Migration\SiteContainers::enable_site',
 					[ $site, $ee_site_object ],
-					null
+					[ $site, $ee_site_object ]
 				);
 			}
 		}
