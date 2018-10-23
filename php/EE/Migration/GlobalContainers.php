@@ -235,8 +235,7 @@ class GlobalContainers {
 			'easyengine/nginx-proxy' => EE_PROXY_TYPE,
 			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
-//			'easyengine/cron' => EE_CRON_SCHEDULER,
-
+			'easyengine/cron'        => EE_CRON_SCHEDULER,
 		];
 	}
 }
