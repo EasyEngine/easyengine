@@ -273,6 +273,6 @@ class EE_DOCKER {
 	public static function get_volumes_by_label( $label ) {
 		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter="label=io.easyengine.site=%s" -q', $label ) );
 
-		return explode( PHP_EOL, trim( $launch->stdout ) );
+		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
 	}
 }
