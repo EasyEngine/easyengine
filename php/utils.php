@@ -1623,3 +1623,19 @@ function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
 
 	return curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 }
+
+/**
+ * Function to get config value for a given key.
+ *
+ * @param string $key          Key to search in config file.
+ * @param string|null $default Default value of the given key.
+ *
+ * @return string|null value of the asked key.
+ */
+function get_config_value( $key, $default = null ) {
+
+	$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	$existing_config  = Spyc::YAMLLoad( $config_file_path );
+
+	return empty( $existing_config[ $key ] ) ? $default : $existing_config[ $key ];
+}
