@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
+use Mustangostang\Spyc;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
