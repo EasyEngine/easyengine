@@ -1,9 +1,34 @@
-# EasyEngine v4
+<p align="center">
+  <br>
+  <a href="https://easyengine.io">
+    <img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" />
+  </a>
+</p>
 
-<img width="150" height="150" src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
+<h1 align="center">EasyEngine v4</h1>
 
-[![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine)
-[![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
+<p align="center">
+  Command Line tool to manage WordPress sites with NGINX, PHP, MySQL, and Let's Encrypt called <a href="https://easyengine.io">EasyEngine.io</a>
+</p>
+
+<p align="center">
+  <a title="Build Status" href="https://travis-ci.org/EasyEngine/easyengine">
+    <img src="https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4">
+  </a>
+  <a title="Join EasyEngine Slack Channel" href="http://slack.easyengine.io/">
+    <img src="http://slack.easyengine.io/badge.svg">
+  </a>
+  <a title="MIT License" href="LICENSE">
+    <img src="https://img.shields.io/github/license/EasyEngine/easyengine.svg?style=flat-square">
+  </a>
+  <a title="Follow on Twitter" href="https://twitter.com/easyengine">
+    <img src="https://img.shields.io/twitter/follow/easyengine.svg?style=social&label=Follow">
+  </a>
+  <br>
+  <br>
+</p>
+
+> This project is under active development. Any feedback or contributions would be appreciated.
 
 ## Requirements
 
