@@ -1,7 +1,7 @@
 <p align="center">
   <br>
   <a href="https://easyengine.io">
-    <img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" />
+    <img src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" width="200" height="200"/>
   </a>
 </p>
 
