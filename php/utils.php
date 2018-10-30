@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
+use Mustangostang\Spyc;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -1593,4 +1594,49 @@ function get_image_versions() {
 	}
 
 	return $img_versions;
+}
+
+/**
+ * Function to get httpcode or port occupancy info.
+ *
+ * @param string $url     url to get info about.
+ * @param int $port       The port to check.
+ * @param bool $port_info Return port info or httpcode.
+ * @param mixed $auth     Send http auth with passed value if not false.
+ *
+ * @return bool|int port occupied or httpcode.
+ */
+function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
+
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_HEADER, true );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $ch, CURLOPT_PORT, $port );
+	if ( $auth ) {
+		curl_setopt( $ch, CURLOPT_USERPWD, $auth );
+	}
+	curl_exec( $ch );
+	if ( $port_info ) {
+		return empty( curl_getinfo( $ch, CURLINFO_PRIMARY_IP ) );
+	}
+
+	return curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+}
+
+/**
+ * Function to get config value for a given key.
+ *
+ * @param string $key          Key to search in config file.
+ * @param string|null $default Default value of the given key.
+ *
+ * @return string|null value of the asked key.
+ */
+function get_config_value( $key, $default = null ) {
+
+	$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	$existing_config  = Spyc::YAMLLoad( $config_file_path );
+
+	return empty( $existing_config[ $key ] ) ? $default : $existing_config[ $key ];
 }

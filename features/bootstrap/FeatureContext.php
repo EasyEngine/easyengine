@@ -14,7 +14,7 @@ include_once( EE_ROOT . '/php/utils.php' );
 
 define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
-define( 'EE_CONF_ROOT', '/opt/easyengine' );
+define( 'EE_ROOT_DIR', '/opt/easyengine' );
 
 require_once EE_ROOT . '/php/bootstrap.php';
 
