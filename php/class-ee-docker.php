@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\Filesystem\Filesystem;
+
 class EE_DOCKER {
 
 	/**
@@ -213,5 +215,64 @@ class EE_DOCKER {
 		$services = explode( PHP_EOL, trim( $launch->stdout ) );
 
 		return in_array( $service, $services, true );
+	}
+
+	/**
+	 * Gets a dockerized prefix created for site.
+	 *
+	 * @param string $site_url Name of the site.
+	 *
+	 * @return string prefix derived from the name.
+	 */
+	public static function get_docker_style_prefix( $site_url ) {
+		return str_replace( [ '.', '-' ], '', $site_url );
+	}
+
+	/**
+	 * Function to create external docker volumes and related symlinks.
+	 *
+	 * @param string $prefix                Prefix by volumes have to be created.
+	 * @param array $volumes                The volumes to be created.
+	 *                                      $volumes[$key]['name'] => specifies the name of volume to be created.
+	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the created volume.
+	 * @param bool $update_to_docker_prefix Update the prefix in dockerized style.
+	 */
+	public static function create_volumes( $prefix, $volumes, $update_to_docker_prefix = true ) {
+
+		$volume_prefix = $update_to_docker_prefix ? self::get_docker_style_prefix( $prefix ) : $prefix;
+		$fs            = new Filesystem();
+
+		// This command will get the root directory for Docker, generally `/var/lib/docker`.
+		$launch          = EE::launch( "docker info 2> /dev/null | awk '/Docker Root Dir/ {print $4}'" );
+		$docker_root_dir = trim( $launch->stdout );
+
+		foreach ( $volumes as $volume ) {
+			$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
+			EE::exec(
+				sprintf(
+					'docker volume create \
+					--label "org.label-schema.vendor=EasyEngine" \
+					--label "io.easyengine.site=%s" \
+					%s_%s',
+					$prefix,
+					$volume_prefix,
+					$volume['name']
+				)
+			);
+			$fs->symlink( sprintf( '%s/volumes/%s_%s/_data', $docker_root_dir, $volume_prefix, $volume['name'] ), $volume['path_to_symlink'] );
+		}
+	}
+
+	/**
+	 * Function to get all the volumes with a specific label.
+	 *
+	 * @param string $label The label to search for.
+	 *
+	 * @return array Found containers.
+	 */
+	public static function get_volumes_by_label( $label ) {
+		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter="label=io.easyengine.site=%s" -q', $label ) );
+
+		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
 	}
 }
