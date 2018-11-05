@@ -89,12 +89,18 @@ class SiteContainers {
 	/**
 	 * Enable site.
 	 *
-	 * @param $site_info   array of site information.
-	 * @param $site_object object of site-type( HTML, PHP, Wordpress ).
+	 * @param array $site_info    of site information.
+	 * @param object $site_object of site-type( HTML, PHP, WordPress ).
+	 *
+	 * @throws \Exception
 	 */
 	public static function enable_site( $site_info, $site_object ) {
 		EE::debug( "Start enabling ${site_info['site_url']}" );
-		$site_object->enable( [ $site_info['site_url'] ], [] );
+		try {
+			$site_object->enable( [ $site_info['site_url'] ], [], false );
+		} catch ( \Exception $e ) {
+			throw new \Exception( $e->getMessage() );
+		}
 		EE::debug( "Complete enabling ${site_info['site_url']}" );
 	}
 
