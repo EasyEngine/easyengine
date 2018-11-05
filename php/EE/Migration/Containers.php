@@ -231,7 +231,7 @@ class Containers {
 				"generate-${site['site_url']}-docker-compose",
 				'EE\Migration\SiteContainers::generate_site_docker_compose_file',
 				null,
-				[ $site ],
+				[ $site, $ee_site_object ],
 				null
 			);
 
