@@ -76,16 +76,13 @@ class SiteContainers {
 	/**
 	 * Generate docker-compose.yml for specific site.
 	 *
-	 * @param $site_info array of site information.
+	 * @param array $site_info of site information.
+	 * @param object $site_obj Object of the particular site-type.
 	 */
-	public static function generate_site_docker_compose_file( $site_info ) {
+	public static function generate_site_docker_compose_file( $site_info, $site_obj ) {
+		$site_obj->populate_site_info( $site_info['site_url'] );
 		EE::debug( "Start generating news docker-compose.yml for ${site_info['site_url']}" );
-		$site_docker        = self::get_site_docker_object( $site_info['site_type'] );
-		$filters            = self::get_site_filters( $site_info );
-		$docker_yml_content = $site_docker->generate_docker_compose_yml( $filters );
-
-		$fs = new Filesystem();
-		$fs->dumpFile( $site_info['site_fs_path'] . '/docker-compose.yml', $docker_yml_content );
+		$site_obj->dump_docker_compose_yml( [ 'nohttps' => $site_info['site_ssl'] ] );
 		EE::debug( "Complete generating news docker-compose.yml for ${site_info['site_url']}" );
 	}
 
