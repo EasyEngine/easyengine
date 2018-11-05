@@ -116,21 +116,15 @@ class SiteContainers {
 	/**
 	 * Get object of supported site type.
 	 *
-	 * @param $site_type string type of site.
+	 * @param string $site_type type of site.
 	 *
 	 * @return EE\Site\Type\HTML|EE\Site\Type\PHP|EE\Site\Type\WordPress
 	 */
 	public static function get_site_object( $site_type ) {
-		switch ( $site_type ) {
-			case 'html':
-				return new EE\Site\Type\HTML();
+		$site_command = new \Site_Command();
+		$site_class   = $site_command::get_site_types()[ $site_type ];
 
-			case 'php':
-				return new EE\Site\Type\PHP();
-
-			case 'wp':
-				return new EE\Site\Type\WordPress();
-		}
+		return new $site_class;
 	}
 
 	/**
