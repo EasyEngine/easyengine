@@ -195,4 +195,18 @@ class SiteContainers {
 			throw new \Exception( 'Could not reload nginx. Check logs.' );
 		}
 	}
+
+	/**
+	 * Function to pull site docker-compose images.
+	 *
+	 * @param string $site_fs_path   Directory containing site's docker-compose.yml.
+	 */
+	public static function docker_compose_pull( $site_fs_path ) {
+
+		chdir( $site_fs_path );
+		$success = EE::exec( "docker-compose pull" );
+		if ( ! $success ) {
+			throw new \Exception( 'Could pull given images.' );
+		}
+	}
 }
