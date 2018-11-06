@@ -159,4 +159,41 @@ class SiteContainers {
 		];
 		\EE::docker()->create_volumes( $site_url, $volumes );
 	}
+
+	/**
+	 * Function to backup given file or directory.
+	 *
+	 * @param Path to the file/directory in need of backup.
+	 */
+	public static function backup_files( $path ) {
+		$fs         = new Filesystem();
+		$backup_dir = EE_ROOT_DIR . '/.backup';
+
+		$dest = $backup_dir . '/' . basename( $path );
+		EE::debug( "Backing up file: $path to $dest" );
+		$fs->remove( $dest );
+		if ( is_file( $path ) ) {
+			$fs->copy( $path, $dest );
+		} else {
+			$fs->mirror( $path, $dest );
+		}
+	}
+
+	/**
+	 * Function to restore file/directory from backup source.
+	 *
+	 * @param string $destination
+	 * @param string $source
+	 */
+	public static function restore_files( $destination, $source = '' ) {
+		$fs         = new Filesystem();
+		$backup_dir = EE_ROOT_DIR . '/.backup';
+		$source     = empty( $source ) ? $backup_dir . '/' . basename( $destination ) : $source;
+		EE::debug( "Restoring files from: $source to $destination" );
+		if ( is_file( $source ) ) {
+			$fs->copy( $source, $destination );
+		} else {
+			$fs->mirror( $source, $destination );
+		}
+	}
 }
