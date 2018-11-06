@@ -21,42 +21,42 @@ class SiteContainers {
 		$site_command = new \Site_Command();
 		$site_class   = $site_command::get_site_types()[ $site_type ];
 
-		return new $site_class;
+		return new $site_class();
 	}
 
 	/**
 	 * Take backup of site's docker-compose.yml file
 	 *
-	 * @param $source_path string path of docker-compose.yml
-	 * @param $dest_path   string backup path for docker-compose.yml
+	 * @param string $source_path      path of docker-compose.yml.
+	 * @param string $destination_path backup path for docker-compose.yml.
 	 *
-	 * @throws \Exception
+	 * @throws \Exception.
 	 */
-	public static function backup_site_docker_compose_file( $source_path, $dest_path ) {
+	public static function backup_site_docker_compose_file( $source_path, $destination_path ) {
 		EE::debug( 'Start backing up site\'s docker-compose.yml' );
 		$fs = new Filesystem();
 		if ( ! $fs->exists( $source_path ) ) {
 			throw new \Exception( ' site\'s docker-compose.yml does not exist' );
 		}
-		$fs->copy( $source_path, $dest_path, true );
+		$fs->copy( $source_path, $destination_path, true );
 		EE::debug( 'Complete backing up site\'s docker-compose.yml' );
 	}
 
 	/**
 	 * Revert docker-compose.yml file from backup.
 	 *
-	 * @param $source_path string path of backed up docker-compose.yml
-	 * @param $dest_path   string original path of docker-compose.yml
+	 * @param string $source_path      path of backed up docker-compose.yml.
+	 * @param string $destination_path original path of docker-compose.yml.
 	 *
 	 * @throws \Exception
 	 */
-	public static function revert_site_docker_compose_file( $source_path, $dest_path ) {
+	public static function revert_site_docker_compose_file( $source_path, $destination_path ) {
 		EE::debug( 'Start restoring site\'s docker-compose.yml' );
 		$fs = new Filesystem();
 		if ( ! $fs->exists( $source_path ) ) {
 			throw new \Exception( ' site\'s docker-compose.yml.backup does not exist' );
 		}
-		$fs->copy( $source_path, $dest_path, true );
+		$fs->copy( $source_path, $destination_path, true );
 		$fs->remove( $source_path );
 		EE::debug( 'Complete restoring site\'s docker-compose.yml' );
 	}
@@ -64,8 +64,8 @@ class SiteContainers {
 	/**
 	 * Check if new image is available for site's services.
 	 *
-	 * @param $updated_images array of updated images.
-	 * @param $site_info      array of site info
+	 * @param array $updated_images array of updated images.
+	 * @param array $site_info      array of site info.
 	 *
 	 * @return bool
 	 */
@@ -90,21 +90,21 @@ class SiteContainers {
 	/**
 	 * Generate docker-compose.yml for specific site.
 	 *
-	 * @param array $site_info of site information.
-	 * @param object $site_obj Object of the particular site-type.
+	 * @param array $site_info    array of site information.
+	 * @param object $site_object Object of the particular site-type.
 	 */
-	public static function generate_site_docker_compose_file( $site_info, $site_obj ) {
-		$site_obj->populate_site_info( $site_info['site_url'] );
+	public static function generate_site_docker_compose_file( $site_info, $site_object ) {
+		$site_object->populate_site_info( $site_info['site_url'] );
 		EE::debug( "Start generating news docker-compose.yml for ${site_info['site_url']}" );
-		$site_obj->dump_docker_compose_yml( [ 'nohttps' => $site_info['site_ssl'] ] );
+		$site_object->dump_docker_compose_yml( [ 'nohttps' => $site_info['site_ssl'] ] );
 		EE::debug( "Complete generating news docker-compose.yml for ${site_info['site_url']}" );
 	}
 
 	/**
 	 * Enable site.
 	 *
-	 * @param array $site_info    of site information.
-	 * @param object $site_object of site-type( HTML, PHP, WordPress ).
+	 * @param array $site_info    array of site information.
+	 * @param object $site_object object of site-type( HTML, PHP, WordPress ).
 	 *
 	 * @throws \Exception
 	 */
@@ -121,8 +121,8 @@ class SiteContainers {
 	/**
 	 * Disable site.
 	 *
-	 * @param $site_info   array of site information.
-	 * @param $site_object object of site-type( HTML, PHP, Wordpress ).
+	 * @param array $site_info    array of site information.
+	 * @param object $site_object object of site-type( HTML, PHP, Wordpress ).
 	 */
 	public static function disable_site( $site_info, $site_object ) {
 		EE::debug( "Start disabling ${site_info['site_url']}" );
@@ -158,25 +158,6 @@ class SiteContainers {
 			],
 		];
 		\EE::docker()->create_volumes( $site_url, $volumes );
-	}
-
-	/**
-	 * Function to backup given file or directory.
-	 *
-	 * @param Path to the file/directory in need of backup.
-	 */
-	public static function backup_files( $path ) {
-		$fs         = new Filesystem();
-		$backup_dir = EE_ROOT_DIR . '/.backup';
-
-		$dest = $backup_dir . '/' . basename( $path );
-		EE::debug( "Backing up file: $path to $dest" );
-		$fs->remove( $dest );
-		if ( is_file( $path ) ) {
-			$fs->copy( $path, $dest );
-		} else {
-			$fs->mirror( $path, $dest );
-		}
 	}
 
 	/**
