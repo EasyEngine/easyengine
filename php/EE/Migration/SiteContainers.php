@@ -11,6 +11,20 @@ use Symfony\Component\Filesystem\Filesystem;
 class SiteContainers {
 
 	/**
+	 * Get object of supported site type.
+	 *
+	 * @param string $site_type type of site.
+	 *
+	 * @return EE\Site\Type\HTML|EE\Site\Type\PHP|EE\Site\Type\WordPress
+	 */
+	public static function get_site_object( $site_type ) {
+		$site_command = new \Site_Command();
+		$site_class   = $site_command::get_site_types()[ $site_type ];
+
+		return new $site_class;
+	}
+
+	/**
 	 * Take backup of site's docker-compose.yml file
 	 *
 	 * @param $source_path string path of docker-compose.yml
