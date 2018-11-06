@@ -161,20 +161,24 @@ class SiteContainers {
 	}
 
 	/**
-	 * Function to restore file/directory from backup source.
+	 * Function to backup and restore file/directory.
 	 *
-	 * @param string $destination
-	 * @param string $source
+	 * @param string $destination    Destination path.
+	 * @param string $source         Source path.
+	 * @param bool $delete_different Delete files in $destination that are not there in source.
 	 */
-	public static function restore_files( $destination, $source = '' ) {
-		$fs         = new Filesystem();
-		$backup_dir = EE_ROOT_DIR . '/.backup';
-		$source     = empty( $source ) ? $backup_dir . '/' . basename( $destination ) : $source;
-		EE::debug( "Restoring files from: $source to $destination" );
+	public static function backup_restore( $source, $destination = '', $delete_different = true ) {
+		$fs          = new Filesystem();
+		$destination = empty( $destination ) ? EE_BACKUP_DIR . '/' . basename( $source ) : $destination;
+		EE::debug( "Copying files from: $source to $destination" );
 		if ( is_file( $source ) ) {
-			$fs->copy( $source, $destination );
+			$fs->copy( $source, $destination, true );
 		} else {
-			$fs->mirror( $source, $destination );
+			$copy_options = [
+				'override' => true,
+				'delete'   => $delete_different,
+			];
+			$fs->mirror( $source, $destination, null, $copy_options );
 		}
 	}
 }

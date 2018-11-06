@@ -119,9 +119,9 @@ class Containers {
 	 */
 	private static function get_current_docker_images_versions() {
 		$images = EE::db()
-			->table( 'options' )
-			->where( 'key', 'like', 'easyengine/%' )
-			->all();
+		            ->table( 'options' )
+		            ->where( 'key', 'like', 'easyengine/%' )
+		            ->all();
 
 		$images = array_map( function ( $image ) {
 			return [ $image['key'] => $image['value'] ];
@@ -201,7 +201,7 @@ class Containers {
 		foreach ( $sites as $site ) {
 
 			$docker_yml        = $site['site_fs_path'] . '/docker-compose.yml';
-			$docker_yml_backup = $site['site_fs_path'] . '/docker-compose.yml.backup';
+			$docker_yml_backup = EE_BACKUP_DIR . '/' . $site['site_url'] . '/docker-compose.yml.backup';
 
 			if ( ! SiteContainers::is_site_service_image_changed( $updated_images, $site ) ) {
 				continue;
@@ -221,8 +221,8 @@ class Containers {
 
 			self::$rsp->add_step(
 				"take-${site['site_url']}-docker-compose-backup",
-				'EE\Migration\SiteContainers::backup_site_docker_compose_file',
-				'EE\Migration\SiteContainers::revert_site_docker_compose_file',
+				'EE\Migration\SiteContainers::backup_restore',
+				'EE\Migration\SiteContainers::backup_restore',
 				[ $docker_yml, $docker_yml_backup ],
 				[ $docker_yml_backup, $docker_yml ]
 			);
