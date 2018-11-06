@@ -181,4 +181,18 @@ class SiteContainers {
 			$fs->mirror( $source, $destination, null, $copy_options );
 		}
 	}
+
+	/**
+	 * Function to reload site's nginx.
+	 *
+	 * @param string $site_fs_path   Directory containing site's docker-compose.yml.
+	 */
+	public static function reload_nginx( $site_fs_path ) {
+
+		chdir( $site_fs_path );
+		$success = EE::exec( "docker-compose exec nginx sh -c 'nginx -t && service openresty reload'" );
+		if ( ! $success ) {
+			throw new \Exception( 'Could not reload nginx. Check logs.' );
+		}
+	}
 }
