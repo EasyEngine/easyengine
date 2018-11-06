@@ -129,4 +129,34 @@ class SiteContainers {
 		$site_object->disable( [ $site_info['site_url'] ], [] );
 		EE::debug( "Complete disabling ${site_info['site_url']}" );
 	}
+
+	/**
+	 * Function to delete given volume.
+	 *
+	 * @param string $volume_name  Name of the volume to be deleted.
+	 * @param string $symlink_path Corresponding symlink to be removed.
+	 */
+	public static function delete_volume( $volume_name, $symlink_path ) {
+		$fs = new Filesystem();
+		\EE::exec( 'docker volume rm ' . $volume_name );
+		$fs->remove( $symlink_path );
+	}
+
+	/**
+	 * Function to create given volume.
+	 *
+	 * @param string|array $site   Name of the site or array of site having site_url.
+	 * @param string $volume_name  Name of the volume to be created.
+	 * @param string $symlink_path Corresponding symlink to be created.
+	 */
+	public static function create_volume( $site, $volume_name, $symlink_path ) {
+		$site_url = is_array( $site ) ? $site['site_url'] : $site;
+		$volumes  = [
+			[
+				'name'            => $volume_name,
+				'path_to_symlink' => $symlink_path,
+			],
+		];
+		\EE::docker()->create_volumes( $site_url, $volumes );
+	}
 }
