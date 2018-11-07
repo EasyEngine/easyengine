@@ -819,7 +819,11 @@ class Runner {
 		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
 
 		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
-			EE::error( 'It seems you\'re not running latest version. Please download and run latest version of EasyEngine.' );
+			if ( ! empty( $this->arguments ) && 'cli' === $this->arguments[0] ) {
+				EE::warning( 'It seems you\'re not running latest version. Update EasyEngine using `ee cli update --stable --yes`.' );
+			} else {
+				EE::error( 'It seems you\'re not running latest version.  Update EasyEngine using `ee cli update --stable --yes`.' );
+			}
 		} elseif ( $db_version !== $current_version ) {
 			EE::log( 'Executing migrations. This might take some time.' );
 			$this->trigger_migration( $current_version );
