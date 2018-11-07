@@ -17,7 +17,7 @@ abstract class Base {
 		$this->fs                  = new Filesystem();
 		$this->skip_this_migration = false;
 		$this->is_first_execution  = ! \EE\Model\Option::get( 'version' );
-		$this->backup_dir          = EE_ROOT_DIR . '/.backup';
+		$this->backup_dir          = EE_BACKUP_DIR;
 		$this->fs->mkdir( $this->backup_dir );
 	}
 
