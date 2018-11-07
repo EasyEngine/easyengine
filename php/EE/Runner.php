@@ -823,6 +823,8 @@ class Runner {
 		} elseif ( $db_version !== $current_version ) {
 			EE::log( 'Executing migrations. This might take some time.' );
 			$this->trigger_migration( $current_version );
+		} elseif ( false !== strpos( $current_version, 'nightly' ) ) {
+			$this->trigger_migration( $current_version );
 		}
 	}
 
