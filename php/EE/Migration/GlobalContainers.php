@@ -17,14 +17,16 @@ class GlobalContainers {
 	 * @return array
 	 */
 	public static function get_updated_global_images( $updated_images ) {
-		$global_images = [
-			'easyengine/nginx-proxy',
-			'easyengine/mariadb',
-			'easyengine/redis',
-			'easyengine/cron',
-		];
 
-		return array_intersect( $updated_images, $global_images );
+		$global_images           = self::get_all_global_images_with_service_name();
+		$running_global_services = [];
+		foreach ( $global_images as $image => $container_name ) {
+			if ( 'running' === \EE_DOCKER::container_status( $container_name ) ) {
+				$running_global_services[] = $image;
+			}
+		}
+
+		return array_intersect( $running_global_services, $updated_images );
 	}
 
 	/**
@@ -235,7 +237,7 @@ class GlobalContainers {
 			'easyengine/nginx-proxy' => EE_PROXY_TYPE,
 			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
-			'easyengine/cron'        => EE_CRON_SCHEDULER,
+			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
 		];
 	}
 }

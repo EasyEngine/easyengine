@@ -173,16 +173,13 @@ class Containers {
 		foreach ( $updated_global_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
 			$global_service_name   = str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) );
-
-			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
-				self::$rsp->add_step(
-					"upgrade-$global_container_name-container",
-					"EE\Migration\GlobalContainers::${global_service_name}_up",
-					"EE\Migration\GlobalContainers::${global_service_name}_down",
-					null,
-					null
-				);
-			}
+			self::$rsp->add_step(
+				"upgrade-$global_container_name-container",
+				"EE\Migration\GlobalContainers::${global_service_name}_up",
+				"EE\Migration\GlobalContainers::${global_service_name}_down",
+				null,
+				null
+			);
 		}
 	}
 
