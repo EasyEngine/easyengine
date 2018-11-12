@@ -56,7 +56,7 @@ class Containers {
 	 * @param $new_versions     array of new image version.
 	 * @param $updated_images   array of updated images.
 	 */
-	private static function save_upgraded_image_versions( $current_versions, $new_versions, $updated_images ) {
+	public static function save_upgraded_image_versions( $current_versions, $new_versions, $updated_images ) {
 
 		self::$rsp->add_step(
 			'save-image-verions-in-database',
@@ -105,7 +105,7 @@ class Containers {
 	 *
 	 * @throws \Exception
 	 */
-	private static function pull_or_error( $image, $version ) {
+	public static function pull_or_error( $image, $version ) {
 		if ( ! \EE::exec( "docker pull $image:$version" ) ) {
 			throw new \Exception( "Unable to pull $image. Please check logs for more details." );
 		}
@@ -117,7 +117,7 @@ class Containers {
 	 * @return array
 	 * @throws \Exception
 	 */
-	private static function get_current_docker_images_versions() {
+	public static function get_current_docker_images_versions() {
 		$images = EE::db()
 		            ->table( 'options' )
 		            ->where( 'key', 'like', 'easyengine/%' )
