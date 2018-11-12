@@ -177,8 +177,8 @@ class Containers {
 				"upgrade-$global_container_name-container",
 				"EE\Migration\GlobalContainers::global_service_up",
 				"EE\Migration\GlobalContainers::global_service_down",
-				$global_service_name,
-				$global_service_name
+				[  $global_service_name ],
+				[ $global_service_name ]
 			);
 		}
 	}
