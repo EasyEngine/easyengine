@@ -94,138 +94,34 @@ class GlobalContainers {
 	}
 
 	/**
-	 * Upgrades nginx-proxy container
+	 * Upgrade global service container.
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_nginx_proxy_up() {
-		EE::debug( 'Start ' . EE_PROXY_TYPE . ' container up' );
-		$default_conf_path = EE_ROOT_DIR . '/services/nginx-proxy/conf.d/default.conf';
-		$fs                = new \Symfony\Component\Filesystem\Filesystem();
-
-		if ( $fs->exists( $default_conf_path ) ) {
-			$fs->remove( $default_conf_path );
+	public static function global_service_up( $service_name ) {
+		EE::debug( 'Start ' . $service_name . ' container up' );
+		if ( 'global-nginx-proxy' === $service_name ) {
+			\EE\Service\Utils\nginx_proxy_check();
+		} else {
+			\EE\Service\Utils\init_global_container( $service_name );
 		}
-
-		chdir( EE_ROOT_DIR . '/services' );
-		if ( ! EE::exec( 'docker-compose up -d global-nginx-proxy ' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_PROXY_TYPE ) );
-		}
-		EE::debug( 'Complete ' . EE_PROXY_TYPE . ' container up' );;
 	}
 
 	/**
-	 * Remove nginx-proxy container
+	 * Remove upgraded global service container.
 	 *
 	 * @throws \Exception
 	 */
-	public static function global_nginx_proxy_down() {
-		EE::debug( 'Start ' . EE_PROXY_TYPE . ' container removing' );
+	public static function global_service_down( $service_name ) {
+		EE::debug( 'Start ' . $service_name . ' container removing' );
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec( 'docker-compose stop global-nginx-proxy && docker-compose rm -f global-nginx-proxy' ) ) {
-			throw new \Exception( sprintf( 'Unable to stop %1$s container', EE_PROXY_TYPE ) );
+		if ( ! EE::exec( "docker-compose stop $service_name && docker-compose rm -f $service_name" ) ) {
+			throw new \Exception( sprintf( 'Unable to remove %1$s container', $service_name ) );
 		}
-
-		$default_conf_path = EE_ROOT_DIR . '/services/nginx-proxy/conf.d/default.conf';
-		$fs                = new \Symfony\Component\Filesystem\Filesystem();
-
-		if ( $fs->exists( $default_conf_path ) ) {
-			$fs->remove( $default_conf_path );
-		}
-		EE::debug( 'Complete ' . EE_PROXY_TYPE . ' container removing' );
+		EE::debug( 'Complete ' . $service_name . ' container removing' );
 	}
 
-	/**
-	 * Upgrade global db container.
-	 *
-	 * @throws \Exception
-	 */
-	public static function global_db_up() {
-		EE::debug( 'Start ' . GLOBAL_DB_CONTAINER . ' container up' );
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose up -d global-db' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
-		}
-		EE::debug( 'Complete' . GLOBAL_DB_CONTAINER . ' container up' );
-	}
-
-	/**
-	 * Remove upgraded global db container.
-	 *
-	 * @throws \Exception
-	 */
-	public static function global_db_down() {
-		EE::debug( 'Start ' . GLOBAL_DB_CONTAINER . ' container removing' );
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose stop global-db && docker-compose rm -f global-db' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_DB_CONTAINER ) );
-		}
-		EE::debug( 'Complete ' . GLOBAL_DB_CONTAINER . ' container removing' );
-	}
-
-	/**
-	 * Remove ee-cron-scheduler container
-	 *
-	 * @throws \Exception
-	 */
-	public static function cron_scheduler_up() {
-		EE::debug( 'Start ' . EE_CRON_SCHEDULER . ' container up' );
-
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose up -d docker-compose' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
-		}
-		EE::debug( 'Complete ' . EE_CRON_SCHEDULER . ' container up' );
-	}
-
-	/**
-	 * Remove ee-cron-scheduler container
-	 *
-	 * @throws \Exception
-	 */
-	public static function cron_scheduler_down() {
-		EE::debug( 'Start ' . EE_CRON_SCHEDULER . ' container removing' );
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose stop cron-scheduler && docker-compose rm -f cron-scheduler' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', EE_CRON_SCHEDULER ) );
-		}
-		EE::debug( 'Complete ' . EE_CRON_SCHEDULER . ' container removing' );
-	}
-
-	/**
-	 * Upgrade global redis container.
-	 *
-	 * @throws \Exception
-	 */
-	public static function global_redis_up() {
-		EE::debug( 'Start ' . GLOBAL_REDIS_CONTAINER . ' container up' );
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose up -d global-redis' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
-		}
-		EE::debug( 'Complete ' . GLOBAL_REDIS_CONTAINER . ' container up' );
-	}
-
-	/**
-	 * Remove upgraded global redis container.
-	 *
-	 * @throws \Exception
-	 */
-	public static function global_redis_down() {
-		EE::debug( 'Start ' . GLOBAL_REDIS_CONTAINER . ' container removing' );
-		chdir( EE_ROOT_DIR . '/services' );
-
-		if ( ! EE::exec( 'docker-compose stop global-redis && docker-compose rm -f global-redis' ) ) {
-			throw new \Exception( sprintf( 'Unable to restart %1$s container', GLOBAL_REDIS_CONTAINER ) );
-		}
-		EE::debug( 'Complete ' . GLOBAL_REDIS_CONTAINER . ' container removing' );
-	}
 
 	/**
 	 * Get all global images with it's service name.

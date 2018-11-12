@@ -175,10 +175,10 @@ class Containers {
 			$global_service_name   = str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) );
 			self::$rsp->add_step(
 				"upgrade-$global_container_name-container",
-				"EE\Migration\GlobalContainers::${global_service_name}_up",
-				"EE\Migration\GlobalContainers::${global_service_name}_down",
-				null,
-				null
+				"EE\Migration\GlobalContainers::global_service_up",
+				"EE\Migration\GlobalContainers::global_service_down",
+				$global_service_name,
+				$global_service_name
 			);
 		}
 	}
