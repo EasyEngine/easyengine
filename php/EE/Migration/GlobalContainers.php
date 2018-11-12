@@ -30,22 +30,6 @@ class GlobalContainers {
 	}
 
 	/**
-	 * Take backup of current global docker-compose.yml file.
-	 *
-	 * @param $source_path string path of global docker-compose.yml
-	 * @param $dest_path   string path of backup file.
-	 *
-	 * @throws \Exception
-	 */
-	public static function backup_global_compose_file( $source_path, $dest_path ) {
-		EE::debug( 'Start backing up of global docker-compose.yml file' );
-		if ( ! EE::exec( "cp $source_path $dest_path" ) ) {
-			throw new \Exception( "Unable to find docker-compose.yml or couldn't create it's backup file. Ensure that EasyEngine has permission to create file there" );
-		}
-		EE::debug( 'Complete backing up of global docker-compose.yml file' );
-	}
-
-	/**
 	 * * Restore  backed up docker-compose.yml file.
 	 *
 	 * @param $source_path string path of backup file.
@@ -65,9 +49,8 @@ class GlobalContainers {
 			return;
 		}
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
-		if ( ! EE::exec( "mv $source_path $dest_path" ) ) {
-			throw new \Exception( 'Unable to restore backup of docker-compose.yml' );
-		}
+		$fs = new Filesystem();
+		$fs->copy( $source_path, $dest_path, true );
 
 		chdir( EE_ROOT_DIR . '/services' );
 

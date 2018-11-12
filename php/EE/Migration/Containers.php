@@ -147,7 +147,7 @@ class Containers {
 
 		self::$rsp->add_step(
 			'backup-global-docker-compose-file',
-			'EE\Migration\GlobalContainers::backup_global_compose_file',
+			'EE\Migration\SiteContainers::backup_restore',
 			'EE\Migration\GlobalContainers::revert_global_containers',
 			[ $global_compose_file_path, $global_compose_file_backup_path ],
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
