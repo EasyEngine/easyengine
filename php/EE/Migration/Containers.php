@@ -143,14 +143,14 @@ class Containers {
 		}
 
 		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
-		$global_compose_file_backup_path = EE_ROOT_DIR . '/services/docker-compose.yml.backup';
+		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
 
 		self::$rsp->add_step(
 			'backup-global-docker-compose-file',
 			'EE\Migration\GlobalContainers::backup_global_compose_file',
 			'EE\Migration\GlobalContainers::revert_global_containers',
 			[ $global_compose_file_path, $global_compose_file_backup_path ],
-			[ $global_compose_file_backup_path, $global_compose_file_path ]
+			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
 		);
 
 		self::$rsp->add_step(

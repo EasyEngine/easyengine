@@ -53,7 +53,17 @@ class GlobalContainers {
 	 *
 	 * @throws \Exception
 	 */
-	public static function revert_global_containers( $source_path, $dest_path ) {
+	public static function revert_global_containers( $source_path, $dest_path, $updated_images ) {
+
+		$services_to_regenerate = '';
+		$all_global_images      = self::get_all_global_images_with_service_name();
+		foreach ( $updated_global_images as $image_name ) {
+			$global_container_name  = $all_global_images[ $image_name ];
+			$services_to_regenerate .= str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) ) . ' ';
+		}
+		if ( empty( trim( $services_to_regenerate ) ) ) {
+			return;
+		}
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
 		if ( ! EE::exec( "mv $source_path $dest_path" ) ) {
 			throw new \Exception( 'Unable to restore backup of docker-compose.yml' );
@@ -61,7 +71,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec( 'docker-compose up -d' ) ) {
+		if ( ! EE::exec( 'docker-compose up -d ' . $services_to_regenerate ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		EE::debug( 'Complete restoring global docker-compose.yml file from backup' );
