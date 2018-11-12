@@ -172,7 +172,7 @@ class Containers {
 		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
 		foreach ( $updated_global_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) );
+			$global_service_name   = ltrim( $global_container_name, 'ee-' );
 			self::$rsp->add_step(
 				"upgrade-$global_container_name-container",
 				"EE\Migration\GlobalContainers::global_service_up",
