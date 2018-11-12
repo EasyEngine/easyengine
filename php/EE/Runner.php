@@ -69,7 +69,13 @@ class Runner {
 	 */
 	private function migrate() {
 		$rsp = new \EE\RevertableStepProcessor();
-		$rsp->add_step( 'ee-migrations', 'EE\Migration\Executor::execute_migrations' );
+
+		$version = Option::where( 'key', 'version' );
+		if ( ! empty( $version ) ) {
+			$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
+			$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
+		}
+		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
 		return $rsp->execute();
 	}
 
@@ -813,9 +819,15 @@ class Runner {
 		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
 
 		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
-			EE::error( 'It seems you\'re not running latest version. Please download and run latest version of EasyEngine.' );
+			if ( ! empty( $this->arguments ) && 'cli' === $this->arguments[0] ) {
+				EE::warning( 'It seems you\'re not running latest version. Update EasyEngine using `ee cli update --stable --yes`.' );
+			} else {
+				EE::error( 'It seems you\'re not running latest version.  Update EasyEngine using `ee cli update --stable --yes`.' );
+			}
 		} elseif ( $db_version !== $current_version ) {
 			EE::log( 'Executing migrations. This might take some time.' );
+			$this->trigger_migration( $current_version );
+		} elseif ( false !== strpos( $current_version, 'nightly' ) ) {
 			$this->trigger_migration( $current_version );
 		}
 	}
