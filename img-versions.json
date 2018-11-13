@@ -5,7 +5,6 @@
     "easyengine/nginx-proxy": "v4.0.0-rc.2",
     "easyengine/nginx": "v4.0.0-rc.1",
     "easyengine/php": "v4.0.0-rc.2",
-    "easyengine/phpmyadmin": "v4.0.0-rc.1",
-    "easyengine/postfix": "v4.0.0-rc.1",
+    "easyengine/postfix": "v4.0.0-rc.2",
     "easyengine/redis": "v4.0.0-rc.1"
 }
