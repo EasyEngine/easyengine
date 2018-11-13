@@ -96,7 +96,7 @@ class SiteContainers {
 	public static function generate_site_docker_compose_file( $site_info, $site_object ) {
 		$site_object->populate_site_info( $site_info['site_url'] );
 		EE::debug( "Start generating news docker-compose.yml for ${site_info['site_url']}" );
-		$site_object->dump_docker_compose_yml( [ 'nohttps' => $site_info['site_ssl'] ] );
+		$site_object->dump_docker_compose_yml( [ 'nohttps' => ! $site_info['site_ssl'] ] );
 		EE::debug( "Complete generating news docker-compose.yml for ${site_info['site_url']}" );
 	}
 
