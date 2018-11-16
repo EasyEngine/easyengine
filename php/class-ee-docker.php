@@ -281,4 +281,33 @@ class EE_DOCKER {
 
 		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
 	}
+
+	/**
+	 * Function to return minimal docker-compose `host:container` volume mounting array.
+	 *
+	 * @param array $extended_vols :
+	 *                             $extended_vols['name'] - Host path for docker-compose generation in linux
+	 *                             $extended_vols['path_to_symlink'] - Host path for docker-compose generation in
+	 *                             darwin.
+	 *                             $extended_vols['container_path'] - Path inside container, common for linux and
+	 *                             darwin.
+	 *                             $extended_vols['skip_darwin'] - if set to true skips that volume for darwin.
+	 *                             $extended_vols['skip_linux'] - if set to true skips that volume for linux.
+	 *
+	 * @return array having docker-compose `host:container` volume mounting.
+	 */
+	public static function get_mounting_volume_array( $extended_vols ) {
+
+		$volume_gen_key      = IS_DARWIN ? 'path_to_symlink' : 'name';
+		$skip_key            = IS_DARWIN ? 'skip_darwin' : 'skip_linux';
+		$final_mount_volumes = [];
+		foreach ( $extended_vols as $extended_vol ) {
+			if ( ! empty( $extended_vol[ $skip_key ] ) && true === $extended_vol[ $skip_key ] ) {
+				continue;
+			}
+			$final_mount_volumes[] = $extended_vol[ $volume_gen_key ] . ':' . $extended_vol['container_path'];
+		}
+
+		return $final_mount_volumes;
+	}
 }
