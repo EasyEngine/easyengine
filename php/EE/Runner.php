@@ -837,6 +837,7 @@ class Runner {
 			EE::error( 'There was some error while migrating. Please check logs.' );
 		}
 		Option::set( 'version', $version );
+		\EE\Service\Utils\set_nginx_proxy_version_conf();
 	}
 
 	/**
