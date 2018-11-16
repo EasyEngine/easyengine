@@ -153,8 +153,8 @@ class EE_DOCKER {
 	/**
 	 * Function to boot the containers.
 	 *
-	 * @param String $dir      Path to docker-compose.yml.
-	 * @param array  $services Services to bring up.
+	 * @param String $dir     Path to docker-compose.yml.
+	 * @param array $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
@@ -187,7 +187,7 @@ class EE_DOCKER {
 	/**
 	 * Function to destroy the containers.
 	 *
-	 * @param String $dir      Path to docker-compose.yml.
+	 * @param String $dir Path to docker-compose.yml.
 	 *
 	 * @return bool success.
 	 */
@@ -234,7 +234,10 @@ class EE_DOCKER {
 	 * @param string $prefix                Prefix by volumes have to be created.
 	 * @param array $volumes                The volumes to be created.
 	 *                                      $volumes[$key]['name'] => specifies the name of volume to be created.
-	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the created volume.
+	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the
+	 *                                      created volume.
+	 *                                      $volumes[$key]['skip_volume'] => if set to `true` will skip volume creation
+	 *                                      for that entry.
 	 * @param bool $update_to_docker_prefix Update the prefix in dockerized style.
 	 */
 	public static function create_volumes( $prefix, $volumes, $update_to_docker_prefix = true ) {
@@ -247,6 +250,9 @@ class EE_DOCKER {
 		$docker_root_dir = trim( $launch->stdout );
 
 		foreach ( $volumes as $volume ) {
+			if ( ! empty( $volume['skip_volume'] ) && true === $volume['skip_volume'] ) {
+				continue;
+			}
 			$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
 			EE::exec(
 				sprintf(
