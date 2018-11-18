@@ -5,22 +5,21 @@ namespace EE\Migration;
 use EE;
 use EE\Model\Migration;
 use EE\Utils;
-use Symfony\Component\Finder\Finder;
 
-class Executor {
+class CustomContainerMigrations {
 
 	/**
-	 * Executes all pending migrations
+	 * Executes pending migrations of container.
 	 */
 	public static function execute_migrations() {
 
 		Utils\delem_log( 'ee migration start' );
-		EE::debug( 'Executing migrations' );
+		EE::debug( 'Executing custom container migrations' );
 
 		$migrations = self::get_all_migrations();
 
 		if ( empty( $migrations ) ) {
-			EE::debug( 'Nothing to migrate' );
+			EE::debug( 'No custom container migration' );
 			return;
 		}
 
@@ -50,7 +49,7 @@ class Executor {
 					continue;
 				}
 
-				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/db';
+				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/container';
 				if ( is_dir( $migration_path ) ) {
 					$files = scandir( $migration_path );
 					if ( \EE\Utils\inside_phar() ) {
@@ -63,8 +62,8 @@ class Executor {
 		}
 
 		// get migrations from core.
-		if ( is_dir( EE_ROOT . '/migrations' ) ) {
-			$files = scandir( EE_ROOT . '/migrations/db' );
+		if ( is_dir( EE_ROOT . '/migrations/container' ) ) {
+			$files = scandir( EE_ROOT . '/migrations/container' );
 			if ( \EE\Utils\inside_phar() ) {
 				$migrations[] = $files;
 			} else {
@@ -89,6 +88,11 @@ class Executor {
 	/**
 	 * Executes all migrations passed to it recursively.
 	 * Also undo'es all migration if there was error executing any migration
+	 *
+	 * @param $migrations array of new migrations.
+	 *
+	 * @throws EE\ExitException
+	 * @throws \Throwable
 	 */
 	private static function execute_migration_stack( $migrations ) {
 		if ( empty( $migrations ) ) {
@@ -121,7 +125,7 @@ class Executor {
 
 			Migration::create( [
 				'migration' => $migrations[0],
-				'type'      => 'db',
+				'type'      => 'container',
 				'timestamp' => date( 'Y-m-d H:i:s' ),
 			] );
 
@@ -147,11 +151,12 @@ class Executor {
 	}
 
 	/**
-	 *  Get migrations need to be executed.
+	 * Get migrations to be executed.
 	 *
-	 * @param $path path to the migration directory.
+	 * @param $migrations array of all migrations.
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	private static function get_migrations_to_execute( $migrations ) {
 		return array_values(
@@ -165,10 +170,11 @@ class Executor {
 	/**
 	 * Get already migrated migrations from database.
 	 *
-	 * @return array
+	 * @return array|void
+	 * @throws \Exception
 	 */
 	private static function get_migrations_from_db() {
-		return array_column( Migration::where( 'type', 'db' ), 'migration' );
+		return array_column( Migration::where( 'type', 'container' ), 'migration' );
 	}
 
 	/**
@@ -185,13 +191,20 @@ class Executor {
 			return '';
 		}
 		if ( 'easyengine' === $matches[1] ) {
-			return EE_ROOT . "/migrations/db/$migration_name";
+			return EE_ROOT . "/migrations/container/$migration_name";
 		} else {
-			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/db/$migration_name";
+			return EE_ROOT . "/vendor/easyengine/$matches[1]/migrations/container/$migration_name";
 		}
 
 	}
 
+	/**
+	 * Get class name from name of migration file.
+	 *
+	 * @param $migration_name string name of migration file.
+	 *
+	 * @return string
+	 */
 	private static function get_migration_class_name( $migration_name ) {
 		// Remove date and package name from it
 		$class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', rtrim( $migration_name, '.php' ) );
@@ -203,6 +216,14 @@ class Executor {
 		return "\EE\Migration\\$class_name";
 	}
 
+	/**
+	 * Convert string in camelcase format.
+	 *
+	 * @param        $input     string to be camelized.
+	 * @param string $separator string of separator.
+	 *
+	 * @return mixed
+	 */
 	private static function camelize( $input, $separator = '_' ) {
 		return str_replace( $separator, '', ucwords( $input, $separator ) );
 	}

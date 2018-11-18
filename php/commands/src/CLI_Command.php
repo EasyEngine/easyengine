@@ -1,9 +1,9 @@
 <?php
 
-use \Composer\Semver\Comparator;
-use \Symfony\Component\Filesystem\Filesystem;
-use \EE\Utils;
-use \EE\Model\Site;
+use Composer\Semver\Comparator;
+use EE\Model\Site;
+use EE\Utils;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -154,20 +154,6 @@ class CLI_Command extends EE_Command {
 				\EE::line( $line );
 			}
 		}
-
-		if ( '/tmp' === getcwd() ) {
-			$this->migrate();
-		}
-	}
-
-	/**
-	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
-	 */
-	private function migrate() {
-		$rsp = new \EE\RevertableStepProcessor();
-		$rsp->add_step( 'ee-migrations', 'EE\Migration\Executor::execute_migrations' );
-		$rsp->add_step( 'site-migration', 'EE\Migration\Containers::start_container_migration' );
-		$rsp->execute();
 	}
 
 	/**
@@ -319,8 +305,11 @@ class CLI_Command extends EE_Command {
 		} else {
 			EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
 		}
+
+		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
+
 		$php_binary = Utils\get_php_binary();
-		$process    = EE\Process::create( "{$php_binary} $temp cli info" );
+		$process    = EE\Process::create( "{$php_binary} $temp cli info", null, null );
 		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );

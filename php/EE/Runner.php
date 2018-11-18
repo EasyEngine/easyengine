@@ -2,13 +2,15 @@
 
 namespace EE;
 
+use Composer\Semver\Comparator;
 use EE;
-use EE\Utils;
 use EE\Dispatcher;
 use EE\Dispatcher\CompositeCommand;
-use Mustangostang\Spyc;
+use EE\Model\Option;
+use EE\Utils;
 use Monolog\Logger;
-use EE\Model\Site;
+use Mustangostang\Spyc;
+
 /**
  * Performs the execution of a command.
  *
@@ -49,16 +51,32 @@ class Runner {
 	 */
 	private function init_ee() {
 
-		$this->ensure_present_in_config( 'sites_path', Utils\get_home_dir(). '/ee-sites' );
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
-		if ( ! is_dir( $this->config['sites_path'] ) ) {
-			mkdir( $this->config['sites_path'] );
-		}
-		define( 'WEBROOT', \EE\Utils\trailingslashit( $this->config['sites_path'] ) );
-		define( 'DB', EE_CONF_ROOT.'/ee.sqlite' );
+		define( 'DB', EE_ROOT_DIR.'/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+
+		$db_dir = dirname( DB );
+		if ( ! is_dir( $db_dir ) ) {
+			mkdir( $db_dir );
+		}
+		$this->maybe_trigger_migration();
+	}
+
+	/**
+	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
+	 */
+	private function migrate() {
+		$rsp = new \EE\RevertableStepProcessor();
+
+		$version = Option::where( 'key', 'version' );
+		if ( ! empty( $version ) ) {
+			$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
+			$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
+		}
+		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
+		return $rsp->execute();
 	}
 
 	/**
@@ -116,7 +134,7 @@ class Runner {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 			$this->_global_config_path_debug = 'Using global config from EE_CONFIG_PATH env var: ' . $config_path;
 		} else {
-			$config_path = EE_CONF_ROOT . '/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 			$this->_global_config_path_debug = 'Using default global config: ' . $config_path;
 		}
 
@@ -170,7 +188,7 @@ class Runner {
 		if ( getenv( 'EE_PACKAGES_DIR' ) ) {
 			$packages_dir = Utils\trailingslashit( getenv( 'EE_PACKAGES_DIR' ) );
 		} else {
-			$packages_dir = EE_CONF_ROOT . '/packages';
+			$packages_dir = EE_ROOT_DIR . '/packages';
 		}
 		return $packages_dir;
 	}
@@ -478,25 +496,25 @@ class Runner {
 		EE::set_logger( $logger );
 
 		// Create the config directory if not exist for file logger to initialize.
-		if ( ! is_dir( EE_CONF_ROOT ) ) {
-			shell_exec('mkdir -p ' . EE_CONF_ROOT);
+		if ( ! is_dir( EE_ROOT_DIR ) ) {
+			shell_exec('mkdir -p ' . EE_ROOT_DIR);
 		}
 
-		if ( ! is_writable( EE_CONF_ROOT ) ) {
-			EE::err( 'Config root: ' . EE_CONF_ROOT . ' is not writable by EasyEngine' );
+		if ( ! is_writable( EE_ROOT_DIR ) ) {
+			EE::err( 'Config root: ' . EE_ROOT_DIR . ' is not writable by EasyEngine' );
 		}
 
 		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
 			$file_logging_path = '/dev/null';
 		}
 		else {
-			$file_logging_path = EE_CONF_ROOT . '/ee.log';
+			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_CONF_ROOT . '/ee.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( EE_ROOT_DIR . '/logs/ee.log', Logger::DEBUG );
 		$stream->setFormatter( $formatter );
 		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );
@@ -546,54 +564,6 @@ class Runner {
 				unset( $assoc_args['version'] );
 			}
 
-			if ( isset( $args[0] ) && 'site' === $args[0] ) {
-
-				$ee3_compat_array_map_to_type = [
-					'wp'       => [ 'type' => 'wp' ],
-					'wpsubdom' => [ 'type' => 'wp', 'mu' => 'subdom' ],
-					'wpsubdir' => [ 'type' => 'wp', 'mu' => 'subdir' ],
-					'wpredis'  => [ 'type' => 'wp', 'cache' => true ],
-					'html'     => [ 'type' => 'html' ],
-				];
-
-				foreach ( $ee3_compat_array_map_to_type as $from => $to ) {
-					if ( isset( $assoc_args[ $from ] ) ) {
-						$assoc_args = array_merge( $assoc_args, $to );
-						unset( $assoc_args[ $from ] );
-					}
-				}
-
-				// ee3 backward compatibility flags
-				$wp_compat_array_map = [
-					'user'  => 'admin_user',
-					'pass'  => 'admin_pass',
-					'email' => 'admin_email',
-					'le'    => 'letsencrypt',
-				];
-
-				foreach ( $wp_compat_array_map as $from => $to ) {
-					if ( isset( $assoc_args[ $from ] ) ) {
-						$assoc_args[ $to ] = $assoc_args[ $from ];
-						unset( $assoc_args[ $from ] );
-					}
-				}
-
-				// backward compatibility message
-				$unsupported_create_old_args = array(
-					'w3tc',
-					'wpsc',
-					'wpfc',
-					'pagespeed',
-				);
-
-				$old_arg = array_intersect( $unsupported_create_old_args, array_keys( $assoc_args ) );
-
-				$old_args = implode( ' --', $old_arg );
-				if ( isset( $args[1] ) && 'create' === $args[1] && ! empty ( $old_arg ) ) {
-					\EE::error( "Sorry, --$old_args flag/s is/are no longer supported in EE v4.\nPlease run `ee help " . implode( ' ', $args ) . '`.' );
-				}
-			}
-
 			list( $this->arguments, $this->assoc_args ) = [ $args, $assoc_args ];
 
 			$configurator->merge_array( $this->runtime_config );
@@ -617,11 +587,15 @@ class Runner {
 	 * @param $default Default value to use if $var is not set.
 	 */
 	public function ensure_present_in_config( $var, $default ) {
-		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_CONF_ROOT . '/config.yml';
+		$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
 		$existing_config  = Spyc::YAMLLoad( $config_file_path );
 		if ( ! isset( $existing_config[$var] ) ) {
 			$this->config[$var] = $default;
 			$config_dir_path    = dirname( $config_file_path );
+
+			if ( ! is_dir( $config_dir_path ) ) {
+				mkdir( $config_dir_path, 0777, true );
+			}
 
 			if ( file_exists( $config_file_path ) ) {
 				if ( is_readable( $config_file_path ) ) {
@@ -663,7 +637,7 @@ class Runner {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_CONF_ROOT . '/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
@@ -824,6 +798,46 @@ class Runner {
 		EE::run_command( array( 'cli', 'update' ) );
 		// If the Phar was replaced, we can't proceed with the original process.
 		exit;
+	}
+
+	/**
+	 * Triggers migration if current phar version > version in ee_option table.
+	 * Also, trigger migrations if phar version >= version in ee_option table but nightly version differ.
+	 */
+	private function maybe_trigger_migration() {
+
+		$db_version      = Option::get( 'version' );
+		$current_version = EE_VERSION;
+
+		if ( ! $db_version ) {
+			$this->trigger_migration( $current_version );
+
+			return;
+		}
+
+		$base_db_version      = preg_replace( '/-nightly.*$/', '', $db_version );
+		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
+
+		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
+			if ( ! empty( $this->arguments ) && 'cli' === $this->arguments[0] ) {
+				EE::warning( 'It seems you\'re not running latest version. Update EasyEngine using `ee cli update --stable --yes`.' );
+			} else {
+				EE::error( 'It seems you\'re not running latest version.  Update EasyEngine using `ee cli update --stable --yes`.' );
+			}
+		} elseif ( $db_version !== $current_version ) {
+			EE::log( 'Executing migrations. This might take some time.' );
+			$this->trigger_migration( $current_version );
+		} elseif ( false !== strpos( $current_version, 'nightly' ) ) {
+			$this->trigger_migration( $current_version );
+		}
+	}
+
+	private function trigger_migration( $version ) {
+		if ( ! $this->migrate() ) {
+			EE::error( 'There was some error while migrating. Please check logs.' );
+		}
+		Option::set( 'version', $version );
+		\EE\Service\Utils\set_nginx_proxy_version_conf();
 	}
 
 	/**

@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
+use Mustangostang\Spyc;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -1508,19 +1509,27 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  * # +------+--------+
  * ```
  *
- * @param array $items An array of items to output.
+ * @param array $items   An array of items to output.
+ * @param bool $log_data To log table in file or not.
  *
  */
-function format_table( $items ) {
+function format_table( $items, $log_in_file = false ) {
 	$item_table = new \cli\Table();
 	$item_table->setRows( $items );
 	$item_table->setRenderer( new \cli\table\Ascii() );
 	$lines = array_slice( $item_table->getDisplayLines(), 3 );
 	array_pop( $lines );
 	$delem = $item_table->getDisplayLines()[0];
-	foreach ( $lines as $line ) {
-		\EE::log( $delem );
-		\EE::log( $line );
+	if ( $log_in_file ) {
+		foreach ( $lines as $line ) {
+			\EE::log( $delem );
+			\EE::log( $line );
+		}
+	} else {
+		foreach ( $lines as $line ) {
+			\EE::line( $delem );
+			\EE::line( $line );
+		}
 	}
 	\EE::log( $delem );
 }
@@ -1585,4 +1594,49 @@ function get_image_versions() {
 	}
 
 	return $img_versions;
+}
+
+/**
+ * Function to get httpcode or port occupancy info.
+ *
+ * @param string $url     url to get info about.
+ * @param int $port       The port to check.
+ * @param bool $port_info Return port info or httpcode.
+ * @param mixed $auth     Send http auth with passed value if not false.
+ *
+ * @return bool|int port occupied or httpcode.
+ */
+function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
+
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_HEADER, true );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $ch, CURLOPT_PORT, $port );
+	if ( $auth ) {
+		curl_setopt( $ch, CURLOPT_USERPWD, $auth );
+	}
+	curl_exec( $ch );
+	if ( $port_info ) {
+		return empty( curl_getinfo( $ch, CURLINFO_PRIMARY_IP ) );
+	}
+
+	return curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+}
+
+/**
+ * Function to get config value for a given key.
+ *
+ * @param string $key          Key to search in config file.
+ * @param string|null $default Default value of the given key.
+ *
+ * @return string|null value of the asked key.
+ */
+function get_config_value( $key, $default = null ) {
+
+	$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	$existing_config  = Spyc::YAMLLoad( $config_file_path );
+
+	return empty( $existing_config[ $key ] ) ? $default : $existing_config[ $key ];
 }
