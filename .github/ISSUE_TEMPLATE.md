@@ -4,6 +4,6 @@ If you feel the issue is a EasyEngine specific issue, please attach the output o
 
 System Information
 - [ ] ee cli info
-- [ ] docker -v
+- [ ] lsb_release -a
 - [ ] docker version
 - [ ] docker-compose version
