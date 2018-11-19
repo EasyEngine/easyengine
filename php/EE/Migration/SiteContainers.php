@@ -183,6 +183,16 @@ class SiteContainers {
 	}
 
 	/**
+	 * Function to delete file/directory.
+	 *
+	 * @param string|array $path_to_delete File(s)/Director(y/ies) to be deleted.
+	 */
+	public static function delete( $path_to_delete ) {
+		$fs = new Filesystem();
+		$fs->remove( $path_to_delete );
+	}
+
+	/**
 	 * Function to reload site's nginx.
 	 *
 	 * @param string $site_fs_path   Directory containing site's docker-compose.yml.
