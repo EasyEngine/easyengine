@@ -27,13 +27,13 @@ class InsertDockerImagesVersion extends Base {
 	 */
 	public function up() {
 
-		EE::log( 'Checking/Pulling required images' );
+		EE::log( 'Checking and Pulling required images. This may take some time.' );
 		$images = EE\Utils\get_image_versions();
 
 		$query = '';
 		foreach ( $images as $image => $tag ) {
-			EE::debug( "Checking/Pulling docker image $image:$tag" );
-			if ( ! \EE::exec( "docker pull ${image}:${tag}" ) ) {
+			EE::log( "Checking and Pulling docker image $image:$tag" );
+			if ( ! \EE::exec( "docker pull ${image}:${tag}", true, true ) ) {
 				throw new \Exception( "Unable to pull ${image}:${tag}. Please check logs for more details." );
 			}
 			$query .= "INSERT INTO options VALUES( '${image}', '${tag}' );";
