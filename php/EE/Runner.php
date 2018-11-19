@@ -85,12 +85,9 @@ class Runner {
 	private function migrate() {
 		$rsp = new \EE\RevertableStepProcessor();
 
-		$version = Option::where( 'key', 'version' );
-		if ( ! empty( $version ) ) {
-			$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
-			$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
-		}
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
+		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
+		$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
 		return $rsp->execute();
 	}
 
