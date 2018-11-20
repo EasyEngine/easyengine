@@ -65,7 +65,8 @@ class Runner {
 		if (
 			! empty( $this->arguments ) &&
 		     ( ! in_array( $this->arguments[0], [ 'cli', 'help' ], true ) ||
-		       $this->arguments === [ 'cli', 'update' ] )
+			   $this->arguments === [ 'cli', 'update' ] ||
+			   $this->arguments === [ 'cli', 'self-uninstall' ] )
 		) {
 
 			// Minimum requirement checks.
