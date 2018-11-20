@@ -64,10 +64,10 @@ class Runner {
 
 		if (
 			! empty( $this->arguments ) &&
-		     ( ! in_array( $this->arguments[0], [ 'cli', 'help' ], true ) ||
-			   $this->arguments === [ 'cli', 'update' ] ||
-			   $this->arguments === [ 'cli', 'self-uninstall' ] )
-		) {
+			 ( 'help' !== $this->arguments[0] )
+			 && $this->arguments !== [ 'cli', 'version' ]
+			)
+		 {
 
 			// Minimum requirement checks.
 			$docker_running = 'docker ps > /dev/null';
