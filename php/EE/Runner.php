@@ -51,21 +51,6 @@ class Runner {
 	 */
 	private function init_ee() {
 
-		// Minimum requirement checks.
-		$docker_running = 'docker ps > /dev/null';
-		if ( ! EE::exec( $docker_running ) ) {
-			EE::error( 'docker not installed or not running.' );
-		}
-
-		$docker_compose_installed = 'command -v docker-compose > /dev/null';
-		if ( ! EE::exec( $docker_compose_installed ) ) {
-			EE::error( 'EasyEngine requires docker-compose.' );
-		}
-
-		if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
-			EE::error( 'EasyEngine requires minimum PHP 7.2.0 to run.' );
-		}
-
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
@@ -76,7 +61,30 @@ class Runner {
 		if ( ! is_dir( $db_dir ) ) {
 			mkdir( $db_dir );
 		}
-		$this->maybe_trigger_migration();
+
+		if (
+			! empty( $this->arguments ) &&
+		     ( ! in_array( $this->arguments[0], [ 'cli', 'help' ], true ) ||
+		       $this->arguments === [ 'cli', 'update' ] )
+		) {
+
+			// Minimum requirement checks.
+			$docker_running = 'docker ps > /dev/null';
+			if ( ! EE::exec( $docker_running ) ) {
+				EE::error( 'docker not installed or not running.' );
+			}
+
+			$docker_compose_installed = 'command -v docker-compose > /dev/null';
+			if ( ! EE::exec( $docker_compose_installed ) ) {
+				EE::error( 'EasyEngine requires docker-compose.' );
+			}
+
+			if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
+				EE::error( 'EasyEngine requires minimum PHP 7.2.0 to run.' );
+			}
+
+			$this->maybe_trigger_migration();
+		}
 	}
 
 	/**
