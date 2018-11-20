@@ -857,8 +857,10 @@ class Runner {
 		if ( ! $this->migrate() ) {
 			EE::error( 'There was some error while migrating. Please check logs.' );
 		}
-		Option::set( 'version', $version );
-		\EE\Service\Utils\set_nginx_proxy_version_conf();
+		if ( $version !== Option::get( 'version' ) ) {
+			Option::set( 'version', $version );
+			\EE\Service\Utils\set_nginx_proxy_version_conf();
+		}
 	}
 
 	/**
