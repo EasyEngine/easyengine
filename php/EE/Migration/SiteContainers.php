@@ -111,7 +111,7 @@ class SiteContainers {
 	public static function enable_site( $site_info, $site_object ) {
 		EE::debug( "Start enabling ${site_info['site_url']}" );
 		try {
-			$site_object->enable( [ $site_info['site_url'] ], [], false );
+			$site_object->enable( [ $site_info['site_url'] ], [ 'force' => true ], false );
 		} catch ( \Exception $e ) {
 			throw new \Exception( $e->getMessage() );
 		}
