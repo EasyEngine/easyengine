@@ -1,0 +1,88 @@
+{
+    "name": "easyengine/easyengine",
+    "description": "The command line interface for EasyEngine",
+    "keywords": [
+        "cli",
+        "easyengine"
+    ],
+    "homepage": "https://easyengine.io",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/easyengine/easyengine/issues",
+        "source": "https://github.com/easyengine/easyengine",
+        "docs": "https://easyengine.io/docs/"
+    },
+    "bin": [
+        "bin/ee"
+    ],
+    "config": {
+        "platform": {
+            "php": "7.1"
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=7.0",
+        "composer/composer": "^1.2.0",
+        "composer/semver": "~1.0",
+        "easyengine/admin-tools-command": "v1.0.0",
+        "easyengine/auth-command": "v1.0.0",
+        "easyengine/config-command": "v1.0.0-rc.1",
+        "easyengine/cron-command": "v1.0.0-rc.2",
+        "easyengine/mailhog-command": "v1.0.0",
+        "easyengine/site-command": "v2.2.2",
+        "easyengine/site-type-wp": "v1.0.0",
+        "easyengine/site-type-php": "v1.0.0",
+        "easyengine/service-command": "v1.0.0",
+        "easyengine/shell-command" : "v1.0.0-rc.1",
+        "justinrainbow/json-schema": "~5.2.5",
+        "monolog/monolog": "^1.23",
+        "mustache/mustache": "~2.4",
+        "rmccue/requests": "~1.6",
+        "symfony/config": "^2.7|^3.0",
+        "symfony/console": "^2.7|^3.0",
+        "symfony/debug": "^2.7|^3.0",
+        "symfony/dependency-injection": "^2.7|^3.0",
+        "symfony/event-dispatcher": "^2.7|^3.0",
+        "symfony/filesystem": "^2.7|^3.0",
+        "symfony/finder": "^2.7|^3.0",
+        "symfony/process": "^2.1|^3.0",
+        "symfony/translation": "^2.7|^3.0",
+        "symfony/yaml": "^2.7|^3.0",
+        "wp-cli/autoload-splitter": "^0.1.5",
+        "wp-cli/mustangostang-spyc": "^0.6.3",
+        "wp-cli/php-cli-tools": "~0.11.2"
+    },
+    "require-dev": {
+        "behat/behat": "3.4.*",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.3",
+        "phpunit/phpunit": "3.7.*",
+        "roave/security-advisories": "dev-master",
+        "wimg/php-compatibility": "^8.0",
+        "wp-coding-standards/wpcs": "^0.13.1"
+    },
+    "suggest": {
+        "psy/psysh": "Enhanced shell functionality"
+    },
+    "autoload": {
+        "psr-0": {
+            "EE": "php"
+        },
+        "psr-4": {
+            "": "php/commands/src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.5.x-dev"
+        },
+        "autoload-splitter": {
+            "splitter-logic": "EE\\AutoloadSplitter",
+            "splitter-location": "php/EE/AutoloadSplitter.php",
+            "split-target-prefix-true": "autoload_commands",
+            "split-target-prefix-false": "autoload_framework"
+        }
+    }
+}

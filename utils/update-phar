@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -ex
+
+version=${1-"same"}
+
+packages_repo=../ee-packages
+mkdir -p "$packages_repo/phar"
+
+fname="phar/ee.phar"
+
+# generate archive
+php -dphar.readonly=0 ./utils/make-phar.php $packages_repo/$fname --quiet --version=$version --store-version
+
+cd $packages_repo
+
+# smoke test
+php $fname cli version
