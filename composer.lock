@@ -660,12 +660,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "0e7537e98b21b92fcf4492981e38643e1f94809d"
+                "reference": "e9c6374a997d31f9f9584b636e25bc009640bd8d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/0e7537e98b21b92fcf4492981e38643e1f94809d",
-                "reference": "0e7537e98b21b92fcf4492981e38643e1f94809d",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/e9c6374a997d31f9f9584b636e25bc009640bd8d",
+                "reference": "e9c6374a997d31f9f9584b636e25bc009640bd8d",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -745,12 +745,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "687801e8357ee8bfbd17ee943af47efb443290d6"
+                "reference": "49222c5fc19f96be5beec5833b9d720163b16e28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/687801e8357ee8bfbd17ee943af47efb443290d6",
-                "reference": "687801e8357ee8bfbd17ee943af47efb443290d6",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/49222c5fc19f96be5beec5833b9d720163b16e28",
+                "reference": "49222c5fc19f96be5beec5833b9d720163b16e28",
                 "shasum": ""
             },
             "require": {
@@ -804,12 +804,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "e776037e6bc99ce6bbb588d6332b5be4d8360b80"
+                "reference": "019e3d9ae678b5b179ef5ca9541a4d43bf4e3856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/e776037e6bc99ce6bbb588d6332b5be4d8360b80",
-                "reference": "e776037e6bc99ce6bbb588d6332b5be4d8360b80",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/019e3d9ae678b5b179ef5ca9541a4d43bf4e3856",
+                "reference": "019e3d9ae678b5b179ef5ca9541a4d43bf4e3856",
                 "shasum": ""
             },
             "require-dev": {
@@ -844,12 +844,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "fb2bcbe5aa3eb33fe3f111c746ba626d31e6f10f"
+                "reference": "96a13b42fb64ac857071079557e01268e71f4c4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/fb2bcbe5aa3eb33fe3f111c746ba626d31e6f10f",
-                "reference": "fb2bcbe5aa3eb33fe3f111c746ba626d31e6f10f",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/96a13b42fb64ac857071079557e01268e71f4c4f",
+                "reference": "96a13b42fb64ac857071079557e01268e71f4c4f",
                 "shasum": ""
             },
             "require-dev": {
@@ -1446,16 +1446,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.0.2",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-                "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+                "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
                 "shasum": ""
             },
             "require": {
@@ -1489,7 +1489,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10T12:19:37+00:00"
+            "time": "2018-11-20T15:27:04+00:00"
         },
         {
             "name": "rmccue/requests",
@@ -3283,12 +3283,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "fd696a6dc1b30ec46ec4ca16831ca24ef22bb970"
+                "reference": "d71acf1340f7fb24b3469a892c130263c08e0a43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/fd696a6dc1b30ec46ec4ca16831ca24ef22bb970",
-                "reference": "fd696a6dc1b30ec46ec4ca16831ca24ef22bb970",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/d71acf1340f7fb24b3469a892c130263c08e0a43",
+                "reference": "d71acf1340f7fb24b3469a892c130263c08e0a43",
                 "shasum": ""
             },
             "conflict": {
@@ -3363,6 +3363,7 @@
                 "paragonie/random_compat": "<2",
                 "paypal/merchant-sdk-php": "<3.12",
                 "phpmailer/phpmailer": ">=5,<5.2.27|>=6,<6.0.6",
+                "phpoffice/phpspreadsheet": "<=1.5",
                 "phpunit/phpunit": ">=4.8.19,<4.8.28|>=5.0.10,<5.6.3",
                 "phpwhois/phpwhois": "<=4.2.5",
                 "phpxmlrpc/extras": "<0.6.1",
@@ -3471,7 +3472,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-11-16T03:31:38+00:00"
+            "time": "2018-11-21T13:18:22+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
