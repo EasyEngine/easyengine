@@ -309,7 +309,7 @@ class CLI_Command extends EE_Command {
 		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
 
 		$php_binary = Utils\get_php_binary();
-		$process    = EE\Process::create( "{$php_binary} $temp cli info" );
+		$process    = EE\Process::create( "{$php_binary} $temp cli info", null, null );
 		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );
@@ -507,8 +507,7 @@ class CLI_Command extends EE_Command {
 			$fs->remove( $sites_paths );
 		}
 
-		EE::exec( "rm -df $home/ee-sites/" );
-		EE::exec( "rm -rf /opt/easyengine/" );
+		EE::exec( "rm -rf " . EE_ROOT_DIR );
 
 		if ( Utils\inside_phar() ) {
 			unlink( realpath( $_SERVER['argv'][0] ) );
