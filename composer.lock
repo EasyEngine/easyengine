@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "db5360d5481a14c4735e65361adb0e64",
+    "content-hash": "8485fde92407e0e273c9d97a0cab5248",
     "packages": [
         {
             "name": "acmephp/core",
@@ -528,7 +528,7 @@
         },
         {
             "name": "easyengine/config-command",
-            "version": "v1.0.0-rc.1",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/config-command.git",
@@ -568,7 +568,7 @@
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v1.0.0-rc.2",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
@@ -660,12 +660,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "547de8e72d1e2ff8cae1746c3f56f8d362042b79"
+                "reference": "f24d29b33935341501de8912fd4f57b550af0aa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/547de8e72d1e2ff8cae1746c3f56f8d362042b79",
-                "reference": "547de8e72d1e2ff8cae1746c3f56f8d362042b79",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/f24d29b33935341501de8912fd4f57b550af0aa2",
+                "reference": "f24d29b33935341501de8912fd4f57b550af0aa2",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -697,11 +697,11 @@
             ],
             "description": "Command to manager global containers/services in EasyEngine",
             "homepage": "https://github.com/easyengine/service-command",
-            "time": "2018-11-20T12:41:28+00:00"
+            "time": "2018-11-21T20:12:21+00:00"
         },
         {
             "name": "easyengine/shell-command",
-            "version": "v1.0.0-rc.1",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/shell-command.git",
@@ -745,12 +745,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "49222c5fc19f96be5beec5833b9d720163b16e28"
+                "reference": "2a116036821a347fa460d8267fcf705fa19b751b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/49222c5fc19f96be5beec5833b9d720163b16e28",
-                "reference": "49222c5fc19f96be5beec5833b9d720163b16e28",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/2a116036821a347fa460d8267fcf705fa19b751b",
+                "reference": "2a116036821a347fa460d8267fcf705fa19b751b",
                 "shasum": ""
             },
             "require": {
@@ -796,7 +796,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-11-20T13:08:35+00:00"
+            "time": "2018-11-21T21:50:58+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -836,7 +836,7 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-11-20T12:58:39+00:00"
+            "time": "2018-11-21T15:23:51+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
@@ -888,7 +888,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2018-11-20T12:58:28+00:00"
+            "time": "2018-11-21T15:25:08+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -3280,17 +3280,6 @@
         {
             "name": "roave/security-advisories",
             "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "d71acf1340f7fb24b3469a892c130263c08e0a43"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/d71acf1340f7fb24b3469a892c130263c08e0a43",
-                "reference": "d71acf1340f7fb24b3469a892c130263c08e0a43",
-                "shasum": ""
-            },
             "conflict": {
                 "3f/pygmentize": "<1.2",
                 "adodb/adodb-php": "<5.20.12",

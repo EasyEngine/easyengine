@@ -12,7 +12,7 @@ if [ -z $DEPLOY_BRANCH ]; then
 	exit
 fi
 
-if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "develop-v4" ]]; then
+if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "develop" ]]; then
 	echo "Skipping deployment as '$TRAVIS_BRANCH' is not a deploy branch."
 	exit
 fi
@@ -36,7 +36,7 @@ git config user.name "Travis CI"
 git config user.email "travis@travis-ci.org"
 git config push.default "current"
 
-if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
+if [[ "$TRAVIS_BRANCH" == "develop" ]]; then
 	fname="phar/easyengine-nightly.phar"
 else
 	fname="phar/easyengine.phar"

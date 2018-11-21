@@ -18,14 +18,14 @@ before_install:
     fi
   - |
     # Update commands in composer.json to develop if branch is not master.
-    if [[ "$TRAVIS_BRANCH" != "master-v4" ]]; then
+    if [[ "$TRAVIS_BRANCH" != "master" ]]; then
       sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
     fi
 
 install:
   - |
     # Run composer install for master else update.
-    if [[ "$TRAVIS_BRANCH" = "master-v4" ]]; then
+    if [[ "$TRAVIS_BRANCH" = "master" ]]; then
       composer install --no-interaction
     else
       composer update
@@ -47,7 +47,7 @@ after_script:
 jobs:
   include:
     - stage: deploy
-      env: DEPLOY_BRANCH=master-v4
+      env: DEPLOY_BRANCH=master
       after_success: ./ci/deploy.sh
 
 cache:
@@ -56,8 +56,8 @@ cache:
 
 branches:
   only:
-    - develop-v4
-    - master-v4
+    - develop
+    - master
 
 notifications:
   email:
