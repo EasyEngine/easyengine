@@ -1,9 +1,9 @@
 This issue tracker is only for issues related to EasyEngine. Please use http://community.rtcamp.com/c/easyengine for support questions.
 
-If you feel the issue is a EasyEngine core specific issue, please attach the output of the following commands.
+If you feel the issue is a EasyEngine specific issue, please attach the output of the following commands.
 
 System Information
+- [ ] ee cli info
 - [ ] lsb_release -a
-- [ ] ee -v
-- [ ] ee info
-- [ ] wp --allow-root --info
+- [ ] docker version
+- [ ] docker-compose version

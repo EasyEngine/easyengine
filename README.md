@@ -1,122 +1,110 @@
-# [EasyEngine](https://easyengine.io/)
+# EasyEngine v4
 
-[![Travis Build Status](https://travis-ci.org/EasyEngine/easyengine.svg)](https://travis-ci.org/EasyEngine/easyengine) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
+<img width="150" height="150" src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
 
-**Update:** [We are working on next major release (v4) which will be in PHP and based on WP-CLI](https://easyengine.io/blog/easyengine-v4-development-begins/).
+[![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine)
+[![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
-EasyEngine (ee) is a python tool, which makes it easy to manage your wordpress sites running on nginx web-server.
+## Requirements
 
-**EasyEngine currently supports:**
+* Docker
+* Docker-Compose
+* PHP CLI (>=7.1)
+* PHP Modules - `curl`, `sqlite3`, `pcntl`
 
-- Ubuntu 12.04 & 14.04 & 16.04
-- Debian 7 & 8
+## Installing
 
-**Port Requirements:**
+### Linux
 
-| Name  | Port Number | Inbound | Outbound  |
-|:-----:|:-----------:|:-------:|:---------:|
-|SSH    |22           | ✓       |✓          |
-|HTTP    |80           | ✓       |✓          |
-|HTTPS/SSL    |443           | ✓       |✓          |
-|EE Admin    |22222           | ✓       |          |
-|GPG Key Server    |11371           |        |✓          |
-
-## Quick Start
+For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04 and Debian 8.
 
 ```bash
-wget -qO ee rt.cx/ee && sudo bash ee     # Install easyengine 3
-sudo ee site create example.com --wp     # Install required packages & setup WordPress on example.com
+wget -qO ee https://rt.cx/ee4beta && sudo bash ee
 ```
 
-## Update EasyEngine
-
-
-Update procedure for EasyEngine to latest version
-
-#### For current installed version prior to 3.0.6
-```bash
-wget -qO ee rt.cx/ee && sudo bash ee
-
-```
-#### If current version is after than 3.0.6
-```
-ee update
-```
-
-## More Site Creation Commands
-
-### Standard WordPress Sites
+Even if the script doesn't work for your distribution, you can manually install the dependencies and then run the following commands to install EasyEngine
 
 ```bash
-ee site create example.com --wp                  # install wordpress without any page caching
-ee site create example.com --w3tc                # install wordpress with w3-total-cache plugin
-ee site create example.com --wpsc                # install wordpress with wp-super-cache plugin
-ee site create example.com --wpfc                # install wordpress + nginx fastcgi_cache
-ee site create example.com --wpredis             # install wordpress + nginx redis_cache
+wget -O /usr/local/bin/ee https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar
+chmod +x /usr/local/bin/ee
 ```
 
-### WordPress Multsite with subdirectory
+### Tab completions
+
+EasyEngine also comes with a tab completion script for Bash and ZSH. Just download [ee-completion.bash](https://raw.githubusercontent.com/EasyEngine/easyengine/develop-v4/utils/ee-completion.bash) and source it from `~/.bash_profile`:
 
 ```bash
-ee site create example.com --wpsubdir            # install wpmu-subdirectory without any page caching
-ee site create example.com --wpsubdir --w3tc     # install wpmu-subdirectory with w3-total-cache plugin
-ee site create example.com --wpsubdir --wpsc     # install wpmu-subdirectory with wp-super-cache plugin
-ee site create example.com --wpsubdir --wpfc     # install wpmu-subdirectory + nginx fastcgi_cache
-ee site create example.com --wpsubdir --wpredis  # install wpmu-subdirectory + nginx redis_cache
+source /FULL/PATH/TO/ee-completion.bash
 ```
 
-### WordPress Multsite with subdomain
+Don't forget to run `source ~/.bash_profile` afterwards.
+
+If using zsh for your shell, you may need to load and start `bashcompinit` before sourcing. Put the following in your `.zshrc`:
 
 ```bash
-ee site create example.com --wpsubdomain            # install wpmu-subdomain without any page caching
-ee site create example.com --wpsubdomain --w3tc     # install wpmu-subdomain with w3-total-cache plugin
-ee site create example.com --wpsubdomain --wpsc     # install wpmu-subdomain with wp-super-cache plugin
-ee site create example.com --wpsubdomain --wpfc     # install wpmu-subdomain + nginx fastcgi_cache
-ee site create example.com --wpsubdomain --wpredis  # install wpmu-subdomain + nginx redis_cache
+autoload bashcompinit
+bashcompinit
+source /FULL/PATH/TO/ee-completion.bash
 ```
 
-### Non-WordPress Sites
-```bash
-ee site create example.com --html     # create example.com for static/html sites
-ee site create example.com --php      # create example.com with php support
-ee site create example.com --mysql    # create example.com with php & mysql support
+## Usage
+
+To get started with EasyEngine and create a wordpress site, run
+
+```
+ee site create example.com --type=wp
 ```
 
-### HHVM Enabled Sites
-```bash
-ee site create example.com --wp --hhvm           # create example.com WordPress site with HHVM support
-ee site create example.com --php --hhvm          # create example.com php site with HHVM support
+Need a wordpress site with caching? Try
+
+```
+ee site create example.com --type=wp --cache
 ```
 
-### PageSpeed Enabled Sites
-```bash
-ee site create example.com --wp --pagespeed      # create example.com WordPress site with PageSpeed support
-ee site create example.com --php --pagespeed     # create example.com php site with PageSpeed support
+Need a wordpress multi-site with page cache?
+```
+ee site create example.com --type=wp --mu=wpsubdir --cache
 ```
 
-## Cheatsheet - Site creation
+Need a plain and simple html site?
+```
+ee site create example.com
+```
 
+Want to play around with your new site?
+```
+ee shell example.com
+```
 
-|                    |  Single Site  | 	Multisite w/ Subdir  |	Multisite w/ Subdom     |
-|--------------------|---------------|-----------------------|--------------------------|
-| **NO Cache**       |  --wp         |	--wpsubdir           |	--wpsubdomain           |
-| **WP Super Cache** |	--wpsc       |	--wpsubdir --wpsc    |  --wpsubdomain --wpsc    |
-| **W3 Total Cache** |  --w3tc       |	--wpsubdir --w3tc    |  --wpsubdomain --w3tc    |
-| **Nginx cache**    |  --wpfc       |  --wpsubdir --wpfc    |  --wpsubdomain --wpfc    |
-| **Redis cache**    |  --wpredis    |  --wpsubdir --wpredis |  --wpsubdomain --wpredis |
+Want to know more? Checkout readme of these commands -
+ * [site command](https://github.com/EasyEngine/site-command/)
+ * [site-wp command](https://github.com/EasyEngine/site-wp-command/)
+ * [cron command](https://github.com/EasyEngine/cron-command/)
+ * [shell command](https://github.com/EasyEngine/shell-command/)
 
-## Useful Links
-- [Documentation](https://easyengine.io/docs/)
-- [FAQ](https://easyengine.io/faq/)
-- [Conventions used](https://easyengine.io/wordpress-nginx/tutorials/conventions/)
+Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
 
-## Community Guides
-- [Develop and Deploy with EasyEngine + VVV + Wordmove](https://github.com/joeguilmette/ee-vvv-wordmove)
+## Development
+
+Development of easyengine is done entirely on GitHub.
+
+We've used [wp-cli](https://github.com/wp-cli/wp-cli/) framework as a base and built EasyEngine on top of it.
+
+This repo contains main core of easyengine (the framework).
+All top level commands(except `ee cli`) i.e. `ee site`, `ee shell` have their own repos.
+
+Currently we have following commands which are bundled by default in EasyEngine:
+
+* [site command](https://github.com/EasyEngine/site-command/)
+* [shell command](https://github.com/EasyEngine/shell-command/)
+
+In future, community will be able to make their own packages and commands!
+
+## Contributing
+
+We warmheartedly welcome all contributions however and in whatever capacity you can either through Pull Requests or by reporting Issues. You can contribute here or in any of the above mentioned commands repo.
 
 ## Donations
 
 [![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
 [![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
-
-## License
-[MIT](http://opensource.org/licenses/MIT)
