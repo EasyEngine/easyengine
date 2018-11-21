@@ -32,6 +32,9 @@ class InsertDockerImagesVersion extends Base {
 
 		$query = '';
 		foreach ( $images as $image => $tag ) {
+			if ( 'easyengine/php5.6' === $image ) {
+				continue;
+			}
 			EE::log( "Checking and Pulling docker image $image:$tag" );
 			if ( ! \EE::exec( "docker pull ${image}:${tag}", true, true ) ) {
 				throw new \Exception( "Unable to pull ${image}:${tag}. Please check logs for more details." );
