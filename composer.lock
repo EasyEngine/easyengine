@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "db5360d5481a14c4735e65361adb0e64",
+    "content-hash": "8485fde92407e0e273c9d97a0cab5248",
     "packages": [
         {
             "name": "acmephp/core",
@@ -528,7 +528,7 @@
         },
         {
             "name": "easyengine/config-command",
-            "version": "v1.0.0-rc.1",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/config-command.git",
@@ -568,7 +568,7 @@
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v1.0.0-rc.2",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
@@ -660,12 +660,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "6b0aac7a95078dad35aeea000aa6f9e136ac4409"
+                "reference": "f24d29b33935341501de8912fd4f57b550af0aa2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/6b0aac7a95078dad35aeea000aa6f9e136ac4409",
-                "reference": "6b0aac7a95078dad35aeea000aa6f9e136ac4409",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/f24d29b33935341501de8912fd4f57b550af0aa2",
+                "reference": "f24d29b33935341501de8912fd4f57b550af0aa2",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -701,7 +701,7 @@
         },
         {
             "name": "easyengine/shell-command",
-            "version": "v1.0.0-rc.1",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/shell-command.git",
