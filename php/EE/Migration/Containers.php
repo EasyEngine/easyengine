@@ -28,11 +28,11 @@ class Containers {
 		$updated_images   = [];
 
 		foreach ( $img_versions as $img => $version ) {
+			if ( 'easyengine/php5.6' === $img ) {
+				continue;
+			}
 			if ( $current_versions[ $img ] !== $version ) {
 				$updated_images[] = $img;
-				if ( 'easyengine/php5.6' === $img ) {
-					continue;
-				}
 				self::pull_or_error( $img, $version );
 			}
 		}
