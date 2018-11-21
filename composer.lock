@@ -660,12 +660,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "547de8e72d1e2ff8cae1746c3f56f8d362042b79"
+                "reference": "6b0aac7a95078dad35aeea000aa6f9e136ac4409"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/547de8e72d1e2ff8cae1746c3f56f8d362042b79",
-                "reference": "547de8e72d1e2ff8cae1746c3f56f8d362042b79",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/6b0aac7a95078dad35aeea000aa6f9e136ac4409",
+                "reference": "6b0aac7a95078dad35aeea000aa6f9e136ac4409",
                 "shasum": ""
             },
             "type": "ee-cli-package",
