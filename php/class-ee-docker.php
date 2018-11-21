@@ -153,8 +153,8 @@ class EE_DOCKER {
 	/**
 	 * Function to boot the containers.
 	 *
-	 * @param String $dir      Path to docker-compose.yml.
-	 * @param array  $services Services to bring up.
+	 * @param String $dir     Path to docker-compose.yml.
+	 * @param array $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
@@ -187,7 +187,7 @@ class EE_DOCKER {
 	/**
 	 * Function to destroy the containers.
 	 *
-	 * @param String $dir      Path to docker-compose.yml.
+	 * @param String $dir Path to docker-compose.yml.
 	 *
 	 * @return bool success.
 	 */
@@ -234,7 +234,10 @@ class EE_DOCKER {
 	 * @param string $prefix                Prefix by volumes have to be created.
 	 * @param array $volumes                The volumes to be created.
 	 *                                      $volumes[$key]['name'] => specifies the name of volume to be created.
-	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the created volume.
+	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the
+	 *                                      created volume.
+	 *                                      $volumes[$key]['skip_volume'] => if set to `true` will skip volume creation
+	 *                                      for that entry.
 	 * @param bool $update_to_docker_prefix Update the prefix in dockerized style.
 	 */
 	public static function create_volumes( $prefix, $volumes, $update_to_docker_prefix = true ) {
@@ -247,6 +250,9 @@ class EE_DOCKER {
 		$docker_root_dir = trim( $launch->stdout );
 
 		foreach ( $volumes as $volume ) {
+			if ( ! empty( $volume['skip_volume'] ) && true === $volume['skip_volume'] ) {
+				continue;
+			}
 			$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
 			EE::exec(
 				sprintf(
@@ -274,5 +280,34 @@ class EE_DOCKER {
 		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter="label=io.easyengine.site=%s" -q', $label ) );
 
 		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
+	}
+
+	/**
+	 * Function to return minimal docker-compose `host:container` volume mounting array.
+	 *
+	 * @param array $extended_vols :
+	 *                             $extended_vols['name'] - Host path for docker-compose generation in linux
+	 *                             $extended_vols['path_to_symlink'] - Host path for docker-compose generation in
+	 *                             darwin.
+	 *                             $extended_vols['container_path'] - Path inside container, common for linux and
+	 *                             darwin.
+	 *                             $extended_vols['skip_darwin'] - if set to true skips that volume for darwin.
+	 *                             $extended_vols['skip_linux'] - if set to true skips that volume for linux.
+	 *
+	 * @return array having docker-compose `host:container` volume mounting.
+	 */
+	public static function get_mounting_volume_array( $extended_vols ) {
+
+		$volume_gen_key      = IS_DARWIN ? 'path_to_symlink' : 'name';
+		$skip_key            = IS_DARWIN ? 'skip_darwin' : 'skip_linux';
+		$final_mount_volumes = [];
+		foreach ( $extended_vols as $extended_vol ) {
+			if ( ! empty( $extended_vol[ $skip_key ] ) && true === $extended_vol[ $skip_key ] ) {
+				continue;
+			}
+			$final_mount_volumes[] = $extended_vol[ $volume_gen_key ] . ':' . $extended_vol['container_path'];
+		}
+
+		return $final_mount_volumes;
 	}
 }

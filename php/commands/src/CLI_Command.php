@@ -507,8 +507,7 @@ class CLI_Command extends EE_Command {
 			$fs->remove( $sites_paths );
 		}
 
-		EE::exec( "rm -df $home/ee-sites/" );
-		EE::exec( "rm -rf /opt/easyengine/" );
+		EE::exec( "rm -rf " . EE_ROOT_DIR );
 
 		if ( Utils\inside_phar() ) {
 			unlink( realpath( $_SERVER['argv'][0] ) );

@@ -111,7 +111,7 @@ class SiteContainers {
 	public static function enable_site( $site_info, $site_object ) {
 		EE::debug( "Start enabling ${site_info['site_url']}" );
 		try {
-			$site_object->enable( [ $site_info['site_url'] ], [], false );
+			$site_object->enable( [ $site_info['site_url'] ], [ 'force' => true ], false );
 		} catch ( \Exception $e ) {
 			throw new \Exception( $e->getMessage() );
 		}
@@ -180,6 +180,16 @@ class SiteContainers {
 			];
 			$fs->mirror( $source, $destination, null, $copy_options );
 		}
+	}
+
+	/**
+	 * Function to delete file/directory.
+	 *
+	 * @param string|array $path_to_delete File(s)/Director(y/ies) to be deleted.
+	 */
+	public static function delete( $path_to_delete ) {
+		$fs = new Filesystem();
+		$fs->remove( $path_to_delete );
 	}
 
 	/**

@@ -41,7 +41,7 @@ class GlobalContainers {
 
 		$services_to_regenerate = '';
 		$all_global_images      = self::get_all_global_images_with_service_name();
-		foreach ( $updated_global_images as $image_name ) {
+		foreach ( $updated_images as $image_name ) {
 			$global_container_name  = $all_global_images[ $image_name ];
 			$services_to_regenerate .= str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) ) . ' ';
 		}

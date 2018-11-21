@@ -54,14 +54,38 @@ class Runner {
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
 
-		define( 'DB', EE_ROOT_DIR.'/db/ee.sqlite' );
+		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
 
 		$db_dir = dirname( DB );
 		if ( ! is_dir( $db_dir ) ) {
 			mkdir( $db_dir );
 		}
-		$this->maybe_trigger_migration();
+
+		if (
+			! empty( $this->arguments ) &&
+			 ( 'help' !== $this->arguments[0] )
+			 && $this->arguments !== [ 'cli', 'version' ]
+			)
+		 {
+
+			// Minimum requirement checks.
+			$docker_running = 'docker ps > /dev/null';
+			if ( ! EE::exec( $docker_running ) ) {
+				EE::error( 'docker not installed or not running.' );
+			}
+
+			$docker_compose_installed = 'command -v docker-compose > /dev/null';
+			if ( ! EE::exec( $docker_compose_installed ) ) {
+				EE::error( 'EasyEngine requires docker-compose.' );
+			}
+
+			if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
+				EE::error( 'EasyEngine requires minimum PHP 7.2.0 to run.' );
+			}
+
+			$this->maybe_trigger_migration();
+		}
 	}
 
 	/**
@@ -70,12 +94,9 @@ class Runner {
 	private function migrate() {
 		$rsp = new \EE\RevertableStepProcessor();
 
-		$version = Option::where( 'key', 'version' );
-		if ( ! empty( $version ) ) {
-			$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
-			$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
-		}
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
+		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
+		$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
 		return $rsp->execute();
 	}
 
@@ -836,7 +857,10 @@ class Runner {
 		if ( ! $this->migrate() ) {
 			EE::error( 'There was some error while migrating. Please check logs.' );
 		}
-		Option::set( 'version', $version );
+		if ( $version !== Option::get( 'version' ) ) {
+			Option::set( 'version', $version );
+			\EE\Service\Utils\set_nginx_proxy_version_conf();
+		}
 	}
 
 	/**
