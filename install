@@ -273,7 +273,7 @@ function ee_install()
     # Clone EE 3.0 Python ee_branch
     ee_lib_echo "Cloning EasyEngine, please wait..."
     if [ "$ee_branch" = "" ]; then
-        ee_branch=master
+        ee_branch=master-v3
     fi
 
     git clone -b $ee_branch https://github.com/EasyEngine/easyengine.git /tmp/easyengine --quiet > /dev/null \
