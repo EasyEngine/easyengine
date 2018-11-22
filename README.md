@@ -107,4 +107,3 @@ We warmheartedly welcome all contributions however and in whatever capacity you 
 ## Donations
 
 [![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
-[![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)
