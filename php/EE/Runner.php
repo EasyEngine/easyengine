@@ -108,6 +108,7 @@ class Runner {
 			if ( IS_DARWIN && ! $docker_running ) {
 				EE::log( 'For macOS docker can be installed using: `brew cask install docker`' );
 			}
+			die;
 		}
 
 		return $status;
