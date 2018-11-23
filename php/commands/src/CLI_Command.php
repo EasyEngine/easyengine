@@ -494,6 +494,11 @@ class CLI_Command extends EE_Command {
 	 */
 	public function self_uninstall( $args, $assoc_args ) {
 
+		if ( ! EE::get_runner()->check_requirements( false ) ) {
+			EE::error( 'Unable to proceed with uninstallation. Seems there is a dependency down.', false );
+			die;
+		}
+
 		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
 
 		EE::exec( 'docker rm -f $(docker ps -aqf label=org.label-schema.vendor="EasyEngine")' );
