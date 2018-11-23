@@ -82,27 +82,27 @@ class Runner {
 	public function check_requirements( $show_error = true ) {
 
 		$status = true;
+		$error  = [];
 
-		// Minimum requirement checks.
 		$docker_running = 'docker ps > /dev/null';
 		if ( ! EE::exec( $docker_running ) ) {
-			$status = false;
-			$error  = 'Docker not installed or not running.';
+			$status   = false;
+			$error[]  = 'Docker not installed or not running.';
 		}
 
 		$docker_compose_installed = 'command -v docker-compose > /dev/null';
 		if ( ! EE::exec( $docker_compose_installed ) ) {
-			$status = false;
-			$error  = 'EasyEngine requires docker-compose.';
+			$status   = false;
+			$error[]  = 'EasyEngine requires docker-compose.';
 		}
 
 		if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
-			$status = false;
-			$error  = 'EasyEngine requires minimum PHP 7.2.0 to run.';
+			$status   = false;
+			$error[]  = 'EasyEngine requires minimum PHP 7.2.0 to run.';
 		}
 
 		if ( $show_error && ! $status ) {
-			EE::error( $error );
+			EE::error( reset( $error ) );
 		}
 
 		return $status;
