@@ -3,6 +3,7 @@
 <img width="150" height="150" src="https://easyengine.io/wp-content/uploads/2015/11/cropped-favicon-easyengine.png" alt="EasyEngine Logo" align="right" />
 
 [![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine)
+[![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/phpunit/phpunit)
 [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
 ## Requirements
@@ -19,7 +20,7 @@
 For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04 and Debian 8.
 
 ```bash
-wget -qO ee https://rt.cx/ee4beta && sudo bash ee
+wget -qO ee https://rt.cx/ee4 && sudo bash ee
 ```
 
 Even if the script doesn't work for your distribution, you can manually install the dependencies and then run the following commands to install EasyEngine
@@ -107,4 +108,3 @@ We warmheartedly welcome all contributions however and in whatever capacity you 
 ## Donations
 
 [![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
-[![BitCoin-Donate](https://bitpay.com/img/donate-button.svg)](https://bitpay.com/417008/donate)

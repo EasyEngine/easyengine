@@ -11,3 +11,7 @@ if [[ "$TRAVIS_BRANCH" != $DEPLOY_BRANCH ]]; then
 fi
 
 php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quiet
+
+# Checking the phar is working.
+sudo ./easyengine.phar cli info
+docker ps -a
