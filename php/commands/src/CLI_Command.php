@@ -286,6 +286,7 @@ class CLI_Command extends EE_Command {
 			$download_url = $newest['package_url'];
 			$md5_url      = str_replace( '.phar', '.phar.md5', $download_url );
 		}
+		EE::get_runner()->check_requirements();
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
 		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
@@ -492,6 +493,11 @@ class CLI_Command extends EE_Command {
 	 * @subcommand self-uninstall
 	 */
 	public function self_uninstall( $args, $assoc_args ) {
+
+		if ( ! EE::get_runner()->check_requirements( false ) ) {
+			EE::error( 'Unable to proceed with uninstallation. Seems there is a dependency down.', false );
+			die;
+		}
 
 		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
 

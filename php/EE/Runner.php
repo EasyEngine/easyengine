@@ -64,28 +64,48 @@ class Runner {
 
 		if (
 			! empty( $this->arguments ) &&
-			 ( 'help' !== $this->arguments[0] )
-			 && $this->arguments !== [ 'cli', 'version' ]
-			)
-		 {
-
-			// Minimum requirement checks.
-			$docker_running = 'docker ps > /dev/null';
-			if ( ! EE::exec( $docker_running ) ) {
-				EE::error( 'docker not installed or not running.' );
-			}
-
-			$docker_compose_installed = 'command -v docker-compose > /dev/null';
-			if ( ! EE::exec( $docker_compose_installed ) ) {
-				EE::error( 'EasyEngine requires docker-compose.' );
-			}
-
-			if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
-				EE::error( 'EasyEngine requires minimum PHP 7.2.0 to run.' );
-			}
-
+			( ! in_array( $this->arguments[0], [ 'cli', 'config', 'help' ], true ) )
+		) {
+			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}
+		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
+			$this->maybe_trigger_migration();
+		}
+	}
+
+	/**
+	 * Check EE requirements for required commands.
+	 *
+	 * @param bool $show_error To display error or to retutn status.
+	 */
+	public function check_requirements( $show_error = true ) {
+
+		$status = true;
+		$error  = [];
+
+		$docker_running = 'docker ps > /dev/null';
+		if ( ! EE::exec( $docker_running ) ) {
+			$status   = false;
+			$error[]  = 'Docker not installed or not running.';
+		}
+
+		$docker_compose_installed = 'command -v docker-compose > /dev/null';
+		if ( ! EE::exec( $docker_compose_installed ) ) {
+			$status   = false;
+			$error[]  = 'EasyEngine requires docker-compose.';
+		}
+
+		if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
+			$status   = false;
+			$error[]  = 'EasyEngine requires minimum PHP 7.2.0 to run.';
+		}
+
+		if ( $show_error && ! $status ) {
+			EE::error( reset( $error ) );
+		}
+
+		return $status;
 	}
 
 	/**
