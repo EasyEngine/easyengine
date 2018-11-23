@@ -101,11 +101,11 @@ class Runner {
 			$error  = 'EasyEngine requires minimum PHP 7.2.0 to run.';
 		}
 
-		if ( ! $show_error ) {
-			return $status;
-		} elseif ( ! $status ) {
+		if ( $show_error && ! $status ) {
 			EE::error( $error );
 		}
+
+		return $status;
 	}
 
 	/**
