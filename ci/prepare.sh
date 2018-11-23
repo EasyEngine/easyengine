@@ -13,4 +13,5 @@ fi
 php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quiet
 
 # Checking the phar is working.
-./easyengine.phar cli info
+sudo ./easyengine.phar cli info
+docker ps -a
