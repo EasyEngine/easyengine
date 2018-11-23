@@ -286,6 +286,7 @@ class CLI_Command extends EE_Command {
 			$download_url = $newest['package_url'];
 			$md5_url      = str_replace( '.phar', '.phar.md5', $download_url );
 		}
+		EE::get_runner()->check_requirements();
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
 		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
