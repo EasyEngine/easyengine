@@ -81,28 +81,33 @@ class Runner {
 	 */
 	public function check_requirements( $show_error = true ) {
 
-		$status = true;
-		$error  = [];
+		$docker_running = true;
+		$status         = true;
+		$error          = [];
 
-		$docker_running = 'docker ps > /dev/null';
-		if ( ! EE::exec( $docker_running ) ) {
-			$status   = false;
-			$error[]  = 'Docker not installed or not running.';
+		$docker_running_cmd = 'docker ps > /dev/null';
+		if ( ! EE::exec( $docker_running_cmd ) ) {
+			$status         = false;
+			$docker_running = false;
+			$error[]        = 'Docker not installed or not running.';
 		}
 
 		$docker_compose_installed = 'command -v docker-compose > /dev/null';
 		if ( ! EE::exec( $docker_compose_installed ) ) {
-			$status   = false;
-			$error[]  = 'EasyEngine requires docker-compose.';
+			$status  = false;
+			$error[] = 'EasyEngine requires docker-compose.';
 		}
 
 		if ( version_compare( PHP_VERSION, '7.2.0' ) < 0 ) {
-			$status   = false;
-			$error[]  = 'EasyEngine requires minimum PHP 7.2.0 to run.';
+			$status  = false;
+			$error[] = 'EasyEngine requires minimum PHP 7.2.0 to run.';
 		}
 
 		if ( $show_error && ! $status ) {
-			EE::error( reset( $error ) );
+			EE::error( reset( $error ), false );
+			if ( IS_DARWIN && ! $docker_running ) {
+				EE::log( 'For macOS docker can be installed using: `brew cask install docker`' );
+			}
 		}
 
 		return $status;
