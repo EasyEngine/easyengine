@@ -1692,5 +1692,5 @@ function random_name_generator() {
 		'wiles', 'williams', 'williamson', 'wilson', 'wing', 'wozniak', 'wright', 'wu', 'yalow', 'yonath', "zhukovsky",
 	];
 
-	return array_rand( $left ) . '-' . array_rand( $right );
+	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
 }
