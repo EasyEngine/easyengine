@@ -1599,14 +1599,15 @@ function get_image_versions() {
 /**
  * Function to get httpcode or port occupancy info.
  *
- * @param string $url     url to get info about.
- * @param int $port       The port to check.
- * @param bool $port_info Return port info or httpcode.
- * @param mixed $auth     Send http auth with passed value if not false.
+ * @param string $url             url to get info about.
+ * @param int $port               The port to check.
+ * @param bool $port_info         Return port info or httpcode.
+ * @param mixed $auth             Send http auth with passed value if not false.
+ * @param bool $resolve_localhost Wether to reolve curl request to localhost or not.
  *
  * @return bool|int port occupied or httpcode.
  */
-function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
+function get_curl_info( $url, $port = 80, $port_info = false, $auth = false, $resolve_localhost = false ) {
 
 	$ch = curl_init( $url );
 	curl_setopt( $ch, CURLOPT_HEADER, true );
@@ -1614,6 +1615,9 @@ function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
 	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
 	curl_setopt( $ch, CURLOPT_PORT, $port );
+	if ( $resolve_localhost ) {
+		curl_setopt( $ch, CURLOPT_RESOLVE, [ $url . ':' . $port . ':' . LOCALHOST_IP ] );
+	}
 	if ( $auth ) {
 		curl_setopt( $ch, CURLOPT_USERPWD, $auth );
 	}
