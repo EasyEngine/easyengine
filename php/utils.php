@@ -9,6 +9,16 @@ use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
 use Mustangostang\Spyc;
+use ArrayIterator;
+use EE\Formatter;
+use Mustache_Engine;
+use cli\Shell;
+use EE\NoOp;
+use cli\progress\Bar;
+use RuntimeException;
+use Requests;
+use cli\Table;
+use cli\table\Ascii;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -114,7 +124,7 @@ function load_command( $name ) {
  */
 function iterator_map( $it, $fn ) {
 	if ( is_array( $it ) ) {
-		$it = new \ArrayIterator( $it );
+		$it = new ArrayIterator( $it );
 	}
 
 	if ( ! method_exists( $it, 'add_transform' ) ) {
@@ -272,7 +282,7 @@ function esc_cmd( $cmd ) {
  */
 function format_items( $format, $items, $fields ) {
 	$assoc_args = compact( 'format', 'fields' );
-	$formatter = new \EE\Formatter( $assoc_args );
+	$formatter = new Formatter( $assoc_args );
 	$formatter->display_items( $items );
 }
 
@@ -286,6 +296,7 @@ function format_items( $format, $items, $fields ) {
  * @param array    $headers    List of CSV columns (optional)
  */
 function write_csv( $fd, $rows, $headers = array() ) {
+
 	if ( ! empty( $headers ) ) {
 		fputcsv( $fd, $headers );
 	}
@@ -349,7 +360,7 @@ function launch_editor_for_input( $input, $filename = 'EE' ) {
 	} while ( ! $tmpfile );
 
 	if ( ! $tmpfile ) {
-		\EE::error( 'Error creating temporary file.' );
+		EE::error( 'Error creating temporary file.' );
 	}
 
 	$output = '';
@@ -390,7 +401,7 @@ function mustache_render( $template_name, $data = array() ) {
 
 	$template = file_get_contents( $template_name );
 
-	$m = new \Mustache_Engine(
+	$m = new Mustache_Engine(
 		array(
 			'escape' => function ( $val ) {
 				return $val; },
@@ -416,11 +427,11 @@ function mustache_render( $template_name, $data = array() ) {
  * @return cli\progress\Bar|EE\NoOp
  */
 function make_progress_bar( $message, $count, $interval = 100 ) {
-	if ( \cli\Shell::isPiped() ) {
-		return new \EE\NoOp;
+	if ( Shell::isPiped() ) {
+		return new NoOp;
 	}
 
-	return new \cli\progress\Bar( $message, $count, $interval );
+	return new Bar( $message, $count, $interval );
 }
 
 /**
@@ -515,12 +526,12 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 			if ( $halt_on_error ) {
 				EE::error( $error_msg );
 			}
-			throw new \RuntimeException( $error_msg );
+			throw new RuntimeException( $error_msg );
 		}
 	}
 
 	try {
-		return \Requests::request( $url, $headers, $data, $method, $options );
+		return Requests::request( $url, $headers, $data, $method, $options );
 	} catch ( \Requests_Exception $ex ) {
 		// CURLE_SSL_CACERT_BADFILE only defined for PHP >= 7.
 		if ( 'curlerror' !== $ex->getType() || ! in_array( curl_errno( $ex->getData() ), array( CURLE_SSL_CONNECT_ERROR, CURLE_SSL_CERTPROBLEM, 77 /*CURLE_SSL_CACERT_BADFILE*/ ), true ) ) {
@@ -528,19 +539,19 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 			if ( $halt_on_error ) {
 				EE::error( $error_msg );
 			}
-			throw new \RuntimeException( $error_msg, null, $ex );
+			throw new RuntimeException( $error_msg, null, $ex );
 		}
 		// Handle SSL certificate issues gracefully
-		\EE::warning( sprintf( "Re-trying without verify after failing to get verified url '%s' %s.", $url, $ex->getMessage() ) );
+		EE::warning( sprintf( "Re-trying without verify after failing to get verified url '%s' %s.", $url, $ex->getMessage() ) );
 		$options['verify'] = false;
 		try {
-			return \Requests::request( $url, $headers, $data, $method, $options );
+			return Requests::request( $url, $headers, $data, $method, $options );
 		} catch ( \Requests_Exception $ex ) {
 			$error_msg = sprintf( "Failed to get non-verified url '%s' %s.", $url, $ex->getMessage() );
 			if ( $halt_on_error ) {
 				EE::error( $error_msg );
 			}
-			throw new \RuntimeException( $error_msg, null, $ex );
+			throw new RuntimeException( $error_msg, null, $ex );
 		}
 	}
 }
@@ -714,7 +725,7 @@ function get_temp_dir() {
 	$temp = trailingslashit( sys_get_temp_dir() );
 
 	if ( ! is_writable( $temp ) ) {
-		\EE::warning( "Temp directory isn't writable: {$temp}" );
+		EE::warning( "Temp directory isn't writable: {$temp}" );
 	}
 
 	return $temp;
@@ -1514,24 +1525,24 @@ function get_type( $assoc_args, $arg_types, $default = false ) {
  *
  */
 function format_table( $items, $log_in_file = false ) {
-	$item_table = new \cli\Table();
+	$item_table = new Table();
 	$item_table->setRows( $items );
-	$item_table->setRenderer( new \cli\table\Ascii() );
+	$item_table->setRenderer( new Ascii() );
 	$lines = array_slice( $item_table->getDisplayLines(), 3 );
 	array_pop( $lines );
 	$delem = $item_table->getDisplayLines()[0];
 	if ( $log_in_file ) {
 		foreach ( $lines as $line ) {
-			\EE::log( $delem );
-			\EE::log( $line );
+			EE::log( $delem );
+			EE::log( $line );
 		}
 	} else {
 		foreach ( $lines as $line ) {
-			\EE::line( $delem );
-			\EE::line( $line );
+			EE::line( $delem );
+			EE::line( $line );
 		}
 	}
-	\EE::log( $delem );
+	EE::log( $delem );
 }
 
 /**

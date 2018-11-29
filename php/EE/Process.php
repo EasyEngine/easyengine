@@ -3,6 +3,7 @@
 namespace EE;
 
 use EE\Utils;
+use RuntimeException;
 
 /**
  * Run a system process, and learn what happened.
@@ -112,7 +113,7 @@ class Process {
 
 		// $r->STDERR is incorrect, but kept incorrect for backwards-compat
 		if ( $r->return_code || ! empty( $r->STDERR ) ) {
-			throw new \RuntimeException( $r );
+			throw new RuntimeException( $r );
 		}
 
 		return $r;
@@ -128,7 +129,7 @@ class Process {
 		$r = $this->run();
 
 		if ( $r->return_code || ! empty( $r->stderr ) ) {
-			throw new \RuntimeException( $r );
+			throw new RuntimeException( $r );
 		}
 
 		return $r;

@@ -2,6 +2,8 @@
 
 namespace EE\Bootstrap;
 
+use EE;
+
 /**
  * Class RegisterDeferredCommands.
  *
@@ -27,7 +29,7 @@ final class RegisterDeferredCommands implements BootstrapStep {
 
 		// Process deferred command additions for commands added through
 		// plugins.
-		\EE::add_hook(
+		EE::add_hook(
 			'find_command_to_run_pre',
 			array( $this, 'add_deferred_commands' )
 		);
@@ -39,10 +41,10 @@ final class RegisterDeferredCommands implements BootstrapStep {
 	 * Add deferred commands that are still waiting to be processed.
 	 */
 	public function add_deferred_commands() {
-		$deferred_additions = \EE::get_deferred_additions();
+		$deferred_additions = EE::get_deferred_additions();
 
 		foreach ( $deferred_additions as $name => $addition ) {
-			\EE::add_command(
+			EE::add_command(
 				$name,
 				$addition['callable'],
 				$addition['args']

@@ -2,6 +2,8 @@
 
 namespace EE\Fetchers;
 
+use EE;
+
 /**
  * Fetch a WordPress entity for use in a subcommand.
  */
@@ -27,7 +29,7 @@ abstract class Base {
 		$item = $this->get( $arg );
 
 		if ( ! $item ) {
-			\EE::error( sprintf( $this->msg, $arg ) );
+			EE::error( sprintf( $this->msg, $arg ) );
 		}
 
 		return $item;
@@ -46,7 +48,7 @@ abstract class Base {
 			if ( $item ) {
 				$items[] = $item;
 			} else {
-				\EE::warning( sprintf( $this->msg, $arg ) );
+				EE::warning( sprintf( $this->msg, $arg ) );
 			}
 		}
 

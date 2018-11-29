@@ -2,6 +2,8 @@
 
 namespace EE;
 
+use EE;
+
 class Completions {
 
 	private $words;
@@ -52,7 +54,7 @@ class Completions {
 		if ( $command->can_have_subcommands() ) {
 			// add completion when command is `ee` and alias isn't set.
 			if ( 'ee' === $command->get_name() && false === $is_alias && false == $is_help ) {
-				$aliases = \EE::get_configurator()->get_aliases();
+				$aliases = EE::get_configurator()->get_aliases();
 				foreach ( $aliases as $name => $_ ) {
 					$this->add( "$name " );
 				}
@@ -109,9 +111,9 @@ class Completions {
 			}
 		}
 
-		$r = \EE::get_runner()->find_command_to_run( $positional_args );
+		$r = EE::get_runner()->find_command_to_run( $positional_args );
 		if ( ! is_array( $r ) && array_pop( $positional_args ) == $this->cur_word ) {
-			$r = \EE::get_runner()->find_command_to_run( $positional_args );
+			$r = EE::get_runner()->find_command_to_run( $positional_args );
 		}
 
 		if ( ! is_array( $r ) ) {
@@ -125,7 +127,7 @@ class Completions {
 
 	private function get_global_parameters() {
 		$params = array();
-		foreach ( \EE::get_configurator()->get_spec() as $key => $details ) {
+		foreach ( EE::get_configurator()->get_spec() as $key => $details ) {
 			if ( false === $details['runtime'] ) {
 				continue;
 			}
@@ -160,7 +162,7 @@ class Completions {
 
 	public function render() {
 		foreach ( $this->opts as $opt ) {
-			\EE::line( $opt );
+			EE::line( $opt );
 		}
 	}
 }

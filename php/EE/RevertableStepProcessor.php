@@ -3,6 +3,7 @@
 namespace EE;
 
 use EE;
+use EE\Utils;
 
 /**
  * RevertibleStepProcessor
@@ -58,7 +59,7 @@ class RevertableStepProcessor {
 				EE::debug( "Executed $context." );
 			} catch ( \Exception $e ) {
 				$exception_message = $e->getMessage();
-				$callable          = EE\Utils\get_callable_name( $step['up'] );
+				$callable          = Utils\get_callable_name( $step['up'] );
 				EE::error( "Encountered error while processing $context in $callable. Exception: $exception_message", false );
 				$this->rollback();
 				$this->steps = [];

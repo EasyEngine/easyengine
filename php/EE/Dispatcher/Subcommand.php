@@ -4,6 +4,9 @@ namespace EE\Dispatcher;
 
 use EE;
 use EE\Utils;
+use EE\SynopsisValidator;
+use EE\SynopsisParser;
+use EE\DocParser;
 
 /**
  * A leaf node in the command tree.
@@ -87,7 +90,7 @@ class Subcommand extends CompositeCommand {
 	 * @param string $prefix
 	 */
 	public function show_usage( $prefix = 'usage: ' ) {
-		\EE::line( $this->get_usage( $prefix ) );
+		EE::line( $this->get_usage( $prefix ) );
 	}
 
 	/**
@@ -121,11 +124,11 @@ class Subcommand extends CompositeCommand {
 			return array( array(), $args, $assoc_args, $extra_args );
 		}
 
-		$validator = new \EE\SynopsisValidator( $synopsis );
+		$validator = new SynopsisValidator( $synopsis );
 
 		$cmd_path = implode( ' ', get_path( $this ) );
 		foreach ( $validator->get_unknown() as $token ) {
-			\EE::warning(
+			EE::warning(
 				sprintf(
 					'The `%s` command has an invalid synopsis part: %s',
 					$cmd_path,
@@ -141,13 +144,13 @@ class Subcommand extends CompositeCommand {
 
 		$unknown_positionals = $validator->unknown_positionals( $args );
 		if ( ! empty( $unknown_positionals ) && 'wp' !== $this->name ) {
-			\EE::error(
+			EE::error(
 				'Too many positional arguments: ' .
 				implode( ' ', $unknown_positionals )
 			);
 		}
 
-		$synopsis_spec = \EE\SynopsisParser::parse( $synopsis );
+		$synopsis_spec = SynopsisParser::parse( $synopsis );
 		$i = 0;
 		$errors = array(
 			'fatal' => array(),
@@ -156,7 +159,7 @@ class Subcommand extends CompositeCommand {
 		$mock_doc = array( $this->get_shortdesc(), '' );
 		$mock_doc = array_merge( $mock_doc, explode( "\n", $this->get_longdesc() ) );
 		$mock_doc = '/**' . PHP_EOL . '* ' . implode( PHP_EOL . '* ', $mock_doc ) . PHP_EOL . '*/';
-		$docparser = new \EE\DocParser( $mock_doc );
+		$docparser = new DocParser( $mock_doc );
 		foreach ( $synopsis_spec as $spec ) {
 			if ( 'positional' === $spec['type'] ) {
 				$spec_args = $docparser->get_arg_args( $spec['name'] );
@@ -169,13 +172,13 @@ class Subcommand extends CompositeCommand {
 					if ( ! empty( $spec['repeating'] ) ) {
 						do {
 							if ( isset( $args[ $i ] ) && ! in_array( $args[ $i ], $spec_args['options'] ) ) {
-								\EE::error( 'Invalid value specified for positional arg.' );
+								EE::error( 'Invalid value specified for positional arg.' );
 							}
 							$i++;
 						} while ( isset( $args[ $i ] ) );
 					} else {
 						if ( isset( $args[ $i ] ) && ! in_array( $args[ $i ], $spec_args['options'] ) ) {
-							\EE::error( 'Invalid value specified for positional arg.' );
+							EE::error( 'Invalid value specified for positional arg.' );
 						}
 					}
 				}
@@ -196,7 +199,7 @@ class Subcommand extends CompositeCommand {
 		}
 
 		list( $returned_errors, $to_unset ) = $validator->validate_assoc(
-			array_merge( \EE::get_config(), $extra_args, $assoc_args )
+			array_merge( EE::get_config(), $extra_args, $assoc_args )
 		);
 		foreach ( array( 'fatal', 'warning' ) as $error_type ) {
 			$errors[ $error_type ] = array_merge( $errors[ $error_type ], $returned_errors[ $error_type ] );
@@ -227,7 +230,7 @@ class Subcommand extends CompositeCommand {
 				}
 			}
 
-			\EE::error( $out );
+			EE::error( $out );
 		}
 
 		array_map( '\\EE::warning', $errors['warning'] );
@@ -288,7 +291,7 @@ class Subcommand extends CompositeCommand {
 	private function get_parameters( $spec = array() ) {
 		$local_parameters = array_column( $spec, 'name' );
 		$global_parameters = array_column(
-			EE\SynopsisParser::parse( $this->get_global_params() ),
+			SynopsisParser::parse( $this->get_global_params() ),
 			'name'
 		);
 

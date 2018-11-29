@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
+use Site_Command;
 
 /**
  * Migrate site specific containers to new images.
@@ -18,7 +19,7 @@ class SiteContainers {
 	 * @return EE\Site\Type\HTML|EE\Site\Type\PHP|EE\Site\Type\WordPress
 	 */
 	public static function get_site_object( $site_type ) {
-		$site_command = new \Site_Command();
+		$site_command = new Site_Command();
 		$site_class   = $site_command::get_site_types()[ $site_type ];
 
 		return new $site_class();
@@ -138,7 +139,7 @@ class SiteContainers {
 	 */
 	public static function delete_volume( $volume_name, $symlink_path ) {
 		$fs = new Filesystem();
-		\EE::exec( 'docker volume rm ' . $volume_name );
+		EE::exec( 'docker volume rm ' . $volume_name );
 		$fs->remove( $symlink_path );
 	}
 
@@ -157,7 +158,7 @@ class SiteContainers {
 				'path_to_symlink' => $symlink_path,
 			],
 		];
-		\EE::docker()->create_volumes( $site_url, $volumes );
+		EE::docker()->create_volumes( $site_url, $volumes );
 	}
 
 	/**

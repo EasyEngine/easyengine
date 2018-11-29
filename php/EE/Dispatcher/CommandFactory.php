@@ -2,6 +2,11 @@
 
 namespace EE\Dispatcher;
 
+use EE;
+use ReflectionFunction;
+use ReflectionClass;
+use EE\DocParser;
+
 /**
  * Creates CompositeCommand or Subcommand instances.
  *
@@ -23,16 +28,16 @@ class CommandFactory {
 
 		if ( ( is_object( $callable ) && ( $callable instanceof \Closure ) )
 			|| ( is_string( $callable ) && function_exists( $callable ) ) ) {
-			$reflection = new \ReflectionFunction( $callable );
+			$reflection = new ReflectionFunction( $callable );
 			$command = self::create_subcommand( $parent, $name, $callable, $reflection );
 		} elseif ( is_array( $callable ) && is_callable( $callable ) ) {
-			$reflection = new \ReflectionClass( $callable[0] );
+			$reflection = new ReflectionClass( $callable[0] );
 			$command = self::create_subcommand(
 				$parent, $name, array( $callable[0], $callable[1] ),
 				$reflection->getMethod( $callable[1] )
 			);
 		} else {
-			$reflection = new \ReflectionClass( $callable );
+			$reflection = new ReflectionClass( $callable );
 			if ( $reflection->isSubclassOf( '\EE\Dispatcher\CommandNamespace' ) ) {
 				$command = self::create_namespace( $parent, $name, $callable );
 			} elseif ( $reflection->hasMethod( '__invoke' ) ) {
@@ -74,7 +79,7 @@ class CommandFactory {
 			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
 
 			$doc_comment = self::get_doc_comment( $inherited_method );
-			$docparser   = new \EE\DocParser( $doc_comment );
+			$docparser   = new DocParser( $doc_comment );
 		}
 
 		if ( is_array( $callable ) ) {
@@ -87,7 +92,7 @@ class CommandFactory {
 			}
 		}
 		if ( ! $doc_comment ) {
-			\EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
+			EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
 		}
 
 		$when_invoked = function ( $args, $assoc_args ) use ( $callable ) {
@@ -110,12 +115,12 @@ class CommandFactory {
 	 * @param mixed $callable
 	 */
 	private static function create_composite_command( $parent, $name, $callable ) {
-		$reflection = new \ReflectionClass( $callable );
+		$reflection = new ReflectionClass( $callable );
 		$doc_comment = self::get_doc_comment( $reflection );
 		if ( ! $doc_comment ) {
-			\EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
+			EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
 		}
-		$docparser = new \EE\DocParser( $doc_comment );
+		$docparser = new DocParser( $doc_comment );
 
 		$container = new CompositeCommand( $parent, $name, $docparser );
 
@@ -144,12 +149,12 @@ class CommandFactory {
 	 * @param mixed $callable
 	 */
 	private static function create_namespace( $parent, $name, $callable ) {
-		$reflection = new \ReflectionClass( $callable );
+		$reflection = new ReflectionClass( $callable );
 		$doc_comment = self::get_doc_comment( $reflection );
 		if ( ! $doc_comment ) {
-			\EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
+			EE::debug( null === $doc_comment ? "Failed to get doc comment for {$name}." : "No doc comment for {$name}.", 'commandfactory' );
 		}
-		$docparser = new \EE\DocParser( $doc_comment );
+		$docparser = new DocParser( $doc_comment );
 
 		return new CommandNamespace( $parent, $name, $docparser );
 	}
@@ -169,12 +174,12 @@ class CommandFactory {
 	 * @param ReflectionMethod $reflection
 	 */
 	private static function get_inherited_docparser( $doc_comment, $reflection ) {
-		$docparser = new \EE\DocParser( $doc_comment );
+		$docparser = new DocParser( $doc_comment );
 		while ( $docparser->has_tag( 'inheritdoc' ) ) {
 			$inherited_method = $reflection->getDeclaringClass()->getParentClass()->getMethod( $reflection->name );
 
 			$doc_comment = self::get_doc_comment( $inherited_method );
-			$docparser   = new \EE\DocParser( $doc_comment );
+			$docparser   = new DocParser( $doc_comment );
 		}
 
 		return $docparser;
@@ -216,7 +221,7 @@ class CommandFactory {
 		} elseif ( is_readable( $filename ) && ( $contents = file_get_contents( $filename ) ) ) {
 			self::$file_contents[ $filename ] = $contents = explode( "\n", $contents );
 		} else {
-			\EE::debug( "Could not read contents for filename '{$filename}'.", 'commandfactory' );
+			EE::debug( "Could not read contents for filename '{$filename}'.", 'commandfactory' );
 			return null;
 		}
 

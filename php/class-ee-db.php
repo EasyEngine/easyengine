@@ -1,5 +1,7 @@
 <?php
 
+use EE\Utils;
+
 class EE_DB {
 
 	/**
@@ -158,7 +160,7 @@ class EE_DB {
 		$conditions = [];
 
 		if ( 'array' === gettype( $args[0] ) ) {
-			if ( \EE\Utils\is_assoc( $args[0] ) ) {
+			if ( Utils\is_assoc( $args[0] ) ) {
 				$condition_keys = array_keys( $args[0] );
 				foreach ( $condition_keys as $key ) {
 					$conditions[] = $this->get_where_fragment( [ $key, $args[0][ $key ] ] );

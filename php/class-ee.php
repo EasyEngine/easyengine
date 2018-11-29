@@ -6,6 +6,9 @@ use EE\FileCache;
 use EE\Process;
 use EE\Utils;
 use Mustangostang\Spyc;
+use cli\Colors;
+use EE\DocParser;
+use EE\SynopsisParser;
 
 /**
  * Various utilities for EE commands.
@@ -166,7 +169,7 @@ class EE {
 	 * @return string Colorized string.
 	 */
 	public static function colorize( $string ) {
-		return \cli\Colors::colorize( $string, self::get_runner()->in_color() );
+		return Colors::colorize( $string, self::get_runner()->in_color() );
 	}
 
 	/**
@@ -338,7 +341,7 @@ class EE {
 					$subcommand = new Dispatcher\CompositeCommand(
 						$command,
 						$subcommand_name,
-						new \EE\DocParser( '' )
+						new DocParser( '' )
 					);
 					$command->add_subcommand( $subcommand_name, $subcommand );
 				} else {
@@ -383,7 +386,7 @@ class EE {
 			if ( is_string( $args['synopsis'] ) ) {
 				$leaf_command->set_synopsis( $args['synopsis'] );
 			} elseif ( is_array( $args['synopsis'] ) ) {
-				$synopsis = \EE\SynopsisParser::render( $args['synopsis'] );
+				$synopsis = SynopsisParser::render( $args['synopsis'] );
 				$leaf_command->set_synopsis( $synopsis );
 				$long_desc = '';
 				$bits = explode( ' ', $synopsis );
@@ -688,7 +691,7 @@ class EE {
 	 * @param array $assoc_args Skips prompt if 'yes' is provided.
 	 */
 	public static function confirm( $question, $assoc_args = array(), $exit = true ) {
-		if ( ! \EE\Utils\get_flag_value( $assoc_args, 'yes' ) ) {
+		if ( ! Utils\get_flag_value( $assoc_args, 'yes' ) ) {
 			fwrite( STDOUT, $question . ' [y/n] ' );
 
 			$answer = strtolower( trim( fgets( STDIN ) ) );
@@ -752,7 +755,7 @@ class EE {
 	 * @param array $assoc_args
 	 */
 	public static function read_value( $raw_value, $assoc_args = array() ) {
-		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
+		if ( Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$value = json_decode( $raw_value, true );
 			if ( null === $value ) {
 				EE::error( sprintf( 'Invalid JSON: %s', $raw_value ) );
@@ -771,9 +774,9 @@ class EE {
 	 * @param array $assoc_args Arguments passed to the command, determining format.
 	 */
 	public static function print_value( $value, $assoc_args = array() ) {
-		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
+		if ( Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$value = json_encode( $value );
-		} elseif ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'yaml' ) {
+		} elseif ( Utils\get_flag_value( $assoc_args, 'format' ) === 'yaml' ) {
 			$value = Spyc::YAMLDump( $value, 2, 0 );
 		} elseif ( is_array( $value ) || is_object( $value ) ) {
 			$value = var_export( $value );
@@ -936,7 +939,7 @@ class EE {
 		$config_path = escapeshellarg( $config_path );
 
 		$args = implode( ' ', array_map( 'escapeshellarg', $args ) );
-		$assoc_args = \EE\Utils\assoc_args_to_str( $assoc_args );
+		$assoc_args = Utils\assoc_args_to_str( $assoc_args );
 
 		$full_command = "EE_CONFIG_PATH={$config_path} {$php_bin} {$script_path} {$command} {$args} {$assoc_args}";
 
@@ -1066,7 +1069,7 @@ class EE {
 			$script_path = $GLOBALS['argv'][0];
 
 			// Persist runtime arguments unless they've been specified otherwise.
-			$configurator = \EE::get_configurator();
+			$configurator = EE::get_configurator();
 			$argv = array_slice( $GLOBALS['argv'], 1 );
 			list( $_, $_, $runtime_config ) = $configurator->parse_args( $argv );
 			foreach ( $runtime_config as $k => $v ) {

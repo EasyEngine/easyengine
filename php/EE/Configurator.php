@@ -3,6 +3,7 @@
 namespace EE;
 
 use Mustangostang\Spyc;
+use EE\Utils;
 
 /**
  * Handles file- and runtime-based configuration values.
@@ -276,7 +277,7 @@ class Configurator {
 				$value = $config[ $key ];
 
 				if ( 'require' == $key ) {
-					$value = \EE\Utils\expand_globs( $value );
+					$value = Utils\expand_globs( $value );
 				}
 
 				if ( $details['multiple'] ) {
@@ -311,7 +312,7 @@ class Configurator {
 
 		if ( isset( $config['require'] ) ) {
 			self::arrayify( $config['require'] );
-			$config['require'] = \EE\Utils\expand_globs( $config['require'] );
+			$config['require'] = Utils\expand_globs( $config['require'] );
 			foreach ( $config['require'] as &$path ) {
 				self::absolutize( $path, $yml_file_dir );
 			}
@@ -336,7 +337,7 @@ class Configurator {
 	 * @param string $base Base path to prepend.
 	 */
 	private static function absolutize( &$path, $base ) {
-		if ( ! empty( $path ) && ! \EE\Utils\is_path_absolute( $path ) ) {
+		if ( ! empty( $path ) && ! Utils\is_path_absolute( $path ) ) {
 			$path = $base . DIRECTORY_SEPARATOR . $path;
 		}
 	}
