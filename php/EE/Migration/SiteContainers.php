@@ -5,6 +5,7 @@ namespace EE\Migration;
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
 use Site_Command;
+use EE_DOCKER;
 
 /**
  * Migrate site specific containers to new images.
@@ -158,7 +159,7 @@ class SiteContainers {
 				'path_to_symlink' => $symlink_path,
 			],
 		];
-		EE::docker()->create_volumes( $site_url, $volumes );
+		EE_DOCKER::create_volumes( $site_url, $volumes );
 	}
 
 	/**
