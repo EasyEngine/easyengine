@@ -106,151 +106,6 @@ class Subcommand extends CompositeCommand {
 	}
 
 	/**
-	 * Wrapper for CLI Tools' prompt() method.
-	 *
-	 * @param string $question
-	 * @param string $default
-	 * @return string|false
-	 */
-	private function prompt( $question, $default ) {
-
-		$question .= ': ';
-		if ( function_exists( 'readline' ) ) {
-			return readline( $question );
-		}
-
-		echo $question;
-
-		$ret = stream_get_line( STDIN, 1024, "\n" );
-		if ( Utils\is_windows() && "\r" === substr( $ret, -1 ) ) {
-			$ret = substr( $ret, 0, -1 );
-		}
-		return $ret;
-	}
-
-	/**
-	 * Interactively prompt the user for input
-	 * based on defined synopsis and passed arguments.
-	 *
-	 * @param array $args
-	 * @param array $assoc_args
-	 * @return array
-	 */
-	private function prompt_args( $args, $assoc_args ) {
-
-		$synopsis = $this->get_synopsis();
-
-		if ( ! $synopsis ) {
-			return array( $args, $assoc_args );
-		}
-
-		$spec = array_filter(
-			\EE\SynopsisParser::parse( $synopsis ),
-			function( $spec_arg ) {
-				return in_array( $spec_arg['type'], array( 'generic', 'positional', 'assoc', 'flag' ) );
-			}
-		);
-
-		$spec = array_values( $spec );
-
-		$prompt_args = EE::get_config( 'prompt' );
-		if ( true !== $prompt_args ) {
-			$prompt_args = explode( ',', $prompt_args );
-		}
-
-		// 'positional' arguments are positional (aka zero-indexed)
-		// so $args needs to be reset before prompting for new arguments
-		$args = array();
-		foreach ( $spec as $key => $spec_arg ) {
-
-			// When prompting for specific arguments (e.g. --prompt=user_pass),
-			// ignore all arguments that don't match.
-			if ( is_array( $prompt_args ) ) {
-				if ( 'assoc' !== $spec_arg['type'] ) {
-					continue;
-				}
-				if ( ! in_array( $spec_arg['name'], $prompt_args, true ) ) {
-					continue;
-				}
-			}
-
-			$current_prompt = ( $key + 1 ) . '/' . count( $spec ) . ' ';
-			$default = $spec_arg['optional'] ? '' : false;
-
-			// 'generic' permits arbitrary key=value (e.g. [--<field>=<value>] )
-			if ( 'generic' == $spec_arg['type'] ) {
-
-				list( $key_token, $value_token ) = explode( '=', $spec_arg['token'] );
-
-				$repeat = false;
-				do {
-					if ( ! $repeat ) {
-						$key_prompt = $current_prompt . $key_token;
-					} else {
-						$key_prompt = str_repeat( ' ', strlen( $current_prompt ) ) . $key_token;
-					}
-
-					$key = $this->prompt( $key_prompt, $default );
-					if ( false === $key ) {
-						return array( $args, $assoc_args );
-					}
-
-					if ( $key ) {
-						$key_prompt_count = strlen( $key_prompt ) - strlen( $value_token ) - 1;
-						$value_prompt = str_repeat( ' ', $key_prompt_count ) . '=' . $value_token;
-
-						$value = $this->prompt( $value_prompt, $default );
-						if ( false === $value ) {
-							return array( $args, $assoc_args );
-						}
-
-						$assoc_args[ $key ] = $value;
-
-						$repeat = true;
-					} else {
-						$repeat = false;
-					}
-				} while ( $repeat );
-
-			} else {
-
-				$prompt = $current_prompt . $spec_arg['token'];
-				if ( 'flag' == $spec_arg['type'] ) {
-					$prompt .= ' (Y/n)';
-				}
-
-				$response = $this->prompt( $prompt, $default );
-				if ( false === $response ) {
-					return array( $args, $assoc_args );
-				}
-
-				if ( $response ) {
-					switch ( $spec_arg['type'] ) {
-						case 'positional':
-							if ( $spec_arg['repeating'] ) {
-								$response = explode( ' ', $response );
-							} else {
-								$response = array( $response );
-							}
-							$args = array_merge( $args, $response );
-							break;
-						case 'assoc':
-							$assoc_args[ $spec_arg['name'] ] = $response;
-							break;
-						case 'flag':
-							if ( 'Y' == strtoupper( $response ) ) {
-								$assoc_args[ $spec_arg['name'] ] = true;
-							}
-							break;
-					}
-				}
-			}
-		}
-
-		return array( $args, $assoc_args );
-	}
-
-	/**
 	 * Validate the supplied arguments to the command.
 	 * Throws warnings or errors if arguments are missing
 	 * or invalid.
@@ -382,19 +237,11 @@ class Subcommand extends CompositeCommand {
 
 	/**
 	 * Invoke the subcommand with the supplied arguments.
-	 * Given a --prompt argument, interactively request input
-	 * from the end user.
 	 *
 	 * @param array $args
 	 * @param array $assoc_args
 	 */
 	public function invoke( $args, $assoc_args, $extra_args ) {
-		static $prompted_once = false;
-		if ( \EE::get_config( 'prompt' ) && ! $prompted_once ) {
-			list( $_args, $assoc_args ) = $this->prompt_args( $args, $assoc_args );
-			$args = array_merge( $args, $_args );
-			$prompted_once = true;
-		}
 
 		$extra_positionals = array();
 		foreach ( $extra_args as $k => $v ) {

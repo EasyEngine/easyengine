@@ -1599,14 +1599,15 @@ function get_image_versions() {
 /**
  * Function to get httpcode or port occupancy info.
  *
- * @param string $url     url to get info about.
- * @param int $port       The port to check.
- * @param bool $port_info Return port info or httpcode.
- * @param mixed $auth     Send http auth with passed value if not false.
+ * @param string $url             url to get info about.
+ * @param int $port               The port to check.
+ * @param bool $port_info         Return port info or httpcode.
+ * @param mixed $auth             Send http auth with passed value if not false.
+ * @param bool $resolve_localhost Wether to reolve curl request to localhost or not.
  *
  * @return bool|int port occupied or httpcode.
  */
-function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
+function get_curl_info( $url, $port = 80, $port_info = false, $auth = false, $resolve_localhost = false ) {
 
 	$ch = curl_init( $url );
 	curl_setopt( $ch, CURLOPT_HEADER, true );
@@ -1614,6 +1615,9 @@ function get_curl_info( $url, $port = 80, $port_info = false, $auth = false ) {
 	curl_setopt( $ch, CURLOPT_NOBODY, true );
 	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
 	curl_setopt( $ch, CURLOPT_PORT, $port );
+	if ( $resolve_localhost ) {
+		curl_setopt( $ch, CURLOPT_RESOLVE, [ $url . ':' . $port . ':' . LOCALHOST_IP ] );
+	}
 	if ( $auth ) {
 		curl_setopt( $ch, CURLOPT_USERPWD, $auth );
 	}
@@ -1639,4 +1643,54 @@ function get_config_value( $key, $default = null ) {
 	$existing_config  = Spyc::YAMLLoad( $config_file_path );
 
 	return empty( $existing_config[ $key ] ) ? $default : $existing_config[ $key ];
+}
+
+/**
+ * Random name generator.
+ *
+ * @return string
+ */
+function random_name_generator() {
+
+	$left = [
+		'admiring', 'adoring', 'affectionate', 'agitated', 'amazing', 'angry', 'awesome', 'blissful', 'bold',
+		'boring', 'brave', 'charming', 'clever', 'cocky', 'cool', 'compassionate', 'competent', 'condescending',
+		'confident', 'cranky', 'crazy', 'dazzling', 'determined', 'distracted', 'dreamy', 'eager', 'ecstatic',
+		'elastic', 'elated', 'elegant', 'eloquent', 'epic', 'fervent', 'festive', 'flamboyant', 'focused', 'friendly',
+		'frosty', 'gallant', 'gifted', 'goofy', 'gracious', 'happy', 'hardcore', 'heuristic', 'hopeful', 'hungry',
+		'infallible', 'inspiring', 'jolly', 'jovial', 'keen', 'kind', 'laughing', 'loving', 'lucid', 'magical',
+		'mystifying', 'modest', 'musing', 'naughty', 'nervous', 'nifty', 'nostalgic', 'objective', 'optimistic',
+		'peaceful', 'pedantic', 'pensive', 'practical', 'priceless', 'quirky', 'quizzical', 'recursing', 'relaxed',
+		'reverent', 'romantic', 'sad', 'serene', 'sharp', 'silly', 'sleepy', 'stoic', 'stupefied', 'suspicious',
+		'sweet', 'tender', 'thirsty', 'trusting', 'unruffled', 'upbeat', 'vibrant', 'vigilant', 'vigorous',
+		'wizardly', 'wonderful', 'xenodochial', 'youthful', 'zealous', 'zen',
+	];
+
+	$right = [ 'albattani', 'allen', 'almeida', 'antonelli', 'agnesi', 'archimedes', 'ardinghelli', 'aryabhata',
+		'austin', 'babbage', 'banach', 'banzai', 'bardeen', 'bartik', 'bassi', 'beaver', 'bell', 'benz', 'bhabha',
+		'bhaskara', 'black', 'blackburn', 'blackwell', 'bohr', 'booth', 'borg', 'bose', 'boyd', 'brahmagupta',
+		'brattain', 'brown', 'burnell', 'buck', 'burnell', 'cannon', 'carson', 'cartwright', 'chandrasekhar',
+		'chaplygin', 'chatelet', 'chatterjee', 'chebyshev', 'cocks', 'cohen', 'chaum', 'clarke', 'colden', 'cori',
+		'cray', 'curran', 'curie', 'darwin', 'davinci', 'dewdney', 'dhawan', 'diffie', 'dijkstra', 'dirac', 'driscoll',
+		'dubinsky', 'easley', 'edison', 'einstein', 'elbakyan', 'elgamal', 'elion', 'ellis', 'engelbart', 'euclid',
+		'euler', 'faraday', 'feistel', 'fermat', 'fermi', 'feynman', 'franklin', 'gagarin', 'galileo', 'galois',
+		'ganguly', 'gates', 'gauss', 'germain', 'goldberg', 'goldstine', 'goldwasser', 'golick', 'goodall', 'gould',
+		'greider', 'grothendieck', 'haibt', 'hamilton', 'haslett', 'hawking', 'hellman', 'heisenberg', 'hermann',
+		'herschel', 'hertz', 'heyrovsky', 'hodgkin', 'hofstadter', 'hoover', 'hopper', 'hugle', 'hypatia', 'ishizaka',
+		'jackson', 'jang', 'jennings', 'jepsen', 'johnson', 'joliot', 'jones', 'kalam', 'kapitsa', 'kare', 'keldysh',
+		'keller', 'kepler', 'khayyam', 'khorana', 'kilby', 'kirch', 'knuth', 'kowalevski', 'lalande', 'lamarr',
+		'lamport', 'leakey', 'leavitt', 'lederberg', 'lehmann', 'lewin', 'lichterman', 'liskov', 'lovelace', 'lumiere',
+		'mahavira', 'margulis', 'matsumoto', 'maxwell', 'mayer', 'mccarthy', 'mcclintock', 'mclaren', 'mclean',
+		'mcnulty', 'mendel', 'mendeleev', 'meitner', 'meninsky', 'merkle', 'mestorf', 'minsky', 'mirzakhani',
+		'moore', 'morse', 'murdock', 'moser', 'napier', 'nash', 'neumann', 'newton', 'nightingale', 'nobel',
+		'noether', 'northcutt', 'noyce', 'panini', 'pare', 'pascal', 'pasteur', 'payne', 'perlman', 'pike',
+		'poincare', 'poitras', 'proskuriakova', 'ptolemy', 'raman', 'ramanujan', 'ride', 'montalcini', 'ritchie',
+		'rhodes', 'robinson', 'roentgen', 'rosalind', 'rubin', 'saha', 'sammet', 'sanderson', 'shannon', 'shaw',
+		'shirley', 'shockley', 'shtern', 'sinoussi', 'snyder', 'solomon', 'spence', 'sutherland', 'stallman',
+		'stonebraker', 'swanson', 'swartz', 'swirles', 'taussig', 'tereshkova', 'tesla', 'tharp', 'thompson',
+		'torvalds', 'tu', 'turing', 'varahamihira', 'vaughan', 'visvesvaraya', 'volhard', 'villani', 'wescoff',
+		'wiles', 'williams', 'williamson', 'wilson', 'wing', 'wozniak', 'wright', 'wu', 'yalow', 'yonath', "zhukovsky",
+	];
+
+	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
 }

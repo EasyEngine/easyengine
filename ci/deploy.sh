@@ -32,8 +32,8 @@ echo "|1|qPmmP7LVZ7Qbpk7AylmkfR0FApQ=|WUy1WS3F4qcr3R5Sc728778goPw= ssh-rsa AAAAB
 
 git clone git@github.com:easyengine/easyengine-builds.git
 
-git config user.name "Travis CI"
-git config user.email "travis@travis-ci.org"
+git config user.name "rtBot"
+git config user.email "43742164+rtBot@users.noreply.github.com"
 git config push.default "current"
 
 if [[ "$TRAVIS_BRANCH" == "develop" ]]; then
