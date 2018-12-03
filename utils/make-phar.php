@@ -170,6 +170,7 @@ $finder
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-ctype')
 	->in(EE_VENDOR_DIR . '/monolog')
 	->in(EE_VENDOR_DIR . '/guzzlehttp')
+	->in(EE_VENDOR_DIR . '/ralouphie/getallheaders')
 	->in(EE_VENDOR_DIR . '/acmephp')
 	->in(EE_VENDOR_DIR . '/league')
 	->in(EE_VENDOR_DIR . '/webmozart')
