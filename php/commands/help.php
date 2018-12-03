@@ -15,11 +15,11 @@ class Help_Command extends EE_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # get help for `core` command
-	 *     ee help core
+	 *     # get help for `site` command
+	 *     ee help site
 	 *
-	 *     # get help for `core download` subcommand
-	 *     ee help core download
+	 *     # get help for `site create` subcommand
+	 *     ee help site create
 	 */
 	public function __invoke( $args, $assoc_args ) {
 		$r = EE::get_runner()->find_command_to_run( $args );
