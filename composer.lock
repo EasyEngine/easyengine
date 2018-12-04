@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f9705fa3a3b4e349f1e277b6b171831",
+    "content-hash": "eb75ca7c2de58a1c1ddd96abc234a1e1",
     "packages": [
         {
             "name": "acmephp/core",
@@ -437,16 +437,16 @@
         },
         {
             "name": "easyengine/admin-tools-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/admin-tools-command.git",
-                "reference": "4a65b89765ea61512e1e2b56a5f788a2927db564"
+                "reference": "53617712ea658da31badc970d55802fef6c92cd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/4a65b89765ea61512e1e2b56a5f788a2927db564",
-                "reference": "4a65b89765ea61512e1e2b56a5f788a2927db564",
+                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/53617712ea658da31badc970d55802fef6c92cd8",
+                "reference": "53617712ea658da31badc970d55802fef6c92cd8",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -476,20 +476,20 @@
             ],
             "description": "Command to manage admin tools for php based sites.",
             "homepage": "https://github.com/easyengine/amdin-tools",
-            "time": "2018-11-28T13:50:00+00:00"
+            "time": "2018-12-04T11:50:13+00:00"
         },
         {
             "name": "easyengine/auth-command",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/auth-command.git",
-                "reference": "4fb77a34be9e735ad2325475602fcbf5a4e148cc"
+                "reference": "9c1681041d1307744207dfaba0cb3d7189f4d0e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/4fb77a34be9e735ad2325475602fcbf5a4e148cc",
-                "reference": "4fb77a34be9e735ad2325475602fcbf5a4e148cc",
+                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/9c1681041d1307744207dfaba0cb3d7189f4d0e4",
+                "reference": "9c1681041d1307744207dfaba0cb3d7189f4d0e4",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -524,7 +524,7 @@
             ],
             "description": "Configure HTTP Authentication and whitelisting for EasyEngine site",
             "homepage": "https://github.com/easyengine/auth-command",
-            "time": "2018-11-20T12:20:49+00:00"
+            "time": "2018-12-04T11:48:09+00:00"
         },
         {
             "name": "easyengine/config-command",
@@ -692,16 +692,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "a7aa3e01262ea8d255b08b0b1b0919cabaf7f708"
+                "reference": "dd244842a44b1e9bf9758a24c3bc111c3a3f7b41"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/a7aa3e01262ea8d255b08b0b1b0919cabaf7f708",
-                "reference": "a7aa3e01262ea8d255b08b0b1b0919cabaf7f708",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/dd244842a44b1e9bf9758a24c3bc111c3a3f7b41",
+                "reference": "dd244842a44b1e9bf9758a24c3bc111c3a3f7b41",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -733,7 +733,7 @@
             ],
             "description": "Command to manager global containers/services in EasyEngine",
             "homepage": "https://github.com/easyengine/service-command",
-            "time": "2018-11-29T16:00:52+00:00"
+            "time": "2018-12-04T12:00:02+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -777,16 +777,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.2.4",
+            "version": "v2.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "6a34d51ba8e2eaeca2b0726bac314a39bee0c819"
+                "reference": "4fe11c88d3ef8a40e2890d072c0131703ff82e38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/6a34d51ba8e2eaeca2b0726bac314a39bee0c819",
-                "reference": "6a34d51ba8e2eaeca2b0726bac314a39bee0c819",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/4fe11c88d3ef8a40e2890d072c0131703ff82e38",
+                "reference": "4fe11c88d3ef8a40e2890d072c0131703ff82e38",
                 "shasum": ""
             },
             "require": {
@@ -832,20 +832,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-11-29T16:02:27+00:00"
+            "time": "2018-12-04T11:53:25+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "c331359762d84cca505e0628f05ec2fc37ac6782"
+                "reference": "4aadca07d8f0209990cf9bca5a8861dd1377546d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/c331359762d84cca505e0628f05ec2fc37ac6782",
-                "reference": "c331359762d84cca505e0628f05ec2fc37ac6782",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/4aadca07d8f0209990cf9bca5a8861dd1377546d",
+                "reference": "4aadca07d8f0209990cf9bca5a8861dd1377546d",
                 "shasum": ""
             },
             "require-dev": {
@@ -872,20 +872,20 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-11-28T14:06:49+00:00"
+            "time": "2018-12-04T11:57:11+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "8aac1a04554d940ccc601e6310183dfa2e692c81"
+                "reference": "134b1fb9864115ae552c2b1c2b9274b4ec63ecc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/8aac1a04554d940ccc601e6310183dfa2e692c81",
-                "reference": "8aac1a04554d940ccc601e6310183dfa2e692c81",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/134b1fb9864115ae552c2b1c2b9274b4ec63ecc3",
+                "reference": "134b1fb9864115ae552c2b1c2b9274b4ec63ecc3",
                 "shasum": ""
             },
             "require-dev": {
@@ -924,7 +924,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2018-11-28T14:04:17+00:00"
+            "time": "2018-12-04T11:55:41+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1044,32 +1044,33 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.4.2",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c"
+                "reference": "53662d6688033a5eccde987bdd5a4a98ebe2d952"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
-                "reference": "f5b8a8512e2b58b0071a7280e39f14f72e05d87c",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/53662d6688033a5eccde987bdd5a4a98ebe2d952",
+                "reference": "53662d6688033a5eccde987bdd5a4a98ebe2d952",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0",
-                "psr/http-message": "~1.0"
+                "psr/http-message": "~1.0",
+                "ralouphie/getallheaders": "^2.0.5"
             },
             "provide": {
                 "psr/http-message-implementation": "1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "phpunit/phpunit": "~4.8.36 || ^5.7.27 || ^6.5.8"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4-dev"
+                    "dev-master": "1.5-dev"
                 }
             },
             "autoload": {
@@ -1099,13 +1100,14 @@
             "keywords": [
                 "http",
                 "message",
+                "psr-7",
                 "request",
                 "response",
                 "stream",
                 "uri",
                 "url"
             ],
-            "time": "2017-03-20T17:10:46+00:00"
+            "time": "2018-12-03T05:07:51+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -1526,6 +1528,46 @@
                 "psr-3"
             ],
             "time": "2018-11-20T15:27:04+00:00"
+        },
+        {
+            "name": "ralouphie/getallheaders",
+            "version": "2.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ralouphie/getallheaders.git",
+                "reference": "5601c8a83fbba7ef674a7369456d12f1e0d0eafa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ralouphie/getallheaders/zipball/5601c8a83fbba7ef674a7369456d12f1e0d0eafa",
+                "reference": "5601c8a83fbba7ef674a7369456d12f1e0d0eafa",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~3.7.0",
+                "satooshi/php-coveralls": ">=1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/getallheaders.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ralph Khattar",
+                    "email": "ralph.khattar@gmail.com"
+                }
+            ],
+            "description": "A polyfill for getallheaders.",
+            "time": "2016-02-11T07:05:27+00:00"
         },
         {
             "name": "rmccue/requests",
