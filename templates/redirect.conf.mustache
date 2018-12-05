@@ -15,6 +15,6 @@ server {
 	ssl_certificate /etc/nginx/certs/{{cert_site_name}}.crt;
 	ssl_certificate_key /etc/nginx/certs/{{cert_site_name}}.key;
 	server_name  {{server_name}};
-	return  301 https://{{site_name}}$request_uri;
+	#return  301 https://{{site_name}}$request_uri;
 }
 {{/ssl}}
