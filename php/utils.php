@@ -1646,6 +1646,22 @@ function get_config_value( $key, $default = null ) {
 }
 
 /**
+ * Function to download file to a path.
+ *
+ * @param string $path         Path to download the file on.
+ * @param string $download_url Url to download the file from.
+ */
+function download( $path, $download_url ) {
+
+	$headers = array();
+	$options = array(
+		'timeout'  => 1200,  // 20 minutes ought to be enough for everybody.
+		'filename' => $path,
+	);
+	http_request( 'GET', $download_url, null, $headers, $options );
+}
+
+/**
  * Random name generator.
  *
  * @return string
