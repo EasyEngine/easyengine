@@ -1671,7 +1671,7 @@ function download( $path, $download_url ) {
  */
 function extract_zip( $zip_file, $path_to_extract ) {
 
-	$zip = new ZipArchive;
+	$zip = new \ZipArchive;
 	$res = $zip->open( $zip_file );
 	if ( true === $res ) {
 		$zip->extractTo( $path_to_extract );
