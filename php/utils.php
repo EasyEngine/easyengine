@@ -1662,6 +1662,28 @@ function download( $path, $download_url ) {
 }
 
 /**
+ * Extract zip files.
+ *
+ * @param string $zip_file        Path to the zip file.
+ * @param string $path_to_extract Path where zip needs to be extracted to.
+ *
+ * @return bool Success of extraction.
+ */
+function extract_zip( $zip_file, $path_to_extract ) {
+
+	$zip = new ZipArchive;
+	$res = $zip->open( $zip_file );
+	if ( true === $res ) {
+		$zip->extractTo( $path_to_extract );
+		$zip->close();
+
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Random name generator.
  *
  * @return string
