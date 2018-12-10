@@ -1646,6 +1646,44 @@ function get_config_value( $key, $default = null ) {
 }
 
 /**
+ * Function to download file to a path.
+ *
+ * @param string $path         Path to download the file on.
+ * @param string $download_url Url to download the file from.
+ */
+function download( $path, $download_url ) {
+
+	$headers = array();
+	$options = array(
+		'timeout'  => 1200,  // 20 minutes ought to be enough for everybody.
+		'filename' => $path,
+	);
+	http_request( 'GET', $download_url, null, $headers, $options );
+}
+
+/**
+ * Extract zip files.
+ *
+ * @param string $zip_file        Path to the zip file.
+ * @param string $path_to_extract Path where zip needs to be extracted to.
+ *
+ * @return bool Success of extraction.
+ */
+function extract_zip( $zip_file, $path_to_extract ) {
+
+	$zip = new \ZipArchive;
+	$res = $zip->open( $zip_file );
+	if ( true === $res ) {
+		$zip->extractTo( $path_to_extract );
+		$zip->close();
+
+		return true;
+	}
+
+	return false;
+}
+
+/**
  * Random name generator.
  *
  * @return string
