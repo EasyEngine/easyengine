@@ -260,6 +260,9 @@ class CLI_Command extends EE_Command {
 		if ( ! Utils\inside_phar() ) {
 			EE::error( 'You can only self-update Phar files.' );
 		}
+		if ( IS_DARWIN ) {
+			EE::error( 'Please use `brew upgrade easyengine` to update EasyEngine on macOS.' );
+		}
 		$old_phar = realpath( $_SERVER['argv'][0] );
 		if ( ! is_writable( $old_phar ) ) {
 			EE::error( sprintf( '%s is not writable by current user.', $old_phar ) );
