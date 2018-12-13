@@ -4,6 +4,11 @@ use Composer\Semver\Comparator;
 use EE\Model\Site;
 use EE\Utils;
 use Symfony\Component\Filesystem\Filesystem;
+use cli\Table;
+use cli\table\Ascii;
+use EE\Formatter;
+use EE\Process;
+use EE\Completions;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -116,7 +121,7 @@ class CLI_Command extends EE_Command {
 		if ( ! is_dir( $packages_dir ) ) {
 			$packages_dir = null;
 		}
-		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
+		if ( Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$info = array(
 				'php_binary_path'      => $php_bin,
 				'global_config_path'   => $runner->global_config_path,
@@ -146,12 +151,12 @@ class CLI_Command extends EE_Command {
 				array( 'EE version', EE_VERSION ),
 			);
 
-			$info_table = new \cli\Table();
+			$info_table = new Table();
 			$info_table->setRows( $info );
-			$info_table->setRenderer( new \cli\table\Ascii() );
+			$info_table->setRenderer( new Ascii() );
 			$lines = array_slice( $info_table->getDisplayLines(), 2 );
 			foreach ( $lines as $line ) {
-				\EE::line( $line );
+				EE::line( $line );
 			}
 		}
 	}
@@ -211,7 +216,7 @@ class CLI_Command extends EE_Command {
 		$updates = $this->get_updates( $assoc_args );
 
 		if ( $updates ) {
-			$formatter = new \EE\Formatter(
+			$formatter = new Formatter(
 				$assoc_args,
 				array( 'version', 'update_type', 'package_url' )
 			);
@@ -291,7 +296,7 @@ class CLI_Command extends EE_Command {
 		}
 		EE::get_runner()->check_requirements();
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
-		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
+		$temp    = Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
 		$options = array(
 			'timeout'  => 600,  // 10 minutes ought to be enough for everybody.
@@ -313,7 +318,7 @@ class CLI_Command extends EE_Command {
 		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
 
 		$php_binary = Utils\get_php_binary();
-		$process    = EE\Process::create( "{$php_binary} $temp cli info", null, null );
+		$process    = Process::create( "{$php_binary} $temp cli info", null, null );
 		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );
@@ -389,7 +394,7 @@ class CLI_Command extends EE_Command {
 			}
 		}
 		foreach ( array( 'major', 'minor', 'patch' ) as $type ) {
-			if ( true === \EE\Utils\get_flag_value( $assoc_args, $type ) ) {
+			if ( true === Utils\get_flag_value( $assoc_args, $type ) ) {
 				return ! empty( $updates[$type] ) ? array( $updates[$type] ) : false;
 			}
 		}
@@ -449,10 +454,10 @@ class CLI_Command extends EE_Command {
 	 * @subcommand param-dump
 	 */
 	public function param_dump( $_, $assoc_args ) {
-		$spec = \EE::get_configurator()->get_spec();
+		$spec = EE::get_configurator()->get_spec();
 
-		if ( \EE\Utils\get_flag_value( $assoc_args, 'with-values' ) ) {
-			$config = \EE::get_configurator()->to_array();
+		if ( Utils\get_flag_value( $assoc_args, 'with-values' ) ) {
+			$config = EE::get_configurator()->to_array();
 			// Copy current config values to $spec
 			foreach ( $spec as $key => $value ) {
 				$current = null;
@@ -463,7 +468,7 @@ class CLI_Command extends EE_Command {
 			}
 		}
 
-		if ( 'var_export' === \EE\Utils\get_flag_value( $assoc_args, 'format' ) ) {
+		if ( 'var_export' === Utils\get_flag_value( $assoc_args, 'format' ) ) {
 			var_export( $spec );
 		} else {
 			echo json_encode( $spec );
@@ -544,7 +549,7 @@ class CLI_Command extends EE_Command {
 	 */
 	public function completions( $_, $assoc_args ) {
 		$line  = substr( $assoc_args['line'], 0, $assoc_args['point'] );
-		$compl = new \EE\Completions( $line );
+		$compl = new Completions( $line );
 		$compl->render();
 	}
 
@@ -593,7 +598,7 @@ class CLI_Command extends EE_Command {
 	private function get_update_type_str( $assoc_args ) {
 		$update_type = ' ';
 		foreach ( array( 'major', 'minor', 'patch' ) as $type ) {
-			if ( true === \EE\Utils\get_flag_value( $assoc_args, $type ) ) {
+			if ( true === Utils\get_flag_value( $assoc_args, $type ) ) {
 				$update_type = ' ' . $type . ' ';
 				break;
 			}

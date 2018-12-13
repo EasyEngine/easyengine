@@ -52,7 +52,7 @@ class CustomContainerMigrations {
 				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/container';
 				if ( is_dir( $migration_path ) ) {
 					$files = scandir( $migration_path );
-					if ( \EE\Utils\inside_phar() ) {
+					if ( Utils\inside_phar() ) {
 						$migrations[] = $files;
 					} else {
 						$migrations[] = array_slice( $files, 2 );
@@ -64,7 +64,7 @@ class CustomContainerMigrations {
 		// get migrations from core.
 		if ( is_dir( EE_ROOT . '/migrations/container' ) ) {
 			$files = scandir( EE_ROOT . '/migrations/container' );
-			if ( \EE\Utils\inside_phar() ) {
+			if ( Utils\inside_phar() ) {
 				$migrations[] = $files;
 			} else {
 				$migrations[] = array_slice( $files, 2 );

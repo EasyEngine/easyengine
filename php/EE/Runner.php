@@ -10,6 +10,7 @@ use EE\Model\Option;
 use EE\Utils;
 use Monolog\Logger;
 use Mustangostang\Spyc;
+use EE\RevertableStepProcessor;
 
 /**
  * Performs the execution of a command.
@@ -121,7 +122,7 @@ class Runner {
 	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
 	 */
 	private function migrate() {
-		$rsp = new \EE\RevertableStepProcessor();
+		$rsp = new RevertableStepProcessor();
 
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
 		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
@@ -254,7 +255,7 @@ class Runner {
 	 * @return array|string Command, args, and path on success; error message on failure
 	 */
 	public function find_command_to_run( $args ) {
-		$command = \EE::get_root_command();
+		$command = EE::get_root_command();
 
 		EE::do_hook( 'find_command_to_run_pre' );
 
@@ -515,7 +516,7 @@ class Runner {
 	 * @return bool
 	 */
 	public function is_command_disabled( $command ) {
-		$path = implode( ' ', array_slice( \EE\Dispatcher\get_path( $command ), 1 ) );
+		$path = implode( ' ', array_slice( Dispatcher\get_path( $command ), 1 ) );
 		return in_array( $path, $this->config['disabled_commands'] );
 	}
 
@@ -577,7 +578,7 @@ class Runner {
 	}
 
 	public function init_config() {
-		$configurator = \EE::get_configurator();
+		$configurator = EE::get_configurator();
 
 		$argv = array_slice( $GLOBALS['argv'], 1 );
 
@@ -905,7 +906,7 @@ class Runner {
 	 */
 	private function get_subcommand_suggestion( $entry, CompositeCommand $root_command = null ) {
 		$commands = array();
-		$this->enumerate_commands( $root_command ?: \EE::get_root_command(), $commands );
+		$this->enumerate_commands( $root_command ?: EE::get_root_command(), $commands );
 
 		return Utils\get_suggestion( $entry, $commands, $threshold = 2 );
 	}

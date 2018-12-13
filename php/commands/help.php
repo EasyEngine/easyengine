@@ -2,6 +2,7 @@
 
 use \EE\Utils;
 use \EE\Dispatcher;
+use cli\Shell;
 
 class Help_Command extends EE_Command {
 
@@ -57,7 +58,7 @@ class Help_Command extends EE_Command {
 		// Need to de-tab for wordwrapping to work properly.
 		$out = str_replace( "\t", $tab, $out );
 
-		$wordwrap_width = \cli\Shell::columns();
+		$wordwrap_width = Shell::columns();
 
 		// Wordwrap with indent.
 		$out = preg_replace_callback(

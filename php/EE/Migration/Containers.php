@@ -4,6 +4,9 @@ namespace EE\Migration;
 
 use EE\RevertableStepProcessor;
 use EE;
+use EE\Utils;
+use EE\Model\Option;
+use EE_DB;
 
 /**
  * Upgrade existing containers to new docker-image
@@ -19,11 +22,11 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function start_container_migration() {
-		EE\Utils\delem_log( 'Starting container migration' );
+		Utils\delem_log( 'Starting container migration' );
 
 		self::$rsp = new RevertableStepProcessor();
 
-		$img_versions     = EE\Utils\get_image_versions();
+		$img_versions     = Utils\get_image_versions();
 		$current_versions = self::get_current_docker_images_versions();
 		$updated_images   = [];
 
@@ -49,7 +52,7 @@ class Containers {
 			throw new \Exception( 'Unable to migrate sites to newer version' );
 		}
 
-		EE\Utils\delem_log( 'Container migration completed' );
+		Utils\delem_log( 'Container migration completed' );
 	}
 
 	/**
@@ -82,7 +85,7 @@ class Containers {
 	 */
 	public static function create_database_entry( $new_versions, $updated_images ) {
 		foreach ( $updated_images as $image ) {
-			EE\Model\Option::update( [ [ 'key', $image ] ], [ 'value' => $new_versions[ $image ] ] );
+			Option::update( [ [ 'key', $image ] ], [ 'value' => $new_versions[ $image ] ] );
 		}
 	}
 
@@ -96,7 +99,7 @@ class Containers {
 	 */
 	public static function revert_database_entry( $old_version, $updated_images ) {
 		foreach ( $updated_images as $image ) {
-			EE\Model\Option::update( [ [ 'key', $image ] ], [ 'value' => $old_version[ $image ] ] );
+			Option::update( [ [ 'key', $image ] ], [ 'value' => $old_version[ $image ] ] );
 		}
 	}
 
@@ -109,7 +112,7 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function pull_or_error( $image, $version ) {
-		if ( ! \EE::exec( "docker pull $image:$version" ) ) {
+		if ( ! EE::exec( "docker pull $image:$version" ) ) {
 			throw new \Exception( "Unable to pull $image. Please check logs for more details." );
 		}
 	}
@@ -195,7 +198,7 @@ class Containers {
 	 */
 	public static function migrate_site_containers( $updated_images ) {
 
-		$db    = new \EE_DB();
+		$db    = new EE_DB();
 		$sites = ( $db->table( 'sites' )->all() );
 
 		foreach ( $sites as $site ) {

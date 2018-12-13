@@ -3,6 +3,7 @@
 namespace EE\Dispatcher;
 
 use \EE\Utils;
+use EE;
 
 /**
  * A non-leaf node in the command tree.
@@ -34,7 +35,7 @@ class CompositeCommand {
 
 		$when_to_invoke = $docparser->get_tag( 'when' );
 		if ( $when_to_invoke ) {
-			\EE::get_runner()->register_early_invoke( $when_to_invoke, $this );
+			EE::get_runner()->register_early_invoke( $when_to_invoke, $this );
 		}
 	}
 
@@ -177,17 +178,17 @@ class CompositeCommand {
 		foreach ( $methods as $name => $subcommand ) {
 			$prefix = ( 0 == $i++ ) ? 'usage: ' : '   or: ';
 
-			if ( \EE::get_runner()->is_command_disabled( $subcommand ) ) {
+			if ( EE::get_runner()->is_command_disabled( $subcommand ) ) {
 				continue;
 			}
 
-			\EE::line( $subcommand->get_usage( $prefix ) );
+			EE::line( $subcommand->get_usage( $prefix ) );
 		}
 
 		$cmd_name = implode( ' ', array_slice( get_path( $this ), 1 ) );
 
-		\EE::line();
-		\EE::line( "See 'ee help $cmd_name <command>' for more information on a specific command." );
+		EE::line();
+		EE::line( "See 'ee help $cmd_name <command>' for more information on a specific command." );
 	}
 
 	/**
@@ -272,7 +273,7 @@ class CompositeCommand {
 			$binding['is_subcommand'] = true;
 		}
 
-		foreach ( \EE::get_configurator()->get_spec() as $key => $details ) {
+		foreach ( EE::get_configurator()->get_spec() as $key => $details ) {
 			if ( false === $details['runtime'] ) {
 				continue;
 			}

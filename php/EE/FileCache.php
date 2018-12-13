@@ -14,6 +14,8 @@
 namespace EE;
 
 use Symfony\Component\Finder\Finder;
+use EE;
+use DateTime;
 
 /**
  * Reads/writes to a filesystem cache
@@ -221,9 +223,9 @@ class FileCache {
 		// unlink expired files
 		if ( $ttl > 0 ) {
 			try {
-				$expire = new \DateTime();
+				$expire = new DateTime();
 			} catch ( \Exception $e ) {
-				\EE::error( $e->getMessage() );
+				EE::error( $e->getMessage() );
 			}
 			$expire->modify( '-' . $ttl . ' seconds' );
 
@@ -260,7 +262,7 @@ class FileCache {
 		if ( ! is_dir( $dir ) ) {
 			if ( ! @mkdir( $dir, 0777, true ) ) { // @codingStandardsIgnoreLine
 				$error = error_get_last();
-				\EE::warning( sprintf( "Failed to create directory '%s': %s.", $dir, $error['message'] ) );
+				EE::warning( sprintf( "Failed to create directory '%s': %s.", $dir, $error['message'] ) );
 				return false;
 			}
 		}

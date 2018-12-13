@@ -2,6 +2,8 @@
 
 namespace EE\Bootstrap;
 
+use EE;
+
 /**
  * Class RunnerInstance.
  *
@@ -27,6 +29,6 @@ final class RunnerInstance {
 			require_once EE_ROOT . '/php/EE/Configurator.php';
 		}
 
-		return \EE::get_runner();
+		return EE::get_runner();
 	}
 }

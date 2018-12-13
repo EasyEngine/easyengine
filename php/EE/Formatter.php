@@ -2,7 +2,11 @@
 
 namespace EE;
 
+use EE;
 use Mustangostang\Spyc;
+use EE\Utils;
+use cli\Table;
+use cli\Colors;
 
 /**
  * Output one or more items in a given format (e.g. table, JSON).
@@ -80,7 +84,7 @@ class Formatter {
 
 			if ( in_array( $this->args['format'], array( 'table', 'csv' ) ) ) {
 				if ( is_object( $items ) && is_a( $items, 'Iterator' ) ) {
-					$items = \EE\Utils\iterator_map( $items, array( $this, 'transform_item_values_to_json' ) );
+					$items = Utils\iterator_map( $items, array( $this, 'transform_item_values_to_json' ) );
 				} else {
 					$items = array_map( array( $this, 'transform_item_values_to_json' ), $items );
 				}
@@ -104,7 +108,7 @@ class Formatter {
 			if ( in_array( $this->args['format'], array( 'table', 'csv' ) ) && ( is_object( $value ) || is_array( $value ) ) ) {
 				$value = json_encode( $value );
 			}
-			\EE::print_value(
+			EE::print_value(
 				$value,
 				array(
 					'format' => $this->args['format'],
@@ -144,14 +148,14 @@ class Formatter {
 				break;
 
 			case 'csv':
-				\EE\Utils\write_csv( STDOUT, $items, $fields );
+				Utils\write_csv( STDOUT, $items, $fields );
 				break;
 
 			case 'json':
 			case 'yaml':
 				$out = array();
 				foreach ( $items as $item ) {
-					$out[] = \EE\Utils\pick_fields( $item, $fields );
+					$out[] = Utils\pick_fields( $item, $fields );
 				}
 
 				if ( 'json' === $this->args['format'] ) {
@@ -166,7 +170,7 @@ class Formatter {
 				break;
 
 			default:
-				\EE::error( 'Invalid format: ' . $this->args['format'] );
+				EE::error( 'Invalid format: ' . $this->args['format'] );
 		}
 	}
 
@@ -190,7 +194,7 @@ class Formatter {
 			if ( 'json' == $this->args['format'] ) {
 				$values[] = $item->$key;
 			} else {
-				\EE::print_value(
+				EE::print_value(
 					$item->$key,
 					array(
 						'format' => $this->args['format'],
@@ -221,7 +225,7 @@ class Formatter {
 		}
 
 		if ( ! isset( $key ) ) {
-			\EE::error( "Invalid field: $field." );
+			EE::error( "Invalid field: $field." );
 		}
 
 		return $key;
@@ -260,13 +264,13 @@ class Formatter {
 				if ( 'table' == $format ) {
 					self::show_table( $rows, $fields, $ascii_pre_colorized );
 				} elseif ( 'csv' == $format ) {
-					\EE\Utils\write_csv( STDOUT, $rows, $fields );
+					Utils\write_csv( STDOUT, $rows, $fields );
 				}
 				break;
 
 			case 'yaml':
 			case 'json':
-				\EE::print_value(
+				EE::print_value(
 					$data,
 					array(
 						'format' => $format,
@@ -275,7 +279,7 @@ class Formatter {
 				break;
 
 			default:
-				\EE::error( 'Invalid format: ' . $format );
+				EE::error( 'Invalid format: ' . $format );
 				break;
 
 		}
@@ -290,26 +294,26 @@ class Formatter {
 	 * @param bool|array $ascii_pre_colorized Optional. A boolean or an array of booleans to pass to `Table::setAsciiPreColorized()` if items in the table are pre-colorized. Default false.
 	 */
 	private static function show_table( $items, $fields, $ascii_pre_colorized = false ) {
-		$table = new \cli\Table();
+		$table = new Table();
 
-		$enabled = \cli\Colors::shouldColorize();
+		$enabled = Colors::shouldColorize();
 		if ( $enabled ) {
-			\cli\Colors::disable( true );
+			Colors::disable( true );
 		}
 
 		$table->setAsciiPreColorized( $ascii_pre_colorized );
 		$table->setHeaders( $fields );
 
 		foreach ( $items as $item ) {
-			$table->addRow( array_values( \EE\Utils\pick_fields( $item, $fields ) ) );
+			$table->addRow( array_values( Utils\pick_fields( $item, $fields ) ) );
 		}
 
 		foreach ( $table->getDisplayLines() as $line ) {
-			\EE::line( $line );
+			EE::line( $line );
 		}
 
 		if ( $enabled ) {
-			\cli\Colors::enable( true );
+			Colors::enable( true );
 		}
 	}
 

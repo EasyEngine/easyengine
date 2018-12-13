@@ -2,6 +2,8 @@
 
 namespace EE\Bootstrap;
 
+use EE;
+
 /**
  * Class IncludePackageAutoloader.
  *
@@ -33,7 +35,7 @@ final class IncludePackageAutoloader extends AutoloaderStep {
 		$autoloader_path = $runner()->get_packages_dir_path() . 'vendor/autoload.php';
 
 		if ( is_readable( $autoloader_path ) ) {
-			\EE::debug(
+			EE::debug(
 				'Loading packages from: ' . $autoloader_path,
 				'bootstrap'
 			);
@@ -52,6 +54,6 @@ final class IncludePackageAutoloader extends AutoloaderStep {
 	 * @return void
 	 */
 	protected function handle_failure() {
-		\EE::debug( 'No package autoload found to load.', 'bootstrap' );
+		EE::debug( 'No package autoload found to load.', 'bootstrap' );
 	}
 }

@@ -3,6 +3,8 @@
 namespace EE\Migration;
 
 use EE;
+use EE_DOCKER;
+use EE\Service\Utils as Service_Utils;
 
 /**
  * Upgrade existing global containers to new docker-image
@@ -21,7 +23,7 @@ class GlobalContainers {
 		$global_images           = self::get_all_global_images_with_service_name();
 		$running_global_services = [];
 		foreach ( $global_images as $image => $container_name ) {
-			if ( 'running' === \EE_DOCKER::container_status( $container_name ) ) {
+			if ( 'running' === EE_DOCKER::container_status( $container_name ) ) {
 				$running_global_services[] = $image;
 			}
 		}
@@ -77,7 +79,7 @@ class GlobalContainers {
 			$global_service_name   = ltrim( $global_container_name, 'ee-' );
 			EE::debug( "Removing  $global_container_name" );
 
-			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
+			if ( false !== EE_DOCKER::container_status( $global_container_name ) ) {
 				if ( ! EE::exec( "docker-compose stop $global_service_name && docker-compose rm -f $global_service_name" ) ) {
 					throw new \Exception( "Unable to stop $global_container_name container" );
 				}
@@ -94,9 +96,9 @@ class GlobalContainers {
 	public static function global_service_up( $service_name ) {
 		EE::debug( 'Start ' . $service_name . ' container up' );
 		if ( 'global-nginx-proxy' === $service_name ) {
-			\EE\Service\Utils\nginx_proxy_check();
+			Service_Utils\nginx_proxy_check();
 		} else {
-			\EE\Service\Utils\init_global_container( $service_name );
+			Service_Utils\init_global_container( $service_name );
 		}
 	}
 

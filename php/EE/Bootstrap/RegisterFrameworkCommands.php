@@ -2,6 +2,9 @@
 
 namespace EE\Bootstrap;
 
+use DirectoryIterator;
+use EE;
+
 /**
  * Class RegisterFrameworkCommands.
  *
@@ -21,7 +24,7 @@ final class RegisterFrameworkCommands implements BootstrapStep {
 	public function process( BootstrapState $state ) {
 		$cmd_dir = EE_ROOT . '/php/commands';
 
-		$iterator = new \DirectoryIterator( $cmd_dir );
+		$iterator = new DirectoryIterator( $cmd_dir );
 
 		foreach ( $iterator as $filename ) {
 			if ( '.php' !== substr( $filename, - 4 ) ) {
@@ -31,7 +34,7 @@ final class RegisterFrameworkCommands implements BootstrapStep {
 			try {
 				include_once "$cmd_dir/$filename";
 			} catch ( \Exception $exception ) {
-				\EE::warning(
+				EE::warning(
 					"Could not add command {$cmd_dir}/{$filename}. Reason: " . $exception->getMessage()
 				);
 			}

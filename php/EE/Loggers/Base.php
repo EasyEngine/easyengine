@@ -2,6 +2,8 @@
 
 namespace EE\Loggers;
 
+use EE;
+
 /**
  * Base logger class
  */
@@ -22,7 +24,7 @@ abstract class Base {
 	 * @return Runner Instance of the runner class
 	 */
 	protected function get_runner() {
-		return \EE::get_runner();
+		return EE::get_runner();
 	}
 
 	/**

@@ -2,6 +2,8 @@
 
 namespace EE\Model;
 
+use EE_DB;
+
 /**
  * Migration model class.
  */
@@ -14,7 +16,7 @@ class Migration extends Base {
 	 */
 	public static function get_migrations() {
 
-		$db = new \EE_DB();
+		$db = new EE_DB();
 		$migrations = $db->table( 'migrations' )
 			->select( 'migration' )
 			->get();

@@ -2,6 +2,8 @@
 
 namespace EE\Iterators;
 
+use EE:
+
 /**
  * Allows incrementally reading and parsing lines from a CSV file.
  */
@@ -20,7 +22,7 @@ class CSV implements \Iterator {
 	public function __construct( $filename, $delimiter = ',' ) {
 		$this->filePointer = fopen( $filename, 'rb' );
 		if ( ! $this->filePointer ) {
-			\EE::error( sprintf( 'Could not open file: %s', $filename ) );
+			EE::error( sprintf( 'Could not open file: %s', $filename ) );
 		}
 
 		$this->delimiter = $delimiter;

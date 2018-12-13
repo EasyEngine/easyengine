@@ -53,7 +53,7 @@ class Executor {
 				$migration_path = EE_VENDOR_DIR . '/easyengine/' . $package . '/migrations/db';
 				if ( is_dir( $migration_path ) ) {
 					$files = scandir( $migration_path );
-					if ( \EE\Utils\inside_phar() ) {
+					if ( Utils\inside_phar() ) {
 						$migrations[] = $files;
 					} else {
 						$migrations[] = array_slice( $files, 2 );
@@ -65,7 +65,7 @@ class Executor {
 		// get migrations from core.
 		if ( is_dir( EE_ROOT . '/migrations' ) ) {
 			$files = scandir( EE_ROOT . '/migrations/db' );
-			if ( \EE\Utils\inside_phar() ) {
+			if ( Utils\inside_phar() ) {
 				$migrations[] = $files;
 			} else {
 				$migrations[] = array_slice( $files, 2 );

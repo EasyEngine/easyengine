@@ -2,6 +2,8 @@
 
 namespace EE\Bootstrap;
 
+use EE;
+
 /**
  * Abstract class AutoloaderStep.
  *
@@ -42,7 +44,7 @@ abstract class AutoloaderStep implements BootstrapStep {
 					require $autoloader_path;
 					$found_autoloader = true;
 				} catch ( \Exception $exception ) {
-					\EE::warning(
+					EE::warning(
 						"Failed to load autoloader '{$autoloader_path}'. Reason: "
 						. $exception->getMessage()
 					);

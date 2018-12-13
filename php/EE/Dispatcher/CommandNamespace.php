@@ -30,11 +30,11 @@ class CommandNamespace extends CompositeCommand {
 		foreach ( $methods as $name => $subcommand ) {
 			$prefix = ( 0 == $i++ ) ? 'usage: ' : '   or: ';
 
-			if ( \EE::get_runner()->is_command_disabled( $subcommand ) ) {
+			if ( EE::get_runner()->is_command_disabled( $subcommand ) ) {
 				continue;
 			}
 
-			\EE::line( $subcommand->get_usage( $prefix ) );
+			EE::line( $subcommand->get_usage( $prefix ) );
 			$count++;
 		}
 
@@ -43,8 +43,8 @@ class CommandNamespace extends CompositeCommand {
 			? "See 'ee help $cmd_name <command>' for more information on a specific command."
 			: "The namespace $cmd_name does not contain any usable commands in the current context.";
 
-		\EE::line();
-		\EE::line( $message );
+		EE::line();
+		EE::line( $message );
 
 	}
 }

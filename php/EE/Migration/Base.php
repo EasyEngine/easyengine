@@ -3,6 +3,7 @@
 namespace EE\Migration;
 
 use Symfony\Component\Filesystem\Filesystem;
+use EE\Model\Option;
 
 abstract class Base {
 
@@ -16,7 +17,7 @@ abstract class Base {
 	public function __construct() {
 		$this->fs                  = new Filesystem();
 		$this->skip_this_migration = false;
-		$this->is_first_execution  = ! \EE\Model\Option::get( 'version' );
+		$this->is_first_execution  = ! Option::get( 'version' );
 		$this->backup_dir          = EE_BACKUP_DIR;
 		$this->fs->mkdir( $this->backup_dir );
 	}
