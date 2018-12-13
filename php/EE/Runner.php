@@ -62,10 +62,13 @@ class Runner {
 			mkdir( $db_dir );
 		}
 
-		if (
-			! empty( $this->arguments ) &&
-			( ! in_array( $this->arguments[0], [ 'cli', 'config', 'help' ], true ) )
-		) {
+		$check_requirements = false;
+		if ( ! empty( $this->arguments ) ) {
+			$check_requirements = in_array( $this->arguments[0], [ 'cli', 'config', 'help' ], true ) ? false : true;
+			$check_requirements = ( [ 'site', 'cmd-dump' ] === $this->arguments ) ? false : $check_requirements;
+		}
+
+		if ( $check_requirements ) {
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}

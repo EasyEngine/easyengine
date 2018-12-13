@@ -2,7 +2,7 @@
     "easyengine/cron": "v4.0.0",
     "easyengine/mailhog": "v4.0.0",
     "easyengine/mariadb": "v4.0.0",
-    "easyengine/nginx-proxy": "v4.0.0",
+    "easyengine/nginx-proxy": "v4.0.1",
     "easyengine/nginx": "v4.0.0",
     "easyengine/php": "v4.0.0",
     "easyengine/php5.6": "v4.0.0",
