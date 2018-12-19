@@ -130,4 +130,28 @@ class GlobalContainers {
 			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
 		];
 	}
+
+	/**
+	 * Create support containers for global-db and global-redis service.
+	 */
+	public static function create_support_container() {
+		chdir( EE_SERVICE_DIR );
+		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
+
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( 'Unable to create support container.' );
+		}
+	}
+
+	/**
+	 * Remove support containers for global-db and global-redis service.
+	 */
+	public static function remove_support_container() {
+		chdir( EE_SERVICE_DIR );
+		$command = 'docker-compose --project-name=ee down';
+
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( 'Unable to remove support container.' );
+		}
+	}
 }

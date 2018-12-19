@@ -156,6 +156,17 @@ class Containers {
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
 		);
 
+		/**
+		 * Create support containers.
+		 */
+		self::$rsp->add_step(
+			'create-support-global-containers',
+			'EE\Migration\GlobalContainers::create_support_container',
+			'EE\Migration\GlobalContainers::remove_support_container',
+			null,
+			null
+		);
+
 		self::$rsp->add_step(
 			'stop-global-containers',
 			'EE\Migration\GlobalContainers::down_global_containers',
@@ -185,6 +196,17 @@ class Containers {
 				[ $global_service_name ]
 			);
 		}
+
+		/**
+		 * Remove support containers.
+		 */
+		self::$rsp->add_step(
+			'remove-support-global-containers',
+			'EE\Migration\GlobalContainers::remove_support_container',
+			'EE\Migration\GlobalContainers::create_support_container',
+			null,
+			null
+		);
 	}
 
 	/**
