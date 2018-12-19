@@ -43,7 +43,7 @@ class GlobalContainers {
 		$all_global_images      = self::get_all_global_images_with_service_name();
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name  = $all_global_images[ $image_name ];
-			$services_to_regenerate .= str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) ) . ' ';
+			$services_to_regenerate .= str_replace( '-', '_', ltrim( rtrim( $global_container_name, '_1' ), 'services_' ) ) . ' ';
 		}
 		if ( empty( trim( $services_to_regenerate ) ) ) {
 			return;
@@ -74,7 +74,8 @@ class GlobalContainers {
 
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = ltrim( $global_container_name, 'ee-' );
+			$global_service_name   = ltrim( $global_container_name, 'services_' );
+			$global_service_name   = rtrim( $global_service_name, '_1' );
 			EE::debug( "Removing  $global_container_name" );
 
 			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
