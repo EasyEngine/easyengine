@@ -161,8 +161,8 @@ class Containers {
 		 */
 		self::$rsp->add_step(
 			'create-support-global-containers',
-			'EE\Migration\GlobalContainers::create_support_container',
-			'EE\Migration\GlobalContainers::remove_support_container',
+			'EE\Migration\GlobalContainers::enable_support_containers',
+			'EE\Migration\GlobalContainers::disable_support_containers',
 			null,
 			null
 		);
@@ -202,8 +202,8 @@ class Containers {
 		 */
 		self::$rsp->add_step(
 			'remove-support-global-containers',
-			'EE\Migration\GlobalContainers::remove_support_container',
-			'EE\Migration\GlobalContainers::create_support_container',
+			'EE\Migration\GlobalContainers::disable_support_containers',
+			'EE\Migration\GlobalContainers::enable_support_containers',
 			null,
 			null
 		);
@@ -233,12 +233,24 @@ class Containers {
 			$ee_site_object = SiteContainers::get_site_object( $site['site_type'] );
 
 			if ( $site['site_enabled'] ) {
+
+				/**
+				 * Enable support containers.
+				 */
+				self::$rsp->add_step(
+					sprintf( 'enable-support-containers-%s', $site['site_url'] ),
+					'EE\Migration\SiteContainers::enable_support_containers',
+					'EE\Migration\SiteContainers::disable_support_containers',
+					[ $site['site_url'], $site['site_fs_path'] ],
+					[ $site['site_url'], $site['site_fs_path'] ]
+				);
+
 				self::$rsp->add_step(
 					"disable-${site['site_url']}-containers",
-					'EE\Migration\SiteContainers::disable_site',
-					'EE\Migration\SiteContainers::enable_site',
-					[ $site, $ee_site_object ],
-					[ $site, $ee_site_object ]
+					'EE\Migration\SiteContainers::disable_default_containers',
+					'EE\Migration\SiteContainers::enable_default_containers',
+					[ $site ],
+					[ $site ]
 				);
 			}
 
@@ -261,10 +273,21 @@ class Containers {
 			if ( $site['site_enabled'] ) {
 				self::$rsp->add_step(
 					"upgrade-${site['site_url']}-containers",
-					'EE\Migration\SiteContainers::enable_site',
-					'EE\Migration\SiteContainers::enable_site',
-					[ $site, $ee_site_object ],
-					[ $site, $ee_site_object ]
+					'EE\Migration\SiteContainers::enable_default_containers',
+					'EE\Migration\SiteContainers::enable_default_containers',
+					[ $site ],
+					[ $site ]
+				);
+
+				/**
+				 * Disable support containers.
+				 */
+				self::$rsp->add_step(
+					sprintf( 'disable-support-containers-%s', $site['site_url'] ),
+					'EE\Migration\SiteContainers::disable_support_containers',
+					'EE\Migration\SiteContainers::enable_support_containers',
+					[ $site['site_url'], $site['site_fs_path'] ],
+					[ $site['site_url'], $site['site_fs_path'] ]
 				);
 			}
 		}

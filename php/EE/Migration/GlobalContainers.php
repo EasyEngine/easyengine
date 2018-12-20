@@ -134,7 +134,7 @@ class GlobalContainers {
 	/**
 	 * Create support containers for global-db and global-redis service.
 	 */
-	public static function create_support_container() {
+	public static function enable_support_containers() {
 		chdir( EE_SERVICE_DIR );
 		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
 
@@ -146,7 +146,7 @@ class GlobalContainers {
 	/**
 	 * Remove support containers for global-db and global-redis service.
 	 */
-	public static function remove_support_container() {
+	public static function disable_support_containers() {
 		chdir( EE_SERVICE_DIR );
 		$command = 'docker-compose --project-name=ee down';
 
