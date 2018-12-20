@@ -245,11 +245,8 @@ class SiteContainers {
 
 		$site_name    = str_replace( '.', '', $site_url );
 		$project_name = sprintf( 'update-ee-%s', $site_name );
-		$fs           = new Filesystem();
 
-		if ( $fs->exists( $site_fs_path ) ) {
-			chdir( $site_fs_path );
-		} else {
+		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
@@ -274,11 +271,8 @@ class SiteContainers {
 
 		$site_name    = str_replace( '.', '', $site_url );
 		$project_name = sprintf( 'update-ee-%s', $site_name );
-		$fs           = new Filesystem();
 
-		if ( $fs->exists( $site_fs_path ) ) {
-			chdir( $site_fs_path );
-		} else {
+		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 

@@ -44,7 +44,7 @@ class GlobalContainers {
 		$all_global_images      = self::get_all_global_images_with_service_name();
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name  = $all_global_images[ $image_name ];
-			$services_to_regenerate .= str_replace( '-', '_', ltrim( rtrim( $global_container_name, '_1' ), 'services_' ) ) . ' ';
+			$services_to_regenerate .= ltrim( rtrim( $global_container_name, '_1' ), 'services_' ) . ' ';
 		}
 		if ( empty( trim( $services_to_regenerate ) ) ) {
 			return;
@@ -136,9 +136,11 @@ class GlobalContainers {
 	 * Create support containers for global-db and global-redis service.
 	 */
 	public static function enable_support_containers() {
-		chdir( EE_SERVICE_DIR );
-		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
+		if ( ! chdir( EE_SERVICE_DIR ) ) {
+			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
+		}
 
+		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( 'Unable to create support container.' );
 		}
@@ -148,9 +150,11 @@ class GlobalContainers {
 	 * Remove support containers for global-db and global-redis service.
 	 */
 	public static function disable_support_containers() {
-		chdir( EE_SERVICE_DIR );
-		$command = 'docker-compose --project-name=ee down';
+		if ( ! chdir( EE_SERVICE_DIR ) ) {
+			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
+		}
 
+		$command = 'docker-compose --project-name=ee down';
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( 'Unable to remove support container.' );
 		}
