@@ -3,6 +3,7 @@
 namespace EE\Migration;
 
 use EE;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Upgrade existing global containers to new docker-image
