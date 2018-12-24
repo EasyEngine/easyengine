@@ -103,19 +103,18 @@ class SiteContainers {
 	/**
 	 * Enable site.
 	 *
-	 * @param array $site_info    array of site information.
+	 * @param array  $site_info   array of site information.
+	 * @param object $site_object object of site-type( HTML, PHP, WordPress ).
 	 *
 	 * @throws \Exception
 	 */
-	public static function enable_default_containers( $site_info ) {
+	public static function enable_default_containers( $site_info, $site_object ) {
 		EE::debug( "Start enabling default containers of ${site_info['site_url']}" );
 
-		if ( ! chdir( $site_info['site_fs_path'] ) ) {
-			throw new \Exception( sprintf( '%s path does not exist', $site_info['site_fs_path'] ) );
-		}
-
-		if ( ! EE::exec( 'docker-compose up -d' ) ) {
-			throw new \Exception( sprintf( 'Something went wrong on enable site %s', $site_info['site_url'] ) );
+		try {
+			$site_object->enable( [ $site_info['site_url'] ], [ 'force' => true ], false );
+		} catch ( \Exception $e ) {
+			throw new \Exception( $e->getMessage() );
 		}
 
 		EE::debug( "Complete enabling default containers of ${site_info['site_url']}" );

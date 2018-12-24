@@ -250,7 +250,7 @@ class Containers {
 					'EE\Migration\SiteContainers::disable_default_containers',
 					'EE\Migration\SiteContainers::enable_default_containers',
 					[ $site ],
-					[ $site ]
+					[ $site, $ee_site_object ]
 				);
 			}
 
@@ -275,8 +275,8 @@ class Containers {
 					"upgrade-${site['site_url']}-containers",
 					'EE\Migration\SiteContainers::enable_default_containers',
 					'EE\Migration\SiteContainers::enable_default_containers',
-					[ $site ],
-					[ $site ]
+					[ $site, $ee_site_object ],
+					[ $site, $ee_site_object ]
 				);
 
 				/**
