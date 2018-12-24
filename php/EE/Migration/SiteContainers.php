@@ -249,7 +249,13 @@ class SiteContainers {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$command = sprintf( 'docker-compose --project-name=%s up -d', $project_name );
+		// get site services to enable except 'mailhog' and 'postfix'.
+		$launch             = EE::launch( 'docker-compose config --services' );
+		$site_services      = explode( PHP_EOL, trim( $launch->stdout ) );
+		$services_to_enable = array_diff( $site_services, [ 'mailhog', 'postfix' ] );
+		$services_to_enable = implode( ' ', $services_to_enable );
+
+		$command = sprintf( 'docker-compose --project-name=%s up -d %s', $project_name, $services_to_enable );
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
 		}
