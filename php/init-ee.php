@@ -14,7 +14,7 @@ if ( IS_DARWIN ) {
 
 define( 'EE_BACKUP_DIR', EE_ROOT_DIR . '/.backup' );
 define( 'EE_SERVICE_DIR', EE_ROOT_DIR . '/services' );
-define( 'EE_PROXY_TYPE', 'ee-global-nginx-proxy' );
+define( 'EE_PROXY_TYPE', 'services_global-nginx-proxy_1' );
 
 if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 	define( 'EE_VENDOR_DIR', EE_ROOT . '/vendor' );

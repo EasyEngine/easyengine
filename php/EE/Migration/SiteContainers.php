@@ -103,31 +103,42 @@ class SiteContainers {
 	/**
 	 * Enable site.
 	 *
-	 * @param array $site_info    array of site information.
+	 * @param array  $site_info   array of site information.
 	 * @param object $site_object object of site-type( HTML, PHP, WordPress ).
 	 *
 	 * @throws \Exception
 	 */
-	public static function enable_site( $site_info, $site_object ) {
-		EE::debug( "Start enabling ${site_info['site_url']}" );
+	public static function enable_default_containers( $site_info, $site_object ) {
+		EE::debug( "Start enabling default containers of ${site_info['site_url']}" );
+
 		try {
 			$site_object->enable( [ $site_info['site_url'] ], [ 'force' => true ], false );
 		} catch ( \Exception $e ) {
 			throw new \Exception( $e->getMessage() );
 		}
-		EE::debug( "Complete enabling ${site_info['site_url']}" );
+
+		EE::debug( "Complete enabling default containers of ${site_info['site_url']}" );
 	}
 
 	/**
 	 * Disable site.
 	 *
-	 * @param array $site_info    array of site information.
-	 * @param object $site_object object of site-type( HTML, PHP, Wordpress ).
+	 * @param array $site_info array of site information.
+	 *
+	 * @throws \Exception
 	 */
-	public static function disable_site( $site_info, $site_object ) {
-		EE::debug( "Start disabling ${site_info['site_url']}" );
-		$site_object->disable( [ $site_info['site_url'] ], [] );
-		EE::debug( "Complete disabling ${site_info['site_url']}" );
+	public static function disable_default_containers( $site_info ) {
+		EE::debug( "Start disabling default containers of ${site_info['site_url']}" );
+
+		if ( ! chdir( $site_info['site_fs_path'] ) ) {
+			throw new \Exception( sprintf( '%s path does not exist', $site_info['site_fs_path'] ) );
+		}
+
+		if ( ! EE::exec( 'docker-compose stop && docker-compose rm -f' ) ) {
+			throw new \Exception( sprintf( 'Something went wrong on disable site %s', $site_info['site_url'] ) );
+		}
+
+		EE::debug( "Complete disabling default containers of ${site_info['site_url']}" );
 	}
 
 	/**
@@ -218,5 +229,57 @@ class SiteContainers {
 		if ( ! $success ) {
 			throw new \Exception( 'Could pull given images.' );
 		}
+	}
+
+	/**
+	 * Enable support containers for sites.
+	 *
+	 * @param $site_url string Site URL.
+	 * @param $site_fs_path string File system path of site.
+	 *
+	 * @throws \Exception
+	 */
+	public static function enable_support_containers( $site_url, $site_fs_path ) {
+		EE::debug( sprintf( 'Start enabling containers for %s', $site_url ) );
+
+		$site_name    = str_replace( '.', '', $site_url );
+		$project_name = sprintf( 'update-ee-%s', $site_name );
+
+		if ( ! chdir( $site_fs_path ) ) {
+			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
+		}
+
+		$command = sprintf( 'docker-compose --project-name=%s up -d nginx', $project_name );
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
+		}
+
+		EE::debug( sprintf( 'Complete enabling support containers for %s', $site_url ) );
+	}
+
+	/**
+	 * Disable support containers for sites.
+	 *
+	 * @param $site_url string Site URL.
+	 * @param $site_fs_path string File system path of site.
+	 *
+	 * @throws \Exception
+	 */
+	public static function disable_support_containers( $site_url, $site_fs_path ) {
+		EE::debug( sprintf( 'Start disabling support containers for %s', $site_url ) );
+
+		$site_name    = str_replace( '.', '', $site_url );
+		$project_name = sprintf( 'update-ee-%s', $site_name );
+
+		if ( ! chdir( $site_fs_path ) ) {
+			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
+		}
+
+		$command = sprintf( 'docker-compose --project-name=%1$s stop && docker-compose --project-name=%1$s rm -f', $project_name );
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( sprintf( 'Unable to remove support container for %s', $site_url ) );
+		}
+
+		EE::debug( sprintf( 'Complete disabling support containers for %s', $site_url ) );
 	}
 }

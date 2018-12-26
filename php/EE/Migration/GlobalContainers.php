@@ -3,6 +3,7 @@
 namespace EE\Migration;
 
 use EE;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Upgrade existing global containers to new docker-image
@@ -43,7 +44,7 @@ class GlobalContainers {
 		$all_global_images      = self::get_all_global_images_with_service_name();
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name  = $all_global_images[ $image_name ];
-			$services_to_regenerate .= str_replace( '-', '_', ltrim( $global_container_name, 'ee-' ) ) . ' ';
+			$services_to_regenerate .= ltrim( rtrim( $global_container_name, '_1' ), 'services_' ) . ' ';
 		}
 		if ( empty( trim( $services_to_regenerate ) ) ) {
 			return;
@@ -74,7 +75,8 @@ class GlobalContainers {
 
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = ltrim( $global_container_name, 'ee-' );
+			$global_service_name   = ltrim( $global_container_name, 'services_' );
+			$global_service_name   = rtrim( $global_service_name, '_1' );
 			EE::debug( "Removing  $global_container_name" );
 
 			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
@@ -128,5 +130,33 @@ class GlobalContainers {
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
 			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
 		];
+	}
+
+	/**
+	 * Create support containers for global-db and global-redis service.
+	 */
+	public static function enable_support_containers() {
+		if ( ! chdir( EE_SERVICE_DIR ) ) {
+			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
+		}
+
+		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( 'Unable to create support container.' );
+		}
+	}
+
+	/**
+	 * Remove support containers for global-db and global-redis service.
+	 */
+	public static function disable_support_containers() {
+		if ( ! chdir( EE_SERVICE_DIR ) ) {
+			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
+		}
+
+		$command = 'docker-compose --project-name=ee down';
+		if ( ! EE::exec( $command ) ) {
+			throw new \Exception( 'Unable to remove support container.' );
+		}
 	}
 }
