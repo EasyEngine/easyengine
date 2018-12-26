@@ -156,6 +156,17 @@ class Containers {
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
 		);
 
+		/**
+		 * Create support containers.
+		 */
+		self::$rsp->add_step(
+			'create-support-global-containers',
+			'EE\Migration\GlobalContainers::enable_support_containers',
+			'EE\Migration\GlobalContainers::disable_support_containers',
+			null,
+			null
+		);
+
 		self::$rsp->add_step(
 			'stop-global-containers',
 			'EE\Migration\GlobalContainers::down_global_containers',
@@ -175,7 +186,8 @@ class Containers {
 		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
 		foreach ( $updated_global_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = ltrim( $global_container_name, 'ee-' );
+			$global_service_name   = ltrim( $global_container_name, 'services_' );
+			$global_service_name   = rtrim( $global_service_name, '_1' );
 			self::$rsp->add_step(
 				"upgrade-$global_container_name-container",
 				"EE\Migration\GlobalContainers::global_service_up",
@@ -184,6 +196,17 @@ class Containers {
 				[ $global_service_name ]
 			);
 		}
+
+		/**
+		 * Remove support containers.
+		 */
+		self::$rsp->add_step(
+			'remove-support-global-containers',
+			'EE\Migration\GlobalContainers::disable_support_containers',
+			'EE\Migration\GlobalContainers::enable_support_containers',
+			null,
+			null
+		);
 	}
 
 	/**
@@ -210,11 +233,23 @@ class Containers {
 			$ee_site_object = SiteContainers::get_site_object( $site['site_type'] );
 
 			if ( $site['site_enabled'] ) {
+
+				/**
+				 * Enable support containers.
+				 */
+				self::$rsp->add_step(
+					sprintf( 'enable-support-containers-%s', $site['site_url'] ),
+					'EE\Migration\SiteContainers::enable_support_containers',
+					'EE\Migration\SiteContainers::disable_support_containers',
+					[ $site['site_url'], $site['site_fs_path'] ],
+					[ $site['site_url'], $site['site_fs_path'] ]
+				);
+
 				self::$rsp->add_step(
 					"disable-${site['site_url']}-containers",
-					'EE\Migration\SiteContainers::disable_site',
-					'EE\Migration\SiteContainers::enable_site',
-					[ $site, $ee_site_object ],
+					'EE\Migration\SiteContainers::disable_default_containers',
+					'EE\Migration\SiteContainers::enable_default_containers',
+					[ $site ],
 					[ $site, $ee_site_object ]
 				);
 			}
@@ -238,10 +273,21 @@ class Containers {
 			if ( $site['site_enabled'] ) {
 				self::$rsp->add_step(
 					"upgrade-${site['site_url']}-containers",
-					'EE\Migration\SiteContainers::enable_site',
-					'EE\Migration\SiteContainers::enable_site',
+					'EE\Migration\SiteContainers::enable_default_containers',
+					'EE\Migration\SiteContainers::enable_default_containers',
 					[ $site, $ee_site_object ],
 					[ $site, $ee_site_object ]
+				);
+
+				/**
+				 * Disable support containers.
+				 */
+				self::$rsp->add_step(
+					sprintf( 'disable-support-containers-%s', $site['site_url'] ),
+					'EE\Migration\SiteContainers::disable_support_containers',
+					'EE\Migration\SiteContainers::enable_support_containers',
+					[ $site['site_url'], $site['site_fs_path'] ],
+					[ $site['site_url'], $site['site_fs_path'] ]
 				);
 			}
 		}
