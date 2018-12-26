@@ -869,10 +869,20 @@ class Runner {
 		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
 
 		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
+
+			$ee_update_command     = 'ee cli update --stable --yes';
+			if ( IS_DARWIN ) {
+				$ee_update_command = 'brew upgrade easyengine';
+			}
+			$ee_update_msg = sprintf(
+				'It seems you\'re not running latest version. Update EasyEngine using `%s`.',
+				$ee_update_command
+			);
+
 			if ( ! empty( $this->arguments ) && 'cli' === $this->arguments[0] ) {
-				EE::warning( 'It seems you\'re not running latest version. Update EasyEngine using `ee cli update --stable --yes`.' );
+				EE::warning( $ee_update_msg );
 			} else {
-				EE::error( 'It seems you\'re not running latest version.  Update EasyEngine using `ee cli update --stable --yes`.' );
+				EE::error( $ee_update_msg );
 			}
 		} elseif ( $db_version !== $current_version ) {
 			EE::log( 'Executing migrations. This might take some time.' );
