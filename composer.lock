@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "21f62dfc945594a52e22f7054a5a275c",
+    "content-hash": "0824beae3272b874c381a3ace2f6fd7c",
     "packages": [
         {
             "name": "acmephp/core",
@@ -735,16 +735,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "13ab904f92ccc87933bba2f3bdb8a3cf44e3e078"
+                "reference": "6c9d379819b8325c8603c5eccb7309ecbda2a4d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/13ab904f92ccc87933bba2f3bdb8a3cf44e3e078",
-                "reference": "13ab904f92ccc87933bba2f3bdb8a3cf44e3e078",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/6c9d379819b8325c8603c5eccb7309ecbda2a4d8",
+                "reference": "6c9d379819b8325c8603c5eccb7309ecbda2a4d8",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -776,7 +776,7 @@
             ],
             "description": "Command to manager global containers/services in EasyEngine",
             "homepage": "https://github.com/easyengine/service-command",
-            "time": "2018-12-25T13:15:38+00:00"
+            "time": "2018-12-26T13:19:43+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -820,16 +820,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.2.8",
+            "version": "v2.2.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "4f8be8fb396d5f96d213c6a4648e71f30990e14b"
+                "reference": "3b1c9f67a1d6cfc16134b9ed619eb2808364d113"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/4f8be8fb396d5f96d213c6a4648e71f30990e14b",
-                "reference": "4f8be8fb396d5f96d213c6a4648e71f30990e14b",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/3b1c9f67a1d6cfc16134b9ed619eb2808364d113",
+                "reference": "3b1c9f67a1d6cfc16134b9ed619eb2808364d113",
                 "shasum": ""
             },
             "require": {
@@ -876,20 +876,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-12-25T13:05:04+00:00"
+            "time": "2018-12-26T13:11:00+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "cb480abf5e61de0e29959f52c0ba20aa54f35a96"
+                "reference": "03e0d00afc6ae0aa00eda70da31032ad555df590"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/cb480abf5e61de0e29959f52c0ba20aa54f35a96",
-                "reference": "cb480abf5e61de0e29959f52c0ba20aa54f35a96",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/03e0d00afc6ae0aa00eda70da31032ad555df590",
+                "reference": "03e0d00afc6ae0aa00eda70da31032ad555df590",
                 "shasum": ""
             },
             "require-dev": {
@@ -916,20 +916,20 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-12-25T13:11:37+00:00"
+            "time": "2018-12-26T13:19:13+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "638e4b7d9869bb6d5575eddb6ae41000bb6ca1f4"
+                "reference": "63ef292cf7d433fa8c9fd4910eb8141f7fe32c46"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/638e4b7d9869bb6d5575eddb6ae41000bb6ca1f4",
-                "reference": "638e4b7d9869bb6d5575eddb6ae41000bb6ca1f4",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/63ef292cf7d433fa8c9fd4910eb8141f7fe32c46",
+                "reference": "63ef292cf7d433fa8c9fd4910eb8141f7fe32c46",
                 "shasum": ""
             },
             "require-dev": {
@@ -968,7 +968,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2018-12-25T13:10:14+00:00"
+            "time": "2018-12-26T13:17:42+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
