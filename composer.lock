@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0824beae3272b874c381a3ace2f6fd7c",
+    "content-hash": "eba30e935d9692da96c724716915c647",
     "packages": [
         {
             "name": "acmephp/core",
@@ -480,7 +480,7 @@
         },
         {
             "name": "easyengine/admin-tools-command",
-            "version": "v1.0.4",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/admin-tools-command.git",
@@ -523,16 +523,16 @@
         },
         {
             "name": "easyengine/auth-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/auth-command.git",
-                "reference": "9c1681041d1307744207dfaba0cb3d7189f4d0e4"
+                "reference": "2c2b8cdf9d04629835951f85cd5b626e80c790fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/9c1681041d1307744207dfaba0cb3d7189f4d0e4",
-                "reference": "9c1681041d1307744207dfaba0cb3d7189f4d0e4",
+                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/2c2b8cdf9d04629835951f85cd5b626e80c790fd",
+                "reference": "2c2b8cdf9d04629835951f85cd5b626e80c790fd",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -546,8 +546,7 @@
                     "auth create",
                     "auth delete",
                     "auth list",
-                    "auth update",
-                    "auth whitelist"
+                    "auth update"
                 ]
             },
             "autoload": {
@@ -567,20 +566,20 @@
             ],
             "description": "Configure HTTP Authentication and whitelisting for EasyEngine site",
             "homepage": "https://github.com/easyengine/auth-command",
-            "time": "2018-12-04T11:48:09+00:00"
+            "time": "2018-12-28T16:04:07+00:00"
         },
         {
             "name": "easyengine/config-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/config-command.git",
-                "reference": "34ddc95325e1b4967a77ea9d34bddaf7f6ee6cf5"
+                "reference": "b48e8cdb9456f7a6a7492415b177867f4228d3f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/34ddc95325e1b4967a77ea9d34bddaf7f6ee6cf5",
-                "reference": "34ddc95325e1b4967a77ea9d34bddaf7f6ee6cf5",
+                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/b48e8cdb9456f7a6a7492415b177867f4228d3f6",
+                "reference": "b48e8cdb9456f7a6a7492415b177867f4228d3f6",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -590,7 +589,9 @@
                 },
                 "bundled": true,
                 "commands": [
-                    "config"
+                    "config",
+                    "config set",
+                    "config get"
                 ]
             },
             "autoload": {
@@ -607,20 +608,20 @@
             ],
             "description": "Manages EasyEngine configuration",
             "homepage": "https://github.com/easyengine/config-command",
-            "time": "2018-11-29T15:58:43+00:00"
+            "time": "2018-12-28T16:04:46+00:00"
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
-                "reference": "8a80aa4c0a18e72b9542c853e1360749718ca9bd"
+                "reference": "2646a15829dbce069b47a8014ec3168197e114b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/8a80aa4c0a18e72b9542c853e1360749718ca9bd",
-                "reference": "8a80aa4c0a18e72b9542c853e1360749718ca9bd",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/2646a15829dbce069b47a8014ec3168197e114b6",
+                "reference": "2646a15829dbce069b47a8014ec3168197e114b6",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -630,8 +631,10 @@
                 },
                 "bundled": true,
                 "commands": [
-                    "cron add",
+                    "cron",
+                    "cron create",
                     "cron delete",
+                    "cron update",
                     "cron list",
                     "cron run-now"
                 ]
@@ -652,20 +655,20 @@
             ],
             "description": "Manages cron jobs in EasyEngine",
             "homepage": "https://github.com/easyengine/cron-command",
-            "time": "2018-11-28T13:56:44+00:00"
+            "time": "2018-12-28T16:05:27+00:00"
         },
         {
             "name": "easyengine/log-command",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/log-command.git",
-                "reference": "ba20a345cdb55bc97d3a17b430140487964417c2"
+                "reference": "4cd0850ec40a5f4102eec2741a2b31c9a6a1125d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/log-command/zipball/ba20a345cdb55bc97d3a17b430140487964417c2",
-                "reference": "ba20a345cdb55bc97d3a17b430140487964417c2",
+                "url": "https://api.github.com/repos/EasyEngine/log-command/zipball/4cd0850ec40a5f4102eec2741a2b31c9a6a1125d",
+                "reference": "4cd0850ec40a5f4102eec2741a2b31c9a6a1125d",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -673,7 +676,10 @@
                 "branch-alias": {
                     "dev-master": "1.x-dev"
                 },
-                "bundled": true
+                "bundled": true,
+                "commands": [
+                    "log show"
+                ]
             },
             "autoload": {
                 "psr-4": {
@@ -688,20 +694,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/log-command",
-            "time": "2018-11-29T15:50:06+00:00"
+            "time": "2018-12-28T16:07:01+00:00"
         },
         {
             "name": "easyengine/mailhog-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/mailhog-command.git",
-                "reference": "642173e0e2510e3d148a60d46eab90635081955b"
+                "reference": "91e8b16c136a65f6c76268322d45061cc02dbb12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/mailhog-command/zipball/642173e0e2510e3d148a60d46eab90635081955b",
-                "reference": "642173e0e2510e3d148a60d46eab90635081955b",
+                "url": "https://api.github.com/repos/EasyEngine/mailhog-command/zipball/91e8b16c136a65f6c76268322d45061cc02dbb12",
+                "reference": "91e8b16c136a65f6c76268322d45061cc02dbb12",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -731,20 +737,20 @@
             ],
             "description": "Command to manage mailhog",
             "homepage": "https://github.com/easyengine/mailhog-command",
-            "time": "2018-11-28T13:58:43+00:00"
+            "time": "2018-12-28T16:05:53+00:00"
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.0.6",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "6c9d379819b8325c8603c5eccb7309ecbda2a4d8"
+                "reference": "42bdb645f0e38cf89a374a9429f8d1666991a819"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/6c9d379819b8325c8603c5eccb7309ecbda2a4d8",
-                "reference": "6c9d379819b8325c8603c5eccb7309ecbda2a4d8",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/42bdb645f0e38cf89a374a9429f8d1666991a819",
+                "reference": "42bdb645f0e38cf89a374a9429f8d1666991a819",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -755,8 +761,8 @@
                 "bundled": true,
                 "commands": [
                     "service",
-                    "service start",
-                    "service stop",
+                    "service enable",
+                    "service disable",
                     "service restart",
                     "service reload"
                 ]
@@ -776,20 +782,20 @@
             ],
             "description": "Command to manager global containers/services in EasyEngine",
             "homepage": "https://github.com/easyengine/service-command",
-            "time": "2018-12-26T13:19:43+00:00"
+            "time": "2018-12-28T16:08:40+00:00"
         },
         {
             "name": "easyengine/shell-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/shell-command.git",
-                "reference": "06bb4b7970e4773c408b1d287bb94c37acb1a613"
+                "reference": "e6dd5ac7278752951f96fb5026b88ad1701c4388"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/06bb4b7970e4773c408b1d287bb94c37acb1a613",
-                "reference": "06bb4b7970e4773c408b1d287bb94c37acb1a613",
+                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/e6dd5ac7278752951f96fb5026b88ad1701c4388",
+                "reference": "e6dd5ac7278752951f96fb5026b88ad1701c4388",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -816,20 +822,20 @@
             ],
             "description": "Shell to run helpful commands inside containers.",
             "homepage": "https://github.com/easyengine/shell-command",
-            "time": "2018-12-25T13:12:40+00:00"
+            "time": "2018-12-28T16:06:33+00:00"
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.2.9",
+            "version": "v2.2.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "3b1c9f67a1d6cfc16134b9ed619eb2808364d113"
+                "reference": "525fc26b5c81aa9061ccc33cceac9bf5373366da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/3b1c9f67a1d6cfc16134b9ed619eb2808364d113",
-                "reference": "3b1c9f67a1d6cfc16134b9ed619eb2808364d113",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/525fc26b5c81aa9061ccc33cceac9bf5373366da",
+                "reference": "525fc26b5c81aa9061ccc33cceac9bf5373366da",
                 "shasum": ""
             },
             "require": {
@@ -850,6 +856,7 @@
                 "commands": [
                     "site create --type=html",
                     "site delete",
+                    "site update",
                     "site info --type=html",
                     "site enable",
                     "site disable",
@@ -857,7 +864,9 @@
                     "site ssl",
                     "site list",
                     "site reload --type=html",
-                    "site restart --type=html"
+                    "site restart --type=html",
+                    "site share",
+                    "site clean"
                 ]
             },
             "autoload": {
@@ -876,20 +885,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-12-26T13:11:00+00:00"
+            "time": "2018-12-28T16:07:45+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.0.6",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "03e0d00afc6ae0aa00eda70da31032ad555df590"
+                "reference": "3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/03e0d00afc6ae0aa00eda70da31032ad555df590",
-                "reference": "03e0d00afc6ae0aa00eda70da31032ad555df590",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589",
+                "reference": "3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589",
                 "shasum": ""
             },
             "require-dev": {
@@ -900,7 +909,22 @@
                 "branch-alias": {
                     "dev-master": "1.x-dev"
                 },
-                "bundled": true
+                "bundled": true,
+                "commands": [
+                    "site create --type=php",
+                    "site delete",
+                    "site update",
+                    "site info --type=php",
+                    "site enable",
+                    "site disable",
+                    "site info",
+                    "site ssl",
+                    "site list",
+                    "site reload --type=php",
+                    "site restart --type=php",
+                    "site share",
+                    "site clean"
+                ]
             },
             "autoload": {
                 "psr-4": {
@@ -916,20 +940,20 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-12-26T13:19:13+00:00"
+            "time": "2018-12-28T16:08:29+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.0.6",
+            "version": "v1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "63ef292cf7d433fa8c9fd4910eb8141f7fe32c46"
+                "reference": "0045e8552ae2483b745630723908a6d65e6821ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/63ef292cf7d433fa8c9fd4910eb8141f7fe32c46",
-                "reference": "63ef292cf7d433fa8c9fd4910eb8141f7fe32c46",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/0045e8552ae2483b745630723908a6d65e6821ee",
+                "reference": "0045e8552ae2483b745630723908a6d65e6821ee",
                 "shasum": ""
             },
             "require-dev": {
@@ -944,6 +968,7 @@
                 "commands": [
                     "site create --type=wp",
                     "site delete",
+                    "site update",
                     "site info --type=wp",
                     "site enable",
                     "site disable",
@@ -951,7 +976,9 @@
                     "site ssl",
                     "site list",
                     "site reload --type=wp",
-                    "site restart --type=wp"
+                    "site restart --type=wp",
+                    "site share",
+                    "site clean"
                 ]
             },
             "autoload": {
@@ -968,7 +995,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2018-12-26T13:17:42+00:00"
+            "time": "2018-12-28T16:08:32+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
