@@ -870,10 +870,7 @@ class Runner {
 
 		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
 
-			$ee_update_command     = 'ee cli update --stable --yes';
-			if ( IS_DARWIN ) {
-				$ee_update_command = 'brew upgrade easyengine';
-			}
+			$ee_update_command = IS_DARWIN ? 'brew upgrade easyengine' : 'ee cli update --stable --yes';
 			$ee_update_msg = sprintf(
 				'It seems you\'re not running latest version. Update EasyEngine using `%s`.',
 				$ee_update_command
