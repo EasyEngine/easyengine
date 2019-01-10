@@ -1734,16 +1734,19 @@ function random_name_generator() {
 }
 
 /**
- * @param        $flag_value            mixed flag value.
+ * @param array  $assoc_args            Arguments array.
+ * @param string $flag                  Flag to get the value.
  * @param array  $supported_flag_values array of supported flag values.
  * @param string $default_value         default flag value if flag is passed without value.
  *
  * @return string
  * @throws EE\ExitException
  */
-function get_value_if_flag_isset( $flag_value, $supported_flag_values = [], $default_value = '' ) {
+function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [], $default_value = '' ) {
 
-	$value = '';
+	$flag_value = get_flag_value( $assoc_args, $flag );
+	$value      = '';
+
 	if ( isset( $flag_value ) ) {
 		/**
 		 * Set default flag value if flag is passed without value.
