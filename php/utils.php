@@ -1732,3 +1732,29 @@ function random_name_generator() {
 
 	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
 }
+
+/**
+ * @param        $flag_value            mixed flag value.
+ * @param array  $supported_flag_values array of supported flag values.
+ * @param string $default_value         default flag value if flag is passed without value.
+ *
+ * @return string
+ * @throws EE\ExitException
+ */
+function get_value_if_flag_isset( $flag_value, $supported_flag_values = [], $default_value = '' ) {
+
+	$value = '';
+	if ( isset( $flag_value ) ) {
+		/**
+		 * Set default flag value if flag is passed without value.
+		 */
+		$value = ( empty( $flag_value ) || true === $flag_value ) ? $default_value : $flag_value;
+
+		if ( empty( $value ) ) {
+			return $value;
+		} elseif ( ! in_array( $value, $supported_flag_values, true ) ) {
+			EE::error( sprintf( 'Invalid flag value passed %s', $value ) );
+		}
+	}
+	return $value;
+}
