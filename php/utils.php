@@ -1761,3 +1761,21 @@ function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [
 	}
 	return $value;
 }
+
+/**
+ * Function to sanitize and remove illegal characters for folder and filename.
+ *
+ * @param string $input_name Input name to be sanitized.
+ *
+ * @return string Sanitized name valid for file/folder creation.
+ */
+function sanitize_file_folder_name( $input_name ) {
+
+	// Remove Illegal Chars for folder and filename.
+	$output = preg_replace('/[\"\*\/\:\<\>\?\'\|]+/', ' ', $input_name);
+
+	// Replace Spaces with dashes.
+	$output = str_replace(' ', '-', $output);
+
+	return trim( $output, '-' );
+}
