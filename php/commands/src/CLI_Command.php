@@ -269,6 +269,7 @@ class CLI_Command extends EE_Command {
 		} elseif ( ! is_writable( dirname( $old_phar ) ) ) {
 			EE::error( sprintf( '%s is not writable by current user.', dirname( $old_phar ) ) );
 		}
+		EE::log( 'Note: It is recommended to run EasyEngine update in tmux/screen. Update at times may take some time. To view progress, tail logs in a different window using `tail -f /opt/easyengine/logs/ee.log`.' );
 		if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
 			EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest nightly?', EE_VERSION ), $assoc_args );
 			$download_url = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine-nightly.phar';
