@@ -1765,18 +1765,22 @@ function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [
 /**
  * Function to sanitize and remove illegal characters for folder and filename.
  *
- * @param string $input_name Input name to be sanitized.
- * @param bool $strict       Do strict replacement, i.e, remove all special characters except `-` and `_`.
+ * @param string $input_name           Input name to be sanitized.
+ * @param bool $strict                 Do strict replacement, i.e, remove all special characters except `-` and `_`.
+ * @param bool $remove_forward_slashes Wether to remove `/` or not from the input.
  *
  * @return string Sanitized name valid for file/folder creation.
  */
-function sanitize_file_folder_name( $input_name, $strict = true ) {
+function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward_slashes = false ) {
+
+	$expression = $remove_forward_slashes ? '/[\"\*\/\:\<\>\?\'\|]+/' : '/[\"\*\:\<\>\?\'\|]+/';
 
 	// Remove Illegal Chars for folder and filename.
-	$output = preg_replace( '/[\"\*\/\:\<\>\?\'\|]+/', ' ', $input_name );
+	$output = preg_replace( $expression, '', $input_name );
 
 	if ( $strict ) {
-		$output = preg_replace( '/[^A-Za-z0-9\-\_]/', '', $output );
+		// Remove all special characters except `-`, `_` and `/`.
+		$output = preg_replace( '/[^A-Za-z0-9\-_\/]/', '', $output );
 	}
 	// Replace Spaces with dashes.
 	$output = str_replace( ' ', '-', $output );
