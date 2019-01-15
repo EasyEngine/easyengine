@@ -1766,16 +1766,27 @@ function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [
  * Function to sanitize and remove illegal characters for folder and filename.
  *
  * @param string $input_name Input name to be sanitized.
+ * @param bool $strict       Do strict replacement, i.e, remove all special characters except `-` and `_`.
  *
  * @return string Sanitized name valid for file/folder creation.
  */
-function sanitize_file_folder_name( $input_name ) {
+function sanitize_file_folder_name( $input_name, $strict = true ) {
 
 	// Remove Illegal Chars for folder and filename.
-	$output = preg_replace('/[\"\*\/\:\<\>\?\'\|]+/', ' ', $input_name);
+	$output = preg_replace( '/[\"\*\/\:\<\>\?\'\|]+/', ' ', $input_name );
 
+	if ( $strict ) {
+		$output = preg_replace( '/[^A-Za-z0-9\-\_]/', '', $output );
+	}
 	// Replace Spaces with dashes.
-	$output = str_replace(' ', '-', $output);
+	$output = str_replace( ' ', '-', $output );
 
+	// Replaces multiple hyphens with single one.
+	$output = preg_replace( '/-+/', '-', $output );
+
+	// Replaces multiple underscores with single one.
+	$output = preg_replace( '/_+/', '_', $output );
+
+	// Remove starting and ending hyphens as a starting hyphen in string might be considered as parameter in bash file/folder creation.
 	return trim( $output, '-' );
 }
