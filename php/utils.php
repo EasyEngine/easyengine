@@ -9,6 +9,7 @@ use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
 use Mustangostang\Spyc;
+use EE\Model\ConfigHash;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -1793,4 +1794,66 @@ function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward
 
 	// Remove starting and ending hyphens as a starting hyphen in string might be considered as parameter in bash file/folder creation.
 	return trim( $output, '-' );
+}
+
+/**
+ * Create a hash for the provided config path.
+ *
+ * @param string $config_path Path to config file.
+ * @param string $config_root Name of the site or service where config is stored.
+ *
+ */
+function create_config_file_hash( $config_path, $config_root ) {
+
+	if ( empty( $config_path ) || empty( $config_root ) ) {
+		return;
+	}
+
+	$data = [
+		'conf_file_name' => basename( $config_path ),
+		'conf_file_path' => $config_path,
+		'conf_file_hash' => hash_file( 'sha1', $config_path ),
+		'config_root'    => $config_root,
+		'ee_version'     => EE_VERSION,
+	];
+
+	// Insert into DB.
+	try {
+		if ( ConfigHash::create( $data ) ) {
+			\EE::debug( 'Configuration Hash Created.' );
+		} else {
+			throw new \Exception( 'Error creating configuration hash in database.' );
+		}
+	} catch ( \Exception $e ) {
+		EE::log( $e->getMessage() );
+	}
+
+}
+
+/**
+ * Check whether the config was modified.
+ *
+ * @param string $config_path Path to config file.
+ *
+ * @return mixed
+ */
+function is_config_modified( $config_path ) {
+
+	if ( empty( $config_path ) ) {
+		return;
+	}
+
+	// Get data from db based on site name and path.
+	$db_hash = ConfigHash::get_config_hash( $config_path );
+
+	// Create hash based on received config path.
+	$config_hash = hash_file( 'sha1', $config_path );
+
+	// Verify Hash values.
+	if ( hash_equals( $config_hash, $db_hash ) ) {
+		return false;
+	}
+
+	return true;
+
 }
