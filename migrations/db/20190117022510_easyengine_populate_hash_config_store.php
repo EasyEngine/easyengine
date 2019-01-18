@@ -18,6 +18,10 @@ class PopulateHashConfigStore extends Base {
 
 		$this->sites = Site::all();
 
+		if ( $this->is_first_execution ) {
+			$this->skip_this_migration = true;
+		}
+
 		try {
 			self::$pdo = new \PDO( 'sqlite:' . DB );
 			self::$pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
@@ -33,6 +37,11 @@ class PopulateHashConfigStore extends Base {
 	 * @throws EE\ExitException
 	 */
 	public function up() {
+
+		if ( $this->skip_this_migration ) {
+			EE::debug( 'Skipping hash data population for configs.' );
+			return;
+		}
 
 		// Loop through each site and store configuration hash.
 		foreach ( $this->sites as $site ) {
