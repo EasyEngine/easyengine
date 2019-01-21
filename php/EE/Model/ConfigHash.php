@@ -49,6 +49,40 @@ class ConfigHash extends Base {
 	}
 
 	/**
+	 * Delete hash for given config root.
+	 *
+	 * @param string $conf_root config root of the hash entry.
+	 *
+	 * @throws \Exception
+	 */
+	public static function delete_hash( $conf_root ) {
+
+		$hash_entries = self::get_hash_entries_by_conf_root( $conf_root );
+
+		if ( empty( $hash_entries ) ) {
+			\EE::debug( "No Hash entries found for $conf_root" );
+			return;
+		}
+
+		$ids = array_map( function( $hash_entry ) {
+			if ( isset( $hash_entry['id'] ) ) {
+				return $hash_entry['id'];
+			}
+
+		}, false !== $hash_entries ? $hash_entries : [] );
+
+		foreach ( $ids as $id ) {
+			static::find( $id )->delete();
+		}
+
+		// Verify no entries exist after deletion.
+		if ( empty( self::get_hash_entries_by_conf_root( $conf_root ) ) ) {
+			return true;
+		}
+
+	}
+
+	/**
 	 * Get all files in the provided directory.
 	 *
 	 * @param string $path Path to directory.
@@ -60,23 +94,26 @@ class ConfigHash extends Base {
 		// Allowed file extensions which should be hashed.
 		$allowed_ext = [ 'cnf', 'conf', 'ini' ];
 
-		$recursive_iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $path ) );
-
 		$files = array();
 
-		// get all files in the config directory.
-		foreach ( $recursive_iterator as $file ) {
+		if ( is_dir( $path ) ) {
 
-			if ( ! $file->isDir() ) {
-				$file_path = $file->getPathname();
-				$file_info = pathinfo( $file_path );
+			$recursive_iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $path ) );
 
-				// check if a file has an extension.
-				$extension = ( ! empty( $file_info['extension'] ) ) ? $file_info['extension'] : '';
+			// get all files in the config directory.
+			foreach ( $recursive_iterator as $file ) {
 
-				// store files which have valid extensions.
-				if ( in_array( $extension, $allowed_ext, true ) ) {
-					$files[] = $file_path;
+				if ( ! $file->isDir() ) {
+					$file_path = $file->getPathname();
+					$file_info = pathinfo( $file_path );
+
+					// check if a file has an extension.
+					$extension = ( ! empty( $file_info['extension'] ) ) ? $file_info['extension'] : '';
+
+					// store files which have valid extensions.
+					if ( in_array( $extension, $allowed_ext, true ) ) {
+						$files[] = $file_path;
+					}
 				}
 			}
 		}
@@ -100,6 +137,16 @@ class ConfigHash extends Base {
 			}
 		}
 
+	}
+
+	/**
+	 * Get all entries of the given config root.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function get_hash_entries_by_conf_root( $conf_root ) {
+		return \EE::db()->table( static::$table )->where( 'config_root', '=', $conf_root )->all();
 	}
 
 }
