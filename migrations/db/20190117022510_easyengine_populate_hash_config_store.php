@@ -42,35 +42,25 @@ class PopulateHashConfigStore extends Base {
 
 		// Loop through each site and store configuration hash.
 		foreach ( $this->sites as $site ) {
-
-			// site config paths.
-			$site_conf_paths = [
-				$site->site_fs_path . DIRECTORY_SEPARATOR . 'config',
-				$site->site_fs_path . DIRECTORY_SEPARATOR . 'services',
-			];
-
-			foreach ( $site_conf_paths as $site_conf_path ) {
-
-				// get all files in given path.
-				$files = ConfigHash::get_files_in_path( $site_conf_path );
-
-				// insert hash record for found files.
-				ConfigHash::insert_hash_data( $files, $site->site_url );
-			}
+			ConfigHash::create_site_config_hash( $site->site_fs_path, $site->site_url );
 		}
 
-		$services = [ 'nginx-proxy', 'mariadb', 'redis' ];
+		$services = [
+			'nginx-proxy' => 'global-nginx-proxy',
+			'mariadb'     => 'global-db',
+			'redis'       => 'global-redis'
+		];
 
 		//Loop through global services and store configuration hash.
-		foreach ( $services as $service ) {
+		foreach ( $services as $key => $value ) {
 
-			$service_path = EE_ROOT_DIR . DIRECTORY_SEPARATOR . 'services' . DIRECTORY_SEPARATOR . $service;
+			$service_path = EE_ROOT_DIR . DIRECTORY_SEPARATOR . 'services' . DIRECTORY_SEPARATOR . $key;
 
 			// get all files in given path.
 			$files = ConfigHash::get_files_in_path( $service_path );
 
 			// insert hash record for found files.
-			ConfigHash::insert_hash_data( $files, $service );
+			ConfigHash::insert_hash_data( $files, $value );
 		}
 	}
 

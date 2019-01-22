@@ -149,4 +149,31 @@ class ConfigHash extends Base {
 		return \EE::db()->table( static::$table )->where( 'config_root', '=', $conf_root )->all();
 	}
 
+	/**
+	 * Create config hashes for provided site.
+	 *
+	 * @param string $site_path Site root.
+	 * @param string $site_url  Site URL.
+	 *
+	 * @throws \Exception
+	 */
+	public static function create_site_config_hash( $site_path, $site_url ) {
+
+		// site config paths.
+		$site_conf_paths = [
+			$site_path . DIRECTORY_SEPARATOR . 'config',
+			$site_path . DIRECTORY_SEPARATOR . 'services',
+		];
+
+		foreach ( $site_conf_paths as $site_conf_path ) {
+
+			// get all files in given path.
+			$files = self::get_files_in_path( $site_conf_path );
+
+			// insert hash record for found files.
+			self::insert_hash_data( $files, $site_url );
+		}
+
+	}
+
 }
