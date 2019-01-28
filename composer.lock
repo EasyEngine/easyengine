@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eba30e935d9692da96c724716915c647",
+    "content-hash": "486b50e1e6a2f935fdc989f32415e18f",
     "packages": [
         {
             "name": "acmephp/core",
@@ -73,20 +73,22 @@
         },
         {
             "name": "acmephp/ssl",
-            "version": "1.0.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acmephp/ssl.git",
-                "reference": "bd070b7de809293bedd3a3ce6d3efc4c1eb996c3"
+                "reference": "e615312ba2bb6d01267be585e0253e0a95178a31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acmephp/ssl/zipball/bd070b7de809293bedd3a3ce6d3efc4c1eb996c3",
-                "reference": "bd070b7de809293bedd3a3ce6d3efc4c1eb996c3",
+                "url": "https://api.github.com/repos/acmephp/ssl/zipball/e615312ba2bb6d01267be585e0253e0a95178a31",
+                "reference": "e615312ba2bb6d01267be585e0253e0a95178a31",
                 "shasum": ""
             },
             "require": {
+                "ext-hash": "*",
                 "ext-openssl": "*",
+                "lib-openssl": ">=0.9.8",
                 "php": ">=5.5.0",
                 "webmozart/assert": "^1.0"
             },
@@ -122,15 +124,17 @@
             "description": "PHP wrapper around OpenSSL extension providing SSL encoding, decoding, parsing and signing features",
             "homepage": "https://github.com/acmephp/ssl",
             "keywords": [
+                "ECDSA",
                 "acmephp",
                 "certificate",
                 "csr",
                 "https",
                 "openssl",
+                "rsa",
                 "ssl",
                 "x509"
             ],
-            "time": "2018-10-14T09:29:59+00:00"
+            "time": "2018-11-05T19:26:21+00:00"
         },
         {
             "name": "cloudflare/sdk",
@@ -177,16 +181,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.1.3",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "8afa52cd417f4ec417b4bfe86b68106538a87660"
+                "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/8afa52cd417f4ec417b4bfe86b68106538a87660",
-                "reference": "8afa52cd417f4ec417b4bfe86b68106538a87660",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
+                "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
                 "shasum": ""
             },
             "require": {
@@ -229,7 +233,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2018-10-18T06:09:13+00:00"
+            "time": "2019-01-28T09:30:10+00:00"
         },
         {
             "name": "composer/composer",
@@ -480,16 +484,16 @@
         },
         {
             "name": "easyengine/admin-tools-command",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/admin-tools-command.git",
-                "reference": "b54acd8161578f2cb6b8cd6af0029f10a97052f7"
+                "reference": "b2074b210c312aa17c89b2b1591c7d221cb3e523"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/b54acd8161578f2cb6b8cd6af0029f10a97052f7",
-                "reference": "b54acd8161578f2cb6b8cd6af0029f10a97052f7",
+                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/b2074b210c312aa17c89b2b1591c7d221cb3e523",
+                "reference": "b2074b210c312aa17c89b2b1591c7d221cb3e523",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -500,7 +504,6 @@
                 "bundled": true,
                 "commands": [
                     "admin-tools",
-                    "admin-tools install",
                     "admin-tools enable",
                     "admin-tools disable"
                 ]
@@ -519,7 +522,7 @@
             ],
             "description": "Command to manage admin tools for php based sites.",
             "homepage": "https://github.com/easyengine/amdin-tools",
-            "time": "2018-12-25T13:16:51+00:00"
+            "time": "2019-01-28T13:39:55+00:00"
         },
         {
             "name": "easyengine/auth-command",
@@ -741,7 +744,7 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
@@ -826,16 +829,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.2.10",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "525fc26b5c81aa9061ccc33cceac9bf5373366da"
+                "reference": "eded69eee18097aab8b632647a53e54165182d0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/525fc26b5c81aa9061ccc33cceac9bf5373366da",
-                "reference": "525fc26b5c81aa9061ccc33cceac9bf5373366da",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/eded69eee18097aab8b632647a53e54165182d0f",
+                "reference": "eded69eee18097aab8b632647a53e54165182d0f",
                 "shasum": ""
             },
             "require": {
@@ -885,20 +888,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2018-12-28T16:07:45+00:00"
+            "time": "2019-01-28T13:34:56+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589"
+                "reference": "2001602f4d300fad6f0371904ea9db5ddd2c52f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589",
-                "reference": "3ab0b4f3bc830ff3cf382b2a0de7d414adcd9589",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/2001602f4d300fad6f0371904ea9db5ddd2c52f3",
+                "reference": "2001602f4d300fad6f0371904ea9db5ddd2c52f3",
                 "shasum": ""
             },
             "require-dev": {
@@ -940,20 +943,20 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2018-12-28T16:08:29+00:00"
+            "time": "2019-01-28T13:38:36+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.0.7",
+            "version": "v1.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "0045e8552ae2483b745630723908a6d65e6821ee"
+                "reference": "b42ca3b57de5552fc967e4e7c1794c4bfdc4da53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/0045e8552ae2483b745630723908a6d65e6821ee",
-                "reference": "0045e8552ae2483b745630723908a6d65e6821ee",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/b42ca3b57de5552fc967e4e7c1794c4bfdc4da53",
+                "reference": "b42ca3b57de5552fc967e4e7c1794c4bfdc4da53",
                 "shasum": ""
             },
             "require-dev": {
@@ -995,7 +998,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2018-12-28T16:08:32+00:00"
+            "time": "2019-01-28T13:36:34+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2249,7 +2252,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -2852,16 +2855,16 @@
         },
         {
             "name": "behat/gherkin",
-            "version": "v4.5.1",
+            "version": "v4.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Gherkin.git",
-                "reference": "74ac03d52c5e23ad8abd5c5cce4ab0e8dc1b530a"
+                "reference": "ab0a02ea14893860bca00f225f5621d351a3ad07"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/74ac03d52c5e23ad8abd5c5cce4ab0e8dc1b530a",
-                "reference": "74ac03d52c5e23ad8abd5c5cce4ab0e8dc1b530a",
+                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/ab0a02ea14893860bca00f225f5621d351a3ad07",
+                "reference": "ab0a02ea14893860bca00f225f5621d351a3ad07",
                 "shasum": ""
             },
             "require": {
@@ -2869,8 +2872,8 @@
             },
             "require-dev": {
                 "phpunit/phpunit": "~4.5|~5",
-                "symfony/phpunit-bridge": "~2.7|~3",
-                "symfony/yaml": "~2.3|~3"
+                "symfony/phpunit-bridge": "~2.7|~3|~4",
+                "symfony/yaml": "~2.3|~3|~4"
             },
             "suggest": {
                 "symfony/yaml": "If you want to parse features, represented in YAML files"
@@ -2907,7 +2910,7 @@
                 "gherkin",
                 "parser"
             ],
-            "time": "2017-08-30T11:04:43+00:00"
+            "time": "2019-01-16T14:22:17+00:00"
         },
         {
             "name": "behat/transliterator",
@@ -3432,12 +3435,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "ac7afcafc8d63cd3d4ae4929291bb2fec9a4b688"
+                "reference": "db876706aacd4ffbd1c253358d19a651e50e65c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ac7afcafc8d63cd3d4ae4929291bb2fec9a4b688",
-                "reference": "ac7afcafc8d63cd3d4ae4929291bb2fec9a4b688",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/db876706aacd4ffbd1c253358d19a651e50e65c2",
+                "reference": "db876706aacd4ffbd1c253358d19a651e50e65c2",
                 "shasum": ""
             },
             "conflict": {
@@ -3446,6 +3449,7 @@
                 "alterphp/easyadmin-extension-bundle": ">=1.2,<1.2.11|>=1.3,<1.3.1",
                 "amphp/artax": "<1.0.6|>=2,<2.0.6",
                 "amphp/http": "<1.0.1",
+                "api-platform/core": ">=2.2,<2.2.10|>=2.3,<2.3.6",
                 "asymmetricrypt/asymmetricrypt": ">=0,<9.9.99",
                 "aws/aws-sdk-php": ">=3,<3.2.1",
                 "brightlocal/phpwhois": "<=4.2.5",
@@ -3474,7 +3478,6 @@
                 "drupal/core": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
                 "drupal/drupal": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
                 "erusev/parsedown": "<1.7",
-                "ezsystems/ezplatform": "<1.7.8.1|>=1.8,<1.13.4.1|>=2,<2.2.3.1|>=2.3,<2.3.2.1",
                 "ezsystems/ezpublish-kernel": ">=5.3,<5.3.12.1|>=5.4,<5.4.13.1|>=6,<6.7.9.1|>=6.8,<6.13.5.1|>=7,<7.2.4.1|>=7.3,<7.3.2.1",
                 "ezsystems/ezpublish-legacy": ">=5.3,<5.3.12.6|>=5.4,<5.4.12.3|>=2011,<2017.12.4.3|>=2018.6,<2018.6.1.4|>=2018.9,<2018.9.1.3",
                 "ezsystems/repository-forms": ">=2.3,<2.3.2.1",
@@ -3501,6 +3504,7 @@
                 "la-haute-societe/tcpdf": "<6.2.22",
                 "laravel/framework": ">=4,<4.0.99|>=4.1,<=4.1.31|>=4.2,<=4.2.22|>=5,<=5.0.35|>=5.1,<=5.1.46|>=5.2,<=5.2.45|>=5.3,<=5.3.31|>=5.4,<=5.4.36|>=5.5,<5.5.42|>=5.6,<5.6.30",
                 "laravel/socialite": ">=1,<1.0.99|>=2,<2.0.10",
+                "league/commonmark": ">=0.15.6,<0.18.1",
                 "magento/magento1ce": "<1.9.4",
                 "magento/magento1ee": ">=1.9,<1.14.4",
                 "magento/product-community-edition": ">=2,<2.2.7",
@@ -3514,6 +3518,7 @@
                 "pagarme/pagarme-php": ">=0,<3",
                 "paragonie/random_compat": "<2",
                 "paypal/merchant-sdk-php": "<3.12",
+                "pear/archive_tar": "<1.4.4",
                 "phpmailer/phpmailer": ">=5,<5.2.27|>=6,<6.0.6",
                 "phpoffice/phpexcel": "<=1.8.1",
                 "phpoffice/phpspreadsheet": "<=1.5",
@@ -3573,8 +3578,8 @@
                 "titon/framework": ">=0,<9.9.99",
                 "truckersmp/phpwhois": "<=4.3.1",
                 "twig/twig": "<1.20",
-                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.21|>=9,<9.5.2",
-                "typo3/cms-core": ">=8,<8.7.21|>=9,<9.5.2",
+                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.23|>=9,<9.5.4",
+                "typo3/cms-core": ">=8,<8.7.23|>=9,<9.5.4",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
                 "ua-parser/uap-php": "<3.8",
@@ -3626,7 +3631,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2018-12-25T09:41:12+00:00"
+            "time": "2019-01-22T18:37:22+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -3681,16 +3686,16 @@
         },
         {
             "name": "symfony/class-loader",
-            "version": "v3.4.20",
+            "version": "v3.4.21",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/class-loader.git",
-                "reference": "420458095cf60025eb0841276717e0da7f75e50e"
+                "reference": "4513348012c25148f8cbc3a7761a1d1e60ca3e87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/class-loader/zipball/420458095cf60025eb0841276717e0da7f75e50e",
-                "reference": "420458095cf60025eb0841276717e0da7f75e50e",
+                "url": "https://api.github.com/repos/symfony/class-loader/zipball/4513348012c25148f8cbc3a7761a1d1e60ca3e87",
+                "reference": "4513348012c25148f8cbc3a7761a1d1e60ca3e87",
                 "shasum": ""
             },
             "require": {
@@ -3733,7 +3738,7 @@
             ],
             "description": "Symfony ClassLoader Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-11T19:48:54+00:00"
+            "time": "2019-01-01T13:45:19+00:00"
         },
         {
             "name": "wimg/php-compatibility",

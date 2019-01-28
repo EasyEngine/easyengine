@@ -1732,3 +1732,65 @@ function random_name_generator() {
 
 	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
 }
+
+/**
+ * @param array  $assoc_args            Arguments array.
+ * @param string $flag                  Flag to get the value.
+ * @param array  $supported_flag_values array of supported flag values.
+ * @param string $default_value         default flag value if flag is passed without value.
+ *
+ * @return string
+ * @throws EE\ExitException
+ */
+function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [], $default_value = '' ) {
+
+	$flag_value = get_flag_value( $assoc_args, $flag );
+	$value      = '';
+
+	if ( isset( $flag_value ) ) {
+		/**
+		 * Set default flag value if flag is passed without value.
+		 */
+		$value = ( empty( $flag_value ) || true === $flag_value ) ? $default_value : $flag_value;
+
+		if ( empty( $value ) ) {
+			return $value;
+		} elseif ( ! in_array( $value, $supported_flag_values, true ) ) {
+			EE::error( sprintf( 'Invalid flag value passed %s', $value ) );
+		}
+	}
+	return $value;
+}
+
+/**
+ * Function to sanitize and remove illegal characters for folder and filename.
+ *
+ * @param string $input_name           Input name to be sanitized.
+ * @param bool $strict                 Do strict replacement, i.e, remove all special characters except `-` and `_`.
+ * @param bool $remove_forward_slashes Wether to remove `/` or not from the input.
+ *
+ * @return string Sanitized name valid for file/folder creation.
+ */
+function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward_slashes = false ) {
+
+	$expression = $remove_forward_slashes ? '/[\"\*\/\:\<\>\?\'\|]+/' : '/[\"\*\:\<\>\?\'\|]+/';
+
+	// Remove Illegal Chars for folder and filename.
+	$output = preg_replace( $expression, '', $input_name );
+
+	if ( $strict ) {
+		// Remove all special characters except `-`, `_` and `/`.
+		$output = preg_replace( '/[^A-Za-z0-9\-_\/]/', '', $output );
+	}
+	// Replace Spaces with dashes.
+	$output = str_replace( ' ', '-', $output );
+
+	// Replaces multiple hyphens with single one.
+	$output = preg_replace( '/-+/', '-', $output );
+
+	// Replaces multiple underscores with single one.
+	$output = preg_replace( '/_+/', '_', $output );
+
+	// Remove starting and ending hyphens as a starting hyphen in string might be considered as parameter in bash file/folder creation.
+	return trim( $output, '-' );
+}
