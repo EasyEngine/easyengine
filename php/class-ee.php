@@ -889,7 +889,7 @@ class EE {
 			echo $results->stdout;
 		}
 		if ( $echo_stderr && ! $exit_on_error ) {
-			echo $results->stderr;
+			error_log( $results->stderr );
 		}
 		if ( ! $results->return_code ) {
 			return true;
