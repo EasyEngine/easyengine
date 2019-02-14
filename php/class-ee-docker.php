@@ -253,7 +253,10 @@ class EE_DOCKER {
 			if ( ! empty( $volume['skip_volume'] ) && true === $volume['skip_volume'] ) {
 				continue;
 			}
-			$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
+			$path_to_symlink_not_empty = ! empty( dirname( $volume['path_to_symlink'] ) );
+			if ( $path_to_symlink_not_empty ) {
+				$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
+			}
 			EE::exec(
 				sprintf(
 					'docker volume create \
@@ -265,7 +268,9 @@ class EE_DOCKER {
 					$volume['name']
 				)
 			);
-			$fs->symlink( sprintf( '%s/volumes/%s_%s/_data', $docker_root_dir, $volume_prefix, $volume['name'] ), $volume['path_to_symlink'] );
+			if ( $path_to_symlink_not_empty ) {
+				$fs->symlink( sprintf( '%s/volumes/%s_%s/_data', $docker_root_dir, $volume_prefix, $volume['name'] ), $volume['path_to_symlink'] );
+			}
 		}
 	}
 
