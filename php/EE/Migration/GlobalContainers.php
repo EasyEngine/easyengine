@@ -76,8 +76,9 @@ class GlobalContainers {
 		foreach ( $updated_images as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
 			$global_service_name   = ltrim( $global_container_name, 'services_' );
-			$global_service_name   = rtrim( $global_service_name, '_1' );
-			EE::debug( "Removing  $global_container_name" );
+			$remove_suffix         = explode( '_1', $global_service_name );
+			$global_service_name   = empty( $remove_suffix[0] ) ? $global_service_name : $remove_suffix[0];
+			EE::debug( "Removing $global_container_name" );
 
 			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
 				if ( ! EE::exec( "docker-compose stop $global_service_name && docker-compose rm -f $global_service_name" ) ) {
@@ -94,8 +95,11 @@ class GlobalContainers {
 	 * @throws \Exception
 	 */
 	public static function global_service_up( $service_name ) {
+		$global_service_name = ltrim( $service_name, 'services_' );
+		$remove_suffix       = explode( '_1', $global_service_name );
+		$global_service_name = empty( $remove_suffix[0] ) ? $global_service_name : $remove_suffix[0];
 		EE::debug( 'Start ' . $service_name . ' container up' );
-		if ( 'global-nginx-proxy' === $service_name ) {
+		if ( 'global-nginx-proxy' === $global_service_name ) {
 			\EE\Service\Utils\nginx_proxy_check();
 		} else {
 			\EE\Service\Utils\init_global_container( $service_name );
