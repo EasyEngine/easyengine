@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "486b50e1e6a2f935fdc989f32415e18f",
+    "content-hash": "e5041e349d0a9f0b3f93d7f356d5efb7",
     "packages": [
         {
             "name": "acmephp/core",
@@ -440,16 +440,16 @@
         },
         {
             "name": "composer/xdebug-handler",
-            "version": "1.3.1",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/xdebug-handler.git",
-                "reference": "dc523135366eb68f22268d069ea7749486458562"
+                "reference": "d17708133b6c276d6e42ef887a877866b909d892"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/dc523135366eb68f22268d069ea7749486458562",
-                "reference": "dc523135366eb68f22268d069ea7749486458562",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/d17708133b6c276d6e42ef887a877866b909d892",
+                "reference": "d17708133b6c276d6e42ef887a877866b909d892",
                 "shasum": ""
             },
             "require": {
@@ -480,7 +480,7 @@
                 "Xdebug",
                 "performance"
             ],
-            "time": "2018-11-29T10:59:02+00:00"
+            "time": "2019-01-28T20:25:53+00:00"
         },
         {
             "name": "easyengine/admin-tools-command",
@@ -744,16 +744,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "42bdb645f0e38cf89a374a9429f8d1666991a819"
+                "reference": "a89766e23912ad258b29f25087dd3008edc4ccea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/42bdb645f0e38cf89a374a9429f8d1666991a819",
-                "reference": "42bdb645f0e38cf89a374a9429f8d1666991a819",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/a89766e23912ad258b29f25087dd3008edc4ccea",
+                "reference": "a89766e23912ad258b29f25087dd3008edc4ccea",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -785,20 +785,20 @@
             ],
             "description": "Command to manager global containers/services in EasyEngine",
             "homepage": "https://github.com/easyengine/service-command",
-            "time": "2018-12-28T16:08:40+00:00"
+            "time": "2019-03-18T13:40:55+00:00"
         },
         {
             "name": "easyengine/shell-command",
-            "version": "v1.0.2",
+            "version": "v1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/shell-command.git",
-                "reference": "e6dd5ac7278752951f96fb5026b88ad1701c4388"
+                "reference": "30500e3d1e8aeb3b9e9ac48b92dcbab3841e3beb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/e6dd5ac7278752951f96fb5026b88ad1701c4388",
-                "reference": "e6dd5ac7278752951f96fb5026b88ad1701c4388",
+                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/30500e3d1e8aeb3b9e9ac48b92dcbab3841e3beb",
+                "reference": "30500e3d1e8aeb3b9e9ac48b92dcbab3841e3beb",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -825,20 +825,20 @@
             ],
             "description": "Shell to run helpful commands inside containers.",
             "homepage": "https://github.com/easyengine/shell-command",
-            "time": "2018-12-28T16:06:33+00:00"
+            "time": "2019-03-18T13:42:13+00:00"
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.3.0",
+            "version": "v2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "eded69eee18097aab8b632647a53e54165182d0f"
+                "reference": "df545c427445dccf7ce5e0fdb27c8cc786ab0b0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/eded69eee18097aab8b632647a53e54165182d0f",
-                "reference": "eded69eee18097aab8b632647a53e54165182d0f",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/df545c427445dccf7ce5e0fdb27c8cc786ab0b0c",
+                "reference": "df545c427445dccf7ce5e0fdb27c8cc786ab0b0c",
                 "shasum": ""
             },
             "require": {
@@ -888,20 +888,20 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2019-01-28T13:34:56+00:00"
+            "time": "2019-03-18T13:37:34+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "2001602f4d300fad6f0371904ea9db5ddd2c52f3"
+                "reference": "eedb100899c6c7b065ce87c379f7349d6b4474e2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/2001602f4d300fad6f0371904ea9db5ddd2c52f3",
-                "reference": "2001602f4d300fad6f0371904ea9db5ddd2c52f3",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/eedb100899c6c7b065ce87c379f7349d6b4474e2",
+                "reference": "eedb100899c6c7b065ce87c379f7349d6b4474e2",
                 "shasum": ""
             },
             "require-dev": {
@@ -943,20 +943,20 @@
             ],
             "description": "EasyEngine package for PHP site creation.",
             "homepage": "https://github.com/easyengine/site-type-php",
-            "time": "2019-01-28T13:38:36+00:00"
+            "time": "2019-03-18T13:40:34+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "b42ca3b57de5552fc967e4e7c1794c4bfdc4da53"
+                "reference": "e3f94d4db7dbc911bcf3a80abe2ea350d7ba59a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/b42ca3b57de5552fc967e4e7c1794c4bfdc4da53",
-                "reference": "b42ca3b57de5552fc967e4e7c1794c4bfdc4da53",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/e3f94d4db7dbc911bcf3a80abe2ea350d7ba59a7",
+                "reference": "e3f94d4db7dbc911bcf3a80abe2ea350d7ba59a7",
                 "shasum": ""
             },
             "require-dev": {
@@ -998,7 +998,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2019-01-28T13:36:34+00:00"
+            "time": "2019-03-18T13:40:26+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2252,7 +2252,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "backendtea@gmail.com"
+                    "email": "BackEndTea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -3427,6 +3427,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2013-01-13T10:24:48+00:00"
         },
         {
@@ -3435,12 +3436,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "db876706aacd4ffbd1c253358d19a651e50e65c2"
+                "reference": "3521da8036ce31b11490433aaae47f9601774191"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/db876706aacd4ffbd1c253358d19a651e50e65c2",
-                "reference": "db876706aacd4ffbd1c253358d19a651e50e65c2",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/3521da8036ce31b11490433aaae47f9601774191",
+                "reference": "3521da8036ce31b11490433aaae47f9601774191",
                 "shasum": ""
             },
             "conflict": {
@@ -3475,8 +3476,8 @@
                 "doctrine/mongodb-odm-bundle": ">=2,<3.0.1",
                 "doctrine/orm": ">=2,<2.4.8|>=2.5,<2.5.1",
                 "dompdf/dompdf": ">=0.6,<0.6.2",
-                "drupal/core": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
-                "drupal/drupal": ">=7,<7.60|>=8,<8.5.8|>=8.6,<8.6.2",
+                "drupal/core": ">=7,<7.62|>=8,<8.5.11|>=8.6,<8.6.10",
+                "drupal/drupal": ">=7,<7.62|>=8,<8.5.11|>=8.6,<8.6.10",
                 "erusev/parsedown": "<1.7",
                 "ezsystems/ezpublish-kernel": ">=5.3,<5.3.12.1|>=5.4,<5.4.13.1|>=6,<6.7.9.1|>=6.8,<6.13.5.1|>=7,<7.2.4.1|>=7.3,<7.3.2.1",
                 "ezsystems/ezpublish-legacy": ">=5.3,<5.3.12.6|>=5.4,<5.4.12.3|>=2011,<2017.12.4.3|>=2018.6,<2018.6.1.4|>=2018.9,<2018.9.1.3",
@@ -3535,7 +3536,7 @@
                 "shopware/shopware": "<5.3.7",
                 "silverstripe/cms": ">=3,<=3.0.11|>=3.1,<3.1.11",
                 "silverstripe/forum": "<=0.6.1|>=0.7,<=0.7.3",
-                "silverstripe/framework": ">=3,<3.3",
+                "silverstripe/framework": ">=3,<3.6.7|>=3.7,<3.7.3|>=4,<4.0.7|>=4.1,<4.1.5|>=4.2,<4.2.4|>=4.3,<4.3.1",
                 "silverstripe/userforms": "<3",
                 "simple-updates/phpwhois": "<=1",
                 "simplesamlphp/saml2": "<1.10.6|>=2,<2.3.8|>=3,<3.1.4",
@@ -3577,7 +3578,7 @@
                 "theonedemon/phpwhois": "<=4.2.5",
                 "titon/framework": ">=0,<9.9.99",
                 "truckersmp/phpwhois": "<=4.3.1",
-                "twig/twig": "<1.20",
+                "twig/twig": "<1.38|>=2,<2.7",
                 "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.23|>=9,<9.5.4",
                 "typo3/cms-core": ">=8,<8.7.23|>=9,<9.5.4",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
@@ -3631,7 +3632,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-01-22T18:37:22+00:00"
+            "time": "2019-03-12T13:04:55+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -3686,16 +3687,16 @@
         },
         {
             "name": "symfony/class-loader",
-            "version": "v3.4.21",
+            "version": "v3.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/class-loader.git",
-                "reference": "4513348012c25148f8cbc3a7761a1d1e60ca3e87"
+                "reference": "4459eef5298dedfb69f771186a580062b8516497"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/class-loader/zipball/4513348012c25148f8cbc3a7761a1d1e60ca3e87",
-                "reference": "4513348012c25148f8cbc3a7761a1d1e60ca3e87",
+                "url": "https://api.github.com/repos/symfony/class-loader/zipball/4459eef5298dedfb69f771186a580062b8516497",
+                "reference": "4459eef5298dedfb69f771186a580062b8516497",
                 "shasum": ""
             },
             "require": {
@@ -3738,7 +3739,7 @@
             ],
             "description": "Symfony ClassLoader Component",
             "homepage": "https://symfony.com",
-            "time": "2019-01-01T13:45:19+00:00"
+            "time": "2019-01-16T09:39:14+00:00"
         },
         {
             "name": "wimg/php-compatibility",
