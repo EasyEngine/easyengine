@@ -31,8 +31,13 @@ class InsertDockerImagesVersion extends Base {
 		$images = EE\Utils\get_image_versions();
 
 		$query = '';
+		$skip_download = [
+			'easyengine/php5.6',
+			'easyengine/php7.3',
+			'easyengine/newrelic-daemon',
+		];
 		foreach ( $images as $image => $tag ) {
-			if ( 'easyengine/php5.6' === $image ) {
+			if ( in_array( $image, $skip_download ) ) {
 				continue;
 			}
 			EE::log( "Checking and Pulling docker image $image:$tag" );
