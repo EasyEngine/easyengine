@@ -6,7 +6,8 @@
     "easyengine/nginx": "v4.0.0",
     "easyengine/php": "v4.0.2",
     "easyengine/php5.6": "v4.0.0",
-    "easyengine/php5.6": "v4.0.0",
+    "easyengine/php7.0": "v4.0.0",
+    "easyengine/php7.3": "v4.0.0",
     "easyengine/postfix": "v4.0.0",
     "easyengine/redis": "v4.0.0",
     "easyengine/newrelic-daemon": "v4.0.0"
