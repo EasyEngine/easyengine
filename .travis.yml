@@ -1,7 +1,7 @@
 sudo: required
-
+dist: xenial
 language: php
-php: 7.0
+php: 7.2
 
 env:
   global:
@@ -28,12 +28,11 @@ install:
     if [[ "$TRAVIS_BRANCH" = "master" ]]; then
       composer install --no-interaction
     else
-      composer update
+      composer install --no-interaction
     fi
   - sudo ./ci/test-env-install.sh
 
 before_script:
-  - composer validate
   - ./ci/prepare.sh
 
 script:
