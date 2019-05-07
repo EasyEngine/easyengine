@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 # called by Travis CI
 
 #repos=$(find vendor/easyengine -type d -name 'features')
@@ -12,7 +11,7 @@ sub_commands=(
 for command in "${sub_commands[@]}"; do
 	IFS='/' read -r -a array <<< "$command"
 	rm -rf features/*
-	rsync -avP --delete $command/ features/
+	rsync -av --delete $command/ features/ > /dev/null
 	for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
 	composer du
 	echo "Running tests for $command"

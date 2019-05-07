@@ -28,7 +28,7 @@ install:
     if [[ "$TRAVIS_BRANCH" = "master" ]]; then
       composer install --no-interaction
     else
-      composer install --no-interaction
+      composer update
     fi
   - sudo ./ci/test-env-install.sh
 
