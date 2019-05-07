@@ -45,7 +45,7 @@
         "symfony/config": "3.4.18",
         "symfony/console": "3.4.18",
         "symfony/debug": "3.4.18",
-        "symfony/dependency-injection": "3.4.18",
+        "symfony/dependency-injection": "3.4.27",
         "symfony/event-dispatcher": "3.4.18",
         "symfony/filesystem": "3.4.18",
         "symfony/finder": "3.4.18",
