@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8403817360410c6a570b8a7369c824a2",
+    "content-hash": "f428bafe43bbf1ce25a9b4cf3f71400e",
     "packages": [
         {
             "name": "acmephp/core",
@@ -828,16 +828,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.3.2",
+            "version": "v2.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "be235be393d277e9c7b6986ce904cf3e3151f03b"
+                "reference": "a09639c73c3791842070a794b75f44e12229e191"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/be235be393d277e9c7b6986ce904cf3e3151f03b",
-                "reference": "be235be393d277e9c7b6986ce904cf3e3151f03b",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/a09639c73c3791842070a794b75f44e12229e191",
+                "reference": "a09639c73c3791842070a794b75f44e12229e191",
                 "shasum": ""
             },
             "require": {
@@ -887,7 +887,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2019-05-07T04:51:15+00:00"
+            "time": "2019-05-07T13:51:37+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -3435,12 +3435,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "21ad2a8155dd437a0926a4d1fedb991bebd4810b"
+                "reference": "2149b00d8c04ccbc71f38a261d0129d5b032b5df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/21ad2a8155dd437a0926a4d1fedb991bebd4810b",
-                "reference": "21ad2a8155dd437a0926a4d1fedb991bebd4810b",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/2149b00d8c04ccbc71f38a261d0129d5b032b5df",
+                "reference": "2149b00d8c04ccbc71f38a261d0129d5b032b5df",
                 "shasum": ""
             },
             "conflict": {
@@ -3581,10 +3581,11 @@
                 "titon/framework": ">=0,<9.9.99",
                 "truckersmp/phpwhois": "<=4.3.1",
                 "twig/twig": "<1.38|>=2,<2.7",
-                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.23|>=9,<9.5.4",
-                "typo3/cms-core": ">=8,<8.7.23|>=9,<9.5.4",
+                "typo3/cms": ">=6.2,<6.2.30|>=7,<7.6.32|>=8,<8.7.25|>=9,<9.5.6",
+                "typo3/cms-core": ">=8,<8.7.25|>=9,<9.5.6",
                 "typo3/flow": ">=1,<1.0.4|>=1.1,<1.1.1|>=2,<2.0.1|>=2.3,<2.3.16|>=3,<3.0.10|>=3.1,<3.1.7|>=3.2,<3.2.7|>=3.3,<3.3.5",
                 "typo3/neos": ">=1.1,<1.1.3|>=1.2,<1.2.13|>=2,<2.0.4",
+                "typo3/phar-stream-wrapper": ">=1,<2.1.1|>=3,<3.1.1",
                 "ua-parser/uap-php": "<3.8",
                 "wallabag/tcpdf": "<6.2.22",
                 "willdurand/js-translation-bundle": "<2.1.1",
@@ -3635,7 +3636,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2019-05-06T17:09:30+00:00"
+            "time": "2019-05-08T13:51:25+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
