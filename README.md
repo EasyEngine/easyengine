@@ -5,7 +5,7 @@ EasyEngine makes it greatly easy to manage nginx, a fast web-server software tha
 
 <a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>
 
-<img width="150" height="150" src="https://easyengine.io/wp-content/uploads/sites/20/2019/06/EasyEngine-New-Logo-Banner@0.1x-Transparent-Background.png" alt="EasyEngine Logo" align="right" />
+<img width="150" height="150" src="" alt="EasyEngine Logo" align="right" />
 
 ## Requirements
 
