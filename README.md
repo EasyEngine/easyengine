@@ -1,11 +1,11 @@
+
+<img src="https://i2.wp.com/easyengine.io/wp-content/uploads/sites/20/2019/06/EasyEngine-New-Logo-Banner@2x-Transparent-Background.png?fit=720%2C170&ssl=1" alt="EasyEngine Logo" />
+
 # EasyEngine v4 [![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine) [![License](https://poser.pugx.org/phpunit/phpunit/license)](https://packagist.org/packages/phpunit/phpunit) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/)
 
 EasyEngine makes it greatly easy to manage nginx, a fast web-server software that consumes little memory when handling increasing volumes of concurrent users.
 
-
 <a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>
-
-<img width="150" height="150" src="" alt="EasyEngine Logo" align="right" />
 
 ## Requirements
 
