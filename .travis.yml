@@ -1,7 +1,7 @@
 sudo: required
-
+dist: xenial
 language: php
-php: 7.0
+php: 7.2
 
 env:
   global:
@@ -33,7 +33,6 @@ install:
   - sudo ./ci/test-env-install.sh
 
 before_script:
-  - composer validate
   - ./ci/prepare.sh
 
 script:
