@@ -202,6 +202,63 @@ class EE_DOCKER {
 	}
 
 	/**
+	 * Function to restart the containers.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
+	 */
+	public static function docker_compose_restart( $dir, $containers ) {
+		if ( chdir( $dir ) ) {
+			return EE::exec( "docker-compose restart $containers", true, true );
+		}
+		throw new \Exception( "Could not resolve $dir" );
+	}
+
+	/**
+	 * Function to stop the containers.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
+	 */
+	public static function docker_compose_stop( $dir, $containers ) {
+		if ( chdir( $dir ) ) {
+			return EE::exec( "docker-compose stop $containers", true, true );
+		}
+		throw new \Exception( "Could not resolve $dir" );
+	}
+
+	/**
+	 * Function to force remove the containers.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
+	 */
+	public static function docker_compose_forcerm( $dir, $containers ) {
+		if ( chdir( $dir ) ) {
+			return EE::exec( "docker-compose rm -f $containers", true, true );
+		}
+		throw new \Exception( "Could not resolve $dir" );
+	}
+
+	/**
+	 * Function to exec command in a running container.
+	 *
+	 * @param String $dir Path to docker-compose.yml.
+	 *
+	 * @return bool success.
+	 */
+	public static function docker_compose_exec( $dir, $container, $exec_command ) {
+		if ( chdir( $dir ) ) {
+			EE::log( "Executing: [$container]: $exec_command" );
+			return EE::exec( "docker-compose exec $container $exec_command", true, true );
+		}
+		throw new \Exception( "Could not resolve $dir" );
+	}
+
+	/**
 	 * Check if a particular service exists in given docker-compose.yml.
 	 *
 	 * @param string $service      Service whose availability needs to be checked.
