@@ -253,6 +253,11 @@ class EE_DOCKER {
 			if ( ! empty( $volume['skip_volume'] ) && true === $volume['skip_volume'] ) {
 				continue;
 			}
+			$vol_check = EE::launch( 'docker volume inspect ' . $volume_prefix . '_' . $volume['name'] );
+			// Skip if volume already exists.
+			if ( 0 === $vol_check->return_code ) {
+				continue;
+			}
 			$path_to_symlink_not_empty = ! empty( dirname( $volume['path_to_symlink'] ) );
 			if ( $path_to_symlink_not_empty ) {
 				$fs->mkdir( dirname( $volume['path_to_symlink'] ) );
