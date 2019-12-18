@@ -323,6 +323,7 @@ $phar_boot = str_replace( EE_BASE_PATH, '', EE_ROOT . '/php/boot-phar.php' );
 $phar->setStub( <<<EOB
 #!/usr/bin/env php
 <?php
+error_reporting( E_ALL ^ ( E_NOTICE | E_WARNING | E_DEPRECATED ) );
 Phar::mapPhar();
 include 'phar://ee.phar{$phar_boot}';
 __HALT_COMPILER();
