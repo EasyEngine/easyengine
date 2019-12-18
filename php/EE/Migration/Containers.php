@@ -38,7 +38,7 @@ class Containers {
 
 		foreach ( $img_versions as $img => $version ) {
 
-			if ( in_array( $image, $skip_download ) ) {
+			if ( in_array( $img, $skip_download ) ) {
 				continue;
 			}
 			if ( array_key_exists( $img, $current_versions ) ) {
