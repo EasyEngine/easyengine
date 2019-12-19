@@ -34,7 +34,9 @@ class InsertDockerImagesVersion extends Base {
 		$skip_download = [
 			'easyengine/php5.6',
 			'easyengine/php7.0',
+			'easyengine/php7.2',
 			'easyengine/php7.3',
+			'easyengine/php7.4',
 			'easyengine/newrelic-daemon',
 		];
 		foreach ( $images as $image => $tag ) {
