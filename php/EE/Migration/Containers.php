@@ -81,9 +81,23 @@ class Containers {
 			'EE\Migration\Containers::revert_database_entry',
 			[ $new_versions, $updated_images ],
 			[ $current_versions, $updated_images ]
-
 		);
 
+		self::$rsp->add_step(
+			'prune-old-docker-images',
+			'EE\Migration\Containers::image_cleanup',
+			null,
+			null,
+			null
+		);
+
+	}
+
+	/**
+	 * Prune old and extra EE Docker images.
+	 */
+	public static function image_cleanup() {
+		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
 	}
 
 	/**
