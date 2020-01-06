@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e9a80680c872464527e590dfb5f2d56",
+    "content-hash": "81b497f898857ff81664400b915de018",
     "packages": [
         {
             "name": "acmephp/core",
@@ -828,16 +828,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.4.1",
+            "version": "v2.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "03f5b2b72a670780fad4ee1d9467e2dbc87f09bb"
+                "reference": "e3be05f8c70b3edb43433d875aec67612a932672"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/03f5b2b72a670780fad4ee1d9467e2dbc87f09bb",
-                "reference": "03f5b2b72a670780fad4ee1d9467e2dbc87f09bb",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/e3be05f8c70b3edb43433d875aec67612a932672",
+                "reference": "e3be05f8c70b3edb43433d875aec67612a932672",
                 "shasum": ""
             },
             "require": {
@@ -887,7 +887,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2020-01-06T05:09:06+00:00"
+            "time": "2020-01-06T09:24:19+00:00"
         },
         {
             "name": "easyengine/site-type-php",
