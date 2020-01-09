@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81b497f898857ff81664400b915de018",
+    "content-hash": "de090a112b8596c27395ae161040f697",
     "packages": [
         {
             "name": "acmephp/core",
@@ -828,16 +828,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.4.2",
+            "version": "v2.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "e3be05f8c70b3edb43433d875aec67612a932672"
+                "reference": "188d9dbf1fe0224c149bcc7202366fbcd27ce896"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/e3be05f8c70b3edb43433d875aec67612a932672",
-                "reference": "e3be05f8c70b3edb43433d875aec67612a932672",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/188d9dbf1fe0224c149bcc7202366fbcd27ce896",
+                "reference": "188d9dbf1fe0224c149bcc7202366fbcd27ce896",
                 "shasum": ""
             },
             "require": {
@@ -887,7 +887,7 @@
                 "MIT"
             ],
             "homepage": "https://github.com/easyengine/site-command",
-            "time": "2020-01-06T09:24:19+00:00"
+            "time": "2020-01-09T02:51:06+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -3440,12 +3440,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "872fce6c151b06f6446f228f2290a48862ede2a4"
+                "reference": "67ac6ea8f4a078c3c9b7aec5d7ae70f098c37389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/872fce6c151b06f6446f228f2290a48862ede2a4",
-                "reference": "872fce6c151b06f6446f228f2290a48862ede2a4",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/67ac6ea8f4a078c3c9b7aec5d7ae70f098c37389",
+                "reference": "67ac6ea8f4a078c3c9b7aec5d7ae70f098c37389",
                 "shasum": ""
             },
             "conflict": {
@@ -3481,7 +3481,7 @@
                 "doctrine/orm": ">=2,<2.4.8|>=2.5,<2.5.1",
                 "dompdf/dompdf": ">=0.6,<0.6.2",
                 "drupal/core": ">=7,<7.69|>=8,<8.7.11|>=8.8,<8.8.1",
-                "drupal/drupal": ">=7,<8.7.11|>=8.8,<8.8.1",
+                "drupal/drupal": ">=7,<7.69|>=8,<8.7.11|>=8.8,<8.8.1",
                 "endroid/qr-code-bundle": "<3.4.2",
                 "erusev/parsedown": "<1.7.2",
                 "ezsystems/ezplatform-admin-ui": ">=1.3,<1.3.5|>=1.4,<1.4.4",
@@ -3652,7 +3652,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2020-01-02T17:29:14+00:00"
+            "time": "2020-01-06T19:16:46+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
