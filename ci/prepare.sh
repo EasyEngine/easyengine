@@ -7,7 +7,10 @@ if [[ "$TRAVIS_BRANCH" != $DEPLOY_BRANCH ]]; then
     version="$(echo $version | xargs)"
     version+="-nightly-$(git rev-parse --short HEAD)"
     echo $version > VERSION
-    sed -i 's/\:\ \"\(.*\)\"/\:\ \"\1-nightly\"/g' img-versions.json
 fi
 
 php -dphar.readonly=0 ./utils/make-phar.php easyengine.phar --quiet
+
+# Checking the phar is working.
+sudo ./easyengine.phar cli info
+docker ps -a

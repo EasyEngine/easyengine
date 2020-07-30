@@ -12,7 +12,7 @@ if [ -z $DEPLOY_BRANCH ]; then
 	exit
 fi
 
-if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "develop-v4" ]]; then
+if [[ "$TRAVIS_BRANCH" != "$DEPLOY_BRANCH" ]] && [[ ! "$TRAVIS_BRANCH" == "develop" ]]; then
 	echo "Skipping deployment as '$TRAVIS_BRANCH' is not a deploy branch."
 	exit
 fi
@@ -32,11 +32,11 @@ echo "|1|qPmmP7LVZ7Qbpk7AylmkfR0FApQ=|WUy1WS3F4qcr3R5Sc728778goPw= ssh-rsa AAAAB
 
 git clone git@github.com:easyengine/easyengine-builds.git
 
-git config user.name "Travis CI"
-git config user.email "travis@travis-ci.org"
-git config push.default "current"
+git config --global user.name "rtBot"
+git config --global user.email "43742164+rtBot@users.noreply.github.com"
+git config --global push.default "current"
 
-if [[ "$TRAVIS_BRANCH" == "develop-v4" ]]; then
+if [[ "$TRAVIS_BRANCH" == "develop" ]]; then
 	fname="phar/easyengine-nightly.phar"
 else
 	fname="phar/easyengine.phar"

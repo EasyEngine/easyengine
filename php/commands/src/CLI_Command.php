@@ -1,9 +1,9 @@
 <?php
 
-use \Composer\Semver\Comparator;
-use \Symfony\Component\Filesystem\Filesystem;
-use \EE\Utils;
-use \EE\Model\Site;
+use Composer\Semver\Comparator;
+use EE\Model\Site;
+use EE\Utils;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Review current EE info, check for updates, or see defined aliases.
@@ -154,20 +154,6 @@ class CLI_Command extends EE_Command {
 				\EE::line( $line );
 			}
 		}
-
-		if ( '/tmp' === getcwd() ) {
-			$this->migrate();
-		}
-	}
-
-	/**
-	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
-	 */
-	private function migrate() {
-		$rsp = new \EE\RevertableStepProcessor();
-		$rsp->add_step( 'ee-migrations', 'EE\Migration\Executor::execute_migrations' );
-		$rsp->add_step( 'site-migration', 'EE\Migration\Containers::start_container_migration' );
-		$rsp->execute();
 	}
 
 	/**
@@ -274,12 +260,16 @@ class CLI_Command extends EE_Command {
 		if ( ! Utils\inside_phar() ) {
 			EE::error( 'You can only self-update Phar files.' );
 		}
+		if ( IS_DARWIN ) {
+			EE::error( 'Please use `brew upgrade easyengine` to update EasyEngine on macOS.' );
+		}
 		$old_phar = realpath( $_SERVER['argv'][0] );
 		if ( ! is_writable( $old_phar ) ) {
 			EE::error( sprintf( '%s is not writable by current user.', $old_phar ) );
 		} elseif ( ! is_writable( dirname( $old_phar ) ) ) {
 			EE::error( sprintf( '%s is not writable by current user.', dirname( $old_phar ) ) );
 		}
+		EE::log( "Note: It is recommended to run EasyEngine update in tmux/screen. Update at times may take some time.\nTo view progress, tail logs in a different window using `tail -f /opt/easyengine/logs/ee.log`." );
 		if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
 			EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest nightly?', EE_VERSION ), $assoc_args );
 			$download_url = 'https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine-nightly.phar';
@@ -300,6 +290,7 @@ class CLI_Command extends EE_Command {
 			$download_url = $newest['package_url'];
 			$md5_url      = str_replace( '.phar', '.phar.md5', $download_url );
 		}
+		EE::get_runner()->check_requirements();
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
 		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
@@ -319,8 +310,11 @@ class CLI_Command extends EE_Command {
 		} else {
 			EE::error( "md5 hash for download ({$md5_file}) is different than the release hash ({$release_hash})." );
 		}
+
+		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
+
 		$php_binary = Utils\get_php_binary();
-		$process    = EE\Process::create( "{$php_binary} $temp cli info" );
+		$process    = EE\Process::create( "{$php_binary} $temp cli info", null, null );
 		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );
@@ -504,22 +498,27 @@ class CLI_Command extends EE_Command {
 	 */
 	public function self_uninstall( $args, $assoc_args ) {
 
+		if ( ! EE::get_runner()->check_requirements( false ) ) {
+			EE::error( 'Unable to proceed with uninstallation. Seems there is a dependency down.', false );
+			die;
+		}
+
 		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
 
 		EE::exec( 'docker rm -f $(docker ps -aqf label=org.label-schema.vendor="EasyEngine")' );
-		$home = Utils\get_home_dir();
-		EE::exec( "rm -rf $home/.ee/" );
+		EE::exec( 'docker network prune -f $(docker network ls -f "label=org.label-schema.vendor=EasyEngine")' );
+		EE::exec( 'docker volume rm -f $(docker volume ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
+		EE::exec( 'docker image rm $(docker image ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 
 		$records = Site::all( [ 'site_fs_path' ] );
 
+		$fs = new Filesystem();
 		if ( ! empty( $records ) ) {
 			$sites_paths = array_column( $records, 'site_fs_path' );
-			$fs = new Filesystem();
 			$fs->remove( $sites_paths );
 		}
 
-		EE::exec( "rm -df $home/ee-sites/" );
-		EE::exec( "rm -rf /opt/easyengine/" );
+		$fs->remove( EE_ROOT_DIR );
 
 		if ( Utils\inside_phar() ) {
 			unlink( realpath( $_SERVER['argv'][0] ) );

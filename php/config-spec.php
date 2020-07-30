@@ -31,6 +31,13 @@ return array(
 		'desc'    => 'Mail-id to be used for letsencrypt.',
 	),
 
+	'wp-mail' => array(
+		'runtime' => '=<wp-mail>',
+		'file'    => '<wp-mail>',
+		'default' => null,
+		'desc'    => 'Default Mail-id to be used for WordPress site installation.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,
@@ -49,13 +56,6 @@ return array(
 		'file' => '<group>',
 		'default' => false,
 		'desc' => 'Show all PHP errors; add verbosity to EE bootstrap.',
-	),
-
-	'prompt' => array(
-		'runtime' => '[=<assoc>]',
-		'file' => false,
-		'default' => false,
-		'desc' => 'Prompt the user to enter values for all command arguments, or a subset specified as comma-separated values.',
 	),
 
 	'quiet' => array(

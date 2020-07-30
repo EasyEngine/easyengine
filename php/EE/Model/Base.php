@@ -166,13 +166,18 @@ abstract class Base {
 	 * Returns all model with condition
 	 *
 	 * @param string|array $column Column to search in
-	 * @param string       $value  Value to match
+	 * @param string $value        Value to match
 	 *
 	 * @throws \Exception
 	 *
 	 * @return array
 	 */
-	public static function where( $column, $value='' ) {
+	public static function where( $column, $value = '' ) {
+
+		if ( is_bool( $value ) ) {
+			$value = (int) $value;
+		}
+
 		return static::many_array_to_model(
 			EE::db()
 				->table( static::$table )
@@ -196,7 +201,7 @@ abstract class Base {
 	 */
 	public function __get( string $name ) {
 		if ( array_key_exists( $name, $this->fields ) ) {
-			return $this->fields[$name];
+			return $this->fields[ $name ];
 		}
 
 		throw new \Exception( "Unable to find variable: $name" );
@@ -245,7 +250,14 @@ abstract class Base {
 	 * @return bool Model saved successfully
 	 */
 	public function save() {
+
 		$fields = $this->fields;
+
+		foreach ( $fields as $key => $value ) {
+			if ( is_bool( $value ) ) {
+				$fields[ $key ] = (int) $value;
+			}
+		}
 
 		if ( static::$needs_update_timestamp ) {
 			$fields = array_merge(
@@ -282,16 +294,18 @@ abstract class Base {
 	/**
 	 * Updates current model from database
 	 *
+	 * @param array $where          Where conditions to update
+	 * @param array $updated_values Updated values
+	 *
 	 * @throws \Exception
 	 *
 	 * @return bool Model updated successfully
 	 */
-	public function update( $columns ) {
-		$primary_key_column = static::$primary_key;
+	public static function update( array $where, array $updated_values ) {
 
 		return EE::db()
 			->table( static::$table )
-			->where( $primary_key_column, $this->$primary_key_column )
-			->update( $columns );
+			->where( $where )
+			->update( $updated_values );
 	}
 }

@@ -94,7 +94,7 @@ class EE {
 
 		if ( ! $cache ) {
 			$home = Utils\get_home_dir();
-			$dir = getenv( 'EE_CACHE_DIR' ) ? : "$home/.ee/cache";
+			$dir = getenv( 'EE_CACHE_DIR' ) ? : EE_ROOT_DIR . '/.cache/';
 
 			// 6 months, 300mb
 			$cache = new FileCache( $dir, 15552000, 314572800 );
@@ -889,7 +889,7 @@ class EE {
 			echo $results->stdout;
 		}
 		if ( $echo_stderr && ! $exit_on_error ) {
-			echo $results->stderr;
+			error_log( $results->stderr );
 		}
 		if ( ! $results->return_code ) {
 			return true;
@@ -931,7 +931,7 @@ class EE {
 		if ( getenv( 'EE_CONFIG_PATH' ) ) {
 			$config_path = getenv( 'EE_CONFIG_PATH' );
 		} else {
-			$config_path = EE_CONF_ROOT . '/config.yml';
+			$config_path = EE_ROOT_DIR . '/config/config.yml';
 		}
 		$config_path = escapeshellarg( $config_path );
 
@@ -1186,13 +1186,5 @@ class EE {
 
 	public static function db() {
 		return new EE_DB();
-	}
-
-	public static function docker() {
-		if ( empty( self::$docker ) ) {
-			self::$docker = new EE_DOCKER();
-		}
-
-		return self::$docker;
 	}
 }

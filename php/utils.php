@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
+use Mustangostang\Spyc;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -1593,4 +1594,203 @@ function get_image_versions() {
 	}
 
 	return $img_versions;
+}
+
+/**
+ * Function to get httpcode or port occupancy info.
+ *
+ * @param string $url             url to get info about.
+ * @param int $port               The port to check.
+ * @param bool $port_info         Return port info or httpcode.
+ * @param mixed $auth             Send http auth with passed value if not false.
+ * @param bool $resolve_localhost Wether to reolve curl request to localhost or not.
+ *
+ * @return bool|int port occupied or httpcode.
+ */
+function get_curl_info( $url, $port = 80, $port_info = false, $auth = false, $resolve_localhost = false ) {
+
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_HEADER, true );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+	curl_setopt( $ch, CURLOPT_NOBODY, true );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $ch, CURLOPT_PORT, $port );
+	if ( $resolve_localhost ) {
+		curl_setopt( $ch, CURLOPT_RESOLVE, [ $url . ':' . $port . ':' . LOCALHOST_IP ] );
+	}
+	if ( $auth ) {
+		curl_setopt( $ch, CURLOPT_USERPWD, $auth );
+	}
+	curl_exec( $ch );
+	if ( $port_info ) {
+		return empty( curl_getinfo( $ch, CURLINFO_PRIMARY_IP ) );
+	}
+
+	return curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+}
+
+/**
+ * Function to get config value for a given key.
+ *
+ * @param string $key          Key to search in config file.
+ * @param string|null $default Default value of the given key.
+ *
+ * @return string|null value of the asked key.
+ */
+function get_config_value( $key, $default = null ) {
+
+	$config_file_path = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	$existing_config  = Spyc::YAMLLoad( $config_file_path );
+
+	return empty( $existing_config[ $key ] ) ? $default : $existing_config[ $key ];
+}
+
+/**
+ * Function to download file to a path.
+ *
+ * @param string $path         Path to download the file on.
+ * @param string $download_url Url to download the file from.
+ */
+function download( $path, $download_url ) {
+
+	$headers = array();
+	$options = array(
+		'timeout'  => 1200,  // 20 minutes ought to be enough for everybody.
+		'filename' => $path,
+	);
+	http_request( 'GET', $download_url, null, $headers, $options );
+}
+
+/**
+ * Extract zip files.
+ *
+ * @param string $zip_file        Path to the zip file.
+ * @param string $path_to_extract Path where zip needs to be extracted to.
+ *
+ * @return bool Success of extraction.
+ */
+function extract_zip( $zip_file, $path_to_extract ) {
+
+	$zip = new \ZipArchive;
+	$res = $zip->open( $zip_file );
+	if ( true === $res ) {
+		$zip->extractTo( $path_to_extract );
+		$zip->close();
+
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Random name generator.
+ *
+ * @return string
+ */
+function random_name_generator() {
+
+	$left = [
+		'admiring', 'adoring', 'affectionate', 'agitated', 'amazing', 'angry', 'awesome', 'blissful', 'bold',
+		'boring', 'brave', 'charming', 'clever', 'cocky', 'cool', 'compassionate', 'competent', 'condescending',
+		'confident', 'cranky', 'crazy', 'dazzling', 'determined', 'distracted', 'dreamy', 'eager', 'ecstatic',
+		'elastic', 'elated', 'elegant', 'eloquent', 'epic', 'fervent', 'festive', 'flamboyant', 'focused', 'friendly',
+		'frosty', 'gallant', 'gifted', 'goofy', 'gracious', 'happy', 'hardcore', 'heuristic', 'hopeful', 'hungry',
+		'infallible', 'inspiring', 'jolly', 'jovial', 'keen', 'kind', 'laughing', 'loving', 'lucid', 'magical',
+		'mystifying', 'modest', 'musing', 'naughty', 'nervous', 'nifty', 'nostalgic', 'objective', 'optimistic',
+		'peaceful', 'pedantic', 'pensive', 'practical', 'priceless', 'quirky', 'quizzical', 'recursing', 'relaxed',
+		'reverent', 'romantic', 'sad', 'serene', 'sharp', 'silly', 'sleepy', 'stoic', 'stupefied', 'suspicious',
+		'sweet', 'tender', 'thirsty', 'trusting', 'unruffled', 'upbeat', 'vibrant', 'vigilant', 'vigorous',
+		'wizardly', 'wonderful', 'xenodochial', 'youthful', 'zealous', 'zen',
+	];
+
+	$right = [ 'albattani', 'allen', 'almeida', 'antonelli', 'agnesi', 'archimedes', 'ardinghelli', 'aryabhata',
+		'austin', 'babbage', 'banach', 'banzai', 'bardeen', 'bartik', 'bassi', 'beaver', 'bell', 'benz', 'bhabha',
+		'bhaskara', 'black', 'blackburn', 'blackwell', 'bohr', 'booth', 'borg', 'bose', 'boyd', 'brahmagupta',
+		'brattain', 'brown', 'burnell', 'buck', 'burnell', 'cannon', 'carson', 'cartwright', 'chandrasekhar',
+		'chaplygin', 'chatelet', 'chatterjee', 'chebyshev', 'cocks', 'cohen', 'chaum', 'clarke', 'colden', 'cori',
+		'cray', 'curran', 'curie', 'darwin', 'davinci', 'dewdney', 'dhawan', 'diffie', 'dijkstra', 'dirac', 'driscoll',
+		'dubinsky', 'easley', 'edison', 'einstein', 'elbakyan', 'elgamal', 'elion', 'ellis', 'engelbart', 'euclid',
+		'euler', 'faraday', 'feistel', 'fermat', 'fermi', 'feynman', 'franklin', 'gagarin', 'galileo', 'galois',
+		'ganguly', 'gates', 'gauss', 'germain', 'goldberg', 'goldstine', 'goldwasser', 'golick', 'goodall', 'gould',
+		'greider', 'grothendieck', 'haibt', 'hamilton', 'haslett', 'hawking', 'hellman', 'heisenberg', 'hermann',
+		'herschel', 'hertz', 'heyrovsky', 'hodgkin', 'hofstadter', 'hoover', 'hopper', 'hugle', 'hypatia', 'ishizaka',
+		'jackson', 'jang', 'jennings', 'jepsen', 'johnson', 'joliot', 'jones', 'kalam', 'kapitsa', 'kare', 'keldysh',
+		'keller', 'kepler', 'khayyam', 'khorana', 'kilby', 'kirch', 'knuth', 'kowalevski', 'lalande', 'lamarr',
+		'lamport', 'leakey', 'leavitt', 'lederberg', 'lehmann', 'lewin', 'lichterman', 'liskov', 'lovelace', 'lumiere',
+		'mahavira', 'margulis', 'matsumoto', 'maxwell', 'mayer', 'mccarthy', 'mcclintock', 'mclaren', 'mclean',
+		'mcnulty', 'mendel', 'mendeleev', 'meitner', 'meninsky', 'merkle', 'mestorf', 'minsky', 'mirzakhani',
+		'moore', 'morse', 'murdock', 'moser', 'napier', 'nash', 'neumann', 'newton', 'nightingale', 'nobel',
+		'noether', 'northcutt', 'noyce', 'panini', 'pare', 'pascal', 'pasteur', 'payne', 'perlman', 'pike',
+		'poincare', 'poitras', 'proskuriakova', 'ptolemy', 'raman', 'ramanujan', 'ride', 'montalcini', 'ritchie',
+		'rhodes', 'robinson', 'roentgen', 'rosalind', 'rubin', 'saha', 'sammet', 'sanderson', 'shannon', 'shaw',
+		'shirley', 'shockley', 'shtern', 'sinoussi', 'snyder', 'solomon', 'spence', 'sutherland', 'stallman',
+		'stonebraker', 'swanson', 'swartz', 'swirles', 'taussig', 'tereshkova', 'tesla', 'tharp', 'thompson',
+		'torvalds', 'tu', 'turing', 'varahamihira', 'vaughan', 'visvesvaraya', 'volhard', 'villani', 'wescoff',
+		'wiles', 'williams', 'williamson', 'wilson', 'wing', 'wozniak', 'wright', 'wu', 'yalow', 'yonath', "zhukovsky",
+	];
+
+	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
+}
+
+/**
+ * @param array  $assoc_args            Arguments array.
+ * @param string $flag                  Flag to get the value.
+ * @param array  $supported_flag_values array of supported flag values.
+ * @param string $default_value         default flag value if flag is passed without value.
+ *
+ * @return string
+ * @throws EE\ExitException
+ */
+function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [], $default_value = '' ) {
+
+	$flag_value = get_flag_value( $assoc_args, $flag );
+	$value      = '';
+
+	if ( isset( $flag_value ) ) {
+		/**
+		 * Set default flag value if flag is passed without value.
+		 */
+		$value = ( empty( $flag_value ) || true === $flag_value ) ? $default_value : $flag_value;
+
+		if ( empty( $value ) ) {
+			return $value;
+		} elseif ( ! in_array( $value, $supported_flag_values, true ) ) {
+			EE::error( sprintf( 'Invalid flag value passed %s', $value ) );
+		}
+	}
+	return $value;
+}
+
+/**
+ * Function to sanitize and remove illegal characters for folder and filename.
+ *
+ * @param string $input_name           Input name to be sanitized.
+ * @param bool $strict                 Do strict replacement, i.e, remove all special characters except `-` and `_`.
+ * @param bool $remove_forward_slashes Wether to remove `/` or not from the input.
+ *
+ * @return string Sanitized name valid for file/folder creation.
+ */
+function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward_slashes = false ) {
+
+	$expression = $remove_forward_slashes ? '/[\"\*\/\:\<\>\?\'\|]+/' : '/[\"\*\:\<\>\?\'\|]+/';
+
+	// Remove Illegal Chars for folder and filename.
+	$output = preg_replace( $expression, '', $input_name );
+
+	if ( $strict ) {
+		// Remove all special characters except `-`, `_` and `/`.
+		$output = preg_replace( '/[^A-Za-z0-9\-_\/]/', '', $output );
+	}
+	// Replace Spaces with dashes.
+	$output = str_replace( ' ', '-', $output );
+
+	// Replaces multiple hyphens with single one.
+	$output = preg_replace( '/-+/', '-', $output );
+
+	// Replaces multiple underscores with single one.
+	$output = preg_replace( '/_+/', '_', $output );
+
+	// Remove starting and ending hyphens as a starting hyphen in string might be considered as parameter in bash file/folder creation.
+	return trim( $output, '-' );
 }

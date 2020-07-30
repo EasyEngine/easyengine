@@ -16,9 +16,9 @@ if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 require EE_VENDOR_DIR . '/autoload.php';
 require EE_ROOT . '/php/utils.php';
 
-use Symfony\Component\Finder\Finder;
-use EE\Utils;
 use EE\Configurator;
+use EE\Utils;
+use Symfony\Component\Finder\Finder;
 
 $configurator = new Configurator( EE_ROOT . '/utils/make-phar-spec.php' );
 
@@ -161,14 +161,17 @@ $finder
 	->ignoreVCS(true)
 	->name('*.php')
 	->in(EE_ROOT . '/php')
+	->in(EE_ROOT . '/migrations')
 	->in(EE_VENDOR_DIR . '/mustache')
 	->in(EE_VENDOR_DIR . '/rmccue/requests')
 	->in(EE_VENDOR_DIR . '/composer')
+	->in(EE_VENDOR_DIR . '/cloudflare')
 	->in(EE_VENDOR_DIR . '/symfony/finder')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-mbstring')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-ctype')
 	->in(EE_VENDOR_DIR . '/monolog')
 	->in(EE_VENDOR_DIR . '/guzzlehttp')
+	->in(EE_VENDOR_DIR . '/ralouphie/getallheaders')
 	->in(EE_VENDOR_DIR . '/acmephp')
 	->in(EE_VENDOR_DIR . '/league')
 	->in(EE_VENDOR_DIR . '/webmozart')
@@ -244,7 +247,14 @@ $finder
 	->in(EE_VENDOR_DIR . '/easyengine/*-command/templates')
 	->in(EE_VENDOR_DIR . '/easyengine/site-type-*/templates')
 	->name('*.mustache')
-	->name('.env.mustache');
+	->name('.env.mustache')
+	->name('*.zip');
+
+$finder
+	->files()
+	->ignoreDotFiles(false)
+	->in(EE_VENDOR_DIR . '/easyengine/*/migrations')
+	->name('*.php');
 
 foreach ( $finder as $file ) {
 	add_file( $phar, $file );
@@ -314,6 +324,7 @@ $phar_boot = str_replace( EE_BASE_PATH, '', EE_ROOT . '/php/boot-phar.php' );
 $phar->setStub( <<<EOB
 #!/usr/bin/env php
 <?php
+error_reporting( E_ALL ^ ( E_NOTICE | E_WARNING | E_DEPRECATED ) );
 Phar::mapPhar();
 include 'phar://ee.phar{$phar_boot}';
 __HALT_COMPILER();
