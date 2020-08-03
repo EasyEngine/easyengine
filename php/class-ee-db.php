@@ -42,7 +42,7 @@ class EE_DB {
 			self::$pdo = new PDO( 'sqlite:' . DB );
 			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		} catch ( PDOException $exception ) {
-			EE::error( "Unable to initialize connection to EE sqlite database: " . $exception->getMessage() );
+			EE::error( 'Unable to initialize connection to EE sqlite database: ' . $exception->getMessage() );
 		}
 	}
 
