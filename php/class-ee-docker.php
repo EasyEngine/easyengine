@@ -159,14 +159,18 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function docker_compose_up( $dir, $services = [] ) {
+		$fs                = new Filesystem();
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 			if ( empty( $services ) ) {
 				return EE::exec( 'docker-compose up -d' );
 			} else {
 				$all_services = implode( ' ', $services );
-
-				return EE::exec( "docker-compose up -d $all_services" );
+				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
+					return EE::exec( 'docker-compose -f docker-compose.yml -f ' . SITE_CUSTOM_DOCKER_COMPOSE . " up -d $all_services" );
+				} else {
+					return EE::exec( "docker-compose up -d $all_services" );
+				}
 			}
 		}
 
