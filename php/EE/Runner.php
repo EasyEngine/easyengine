@@ -56,6 +56,7 @@ class Runner {
 
 		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+		define( 'SITE_CUSTOM_DOCKER_COMPOSE', 'docker-compose-custom.yml' );
 
 		$db_dir = dirname( DB );
 		if ( ! is_dir( $db_dir ) ) {
