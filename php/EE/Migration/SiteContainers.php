@@ -206,14 +206,28 @@ class SiteContainers {
 	/**
 	 * Function to reload site's nginx.
 	 *
-	 * @param string $site_fs_path   Directory containing site's docker-compose.yml.
+	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
 	 */
 	public static function reload_nginx( $site_fs_path ) {
 
 		chdir( $site_fs_path );
-		$success = EE::exec( "docker-compose exec nginx sh -c 'nginx -t && service openresty reload'" );
+		$success = EE::exec( "docker-compose exec nginx sh -c 'nginx -t && nginx -s reload'" );
 		if ( ! $success ) {
 			throw new \Exception( 'Could not reload nginx. Check logs.' );
+		}
+	}
+
+	/**
+	 * Function to reload site's php.
+	 *
+	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
+	 */
+	public static function reload_php( $site_fs_path ) {
+
+		chdir( $site_fs_path );
+		$success = EE::exec( "docker-compose exec php bash -c 'kill -USR2 1'" );
+		if ( ! $success ) {
+			throw new \Exception( 'Could not reload php. Check logs.' );
 		}
 	}
 

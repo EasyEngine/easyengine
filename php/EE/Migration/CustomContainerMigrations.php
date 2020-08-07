@@ -207,7 +207,7 @@ class CustomContainerMigrations {
 	 */
 	private static function get_migration_class_name( $migration_name ) {
 		// Remove date and package name from it
-		$class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', rtrim( $migration_name, '.php' ) );
+		$class_name = preg_replace( '/(^\d*)[_]([a-zA-Z-]*[_])/', '', substr( $migration_name, 0, -4 ) );
 		// Convet snake_case to CamelCase
 		$class_name = self::camelize( $class_name );
 		// Replace dot with underscore

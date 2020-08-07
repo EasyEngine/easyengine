@@ -247,7 +247,8 @@ $finder
 	->in(EE_VENDOR_DIR . '/easyengine/*-command/templates')
 	->in(EE_VENDOR_DIR . '/easyengine/site-type-*/templates')
 	->name('*.mustache')
-	->name('.env.mustache');
+	->name('.env.mustache')
+	->name('*.zip');
 
 $finder
 	->files()
@@ -323,6 +324,7 @@ $phar_boot = str_replace( EE_BASE_PATH, '', EE_ROOT . '/php/boot-phar.php' );
 $phar->setStub( <<<EOB
 #!/usr/bin/env php
 <?php
+error_reporting( E_ALL ^ ( E_NOTICE | E_WARNING | E_DEPRECATED ) );
 Phar::mapPhar();
 include 'phar://ee.phar{$phar_boot}';
 __HALT_COMPILER();
