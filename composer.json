@@ -54,14 +54,15 @@
         "symfony/yaml": "3.4.18",
         "wp-cli/autoload-splitter": "0.1.5",
         "wp-cli/mustangostang-spyc": "0.6.3",
-        "wp-cli/php-cli-tools": "0.11.10"
+        "wp-cli/php-cli-tools": "0.11.10",
+        "ext-json": "*"
     },
     "require-dev": {
-        "behat/behat": "3.4.*",
+        "behat/behat": "^3.7",
         "dealerdirect/phpcodesniffer-composer-installer": "0.4.4",
         "phpunit/phpunit": "3.7.*",
         "roave/security-advisories": "dev-master",
-        "wimg/php-compatibility": "8.2.0",
+        "phpcompatibility/php-compatibility": "8.2.0",
         "wp-coding-standards/wpcs": "0.13.1"
     },
     "suggest": {
