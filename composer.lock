@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "88ed22b22a2eaeef29865bac7546df1e",
+    "content-hash": "e6aba9512b61e85178731d0be19daf01",
     "packages": [
         {
             "name": "acmephp/core",
@@ -187,16 +187,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.2.7",
+            "version": "1.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "95c63ab2117a72f48f5a55da9740a3273d45b7fd"
+                "reference": "8a7ecad675253e4654ea05505233285377405215"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/95c63ab2117a72f48f5a55da9740a3273d45b7fd",
-                "reference": "95c63ab2117a72f48f5a55da9740a3273d45b7fd",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/8a7ecad675253e4654ea05505233285377405215",
+                "reference": "8a7ecad675253e4654ea05505233285377405215",
                 "shasum": ""
             },
             "require": {
@@ -239,7 +239,7 @@
                 "ssl",
                 "tls"
             ],
-            "time": "2020-04-08T08:27:21+00:00"
+            "time": "2020-08-23T12:54:47+00:00"
         },
         {
             "name": "composer/composer",
@@ -952,16 +952,16 @@
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.3.1",
+            "version": "v1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "9ff05aea59fe1c62d9a93d4a3ebc855fe38766f7"
+                "reference": "68903762d08ce05f2aad947229e34a9b10353dc8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/9ff05aea59fe1c62d9a93d4a3ebc855fe38766f7",
-                "reference": "9ff05aea59fe1c62d9a93d4a3ebc855fe38766f7",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/68903762d08ce05f2aad947229e34a9b10353dc8",
+                "reference": "68903762d08ce05f2aad947229e34a9b10353dc8",
                 "shasum": ""
             },
             "require-dev": {
@@ -1003,7 +1003,7 @@
             ],
             "description": "EasyEngine site type package for WordPress site creation.",
             "homepage": "https://github.com/easyengine/site-type-wp",
-            "time": "2020-08-20T09:17:25+00:00"
+            "time": "2020-09-23T03:49:19+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -1703,16 +1703,16 @@
         },
         {
             "name": "seld/jsonlint",
-            "version": "1.8.1",
+            "version": "1.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "3d5eb71705adfa34bd34b993400622932b2f62fd"
+                "reference": "590cfec960b77fd55e39b7d9246659e95dd6d337"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/3d5eb71705adfa34bd34b993400622932b2f62fd",
-                "reference": "3d5eb71705adfa34bd34b993400622932b2f62fd",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/590cfec960b77fd55e39b7d9246659e95dd6d337",
+                "reference": "590cfec960b77fd55e39b7d9246659e95dd6d337",
                 "shasum": ""
             },
             "require": {
@@ -1748,7 +1748,7 @@
                 "parser",
                 "validator"
             ],
-            "time": "2020-08-13T09:07:59+00:00"
+            "time": "2020-08-25T06:56:57+00:00"
         },
         {
             "name": "seld/phar-utils",
@@ -3324,6 +3324,7 @@
             "keywords": [
                 "tokenizer"
             ],
+            "abandoned": true,
             "time": "2014-03-03T05:10:30+00:00"
         },
         {
@@ -3456,12 +3457,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "89bed6788d61977969b89d912b5844e8beee09f0"
+                "reference": "81cb95735a719403eddb77fc78e21362b56d9ea9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/89bed6788d61977969b89d912b5844e8beee09f0",
-                "reference": "89bed6788d61977969b89d912b5844e8beee09f0",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/81cb95735a719403eddb77fc78e21362b56d9ea9",
+                "reference": "81cb95735a719403eddb77fc78e21362b56d9ea9",
                 "shasum": ""
             },
             "conflict": {
@@ -3477,6 +3478,7 @@
                 "bagisto/bagisto": "<0.1.5",
                 "barrelstrength/sprout-base-email": "<1.2.7",
                 "barrelstrength/sprout-forms": "<3.9",
+                "baserproject/basercms": ">=4,<=4.3.6",
                 "bolt/bolt": "<3.7.1",
                 "brightlocal/phpwhois": "<=4.2.5",
                 "buddypress/buddypress": "<5.1.2",
@@ -3494,6 +3496,7 @@
                 "contao/listing-bundle": ">=4,<4.4.8",
                 "datadog/dd-trace": ">=0.30,<0.30.2",
                 "david-garcia/phpwhois": "<=4.3.1",
+                "derhansen/sf_event_mgt": "<4.3.1|>=5,<5.1.1",
                 "doctrine/annotations": ">=1,<1.2.7",
                 "doctrine/cache": ">=1,<1.3.2|>=1.4,<1.4.2",
                 "doctrine/common": ">=2,<2.4.3|>=2.5,<2.5.1",
@@ -3505,8 +3508,8 @@
                 "doctrine/orm": ">=2,<2.4.8|>=2.5,<2.5.1",
                 "dolibarr/dolibarr": "<11.0.4",
                 "dompdf/dompdf": ">=0.6,<0.6.2",
-                "drupal/core": ">=7,<7.72|>=8,<8.8.8|>=8.9,<8.9.1|>=9,<9.0.1",
-                "drupal/drupal": ">=7,<7.72|>=8,<8.8.8|>=8.9,<8.9.1|>=9,<9.0.1",
+                "drupal/core": ">=7,<7.73|>=8,<8.8.10|>=8.9,<8.9.6|>=9,<9.0.6",
+                "drupal/drupal": ">=7,<7.73|>=8,<8.8.10|>=8.9,<8.9.6|>=9,<9.0.6",
                 "endroid/qr-code-bundle": "<3.4.2",
                 "enshrined/svg-sanitize": "<0.13.1",
                 "erusev/parsedown": "<1.7.2",
@@ -3515,11 +3518,12 @@
                 "ezsystems/ezfind-ls": ">=5.3,<5.3.6.1|>=5.4,<5.4.11.1|>=2017.12,<2017.12.0.1",
                 "ezsystems/ezplatform": ">=1.7,<1.7.9.1|>=1.13,<1.13.5.1|>=2.5,<2.5.4",
                 "ezsystems/ezplatform-admin-ui": ">=1.3,<1.3.5|>=1.4,<1.4.6",
-                "ezsystems/ezplatform-admin-ui-assets": ">=4,<4.2",
+                "ezsystems/ezplatform-admin-ui-assets": ">=4,<4.2.1|>=5,<5.0.1|>=5.1,<5.1.1",
                 "ezsystems/ezplatform-kernel": ">=1,<1.0.2.1",
                 "ezsystems/ezplatform-user": ">=1,<1.0.1",
                 "ezsystems/ezpublish-kernel": ">=5.3,<5.3.12.1|>=5.4,<5.4.14.2|>=6,<6.7.9.1|>=6.8,<6.13.6.3|>=7,<7.2.4.1|>=7.3,<7.3.2.1|>=7.5,<7.5.7.1",
                 "ezsystems/ezpublish-legacy": ">=5.3,<5.3.12.6|>=5.4,<5.4.14.1|>=2011,<2017.12.7.2|>=2018.6,<2018.6.1.4|>=2018.9,<2018.9.1.3|>=2019.3,<2019.3.4.2",
+                "ezsystems/platform-ui-assets-bundle": ">=4.2,<4.2.3",
                 "ezsystems/repository-forms": ">=2.3,<2.3.2.1",
                 "ezyang/htmlpurifier": "<4.1.1",
                 "firebase/php-jwt": "<2",
@@ -3577,6 +3581,7 @@
                 "paragonie/random_compat": "<2",
                 "paypal/merchant-sdk-php": "<3.12",
                 "pear/archive_tar": "<1.4.4",
+                "personnummer/personnummer": "<3.0.2",
                 "phpfastcache/phpfastcache": ">=5,<5.0.13",
                 "phpmailer/phpmailer": "<6.1.6",
                 "phpmussel/phpmussel": ">=1,<1.6",
@@ -3588,6 +3593,7 @@
                 "phpxmlrpc/extras": "<0.6.1",
                 "pimcore/pimcore": "<6.3",
                 "prestashop/autoupgrade": ">=4,<4.10.1",
+                "prestashop/contactform": ">1.0.1,<4.3",
                 "prestashop/gamification": "<2.3.2",
                 "prestashop/ps_facetedsearch": "<3.4.1",
                 "privatebin/privatebin": "<1.2.2|>=1.3,<1.3.2",
@@ -3596,6 +3602,7 @@
                 "pusher/pusher-php-server": "<2.2.1",
                 "rainlab/debugbar-plugin": "<3.1",
                 "robrichards/xmlseclibs": "<3.0.4",
+                "sabberworm/php-css-parser": ">=1,<1.0.1|>=2,<2.0.1|>=3,<3.0.1|>=4,<4.0.1|>=5,<5.0.9|>=5.1,<5.1.3|>=5.2,<5.2.1|>=6,<6.0.2|>=7,<7.0.4|>=8,<8.0.1|>=8.1,<8.1.1|>=8.2,<8.2.1|>=8.3,<8.3.1",
                 "sabre/dav": ">=1.6,<1.6.99|>=1.7,<1.7.11|>=1.8,<1.8.9",
                 "scheb/two-factor-bundle": ">=0,<3.26|>=4,<4.11",
                 "sensiolabs/connect": "<4.2.3",
@@ -3641,7 +3648,7 @@
                 "symfony/form": ">=2.3,<2.3.35|>=2.4,<2.6.12|>=2.7,<2.7.50|>=2.8,<2.8.49|>=3,<3.4.20|>=4,<4.0.15|>=4.1,<4.1.9|>=4.2,<4.2.1",
                 "symfony/framework-bundle": ">=2,<2.3.18|>=2.4,<2.4.8|>=2.5,<2.5.2|>=2.7,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
                 "symfony/http-foundation": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.3.8|>=4.4,<4.4.7|>=5,<5.0.7",
-                "symfony/http-kernel": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.3.8",
+                "symfony/http-kernel": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.4.13|>=5,<5.1.5",
                 "symfony/intl": ">=2.7,<2.7.38|>=2.8,<2.8.31|>=3,<3.2.14|>=3.3,<3.3.13",
                 "symfony/mime": ">=4.3,<4.3.8",
                 "symfony/phpunit-bridge": ">=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.1.12|>=4.2,<4.2.7",
@@ -3656,7 +3663,7 @@
                 "symfony/security-guard": ">=2.8,<2.8.41|>=3,<3.3.17|>=3.4,<3.4.11|>=4,<4.0.11",
                 "symfony/security-http": ">=2.3,<2.3.41|>=2.4,<2.7.51|>=2.8,<2.8.50|>=3,<3.4.26|>=4,<4.2.12|>=4.3,<4.3.8|>=4.4,<4.4.7|>=5,<5.0.7",
                 "symfony/serializer": ">=2,<2.0.11",
-                "symfony/symfony": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.3.8|>=4.4,<4.4.7|>=5,<5.0.7",
+                "symfony/symfony": ">=2,<2.8.52|>=3,<3.4.35|>=4,<4.2.12|>=4.3,<4.4.13|>=5,<5.1.5",
                 "symfony/translation": ">=2,<2.0.17",
                 "symfony/validator": ">=2,<2.0.24|>=2.1,<2.1.12|>=2.2,<2.2.5|>=2.3,<2.3.3",
                 "symfony/var-exporter": ">=4.2,<4.2.12|>=4.3,<4.3.8",
@@ -3682,7 +3689,7 @@
                 "willdurand/js-translation-bundle": "<2.1.1",
                 "yii2mod/yii2-cms": "<1.9.2",
                 "yiisoft/yii": ">=1.1.14,<1.1.15",
-                "yiisoft/yii2": "<2.0.15",
+                "yiisoft/yii2": "<2.0.38",
                 "yiisoft/yii2-bootstrap": "<2.0.4",
                 "yiisoft/yii2-dev": "<2.0.15",
                 "yiisoft/yii2-elasticsearch": "<2.0.5",
@@ -3734,7 +3741,7 @@
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
-            "time": "2020-08-19T19:01:52+00:00"
+            "time": "2020-09-18T13:01:53+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -3789,16 +3796,16 @@
         },
         {
             "name": "symfony/class-loader",
-            "version": "v3.4.43",
+            "version": "v3.4.44",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/class-loader.git",
-                "reference": "e4636a4f23f157278a19e5db160c63de0da297d8"
+                "reference": "04a7e4c1bf7f156f3d9df930401eb2c6fe51fc72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/class-loader/zipball/e4636a4f23f157278a19e5db160c63de0da297d8",
-                "reference": "e4636a4f23f157278a19e5db160c63de0da297d8",
+                "url": "https://api.github.com/repos/symfony/class-loader/zipball/04a7e4c1bf7f156f3d9df930401eb2c6fe51fc72",
+                "reference": "04a7e4c1bf7f156f3d9df930401eb2c6fe51fc72",
                 "shasum": ""
             },
             "require": {
@@ -3841,7 +3848,7 @@
             ],
             "description": "Symfony ClassLoader Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-15T09:38:08+00:00"
+            "time": "2020-08-09T11:28:08+00:00"
         },
         {
             "name": "wimg/php-compatibility",
