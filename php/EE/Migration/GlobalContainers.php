@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
+use function EE\Utils\docker_compose_with_custom;
 
 /**
  * Upgrade existing global containers to new docker-image
@@ -55,7 +56,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec( 'docker-compose up -d ' . $services_to_regenerate ) ) {
+		if ( ! EE::exec( docker_compose_with_custom() . ' up -d ' . $services_to_regenerate ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		EE::debug( 'Complete restoring global docker-compose.yml file from backup' );
@@ -81,7 +82,7 @@ class GlobalContainers {
 			EE::debug( "Removing $global_container_name" );
 
 			if ( false !== \EE_DOCKER::container_status( $global_container_name ) ) {
-				if ( ! EE::exec( "docker-compose stop $global_service_name && docker-compose rm -f $global_service_name" ) ) {
+				if ( ! EE::exec( docker_compose_with_custom() . " stop $global_service_name && ". docker_compose_with_custom() . " rm -f $global_service_name" ) ) {
 					throw new \Exception( "Unable to stop $global_container_name container" );
 				}
 			}
@@ -115,7 +116,7 @@ class GlobalContainers {
 		EE::debug( 'Start ' . $service_name . ' container removing' );
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec( "docker-compose stop $service_name && docker-compose rm -f $service_name" ) ) {
+		if ( ! EE::exec( docker_compose_with_custom() . " stop $service_name && ". docker_compose_with_custom() . " rm -f $service_name" ) ) {
 			throw new \Exception( sprintf( 'Unable to remove %1$s container', $service_name ) );
 		}
 		EE::debug( 'Complete ' . $service_name . ' container removing' );
@@ -149,7 +150,7 @@ class GlobalContainers {
 			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
 		}
 
-		$command = 'docker-compose --project-name=ee up -d global-db global-redis';
+		$command = docker_compose_with_custom() . ' --project-name=ee up -d global-db global-redis';
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( 'Unable to create support container.' );
 		}
@@ -163,7 +164,7 @@ class GlobalContainers {
 			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
 		}
 
-		$command = 'docker-compose --project-name=ee down';
+		$command = docker_compose_with_custom() . ' --project-name=ee down';
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( 'Unable to remove support container.' );
 		}

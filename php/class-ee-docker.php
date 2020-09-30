@@ -213,7 +213,7 @@ class EE_DOCKER {
 	 */
 	public static function service_exists( $service, $site_fs_path ) {
 		chdir( $site_fs_path );
-		$launch   = EE::launch( 'docker-compose config --services' );
+		$launch   = EE::launch( docker_compose_with_custom() . ' config --services' );
 		$services = explode( PHP_EOL, trim( $launch->stdout ) );
 
 		return in_array( $service, $services, true );
