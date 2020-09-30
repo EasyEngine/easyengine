@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\Filesystem\Filesystem;
+use function EE\Utils\docker_compose_with_custom;
 
 class EE_DOCKER {
 
@@ -163,14 +164,11 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 			if ( empty( $services ) ) {
-				return EE::exec( 'docker-compose up -d' );
+				return EE::exec( docker_compose_with_custom() . ' up -d' );
 			} else {
 				$all_services = implode( ' ', $services );
-				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
-					return EE::exec( 'docker-compose -f docker-compose.yml -f ' . SITE_CUSTOM_DOCKER_COMPOSE . " up -d $all_services" );
-				} else {
-					return EE::exec( "docker-compose up -d $all_services" );
-				}
+
+				return EE::exec( docker_compose_with_custom() . ' up -d '. $all_services );
 			}
 		}
 
@@ -199,7 +197,7 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 
-			return EE::exec( 'docker-compose down' );
+			return EE::exec( docker_compose_with_custom() . ' down' );
 		}
 
 		return false;
