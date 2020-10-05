@@ -10,6 +10,7 @@ use EE\Model\Option;
 use EE\Utils;
 use Monolog\Logger;
 use Mustangostang\Spyc;
+use function EE\Utils\docker_compose_with_custom;
 
 /**
  * Performs the execution of a command.
@@ -473,7 +474,7 @@ class Runner {
 		}
 
 		if ( 'docker-compose' === $bits['scheme'] ) {
-			$command = 'docker-compose exec %s%s%s sh -c %s';
+			$command = docker_compose_with_custom() . ' exec %s%s%s sh -c %s';
 
 			$escaped_command = sprintf(
 				$command,
