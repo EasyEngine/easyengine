@@ -1817,5 +1817,5 @@ function docker_compose_with_custom( array $files_before_custom = [] ) : string 
 		$command .= ' -f ' . SITE_CUSTOM_DOCKER_COMPOSE ;
 	}
 
-	return  $command;
+	return $command;
 }
