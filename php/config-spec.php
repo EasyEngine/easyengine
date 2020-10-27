@@ -31,6 +31,13 @@ return array(
 		'desc'    => 'Mail-id to be used for letsencrypt.',
 	),
 
+	'wp-mail' => array(
+		'runtime' => '=<wp-mail>',
+		'file'    => '<wp-mail>',
+		'default' => null,
+		'desc'    => 'Default Mail-id to be used for WordPress site installation.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,
