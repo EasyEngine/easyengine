@@ -10,7 +10,6 @@ use EE\Model\Option;
 use EE\Utils;
 use Monolog\Logger;
 use Mustangostang\Spyc;
-use function EE\Utils\docker_compose_with_custom;
 
 /**
  * Performs the execution of a command.
@@ -57,7 +56,7 @@ class Runner {
 
 		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
-		define( 'SITE_CUSTOM_DOCKER_COMPOSE', 'docker-compose-custom.yml' );
+		define( 'SITE_CUSTOM_DOCKER_COMPOSE', 'docker-compose.custom.yml' );
 
 		$db_dir = dirname( DB );
 		if ( ! is_dir( $db_dir ) ) {
@@ -474,7 +473,7 @@ class Runner {
 		}
 
 		if ( 'docker-compose' === $bits['scheme'] ) {
-			$command = docker_compose_with_custom() . ' exec %s%s%s sh -c %s';
+			$command = \EE_DOCKER::docker_compose_with_custom() . ' exec %s%s%s sh -c %s';
 
 			$escaped_command = sprintf(
 				$command,

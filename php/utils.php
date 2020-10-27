@@ -1796,26 +1796,3 @@ function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward
 	return trim( $output, '-' );
 }
 
-/**
- * Function to return docker-compose command with custom docker-compose files
- *
- * @param array $files_before_custom Files to be included before custom compose file is included
- * @return string
- */
-function docker_compose_with_custom( array $files_before_custom = [] ) : string {
-	$fs = new Filesystem();
-
-	$command = 'docker-compose -f docker-compose.yml';
-
-	foreach ( $files_before_custom as $file ) {
-		if ( $fs->exists( $file ) ) {
-			$command .= ' -f ' . $file ;
-		}
-	}
-
-	if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
-		$command .= ' -f ' . SITE_CUSTOM_DOCKER_COMPOSE ;
-	}
-
-	return $command;
-}

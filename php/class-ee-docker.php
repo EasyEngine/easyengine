@@ -1,9 +1,32 @@
 <?php
 
 use Symfony\Component\Filesystem\Filesystem;
-use function EE\Utils\docker_compose_with_custom;
 
 class EE_DOCKER {
+
+	/**
+	 * Function to return docker-compose command with custom docker-compose files
+	 *
+	 * @param array $files_before_custom Files to be included before custom compose file is included
+	 * @return string
+	 */
+	public static function docker_compose_with_custom( array $files_before_custom = [] ) : string {
+		$fs = new Filesystem();
+
+		$command = 'docker-compose -f docker-compose.yml';
+
+		foreach ( $files_before_custom as $file ) {
+			if ( $fs->exists( $file ) ) {
+				$command .= ' -f ' . $file ;
+			}
+		}
+
+		if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
+			$command .= ' -f ' . SITE_CUSTOM_DOCKER_COMPOSE ;
+		}
+
+		return $command;
+	}
 
 	/**
 	 * Check and Start or create container if not running.
@@ -164,11 +187,11 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 			if ( empty( $services ) ) {
-				return EE::exec( docker_compose_with_custom() . ' up -d' );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d' );
 			} else {
 				$all_services = implode( ' ', $services );
 
-				return EE::exec( docker_compose_with_custom() . ' up -d '. $all_services );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d '. $all_services );
 			}
 		}
 
@@ -197,7 +220,7 @@ class EE_DOCKER {
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 
-			return EE::exec( docker_compose_with_custom() . ' down' );
+			return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' down' );
 		}
 
 		return false;
@@ -213,7 +236,7 @@ class EE_DOCKER {
 	 */
 	public static function service_exists( $service, $site_fs_path ) {
 		chdir( $site_fs_path );
-		$launch   = EE::launch( docker_compose_with_custom() . ' config --services' );
+		$launch   = EE::launch( \EE_DOCKER::docker_compose_with_custom() . ' config --services' );
 		$services = explode( PHP_EOL, trim( $launch->stdout ) );
 
 		return in_array( $service, $services, true );
