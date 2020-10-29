@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c402efbe153196894309544411b6d246",
+    "content-hash": "f910a607d4732fe6c5cc1491d8efdc71",
     "packages": [
         {
             "name": "acmephp/core",
@@ -664,7 +664,7 @@
         },
         {
             "name": "easyengine/autoload-splitter",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/autoload-splitter.git",
@@ -679,7 +679,6 @@
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
             },
-            "default-branch": true,
             "type": "composer-plugin",
             "extra": {
                 "class": "WP_CLI\\AutoloadSplitter\\ComposerPlugin"
@@ -4314,7 +4313,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "easyengine/autoload-splitter": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

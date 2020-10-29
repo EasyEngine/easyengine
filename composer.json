@@ -29,7 +29,7 @@
         "composer/semver": "1.4.2",
         "easyengine/admin-tools-command": "v1.0.10",
         "easyengine/auth-command": "v1.0.4",
-        "easyengine/autoload-splitter": "dev-master",
+        "easyengine/autoload-splitter": "v1.0.0",
         "easyengine/config-command": "v1.0.2",
         "easyengine/cron-command": "v1.0.2",
         "easyengine/log-command": "v1.0.1",
