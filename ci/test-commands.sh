@@ -13,7 +13,7 @@ for command in "${sub_commands[@]}"; do
 	rm -rf features/*
 	rsync -av --delete $command/ features/ > /dev/null
 	for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
-	composer du
+	#composer du
 	echo "Running tests for $command"
 	export COMPOSE_INTERACTIVE_NO_CLI=1
 	sudo ./vendor/bin/behat
