@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8d866712fa07af84a62979e98694f18",
+    "content-hash": "933638fee77c1f354d6f581c14da25fa",
     "packages": [
         {
             "name": "acmephp/core",
