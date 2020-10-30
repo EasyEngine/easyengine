@@ -1,7 +1,7 @@
 sudo: required
-dist: xenial
+dist: bionic
 language: php
-php: 7.2
+php: 7.3
 
 env:
   global:
