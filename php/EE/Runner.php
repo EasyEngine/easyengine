@@ -56,6 +56,7 @@ class Runner {
 
 		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+		define( 'SITE_CUSTOM_DOCKER_COMPOSE', 'docker-compose-custom.yml' );
 
 		$db_dir = dirname( DB );
 		if ( ! is_dir( $db_dir ) ) {
@@ -472,7 +473,7 @@ class Runner {
 		}
 
 		if ( 'docker-compose' === $bits['scheme'] ) {
-			$command = 'docker-compose exec %s%s%s sh -c %s';
+			$command = \EE_DOCKER::docker_compose_with_custom() . ' exec %s%s%s sh -c %s';
 
 			$escaped_command = sprintf(
 				$command,
