@@ -54,8 +54,7 @@
         "symfony/translation": "3.4.18",
         "symfony/yaml": "3.4.18",
         "wp-cli/mustangostang-spyc": "0.6.3",
-        "wp-cli/php-cli-tools": "0.11.10",
-        "ext-json": "*"
+        "wp-cli/php-cli-tools": "0.11.10"
     },
     "require-dev": {
         "behat/behat": "3.7.0",
