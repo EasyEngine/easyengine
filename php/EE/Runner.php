@@ -563,7 +563,7 @@ class Runner {
 			EE::err( 'Config root: ' . EE_ROOT_DIR . ' is not writable by EasyEngine' );
 		}
 
-		if ( isset( $GLOBALS['argv'] ) && 'cli' === $GLOBALS['argv'][1] && 'completions	' === $GLOBALS['argv'][2] ) {
+		if ( isset( $GLOBALS['argv'][1] ) && 'cli' === $GLOBALS['argv'][1] && isset( $GLOBALS['argv'][2] ) && 'completions' === $GLOBALS['argv'][2] ) {
 			$file_logging_path = '/dev/null';
 		} else {
 			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
