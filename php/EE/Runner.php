@@ -71,7 +71,6 @@ class Runner {
 
 		$nginx_proxy = 'services_global-nginx-proxy_1';
 		if ( $check_requirements ) {
-
 			$launch = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
 			if ( 0 === $launch->return_code ) {
 				$nginx_proxy = trim( $launch->stdout );
