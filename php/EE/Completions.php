@@ -61,7 +61,7 @@ class Completions {
 					$this->add( "$name " );
 				}
 			}
-			foreach ( $command->get_subcommands() as $name => $_ ) {
+			foreach ( $command->get_subcommands() as $name => $subcommand ) {
 				$this->add("$name" . ":" . $subcommand->get_shortdesc() );
 			}
 		} else {
