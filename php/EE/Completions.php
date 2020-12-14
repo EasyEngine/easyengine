@@ -153,31 +153,6 @@ class Completions {
 		return $type;
 	}
 
-	private function get_global_parameters() {
-		$params = array();
-		foreach ( \EE::get_configurator()->get_spec() as $key => $details ) {
-			if ( false === $details['runtime'] ) {
-				continue;
-			}
-
-			if ( isset( $details['deprecated'] ) ) {
-				continue;
-			}
-
-			if ( isset( $details['hidden'] ) ) {
-				continue;
-			}
-			$params[ $key ] = $details['runtime'];
-
-			// Add additional option like `--[no-]color`.
-			if ( true === $details['runtime'] ) {
-				$params[ 'no-' . $key ] = '';
-			}
-		}
-
-		return $params;
-	}
-
 	private function add( $opt ) {
 		if ( '' !== $this->cur_word ) {
 			if ( 0 !== strpos( $opt, $this->cur_word ) ) {
