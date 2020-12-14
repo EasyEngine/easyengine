@@ -141,7 +141,7 @@ class Completions {
 			}
 		}
 
-		if ( count( $words) >= 2 && $words[1] !== 'create' && ! preg_match( '|^--|', $words[2] ) ) {
+		if ( count( $words ) >= 3 && $words[1] !== 'create' && ! preg_match( '|^--|', $words[2] ) ) {
 			$sitename = str_replace( [ 'https://', 'http://' ], '', $words[2] );
 			$sitetype = Site::find( $sitename, [ 'site_type' ] );
 
