@@ -2,6 +2,10 @@
 
 namespace EE;
 
+use EE;
+use EE\Dispatcher\CommandFactory;
+use EE\Model\Site;
+
 class Completions {
 
 	private $words;
@@ -93,6 +97,8 @@ class Completions {
 			}
 		}
 
+		$this->maybe_add_site_command( $words );
+
 		$r = \EE::get_runner()->find_command_to_run( $positional_args );
 		if ( ! is_array( $r ) && array_pop( $positional_args ) == $this->cur_word ) {
 			$r = \EE::get_runner()->find_command_to_run( $positional_args );
@@ -105,6 +111,71 @@ class Completions {
 		list( $command, $args ) = $r;
 
 		return array( $command, $args, $assoc_args );
+	}
+
+	/**
+	 * Adds correct site-type to EE runner if autocompletion of site command is required
+	 */
+	private function maybe_add_site_command( array $words ) {
+		if ( count( $words ) > 0 && $words[0] === 'site' ) {
+			$type= $this->get_site_type ( $words, 'html' );
+			$site_types = \Site_Command::get_site_types();
+
+			$command      = EE::get_root_command();
+			$callback = $site_types[ $type ];
+			$leaf_command = CommandFactory::create( 'site', $callback, $command );
+			$command->add_subcommand( 'site', $leaf_command );
+		}
+	}
+
+	/**
+	 * Returns correct site-type for completion. Only for `site create`, type is specified in command.
+	 * For other commands, it is fetched from EE db.comp
+	 */
+	private function get_site_type( $words, $default_site_type ) {
+		$type = $default_site_type;
+
+		foreach ( $words as $arg ) {
+			if ( preg_match( '|^--type=(\S+)|', $arg, $matches ) ) {
+				$type = $matches[1] ;
+			}
+		}
+
+		if ( count( $words) >= 2 && $words[1] !== 'create' && ! preg_match( '|^--|', $words[2] ) ) {
+			$sitename = str_replace( [ 'https://', 'http://' ], '', $words[2] );
+			$sitetype = Site::find( $sitename, [ 'site_type' ] );
+
+			if ( $sitetype ) {
+				$type = $sitetype->site_type;
+			}
+		}
+
+		return $type;
+	}
+
+	private function get_global_parameters() {
+		$params = array();
+		foreach ( \EE::get_configurator()->get_spec() as $key => $details ) {
+			if ( false === $details['runtime'] ) {
+				continue;
+			}
+
+			if ( isset( $details['deprecated'] ) ) {
+				continue;
+			}
+
+			if ( isset( $details['hidden'] ) ) {
+				continue;
+			}
+			$params[ $key ] = $details['runtime'];
+
+			// Add additional option like `--[no-]color`.
+			if ( true === $details['runtime'] ) {
+				$params[ 'no-' . $key ] = '';
+			}
+		}
+
+		return $params;
 	}
 
 	private function add( $opt ) {
