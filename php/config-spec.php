@@ -38,6 +38,13 @@ return array(
 		'desc'    => 'Default Mail-id to be used for WordPress site installation.',
 	),
 
+	'sysctl' => array(
+		'runtime' => '=<true/false>',
+		'file' => '<sysctl>',
+		'default' => false,
+		'desc' => 'Whether to add sysctl config in docker-compose.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,

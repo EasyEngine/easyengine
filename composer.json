@@ -57,11 +57,11 @@
         "wp-cli/php-cli-tools": "0.11.10"
     },
     "require-dev": {
-        "behat/behat": "3.4.*",
+        "behat/behat": "3.7.0",
         "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
         "phpunit/phpunit": "3.7.*",
         "roave/security-advisories": "dev-master",
-        "wimg/php-compatibility": "8.2.0",
+        "phpcompatibility/php-compatibility": "8.2.0",
         "wp-coding-standards/wpcs": "0.13.1"
     },
     "suggest": {
