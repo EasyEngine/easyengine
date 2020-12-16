@@ -25,7 +25,7 @@ class Completions {
 		}
 
 		$is_alias = false;
-		$is_help = false;
+		$is_help  = false;
 		if ( ! empty( $this->words[0] ) && preg_match( '/^@/', $this->words[0] ) ) {
 			array_shift( $this->words );
 			// `ee @al` is false, but `ee @all ` is true.
@@ -52,21 +52,20 @@ class Completions {
 				return;
 			}
 		}
-
 		if ( $command->can_have_subcommands() ) {
 			// add completion when command is `ee` and alias isn't set.
-			if ( 'ee' === $command->get_name() && false === $is_alias && false == $is_help ) {
+			if ( 'ee' === $command->get_name() && false === $is_alias && false === $is_help ) {
 				$aliases = \EE::get_configurator()->get_aliases();
 				foreach ( $aliases as $name => $_ ) {
 					$this->add( "$name " );
 				}
 			}
 			foreach ( $command->get_subcommands() as $name => $subcommand ) {
-				$this->add("$name" . ":" . $subcommand->get_shortdesc() );
+				$this->add( $name . ':' . $subcommand->get_shortdesc() );
 			}
 		} else {
 			foreach ( $spec as $arg ) {
-				if ( in_array( $arg['type'], array( 'flag', 'assoc' ) ) ) {
+				if ( in_array( $arg['type'], array( 'flag', 'assoc' ), true ) ) {
 					if ( isset( $assoc_args[ $arg['name'] ] ) ) {
 						continue;
 					}
@@ -83,7 +82,6 @@ class Completions {
 				}
 			}
 		}
-
 	}
 
 	private function get_command( $words ) {
@@ -100,7 +98,7 @@ class Completions {
 		$this->maybe_add_site_command( $words );
 
 		$r = \EE::get_runner()->find_command_to_run( $positional_args );
-		if ( ! is_array( $r ) && array_pop( $positional_args ) == $this->cur_word ) {
+		if ( ! is_array( $r ) && array_pop( $positional_args ) === $this->cur_word ) {
 			$r = \EE::get_runner()->find_command_to_run( $positional_args );
 		}
 
@@ -117,12 +115,12 @@ class Completions {
 	 * Adds correct site-type to EE runner if autocompletion of site command is required
 	 */
 	private function maybe_add_site_command( array $words ) {
-		if ( count( $words ) > 0 && $words[0] === 'site' ) {
-			$type= $this->get_site_type ( $words, 'html' );
+		if ( count( $words ) > 0 && 'site' === $words[0] ) {
+			$type       = $this->get_site_type( $words, 'html' );
 			$site_types = \Site_Command::get_site_types();
 
 			$command      = EE::get_root_command();
-			$callback = $site_types[ $type ];
+			$callback     = $site_types[ $type ];
 			$leaf_command = CommandFactory::create( 'site', $callback, $command );
 			$command->add_subcommand( 'site', $leaf_command );
 		}
@@ -137,13 +135,13 @@ class Completions {
 
 		foreach ( $words as $arg ) {
 			if ( preg_match( '|^--type=(\S+)|', $arg, $matches ) ) {
-				$type = $matches[1] ;
+				$type = $matches[1];
 			}
 		}
 
-		if ( count( $words ) >= 3 && $words[1] !== 'create' && ! preg_match( '|^--|', $words[2] ) ) {
-			$sitename = str_replace( [ 'https://', 'http://' ], '', $words[2] );
-			$sitetype = Site::find( $sitename, [ 'site_type' ] );
+		if ( count( $words ) >= 3 && 'create' === $words[1] && ! preg_match( '|^--|', $words[2] ) ) {
+			$sitename = str_replace( array( 'https://', 'http://' ), '', $words[2] );
+			$sitetype = Site::find( $sitename, array( 'site_type' ) );
 
 			if ( $sitetype ) {
 				$type = $sitetype->site_type;
