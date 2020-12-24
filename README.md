@@ -12,7 +12,7 @@ EasyEngine makes it greatly easy to manage nginx, a fast web-server software tha
 
 * Docker
 * Docker-Compose
-* PHP CLI (>=7.1)
+* PHP CLI (>=7.2)
 * PHP Modules - `curl`, `sqlite3`, `pcntl`
 
 ## Installing
