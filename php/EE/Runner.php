@@ -20,7 +20,7 @@ class Runner {
 
 	private $global_config_path, $project_config_path;
 
-	private $config, $extra_config;
+	private array $config=[], $extra_config=[];
 
 	private $alias;
 
@@ -70,6 +70,7 @@ class Runner {
 		}
 
 		$nginx_proxy = 'services_global-nginx-proxy_1';
+		define( 'EE_PROXY_TYPE', $nginx_proxy );
 		if ( $check_requirements ) {
 			$launch = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
 			if ( 0 === $launch->return_code ) {
@@ -79,7 +80,6 @@ class Runner {
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}
-		define( 'EE_PROXY_TYPE', $nginx_proxy );
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
 			$this->maybe_trigger_migration();
@@ -538,15 +538,17 @@ class Runner {
 	}
 
 	public function init_colorization() {
-		if ( 'auto' === $this->config['color'] ) {
-			$this->colorize = ( ! \EE\Utils\isPiped() && ! \EE\Utils\is_windows() );
-		} else {
-			$this->colorize = $this->config['color'];
+		if ( isset( $this->config['color'] ) ){
+			if ( 'auto' === $this->config['color'] ) {
+				$this->colorize = ( ! \EE\Utils\isPiped() && ! \EE\Utils\is_windows() );
+			} else {
+				$this->colorize = $this->config['color'];
+			}
 		}
 	}
 
 	public function init_logger() {
-		if ( $this->config['quiet'] ) {
+		if ( isset( $this->config['quiet'] ) && $this->config['quiet'] ) {
 			$logger = new \EE\Loggers\Quiet;
 		} else {
 			$logger = new \EE\Loggers\Regular( $this->in_color() );
