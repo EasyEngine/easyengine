@@ -29,7 +29,6 @@
         "composer/semver": "1.4.2",
         "easyengine/admin-tools-command": "v1.0.10",
         "easyengine/auth-command": "v1.0.4",
-        "easyengine/autoload-splitter": "v1.0.0",
         "easyengine/config-command": "v1.0.2",
         "easyengine/cron-command": "v1.0.2",
         "easyengine/log-command": "v1.0.1",
@@ -69,11 +68,14 @@
     },
     "autoload": {
         "psr-0": {
-            "EE": "php"
+            "EE\\": "php/"
         },
-        "psr-4": {
-            "": "php/commands/src"
-        }
+        "classmap": [
+            "php/class-ee.php",
+            "php/class-ee-db.php",
+            "php/class-ee-docker.php",
+            "php/class-ee-command.php"
+        ]
     },
     "extra": {
         "branch-alias": {
