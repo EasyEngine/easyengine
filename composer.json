@@ -24,7 +24,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.4",
         "composer/composer": "2.0.8",
         "composer/semver": "3.2.4",
         "easyengine/admin-tools-command": "v1.0.10",
