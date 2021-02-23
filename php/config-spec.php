@@ -31,6 +31,41 @@ return array(
 		'desc'    => 'Mail-id to be used for letsencrypt.',
 	),
 
+	'le-country' => array(
+		'runtime' => '=<le-country>',
+		'file'    => '<le-country>',
+		'default' => null,
+		'desc'    => 'Country to be used for letsencrypt.',
+	),
+
+	'le-state' => array(
+		'runtime' => '=<le-state>',
+		'file'    => '<le-state>',
+		'default' => null,
+		'desc'    => 'State to be used for letsencrypt.',
+	),
+
+	'le-locality' => array(
+		'runtime' => '=<le-locality>',
+		'file'    => '<le-locality>',
+		'default' => null,
+		'desc'    => 'Locality to be used for letsencrypt.',
+	),
+
+	'le-orgname' => array(
+		'runtime' => '=<le-orgname>',
+		'file'    => '<le-orgname>',
+		'default' => null,
+		'desc'    => 'Orgnanisation name to be used for letsencrypt.',
+	),
+
+	'le-orgunit' => array(
+		'runtime' => '=<le-orgunit>',
+		'file'    => '<le-orgunit>',
+		'default' => null,
+		'desc'    => 'Orgnanisation unit to be used for letsencrypt.',
+	),
+
 	'wp-mail' => array(
 		'runtime' => '=<wp-mail>',
 		'file'    => '<wp-mail>',
