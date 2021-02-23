@@ -53,6 +53,12 @@ class Runner {
 
 		$this->ensure_present_in_config( 'locale', 'en_US' );
 		$this->ensure_present_in_config( 'ee_installer_version', 'stable' );
+		$this->ensure_present_in_config( 'le-mail', '' );
+		$this->ensure_present_in_config( 'le-country', '' );
+		$this->ensure_present_in_config( 'le-state', '' );
+		$this->ensure_present_in_config( 'le-locality', '' );
+		$this->ensure_present_in_config( 'le-orgname', '' );
+		$this->ensure_present_in_config( 'le-orgunit', '' );
 
 		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
