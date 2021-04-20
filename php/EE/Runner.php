@@ -65,7 +65,7 @@ class Runner {
 
 		$check_requirements = false;
 		if ( ! empty( $this->arguments ) ) {
-			$check_requirements = in_array( $this->arguments[0], [ 'cli', 'config', 'help' ], true ) ? false : true;
+			$check_requirements = in_array( $this->arguments[0], [ 'log', 'shell', 'cron', 'auth', 'admin-tools', 'mailhog', 'config', 'site', 'cli', 'config', 'help' ], true ) ? false : true;
 			$check_requirements = ( [ 'site', 'cmd-dump' ] === $this->arguments ) ? false : $check_requirements;
 		}
 
@@ -274,7 +274,6 @@ class Runner {
 			$full_name = implode( ' ', $cmd_path );
 
 			$subcommand = $command->find_subcommand( $args );
-
 			if ( ! $subcommand ) {
 				if ( count( $cmd_path ) > 1 ) {
 					$child = array_pop( $cmd_path );
@@ -326,7 +325,6 @@ class Runner {
 		}
 
 		list( $command, $final_args, $cmd_path ) = $r;
-
 		$name = implode( ' ', $cmd_path );
 
 		$extra_args = array();
