@@ -36,8 +36,10 @@ abstract class Base {
 		if ( null === $start_time ) {
 			$start_time = microtime( true );
 		}
-		$debug = $this->get_runner()->config['debug'];
-		if ( ! $debug ) {
+		
+		if( isset( $this->get_runner()->config['debug'] ) )
+			$debug = $this->get_runner()->config['debug'];
+		else {
 			return;
 		}
 		if ( true !== $debug && $group !== $debug ) {
