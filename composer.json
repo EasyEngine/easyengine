@@ -42,7 +42,7 @@
         "justinrainbow/json-schema": "5.2.7",
         "monolog/monolog": "1.24.0",
         "mustache/mustache": "2.12.0",
-        "rmccue/requests": "1.7.0",
+        "rmccue/requests": "1.8.0",
         "symfony/config": "3.4.18",
         "symfony/console": "3.4.18",
         "symfony/debug": "3.4.18",
