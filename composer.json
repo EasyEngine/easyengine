@@ -29,7 +29,6 @@
         "composer/semver": "^1.7.2",
         "easyengine/admin-tools-command": "v1.0.10",
         "easyengine/auth-command": "v1.0.4",
-        "easyengine/autoload-splitter": "v1.0.0",
         "easyengine/config-command": "v1.0.2",
         "easyengine/cron-command": "v1.0.2",
         "easyengine/log-command": "v1.0.1",
@@ -44,7 +43,6 @@
         "mustache/mustache": "2.12.0",
         "rmccue/requests": "^1.7.0",
         "seld/cli-prompt": "^1.0",
-		
         "symfony/config": "^4.4",
         "symfony/console": "^4.4",
         "symfony/debug": "^4.4",
@@ -55,7 +53,6 @@
         "symfony/process": "^4.4",
         "symfony/translation": "^4.4",
         "symfony/yaml": "^4.4",
-		
         "wp-cli/mustangostang-spyc": "0.6.3",
         "wp-cli/php-cli-tools": "0.11.10",
         "webmozart/assert": "^1.3.0",
@@ -83,12 +80,6 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.5.x-dev"
-        },
-        "autoload-splitter": {
-            "splitter-logic": "EE\\AutoloadSplitter",
-            "splitter-location": "php/EE/AutoloadSplitter.php",
-            "split-target-prefix-true": "autoload_commands",
-            "split-target-prefix-false": "autoload_framework"
         }
     }
 }
