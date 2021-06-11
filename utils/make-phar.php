@@ -75,7 +75,7 @@ function add_file( $phar, $path ) {
 				$strips = array(
 					'\/(?:behat|gherkin)\/src\/',
 					'\/phpunit\/',
-					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer)[^\/]+\/',
+					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer)',
 					'\/composer\/spdx-licenses\/',
 					'\/Composer\/(?:Command\/|Compiler\.php|Console\/|Downloader\/Pear|Installer\/Pear|Question\/|Repository\/Pear|SelfUpdate\/)',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
