@@ -1,0 +1,91 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+
+name: EE test & build
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Set up Composer caching
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-composer-dependencies
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.3'
+        coverage: none
+        tools: composer
+        extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
+    - name: Update docker
+      run: |
+        sudo apt purge nginx nginx-common docker docker-engine docker.io docker-ce containerd runc
+        curl -fsSL https://get.docker.com/ | sudo bash
+        sudo systemctl restart docker.service
+
+    - name: Install docker-compose
+      run: |
+        VERSION=$(curl --silent "https://api.github.com/repos/docker/compose/releases/latest" |
+          grep '"tag_name":' |
+          sed -E 's/.*"([^"]+)".*/\1/'
+        )
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+    - name: Composer changes and install
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        # Run composer install for master else update.
+        if [[ "$GITHUB_REF" = "heads/ref/master" ]]; then
+            composer install --prefer-dist --no-progress --no-interaction
+        else
+            sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+            composer update --prefer-dist --no-progress --no-interaction
+        fi
+
+    - name: Prepare
+      run: bash $GITHUB_WORKSPACE/ci/prepare.sh
+
+    - name: Test
+      shell: 'script -q -e -c "bash {0}"'
+      run: |
+        cd $GITHUB_WORKSPACE
+        sudo ./vendor/bin/behat
+        sub_commands=(
+          vendor/easyengine/site-command/features
+          vendor/easyengine/site-type-php/features
+          vendor/easyengine/site-type-wp/features
+        )
+        for command in "${sub_commands[@]}"; do
+          IFS='/' read -r -a array <<< "$command"
+          rm -rf features/*
+          rsync -av --delete $command/ features/ > /dev/null
+          for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
+          echo "Running tests for $command"
+          sudo -E ./vendor/bin/behat
+        done
+      env:
+        COMPOSE_INTERACTIVE_NO_CLI: 1
+
+    - name: Output logs
+      if: ${{ always() }}
+      run: |
+        [[ -f "/opt/easyengine/logs/install.log" ]] && cat /opt/easyengine/logs/install.log || echo 'No install log.'
+        [[ -f "/opt/easyengine/logs/ee.log" ]] && cat /opt/easyengine/logs/ee.log || echo 'No run log.'
