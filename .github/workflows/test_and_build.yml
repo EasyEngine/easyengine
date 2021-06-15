@@ -164,3 +164,56 @@ jobs:
       run: |
         [[ -f "/opt/easyengine/logs/install.log" ]] && cat /opt/easyengine/logs/install.log || echo 'No install log.'
         [[ -f "/opt/easyengine/logs/ee.log" ]] && cat /opt/easyengine/logs/ee.log || echo 'No run log.'
+
+  deploy: #-----------------------------------------------------------------------
+    name: Deploy Phar
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [build, test]
+
+    steps:
+      - name: Check out builds repository
+        uses: actions/checkout@v2
+        with:
+          repository: easyengine/easyengine-builds
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Download built Phar file
+        uses: actions/download-artifact@v2
+        with:
+          name: easyengine-phar
+
+      - name: Set file name
+        if: ${{ contains(github.ref, 'develop') }}
+        run: |
+          echo 'FILENAME=easyengine-nightly.phar' > $GITHUB_ENV
+      - name: Set file name for master branch
+        if: ${{ contains(github.ref, 'master') }}
+        run: |
+          echo 'FILENAME=easyengine.phar' > $GITHUB_ENV
+
+      - name: Move built Phar file into correct location
+        run: |
+          mv easyengine.phar phar/$FILENAME
+
+      - name: Make built Phar executable
+        run: |
+          chmod +x phar/$FILENAME
+
+      - name : Create hashes
+        run: |
+          md5sum phar/$FILENAME | cut -d ' ' -f 1 > phar/$FILENAME.md5
+          sha512sum phar/$FILENAME | cut -d ' ' -f 1 > phar/$FILENAME.sha512
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add phar/$FILENAME phar/$FILENAME.md5 phar/$FILENAME.sha512
+          git commit -m "phar build: $GITHUB_REPOSITORY@$GITHUB_SHA"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.BOT_TOKEN }}
+          branch: master
+          repository: easyengine/easyengine-builds
