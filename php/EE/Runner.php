@@ -56,6 +56,7 @@ class Runner {
 
 		define( 'DB', EE_ROOT_DIR . '/db/ee.sqlite' );
 		define( 'LOCALHOST_IP', '127.0.0.1' );
+		define( 'SITE_CUSTOM_DOCKER_COMPOSE', 'docker-compose-custom.yml' );
 
 		$db_dir = dirname( DB );
 		if ( ! is_dir( $db_dir ) ) {
@@ -69,16 +70,17 @@ class Runner {
 		}
 
 		$nginx_proxy = 'services_global-nginx-proxy_1';
-		$launch      = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
-		if ( 0 === $launch->return_code ) {
-			$nginx_proxy = trim( $launch->stdout );
-		}
-		define( 'EE_PROXY_TYPE', $nginx_proxy );
-
 		if ( $check_requirements ) {
+			$launch = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
+			if ( 0 === $launch->return_code ) {
+				$nginx_proxy = trim( $launch->stdout );
+			}
+
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}
+		define( 'EE_PROXY_TYPE', $nginx_proxy );
+
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
 			$this->maybe_trigger_migration();
 		}
@@ -472,7 +474,7 @@ class Runner {
 		}
 
 		if ( 'docker-compose' === $bits['scheme'] ) {
-			$command = 'docker-compose exec %s%s%s sh -c %s';
+			$command = \EE_DOCKER::docker_compose_with_custom() . ' exec %s%s%s sh -c %s';
 
 			$escaped_command = sprintf(
 				$command,
@@ -561,17 +563,16 @@ class Runner {
 			EE::err( 'Config root: ' . EE_ROOT_DIR . ' is not writable by EasyEngine' );
 		}
 
-		if ( !empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
+		if ( isset( $GLOBALS['argv'][1] ) && 'cli' === $GLOBALS['argv'][1] && isset( $GLOBALS['argv'][2] ) && 'completions' === $GLOBALS['argv'][2] ) {
 			$file_logging_path = '/dev/null';
-		}
-		else {
+		} else {
 			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
 		$output     = "[%datetime%] %channel%.%level_name%: %message% %context% %extra%\n";
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
-		$stream     = new \Monolog\Handler\StreamHandler( EE_ROOT_DIR . '/logs/ee.log', Logger::DEBUG );
+		$stream     = new \Monolog\Handler\StreamHandler( $file_logging_path, Logger::DEBUG );
 		$stream->setFormatter( $formatter );
 		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );

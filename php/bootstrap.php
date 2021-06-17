@@ -25,7 +25,6 @@ function get_bootstrap_steps() {
 		'EE\Bootstrap\DefineProtectedCommands',
 		'EE\Bootstrap\LoadRequiredCommand',
 		'EE\Bootstrap\IncludePackageAutoloader',
-		'EE\Bootstrap\IncludeBundledAutoloader',
 		'EE\Bootstrap\RegisterFrameworkCommands',
 		'EE\Bootstrap\IncludeFallbackAutoloader',
 		'EE\Bootstrap\RegisterDeferredCommands',
@@ -72,6 +71,6 @@ function bootstrap() {
 	foreach ( get_bootstrap_steps() as $step ) {
 		/** @var \EE\Bootstrap\BootstrapStep $step_instance */
 		$step_instance = new $step();
-		$state = $step_instance->process( $state );
+		$state         = $step_instance->process( $state );
 	}
 }

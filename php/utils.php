@@ -9,6 +9,7 @@ use Composer\Semver\Semver;
 use EE;
 use EE\Iterators\Transform;
 use Mustangostang\Spyc;
+use Symfony\Component\Filesystem\Filesystem;
 
 const PHAR_STREAM_PREFIX = 'phar://';
 
@@ -1794,3 +1795,4 @@ function sanitize_file_folder_name( $input_name, $strict = true, $remove_forward
 	// Remove starting and ending hyphens as a starting hyphen in string might be considered as parameter in bash file/folder creation.
 	return trim( $output, '-' );
 }
+
