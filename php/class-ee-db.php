@@ -391,7 +391,7 @@ class EE_DB {
 		$set_bindings   = array_values( $values );
 		$where_bindings = $this->where['bindings'];
 
-		$set_clause = implode( $set_keys, ' = ?, ' ) . ' = ?';
+		$set_clause = implode( ' = ?, ', $set_keys) . ' = ?';
 
 		$query         = "UPDATE $this->tables SET $set_clause{$this->where['query_string']}";
 		$pdo_statement = self::$pdo->query( $query );
