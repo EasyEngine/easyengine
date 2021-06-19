@@ -4,7 +4,7 @@ function _ee {
 
 	_ee_completion() {
 		ee_completion=()
-		ee_completion=$(sudo /mnt/sdb1/easyengine/easyengine/bin/ee cli completions --line="ee $current_command " --point="$current_position")
+		ee_completion=$(sudo /usr/local/bin/ee cli completions --line="ee $current_command " --point="$current_position")
 
 		completion=()
 		while read line; do
