@@ -7,7 +7,7 @@ on:
   schedule:
     - cron:  '30 3 * * *'
 
-name: EE Test 👨‍🔧 + Build 🔨
+name: Build 🔨 + Test 👨‍🔧
 
 jobs:
 
@@ -35,7 +35,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.3'
+          php-version: '8.0'
           coverage: none
           tools: composer
           extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
@@ -108,7 +108,7 @@ jobs:
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '7.3'
+        php-version: '8.0'
         coverage: none
         tools: composer
         extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
