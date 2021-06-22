@@ -41,6 +41,7 @@ foreach ( $iterator as $filename ) {
 }
 $runner = \EE::get_runner();
 $runner->init_logger();
+$runner->init_config();
 /* End. Loading required files to enable EE::launch() in tests. */
 
 use Behat\Behat\Context\Context;
