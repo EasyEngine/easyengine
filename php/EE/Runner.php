@@ -538,7 +538,7 @@ class Runner {
 	}
 
 	public function init_colorization() {
-		if ( 'auto' === $this->config['color'] ) {
+		if ( ! isset( $this->config['color'] ) || 'auto' === $this->config['color'] ) {
 			$this->colorize = ( ! \EE\Utils\isPiped() && ! \EE\Utils\is_windows() );
 		} else {
 			$this->colorize = $this->config['color'];
@@ -546,7 +546,7 @@ class Runner {
 	}
 
 	public function init_logger() {
-		if ( $this->config['quiet'] ) {
+		if ( isset( $this->config['quiet'] ) && $this->config['quiet'] ) {
 			$logger = new \EE\Loggers\Quiet;
 		} else {
 			$logger = new \EE\Loggers\Regular( $this->in_color() );
