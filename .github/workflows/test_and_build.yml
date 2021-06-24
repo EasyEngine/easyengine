@@ -1,0 +1,220 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+  schedule:
+    - cron:  '30 3 * * *'
+
+name: Build 🔨 + Test 👨‍🔧
+
+jobs:
+
+  build: #---------------------------------------------------------------------
+    name: Build Phar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Set up Composer caching
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-composer-dependencies
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          coverage: none
+          tools: composer
+          extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
+      - name: Install dependencies
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          # Run composer install for master else update.
+          if [[ "$GITHUB_REF" = "refs/heads/master" ]]; then
+              composer install --no-dev --no-progress --no-interaction
+          else
+              sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+              composer update --prefer-dist --no-progress --no-interaction
+          fi
+
+      - name: Setup EE version
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          if [[ "$GITHUB_REF" != $DEPLOY_BRANCH ]]; then
+            CLI_VERSION=$(head -n 1 VERSION)
+            CLI_VERSION="$(echo $CLI_VERSION | xargs)"
+            CLI_VERSION+="-nightly-$(git rev-parse --short HEAD)"
+            echo $CLI_VERSION > VERSION
+            echo "$CLI_VERSION" > VERSION
+          fi
+        env:
+          DEPLOY_BRANCH: "refs/heads/master"
+
+
+      - name: Upload EE version
+        uses: actions/upload-artifact@v2
+        with:
+          name: cli_version
+          path: VERSION
+
+      - name: Build the Phar file
+        run: php -dphar.readonly=0 utils/make-phar.php easyengine.phar
+
+      - name: Check phar
+        run: sudo ./easyengine.phar cli info
+
+      - name: Upload built Phar file
+        uses: actions/upload-artifact@v2
+        with:
+          name: easyengine-phar
+          path: easyengine.phar
+
+  test: #----------------------------------------------------------------------
+    runs-on: ubuntu-latest
+    needs: [build]
+    name: Behat Tests
+    steps:
+    - name: Check out source code
+      uses: actions/checkout@v2
+
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Set up Composer caching
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-composer-dependencies
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.0'
+        coverage: none
+        tools: composer
+        extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
+    - name: Update docker
+      run: |
+        sudo apt purge nginx nginx-common docker docker-engine docker.io docker-ce containerd runc
+        curl -fsSL https://get.docker.com/ | sudo bash
+        sudo systemctl restart docker.service
+
+    - name: Install docker-compose
+      run: |
+        VERSION=$(curl --silent "https://api.github.com/repos/docker/compose/releases/latest" |
+          grep '"tag_name":' |
+          sed -E 's/.*"([^"]+)".*/\1/'
+        )
+        sudo curl -L "https://github.com/docker/compose/releases/download/$VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+    - name: Install dependencies
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        # Run composer install for master else update.
+        if [[ "$GITHUB_REF" = "refs/heads/master" ]]; then
+            composer install --prefer-dist --no-progress --no-interaction
+        else
+            sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+            composer update --prefer-dist --no-progress --no-interaction
+        fi
+
+    - name: Test
+      shell: 'script -q -e -c "bash {0}"'
+      run: |
+        set -e
+        cd $GITHUB_WORKSPACE
+        sudo -E ./vendor/bin/behat
+        sub_commands=(
+          vendor/easyengine/site-command/features
+          vendor/easyengine/site-type-php/features
+          vendor/easyengine/site-type-wp/features
+        )
+        for command in "${sub_commands[@]}"; do
+          IFS='/' read -r -a array <<< "$command"
+          rm -rf features/*
+          rsync -av --delete $command/ features/ > /dev/null
+          for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
+          echo "Running tests for $command"
+          sudo -E ./vendor/bin/behat
+        done
+      env:
+        COMPOSE_INTERACTIVE_NO_CLI: 1
+
+    - name: Output logs
+      if: ${{ always() }}
+      run: |
+        [[ -f "/opt/easyengine/logs/install.log" ]] && cat /opt/easyengine/logs/install.log || echo 'No install log.'
+        [[ -f "/opt/easyengine/logs/ee.log" ]] && cat /opt/easyengine/logs/ee.log || echo 'No run log.'
+
+  deploy: #-----------------------------------------------------------------------
+    name: Deploy Phar
+    if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [build, test]
+
+    steps:
+      - name: Check out builds repository
+        uses: actions/checkout@v2
+        with:
+          repository: easyengine/easyengine-builds
+          token: ${{ secrets.BOT_TOKEN }}
+
+      - name: Download built Phar file
+        uses: actions/download-artifact@v2
+        with:
+          name: easyengine-phar
+
+      - name: Set file name
+        if: ${{ contains(github.ref, 'develop') }}
+        run: |
+          echo 'FILENAME=easyengine-nightly.phar' > $GITHUB_ENV
+      - name: Set file name for master branch
+        if: ${{ contains(github.ref, 'master') }}
+        run: |
+          echo 'FILENAME=easyengine.phar' > $GITHUB_ENV
+
+      - name: Move built Phar file into correct location
+        run: |
+          mv easyengine.phar phar/$FILENAME
+
+      - name: Make built Phar executable
+        run: |
+          chmod +x phar/$FILENAME
+
+      - name : Create hashes
+        run: |
+          md5sum phar/$FILENAME | cut -d ' ' -f 1 > phar/$FILENAME.md5
+          sha512sum phar/$FILENAME | cut -d ' ' -f 1 > phar/$FILENAME.sha512
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add phar/$FILENAME phar/$FILENAME.md5 phar/$FILENAME.sha512
+          git commit -m "phar build: $GITHUB_REPOSITORY@$GITHUB_SHA"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.BOT_TOKEN }}
+          branch: master
+          repository: easyengine/easyengine-builds
