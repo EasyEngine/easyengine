@@ -40,6 +40,9 @@ function _ee {
 	elif [[ `pwd` == /opt/easyengine/sites*/* ]]; then
 		_arguments '1: :-> sub_commands' '2: :->sub_command_param' '*: :->flags'
 
+	elif [[ "${words[2]}" == "site" && "${words[3]}" == "create" ]]; then
+		_arguments '1: :-> sub_commands' '2: :->sub_command_param' '*: :->flags'
+
 	else
 		_arguments '1: :-> sub_commands' '2: :->sub_command_param' '3: :->get_site_name' '*: :->flags'
 	fi
