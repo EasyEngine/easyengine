@@ -2,49 +2,56 @@
 
 namespace EE\Bootstrap;
 
+use EE\Autoloader;
+
 /**
  * Class IncludeFrameworkAutoloader.
  *
- * Loads the framework autoloader that is provided through the `composer.json`
- * file.
+ * Loads the framework autoloader through an autoloader separate from the
+ * Composer one, to avoid coupling the loading of the framework with bundled
+ * commands.
  *
  * This only contains classes for the framework.
  *
  * @package EE\Bootstrap
  */
-final class IncludeFrameworkAutoloader extends AutoloaderStep {
+final class IncludeFrameworkAutoloader implements BootstrapStep {
 
 	/**
-	 * Get the autoloader paths to scan for an autoloader.
+	 * Process this single bootstrapping step.
 	 *
-	 * @return string[]|false Array of strings with autoloader paths, or false
-	 *                        to skip.
+	 * @param BootstrapState $state Contextual state to pass into the step.
+	 *
+	 * @return BootstrapState Modified state to pass to the next step.
 	 */
-	protected function get_autoloader_paths() {
-		$autoloader_paths = array(
-			EE_VENDOR_DIR . '/autoload_framework.php',
-		);
+	public function process( BootstrapState $state ) {
+		if ( ! class_exists( 'EE\Autoloader' ) ) {
+			require_once EE_ROOT . '/php/EE/Autoloader.php';
+		}
 
-		if ( $custom_vendor = $this->get_custom_vendor_folder() ) {
-			array_unshift(
-				$autoloader_paths,
-				EE_ROOT . '/../../../' . $custom_vendor . '/autoload_framework.php'
+		$autoloader = new Autoloader();
+
+		$mappings = [
+			'EE'                       => EE_ROOT . '/php/EE',
+			'cli'                      => EE_VENDOR_DIR . '/wp-cli/php-cli-tools/lib/cli',
+			'Requests'                 => EE_VENDOR_DIR . '/rmccue/requests/library/Requests',
+			'Symfony\Component\Finder' => EE_VENDOR_DIR . '/symfony/finder/',
+			'Psr\Log'                  => EE_VENDOR_DIR . '/psr/log/Psr/Log/',
+			'Monolog'                  => EE_VENDOR_DIR . '/monolog/monolog/src/Monolog',
+		];
+
+		foreach ( $mappings as $namespace => $folder ) {
+			$autoloader->add_namespace(
+				$namespace,
+				$folder
 			);
 		}
 
-		return $autoloader_paths;
-	}
+		include_once EE_VENDOR_DIR . '/rmccue/requests/library/Requests.php';
+		include_once EE_VENDOR_DIR . '/wp-cli/mustangostang-spyc/Spyc.php';
 
-	/**
-	 * Handle the failure to find an autoloader.
-	 *
-	 * @return void
-	 */
-	protected function handle_failure() {
-		fwrite(
-			STDERR,
-			"Internal error: Can't find Composer autoloader.\nTry running: composer install\n"
-		);
-		exit( 3 );
+		$autoloader->register();
+
+		return $state;
 	}
 }

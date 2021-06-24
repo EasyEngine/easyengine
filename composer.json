@@ -17,7 +17,7 @@
     ],
     "config": {
         "platform": {
-            "php": "7.1"
+            "php": "7.3"
         },
         "sort-packages": true
     },
@@ -25,42 +25,39 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0",
-        "composer/composer": "1.7.3",
-        "composer/semver": "1.4.2",
-        "easyengine/admin-tools-command": "v1.0.10",
-        "easyengine/auth-command": "v1.0.4",
-        "easyengine/autoload-splitter": "v1.0.0",
+        "composer/composer": "2.0.13",
+        "composer/semver": "3.2.4",
+        "easyengine/admin-tools-command": "v1.1.0",
+        "easyengine/auth-command": "v1.1.0",
         "easyengine/config-command": "v1.0.2",
-        "easyengine/cron-command": "v1.0.2",
-        "easyengine/log-command": "v1.0.1",
+        "easyengine/cron-command": "v1.1.0",
+        "easyengine/log-command": "v1.1.0",
         "easyengine/mailhog-command": "v1.0.2",
-        "easyengine/service-command": "v1.1.0",
-        "easyengine/shell-command": "v1.0.3",
-        "easyengine/site-command": "v2.6.2",
-        "easyengine/site-type-php": "v1.3.1",
-        "easyengine/site-type-wp": "v1.3.2",
-        "justinrainbow/json-schema": "5.2.7",
+        "easyengine/service-command": "v1.2.0",
+        "easyengine/shell-command": "v1.1.0",
+        "easyengine/site-command": "v2.7.1",
+        "easyengine/site-type-php": "v1.4.0",
+        "easyengine/site-type-wp": "v1.4.0",
         "monolog/monolog": "1.24.0",
-        "mustache/mustache": "2.12.0",
-        "rmccue/requests": "1.7.0",
-        "symfony/config": "3.4.18",
-        "symfony/console": "3.4.18",
-        "symfony/debug": "3.4.18",
-        "symfony/dependency-injection": "3.4.27",
-        "symfony/event-dispatcher": "3.4.18",
-        "symfony/filesystem": "3.4.18",
-        "symfony/finder": "3.4.18",
-        "symfony/process": "3.4.18",
-        "symfony/translation": "3.4.18",
-        "symfony/yaml": "3.4.18",
+        "mustache/mustache": "2.13.0",
+        "rmccue/requests": "1.8.0",
+        "symfony/config": "4.4.*",
+        "symfony/console": "4.4.*",
+        "symfony/debug": "4.4.*",
+        "symfony/dependency-injection": "4.4.*",
+        "symfony/event-dispatcher": "4.4.*",
+        "symfony/filesystem": "4.4.*",
+        "symfony/finder": "4.4.*",
+        "symfony/process": "4.4.*",
+        "symfony/translation": "4.4.*",
+        "symfony/yaml": "4.4.*",
         "wp-cli/mustangostang-spyc": "0.6.3",
         "wp-cli/php-cli-tools": "0.11.10"
     },
     "require-dev": {
-        "behat/behat": "3.7.0",
+        "behat/behat": "3.8.1",
         "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
         "phpunit/phpunit": "3.7.*",
-        "roave/security-advisories": "dev-master",
         "phpcompatibility/php-compatibility": "8.2.0",
         "wp-coding-standards/wpcs": "0.13.1"
     },
@@ -69,21 +66,18 @@
     },
     "autoload": {
         "psr-0": {
-            "EE": "php"
+            "EE\\": "php/"
         },
-        "psr-4": {
-            "": "php/commands/src"
-        }
+        "classmap": [
+            "php/class-ee.php",
+            "php/class-ee-db.php",
+            "php/class-ee-docker.php",
+            "php/class-ee-command.php"
+        ]
     },
     "extra": {
         "branch-alias": {
             "dev-master": "1.5.x-dev"
-        },
-        "autoload-splitter": {
-            "splitter-logic": "EE\\AutoloadSplitter",
-            "splitter-location": "php/EE/AutoloadSplitter.php",
-            "split-target-prefix-true": "autoload_commands",
-            "split-target-prefix-false": "autoload_framework"
         }
     }
 }
