@@ -4,7 +4,7 @@ function _ee {
 
 	_ee_completion() {
 		ee_completion=()
-		ee_completion=$(sudo /usr/local/bin/ee cli completions --line="ee $current_command " --point="$current_position")
+		ee_completion=$(sudo /usr/local/bin/ee cli completions --shell='zsh' --line="ee $current_command " --point="$current_position")
 
 		completion=()
 		while read line; do
@@ -36,6 +36,9 @@ function _ee {
 
 	elif [[ "${words[2]}" == "shell" ]]; then
 		_arguments '1: :-> sub_commands' '2: :->get_site_name' '*: :->flags'
+
+	elif [[ `pwd` == /opt/easyengine/sites*/* ]]; then
+		_arguments '1: :-> sub_commands' '2: :->sub_command_param' '*: :->flags'
 
 	else
 		_arguments '1: :-> sub_commands' '2: :->sub_command_param' '3: :->get_site_name' '*: :->flags'

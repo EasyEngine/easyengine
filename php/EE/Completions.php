@@ -11,7 +11,7 @@ class Completions {
 	private $words;
 	private $opts = array();
 
-	public function __construct( $line ) {
+	public function __construct( $line, $shell ) {
 		// TODO: properly parse single and double quotes
 		$this->words = explode( ' ', $line );
 
@@ -61,7 +61,11 @@ class Completions {
 				}
 			}
 			foreach ( $command->get_subcommands() as $name => $subcommand ) {
-				$this->add( $name . ':' . $subcommand->get_shortdesc() );
+				if ( $shell === 'zsh') {
+					$this->add( $name . ':' . $subcommand->get_shortdesc() );
+				} else {
+					$this->add( $name );
+				}
 			}
 		} else {
 			foreach ( $spec as $arg ) {
