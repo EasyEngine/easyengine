@@ -536,6 +536,15 @@ class CLI_Command extends EE_Command {
 	 * --point=<point>
 	 * : The index to the current cursor position relative to the beginning of the command.
 	 *
+	 * [--shell=<shell>]
+	 * : Shell for completions output.
+	 * ---
+	 * default: bash
+	 * options:
+	 *   - bash
+	 *   - zsh
+	 * ---
+
 	 * ## EXAMPLES
 	 *
 	 *     # Generate tab completion strings.
@@ -545,7 +554,7 @@ class CLI_Command extends EE_Command {
 	 */
 	public function completions( $_, $assoc_args ) {
 		$line  = substr( $assoc_args['line'], 0, $assoc_args['point'] );
-		$compl = new \EE\Completions( $line );
+		$compl = new \EE\Completions( $line, $assoc_args['shell'] );
 		$compl->render();
 	}
 
