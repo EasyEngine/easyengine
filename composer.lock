@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bba6361d6a0ab923b088c7fda5d65466",
+    "content-hash": "dcbbd53c4d59746eabb3cd49a4c3e644",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1041,16 +1041,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v2.8.1",
+            "version": "v2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "c4d5716212ab4ed0a9f2bc561905d8d8a1fde4d3"
+                "reference": "aba31db217416d9cd696fa19fe0a947ca7bb084e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/c4d5716212ab4ed0a9f2bc561905d8d8a1fde4d3",
-                "reference": "c4d5716212ab4ed0a9f2bc561905d8d8a1fde4d3",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/aba31db217416d9cd696fa19fe0a947ca7bb084e",
+                "reference": "aba31db217416d9cd696fa19fe0a947ca7bb084e",
                 "shasum": ""
             },
             "require": {
@@ -1058,7 +1058,7 @@
                 "cloudflare/sdk": "1.1.1",
                 "ext-openssl": "*",
                 "guzzlehttp/guzzle": "6.3.3",
-                "league/flysystem": "1.0.49",
+                "league/flysystem": "1.1.4",
                 "symfony/serializer": "3.4.20",
                 "webmozart/assert": "1.10.0"
             },
@@ -1109,9 +1109,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v2.8.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v2.8.2"
             },
-            "time": "2021-06-28T12:46:56+00:00"
+            "time": "2021-06-30T11:15:41+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -1502,31 +1502,31 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.49",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "a63cc83d8a931b271be45148fa39ba7156782ffd"
+                "reference": "f3ad69181b8afed2c9edf7be5a2918144ff4ea32"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a63cc83d8a931b271be45148fa39ba7156782ffd",
-                "reference": "a63cc83d8a931b271be45148fa39ba7156782ffd",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/f3ad69181b8afed2c9edf7be5a2918144ff4ea32",
+                "reference": "f3ad69181b8afed2c9edf7be5a2918144ff4ea32",
                 "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
-                "php": ">=5.5.9"
+                "league/mime-type-detection": "^1.3",
+                "php": "^7.2.5 || ^8.0"
             },
             "conflict": {
                 "league/flysystem-sftp": "<1.0.6"
             },
             "require-dev": {
-                "phpspec/phpspec": "^3.4",
-                "phpunit/phpunit": "^5.7.10"
+                "phpspec/prophecy": "^1.11.1",
+                "phpunit/phpunit": "^8.5.8"
             },
             "suggest": {
-                "ext-fileinfo": "Required for MimeType",
                 "ext-ftp": "Allows you to use FTP server storage",
                 "ext-openssl": "Allows you to use FTPS server storage",
                 "league/flysystem-aws-s3-v2": "Allows you to use S3 storage with AWS SDK v2",
@@ -1584,9 +1584,71 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/master"
+                "source": "https://github.com/thephpleague/flysystem/tree/1.1.4"
             },
-            "time": "2018-11-23T23:41:29+00:00"
+            "funding": [
+                {
+                    "url": "https://offset.earth/frankdejonge",
+                    "type": "other"
+                }
+            ],
+            "time": "2021-06-23T21:56:05+00:00"
+        },
+        {
+            "name": "league/mime-type-detection",
+            "version": "1.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/mime-type-detection.git",
+                "reference": "3b9dff8aaf7323590c1d2e443db701eb1f9aa0d3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/mime-type-detection/zipball/3b9dff8aaf7323590c1d2e443db701eb1f9aa0d3",
+                "reference": "3b9dff8aaf7323590c1d2e443db701eb1f9aa0d3",
+                "shasum": ""
+            },
+            "require": {
+                "ext-fileinfo": "*",
+                "php": "^7.2 || ^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.18",
+                "phpstan/phpstan": "^0.12.68",
+                "phpunit/phpunit": "^8.5.8 || ^9.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "League\\MimeTypeDetection\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Frank de Jonge",
+                    "email": "info@frankdejonge.nl"
+                }
+            ],
+            "description": "Mime-type detection for Flysystem",
+            "support": {
+                "issues": "https://github.com/thephpleague/mime-type-detection/issues",
+                "source": "https://github.com/thephpleague/mime-type-detection/tree/1.7.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/frankdejonge",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/league/flysystem",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2021-01-18T20:58:21+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -2138,16 +2200,16 @@
         },
         {
             "name": "symfony/config",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "2803882bb10353d277d4539635dd688a053d571c"
+                "reference": "1cb26cdb8a9834d8494cadd284602fa0647b73e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/2803882bb10353d277d4539635dd688a053d571c",
-                "reference": "2803882bb10353d277d4539635dd688a053d571c",
+                "url": "https://api.github.com/repos/symfony/config/zipball/1cb26cdb8a9834d8494cadd284602fa0647b73e5",
+                "reference": "1cb26cdb8a9834d8494cadd284602fa0647b73e5",
                 "shasum": ""
             },
             "require": {
@@ -2195,7 +2257,7 @@
             "description": "Helps you find, load, combine, autofill and validate configuration values of any kind",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/config/tree/v4.4.25"
+                "source": "https://github.com/symfony/config/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -2211,20 +2273,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T11:20:16+00:00"
+            "time": "2021-06-21T14:51:25+00:00"
         },
         {
             "name": "symfony/console",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "a62acecdf5b50e314a4f305cd01b5282126f3095"
+                "reference": "9aa1eb46c1b12fada74dc0c529e93d1ccef22576"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/a62acecdf5b50e314a4f305cd01b5282126f3095",
-                "reference": "a62acecdf5b50e314a4f305cd01b5282126f3095",
+                "url": "https://api.github.com/repos/symfony/console/zipball/9aa1eb46c1b12fada74dc0c529e93d1ccef22576",
+                "reference": "9aa1eb46c1b12fada74dc0c529e93d1ccef22576",
                 "shasum": ""
             },
             "require": {
@@ -2284,7 +2346,7 @@
             "description": "Eases the creation of beautiful and testable command line interfaces",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/console/tree/v4.4.25"
+                "source": "https://github.com/symfony/console/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -2300,7 +2362,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T11:20:16+00:00"
+            "time": "2021-06-06T09:12:27+00:00"
         },
         {
             "name": "symfony/debug",
@@ -2373,16 +2435,16 @@
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dependency-injection.git",
-                "reference": "2ed2a0a6c960bf4e2e862ec77b2f2c558b83c64d"
+                "reference": "a944d2f8e903dc99f5f1baf3eb74081352f0067f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/2ed2a0a6c960bf4e2e862ec77b2f2c558b83c64d",
-                "reference": "2ed2a0a6c960bf4e2e862ec77b2f2c558b83c64d",
+                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/a944d2f8e903dc99f5f1baf3eb74081352f0067f",
+                "reference": "a944d2f8e903dc99f5f1baf3eb74081352f0067f",
                 "shasum": ""
             },
             "require": {
@@ -2438,7 +2500,7 @@
             "description": "Allows you to standardize and centralize the way objects are constructed in your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/dependency-injection/tree/v4.4.25"
+                "source": "https://github.com/symfony/dependency-injection/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -2454,7 +2516,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T17:54:16+00:00"
+            "time": "2021-06-24T08:08:16+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -2620,16 +2682,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "2d926ebd76f52352deb3c9577d8c1d4b96eae429"
+                "reference": "a501126eb6ec9288a3434af01b3d4499ec1268a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/2d926ebd76f52352deb3c9577d8c1d4b96eae429",
-                "reference": "2d926ebd76f52352deb3c9577d8c1d4b96eae429",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/a501126eb6ec9288a3434af01b3d4499ec1268a0",
+                "reference": "a501126eb6ec9288a3434af01b3d4499ec1268a0",
                 "shasum": ""
             },
             "require": {
@@ -2662,7 +2724,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v4.4.25"
+                "source": "https://github.com/symfony/filesystem/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -2678,7 +2740,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T17:30:55+00:00"
+            "time": "2021-06-30T07:12:23+00:00"
         },
         {
             "name": "symfony/finder",
@@ -3143,16 +3205,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "cd61e6dd273975c6625316de9d141ebd197f93c9"
+                "reference": "7e812c84c3f2dba173d311de6e510edf701685a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/cd61e6dd273975c6625316de9d141ebd197f93c9",
-                "reference": "cd61e6dd273975c6625316de9d141ebd197f93c9",
+                "url": "https://api.github.com/repos/symfony/process/zipball/7e812c84c3f2dba173d311de6e510edf701685a8",
+                "reference": "7e812c84c3f2dba173d311de6e510edf701685a8",
                 "shasum": ""
             },
             "require": {
@@ -3184,7 +3246,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v4.4.25"
+                "source": "https://github.com/symfony/process/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -3200,7 +3262,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T11:20:16+00:00"
+            "time": "2021-06-09T14:57:04+00:00"
         },
         {
             "name": "symfony/serializer",
@@ -3365,16 +3427,16 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "dfe132c5c6d89f90ce7f961742cc532e9ca16dd4"
+                "reference": "2f7fa60b8d10ca71c30dc46b0870143183a8f131"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/dfe132c5c6d89f90ce7f961742cc532e9ca16dd4",
-                "reference": "dfe132c5c6d89f90ce7f961742cc532e9ca16dd4",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/2f7fa60b8d10ca71c30dc46b0870143183a8f131",
+                "reference": "2f7fa60b8d10ca71c30dc46b0870143183a8f131",
                 "shasum": ""
             },
             "require": {
@@ -3433,7 +3495,7 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/translation/tree/v4.4.25"
+                "source": "https://github.com/symfony/translation/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -3449,7 +3511,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T17:39:37+00:00"
+            "time": "2021-06-06T08:51:46+00:00"
         },
         {
             "name": "symfony/translation-contracts",
@@ -3531,16 +3593,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v4.4.25",
+            "version": "v4.4.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "81cdac5536925c1c4b7b50aabc9ff6330b9eb5fc"
+                "reference": "e096ef4b4c4c9a2f72c2ac660f54352cd31c60f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/81cdac5536925c1c4b7b50aabc9ff6330b9eb5fc",
-                "reference": "81cdac5536925c1c4b7b50aabc9ff6330b9eb5fc",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/e096ef4b4c4c9a2f72c2ac660f54352cd31c60f8",
+                "reference": "e096ef4b4c4c9a2f72c2ac660f54352cd31c60f8",
                 "shasum": ""
             },
             "require": {
@@ -3582,7 +3644,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v4.4.25"
+                "source": "https://github.com/symfony/yaml/tree/v4.4.26"
             },
             "funding": [
                 {
@@ -3598,7 +3660,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-26T17:39:37+00:00"
+            "time": "2021-06-23T19:06:53+00:00"
         },
         {
             "name": "webmozart/assert",
