@@ -75,11 +75,15 @@ class Runner {
 			if ( 0 === $launch->return_code ) {
 				$nginx_proxy = trim( $launch->stdout );
 			}
+			define( 'EE_PROXY_TYPE', $nginx_proxy );
 
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}
-		define( 'EE_PROXY_TYPE', $nginx_proxy );
+
+		if ( ! defined( 'EE_PROXY_TYPE' ) ) {
+			define('EE_PROXY_TYPE', $nginx_proxy);
+		}
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
 			$this->maybe_trigger_migration();
