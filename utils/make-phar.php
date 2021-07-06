@@ -75,7 +75,7 @@ function add_file( $phar, $path ) {
 				$strips = array(
 					'\/(?:behat|gherkin)\/src\/',
 					'\/phpunit\/',
-					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer)',
+					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer|service-contracts)',
 					'\/composer\/spdx-licenses\/',
 					'\/Composer\/(?:Command\/|Compiler\.php|Console\/|Downloader\/Pear|Installer\/Pear|Question\/|Repository\/Pear|SelfUpdate\/)',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
@@ -206,6 +206,7 @@ if ( 'cli' === BUILD ) {
 		->in(EE_VENDOR_DIR . '/symfony/filesystem')
 		->in(EE_VENDOR_DIR . '/symfony/process')
 		->in(EE_VENDOR_DIR . '/symfony/serializer')
+		->in(EE_VENDOR_DIR . '/symfony/service-contracts')
 		->in(EE_VENDOR_DIR . '/justinrainbow/json-schema')
 		->exclude('demo')
 		->exclude('nb/oxymel/OxymelTest.php')
