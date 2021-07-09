@@ -13,8 +13,9 @@ if ( file_exists( EE_ROOT . '/vendor/autoload.php' ) ) {
 	exit(1);
 }
 
-require EE_VENDOR_DIR . '/autoload.php';
+define( 'EE_ROOT_DIR', '/opt/easyengine' );
 require EE_ROOT . '/php/utils.php';
+require EE_VENDOR_DIR . '/autoload.php';
 
 use EE\Configurator;
 use EE\Utils;
@@ -74,7 +75,7 @@ function add_file( $phar, $path ) {
 				$strips = array(
 					'\/(?:behat|gherkin)\/src\/',
 					'\/phpunit\/',
-					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer)[^\/]+\/',
+					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer|service-contracts)',
 					'\/composer\/spdx-licenses\/',
 					'\/Composer\/(?:Command\/|Compiler\.php|Console\/|Downloader\/Pear|Installer\/Pear|Question\/|Repository\/Pear|SelfUpdate\/)',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
@@ -164,6 +165,7 @@ $finder
 	->in(EE_ROOT . '/migrations')
 	->in(EE_VENDOR_DIR . '/mustache')
 	->in(EE_VENDOR_DIR . '/rmccue/requests')
+	->in(EE_VENDOR_DIR . '/react')
 	->in(EE_VENDOR_DIR . '/composer')
 	->in(EE_VENDOR_DIR . '/cloudflare')
 	->in(EE_VENDOR_DIR . '/symfony/finder')
@@ -204,6 +206,7 @@ if ( 'cli' === BUILD ) {
 		->in(EE_VENDOR_DIR . '/symfony/filesystem')
 		->in(EE_VENDOR_DIR . '/symfony/process')
 		->in(EE_VENDOR_DIR . '/symfony/serializer')
+		->in(EE_VENDOR_DIR . '/symfony/service-contracts')
 		->in(EE_VENDOR_DIR . '/justinrainbow/json-schema')
 		->exclude('demo')
 		->exclude('nb/oxymel/OxymelTest.php')
@@ -309,8 +312,6 @@ if ( 'cli' !== BUILD ) {
 }
 
 add_file( $phar, EE_VENDOR_DIR . '/autoload.php' );
-add_file( $phar, EE_VENDOR_DIR . '/autoload_commands.php' );
-add_file( $phar, EE_VENDOR_DIR . '/autoload_framework.php' );
 if ( 'cli' !== BUILD ) {
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/LICENSE' );
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/res/composer-schema.json' );

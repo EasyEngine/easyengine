@@ -81,11 +81,15 @@ class Runner {
 			if ( 0 === $launch->return_code ) {
 				$nginx_proxy = trim( $launch->stdout );
 			}
+			define( 'EE_PROXY_TYPE', $nginx_proxy );
 
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
 		}
-		define( 'EE_PROXY_TYPE', $nginx_proxy );
+
+		if ( ! defined( 'EE_PROXY_TYPE' ) ) {
+			define('EE_PROXY_TYPE', $nginx_proxy);
+		}
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
 			$this->maybe_trigger_migration();
@@ -544,7 +548,7 @@ class Runner {
 	}
 
 	public function init_colorization() {
-		if ( 'auto' === $this->config['color'] ) {
+		if ( ! isset( $this->config['color'] ) || 'auto' === $this->config['color'] ) {
 			$this->colorize = ( ! \EE\Utils\isPiped() && ! \EE\Utils\is_windows() );
 		} else {
 			$this->colorize = $this->config['color'];
@@ -552,7 +556,7 @@ class Runner {
 	}
 
 	public function init_logger() {
-		if ( $this->config['quiet'] ) {
+		if ( isset( $this->config['quiet'] ) && $this->config['quiet'] ) {
 			$logger = new \EE\Loggers\Quiet;
 		} else {
 			$logger = new \EE\Loggers\Regular( $this->in_color() );

@@ -2,6 +2,8 @@
 
 namespace EE\Bootstrap;
 
+use EE;
+
 /**
  * Class IncludeFallbackAutoloader.
  *
@@ -29,6 +31,14 @@ final class IncludeFallbackAutoloader extends AutoloaderStep {
 				EE_ROOT . '/../../../' . $custom_vendor . '/autoload.php'
 			);
 		}
+
+		EE::debug(
+			sprintf(
+				'Fallback autoloader paths: %s',
+				implode( ', ', $autoloader_paths )
+			),
+			'bootstrap'
+		);
 
 		return $autoloader_paths;
 	}
