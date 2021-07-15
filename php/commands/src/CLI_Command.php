@@ -506,7 +506,7 @@ class CLI_Command extends EE_Command {
 		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
 
 		EE::exec( 'docker rm -f $(docker ps -aqf label=org.label-schema.vendor="EasyEngine")' );
-		EE::exec( 'docker network prune -f $(docker network ls -f "label=org.label-schema.vendor=EasyEngine")' );
+		EE::exec( 'docker network rm $(docker network ls -f "label=org.label-schema.vendor=EasyEngine" --format="{{.Name}}")' );
 		EE::exec( 'docker volume rm -f $(docker volume ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 		EE::exec( 'docker image rm $(docker image ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 
