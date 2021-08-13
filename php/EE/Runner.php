@@ -72,17 +72,13 @@ class Runner {
 		$nginx_proxy = 'services_global-nginx-proxy_1';
 		if ( $check_requirements ) {
 			$launch = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
-			if ( 0 === $launch->return_code ) {
+			if ( 0 === $launch->return_code && ! defined( 'EE_PROXY_TYPE' ) ) {
 				$nginx_proxy = trim( $launch->stdout );
+				define( 'EE_PROXY_TYPE', $nginx_proxy );
 			}
-			define( 'EE_PROXY_TYPE', $nginx_proxy );
 
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
-		}
-
-		if ( ! defined( 'EE_PROXY_TYPE' ) ) {
-			define('EE_PROXY_TYPE', $nginx_proxy);
 		}
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
