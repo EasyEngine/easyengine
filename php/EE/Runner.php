@@ -81,6 +81,10 @@ class Runner {
 			$this->maybe_trigger_migration();
 		}
 
+		if (! defined( 'EE_PROXY_TYPE' ) ) {
+			define( 'EE_PROXY_TYPE', $nginx_proxy);
+		}
+
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
 			$this->maybe_trigger_migration();
 		}
