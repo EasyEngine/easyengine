@@ -81,7 +81,7 @@ class Runner {
 			$this->maybe_trigger_migration();
 		}
 
-		if (! defined( 'EE_PROXY_TYPE' ) ) {
+		if ( ! defined( 'EE_PROXY_TYPE' ) ) {
 			define( 'EE_PROXY_TYPE', $nginx_proxy);
 		}
 
