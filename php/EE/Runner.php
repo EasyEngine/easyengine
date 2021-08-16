@@ -875,6 +875,7 @@ class Runner {
 		 * in migration file does not trigget migration again.
 		 */
 		if ( $cache->read('migration_running' ) ) {
+			EE::log( 'Not triggering migrations since they seems to already been running.' );
 			return;
 		}
 
