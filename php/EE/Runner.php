@@ -874,7 +874,7 @@ class Runner {
 		 * Below condition ensures that running EE::launch() or runcommand()
 		 * in migration file does not trigget migration again.
 		 */
-		if ( $cache->read('migration_running' ) ) {
+		if ( $cache->read( 'migration_running' ) ) {
 			EE::debug( 'Not triggering migrations since they seems to already been running.' );
 			return;
 		}
