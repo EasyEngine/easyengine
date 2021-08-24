@@ -1744,9 +1744,17 @@ function random_name_generator() {
  */
 function get_value_if_flag_isset( $assoc_args, $flag, $default_value = '' ) {
 
-	$value = get_flag_value( $assoc_args, $flag );
+	$flag_value = get_flag_value( $assoc_args, $flag );
+	$value      = '';
 
-	return $value === true ? $default_value : $value;
+	if ( isset( $flag_value ) ) {
+		/**
+		 * Set default flag value if flag is passed without value.
+		 */
+		$value = ( ! empty( $default_value ) && ( empty( $flag_value ) || true === $flag_value ) ) ? $default_value : $flag_value;
+	}
+
+	return $value;
 }
 
 /**
