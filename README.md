@@ -1,8 +1,7 @@
 
 <img src="https://i2.wp.com/easyengine.io/wp-content/uploads/sites/20/2019/06/EasyEngine-New-Logo-Banner@2x-Transparent-Background.png?fit=720%2C170&ssl=1" alt="EasyEngine Logo" />
 
-# EasyEngine v4
-[![Build Status](https://travis-ci.org/EasyEngine/easyengine.svg?branch=master-v4)](https://travis-ci.org/EasyEngine/easyengine) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/) [![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://packagist.org/packages/easyengine/easyengine) [![Latest Unstable Version](https://poser.pugx.org/easyengine/easyengine/v/unstable)](https://packagist.org/packages/easyengine/easyengine) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
+# EasyEngine v4 [![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/) [![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://github.com/EasyEngine/easyengine/releases) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
 
 EasyEngine makes it greatly easy to manage nginx, a fast web-server software that consumes little memory when handling increasing volumes of concurrent users.
 
