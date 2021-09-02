@@ -868,26 +868,11 @@ class Runner {
 	 */
 	private function maybe_trigger_migration() {
 
-		$cache = EE::get_cache();
-
-		/**
-		 * Below condition ensures that running EE::launch() or runcommand()
-		 * in migration file does not trigget migration again.
-		 */
-		if ( $cache->read( 'migration_running' ) ) {
-			EE::debug( 'Not triggering migrations since they seems to already been running.' );
-			return;
-		}
-
-		$cache->write( 'migration_running', true );
-
 		$db_version      = Option::get( 'version' );
 		$current_version = EE_VERSION;
 
 		if ( ! $db_version ) {
 			$this->trigger_migration( $current_version );
-			$cache->remove( 'migration_running' );
-
 			return;
 		}
 
@@ -913,8 +898,6 @@ class Runner {
 		} elseif ( false !== strpos( $current_version, 'nightly' ) ) {
 			$this->trigger_migration( $current_version );
 		}
-
-		$cache->remove( 'migration_running' );
 	}
 
 	private function trigger_migration( $version ) {
