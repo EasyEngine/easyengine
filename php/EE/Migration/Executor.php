@@ -30,7 +30,6 @@ class Executor {
 			self::execute_migration_stack( $migrations );
 		} catch ( \Throwable $e ) {
 			Utils\delem_log( 'ee migration ended abruptly' );
-			EE::get_cache()->remove( 'migration_running' );
 			exit( 1 );
 		}
 
