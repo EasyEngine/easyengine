@@ -2,7 +2,7 @@
 
 EasyEngine takes the security of our software products seriously, which includes all source code repositories managed through our GitHub organizations.
 
-If you believe you have found a security vulnerability in any EasyEngine repository, please report it to us at sys@rtcamp.com.
+If you believe you have found a security vulnerability in any EasyEngine repository, please report it to us at sys+gh@rtcamp.com.
 
 ## Reporting Security Issues
 
