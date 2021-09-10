@@ -879,7 +879,6 @@ class Runner {
 
 		if ( ! $db_version ) {
 			$this->trigger_migration( $current_version );
-
 			return;
 		}
 
