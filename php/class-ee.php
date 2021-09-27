@@ -573,6 +573,17 @@ class EE {
 	}
 
 	/**
+	 * Display notice message prefixed with "Notice: ".
+	 *
+	 * @param string $message Message to write.
+	 *
+	 * @return null
+	 */
+	public static function notice( $message ) {
+		self::$logger->notice( self::error_to_string( $message ) );
+	}
+
+	/**
 	 * Display error message prefixed with "Error: " and exit script.
 	 *
 	 * Error message is written to STDERR. Defaults to halting script execution

@@ -42,12 +42,21 @@ class Regular extends Base {
 	}
 
 	/**
-	 * Write an message to STDERR, prefixed with "Error: ".
+	 * Write a message to STDERR, prefixed with "Error: ".
 	 *
 	 * @param string $message Message to write.
 	 */
 	public function error( $message ) {
 		$this->_line( $message, 'Error', '%R', STDERR );
+	}
+
+	/**
+	 * Write a message, prefixed with "Notice: ".
+	 *
+	 * @param string $message Message to write.
+	 */
+	public function notice( $message ) {
+		$this->_line( $message, 'Notice', '%y' );
 	}
 
 	/**

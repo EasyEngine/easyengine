@@ -785,7 +785,7 @@ class Runner {
 				( 'create' === $this->arguments[1] ? 'add' : 'remove' )
 			);
 
-			EE::warning( $deprecation_warn );
+			EE::notice( $deprecation_warn );
 		}
 
 		// Protect 'cli info' from most of the runtime,
