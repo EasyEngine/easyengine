@@ -780,7 +780,7 @@ class Runner {
 		// Print a deprecation warning if 'create' or 'delete' is being used (ee auth).
 		if ( 'auth' === $this->arguments[0] && ( 'create' === $this->arguments[1] || 'delete' === $this->arguments[1] ) ) {
 			$deprecation_warn = sprintf(
-				'`%1$s` is deprecated and will be replaced with `%2$s` instead. See: `ee auth %2$s`',
+				'`%1$s` is deprecated and will be replaced with `%2$s`. See: `ee auth %2$s`',
 				$this->arguments[1],
 				( 'create' === $this->arguments[1] ? 'add' : 'remove' )
 			);
