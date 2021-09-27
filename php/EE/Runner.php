@@ -777,6 +777,17 @@ class Runner {
 			$this->arguments[] = 'help';
 		}
 
+		// Print a deprecation warning if 'create' or 'delete' is being used (ee auth).
+		if ( 'auth' === $this->arguments[0] && ( 'create' === $this->arguments[1] || 'delete' === $this->arguments[1] ) ) {
+			$deprecation_warn = sprintf(
+				'`%1$s` is deprecated and will be replaced with `%2$s` instead. See: `ee auth %2$s`',
+				$this->arguments[1],
+				( 'create' === $this->arguments[1] ? 'add' : 'remove' )
+			);
+
+			EE::warning( $deprecation_warn );
+		}
+
 		// Protect 'cli info' from most of the runtime,
 		// except when the command will be run over SSH
 		if ( ! empty( $this->arguments[0] ) && 'cli' === $this->arguments[0] && ! empty( $this->arguments[1] ) && 'info' === $this->arguments[1] ) {
