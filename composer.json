@@ -25,7 +25,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0",
-        "composer/composer": "2.0.13",
+        "composer/composer": "2.1.9",
         "composer/semver": "3.2.4",
         "easyengine/admin-tools-command": "v1.1.0",
         "easyengine/auth-command": "v1.1.0",
