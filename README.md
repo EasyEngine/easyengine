@@ -18,7 +18,7 @@ EasyEngine makes it greatly easy to manage nginx, a fast web-server software tha
 
 ### Linux
 
-For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04 and Debian 8, Debian 10.
+For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04, 20.04 and Debian 8, Debian 10.
 
 ```bash
 wget -qO ee https://rt.cx/ee4 && sudo bash ee
