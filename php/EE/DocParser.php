@@ -163,7 +163,7 @@ class DocParser {
 	 * @return mixed|null
 	 */
 	public function get_param_args( $key ) {
-		return $this->get_arg_or_param_args( "/^\[?--{$key}=.*/" );
+		return $this->get_arg_or_param_args( "/^\[?--{$key}\[?=.*/" );
 	}
 
 	/**
