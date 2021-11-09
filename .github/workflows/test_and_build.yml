@@ -48,7 +48,7 @@ jobs:
               composer install --no-dev --no-progress --no-interaction
           else
               sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
-              composer update --prefer-dist --no-progress --no-interaction
+              composer update --prefer-dist --no-dev --no-progress --no-interaction
           fi
 
       - name: Setup EE version
