@@ -68,14 +68,14 @@ function add_file( $phar, $path ) {
 					'\/nb\/oxymel\/',
 					'-command\/src\/',
 					'\/ee\/[^\n]+?-command\/',
-					'\/symfony\/(?!finder|polyfill-mbstring)[^\/]+\/',
+					'\/symfony\/(?!finder|polyfill-mbstring|polyfill-ctype|polyfill-php81|polyfill-php80|polyfill-php73)[^\/]+\/',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
 				);
 			} else {
 				$strips = array(
 					'\/(?:behat|gherkin)\/src\/',
 					'\/phpunit\/',
-					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|process|serializer|service-contracts)',
+					'\/symfony\/(?!console|filesystem|finder|polyfill-mbstring|polyfill-ctype|polyfill-php81|polyfill-php80|polyfill-php73|process|serializer|service-contracts)',
 					'\/composer\/spdx-licenses\/',
 					'\/Composer\/(?:Command\/|Compiler\.php|Console\/|Downloader\/Pear|Installer\/Pear|Question\/|Repository\/Pear|SelfUpdate\/)',
 					'\/(?:dealerdirect|squizlabs|wimg)\/',
