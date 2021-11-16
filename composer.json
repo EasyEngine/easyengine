@@ -33,7 +33,7 @@
         "easyengine/cron-command": "v1.2.0",
         "easyengine/log-command": "v1.1.0",
         "easyengine/mailhog-command": "v1.0.2",
-        "easyengine/service-command": "v1.3.1",
+        "easyengine/service-command": "v1.3.2",
         "easyengine/shell-command": "v1.1.0",
         "easyengine/site-command": "v2.9.2",
         "easyengine/site-type-php": "v1.6.1",

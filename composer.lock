@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "14abf4745d2516f7624b72dbe2093986",
+    "content-hash": "82fc57d7eed8b00ab10b80efe59948da",
     "packages": [
         {
             "name": "acmephp/core",
@@ -948,16 +948,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.3.1",
+            "version": "v1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "8ec16fe747c43948c72fd385efbf6c514da66ea4"
+                "reference": "39a00f33f1c8ba4ca05137b9e1ebbbdeb9e17c4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/8ec16fe747c43948c72fd385efbf6c514da66ea4",
-                "reference": "8ec16fe747c43948c72fd385efbf6c514da66ea4",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/39a00f33f1c8ba4ca05137b9e1ebbbdeb9e17c4a",
+                "reference": "39a00f33f1c8ba4ca05137b9e1ebbbdeb9e17c4a",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -991,9 +991,9 @@
             "homepage": "https://github.com/easyengine/service-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/service-command/issues",
-                "source": "https://github.com/EasyEngine/service-command/tree/v1.3.1"
+                "source": "https://github.com/EasyEngine/service-command/tree/v1.3.2"
             },
-            "time": "2021-11-16T08:30:54+00:00"
+            "time": "2021-11-16T16:45:59+00:00"
         },
         {
             "name": "easyengine/shell-command",
