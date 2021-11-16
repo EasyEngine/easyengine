@@ -12,6 +12,6 @@
     "easyengine/php7.4": "v4.3.0",
     "easyengine/php8.0": "v4.3.0",
     "easyengine/postfix": "v4.1.5",
-    "easyengine/redis": "v4.3.0",
+    "easyengine/redis": "v4.4.3",
     "easyengine/newrelic-daemon": "v4.3.0"
 }
