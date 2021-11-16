@@ -164,8 +164,10 @@ class GlobalContainers {
 		}
 
 		$command = \EE_DOCKER::docker_compose_with_custom() . ' --project-name=ee down';
-		if ( ! EE::exec( $command ) ) {
-			throw new \Exception( 'Unable to remove support container.' );
-		}
+		/**
+		 * Return code can be 1 due to error in removing network. This is expected.
+		 * TODO: Get a fix for global network / make them external so that the return code is not 1. 
+		 */
+		EE::exec( $command );
 	}
 }
