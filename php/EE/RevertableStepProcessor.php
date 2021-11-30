@@ -75,6 +75,10 @@ class RevertableStepProcessor {
 	 */
 	public function rollback() {
 		while ( $this->execution_index >= 0 ) {
+			if ( ! array_key_exists( $this->execution_index, $this->steps ) ) {
+				$this->execution_index--;
+				continue;
+			}
 			$step    = $this->steps[ $this->execution_index ];
 			$context = $step['context'];
 			try {
