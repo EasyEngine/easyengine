@@ -46,7 +46,7 @@ class RevertableStepProcessor {
 	 *
 	 * @return boolean Returns if the pending steps were executed successfully.
 	 */
-	public function execute() {
+	public function execute( $show_error = true ) {
 		$steps_to_execute = array_slice( $this->steps, $this->execution_index );
 
 		foreach ( $steps_to_execute as $step ) {
@@ -59,7 +59,9 @@ class RevertableStepProcessor {
 			} catch ( \Exception $e ) {
 				$exception_message = $e->getMessage();
 				$callable          = EE\Utils\get_callable_name( $step['up'] );
-				EE::error( "Encountered error while processing $context in $callable. Exception: $exception_message", false );
+				if ( $show_error ) {
+					EE::error( "Error while executing $context. $callable: $exception_message", false );
+				}
 				$this->rollback();
 				$this->steps = [];
 
