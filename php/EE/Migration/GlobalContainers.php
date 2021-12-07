@@ -129,12 +129,8 @@ class GlobalContainers {
 	 */
 	public static function get_all_global_images_with_service_name() {
 
-		$launch = EE::launch( sprintf( 'docker ps -f "id=%s" --format={{.Names}}', EE_PROXY_TYPE ) );
-		if ( 0 === $launch->return_code ) {
-			$nginx_proxy = trim( $launch->stdout );
-		}
 		return [
-			'easyengine/nginx-proxy' => $nginx_proxy,
+			'easyengine/nginx-proxy' => GLOBAL_PROXY_CONTAINER,
 			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
 			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
