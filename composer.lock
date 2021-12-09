@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "973006f55bac770ec1d994f862ef70c9",
+    "content-hash": "566f93153ed8fcbc90108a462c8a60f1",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1115,16 +1115,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.0.1",
+            "version": "v3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "ecaba669003c7f0e6b9bfdabc5dc250469834451"
+                "reference": "d0cc3f79b79049a55ebd886d10cf096a3118f7b3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/ecaba669003c7f0e6b9bfdabc5dc250469834451",
-                "reference": "ecaba669003c7f0e6b9bfdabc5dc250469834451",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/d0cc3f79b79049a55ebd886d10cf096a3118f7b3",
+                "reference": "d0cc3f79b79049a55ebd886d10cf096a3118f7b3",
                 "shasum": ""
             },
             "require": {
@@ -1185,9 +1185,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.0.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.0.5"
             },
-            "time": "2021-12-08T16:46:35+00:00"
+            "time": "2021-12-09T07:23:35+00:00"
         },
         {
             "name": "easyengine/site-type-php",
