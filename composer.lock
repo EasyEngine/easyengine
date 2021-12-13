@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "566f93153ed8fcbc90108a462c8a60f1",
+    "content-hash": "d94f50ee9c5b930b944481aff2cabb06",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1115,16 +1115,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.0.5",
+            "version": "v3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "d0cc3f79b79049a55ebd886d10cf096a3118f7b3"
+                "reference": "80e66f28a2711bdfdc29add1db97dfb8b19a1efb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/d0cc3f79b79049a55ebd886d10cf096a3118f7b3",
-                "reference": "d0cc3f79b79049a55ebd886d10cf096a3118f7b3",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/80e66f28a2711bdfdc29add1db97dfb8b19a1efb",
+                "reference": "80e66f28a2711bdfdc29add1db97dfb8b19a1efb",
                 "shasum": ""
             },
             "require": {
@@ -1185,9 +1185,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.0.5"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.0.6"
             },
-            "time": "2021-12-09T07:23:35+00:00"
+            "time": "2021-12-13T12:58:01+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -1250,16 +1250,16 @@
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.6.1",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "e5067c54599e83a58017feb101f9d5585600899a"
+                "reference": "009e64fae3c17745aa06bd49cc443faa3a6aa414"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/e5067c54599e83a58017feb101f9d5585600899a",
-                "reference": "e5067c54599e83a58017feb101f9d5585600899a",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/009e64fae3c17745aa06bd49cc443faa3a6aa414",
+                "reference": "009e64fae3c17745aa06bd49cc443faa3a6aa414",
                 "shasum": ""
             },
             "require-dev": {
@@ -1303,9 +1303,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.6.1"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.6.2"
             },
-            "time": "2021-11-16T08:32:26+00:00"
+            "time": "2021-12-13T12:57:27+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2292,16 +2292,16 @@
         },
         {
             "name": "seld/phar-utils",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/phar-utils.git",
-                "reference": "749042a2315705d2dfbbc59234dd9ceb22bf3ff0"
+                "reference": "9f3452c93ff423469c0d56450431562ca423dcee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/phar-utils/zipball/749042a2315705d2dfbbc59234dd9ceb22bf3ff0",
-                "reference": "749042a2315705d2dfbbc59234dd9ceb22bf3ff0",
+                "url": "https://api.github.com/repos/Seldaek/phar-utils/zipball/9f3452c93ff423469c0d56450431562ca423dcee",
+                "reference": "9f3452c93ff423469c0d56450431562ca423dcee",
                 "shasum": ""
             },
             "require": {
@@ -2334,9 +2334,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/phar-utils/issues",
-                "source": "https://github.com/Seldaek/phar-utils/tree/1.1.2"
+                "source": "https://github.com/Seldaek/phar-utils/tree/1.2.0"
             },
-            "time": "2021-08-19T21:01:38+00:00"
+            "time": "2021-12-10T11:20:11+00:00"
         },
         {
             "name": "symfony/config",
@@ -4798,16 +4798,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.6.1",
+            "version": "3.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e"
+                "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f268ca40d54617c6e06757f83f699775c9b3ff2e",
-                "reference": "f268ca40d54617c6e06757f83f699775c9b3ff2e",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/5e4e71592f69da17871dba6e80dd51bce74a351a",
+                "reference": "5e4e71592f69da17871dba6e80dd51bce74a351a",
                 "shasum": ""
             },
             "require": {
@@ -4850,7 +4850,7 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
-            "time": "2021-10-11T04:00:11+00:00"
+            "time": "2021-12-12T21:44:58+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
