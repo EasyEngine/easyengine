@@ -57,7 +57,7 @@
     "require-dev": {
         "behat/behat": "3.8.1",
         "dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
-        "phpunit/phpunit": "3.7.*",
+        "phpunit/phpunit": "9.5.*",
         "phpcompatibility/php-compatibility": "8.2.0",
         "wp-coding-standards/wpcs": "0.13.1"
     },
