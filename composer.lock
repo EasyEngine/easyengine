@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69aeadb532e1666635d7167b040f9d77",
+    "content-hash": "da76fb412f02b6d13f7e8a0198feba9f",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1251,16 +1251,16 @@
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.6.6",
+            "version": "v1.6.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "d3cbd48f743fadbba081a652b2cfeb4c7c5fa4c6"
+                "reference": "7fa3c2a032154952ff6e8c8cabbb9f40e0df7759"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/d3cbd48f743fadbba081a652b2cfeb4c7c5fa4c6",
-                "reference": "d3cbd48f743fadbba081a652b2cfeb4c7c5fa4c6",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/7fa3c2a032154952ff6e8c8cabbb9f40e0df7759",
+                "reference": "7fa3c2a032154952ff6e8c8cabbb9f40e0df7759",
                 "shasum": ""
             },
             "require-dev": {
@@ -1304,9 +1304,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.6.6"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.6.7"
             },
-            "time": "2022-04-28T06:41:32+00:00"
+            "time": "2022-04-29T06:57:26+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -6474,5 +6474,5 @@
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.0.0"
 }
