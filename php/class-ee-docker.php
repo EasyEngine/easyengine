@@ -209,10 +209,12 @@ class EE_DOCKER {
 	 * @param bool   $shell_wrapper  If shell wrapper should be enabled or not.
 	 * @param bool   $exit_on_error  To exit or not on error.
 	 * @param array  $exec_obfuscate Data to be obfuscated from log.
+	 * @param bool   $echo_stdout    Output stdout of exec if true.
+	 * @param bool   $echo_stderr    Output stderr of exec if true.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_exec( $command = '', $service = '', $shell = 'sh', $user = '', $dir = '', $shell_wrapper = false, $exit_on_error = false, $exec_obfuscate = [] ) {
+	public static function docker_compose_exec( $command = '', $service = '', $shell = 'sh', $user = '', $dir = '', $shell_wrapper = false, $exit_on_error = false, $exec_obfuscate = [], $echo_stdout = false, $echo_stderr = false ) {
 
 		if ( ! empty( $dir ) ) {
 			$chdir_return_code = chdir( $dir );
@@ -231,9 +233,9 @@ class EE_DOCKER {
 			}
 
 			if ( $shell_wrapper ) {
-				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $shell -c \"$command\"", true, true, $exec_obfuscate, $exit_on_error );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $shell -c \"$command\"", $echo_stdout, $echo_stderr, $exec_obfuscate, $exit_on_error );
 			} else {
-				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $command", true, true, $exec_obfuscate, $exit_on_error );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $command", $echo_stdout, $echo_stderr, $exec_obfuscate, $exit_on_error );
 			}
 
 		}
