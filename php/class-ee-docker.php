@@ -201,17 +201,18 @@ class EE_DOCKER {
 	/**
 	 * Function to exec and run commands into the containers.
 	 *
-	 * @param string $command       Command to exec.
-	 * @param string $service       Service to exec command into.
-	 * @param string $shell         Shell in which exec command will be executed.
-	 * @param string $user          User to execute command into.
-	 * @param String $dir           Path to docker-compose.yml.
-	 * @param bool   $shell_wrapper If shell wrapper should be enabled or not.
-	 * @param bool   $exit_on_error To exit or not on error.
+	 * @param string $command        Command to exec.
+	 * @param string $service        Service to exec command into.
+	 * @param string $shell          Shell in which exec command will be executed.
+	 * @param string $user           User to execute command into.
+	 * @param String $dir            Path to docker-compose.yml.
+	 * @param bool   $shell_wrapper  If shell wrapper should be enabled or not.
+	 * @param bool   $exit_on_error  To exit or not on error.
+	 * @param array  $exec_obfuscate Data to be obfuscated from log.
 	 *
 	 * @return bool success.
 	 */
-	public static function docker_compose_exec( $command = '', $service = '', $shell = 'sh', $user = '', $dir = '', $shell_wrapper = false, $exit_on_error = false ) {
+	public static function docker_compose_exec( $command = '', $service = '', $shell = 'sh', $user = '', $dir = '', $shell_wrapper = false, $exit_on_error = false, $exec_obfuscate = [] ) {
 
 		if ( ! empty( $dir ) ) {
 			$chdir_return_code = chdir( $dir );
@@ -230,9 +231,9 @@ class EE_DOCKER {
 			}
 
 			if ( $shell_wrapper ) {
-				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $shell -c \"$command\"", true, true, [], $exit_on_error );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $shell -c \"$command\"", true, true, $exec_obfuscate, $exit_on_error );
 			} else {
-				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $command", true, true, [], $exit_on_error );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $command", true, true, $exec_obfuscate, $exit_on_error );
 			}
 
 		}
