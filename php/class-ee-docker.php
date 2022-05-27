@@ -183,7 +183,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function docker_compose_up( $dir, $services = [] ) {
-		$fs                = new Filesystem();
+
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 			if ( empty( $services ) ) {
@@ -193,6 +193,48 @@ class EE_DOCKER {
 
 				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d '. $all_services );
 			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Function to exec and run commands into the containers.
+	 *
+	 * @param string $command       Command to exec.
+	 * @param string $service       Service to exec command into.
+	 * @param string $shell         Shell in which exec command will be executed.
+	 * @param string $user          User to execute command into.
+	 * @param String $dir           Path to docker-compose.yml.
+	 * @param bool   $shell_wrapper If shell wrapper should be enabled or not.
+	 * @param bool   $exit_on_error To exit or not on error.
+	 *
+	 * @return bool success.
+	 */
+	public static function docker_compose_exec( $command = '', $service = '', $shell = 'sh', $user = '', $dir = '', $shell_wrapper = false, $exit_on_error = false ) {
+
+		if ( ! empty( $dir ) ) {
+			$chdir_return_code = chdir( $dir );
+		} else {
+			$chdir_return_code = true;
+		}
+
+		$skip_tty = \EE::get_runner()->config['skip-tty'];
+		$tty      = empty( $skip_tty ) ? '' : '-T';
+
+		if ( $chdir_return_code ) {
+
+			$user_string = '';
+			if ( $user ) {
+				$user_string = empty( $user ) ? '' : "--user='$user'";
+			}
+
+			if ( $shell_wrapper ) {
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $shell -c \"$command\"", true, true, [], $exit_on_error );
+			} else {
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . " exec $tty $user_string $service $command", true, true, [], $exit_on_error );
+			}
+
 		}
 
 		return false;
