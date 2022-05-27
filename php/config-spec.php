@@ -52,6 +52,13 @@ return array(
 		'desc' => 'Whether to add sysctl config in docker-compose.',
 	),
 
+	'skip-tty' => array(
+		'runtime' => '=<true/false>',
+		'file' => '<bool>',
+		'default' => false,
+		'desc' => 'Skip tty allocation for remote command execution.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,
