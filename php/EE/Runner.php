@@ -69,20 +69,10 @@ class Runner {
 			$check_requirements = ( [ 'site', 'cmd-dump' ] === $this->arguments ) ? false : $check_requirements;
 		}
 
-		$nginx_proxy = 'services_global-nginx-proxy_1';
+		define( 'EE_PROXY_TYPE', 'services_global-nginx-proxy_1' );
 		if ( $check_requirements ) {
-			$launch = EE::launch( sprintf( 'cd %s && docker ps -q --no-trunc | grep $(docker-compose ps -q global-nginx-proxy)', EE_SERVICE_DIR ) );
-			if ( 0 === $launch->return_code ) {
-				$nginx_proxy = trim( $launch->stdout );
-			}
-			define( 'EE_PROXY_TYPE', $nginx_proxy );
-
 			$this->check_requirements();
 			$this->maybe_trigger_migration();
-		}
-
-		if ( ! defined( 'EE_PROXY_TYPE' ) ) {
-			define('EE_PROXY_TYPE', $nginx_proxy);
 		}
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
@@ -873,6 +863,17 @@ class Runner {
 
 		if ( ! $db_version ) {
 			$this->trigger_migration( $current_version );
+			EE::log( 'ee successfully setup.' );
+			if ( IS_DARWIN ) {
+				EE::log( 'To create more than 27 sites follow these steps manually: ' . "\n" .
+				'1. Please open Docker Desktop and in taskbar, go to Preferences > Daemon > Advanced. ' . "\n" .
+				'2. If the file is empty, add the following:' . "\n" .
+				'	{' . "\n" .
+					'"default-address-pools": [{"base":"10.0.0.0/8","size":24}]' . "\n" .
+				'	}' . "\n" .
+				'If the file already contains JSON, just add the key "default-address-pools": [{"base":"10.0.0.0/8","size":24}] being careful to add a comma to the end of the line if it is not the last line before the closing bracket.' . "\n" .
+				'3. Restart Docker' );
+			}
 			return;
 		}
 

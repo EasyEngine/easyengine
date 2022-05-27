@@ -48,7 +48,7 @@ jobs:
               composer install --no-dev --no-progress --no-interaction
           else
               sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
-              composer update --prefer-dist --no-progress --no-interaction
+              composer update --prefer-dist --no-dev --no-progress --no-interaction
           fi
 
       - name: Setup EE version
@@ -90,7 +90,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4', '8.0']
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1']
     steps:
     - name: Check out source code
       uses: actions/checkout@v2
@@ -125,11 +125,8 @@ jobs:
 
     - name: Install docker-compose
       run: |
-        VERSION=$(curl --silent "https://api.github.com/repos/docker/compose/releases/latest" |
-          grep '"tag_name":' |
-          sed -E 's/.*"([^"]+)".*/\1/'
-        )
-        sudo curl -L "https://github.com/docker/compose/releases/download/$VERSION/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
 
     - name: Install dependencies
       run: |

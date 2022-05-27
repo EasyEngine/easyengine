@@ -129,12 +129,8 @@ class GlobalContainers {
 	 */
 	public static function get_all_global_images_with_service_name() {
 
-		$launch = EE::launch( sprintf( 'docker ps -f "id=%s" --format={{.Names}}', EE_PROXY_TYPE ) );
-		if ( 0 === $launch->return_code ) {
-			$nginx_proxy = trim( $launch->stdout );
-		}
 		return [
-			'easyengine/nginx-proxy' => $nginx_proxy,
+			'easyengine/nginx-proxy' => GLOBAL_PROXY_CONTAINER,
 			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
 			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
@@ -164,8 +160,10 @@ class GlobalContainers {
 		}
 
 		$command = \EE_DOCKER::docker_compose_with_custom() . ' --project-name=ee down';
-		if ( ! EE::exec( $command ) ) {
-			throw new \Exception( 'Unable to remove support container.' );
-		}
+		/**
+		 * Return code can be 1 due to error in removing network. This is expected.
+		 * TODO: Get a fix for global network / make them external so that the return code is not 1. 
+		 */
+		EE::exec( $command );
 	}
 }

@@ -34,6 +34,7 @@ class Containers {
 			'easyengine/php7.3',
 			'easyengine/php7.4',
 			'easyengine/php8.0',
+			'easyengine/php8.1',
 			'easyengine/newrelic-daemon',
 		];
 

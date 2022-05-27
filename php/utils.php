@@ -1737,13 +1737,12 @@ function random_name_generator() {
 /**
  * @param array  $assoc_args            Arguments array.
  * @param string $flag                  Flag to get the value.
- * @param array  $supported_flag_values array of supported flag values.
  * @param string $default_value         default flag value if flag is passed without value.
  *
  * @return string
  * @throws EE\ExitException
  */
-function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [], $default_value = '' ) {
+function get_value_if_flag_isset( $assoc_args, $flag, $default_value = '' ) {
 
 	$flag_value = get_flag_value( $assoc_args, $flag );
 	$value      = '';
@@ -1752,14 +1751,9 @@ function get_value_if_flag_isset( $assoc_args, $flag, $supported_flag_values = [
 		/**
 		 * Set default flag value if flag is passed without value.
 		 */
-		$value = ( empty( $flag_value ) || true === $flag_value ) ? $default_value : $flag_value;
-
-		if ( empty( $value ) ) {
-			return $value;
-		} elseif ( ! in_array( $value, $supported_flag_values, true ) ) {
-			EE::error( sprintf( 'Invalid flag value passed %s', $value ) );
-		}
+		$value = ( ! empty( $default_value ) && ( empty( $flag_value ) || true === $flag_value ) ) ? $default_value : $flag_value;
 	}
+
 	return $value;
 }
 

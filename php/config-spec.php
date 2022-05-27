@@ -31,6 +31,13 @@ return array(
 		'desc'    => 'Mail-id to be used for letsencrypt.',
 	),
 
+	'env' => array(
+		'runtime' => '=<env>',
+		'file'    => '<env>',
+		'default' => null,
+		'desc'    => 'EasyEngine server environment.',
+	),
+
 	'wp-mail' => array(
 		'runtime' => '=<wp-mail>',
 		'file'    => '<wp-mail>',
@@ -43,6 +50,13 @@ return array(
 		'file' => '<sysctl>',
 		'default' => false,
 		'desc' => 'Whether to add sysctl config in docker-compose.',
+	),
+
+	'skip-tty' => array(
+		'runtime' => '=<true/false>',
+		'file' => '<bool>',
+		'default' => false,
+		'desc' => 'Skip tty allocation for remote command execution.',
 	),
 
 	'ee_installer_version' => array(
