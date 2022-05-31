@@ -18,7 +18,7 @@ EasyEngine makes it greatly easy to manage nginx, a fast web-server software tha
 
 ### Linux
 
-For Linux, we have created an installer script which will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04, 20.04 and Debian 8, Debian 10.
+For Linux, we have created an installer script that will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04, 20.04 and Debian 8, Debian 10.
 
 ```bash
 wget -qO ee https://rt.cx/ee4 && sudo bash ee
@@ -92,15 +92,15 @@ Development of easyengine is done entirely on GitHub.
 
 We've used [wp-cli](https://github.com/wp-cli/wp-cli/) framework as a base and built EasyEngine on top of it.
 
-This repo contains main core of easyengine (the framework).
+This repo contains the main core of easyengine (the framework).
 All top level commands(except `ee cli`) i.e. `ee site`, `ee shell` have their own repos.
 
-Currently we have following commands which are bundled by default in EasyEngine:
+Currently, we have the following commands which are bundled by default in EasyEngine:
 
 * [site command](https://github.com/EasyEngine/site-command/)
 * [shell command](https://github.com/EasyEngine/shell-command/)
 
-In future, community will be able to make their own packages and commands!
+In future, the community will be able to make their own packages and commands!
 
 ## Contributing
 
