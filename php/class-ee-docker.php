@@ -8,21 +8,52 @@ class EE_DOCKER {
 	 * Function to return docker-compose command with custom docker-compose files
 	 *
 	 * @param array $files_before_custom Files to be included before custom compose file is included
+	 *
 	 * @return string
 	 */
-	public static function docker_compose_with_custom( array $files_before_custom = [] ) : string {
+	public static function docker_compose_with_custom( array $files_before_custom = [] ): string {
+
 		$fs = new Filesystem();
 
-		$command = 'docker-compose -f docker-compose.yml';
+		$command = 'docker-compose -f ';
 
-		foreach ( $files_before_custom as $file ) {
-			if ( $fs->exists( $file ) ) {
-				$command .= ' -f ' . $file ;
+		$cusotm_compose = \EE::get_runner()->config['custom-compose'];
+
+		if ( ! empty( $cusotm_compose ) ) {
+			$cusotm_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $cusotm_compose;
+			if ( SITE_CUSTOM_DOCKER_COMPOSE === $cusotm_compose ) {
+				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
+					$cusotm_compose_path = SITE_CUSTOM_DOCKER_COMPOSE;
+				}
 			}
-		}
+			if ( $fs->exists( $cusotm_compose_path ) ) {
+				$command .= $cusotm_compose_path;
+			} else {
+				EE::warning( 'File: ' . $cusotm_compose_path . ' does not exist. Falling back to default compose file.' );
+				$command .= 'docker-compose.yml';
+			}
+		} else {
+			$command .= 'docker-compose.yml';
 
-		if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
-			$command .= ' -f ' . SITE_CUSTOM_DOCKER_COMPOSE ;
+			if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE_DIR ) ) {
+				$cusotm_compose_files = array_diff( scandir( SITE_CUSTOM_DOCKER_COMPOSE_DIR ), [ '.', '..' ] );
+				$cusotm_compose_files = array_map( function ( $arrayValues ) {
+
+					return SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $arrayValues;
+				}, $cusotm_compose_files );
+
+				$files_before_custom = array_unique( array_merge( $files_before_custom, $cusotm_compose_files ) );
+			}
+
+			foreach ( $files_before_custom as $file ) {
+				if ( $fs->exists( $file ) ) {
+					$command .= ' -f ' . $file;
+				}
+			}
+
+			if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
+				$command .= ' -f ' . SITE_CUSTOM_DOCKER_COMPOSE;
+			}
 		}
 
 		return $command;
@@ -37,6 +68,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function boot_container( $container, $command = '' ) {
+
 		$status = self::container_status( $container );
 		if ( $status ) {
 			if ( 'exited' === $status ) {
@@ -50,6 +82,7 @@ class EE_DOCKER {
 	}
 
 	public static function container_status( $container ) {
+
 		$exec_command = 'which docker';
 		exec( $exec_command, $out, $ret );
 		EE::debug( 'COMMAND: ' . $exec_command );
@@ -77,6 +110,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function start_container( $container ) {
+
 		return EE::exec( "docker start $container" );
 	}
 
@@ -88,6 +122,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function stop_container( $container ) {
+
 		return EE::exec( "docker stop $container" );
 	}
 
@@ -99,6 +134,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function restart_container( $container ) {
+
 		return EE::exec( "docker restart $container" );
 	}
 
@@ -110,6 +146,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function create_network( $name ) {
+
 		return EE::exec( "docker network create $name --label=org.label-schema.vendor=\"EasyEngine\" " );
 	}
 
@@ -122,6 +159,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function connect_network( $name, $connect_to ) {
+
 		return EE::exec( "docker network connect $name $connect_to" );
 	}
 
@@ -133,6 +171,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function rm_network( $name ) {
+
 		return EE::exec( "docker network rm $name" );
 	}
 
@@ -145,6 +184,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function disconnect_network( $name, $connected_to ) {
+
 		return EE::exec( "docker network disconnect $name $connected_to" );
 	}
 
@@ -177,8 +217,8 @@ class EE_DOCKER {
 	/**
 	 * Function to boot the containers.
 	 *
-	 * @param String $dir     Path to docker-compose.yml.
-	 * @param array $services Services to bring up.
+	 * @param String $dir      Path to docker-compose.yml.
+	 * @param array  $services Services to bring up.
 	 *
 	 * @return bool success.
 	 */
@@ -191,7 +231,7 @@ class EE_DOCKER {
 			} else {
 				$all_services = implode( ' ', $services );
 
-				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d '. $all_services );
+				return EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d ' . $all_services );
 			}
 		}
 
@@ -251,6 +291,7 @@ class EE_DOCKER {
 	 * @return bool Network exists or not
 	 */
 	public static function docker_network_exists( string $network ) {
+
 		return EE::exec( "docker network inspect $network" );
 	}
 
@@ -262,6 +303,7 @@ class EE_DOCKER {
 	 * @return bool success.
 	 */
 	public static function docker_compose_down( $dir ) {
+
 		$chdir_return_code = chdir( $dir );
 		if ( $chdir_return_code ) {
 
@@ -280,11 +322,26 @@ class EE_DOCKER {
 	 * @return bool Whether service is available or not.
 	 */
 	public static function service_exists( $service, $site_fs_path ) {
-		chdir( $site_fs_path );
+
+		return in_array( $service, \EE_DOCKER::get_services( $site_fs_path ), true );
+	}
+
+	/**
+	 * Get list of all docker-compose services.
+	 *
+	 * @param string $site_fs_path Path to the site root where docker-compose.yml file is present.
+	 *
+	 * @return bool Whether service is available or not.
+	 */
+	public static function get_services( $site_fs_path = '' ) {
+
+		if ( ! empty( $site_fs_path ) ) {
+			chdir( $site_fs_path );
+		}
 		$launch   = EE::launch( \EE_DOCKER::docker_compose_with_custom() . ' config --services' );
 		$services = explode( PHP_EOL, trim( $launch->stdout ) );
 
-		return in_array( $service, $services, true );
+		return $services;
 	}
 
 	/**
@@ -295,20 +352,21 @@ class EE_DOCKER {
 	 * @return string prefix derived from the name.
 	 */
 	public static function get_docker_style_prefix( $site_url ) {
+
 		return str_replace( [ '.', '-' ], '', $site_url );
 	}
 
 	/**
 	 * Function to create external docker volumes and related symlinks.
 	 *
-	 * @param string $prefix                Prefix by volumes have to be created.
-	 * @param array $volumes                The volumes to be created.
-	 *                                      $volumes[$key]['name'] => specifies the name of volume to be created.
-	 *                                      $volumes[$key]['path_to_symlink'] => specifies the path to symlink the
-	 *                                      created volume.
-	 *                                      $volumes[$key]['skip_volume'] => if set to `true` will skip volume creation
-	 *                                      for that entry.
-	 * @param bool $update_to_docker_prefix Update the prefix in dockerized style.
+	 * @param string $prefix                  Prefix by volumes have to be created.
+	 * @param array  $volumes                 The volumes to be created.
+	 *                                        $volumes[$key]['name'] => specifies the name of volume to be created.
+	 *                                        $volumes[$key]['path_to_symlink'] => specifies the path to symlink the
+	 *                                        created volume.
+	 *                                        $volumes[$key]['skip_volume'] => if set to `true` will skip volume
+	 *                                        creation for that entry.
+	 * @param bool   $update_to_docker_prefix Update the prefix in dockerized style.
 	 */
 	public static function create_volumes( $prefix, $volumes, $update_to_docker_prefix = true ) {
 
@@ -357,6 +415,7 @@ class EE_DOCKER {
 	 * @return array Found containers.
 	 */
 	public static function get_volumes_by_label( $label ) {
+
 		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter="label=io.easyengine.site=%s" -q', $label ) );
 
 		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
@@ -390,4 +449,5 @@ class EE_DOCKER {
 
 		return $final_mount_volumes;
 	}
+
 }
