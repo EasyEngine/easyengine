@@ -247,6 +247,9 @@ jobs:
         md5sum easyengine.phar | cut -d ' ' -f 1 > easyengine.phar.md5
         sha512sum easyengine.phar | cut -d ' ' -f 1 > easyengine.phar.sha512
 
+    - name: Authenticate gh-cli
+      run: echo ${{ secrets.BOT_TOKEN }} | gh auth login --with-token
+
     - name: Generate changelog
       run: bash utils/changelog.sh
 
