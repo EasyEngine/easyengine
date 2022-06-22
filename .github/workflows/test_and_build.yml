@@ -253,6 +253,14 @@ jobs:
     - name: Generate changelog
       run: bash utils/changelog.sh
 
+    - name: Extract tag name
+      id: tag
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          return context.payload.ref.replace(/\/refs\/tags\//, '');
+
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
@@ -261,4 +269,5 @@ jobs:
           easyengine.phar
           easyengine.phar.md5
           easyengine.phar.sha512
+        name: echo "EasyEngine ${{ steps.tag.outputs.result }}"
         token: ${{ secrets.GITHUB_TOKEN }}

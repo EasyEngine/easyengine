@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo "## What's Changed" > changelog.txt
+
 createdAt=$(gh api graphql -F owner='EasyEngine' -F name='easyengine' -f query='
   query {       
     repository(owner: "EasyEngine", name: "easyengine") {
@@ -28,4 +30,4 @@ query {
     }
   }
 }
-" --template '{{range .data.search.edges}}{{"* "}}{{.node.title}}{{" "}}{{.node.permalink}}{{" "}}{{.node.state}}{{" @"}}{{.node.author.login}}{{"\n"}}{{end}}' | sed '/CLOSED/d' | sed 's/ MERGED//g' > changelog.txt
+" --template '{{range .data.search.edges}}{{"* "}}{{.node.title}}{{" "}}{{.node.permalink}}{{" "}}{{.node.state}}{{" @"}}{{.node.author.login}}{{"\n"}}{{end}}' | sed '/CLOSED/d' | sed 's/ MERGED//g' >> changelog.txt
