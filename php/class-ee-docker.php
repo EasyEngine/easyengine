@@ -17,32 +17,32 @@ class EE_DOCKER {
 
 		$command = 'docker-compose -f ';
 
-		$cusotm_compose = \EE::get_runner()->config['custom-compose'];
+		$custom_compose = \EE::get_runner()->config['custom-compose'];
 
-		if ( ! empty( $cusotm_compose ) ) {
-			$cusotm_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $cusotm_compose;
-			if ( SITE_CUSTOM_DOCKER_COMPOSE === $cusotm_compose ) {
+		if ( ! empty( $custom_compose ) ) {
+			$custom_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $custom_compose;
+			if ( SITE_CUSTOM_DOCKER_COMPOSE === $custom_compose ) {
 				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
-					$cusotm_compose_path = SITE_CUSTOM_DOCKER_COMPOSE;
+					$custom_compose_path = SITE_CUSTOM_DOCKER_COMPOSE;
 				}
 			}
-			if ( $fs->exists( $cusotm_compose_path ) ) {
-				$command .= $cusotm_compose_path;
+			if ( $fs->exists( $custom_compose_path ) ) {
+				$command .= $custom_compose_path;
 			} else {
-				EE::warning( 'File: ' . $cusotm_compose_path . ' does not exist. Falling back to default compose file.' );
+				EE::warning( 'File: ' . $custom_compose_path . ' does not exist. Falling back to default compose file.' );
 				$command .= 'docker-compose.yml';
 			}
 		} else {
 			$command .= 'docker-compose.yml';
 
 			if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE_DIR ) ) {
-				$cusotm_compose_files = array_diff( scandir( SITE_CUSTOM_DOCKER_COMPOSE_DIR ), [ '.', '..' ] );
-				$cusotm_compose_files = array_map( function ( $arrayValues ) {
+				$custom_compose_files = array_diff( scandir( SITE_CUSTOM_DOCKER_COMPOSE_DIR ), [ '.', '..' ] );
+				$custom_compose_files = array_map( function ( $arrayValues ) {
 
 					return SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $arrayValues;
-				}, $cusotm_compose_files );
+				}, $custom_compose_files );
 
-				$files_before_custom = array_unique( array_merge( $files_before_custom, $cusotm_compose_files ) );
+				$files_before_custom = array_unique( array_merge( $files_before_custom, $custom_compose_files ) );
 			}
 
 			foreach ( $files_before_custom as $file ) {
