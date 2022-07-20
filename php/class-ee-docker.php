@@ -11,11 +11,15 @@ class EE_DOCKER {
 	 *
 	 * @return string
 	 */
-	public static function docker_compose_with_custom( array $files_before_custom = [] ): string {
+	public static function docker_compose_with_custom( array $files_before_custom = [], bool $get_service = false ): string {
 
 		$fs = new Filesystem();
 
-		$command = 'docker-compose -f ';
+		if ( $get_service ) {
+			$command = 'docker-compose ';
+		} else {
+			$command = 'docker-compose -f docker-compose.yml ';
+		}
 
 		$custom_compose = \EE::get_runner()->config['custom-compose'];
 
@@ -27,13 +31,11 @@ class EE_DOCKER {
 				}
 			}
 			if ( $fs->exists( $custom_compose_path ) ) {
-				$command .= $custom_compose_path;
+				$command .= ' -f ' . $custom_compose_path;
 			} else {
 				EE::warning( 'File: ' . $custom_compose_path . ' does not exist. Falling back to default compose file.' );
-				$command .= 'docker-compose.yml';
 			}
 		} else {
-			$command .= 'docker-compose.yml';
 
 			if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE_DIR ) ) {
 				$custom_compose_files = array_diff( scandir( SITE_CUSTOM_DOCKER_COMPOSE_DIR ), [ '.', '..' ] );
@@ -338,8 +340,9 @@ class EE_DOCKER {
 		if ( ! empty( $site_fs_path ) ) {
 			chdir( $site_fs_path );
 		}
-		$launch   = EE::launch( \EE_DOCKER::docker_compose_with_custom() . ' config --services' );
-		$services = explode( PHP_EOL, trim( $launch->stdout ) );
+		$custom_service = empty( \EE::get_runner()->config['custom-compose'] ) ? false : true;
+		$launch         = EE::launch( \EE_DOCKER::docker_compose_with_custom( [], $custom_service ) . ' config --services' );
+		$services       = explode( PHP_EOL, trim( $launch->stdout ) );
 
 		return $services;
 	}
