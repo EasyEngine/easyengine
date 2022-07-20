@@ -8,6 +8,7 @@ class EE_DOCKER {
 	 * Function to return docker-compose command with custom docker-compose files
 	 *
 	 * @param array $files_before_custom Files to be included before custom compose file is included
+	 * @param bool  $get_service         Boolean to check if it is for getting service call or not.
 	 *
 	 * @return string
 	 */
