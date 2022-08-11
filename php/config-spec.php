@@ -59,6 +59,13 @@ return array(
 		'desc' => 'Skip tty allocation for remote command execution.',
 	),
 
+	'custom-compose' => array(
+		'runtime' => '=<custom-compose file>',
+		'file' => '<custom-compose>',
+		'default' => null,
+		'desc' => 'Path to custom compose file.',
+	),
+
 	'ee_installer_version' => array(
 		'file' => '<path>',
 		'default' => null,
