@@ -179,6 +179,7 @@ $finder
 	->in(EE_VENDOR_DIR . '/ralouphie/getallheaders')
 	->in(EE_VENDOR_DIR . '/acmephp')
 	->in(EE_VENDOR_DIR . '/league')
+	->in(EE_VENDOR_DIR . '/myclabs/deep-copy')
 	->in(EE_VENDOR_DIR . '/webmozart')
 	->notName('behat-tags.php')
 	->notPath('#(?:[^/]+-command|php-cli-tools)/vendor/#') // For running locally, in case have composer installed or symlinked them.
