@@ -54,6 +54,7 @@ jobs:
           fi
 
       - name: Setup EE version
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
         run: |
           cd "$GITHUB_WORKSPACE"
           if [[ "$GITHUB_REF" != $DEPLOY_BRANCH ]]; then
