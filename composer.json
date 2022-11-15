@@ -27,6 +27,7 @@
         "php": ">=7.0",
         "composer/composer": "2.2.12",
         "composer/semver": "3.2.4",
+        "daverandom/libdns": "^2.0",
         "easyengine/admin-tools-command": "v1.1.0",
         "easyengine/auth-command": "v1.2.0",
         "easyengine/config-command": "v1.0.2",
