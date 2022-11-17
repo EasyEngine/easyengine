@@ -18,14 +18,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
       - name: Set up Composer caching
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           cache-name: cache-composer-dependencies
         with:
@@ -69,7 +69,7 @@ jobs:
 
 
       - name: Upload EE version
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: cli_version
           path: VERSION
@@ -81,7 +81,7 @@ jobs:
         run: sudo ./easyengine.phar cli info
 
       - name: Upload built Phar file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: easyengine-phar
           path: easyengine.phar
@@ -96,14 +96,14 @@ jobs:
         php: ['7.2', '7.3', '7.4', '8.0', '8.1']
     steps:
     - name: Check out source code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Get Composer cache directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
     - name: Set up Composer caching
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       env:
         cache-name: cache-composer-dependencies
       with:
@@ -180,13 +180,13 @@ jobs:
 
     steps:
       - name: Check out builds repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: easyengine/easyengine-builds
           token: ${{ secrets.BOT_TOKEN }}
 
       - name: Download built Phar file
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: easyengine-phar
 
@@ -236,10 +236,10 @@ jobs:
 
     steps:
     - name: Check out source code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Download built Phar file
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: easyengine-phar
 
