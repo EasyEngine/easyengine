@@ -46,7 +46,7 @@ jobs:
         run: |
           cd "$GITHUB_WORKSPACE"
           # Run composer install for master else update.
-          if [[ "$GITHUB_REF" = "refs/heads/master" ]]; then
+          if [[ "$GITHUB_REF" = "refs/heads/master" ]] || [[ "$GITHUB_REF" = "refs/tags/"* ]]; then
               composer install --no-dev --no-progress --no-interaction
           else
               sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json

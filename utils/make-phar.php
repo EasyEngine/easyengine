@@ -175,6 +175,7 @@ $finder
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-php80')
 	->in(EE_VENDOR_DIR . '/symfony/polyfill-php81')
 	->in(EE_VENDOR_DIR . '/monolog')
+	->in(EE_VENDOR_DIR . '/daverandom')
 	->in(EE_VENDOR_DIR . '/guzzlehttp')
 	->in(EE_VENDOR_DIR . '/ralouphie/getallheaders')
 	->in(EE_VENDOR_DIR . '/acmephp')
