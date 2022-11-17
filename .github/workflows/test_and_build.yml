@@ -266,5 +266,6 @@ jobs:
           easyengine.phar
           easyengine.phar.md5
           easyengine.phar.sha512
+        draft: true
         name: EasyEngine ${{ steps.tag.outputs.tag }}
         token: ${{ secrets.GITHUB_TOKEN }}
