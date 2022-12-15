@@ -19,6 +19,14 @@ jobs:
       - name: Check out source code
         uses: actions/checkout@v3
 
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          coverage: none
+          tools: composer
+          extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
@@ -32,14 +40,6 @@ jobs:
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          coverage: none
-          tools: composer
-          extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
 
       - name: Install dependencies
         run: |
@@ -97,6 +97,14 @@ jobs:
     - name: Check out source code
       uses: actions/checkout@v3
 
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '${{ matrix.php }}'
+        coverage: none
+        tools: composer
+        extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
     - name: Get Composer cache directory
       id: composer-cache
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
@@ -110,14 +118,6 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-composer-
-
-    - name: Set up PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '${{ matrix.php }}'
-        coverage: none
-        tools: composer
-        extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
 
     - name: Update docker
       run: |
