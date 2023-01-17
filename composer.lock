@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fc392ca98a505b4561cba6a0ef5eed3f",
+    "content-hash": "0e040add3a6d5ab7c6be0affc3d3e217",
     "packages": [
         {
             "name": "acmephp/core",
@@ -199,16 +199,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.3.4",
+            "version": "1.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "69098eca243998b53eed7a48d82dedd28b447cd5"
+                "reference": "74780ccf8c19d6acb8d65c5f39cd72110e132bbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/69098eca243998b53eed7a48d82dedd28b447cd5",
-                "reference": "69098eca243998b53eed7a48d82dedd28b447cd5",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/74780ccf8c19d6acb8d65c5f39cd72110e132bbd",
+                "reference": "74780ccf8c19d6acb8d65c5f39cd72110e132bbd",
                 "shasum": ""
             },
             "require": {
@@ -255,7 +255,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.3.4"
+                "source": "https://github.com/composer/ca-bundle/tree/1.3.5"
             },
             "funding": [
                 {
@@ -271,7 +271,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-12T12:08:29+00:00"
+            "time": "2023-01-11T08:27:00+00:00"
         },
         {
             "name": "composer/composer",
@@ -927,16 +927,16 @@
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v1.2.0",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
-                "reference": "aa2e4ee3a8e0cf8b928cae9b50fb5d52808fcc24"
+                "reference": "53c18a0b5bbc97e5c66f0f349f976d577bdcfe54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/aa2e4ee3a8e0cf8b928cae9b50fb5d52808fcc24",
-                "reference": "aa2e4ee3a8e0cf8b928cae9b50fb5d52808fcc24",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/53c18a0b5bbc97e5c66f0f349f976d577bdcfe54",
+                "reference": "53c18a0b5bbc97e5c66f0f349f976d577bdcfe54",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -972,9 +972,9 @@
             "homepage": "https://github.com/easyengine/cron-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/cron-command/issues",
-                "source": "https://github.com/EasyEngine/cron-command/tree/v1.2.0"
+                "source": "https://github.com/EasyEngine/cron-command/tree/v2.0.0"
             },
-            "time": "2021-11-02T09:18:46+00:00"
+            "time": "2023-01-13T09:27:39+00:00"
         },
         {
             "name": "easyengine/log-command",
@@ -1068,16 +1068,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.4.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "0ae9ab240ddf50e9157c8ab4b0cb8646de694b08"
+                "reference": "e47f1523dce3e90ea42cde9dd2150285b8c0f7ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/0ae9ab240ddf50e9157c8ab4b0cb8646de694b08",
-                "reference": "0ae9ab240ddf50e9157c8ab4b0cb8646de694b08",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/e47f1523dce3e90ea42cde9dd2150285b8c0f7ac",
+                "reference": "e47f1523dce3e90ea42cde9dd2150285b8c0f7ac",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1111,9 +1111,9 @@
             "homepage": "https://github.com/easyengine/service-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/service-command/issues",
-                "source": "https://github.com/EasyEngine/service-command/tree/v1.4.0"
+                "source": "https://github.com/EasyEngine/service-command/tree/v1.5.0"
             },
-            "time": "2021-12-07T09:34:46+00:00"
+            "time": "2023-01-13T09:27:13+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -1161,16 +1161,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.2.1",
+            "version": "v3.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "abe3d8df6c17c641992ca3124bc795dda320ebce"
+                "reference": "13be7f01b24eb332935d0dad51ad504c8a5fefd7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/abe3d8df6c17c641992ca3124bc795dda320ebce",
-                "reference": "abe3d8df6c17c641992ca3124bc795dda320ebce",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/13be7f01b24eb332935d0dad51ad504c8a5fefd7",
+                "reference": "13be7f01b24eb332935d0dad51ad504c8a5fefd7",
                 "shasum": ""
             },
             "require": {
@@ -1231,9 +1231,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.2.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.2.4"
             },
-            "time": "2022-08-15T17:09:03+00:00"
+            "time": "2023-01-13T11:49:15+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -4504,30 +4504,30 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "1.4.1",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "10dcfce151b967d20fde1b34ae6640712c3891bc"
+                "reference": "0a0fa9780f5d4e507415a065172d26a98d02047b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/10dcfce151b967d20fde1b34ae6640712c3891bc",
-                "reference": "10dcfce151b967d20fde1b34ae6640712c3891bc",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/0a0fa9780f5d4e507415a065172d26a98d02047b",
+                "reference": "0a0fa9780f5d4e507415a065172d26a98d02047b",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^9",
+                "doctrine/coding-standard": "^9 || ^11",
                 "ext-pdo": "*",
                 "ext-phar": "*",
                 "phpbench/phpbench": "^0.16 || ^1",
                 "phpstan/phpstan": "^1.4",
                 "phpstan/phpstan-phpunit": "^1",
                 "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
-                "vimeo/psalm": "^4.22"
+                "vimeo/psalm": "^4.30 || ^5.4"
             },
             "type": "library",
             "autoload": {
@@ -4554,7 +4554,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/instantiator/issues",
-                "source": "https://github.com/doctrine/instantiator/tree/1.4.1"
+                "source": "https://github.com/doctrine/instantiator/tree/1.5.0"
             },
             "funding": [
                 {
@@ -4570,7 +4570,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-03T08:28:38+00:00"
+            "time": "2022-12-30T00:15:36+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -4857,16 +4857,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.22",
+            "version": "9.2.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "e4bf60d2220b4baaa0572986b5d69870226b06df"
+                "reference": "9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/e4bf60d2220b4baaa0572986b5d69870226b06df",
-                "reference": "e4bf60d2220b4baaa0572986b5d69870226b06df",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c",
+                "reference": "9f1f0f9a2fbb680b26d1cf9b61b6eac43a6e4e9c",
                 "shasum": ""
             },
             "require": {
@@ -4922,7 +4922,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.22"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.23"
             },
             "funding": [
                 {
@@ -4930,7 +4930,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-12-18T16:40:55+00:00"
+            "time": "2022-12-28T12:41:10+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
