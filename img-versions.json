@@ -1,7 +1,7 @@
 {
     "easyengine/cron": "v4.6.5",
     "easyengine/mailhog": "v4.6.5",
-    "easyengine/mariadb": "v4.6.5",
+    "easyengine/mariadb": "v4.6.6",
     "easyengine/nginx-proxy": "v4.6.5",
     "easyengine/nginx": "v4.6.5",
     "easyengine/php": "v4.6.6",
