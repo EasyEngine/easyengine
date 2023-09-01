@@ -133,7 +133,7 @@ class GlobalContainers {
 			'easyengine/nginx-proxy' => GLOBAL_PROXY_CONTAINER,
 			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
 			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
-			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
+			'easyengine/cron'        => EE_CRON_SCHEDULER,
 		];
 	}
 
