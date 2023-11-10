@@ -40,16 +40,17 @@ class Containers {
 
 		foreach ( $img_versions as $img => $version ) {
 
-			if ( in_array( $img, $skip_download ) ) {
-				continue;
-			}
 			if ( array_key_exists( $img, $current_versions ) ) {
 				if ( $current_versions[ $img ] !== $version ) {
 					$updated_images[] = $img;
-					self::pull_or_error( $img, $version );
+					if ( ! in_array( $img, $skip_download ) ) {
+						self::pull_or_error( $img, $version );
+					}
 				}
 			} else {
-				self::pull_or_error( $img, $version );
+				if ( ! in_array( $img, $skip_download ) ) {
+					self::pull_or_error( $img, $version );
+				}
 			}
 		}
 
@@ -151,16 +152,29 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function get_current_docker_images_versions() {
-		$images = EE::db()
-		            ->table( 'options' )
-		            ->where( 'key', 'like', 'easyengine/%' )
-		            ->all();
 
-		$images = array_map( function ( $image ) {
-			return [ $image['key'] => $image['value'] ];
-		}, $images );
+		$dbImages = EE::db()
+		              ->table( 'options' )
+		              ->where( 'key', 'like', 'easyengine/%' )
+		              ->all();
 
-		return array_merge( ...$images );
+		$dbImages = array_column( $dbImages, 'value', 'key' );
+
+		$dockerImages = EE::launch( 'docker ps --format "{{.Image}}" | grep "^easyengine/" | sort -u' )->stdout;
+		$dockerImages = explode( "\n", trim( $dockerImages ) );
+
+		$dockerImages = array_reduce( $dockerImages, function ( $result, $image ) {
+
+			[ $imageName, $tag ] = explode( ':', $image, 2 ) + [ 1 => null ];
+			$result[ $imageName ] = $tag;
+
+			return $result;
+		}, [] );
+
+		$mergedImages = $dockerImages + $dbImages;
+		$mergedImages = array_filter( $mergedImages );
+
+		return $mergedImages;
 	}
 
 	/**
