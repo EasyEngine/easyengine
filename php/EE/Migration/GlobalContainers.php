@@ -130,10 +130,11 @@ class GlobalContainers {
 	public static function get_all_global_images_with_service_name() {
 
 		return [
-			'easyengine/nginx-proxy' => GLOBAL_PROXY_CONTAINER,
-			'easyengine/mariadb'     => GLOBAL_DB_CONTAINER,
-			'easyengine/redis'       => GLOBAL_REDIS_CONTAINER,
-			// 'easyengine/cron'        => EE_CRON_SCHEDULER, //TODO: Add it to global docker-compose.
+			'easyengine/nginx-proxy'     => GLOBAL_PROXY_CONTAINER,
+			'easyengine/mariadb'         => GLOBAL_DB_CONTAINER,
+			'easyengine/redis'           => GLOBAL_REDIS_CONTAINER,
+			'easyengine/cron'            => GLOBAL_CRON_CONTAINER,
+			'easyengine/newrelic-daemon' => GLOBAL_NEWRELIC_DAEMON_CONTAINER,
 		];
 	}
 
