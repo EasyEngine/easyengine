@@ -7,8 +7,8 @@ if ( 'cli' !== PHP_SAPI ) {
 	die( -1 );
 }
 
-if ( version_compare( PHP_VERSION, '7.0', '<' ) ) {
-	printf( "Error: EE requires PHP %s or newer. You are running version %s.\n", '7.0', PHP_VERSION );
+if ( version_compare( PHP_VERSION, '8.2.0', '<' ) ) {
+	printf( "Error: EE requires PHP %s or newer. You are running version %s.\n", '8.2.0', PHP_VERSION );
 	die( -1 );
 }
 
