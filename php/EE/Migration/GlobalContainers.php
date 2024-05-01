@@ -137,34 +137,4 @@ class GlobalContainers {
 			'easyengine/newrelic-daemon' => GLOBAL_NEWRELIC_DAEMON_CONTAINER,
 		];
 	}
-
-	/**
-	 * Create support containers for global-db and global-redis service.
-	 */
-	public static function enable_support_containers() {
-		if ( ! chdir( EE_SERVICE_DIR ) ) {
-			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
-		}
-
-		$command = \EE_DOCKER::docker_compose_with_custom() . ' --project-name=ee up -d global-db global-redis';
-		if ( ! EE::exec( $command ) ) {
-			throw new \Exception( 'Unable to create support container.' );
-		}
-	}
-
-	/**
-	 * Remove support containers for global-db and global-redis service.
-	 */
-	public static function disable_support_containers() {
-		if ( ! chdir( EE_SERVICE_DIR ) ) {
-			throw new \Exception( sprintf( '%s path does not exist', EE_SERVICE_DIR ) );
-		}
-
-		$command = \EE_DOCKER::docker_compose_with_custom() . ' --project-name=ee down';
-		/**
-		 * Return code can be 1 due to error in removing network. This is expected.
-		 * TODO: Get a fix for global network / make them external so that the return code is not 1. 
-		 */
-		EE::exec( $command );
-	}
 }
