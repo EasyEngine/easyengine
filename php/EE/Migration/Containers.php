@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE\RevertableStepProcessor;
 use EE;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Upgrade existing containers to new docker-image
@@ -35,6 +36,8 @@ class Containers {
 			'easyengine/php7.4',
 			'easyengine/php8.0',
 			'easyengine/php8.1',
+			'easyengine/php8.2',
+			'easyengine/php8.3',
 			'easyengine/newrelic-daemon',
 		];
 
@@ -60,6 +63,7 @@ class Containers {
 
 		self::migrate_global_containers( $updated_images );
 		self::migrate_site_containers( $updated_images );
+		self::maybe_update_docker_compose();
 		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
 
 		if ( ! self::$rsp->execute() ) {
@@ -67,6 +71,21 @@ class Containers {
 		}
 
 		EE\Utils\delem_log( 'Container migration completed' );
+	}
+
+	/**
+	 * Maybe update docker-compose at the end of migration.
+	 * Need to update to latest docker-compose version for new template changes.
+	 */
+	public static function maybe_update_docker_compose() {
+
+		self::$rsp->add_step(
+			'update-compose',
+			'EE\Migration\Containers::update_docker_compose',
+			'EE\Migration\Containers::revert_docker_compose',
+			null,
+			null
+		);
 	}
 
 	/**
@@ -101,6 +120,38 @@ class Containers {
 	 */
 	public static function image_cleanup() {
 		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
+	}
+
+	/**
+	 * Update docker-compose to v2.26.1 if lower version is installed.
+	 */
+	public static function update_docker_compose() {
+
+		$docker_compose_version     = EE::launch( 'docker-compose version --short' )->stdout;
+		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
+		$docker_compose_path        = trim( $docker_compose_path );
+		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
+		$fs                         = new Filesystem();
+		if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
+			$fs->mkdir( EE_BACKUP_DIR );
+		}
+		$fs->copy( $docker_compose_path, $docker_compose_backup_path );
+
+		if ( version_compare( '2.26.1', $docker_compose_version, '>' ) ) {
+			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
+		}
+	}
+
+	/**
+	 * Revert docker-compose to previous version.
+	 */
+	public static function revert_docker_compose() {
+
+		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
+		$docker_compose_path        = trim( $docker_compose_path );
+		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
+		$fs                         = new Filesystem();
+		$fs->copy( $docker_compose_backup_path, $docker_compose_path );
 	}
 
 	/**
