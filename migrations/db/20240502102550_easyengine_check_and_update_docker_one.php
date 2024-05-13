@@ -8,12 +8,25 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class CheckAndUpdateDockerOne extends Base {
 
+	public function __construct() {
+
+		if ( $this->is_first_execution ) {
+			$this->skip_this_migration = true;
+		}
+	}
+
 	/**
 	 * Execute create table query for site and sitemeta table.
 	 *
 	 * @throws EE\ExitException
 	 */
 	public function up() {
+
+		if ( $this->skip_this_migration ) {
+			EE::debug( 'Skipping migration as it is not needed.' );
+
+			return;
+		}
 
 		EE::log( 'Checking Docker version.' );
 		$docker_version = trim( EE::launch( 'docker version --format "{{.Server.Version}}"' )->stdout );
