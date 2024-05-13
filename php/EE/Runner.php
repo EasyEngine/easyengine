@@ -105,10 +105,10 @@ class Runner {
 			$error[] = 'EasyEngine requires docker-compose.';
 		}
 
-		$docker_compose_version = EE::launch( 'docker-compose version --short' )->stdout;
-		if ( version_compare( $docker_compose_version, '2.26.0', '<' ) ) {
+		$docker_compose_version = trim( EE::launch( 'docker-compose version --short' )->stdout );
+		if ( version_compare( $docker_compose_version, '2.26.1', '<' ) ) {
 			if ( $show_error ) {
-				EE::warning( 'EasyEngine requires docker-compose version 2.26.0 or greater.' );
+				EE::warning( 'EasyEngine requires docker-compose version 2.26.1 or greater.' );
 				EE::warning( 'You can get the updated version of docker-compose from assets in https://github.com/docker/compose/releases/tag/v2.26.1' );
 			}
 		}
