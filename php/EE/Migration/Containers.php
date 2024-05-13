@@ -123,7 +123,7 @@ class Containers {
 	}
 
 	/**
-	 * Update docker-compose to v2.26.1 if lower version is installed.
+	 * Update docker-compose to v2.27.0 if lower version is installed.
 	 */
 	public static function update_docker_compose() {
 
@@ -137,8 +137,8 @@ class Containers {
 		}
 		$fs->copy( $docker_compose_path, $docker_compose_backup_path );
 
-		if ( version_compare( '2.26.1', $docker_compose_version, '>' ) ) {
-			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
+		if ( version_compare( '2.27.0', $docker_compose_version, '>' ) ) {
+			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
 		}
 	}
 
