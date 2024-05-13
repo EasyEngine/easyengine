@@ -58,6 +58,7 @@ class Containers {
 		}
 
 		if ( empty( $updated_images ) ) {
+			self::maybe_update_docker_compose();
 			return;
 		}
 
