@@ -58,7 +58,7 @@ class CheckAndUpdateDockerOne extends Base {
 		}
 		$fs->copy( $docker_compose_path, $docker_compose_backup_path );
 
-		if ( version_compare( '1.29.2', $docker_compose_version, '>' ) ) {
+		if ( version_compare( '1.29.2', $docker_compose_version, '!=' ) ) {
 			EE::exec( "curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
 		}
 
