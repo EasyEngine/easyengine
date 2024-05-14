@@ -132,13 +132,15 @@ class Containers {
 		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
 		$docker_compose_path        = trim( $docker_compose_path );
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
-		$fs                         = new Filesystem();
-		if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
-			$fs->mkdir( EE_BACKUP_DIR );
-		}
-		$fs->copy( $docker_compose_path, $docker_compose_backup_path );
 
 		if ( version_compare( '2.27.0', $docker_compose_version, '>' ) ) {
+
+			$fs = new Filesystem();
+			if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
+				$fs->mkdir( EE_BACKUP_DIR );
+			}	
+			$fs->copy( $docker_compose_path, $docker_compose_backup_path );
+
 			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
 		}
 	}
