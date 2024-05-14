@@ -28,7 +28,7 @@ class CheckAndUpdateDockerOne extends Base {
 			return;
 		}
 
-		EE::log( 'Checking Docker version.' );
+		EE::debug( 'Checking Docker version.' );
 		$docker_version = trim( EE::launch( 'docker version --format "{{.Server.Version}}"' )->stdout );
 
 		if ( version_compare( $docker_version, '20.10.10', '<' ) ) {
@@ -42,16 +42,17 @@ class CheckAndUpdateDockerOne extends Base {
 
 			// If it is Linux, proceed with update.
 			if ( 'Linux' === PHP_OS ) {
-				EE::log( 'Updating Docker...' );
+				EE::debug( 'Updating Docker...' );
 				EE::launch( 'curl -fsSL https://get.docker.com | sh' );
 			}
 		}
 
-		EE::log( 'Checking docker-compose version' );
+		EE::debug( 'Checking docker-compose version' );
 		$docker_compose_version     = trim( EE::launch( 'docker-compose version --short' )->stdout );
 		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
 		$docker_compose_path        = trim( $docker_compose_path );
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
+		$docker_compose_new_path    = EE_BACKUP_DIR . '/docker-compose';
 		$fs                         = new Filesystem();
 		if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
 			$fs->mkdir( EE_BACKUP_DIR );
@@ -59,7 +60,8 @@ class CheckAndUpdateDockerOne extends Base {
 		$fs->copy( $docker_compose_path, $docker_compose_backup_path );
 
 		if ( version_compare( '1.29.2', $docker_compose_version, '!=' ) ) {
-			EE::exec( "curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_path && chmod +x $docker_compose_path" );
+			EE::exec( "curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_new_path && chmod +x $docker_compose_new_path" );
+			EE::exec( "mv $docker_compose_new_path $docker_compose_path" );
 		}
 
 		// Check the version again post update.
