@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE\RevertableStepProcessor;
 use EE;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Upgrade existing containers to new docker-image
@@ -35,30 +36,35 @@ class Containers {
 			'easyengine/php7.4',
 			'easyengine/php8.0',
 			'easyengine/php8.1',
+			'easyengine/php8.2',
+			'easyengine/php8.3',
 			'easyengine/newrelic-daemon',
 		];
 
 		foreach ( $img_versions as $img => $version ) {
 
-			if ( in_array( $img, $skip_download ) ) {
-				continue;
-			}
 			if ( array_key_exists( $img, $current_versions ) ) {
 				if ( $current_versions[ $img ] !== $version ) {
 					$updated_images[] = $img;
-					self::pull_or_error( $img, $version );
+					if ( ! in_array( $img, $skip_download ) ) {
+						self::pull_or_error( $img, $version );
+					}
 				}
 			} else {
-				self::pull_or_error( $img, $version );
+				if ( ! in_array( $img, $skip_download ) ) {
+					self::pull_or_error( $img, $version );
+				}
 			}
 		}
 
 		if ( empty( $updated_images ) ) {
+
 			return;
 		}
 
 		self::migrate_global_containers( $updated_images );
 		self::migrate_site_containers( $updated_images );
+		self::maybe_update_docker_compose();
 		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
 
 		if ( ! self::$rsp->execute() ) {
@@ -66,6 +72,21 @@ class Containers {
 		}
 
 		EE\Utils\delem_log( 'Container migration completed' );
+	}
+
+	/**
+	 * Maybe update docker-compose at the end of migration.
+	 * Need to update to latest docker-compose version for new template changes.
+	 */
+	public static function maybe_update_docker_compose() {
+
+		self::$rsp->add_step(
+			'update-compose',
+			'EE\Migration\Containers::update_docker_compose',
+			'EE\Migration\Containers::revert_docker_compose',
+			null,
+			null
+		);
 	}
 
 	/**
@@ -100,6 +121,42 @@ class Containers {
 	 */
 	public static function image_cleanup() {
 		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
+	}
+
+	/**
+	 * Update docker-compose to v2.27.0 if lower version is installed.
+	 */
+	public static function update_docker_compose() {
+
+		$docker_compose_version     = EE::launch( 'docker-compose version --short' )->stdout;
+		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
+		$docker_compose_path        = trim( $docker_compose_path );
+		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
+		$docker_compose_new_path    = EE_BACKUP_DIR . '/docker-compose';
+
+		if ( version_compare( '2.27.0', $docker_compose_version, '>' ) ) {
+
+			$fs = new Filesystem();
+			if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
+				$fs->mkdir( EE_BACKUP_DIR );
+			}	
+			$fs->copy( $docker_compose_path, $docker_compose_backup_path );
+
+			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_new_path && chmod +x $docker_compose_new_path" );
+			EE::exec( "mv $docker_compose_new_path $docker_compose_path" );
+		}
+	}
+
+	/**
+	 * Revert docker-compose to previous version.
+	 */
+	public static function revert_docker_compose() {
+
+		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
+		$docker_compose_path        = trim( $docker_compose_path );
+		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
+		$fs                         = new Filesystem();
+		$fs->copy( $docker_compose_backup_path, $docker_compose_path );
 	}
 
 	/**
@@ -151,16 +208,29 @@ class Containers {
 	 * @throws \Exception
 	 */
 	public static function get_current_docker_images_versions() {
-		$images = EE::db()
-		            ->table( 'options' )
-		            ->where( 'key', 'like', 'easyengine/%' )
-		            ->all();
 
-		$images = array_map( function ( $image ) {
-			return [ $image['key'] => $image['value'] ];
-		}, $images );
+		$dbImages = EE::db()
+		              ->table( 'options' )
+		              ->where( 'key', 'like', 'easyengine/%' )
+		              ->all();
 
-		return array_merge( ...$images );
+		$dbImages = array_column( $dbImages, 'value', 'key' );
+
+		$dockerImages = EE::launch( 'docker ps --format "{{.Image}}" | grep "^easyengine/" | sort -u' )->stdout;
+		$dockerImages = explode( "\n", trim( $dockerImages ) );
+
+		$dockerImages = array_reduce( $dockerImages, function ( $result, $image ) {
+
+			[ $imageName, $tag ] = explode( ':', $image, 2 ) + [ 1 => null ];
+			$result[ $imageName ] = $tag;
+
+			return $result;
+		}, [] );
+
+		$mergedImages = $dockerImages + $dbImages;
+		$mergedImages = array_filter( $mergedImages );
+
+		return $mergedImages;
 	}
 
 	/**
@@ -184,17 +254,6 @@ class Containers {
 			'EE\Migration\GlobalContainers::revert_global_containers',
 			[ $global_compose_file_path, $global_compose_file_backup_path ],
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
-		);
-
-		/**
-		 * Create support containers.
-		 */
-		self::$rsp->add_step(
-			'create-support-global-containers',
-			'EE\Migration\GlobalContainers::enable_support_containers',
-			'EE\Migration\GlobalContainers::disable_support_containers',
-			null,
-			null
 		);
 
 		self::$rsp->add_step(
@@ -226,17 +285,6 @@ class Containers {
 				[ $global_service_name ]
 			);
 		}
-
-		/**
-		 * Remove support containers.
-		 */
-		self::$rsp->add_step(
-			'remove-support-global-containers',
-			'EE\Migration\GlobalContainers::disable_support_containers',
-			'EE\Migration\GlobalContainers::enable_support_containers',
-			null,
-			null
-		);
 	}
 
 	/**
