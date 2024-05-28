@@ -128,9 +128,8 @@ class Containers {
 	 */
 	public static function update_docker_compose() {
 
-		$docker_compose_version     = EE::launch( 'docker-compose version --short' )->stdout;
-		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
-		$docker_compose_path        = trim( $docker_compose_path );
+		$docker_compose_version     = trim( EE::launch( 'docker-compose version --short' )->stdout );
+		$docker_compose_path        = trim( EE::launch( 'command -v docker-compose' )->stdout );
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
 		$docker_compose_new_path    = EE_BACKUP_DIR . '/docker-compose';
 
