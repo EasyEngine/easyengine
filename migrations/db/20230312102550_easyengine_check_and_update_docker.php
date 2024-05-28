@@ -14,7 +14,7 @@ class CheckAndUpdateDocker extends Base {
 	 */
 	public function up() {
 
-		EE::log( 'Checking Docker version.' );
+		EE::debug( 'Checking Docker version.' );
 		$docker_version = EE::launch( 'docker version --format "{{.Server.Version}}"' )->stdout;
 
 		if ( version_compare( $docker_version, '20.10.10', '<' ) ) {
@@ -28,7 +28,7 @@ class CheckAndUpdateDocker extends Base {
 
 			// If it is Linux, proceed with update.
 			if ( 'Linux' === PHP_OS ) {
-				EE::log( 'Updating Docker...' );
+				EE::debug( 'Updating Docker...' );
 				EE::launch( 'curl -fsSL https://get.docker.com | sh' );
 			}
 		}
