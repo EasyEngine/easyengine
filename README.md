@@ -7,8 +7,6 @@
 
 EasyEngine makes it greatly easy to manage nginx, a fast web-server software that consumes little memory when handling increasing volumes of concurrent users.
 
-<a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/sites/2/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>
-
 ## Requirements
 
 * Docker
@@ -112,4 +110,6 @@ We warmheartedly welcome all contributions however and in whatever capacity you 
 
 [![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
 
+## Does this interest you?
 
+<a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/sites/2/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>
