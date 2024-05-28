@@ -65,7 +65,7 @@ ee site create example.com --type=wp --cache
 
 Need a wordpress multi-site with page cache?
 ```
-ee site create example.com --type=wp --mu=wpsubdir --cache
+ee site create example.com --type=wp --mu=subdir --cache
 ```
 
 Need a plain and simple html site?
@@ -84,7 +84,7 @@ Want to know more? Checkout readme of these commands -
  * [cron command](https://github.com/EasyEngine/cron-command/)
  * [shell command](https://github.com/EasyEngine/shell-command/)
 
-Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
+Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create --type=wp` to get all the details about the various commands and subcommands that you can run.
 
 ## Development
 
