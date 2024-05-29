@@ -133,12 +133,15 @@ class Runner {
 	 * Function to run migrations required to upgrade to the newer version. Will always be invoked from the newer phar downloaded inside the /tmp folder
 	 */
 	private function migrate() {
+
 		$rsp = new \EE\RevertableStepProcessor();
 
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
 		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations' );
 		$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
 		$rsp->add_step( 'ee-update-docker-compose', 'EE\Migration\Containers::update_docker_compose' );
+		$rsp->add_step( 'ee-update-cron-config', 'EE\Cron\Utils\update_cron_config' );
+
 		return $rsp->execute();
 	}
 

@@ -1,11 +1,11 @@
 
 <img src="https://i2.wp.com/easyengine.io/wp-content/uploads/sites/20/2019/06/EasyEngine-New-Logo-Banner@2x-Transparent-Background.png?fit=720%2C170&ssl=1" alt="EasyEngine Logo" />
 
-# EasyEngine v4 [![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml) [![Join EasyEngine Slack Channel](http://slack.easyengine.io/badge.svg)](http://slack.easyengine.io/) [![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://github.com/EasyEngine/easyengine/releases) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
+# EasyEngine v4
+[![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml) 
+[![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://github.com/EasyEngine/easyengine/releases) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
 
 EasyEngine makes it greatly easy to manage nginx, a fast web-server software that consumes little memory when handling increasing volumes of concurrent users.
-
-<a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>
 
 ## Requirements
 
@@ -65,7 +65,7 @@ ee site create example.com --type=wp --cache
 
 Need a wordpress multi-site with page cache?
 ```
-ee site create example.com --type=wp --mu=wpsubdir --cache
+ee site create example.com --type=wp --mu=subdir --cache
 ```
 
 Need a plain and simple html site?
@@ -84,7 +84,7 @@ Want to know more? Checkout readme of these commands -
  * [cron command](https://github.com/EasyEngine/cron-command/)
  * [shell command](https://github.com/EasyEngine/shell-command/)
 
-Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create` to get all the details about the various commands and subcommands that you can run.
+Note: :warning: EasyEngine will currently only run with root privileges. You can run `ee help`, `ee help site` and `ee help site create --type=wp` to get all the details about the various commands and subcommands that you can run.
 
 ## Development
 
@@ -110,4 +110,6 @@ We warmheartedly welcome all contributions however and in whatever capacity you 
 
 [![PayPal-Donate](https://cloud.githubusercontent.com/assets/4115/5297691/c7b50292-7bd7-11e4-987b-2dc21069e756.png)](http://rt.cx/eedonate)
 
+## Does this interest you?
 
+<a href="https://rtcamp.com/?utm_source=github&utm_medium=readme" rel="nofollow"><img src="https://rtcamp.com/wp-content/uploads/sites/2/2019/04/github-banner@2x.png" alt="Handcrafted Enterprise WordPress Solutions by rtCamp" /></a>

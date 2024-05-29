@@ -70,13 +70,19 @@ class SiteContainers {
 	 * @return bool
 	 */
 	public static function is_site_service_image_changed( $updated_images, $site_info ) {
-		chdir( $site_info['site_fs_path'] );
-		$launch   = EE::launch( 'docker-compose config --services' );
-		$services = explode( PHP_EOL, trim( $launch->stdout ) );
 
-		$site_images = array_map( function ( $service ) {
-			return 'easyengine/' . $service;
-		}, $services );
+		chdir( $site_info['site_fs_path'] );
+		$launch      = EE::launch( 'docker-compose images' );
+		$lines       = explode( PHP_EOL, trim( $launch->stdout ) );
+		$site_images = [];
+
+		for ( $i = 1; $i < count( $lines ); $i ++ ) {
+			$columns = preg_split( '/\s+/', $lines[ $i ] );
+
+			if ( isset( $columns[1] ) ) {
+				$site_images[] = $columns[1];
+			}
+		}
 
 		$common_image = array_intersect( $updated_images, $site_images );
 
