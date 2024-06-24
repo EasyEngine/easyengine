@@ -9,12 +9,12 @@
     "easyengine/php7.0": "v4.6.6",
     "easyengine/php7.2": "v4.6.6",
     "easyengine/php7.3": "v4.6.6",
-    "easyengine/php7.4": "v4.7.0",
-    "easyengine/php8.0": "v4.7.1",
-    "easyengine/php8.1": "v4.7.1",
-    "easyengine/php8.2": "v4.7.1",
-    "easyengine/php8.3": "v4.7.1",
+    "easyengine/php7.4": "v4.7.2",
+    "easyengine/php8.0": "v4.7.2",
+    "easyengine/php8.1": "v4.7.2",
+    "easyengine/php8.2": "v4.7.2",
+    "easyengine/php8.3": "v4.7.2",
     "easyengine/postfix": "v4.7.0",
-    "easyengine/redis": "v4.7.0",
-    "easyengine/newrelic-daemon": "v4.7.0"
+    "easyengine/redis": "v4.7.2",
+    "easyengine/newrelic-daemon": "v4.7.2"
 }
