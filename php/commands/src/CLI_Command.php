@@ -509,6 +509,7 @@ class CLI_Command extends EE_Command {
 		EE::exec( 'docker network rm $(docker network ls -f "label=org.label-schema.vendor=EasyEngine" --format="{{.Name}}")' );
 		EE::exec( 'docker volume rm -f $(docker volume ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 		EE::exec( 'docker image rm $(docker image ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
+		EE::exec( 'rm -rf /helper-functions' );
 
 		$records = Site::all( [ 'site_fs_path' ] );
 
