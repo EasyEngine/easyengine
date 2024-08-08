@@ -134,6 +134,15 @@ class Runner {
 	 */
 	private function migrate() {
 
+		// Check if minimum 5GB disk space is available
+		$free_space        = disk_free_space( EE_ROOT_DIR );
+		$docker_dir        = EE::launch( 'docker info --format \'{{.DockerRootDir}}\'' )->stdout;
+		$free_space_docker = disk_free_space( $docker_dir );
+
+		if ( $free_space < 5 * 1024 * 1024 * 1024 || $free_space_docker < 5 * 1024 * 1024 * 1024 ) {
+			EE::error( 'EasyEngine update requires minimum 5GB disk space to run. Please free up some space and try again.' );
+		}
+
 		$rsp = new \EE\RevertableStepProcessor();
 
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
