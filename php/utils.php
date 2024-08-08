@@ -1408,7 +1408,7 @@ function delete_dir( $dir ) {
  *
  * @return string Random Password of specified length.
  */
-function random_password( $length = 12 ) {
+function random_password( $length = 18 ) {
 	$alphabet    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 	$pass        = array();
 	$alphaLength = strlen( $alphabet ) - 1;
@@ -1691,47 +1691,42 @@ function extract_zip( $zip_file, $path_to_extract ) {
  */
 function random_name_generator() {
 
-	$left = [
-		'admiring', 'adoring', 'affectionate', 'agitated', 'amazing', 'angry', 'awesome', 'blissful', 'bold',
-		'boring', 'brave', 'charming', 'clever', 'cocky', 'cool', 'compassionate', 'competent', 'condescending',
-		'confident', 'cranky', 'crazy', 'dazzling', 'determined', 'distracted', 'dreamy', 'eager', 'ecstatic',
-		'elastic', 'elated', 'elegant', 'eloquent', 'epic', 'fervent', 'festive', 'flamboyant', 'focused', 'friendly',
-		'frosty', 'gallant', 'gifted', 'goofy', 'gracious', 'happy', 'hardcore', 'heuristic', 'hopeful', 'hungry',
-		'infallible', 'inspiring', 'jolly', 'jovial', 'keen', 'kind', 'laughing', 'loving', 'lucid', 'magical',
-		'mystifying', 'modest', 'musing', 'naughty', 'nervous', 'nifty', 'nostalgic', 'objective', 'optimistic',
-		'peaceful', 'pedantic', 'pensive', 'practical', 'priceless', 'quirky', 'quizzical', 'recursing', 'relaxed',
-		'reverent', 'romantic', 'sad', 'serene', 'sharp', 'silly', 'sleepy', 'stoic', 'stupefied', 'suspicious',
-		'sweet', 'tender', 'thirsty', 'trusting', 'unruffled', 'upbeat', 'vibrant', 'vigilant', 'vigorous',
-		'wizardly', 'wonderful', 'xenodochial', 'youthful', 'zealous', 'zen',
-	];
+	$prefix = 'wp-user-';
 
-	$right = [ 'albattani', 'allen', 'almeida', 'antonelli', 'agnesi', 'archimedes', 'ardinghelli', 'aryabhata',
-		'austin', 'babbage', 'banach', 'banzai', 'bardeen', 'bartik', 'bassi', 'beaver', 'bell', 'benz', 'bhabha',
-		'bhaskara', 'black', 'blackburn', 'blackwell', 'bohr', 'booth', 'borg', 'bose', 'boyd', 'brahmagupta',
-		'brattain', 'brown', 'burnell', 'buck', 'burnell', 'cannon', 'carson', 'cartwright', 'chandrasekhar',
-		'chaplygin', 'chatelet', 'chatterjee', 'chebyshev', 'cocks', 'cohen', 'chaum', 'clarke', 'colden', 'cori',
-		'cray', 'curran', 'curie', 'darwin', 'davinci', 'dewdney', 'dhawan', 'diffie', 'dijkstra', 'dirac', 'driscoll',
-		'dubinsky', 'easley', 'edison', 'einstein', 'elbakyan', 'elgamal', 'elion', 'ellis', 'engelbart', 'euclid',
-		'euler', 'faraday', 'feistel', 'fermat', 'fermi', 'feynman', 'franklin', 'gagarin', 'galileo', 'galois',
-		'ganguly', 'gates', 'gauss', 'germain', 'goldberg', 'goldstine', 'goldwasser', 'golick', 'goodall', 'gould',
-		'greider', 'grothendieck', 'haibt', 'hamilton', 'haslett', 'hawking', 'hellman', 'heisenberg', 'hermann',
-		'herschel', 'hertz', 'heyrovsky', 'hodgkin', 'hofstadter', 'hoover', 'hopper', 'hugle', 'hypatia', 'ishizaka',
-		'jackson', 'jang', 'jennings', 'jepsen', 'johnson', 'joliot', 'jones', 'kalam', 'kapitsa', 'kare', 'keldysh',
-		'keller', 'kepler', 'khayyam', 'khorana', 'kilby', 'kirch', 'knuth', 'kowalevski', 'lalande', 'lamarr',
-		'lamport', 'leakey', 'leavitt', 'lederberg', 'lehmann', 'lewin', 'lichterman', 'liskov', 'lovelace', 'lumiere',
-		'mahavira', 'margulis', 'matsumoto', 'maxwell', 'mayer', 'mccarthy', 'mcclintock', 'mclaren', 'mclean',
-		'mcnulty', 'mendel', 'mendeleev', 'meitner', 'meninsky', 'merkle', 'mestorf', 'minsky', 'mirzakhani',
-		'moore', 'morse', 'murdock', 'moser', 'napier', 'nash', 'neumann', 'newton', 'nightingale', 'nobel',
-		'noether', 'northcutt', 'noyce', 'panini', 'pare', 'pascal', 'pasteur', 'payne', 'perlman', 'pike',
-		'poincare', 'poitras', 'proskuriakova', 'ptolemy', 'raman', 'ramanujan', 'ride', 'montalcini', 'ritchie',
-		'rhodes', 'robinson', 'roentgen', 'rosalind', 'rubin', 'saha', 'sammet', 'sanderson', 'shannon', 'shaw',
-		'shirley', 'shockley', 'shtern', 'sinoussi', 'snyder', 'solomon', 'spence', 'sutherland', 'stallman',
-		'stonebraker', 'swanson', 'swartz', 'swirles', 'taussig', 'tereshkova', 'tesla', 'tharp', 'thompson',
-		'torvalds', 'tu', 'turing', 'varahamihira', 'vaughan', 'visvesvaraya', 'volhard', 'villani', 'wescoff',
-		'wiles', 'williams', 'williamson', 'wilson', 'wing', 'wozniak', 'wright', 'wu', 'yalow', 'yonath', "zhukovsky",
-	];
+	// Generate a random suffix of 4 to 6 characters with a number at the 2nd or 3rd position.
+	$suffixLength = random_int( 4, 6 );
+	$suffix       = generate_safe_suffix( $suffixLength );
 
-	return $left[ array_rand( $left ) ] . '-' . $right[ array_rand( $right ) ];
+	// Combine prefix and suffix to form the username
+	return $prefix . $suffix;
+}
+
+/**
+ * Generate a safe random suffix with a number at the 2nd or 3rd position.
+ *
+ * @param int $length Length of the desired suffix.
+ *
+ * @return string
+ */
+function generate_safe_suffix( $length ) {
+
+	$alphanumeric = 'abcdefghijklmnopqrstuvwxyz0123456789'; // Allowed alphanumeric characters
+	$numbers      = '0123456789'; // Allowed numeric characters
+
+	$randomSuffix = '';
+
+	// Randomly choose a position for the number (2nd or 3rd)
+	$numberPosition = random_int( 1, 2 );
+
+	for ( $i = 0; $i < $length; $i ++ ) {
+		if ( $i == $numberPosition ) {
+			$randomSuffix .= $numbers[ random_int( 0, strlen( $numbers ) - 1 ) ];
+		} else {
+			$randomSuffix .= $alphanumeric[ random_int( 0, strlen( $alphanumeric ) - 1 ) ];
+		}
+	}
+
+	return $randomSuffix;
 }
 
 /**

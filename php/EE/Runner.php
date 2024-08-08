@@ -143,7 +143,7 @@ class Runner {
 			$free_space = disk_free_space( EE_ROOT_DIR );
 		}
 
-		$docker_dir = EE::launch( 'docker info --format \'{{.DockerRootDir}}\'' )->stdout;
+		$docker_dir = trim( EE::launch( 'docker info --format \'{{.DockerRootDir}}\'' )->stdout );
 
 		if ( is_dir( $docker_dir ) ) {
 			$free_space_docker = disk_free_space( $docker_dir );
