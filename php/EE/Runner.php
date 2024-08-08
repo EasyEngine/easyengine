@@ -136,7 +136,7 @@ class Runner {
 
 		// Check if minimum 5GB disk space is available
 		$free_space        = disk_free_space( EE_ROOT_DIR );
-		$docker_dir        = EE::launch( 'docker info --format \'{{.DockerRootDir}}\'' )->stdout;
+		$docker_dir        = trim( EE::launch( 'docker info --format \'{{.DockerRootDir}}\'' )->stdout );
 		$free_space_docker = disk_free_space( $docker_dir );
 
 		if ( $free_space < 5 * 1024 * 1024 * 1024 || $free_space_docker < 5 * 1024 * 1024 * 1024 ) {
