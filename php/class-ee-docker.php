@@ -39,11 +39,10 @@ class EE_DOCKER {
 		} else {
 
 			if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE_DIR ) ) {
-				$custom_compose_files = array_diff( scandir( SITE_CUSTOM_DOCKER_COMPOSE_DIR ), [ '.', '..' ] );
-				$custom_compose_files = array_map( function ( $arrayValues ) {
+				$ymlFiles  = glob( SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/*.yml' );
+				$yamlFiles = glob( SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/*.yaml' );
 
-					return SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $arrayValues;
-				}, $custom_compose_files );
+				$custom_compose_files = array_merge( $ymlFiles, $yamlFiles );
 
 				$files_before_custom = array_unique( array_merge( $files_before_custom, $custom_compose_files ) );
 			}
