@@ -5,15 +5,16 @@ echo "## What's Changed" > changelog.txt
 createdAt=$(gh api graphql -F owner='EasyEngine' -F name='easyengine' -f query='
   query {
     repository(owner: "EasyEngine", name: "easyengine") {
-      releases(last: 1) {
+      releases(first: 1, orderBy: { field: CREATED_AT, direction: DESC }) {
         nodes { tagName, createdAt }
       }
     }
   }
 ' | jq -r '.data.repository.releases.nodes[0].createdAt')
+
 gh api graphql --paginate -f query="
 query {
-  search(query: \"org:Easyengine updated:>$createdAt state:closed is:pr\", type:ISSUE,first: 100) {
+  search(query: \"org:Easyengine updated:>$createdAt state:closed is:pr\", type:ISSUE, first: 100) {
     repositoryCount
     edges {
       node {
