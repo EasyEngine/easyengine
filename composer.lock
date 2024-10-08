@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7017aacf107eede709fed0b69a1ccdb7",
+    "content-hash": "5498938c77cc0c6c755fb80e2c8f4870",
     "packages": [
         {
             "name": "acmephp/core",
@@ -199,16 +199,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.1",
+            "version": "1.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a"
+                "reference": "48a792895a2b7a6ee65dd5442c299d7b835b6137"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/063d9aa8696582f5a41dffbbaf3c81024f0a604a",
-                "reference": "063d9aa8696582f5a41dffbbaf3c81024f0a604a",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/48a792895a2b7a6ee65dd5442c299d7b835b6137",
+                "reference": "48a792895a2b7a6ee65dd5442c299d7b835b6137",
                 "shasum": ""
             },
             "require": {
@@ -218,8 +218,8 @@
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^8 || ^9",
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
-                "symfony/phpunit-bridge": "^4.2 || ^5",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "type": "library",
@@ -255,7 +255,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.1"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.2"
             },
             "funding": [
                 {
@@ -271,7 +271,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-07-08T15:28:20+00:00"
+            "time": "2024-09-25T07:49:53+00:00"
         },
         {
             "name": "composer/composer",
@@ -1117,16 +1117,16 @@
         },
         {
             "name": "easyengine/shell-command",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/shell-command.git",
-                "reference": "08475c777671cbf9feff7240910bcf14d298331a"
+                "reference": "e7676ed2939435354c2c176489e6ba1628561f49"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/08475c777671cbf9feff7240910bcf14d298331a",
-                "reference": "08475c777671cbf9feff7240910bcf14d298331a",
+                "url": "https://api.github.com/repos/EasyEngine/shell-command/zipball/e7676ed2939435354c2c176489e6ba1628561f49",
+                "reference": "e7676ed2939435354c2c176489e6ba1628561f49",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1155,22 +1155,22 @@
             "homepage": "https://github.com/easyengine/shell-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/shell-command/issues",
-                "source": "https://github.com/EasyEngine/shell-command/tree/v1.1.1"
+                "source": "https://github.com/EasyEngine/shell-command/tree/v1.1.2"
             },
-            "time": "2022-05-31T11:46:57+00:00"
+            "time": "2024-10-08T14:45:56+00:00"
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.3.1",
+            "version": "v3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "f5413bd44f33cf25841b42f27d4816e65950ae51"
+                "reference": "ee76accecff64a189c54860ab48950151125653b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/f5413bd44f33cf25841b42f27d4816e65950ae51",
-                "reference": "f5413bd44f33cf25841b42f27d4816e65950ae51",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/ee76accecff64a189c54860ab48950151125653b",
+                "reference": "ee76accecff64a189c54860ab48950151125653b",
                 "shasum": ""
             },
             "require": {
@@ -1231,22 +1231,22 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.3.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.3.2"
             },
-            "time": "2024-09-13T11:01:48+00:00"
+            "time": "2024-10-08T14:49:57+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.8.0",
+            "version": "v1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "11c1eb443aec0f8292ea62a4fe8e02e6558f0888"
+                "reference": "f7ffa594add367df04850bc1b9a46dc857d00c91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/11c1eb443aec0f8292ea62a4fe8e02e6558f0888",
-                "reference": "11c1eb443aec0f8292ea62a4fe8e02e6558f0888",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/f7ffa594add367df04850bc1b9a46dc857d00c91",
+                "reference": "f7ffa594add367df04850bc1b9a46dc857d00c91",
                 "shasum": ""
             },
             "require-dev": {
@@ -1290,22 +1290,22 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.8.0"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.8.1"
             },
-            "time": "2024-05-14T10:21:08+00:00"
+            "time": "2024-10-08T14:52:50+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.8.0",
+            "version": "v1.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "a66f460788c760282b26aac91cd254b9a8dbdf45"
+                "reference": "9a38a3ee9d62dd4988f28ab3fd4d1b8bbbbb0218"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/a66f460788c760282b26aac91cd254b9a8dbdf45",
-                "reference": "a66f460788c760282b26aac91cd254b9a8dbdf45",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/9a38a3ee9d62dd4988f28ab3fd4d1b8bbbbb0218",
+                "reference": "9a38a3ee9d62dd4988f28ab3fd4d1b8bbbbb0218",
                 "shasum": ""
             },
             "require-dev": {
@@ -1349,9 +1349,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.8.0"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.8.1"
             },
-            "time": "2024-05-14T10:21:23+00:00"
+            "time": "2024-10-08T14:53:03+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -4602,16 +4602,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.19.1",
+            "version": "v4.19.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "4e1b88d21c69391150ace211e9eaf05810858d0b"
+                "reference": "715f4d25e225bc47b293a8b997fe6ce99bf987d2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/4e1b88d21c69391150ace211e9eaf05810858d0b",
-                "reference": "4e1b88d21c69391150ace211e9eaf05810858d0b",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/715f4d25e225bc47b293a8b997fe6ce99bf987d2",
+                "reference": "715f4d25e225bc47b293a8b997fe6ce99bf987d2",
                 "shasum": ""
             },
             "require": {
@@ -4620,7 +4620,7 @@
             },
             "require-dev": {
                 "ircmaxell/php-yacc": "^0.0.7",
-                "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0 || ^9.0"
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
             },
             "bin": [
                 "bin/php-parse"
@@ -4652,9 +4652,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.19.1"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v4.19.4"
             },
-            "time": "2024-03-17T08:10:35+00:00"
+            "time": "2024-09-29T15:01:53+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -6217,16 +6217,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.10.2",
+            "version": "3.10.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "86e5f5dd9a840c46810ebe5ff1885581c42a3017"
+                "reference": "62d32998e820bddc40f99f8251958aed187a5c9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/86e5f5dd9a840c46810ebe5ff1885581c42a3017",
-                "reference": "86e5f5dd9a840c46810ebe5ff1885581c42a3017",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/62d32998e820bddc40f99f8251958aed187a5c9c",
+                "reference": "62d32998e820bddc40f99f8251958aed187a5c9c",
                 "shasum": ""
             },
             "require": {
@@ -6293,7 +6293,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-07-21T23:26:44+00:00"
+            "time": "2024-09-18T10:38:58+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -6393,15 +6393,15 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.0"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "7.3"
     },
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.6.0"
 }
