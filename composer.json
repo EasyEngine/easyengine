@@ -28,7 +28,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0",
-        "composer/composer": "2.2.23",
+        "composer/composer": "2.2.24",
         "composer/semver": "3.2.4",
         "daverandom/libdns": "^2.0",
         "easyengine/admin-tools-command": "v1.1.0",
