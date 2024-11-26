@@ -22,7 +22,7 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.3'
           coverage: none
           tools: composer
           extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
