@@ -68,7 +68,7 @@ jobs:
 
 
       - name: Upload EE version
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: cli_version
           path: VERSION
@@ -80,7 +80,7 @@ jobs:
         run: sudo ./easyengine.phar cli info
 
       - name: Upload built Phar file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: easyengine-phar
           path: easyengine.phar
