@@ -38,6 +38,7 @@ class Containers {
 			'easyengine/php8.1',
 			'easyengine/php8.2',
 			'easyengine/php8.3',
+			'easyengine/php8.4',
 			'easyengine/newrelic-daemon',
 		];
 
@@ -108,7 +109,7 @@ class Containers {
 
 		self::$rsp->add_step(
 			'prune-old-docker-images',
-			'EE\Migration\Containers::image_cleanup',
+			'EE\Migration\Containers::docker_cleanup',
 			null,
 			null,
 			null
@@ -119,8 +120,9 @@ class Containers {
 	/**
 	 * Prune old and extra EE Docker images.
 	 */
-	public static function image_cleanup() {
+	public static function docker_cleanup() {
 		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
+		EE::exec( 'docker network prune -f --filter=label=org.label-schema.vendor="EasyEngine"' );
 	}
 
 	/**
