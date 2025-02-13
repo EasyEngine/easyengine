@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8c6daceccead49d779e0d125186376e",
+    "content-hash": "7d5f761634519e35800eec5c52544c5c",
     "packages": [
         {
             "name": "acmephp/core",
@@ -151,16 +151,16 @@
         },
         {
             "name": "cloudflare/sdk",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/cloudflare/cloudflare-php.git",
-                "reference": "fdfc656aa8b78016f4722acec30b54136c027d8e"
+                "reference": "2d3f198773e865b5de2357d7bdbc52bdf42e8f97"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/cloudflare/cloudflare-php/zipball/fdfc656aa8b78016f4722acec30b54136c027d8e",
-                "reference": "fdfc656aa8b78016f4722acec30b54136c027d8e",
+                "url": "https://api.github.com/repos/cloudflare/cloudflare-php/zipball/2d3f198773e865b5de2357d7bdbc52bdf42e8f97",
+                "reference": "2d3f198773e865b5de2357d7bdbc52bdf42e8f97",
                 "shasum": ""
             },
             "require": {
@@ -193,22 +193,22 @@
             "description": "PHP binding for v4 of the Cloudflare Client API.",
             "support": {
                 "issues": "https://github.com/cloudflare/cloudflare-php/issues",
-                "source": "https://github.com/cloudflare/cloudflare-php/tree/1.3.0"
+                "source": "https://github.com/cloudflare/cloudflare-php/tree/1.4.0"
             },
-            "time": "2021-10-13T03:40:33+00:00"
+            "time": "2024-12-17T23:18:20+00:00"
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.3",
+            "version": "1.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "3b1fc3f0be055baa7c6258b1467849c3e8204eb2"
+                "reference": "08c50d5ec4c6ced7d0271d2862dec8c1033283e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/3b1fc3f0be055baa7c6258b1467849c3e8204eb2",
-                "reference": "3b1fc3f0be055baa7c6258b1467849c3e8204eb2",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/08c50d5ec4c6ced7d0271d2862dec8c1033283e6",
+                "reference": "08c50d5ec4c6ced7d0271d2862dec8c1033283e6",
                 "shasum": ""
             },
             "require": {
@@ -255,7 +255,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.3"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.5"
             },
             "funding": [
                 {
@@ -271,7 +271,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-04T10:15:26+00:00"
+            "time": "2025-01-08T16:17:16+00:00"
         },
         {
             "name": "composer/composer",
@@ -799,15 +799,15 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "admin-tools",
                     "admin-tools enable",
                     "admin-tools disable"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -845,9 +845,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "auth",
@@ -855,7 +852,10 @@
                     "auth delete",
                     "auth list",
                     "auth update"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -895,15 +895,15 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "config",
                     "config set",
                     "config get"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -941,9 +941,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "cron",
@@ -952,7 +949,10 @@
                     "cron update",
                     "cron list",
                     "cron run-now"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -992,13 +992,13 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "log show"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1035,16 +1035,16 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "mailhog",
                     "mailhog enable",
                     "mailhog disable",
                     "mailhog status"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1082,9 +1082,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "service",
@@ -1092,7 +1089,10 @@
                     "service disable",
                     "service restart",
                     "service reload"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1131,13 +1131,13 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "shell"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1161,16 +1161,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.3.3",
+            "version": "v3.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "d930519cc0ad6c9fe81bd17f23692e9f2830feb2"
+                "reference": "8f509d82070909636101e1e41b72581e2b71cef3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/d930519cc0ad6c9fe81bd17f23692e9f2830feb2",
-                "reference": "d930519cc0ad6c9fe81bd17f23692e9f2830feb2",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/8f509d82070909636101e1e41b72581e2b71cef3",
+                "reference": "8f509d82070909636101e1e41b72581e2b71cef3",
                 "shasum": ""
             },
             "require": {
@@ -1184,9 +1184,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "site create --type=html",
@@ -1202,7 +1199,10 @@
                     "site restart --type=html",
                     "site share",
                     "site clean"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1231,22 +1231,22 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.3.3"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.3.5"
             },
-            "time": "2024-11-26T09:06:35+00:00"
+            "time": "2025-02-13T11:47:17+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.9.0",
+            "version": "v1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "7a38595e198650a2091c1497e3ce54c5c5485587"
+                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/7a38595e198650a2091c1497e3ce54c5c5485587",
-                "reference": "7a38595e198650a2091c1497e3ce54c5c5485587",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/523df86ffc70b29b8c93aa9a88002bf53334d887",
+                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887",
                 "shasum": ""
             },
             "require-dev": {
@@ -1254,9 +1254,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "site create --type=php",
@@ -1272,7 +1269,10 @@
                     "site restart --type=php",
                     "site share",
                     "site clean"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1290,22 +1290,22 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.0"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.1"
             },
-            "time": "2024-11-26T08:38:27+00:00"
+            "time": "2025-02-13T11:48:36+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.9.0",
+            "version": "v1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "afcba8ca7429f6a8dc4db608c5acab36921a1193"
+                "reference": "f95ab4c2f1d6c38fb7a61f24825ec9aac405d4cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/afcba8ca7429f6a8dc4db608c5acab36921a1193",
-                "reference": "afcba8ca7429f6a8dc4db608c5acab36921a1193",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/f95ab4c2f1d6c38fb7a61f24825ec9aac405d4cc",
+                "reference": "f95ab4c2f1d6c38fb7a61f24825ec9aac405d4cc",
                 "shasum": ""
             },
             "require-dev": {
@@ -1313,9 +1313,6 @@
             },
             "type": "ee-cli-package",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                },
                 "bundled": true,
                 "commands": [
                     "site create --type=wp",
@@ -1331,7 +1328,10 @@
                     "site restart --type=wp",
                     "site share",
                     "site clean"
-                ]
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
             },
             "autoload": {
                 "files": [
@@ -1349,9 +1349,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.9.0"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.9.1"
             },
-            "time": "2024-11-26T08:38:22+00:00"
+            "time": "2025-02-13T11:48:15+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2830,16 +2830,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v2.5.3",
+            "version": "v2.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "80d075412b557d41002320b96a096ca65aa2c98d"
+                "reference": "605389f2a7e5625f273b53960dc46aeaf9c62918"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/80d075412b557d41002320b96a096ca65aa2c98d",
-                "reference": "80d075412b557d41002320b96a096ca65aa2c98d",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/605389f2a7e5625f273b53960dc46aeaf9c62918",
+                "reference": "605389f2a7e5625f273b53960dc46aeaf9c62918",
                 "shasum": ""
             },
             "require": {
@@ -2847,12 +2847,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "2.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -2877,7 +2877,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v2.5.3"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v2.5.4"
             },
             "funding": [
                 {
@@ -2893,7 +2893,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-01-24T14:02:46+00:00"
+            "time": "2024-09-25T14:11:13+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -3002,12 +3002,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "1.1-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -3209,8 +3209,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -3288,8 +3288,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -3362,8 +3362,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -3438,8 +3438,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -3518,8 +3518,8 @@
             "type": "library",
             "extra": {
                 "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
                 }
             },
             "autoload": {
@@ -3576,20 +3576,20 @@
         },
         {
             "name": "symfony/process",
-            "version": "v4.4.44",
+            "version": "v5.4.47",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "5cee9cdc4f7805e2699d9fd66991a0e6df8252a2"
+                "reference": "5d1662fb32ebc94f17ddb8d635454a776066733d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/5cee9cdc4f7805e2699d9fd66991a0e6df8252a2",
-                "reference": "5cee9cdc4f7805e2699d9fd66991a0e6df8252a2",
+                "url": "https://api.github.com/repos/symfony/process/zipball/5d1662fb32ebc94f17ddb8d635454a776066733d",
+                "reference": "5d1662fb32ebc94f17ddb8d635454a776066733d",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1.3",
+                "php": ">=7.2.5",
                 "symfony/polyfill-php80": "^1.16"
             },
             "type": "library",
@@ -3618,7 +3618,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v4.4.44"
+                "source": "https://github.com/symfony/process/tree/v5.4.47"
             },
             "funding": [
                 {
@@ -3634,7 +3634,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-27T13:16:42+00:00"
+            "time": "2024-11-06T11:36:42+00:00"
         },
         {
             "name": "symfony/serializer",
@@ -3720,16 +3720,16 @@
         },
         {
             "name": "symfony/service-contracts",
-            "version": "v2.5.3",
+            "version": "v2.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "a2329596ddc8fd568900e3fc76cba42489ecc7f3"
+                "reference": "f37b419f7aea2e9abf10abd261832cace12e3300"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/a2329596ddc8fd568900e3fc76cba42489ecc7f3",
-                "reference": "a2329596ddc8fd568900e3fc76cba42489ecc7f3",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/f37b419f7aea2e9abf10abd261832cace12e3300",
+                "reference": "f37b419f7aea2e9abf10abd261832cace12e3300",
                 "shasum": ""
             },
             "require": {
@@ -3745,12 +3745,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "2.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -3783,7 +3783,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/service-contracts/tree/v2.5.3"
+                "source": "https://github.com/symfony/service-contracts/tree/v2.5.4"
             },
             "funding": [
                 {
@@ -3799,7 +3799,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-21T15:04:16+00:00"
+            "time": "2024-09-25T14:11:13+00:00"
         },
         {
             "name": "symfony/translation",
@@ -3892,16 +3892,16 @@
         },
         {
             "name": "symfony/translation-contracts",
-            "version": "v2.5.3",
+            "version": "v2.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation-contracts.git",
-                "reference": "b0073a77ac0b7ea55131020e87b1e3af540f4664"
+                "reference": "450d4172653f38818657022252f9d81be89ee9a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation-contracts/zipball/b0073a77ac0b7ea55131020e87b1e3af540f4664",
-                "reference": "b0073a77ac0b7ea55131020e87b1e3af540f4664",
+                "url": "https://api.github.com/repos/symfony/translation-contracts/zipball/450d4172653f38818657022252f9d81be89ee9a8",
+                "reference": "450d4172653f38818657022252f9d81be89ee9a8",
                 "shasum": ""
             },
             "require": {
@@ -3912,12 +3912,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/contracts",
+                    "name": "symfony/contracts"
+                },
                 "branch-alias": {
                     "dev-main": "2.5-dev"
-                },
-                "thanks": {
-                    "name": "symfony/contracts",
-                    "url": "https://github.com/symfony/contracts"
                 }
             },
             "autoload": {
@@ -3950,7 +3950,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/translation-contracts/tree/v2.5.3"
+                "source": "https://github.com/symfony/translation-contracts/tree/v2.5.4"
             },
             "funding": [
                 {
@@ -3966,7 +3966,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-01-23T13:51:25+00:00"
+            "time": "2024-09-25T14:11:13+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -4542,16 +4542,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.12.1",
+            "version": "1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845"
+                "reference": "024473a478be9df5fdaca2c793f2232fe788e414"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/123267b2c49fbf30d78a7b2d333f6be754b94845",
-                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/024473a478be9df5fdaca2c793f2232fe788e414",
+                "reference": "024473a478be9df5fdaca2c793f2232fe788e414",
                 "shasum": ""
             },
             "require": {
@@ -4590,7 +4590,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.1"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.0"
             },
             "funding": [
                 {
@@ -4598,7 +4598,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-11-08T17:47:46+00:00"
+            "time": "2025-02-12T12:17:51+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -6217,16 +6217,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.11.1",
+            "version": "3.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "19473c30efe4f7b3cd42522d0b2e6e7f243c6f87"
+                "reference": "ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/19473c30efe4f7b3cd42522d0b2e6e7f243c6f87",
-                "reference": "19473c30efe4f7b3cd42522d0b2e6e7f243c6f87",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10",
+                "reference": "ba05f990e79cbe69b9f35c8c1ac8dca7eecc3a10",
                 "shasum": ""
             },
             "require": {
@@ -6291,9 +6291,13 @@
                 {
                     "url": "https://opencollective.com/php_codesniffer",
                     "type": "open_collective"
+                },
+                {
+                    "url": "https://thanks.dev/phpcsstandards",
+                    "type": "thanks_dev"
                 }
             ],
-            "time": "2024-11-16T12:02:36+00:00"
+            "time": "2025-01-23T17:04:15+00:00"
         },
         {
             "name": "theseer/tokenizer",
