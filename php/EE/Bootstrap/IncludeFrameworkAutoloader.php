@@ -34,7 +34,7 @@ final class IncludeFrameworkAutoloader implements BootstrapStep {
 		$mappings = [
 			'EE'                       => EE_ROOT . '/php/EE',
 			'cli'                      => EE_VENDOR_DIR . '/wp-cli/php-cli-tools/lib/cli',
-			'Requests'                 => EE_VENDOR_DIR . '/rmccue/requests/library/Requests',
+			'WpOrg\\Requests'          => EE_VENDOR_DIR . '/rmccue/requests/src', // New PSR-4 mapping
 			'Symfony\Component\Finder' => EE_VENDOR_DIR . '/symfony/finder/',
 			'Psr\Log'                  => EE_VENDOR_DIR . '/psr/log/Psr/Log/',
 			'Monolog'                  => EE_VENDOR_DIR . '/monolog/monolog/src/Monolog',
@@ -47,7 +47,6 @@ final class IncludeFrameworkAutoloader implements BootstrapStep {
 			);
 		}
 
-		include_once EE_VENDOR_DIR . '/rmccue/requests/library/Requests.php';
 		include_once EE_VENDOR_DIR . '/wp-cli/mustangostang-spyc/Spyc.php';
 
 		$autoloader->register();
