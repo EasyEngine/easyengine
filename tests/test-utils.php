@@ -383,7 +383,7 @@ class UtilsTest extends PHPUnit_Framework_TestCase {
 
 		// Hack to create bad CAcert, using Utils\get_vendor_paths() preference for a path as part of a Composer-installed larger project.
 		$vendor_dir = EE_ROOT . '/../../../vendor';
-		$cert_path = '/rmccue/requests/library/Requests/Transport/cacert.pem';
+		$cert_path = '/rmccue/requests/certificates/cacert.pem';
 		$bad_cacert_path = $vendor_dir . $cert_path;
 		if ( ! file_exists( $bad_cacert_path ) ) {
 			// Capture any directories created so can clean up.
