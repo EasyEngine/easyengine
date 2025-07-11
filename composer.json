@@ -44,7 +44,7 @@
         "easyengine/site-type-wp": "v1.9.1",
         "monolog/monolog": "1.24.0",
         "mustache/mustache": "2.14.1",
-        "rmccue/requests": "1.8.0",
+        "rmccue/requests": "^2.0",
         "symfony/config": "4.4.*",
         "symfony/console": "4.4.*",
         "symfony/debug": "4.4.*",
