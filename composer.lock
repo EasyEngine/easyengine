@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "33efb86d35dc33fe989439e04fa7c155",
+    "content-hash": "b336604236351416f1290c9ab9397458",
     "packages": [
         {
             "name": "acmephp/core",
@@ -977,6 +977,51 @@
             "time": "2024-05-27T13:06:26+00:00"
         },
         {
+            "name": "easyengine/dash-command",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/EasyEngine/dash-command.git",
+                "reference": "83f20d113b28211dfb9851b7670603d832e4a735"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/EasyEngine/dash-command/zipball/83f20d113b28211dfb9851b7670603d832e4a735",
+                "reference": "83f20d113b28211dfb9851b7670603d832e4a735",
+                "shasum": ""
+            },
+            "type": "ee-cli-package",
+            "extra": {
+                "bundled": true,
+                "commands": [
+                    "dash",
+                    "dash init"
+                ],
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "dash-command.php"
+                ],
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Command to manage dash",
+            "homepage": "https://github.com/easyengine/dash-command",
+            "support": {
+                "issues": "https://github.com/EasyEngine/dash-command/issues",
+                "source": "https://github.com/EasyEngine/dash-command/tree/v1.0.0"
+            },
+            "time": "2025-07-10T12:39:35+00:00"
+        },
+        {
             "name": "easyengine/log-command",
             "version": "v1.1.0",
             "source": {
@@ -1161,16 +1206,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.3.5",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "8f509d82070909636101e1e41b72581e2b71cef3"
+                "reference": "2281c1b120f647cd3ff7d208a7b96a05a87e6436"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/8f509d82070909636101e1e41b72581e2b71cef3",
-                "reference": "8f509d82070909636101e1e41b72581e2b71cef3",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/2281c1b120f647cd3ff7d208a7b96a05a87e6436",
+                "reference": "2281c1b120f647cd3ff7d208a7b96a05a87e6436",
                 "shasum": ""
             },
             "require": {
@@ -1213,6 +1258,7 @@
                     "src/helper/SimpleDnsCloudflareSolver.php",
                     "src/helper/Site_Self_Signed.php",
                     "src/helper/Site_Letsencrypt.php",
+                    "src/helper/Site_Backup_Restore.php",
                     "src/helper/Shutdown_Handler.php",
                     "src/clone/Cloner.php",
                     "src/clone/clone-utils.php"
@@ -1231,22 +1277,22 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.3.5"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.4.0"
             },
-            "time": "2025-02-13T11:47:17+00:00"
+            "time": "2025-07-11T12:38:36+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.9.1",
+            "version": "v1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887"
+                "reference": "d597f47a8bb55cf497909774e5a1ffcd7398ced8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/523df86ffc70b29b8c93aa9a88002bf53334d887",
-                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/d597f47a8bb55cf497909774e5a1ffcd7398ced8",
+                "reference": "d597f47a8bb55cf497909774e5a1ffcd7398ced8",
                 "shasum": ""
             },
             "require-dev": {
@@ -1290,9 +1336,9 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.1"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.2"
             },
-            "time": "2025-02-13T11:48:36+00:00"
+            "time": "2025-07-11T14:19:02+00:00"
         },
         {
             "name": "easyengine/site-type-wp",

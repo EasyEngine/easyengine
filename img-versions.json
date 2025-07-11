@@ -1,5 +1,5 @@
 {
-    "easyengine/cron": "v4.8.1",
+    "easyengine/cron": "v4.9.0",
     "easyengine/mailhog": "v4.6.5",
     "easyengine/mariadb": "v4.6.6",
     "easyengine/nginx-proxy": "v4.8.1",
@@ -11,11 +11,11 @@
     "easyengine/php7.3": "v4.7.4",
     "easyengine/php7.4": "v4.7.4",
     "easyengine/php8.0": "v4.8.1",
-    "easyengine/php8.1": "v4.8.1",
-    "easyengine/php8.2": "v4.8.1",
-    "easyengine/php8.3": "v4.8.1",
-    "easyengine/php8.4": "v4.8.0",
+    "easyengine/php8.1": "v4.9.0",
+    "easyengine/php8.2": "v4.9.0",
+    "easyengine/php8.3": "v4.9.0",
+    "easyengine/php8.4": "v4.9.0",
     "easyengine/postfix": "v4.8.1",
     "easyengine/redis": "v4.8.1",
-    "easyengine/newrelic-daemon": "v4.8.1"
+    "easyengine/newrelic-daemon": "v4.9.0"
 }
