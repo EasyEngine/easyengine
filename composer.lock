@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "561521d547ba776378f4862fee337661",
+    "content-hash": "b336604236351416f1290c9ab9397458",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1283,16 +1283,16 @@
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.9.1",
+            "version": "v1.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887"
+                "reference": "d597f47a8bb55cf497909774e5a1ffcd7398ced8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/523df86ffc70b29b8c93aa9a88002bf53334d887",
-                "reference": "523df86ffc70b29b8c93aa9a88002bf53334d887",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/d597f47a8bb55cf497909774e5a1ffcd7398ced8",
+                "reference": "d597f47a8bb55cf497909774e5a1ffcd7398ced8",
                 "shasum": ""
             },
             "require-dev": {
@@ -1336,9 +1336,9 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.1"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.9.2"
             },
-            "time": "2025-02-13T11:48:36+00:00"
+            "time": "2025-07-11T14:19:02+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
