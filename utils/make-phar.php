@@ -320,7 +320,7 @@ if ( 'cli' !== BUILD ) {
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/LICENSE' );
 	add_file( $phar, EE_VENDOR_DIR . '/composer/composer/res/composer-schema.json' );
 }
-add_file( $phar, EE_VENDOR_DIR . '/rmccue/requests/library/Requests/Transport/cacert.pem' );
+add_file( $phar, EE_VENDOR_DIR . '/rmccue/requests/certificates/cacert.pem' );
 
 set_file_contents( $phar, EE_ROOT . '/COMPOSER_VERSIONS', get_composer_versions( $current_version ) );
 set_file_contents( $phar, EE_ROOT . '/VERSION', $current_version );
