@@ -36,7 +36,7 @@ class SiteContainers {
 		EE::debug( 'Start backing up site\'s docker-compose.yml' );
 		$fs = new Filesystem();
 		if ( ! $fs->exists( $source_path ) ) {
-			throw new \Exception( ' site\'s docker-compose.yml does not exist' );
+			throw new \Exception( "Site's docker-compose.yml does not exist at {$source_path}" );
 		}
 		$fs->copy( $source_path, $destination_path, true );
 		EE::debug( 'Complete backing up site\'s docker-compose.yml' );
@@ -54,7 +54,7 @@ class SiteContainers {
 		EE::debug( 'Start restoring site\'s docker-compose.yml' );
 		$fs = new Filesystem();
 		if ( ! $fs->exists( $source_path ) ) {
-			throw new \Exception( ' site\'s docker-compose.yml.backup does not exist' );
+			throw new \Exception( "Site's docker-compose.yml does not exist at {$source_path}" );
 		}
 		$fs->copy( $source_path, $destination_path, true );
 		$fs->remove( $source_path );
@@ -137,11 +137,11 @@ class SiteContainers {
 		EE::debug( "Start disabling default containers of ${site_info['site_url']}" );
 
 		if ( ! chdir( $site_info['site_fs_path'] ) ) {
-			throw new \Exception( sprintf( '%s path does not exist', $site_info['site_fs_path'] ) );
+			throw new \Exception( "Path does not exist: {$site_info['site_fs_path']}" );
 		}
 
 		if ( ! EE::exec( 'docker-compose stop && docker-compose rm -f' ) ) {
-			throw new \Exception( sprintf( 'Something went wrong on disable site %s', $site_info['site_url'] ) );
+			throw new \Exception( "Failed to disable site {$site_info['site_url']}" );
 		}
 
 		EE::debug( "Complete disabling default containers of ${site_info['site_url']}" );
@@ -219,7 +219,7 @@ class SiteContainers {
 		chdir( $site_fs_path );
 		$success = EE::exec( "docker-compose exec nginx sh -c 'nginx -t && nginx -s reload'" );
 		if ( ! $success ) {
-			throw new \Exception( 'Could not reload nginx. Check logs.' );
+			throw new \Exception( "Could not reload nginx for site at {$site_fs_path}. Check logs." );
 		}
 	}
 
@@ -233,7 +233,7 @@ class SiteContainers {
 		chdir( $site_fs_path );
 		$success = EE::exec( "docker-compose exec php bash -c 'kill -USR2 1'" );
 		if ( ! $success ) {
-			throw new \Exception( 'Could not reload php. Check logs.' );
+			throw new \Exception( "Could not reload PHP for site at {$site_fs_path}. Check logs." );
 		}
 	}
 
@@ -247,7 +247,7 @@ class SiteContainers {
 		chdir( $site_fs_path );
 		$success = EE::exec( "docker-compose pull" );
 		if ( ! $success ) {
-			throw new \Exception( 'Could pull given images.' );
+			throw new \Exception( "Could not pull site Docker images at {$site_fs_path}" );
 		}
 	}
 
