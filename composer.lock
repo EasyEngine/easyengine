@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9248b3c648111dba8ba7c9ca356cbb9d",
+    "content-hash": "86ccc311bc5e1c62b4bbb296a8d98fdf",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1109,16 +1109,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.6.1",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "a730ce0419d6f2b18d1d0206438125e2de9d2ac8"
+                "reference": "d6f642d26b019bee68b3f23f3ccb59c2ee4266ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/a730ce0419d6f2b18d1d0206438125e2de9d2ac8",
-                "reference": "a730ce0419d6f2b18d1d0206438125e2de9d2ac8",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/d6f642d26b019bee68b3f23f3ccb59c2ee4266ae",
+                "reference": "d6f642d26b019bee68b3f23f3ccb59c2ee4266ae",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1152,9 +1152,9 @@
             "homepage": "https://github.com/easyengine/service-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/service-command/issues",
-                "source": "https://github.com/EasyEngine/service-command/tree/v1.6.1"
+                "source": "https://github.com/EasyEngine/service-command/tree/v1.6.2"
             },
-            "time": "2024-05-27T13:07:27+00:00"
+            "time": "2025-09-04T07:03:26+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -1202,16 +1202,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.5.0",
+            "version": "v3.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "e2d2c9c14f09ecd8d71147131ff730f8a5eb6137"
+                "reference": "c6fc3b1d9cd6ae533e2c0d32c60d66eb36bdc2dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/e2d2c9c14f09ecd8d71147131ff730f8a5eb6137",
-                "reference": "e2d2c9c14f09ecd8d71147131ff730f8a5eb6137",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/c6fc3b1d9cd6ae533e2c0d32c60d66eb36bdc2dd",
+                "reference": "c6fc3b1d9cd6ae533e2c0d32c60d66eb36bdc2dd",
                 "shasum": ""
             },
             "require": {
@@ -1273,9 +1273,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.5.0"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.5.1"
             },
-            "time": "2025-09-03T12:41:55+00:00"
+            "time": "2025-09-04T07:03:05+00:00"
         },
         {
             "name": "easyengine/site-type-php",
