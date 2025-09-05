@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fda6d0da6c7c541d635f3e24ea141ab7",
+    "content-hash": "6d25d459d9c1fcec9cfdcaeda705312b",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1202,16 +1202,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.5.2",
+            "version": "v3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "33a11a3d2355650ca41985ab2d2ff7fbb965d270"
+                "reference": "be13167e1b0af1d16a4d5257d5b65eadde318ce2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/33a11a3d2355650ca41985ab2d2ff7fbb965d270",
-                "reference": "33a11a3d2355650ca41985ab2d2ff7fbb965d270",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/be13167e1b0af1d16a4d5257d5b65eadde318ce2",
+                "reference": "be13167e1b0af1d16a4d5257d5b65eadde318ce2",
                 "shasum": ""
             },
             "require": {
@@ -1273,9 +1273,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.5.2"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.5.3"
             },
-            "time": "2025-09-04T08:47:57+00:00"
+            "time": "2025-09-05T07:09:43+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -6354,16 +6354,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.13.2",
+            "version": "3.13.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "5b5e3821314f947dd040c70f7992a64eac89025c"
+                "reference": "ad545ea9c1b7d270ce0fc9cbfb884161cd706119"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/5b5e3821314f947dd040c70f7992a64eac89025c",
-                "reference": "5b5e3821314f947dd040c70f7992a64eac89025c",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/ad545ea9c1b7d270ce0fc9cbfb884161cd706119",
+                "reference": "ad545ea9c1b7d270ce0fc9cbfb884161cd706119",
                 "shasum": ""
             },
             "require": {
@@ -6434,7 +6434,7 @@
                     "type": "thanks_dev"
                 }
             ],
-            "time": "2025-06-17T22:17:01+00:00"
+            "time": "2025-09-05T05:47:09+00:00"
         },
         {
             "name": "theseer/tokenizer",
