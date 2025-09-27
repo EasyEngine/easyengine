@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6d25d459d9c1fcec9cfdcaeda705312b",
+    "content-hash": "38239b1f3f76566f4fd12060f79d65d0",
     "packages": [
         {
             "name": "acmephp/core",
@@ -877,16 +877,16 @@
         },
         {
             "name": "easyengine/config-command",
-            "version": "v1.0.2",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/config-command.git",
-                "reference": "b48e8cdb9456f7a6a7492415b177867f4228d3f6"
+                "reference": "78bf37e1161bd6449270a108c309d686849fb723"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/b48e8cdb9456f7a6a7492415b177867f4228d3f6",
-                "reference": "b48e8cdb9456f7a6a7492415b177867f4228d3f6",
+                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/78bf37e1161bd6449270a108c309d686849fb723",
+                "reference": "78bf37e1161bd6449270a108c309d686849fb723",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -895,7 +895,9 @@
                 "commands": [
                     "config",
                     "config set",
-                    "config get"
+                    "config get",
+                    "config unset",
+                    "config list"
                 ],
                 "branch-alias": {
                     "dev-master": "1.x-dev"
@@ -917,9 +919,9 @@
             "homepage": "https://github.com/easyengine/config-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/config-command/issues",
-                "source": "https://github.com/EasyEngine/config-command/tree/master"
+                "source": "https://github.com/EasyEngine/config-command/tree/v1.1.0"
             },
-            "time": "2018-12-28T16:04:46+00:00"
+            "time": "2025-09-27T06:24:03+00:00"
         },
         {
             "name": "easyengine/cron-command",
@@ -1202,16 +1204,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.5.3",
+            "version": "v3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "be13167e1b0af1d16a4d5257d5b65eadde318ce2"
+                "reference": "8a13026a9e499d1318b369adc93f953a0afc1a66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/be13167e1b0af1d16a4d5257d5b65eadde318ce2",
-                "reference": "be13167e1b0af1d16a4d5257d5b65eadde318ce2",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/8a13026a9e499d1318b369adc93f953a0afc1a66",
+                "reference": "8a13026a9e499d1318b369adc93f953a0afc1a66",
                 "shasum": ""
             },
             "require": {
@@ -1273,9 +1275,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.5.3"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.6.1"
             },
-            "time": "2025-09-05T07:09:43+00:00"
+            "time": "2025-09-27T07:38:40+00:00"
         },
         {
             "name": "easyengine/site-type-php",
@@ -5794,16 +5796,16 @@
         },
         {
             "name": "sebastian/exporter",
-            "version": "4.0.6",
+            "version": "4.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/exporter.git",
-                "reference": "78c00df8f170e02473b682df15bfcdacc3d32d72"
+                "reference": "14c6ba52f95a36c3d27c835d65efc7123c446e8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/78c00df8f170e02473b682df15bfcdacc3d32d72",
-                "reference": "78c00df8f170e02473b682df15bfcdacc3d32d72",
+                "url": "https://api.github.com/repos/sebastianbergmann/exporter/zipball/14c6ba52f95a36c3d27c835d65efc7123c446e8c",
+                "reference": "14c6ba52f95a36c3d27c835d65efc7123c446e8c",
                 "shasum": ""
             },
             "require": {
@@ -5859,15 +5861,27 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
-                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.6"
+                "source": "https://github.com/sebastianbergmann/exporter/tree/4.0.8"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/exporter",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2024-03-02T06:33:00+00:00"
+            "time": "2025-09-24T06:03:27+00:00"
         },
         {
             "name": "sebastian/global-state",
