@@ -156,9 +156,9 @@ class Formatter {
 
 				if ( 'json' === $this->args['format'] ) {
 					if ( defined( 'JSON_PARTIAL_OUTPUT_ON_ERROR' ) ) {
-						echo json_encode( $out, JSON_PARTIAL_OUTPUT_ON_ERROR );
+						echo json_encode( $out, JSON_PRETTY_PRINT | JSON_PARTIAL_OUTPUT_ON_ERROR );
 					} else {
-						echo json_encode( $out );
+						echo json_encode( $out, JSON_PRETTY_PRINT );
 					}
 				} elseif ( 'yaml' === $this->args['format'] ) {
 					echo Spyc::YAMLDump( $out, 2, 0 );
@@ -200,7 +200,7 @@ class Formatter {
 		}
 
 		if ( 'json' == $this->args['format'] ) {
-			echo json_encode( $values );
+			echo json_encode( $values, JSON_PRETTY_PRINT );
 		}
 	}
 
