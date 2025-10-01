@@ -41,7 +41,6 @@ class InsertDockerImagesVersion extends Base {
 			'easyengine/php',
 			'easyengine/php8.0',
 			'easyengine/php8.1',
-			'easyengine/php8.4',
 			'easyengine/mailhog',
 			'easyengine/newrelic-daemon',
 		];
