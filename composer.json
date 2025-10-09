@@ -40,7 +40,7 @@
         "easyengine/mailhog-command": "v1.0.3",
         "easyengine/service-command": "v1.6.2",
         "easyengine/shell-command": "v1.1.3",
-        "easyengine/site-command": "v3.6.1",
+        "easyengine/site-command": "v3.6.2",
         "easyengine/site-type-php": "v1.9.3",
         "easyengine/site-type-wp": "v1.9.1",
         "monolog/monolog": "1.24.0",
