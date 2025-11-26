@@ -15,6 +15,7 @@
     "easyengine/php8.2": "v4.9.1",
     "easyengine/php8.3": "v4.9.1",
     "easyengine/php8.4": "v4.9.1",
+    "easyengine/php8.5": "v4.9.4",
     "easyengine/postfix": "v4.8.1",
     "easyengine/redis": "v4.9.1",
     "easyengine/newrelic-daemon": "v4.9.0"

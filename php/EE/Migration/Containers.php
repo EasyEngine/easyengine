@@ -39,6 +39,7 @@ class Containers {
 			'easyengine/php8.2',
 			'easyengine/php8.3',
 			'easyengine/php8.4',
+			'easyengine/php8.5',
 			'easyengine/newrelic-daemon',
 		];
 
@@ -140,7 +141,7 @@ class Containers {
 			$fs = new Filesystem();
 			if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
 				$fs->mkdir( EE_BACKUP_DIR );
-			}	
+			}
 			$fs->copy( $docker_compose_path, $docker_compose_backup_path );
 
 			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_new_path && chmod +x $docker_compose_new_path" );
