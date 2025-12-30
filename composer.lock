@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56f7965b03832415cb0cc5a7abd55e32",
+    "content-hash": "1d7b12c9e78a95f58f66014411ec90ab",
     "packages": [
         {
             "name": "acmephp/core",
@@ -271,16 +271,16 @@
         },
         {
             "name": "composer/composer",
-            "version": "2.2.24",
+            "version": "2.2.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "91d9d38ebc274267f952ee1fd3892dc7962075f4"
+                "reference": "c6ad1d795efbea3f15805c5e5a86c5a60ba3ed87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/91d9d38ebc274267f952ee1fd3892dc7962075f4",
-                "reference": "91d9d38ebc274267f952ee1fd3892dc7962075f4",
+                "url": "https://api.github.com/repos/composer/composer/zipball/c6ad1d795efbea3f15805c5e5a86c5a60ba3ed87",
+                "reference": "c6ad1d795efbea3f15805c5e5a86c5a60ba3ed87",
                 "shasum": ""
             },
             "require": {
@@ -350,7 +350,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/composer/issues",
-                "source": "https://github.com/composer/composer/tree/2.2.24"
+                "source": "https://github.com/composer/composer/tree/2.2.26"
             },
             "funding": [
                 {
@@ -360,13 +360,9 @@
                 {
                     "url": "https://github.com/composer",
                     "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
                 }
             ],
-            "time": "2024-06-10T20:51:52+00:00"
+            "time": "2025-12-30T12:39:48+00:00"
         },
         {
             "name": "composer/metadata-minifier",
