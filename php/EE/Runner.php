@@ -763,16 +763,16 @@ class Runner {
 
 	public function start() {
 
+		EE::debug( $this->_global_config_path_debug, 'bootstrap' );
+		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
+		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
+
 		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
 			$this->enable_error_reporting();
 		}
-
-		EE::debug( $this->_global_config_path_debug, 'bootstrap' );
-		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
-		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
 
 		if ( $this->alias ) {
 			if ( '@all' === $this->alias && ! isset( $this->aliases['@all'] ) ) {
