@@ -28,7 +28,7 @@
     "prefer-stable": true,
     "require": {
         "php": ">=7.0",
-        "composer/composer": "2.2.24",
+        "composer/composer": "2.2.26",
         "composer/semver": "3.2.4",
         "daverandom/libdns": "^2.0",
         "easyengine/admin-tools-command": "v1.1.1",
@@ -40,7 +40,7 @@
         "easyengine/mailhog-command": "v1.0.3",
         "easyengine/service-command": "v1.6.2",
         "easyengine/shell-command": "v1.1.3",
-        "easyengine/site-command": "v3.7.2",
+        "easyengine/site-command": "v3.7.3",
         "easyengine/site-type-php": "v1.10.0",
         "easyengine/site-type-wp": "v1.10.0",
         "monolog/monolog": "1.24.0",

@@ -92,11 +92,25 @@ class Runner {
 		$status         = true;
 		$error          = [];
 
-		$docker_running_cmd = 'docker ps > /dev/null';
-		if ( ! EE::exec( $docker_running_cmd ) ) {
-			$status         = false;
-			$docker_running = false;
-			$error[]        = 'Docker not installed or not running.';
+		// Retry logic for Docker availability check to handle transient failures under system load.
+		$docker_running_cmd = 'docker ps > /dev/null 2>&1';
+		$max_retries        = 4;
+
+		for ( $attempt = 1; $attempt <= $max_retries; $attempt++ ) {
+			if ( EE::exec( $docker_running_cmd ) ) {
+				break; // Docker is available, exit retry loop.
+			}
+
+			if ( $attempt < $max_retries ) {
+				$retry_delay = pow( 2, $attempt - 1 ); // Exponential backoff: 1s, 2s, 4s
+				EE::debug( "Docker check failed (attempt {$attempt}/{$max_retries}), retrying in {$retry_delay}s...", 'bootstrap' );
+				sleep( $retry_delay );
+			} else {
+				// All retries exhausted.
+				$status         = false;
+				$docker_running = false;
+				$error[]        = "Docker not installed or not running (checked {$max_retries} times).";
+			}
 		}
 
 		$docker_compose_installed = 'command -v docker-compose > /dev/null';
@@ -749,16 +763,16 @@ class Runner {
 
 	public function start() {
 
+		EE::debug( $this->_global_config_path_debug, 'bootstrap' );
+		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
+		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
+
 		$this->init_ee();
 
 		// Enable PHP error reporting to stderr if testing.
 		if ( getenv( 'BEHAT_RUN' ) ) {
 			$this->enable_error_reporting();
 		}
-
-		EE::debug( $this->_global_config_path_debug, 'bootstrap' );
-		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
-		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
 
 		if ( $this->alias ) {
 			if ( '@all' === $this->alias && ! isset( $this->aliases['@all'] ) ) {
