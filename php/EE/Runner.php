@@ -94,7 +94,7 @@ class Runner {
 
 		// Retry logic for Docker availability check to handle transient failures under system load.
 		$docker_running_cmd = 'docker ps > /dev/null 2>&1';
-		$max_retries        = 3;
+		$max_retries        = 4;
 
 		for ( $attempt = 1; $attempt <= $max_retries; $attempt++ ) {
 			if ( EE::exec( $docker_running_cmd ) ) {
