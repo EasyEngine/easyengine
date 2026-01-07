@@ -109,7 +109,7 @@ class Runner {
 				// All retries exhausted.
 				$status         = false;
 				$docker_running = false;
-				$error[]        = 'Docker not installed or not running (checked ' . $max_retries . ' times).';
+				$error[]        = "Docker not installed or not running (checked {$max_retries} times).";
 			}
 		}
 
