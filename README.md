@@ -1,5 +1,5 @@
 
-<img src="https://i2.wp.com/easyengine.io/wp-content/uploads/sites/20/2019/06/EasyEngine-New-Logo-Banner@2x-Transparent-Background.png?fit=720%2C170&ssl=1" alt="EasyEngine Logo" />
+![EasyEngine Logo](https://github.com/user-attachments/assets/fcde9a0e-0569-41e1-bc98-5060af8cd7d3)
 
 # EasyEngine v4
 [![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml) 
