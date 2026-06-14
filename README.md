@@ -2,34 +2,45 @@
 ![EasyEngine Logo](https://github.com/user-attachments/assets/fcde9a0e-0569-41e1-bc98-5060af8cd7d3)
 
 # EasyEngine v4
-[![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml) 
-[![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://github.com/EasyEngine/easyengine/releases) [![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
 
-EasyEngine makes it greatly easy to manage nginx, a fast web-server software that consumes little memory when handling increasing volumes of concurrent users.
+[![Build 🔨 + Test 👨‍🔧](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml/badge.svg?branch=develop)](https://github.com/EasyEngine/easyengine/actions/workflows/test_and_build.yml)  
+[![Latest Stable Version](https://poser.pugx.org/easyengine/easyengine/v/stable)](https://github.com/EasyEngine/easyengine/releases)  
+[![License](https://poser.pugx.org/easyengine/easyengine/license)](https://packagist.org/packages/easyengine/easyengine)
 
-## Requirements
+---
 
-* Docker
-* Docker-Compose
-* PHP CLI (>=7.1)
-* PHP Modules - `curl`, `sqlite3`, `pcntl`
+EasyEngine makes it super simple to manage Nginx — a fast and lightweight web server. It helps you easily scale WordPress sites while using minimal memory, even with high traffic.
 
-## Installing
+---
 
-### Linux
+## 🚀 Requirements
 
-For Linux, we have created an installer script that will install all the dependencies for you. We have tested this on Ubuntu 14.04, 16.04, 18.04, 20.04, 22.04 and Debian 8, Debian 10.
+Before installation, make sure the following dependencies are available on your system:
+
+- Docker
+- Docker-Compose
+- PHP CLI (>=7.1)
+- PHP Modules: `curl`, `sqlite3`, `pcntl`
+
+---
+
+## 📦 Installation
+
+### 🐧 Linux
+
+For Linux, we’ve created an installer script that installs all required dependencies.  
+Tested on: Ubuntu 14.04, 16.04, 18.04, 20.04, 22.04 and Debian 8, 10.
 
 ```bash
 wget -qO ee https://rt.cx/ee4 && sudo bash ee
+
 ```
 
 Even if the script doesn't work for your distribution, you can manually install the dependencies and then run the following commands to install EasyEngine
 
-```bash
 wget -O /usr/local/bin/ee https://raw.githubusercontent.com/EasyEngine/easyengine-builds/master/phar/easyengine.phar
 chmod +x /usr/local/bin/ee
-```
+
 
 ### Tab completions
 
