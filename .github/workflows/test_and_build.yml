@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -32,7 +32,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Set up Composer caching
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         env:
           cache-name: cache-composer-dependencies
         with:
@@ -68,7 +68,7 @@ jobs:
 
 
       - name: Upload EE version
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cli_version
           path: VERSION
@@ -80,7 +80,7 @@ jobs:
         run: sudo ./easyengine.phar cli info
 
       - name: Upload built Phar file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: easyengine-phar
           path: easyengine.phar
@@ -95,7 +95,7 @@ jobs:
         php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
     steps:
     - name: Check out source code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
@@ -110,7 +110,7 @@ jobs:
       run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
     - name: Set up Composer caching
-      uses: actions/cache@v3
+      uses: actions/cache@v6
       env:
         cache-name: cache-composer-dependencies
       with:
@@ -181,13 +181,13 @@ jobs:
 
     steps:
       - name: Check out builds repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           repository: easyengine/easyengine-builds
           token: ${{ secrets.BOT_TOKEN }}
 
       - name: Download built Phar file
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: easyengine-phar
 
@@ -221,7 +221,7 @@ jobs:
           git commit -m "phar build: $GITHUB_REPOSITORY@$GITHUB_SHA"
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
+        uses: ad-m/github-push-action@v1.3.0
         with:
           github_token: ${{ secrets.BOT_TOKEN }}
           branch: master
@@ -237,10 +237,10 @@ jobs:
 
     steps:
     - name: Check out source code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Download built Phar file
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: easyengine-phar
 
@@ -260,7 +260,7 @@ jobs:
       run: echo tag=${GITHUB_REF/refs\/tags\//} >> $GITHUB_OUTPUT
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         body_path: changelog.txt
         files: |
