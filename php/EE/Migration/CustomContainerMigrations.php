@@ -83,6 +83,15 @@ class CustomContainerMigrations {
 	}
 
 	/**
+	 * Keeps the container migrations completed by this invocation: a later failure no longer reverts them.
+	 */
+	public static function keep_executed_migrations() {
+
+		self::$executed = [];
+		EE::debug( 'Keeping the container migrations of this run' );
+	}
+
+	/**
 	 * @return array of available migrations
 	 */
 	private static function get_all_migrations() {

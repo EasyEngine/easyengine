@@ -172,7 +172,8 @@ class Runner {
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
 		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations', 'EE\Migration\CustomContainerMigrations::revert_executed_migrations' );
 		$rsp->add_step( 'ee-docker-image-migrations', 'EE\Migration\Containers::start_container_migration' );
-		// The updated global containers (e.g. nginx-proxy) run from here on. No undo: a later failure reverts the container migrations.
+		// The new images run from here on and have no undo, so a later failure must not revert the container migrations onto them.
+		$rsp->add_step( 'ee-keep-container-migrations', 'EE\Migration\CustomContainerMigrations::keep_executed_migrations' );
 		$rsp->add_step( 'ee-after-docker-image-migrations', 'EE::do_hook', null, [ 'after_docker_image_migration' ] );
 		$rsp->add_step( 'ee-update-docker-compose', 'EE\Migration\Containers::update_docker_compose' );
 		$rsp->add_step( 'ee-update-cron-config', 'EE\Cron\Utils\update_cron_config' );
