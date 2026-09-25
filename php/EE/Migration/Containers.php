@@ -312,7 +312,21 @@ class Containers {
 
 			$ee_site_object = SiteContainers::get_site_object( $site['site_type'] );
 
+			// The support project's php shares the site's php alias, and nginx resolves it only at (re)load.
+			$reload_nginx = in_array( $site['site_type'], [ 'wp', 'php' ], true );
+
 			if ( $site['site_enabled'] ) {
+
+				if ( $reload_nginx ) {
+					// Undone last for this site: after the old containers are back and the support project is gone.
+					self::$rsp->add_step(
+						sprintf( 'reload-site-nginx-on-rollback-%s', $site['site_url'] ),
+						function () {},
+						'EE\Migration\SiteContainers::reload_site_nginx',
+						null,
+						[ $site['site_url'], $site['site_fs_path'] ]
+					);
+				}
 
 				/**
 				 * Enable support containers.
@@ -332,6 +346,16 @@ class Containers {
 					[ $site ],
 					[ $site, $ee_site_object ]
 				);
+
+				if ( $reload_nginx ) {
+					self::$rsp->add_step(
+						sprintf( 'reload-support-nginx-%s', $site['site_url'] ),
+						'EE\Migration\SiteContainers::reload_support_nginx',
+						null,
+						[ $site['site_url'], $site['site_fs_path'] ],
+						null
+					);
+				}
 			}
 
 			self::$rsp->add_step(
@@ -369,6 +393,16 @@ class Containers {
 					[ $site['site_url'], $site['site_fs_path'] ],
 					[ $site['site_url'], $site['site_fs_path'] ]
 				);
+
+				if ( $reload_nginx ) {
+					self::$rsp->add_step(
+						sprintf( 'reload-site-nginx-%s', $site['site_url'] ),
+						'EE\Migration\SiteContainers::reload_site_nginx',
+						null,
+						[ $site['site_url'], $site['site_fs_path'] ],
+						null
+					);
+				}
 			}
 		}
 	}
