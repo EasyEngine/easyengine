@@ -62,9 +62,11 @@ class CustomContainerMigrations {
 
 		foreach ( $executed as $name => $migration ) {
 			EE::debug( "Reverting: $name" );
+			$reverted = true;
 			try {
 				$migration->down();
 			} catch ( \Throwable $e ) {
+				$reverted = false;
 				EE::warning( "Could not revert container migration $name: " . $e->getMessage() );
 			}
 
@@ -73,7 +75,7 @@ class CustomContainerMigrations {
 				foreach ( Migration::where( 'migration', $name ) as $row ) {
 					$row->delete();
 				}
-				EE::debug( "Reverted: $name" );
+				EE::debug( $reverted ? "Reverted: $name" : "Removed the migrations row of $name" );
 			} catch ( \Throwable $e ) {
 				EE::warning( "Could not delete the migrations row of $name: " . $e->getMessage() );
 			}
