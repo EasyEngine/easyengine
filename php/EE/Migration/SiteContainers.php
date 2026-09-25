@@ -225,7 +225,7 @@ class SiteContainers {
 
 	/**
 	 * Reload site's nginx after its support containers are removed, so it drops the support php's IP.
-	 * A failure only warns: the upgrade is done, nginx just keeps retrying the dead peer.
+	 * A failure only warns: the site works, nginx just keeps retrying the dead peer.
 	 *
 	 * @param string $site_url     Site URL.
 	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
@@ -236,7 +236,7 @@ class SiteContainers {
 		try {
 			self::reload_nginx( $site_fs_path );
 		} catch ( \Exception $e ) {
-			EE::warning( sprintf( 'Could not reload nginx of %1$s after upgrading its containers. Some requests may take ~3 s until you run `ee site reload %1$s --nginx`.', $site_url ) );
+			EE::warning( sprintf( 'Could not reload nginx of %1$s after recreating its containers. Some requests may take ~3 s until you run `ee site reload %1$s --nginx`.', $site_url ) );
 
 			return;
 		}

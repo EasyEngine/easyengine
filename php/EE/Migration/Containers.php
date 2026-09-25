@@ -317,6 +317,17 @@ class Containers {
 
 			if ( $site['site_enabled'] ) {
 
+				if ( $reload_nginx ) {
+					// Undone last for this site: after the old containers are back and the support project is gone.
+					self::$rsp->add_step(
+						sprintf( 'reload-site-nginx-on-rollback-%s', $site['site_url'] ),
+						function () {},
+						'EE\Migration\SiteContainers::reload_site_nginx',
+						null,
+						[ $site['site_url'], $site['site_fs_path'] ]
+					);
+				}
+
 				/**
 				 * Enable support containers.
 				 */
