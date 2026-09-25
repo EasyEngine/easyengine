@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "68005d85f2c8c73bcb932aae6c4f300a",
+    "content-hash": "3c6b393d5e919443f67283577b6f7ae0",
     "packages": [
         {
             "name": "acmephp/core",
@@ -815,16 +815,16 @@
         },
         {
             "name": "easyengine/auth-command",
-            "version": "v1.2.1",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/auth-command.git",
-                "reference": "009381e270ef415ad2b2f8a0da678459cb9bf4c9"
+                "reference": "0e75c436ba654e8240c7ca4cc1999b551c5de9c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/009381e270ef415ad2b2f8a0da678459cb9bf4c9",
-                "reference": "009381e270ef415ad2b2f8a0da678459cb9bf4c9",
+                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/0e75c436ba654e8240c7ca4cc1999b551c5de9c9",
+                "reference": "0e75c436ba654e8240c7ca4cc1999b551c5de9c9",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -844,7 +844,8 @@
             "autoload": {
                 "files": [
                     "auth-command.php",
-                    "src/auth-utils.php"
+                    "src/auth-utils.php",
+                    "src/helper/hooks.php"
                 ],
                 "psr-4": {
                     "": "src/",
@@ -859,9 +860,9 @@
             "homepage": "https://github.com/easyengine/auth-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/auth-command/issues",
-                "source": "https://github.com/EasyEngine/auth-command/tree/v1.2.1"
+                "source": "https://github.com/EasyEngine/auth-command/tree/v1.3.0"
             },
-            "time": "2024-08-13T12:39:42+00:00"
+            "time": "2026-09-25T06:05:27+00:00"
         },
         {
             "name": "easyengine/config-command",
@@ -1192,16 +1193,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.7.6",
+            "version": "v3.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "25d42db871784a942fc140a7483633180b6b6943"
+                "reference": "e40774c92171bd44bd4b0e32704c4b85e247dbb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/25d42db871784a942fc140a7483633180b6b6943",
-                "reference": "25d42db871784a942fc140a7483633180b6b6943",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/e40774c92171bd44bd4b0e32704c4b85e247dbb3",
+                "reference": "e40774c92171bd44bd4b0e32704c4b85e247dbb3",
                 "shasum": ""
             },
             "require": {
@@ -1263,9 +1264,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.7.6"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.8.0"
             },
-            "time": "2026-06-12T11:49:47+00:00"
+            "time": "2026-09-25T06:05:26+00:00"
         },
         {
             "name": "easyengine/site-type-php",
