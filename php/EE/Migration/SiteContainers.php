@@ -224,6 +224,42 @@ class SiteContainers {
 	}
 
 	/**
+	 * Reload site's nginx after its support containers are removed, so it drops the support php's IP.
+	 * A failure only warns: the upgrade is done, nginx just keeps retrying the dead peer.
+	 *
+	 * @param string $site_url     Site URL.
+	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
+	 */
+	public static function reload_site_nginx( $site_url, $site_fs_path ) {
+		EE::debug( sprintf( 'Start reloading nginx of %s', $site_url ) );
+
+		try {
+			self::reload_nginx( $site_fs_path );
+		} catch ( \Exception $e ) {
+			EE::warning( sprintf( 'Could not reload nginx of %1$s after upgrading its containers. Some requests may take ~3 s until you run `ee site reload %1$s --nginx`.', $site_url ) );
+
+			return;
+		}
+
+		EE::debug( sprintf( 'Complete reloading nginx of %s', $site_url ) );
+	}
+
+	/**
+	 * Reload the support nginx after the site's containers are removed, so it drops the old php's IP.
+	 * Best effort: the support nginx only serves until the site's containers are back.
+	 *
+	 * @param string $site_url     Site URL.
+	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
+	 */
+	public static function reload_support_nginx( $site_url, $site_fs_path ) {
+		$command = sprintf( "docker-compose --project-name=%s exec nginx sh -c 'nginx -t && nginx -s reload'", self::get_support_project_name( $site_url ) );
+
+		if ( ! chdir( $site_fs_path ) || ! EE::exec( $command ) ) {
+			EE::debug( sprintf( 'Could not reload support nginx of %s', $site_url ) );
+		}
+	}
+
+	/**
 	 * Function to reload site's php.
 	 *
 	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
@@ -262,8 +298,7 @@ class SiteContainers {
 	public static function enable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start enabling containers for %s', $site_url ) );
 
-		$site_name    = str_replace( '.', '', $site_url );
-		$project_name = sprintf( 'update-ee-%s', $site_name );
+		$project_name = self::get_support_project_name( $site_url );
 
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
@@ -288,8 +323,7 @@ class SiteContainers {
 	public static function disable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start disabling support containers for %s', $site_url ) );
 
-		$site_name    = str_replace( '.', '', $site_url );
-		$project_name = sprintf( 'update-ee-%s', $site_name );
+		$project_name = self::get_support_project_name( $site_url );
 
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
@@ -301,5 +335,16 @@ class SiteContainers {
 		}
 
 		EE::debug( sprintf( 'Complete disabling support containers for %s', $site_url ) );
+	}
+
+	/**
+	 * Compose project name of a site's support containers.
+	 *
+	 * @param string $site_url Site URL.
+	 *
+	 * @return string
+	 */
+	private static function get_support_project_name( $site_url ) {
+		return sprintf( 'update-ee-%s', str_replace( '.', '', $site_url ) );
 	}
 }
