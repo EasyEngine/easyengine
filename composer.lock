@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c716edcc3d85dbe0017647e09ccde60",
+    "content-hash": "a2fe963e493f279235dec674f54781a1",
     "packages": [
         {
             "name": "acmephp/core",
@@ -815,16 +815,16 @@
         },
         {
             "name": "easyengine/auth-command",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/auth-command.git",
-                "reference": "0e75c436ba654e8240c7ca4cc1999b551c5de9c9"
+                "reference": "385d7eb04ece8d2708be673fa30ce1f9f88e781c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/0e75c436ba654e8240c7ca4cc1999b551c5de9c9",
-                "reference": "0e75c436ba654e8240c7ca4cc1999b551c5de9c9",
+                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/385d7eb04ece8d2708be673fa30ce1f9f88e781c",
+                "reference": "385d7eb04ece8d2708be673fa30ce1f9f88e781c",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -860,9 +860,9 @@
             "homepage": "https://github.com/easyengine/auth-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/auth-command/issues",
-                "source": "https://github.com/EasyEngine/auth-command/tree/v1.3.0"
+                "source": "https://github.com/EasyEngine/auth-command/tree/v1.3.1"
             },
-            "time": "2026-09-25T06:05:27+00:00"
+            "time": "2026-09-28T04:26:16+00:00"
         },
         {
             "name": "easyengine/config-command",
