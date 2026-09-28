@@ -8,6 +8,9 @@ use EE\Utils;
 
 class CustomContainerMigrations {
 
+	/** @var array Migrations completed by this invocation, oldest first: name => instance. */
+	private static $executed = [];
+
 	/**
 	 * Executes pending migrations of container.
 	 */
@@ -15,6 +18,8 @@ class CustomContainerMigrations {
 
 		Utils\delem_log( 'ee migration start' );
 		EE::debug( 'Executing custom container migrations' );
+
+		self::$executed = [];
 
 		$migrations = self::get_all_migrations();
 
@@ -33,6 +38,57 @@ class CustomContainerMigrations {
 		}
 
 		EE::debug( 'Successfully migrated EasyEngine' );
+	}
+
+	/**
+	 * Reverts the container migrations completed by this invocation, newest first, when a later upgrade step fails.
+	 *
+	 * Their rows are deleted so the next attempt runs them again. Migrations recorded by earlier runs are not touched.
+	 */
+	public static function revert_executed_migrations() {
+
+		$executed       = array_reverse( self::$executed, true );
+		self::$executed = [];
+
+		if ( empty( $executed ) ) {
+			return;
+		}
+
+		// On a fresh install they are no-ops by design, and older down() methods assume an upgrade.
+		if ( ! \EE\Model\Option::get( 'version' ) ) {
+			EE::debug( 'Fresh install: not reverting container migrations' );
+			return;
+		}
+
+		foreach ( $executed as $name => $migration ) {
+			EE::debug( "Reverting: $name" );
+			$reverted = true;
+			try {
+				$migration->down();
+			} catch ( \Throwable $e ) {
+				$reverted = false;
+				EE::warning( "Could not revert container migration $name: " . $e->getMessage() );
+			}
+
+			// Deleted even if down() failed: migrations are idempotent, and a retry must run it again.
+			try {
+				foreach ( Migration::where( 'migration', $name ) as $row ) {
+					$row->delete();
+				}
+				EE::debug( $reverted ? "Reverted: $name" : "Removed the migrations row of $name" );
+			} catch ( \Throwable $e ) {
+				EE::warning( "Could not delete the migrations row of $name: " . $e->getMessage() );
+			}
+		}
+	}
+
+	/**
+	 * Keeps the container migrations completed by this invocation: a later failure no longer reverts them.
+	 */
+	public static function keep_executed_migrations() {
+
+		self::$executed = [];
+		EE::debug( 'Keeping the container migrations of this run' );
 	}
 
 	/**
@@ -130,6 +186,7 @@ class CustomContainerMigrations {
 			] );
 
 			$migration->status = 'complete';
+			self::$executed[ $migrations[0] ] = $migration;
 			EE::debug( "Migrated: $migrations[0]" );
 			$remaining_migrations = array_splice( $migrations, 1, count( $migrations ) );
 			self::execute_migration_stack( $remaining_migrations );
@@ -144,6 +201,7 @@ class CustomContainerMigrations {
 				$migration->down();
 				$migrated[0]->delete();
 			}
+			unset( self::$executed[ $migrations[0] ] );
 
 			EE::debug( "Reverted: $migrations[0]" );
 			throw $e;
