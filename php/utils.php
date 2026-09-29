@@ -1274,7 +1274,7 @@ function proc_open_compat( $cmd, $descriptorspec, &$pipes, $cwd = null, $env = n
  *
  * @access public
  *
- * @param resource[] $pipes Pipes from `proc_open()`, keyed by descriptor number.
+ * @param resource[] $pipes Output (read) pipes from `proc_open()`, keyed by descriptor number.
  *
  * @return string[] Contents of each pipe, with the same keys.
  */
@@ -1291,8 +1291,14 @@ function read_pipes( $pipes ) {
 			$read   = $open;
 			$write  = null;
 			$except = null;
+			error_clear_last();
 			// @codingStandardsIgnoreLine
 			if ( false === @stream_select( $read, $write, $except, null ) ) {
+				// A caught signal (e.g. site-command's pcntl handlers) interrupts select(); retry instead of falling back.
+				$error = error_get_last();
+				if ( $error && false !== stripos( $error['message'], 'interrupted system call' ) ) {
+					continue;
+				}
 				break;
 			}
 			foreach ( $read as $key => $pipe ) {
