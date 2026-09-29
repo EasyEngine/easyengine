@@ -1270,6 +1270,59 @@ function proc_open_compat( $cmd, $descriptorspec, &$pipes, $cwd = null, $env = n
 }
 
 /**
+ * Read process pipes to EOF together, so a child can't block on a full pipe that isn't being read.
+ *
+ * @access public
+ *
+ * @param resource[] $pipes Output (read) pipes from `proc_open()`, keyed by descriptor number.
+ *
+ * @return string[] Contents of each pipe, with the same keys.
+ */
+function read_pipes( $pipes ) {
+	$output = array_fill_keys( array_keys( $pipes ), '' );
+	$open   = $pipes;
+
+	// stream_select() can't wait on process pipes on Windows.
+	if ( ! is_windows() ) {
+		foreach ( $open as $pipe ) {
+			stream_set_blocking( $pipe, false );
+		}
+		while ( $open ) {
+			$read   = $open;
+			$write  = null;
+			$except = null;
+			error_clear_last();
+			// @codingStandardsIgnoreLine
+			if ( false === @stream_select( $read, $write, $except, null ) ) {
+				// A caught signal (e.g. site-command's pcntl handlers) interrupts select(); retry instead of falling back.
+				$error = error_get_last();
+				if ( $error && false !== stripos( $error['message'], 'interrupted system call' ) ) {
+					continue;
+				}
+				break;
+			}
+			foreach ( $read as $key => $pipe ) {
+				$chunk = fread( $pipe, 65536 );
+				if ( false !== $chunk ) {
+					$output[ $key ] .= $chunk;
+				}
+				if ( false === $chunk || feof( $pipe ) ) {
+					unset( $open[ $key ] );
+				}
+			}
+		}
+	}
+
+	// Blocking reads for whatever is left, as before.
+	foreach ( $open as $key => $pipe ) {
+		stream_set_blocking( $pipe, true );
+		$output[ $key ] .= stream_get_contents( $pipe );
+	}
+
+	return $output;
+}
+
+/**
  * For use by `proc_open_compat()` only. Separated out for ease of testing. Windows only.
  * Turns *nix-like `ENV_VAR=blah command` environment variable prefixes into stripped `cmd` with prefixed environment variables added to passed in environment array.
  *
