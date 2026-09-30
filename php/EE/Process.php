@@ -71,10 +71,10 @@ class Process {
 
 		$proc = Utils\proc_open_compat( $this->command, self::$descriptors, $pipes, $this->cwd, $this->env );
 
-		$stdout = stream_get_contents( $pipes[1] );
+		$output = Utils\read_pipes( $pipes );
+		$stdout = $output[1];
+		$stderr = $output[2];
 		fclose( $pipes[1] );
-
-		$stderr = stream_get_contents( $pipes[2] );
 		fclose( $pipes[2] );
 
 		$return_code = proc_close( $proc );

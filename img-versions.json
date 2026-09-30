@@ -13,10 +13,10 @@
     "easyengine/php8.0": "v4.13.0",
     "easyengine/php8.1": "v4.13.0",
     "easyengine/php8.2": "v4.13.0",
-    "easyengine/php8.3": "v4.13.0",
+    "easyengine/php8.3": "v4.13.1",
     "easyengine/php8.4": "v4.13.0",
     "easyengine/php8.5": "v4.13.0",
-    "easyengine/postfix": "v4.13.0",
-    "easyengine/redis": "v4.13.0",
-    "easyengine/newrelic-daemon": "v4.11.1"
+    "easyengine/postfix": "v4.13.1",
+    "easyengine/redis": "v4.13.1",
+    "easyengine/newrelic-daemon": "v4.13.1"
 }
