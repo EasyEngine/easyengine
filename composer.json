@@ -22,6 +22,18 @@
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
+        },
+        "audit": {
+            "ignore": {
+                "PKSA-w9tt-7782-78jx": "league/flysystem 1.x has no fixed release (the fix, 3.35.3, needs PHP 8); it only stores ACME certs under acme-conf with root-supplied paths, so the bypass is not reachable."
+            }
+        },
+        "policy": {
+            "advisories": {
+                "ignore-id": {
+                    "PKSA-w9tt-7782-78jx": "league/flysystem 1.x has no fixed release (the fix, 3.35.3, needs PHP 8); it only stores ACME certs under acme-conf with root-supplied paths, so the bypass is not reachable."
+                }
+            }
         }
     },
     "minimum-stability": "dev",
