@@ -640,6 +640,8 @@ class Runner {
 		}
 		if ( ! file_exists( $path ) ) {
 			@touch( $path );
+			// A default ACL on the logs path overrides the umask.
+			@chmod( $path, 0600 );
 		}
 		umask( $umask );
 	}

@@ -178,6 +178,10 @@ class SecureLogFiles extends Base {
 		}
 
 		touch( $tmp, filemtime( $path ) );
+		// The umask above doesn't apply under a default ACL on the logs dir.
+		if ( ! chmod( $tmp, 0600 ) ) {
+			throw new \Exception( 'unable to restrict the permissions of the temporary copy' );
+		}
 		if ( ! rename( $tmp, $path ) ) {
 			throw new \Exception( 'unable to replace the file' );
 		}
