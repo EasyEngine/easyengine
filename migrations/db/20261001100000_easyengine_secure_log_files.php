@@ -118,8 +118,11 @@ class SecureLogFiles extends Base {
 			'/(\bIDENTIFIED\s+BY\s+(?:PASSWORD\s+)?)(' . $quote . '|\S+)/i',
 			// `wp config set DB_PASSWORD …` output during a restore.
 			'/(\bconstant\s+\'\w*(?:PASSWORD|_KEY|SALT)\w*\'.*?\bvalue\s+)(\'[^\r\n]*\')/i',
-			// EasyDash backup debug lines.
+			// EasyDash backup debug lines and the logged callback payload.
 			'/((?:\bverify_token:|--dash-auth value:)\s*)(\S+)/',
+			'/("verify"\s*:\s*)("(?:\\\\.|[^"\\\\]++)*+")/',
+			// The weak --admin-pass error repeated the password.
+			'/(Issues found in input password: `)([^`]*+)/',
 		];
 	}
 
