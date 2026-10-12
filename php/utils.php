@@ -1537,7 +1537,11 @@ function mask_secret_argv( $argv ) {
 	foreach ( $argv as $i => $arg ) {
 		if ( preg_match( '/^(--[^=]+)=(.+)$/s', (string) $arg, $matches ) ) {
 			if ( is_secret_key( $matches[1] ) ) {
-				$secrets[]  = $matches[2];
+				$secrets[] = $matches[2];
+				// `--dash-auth=<id>:<token>`: the token is also logged on its own.
+				if ( false !== strpos( $matches[2], ':' ) ) {
+					$secrets[] = substr( $matches[2], strpos( $matches[2], ':' ) + 1 );
+				}
 				$argv[ $i ] = $matches[1] . '=******';
 			}
 		} elseif ( 0 !== strpos( (string) $arg, '-' ) ) {
@@ -1556,29 +1560,35 @@ function mask_secret_argv( $argv ) {
 
 /**
  * Last-resort masking for secrets EE has no value for, such as another host's site details or a value shorter than
- * `EE::obfuscate()` accepts: `--<secret>=value` flags and `"<secret>": "value"` JSON members.
+ * `EE::obfuscate()` accepts: `--<secret>=value` flags, `"<secret>": value` JSON members, mysql `-p<password>` and
+ * openssl `pass:<password>`.
  *
  * @param string $text Text to be logged.
  *
  * @return string
  */
 function mask_secret_patterns( $text ) {
-	if ( ! is_string( $text ) || ( false === strpos( $text, '--' ) && false === strpos( $text, '"' ) ) ) {
+	if ( ! is_string( $text ) || ( false === strpos( $text, '-' ) && false === strpos( $text, '"' ) ) ) {
 		return $text;
 	}
 
-	$key      = secret_key_regex();
-	$patterns = [
+	$key = secret_key_regex();
+	// Possessive quantifiers: a long value must not hit the PCRE JIT stack limit, which would skip all masking.
+	$shell_value = '(?:\'[^\']*+\'|"(?:\\\\.|[^"\\\\]++)*+"|\\\\.|[\'"]\S*+|[^\s\'"\\\\]++)++';
+	$patterns    = [
 		// A flag value runs to the next unquoted space; an unbalanced quote to the next space.
-		'/((?<![\w-])--(?:' . $key . ')=)((?:\'[^\']*\'|"(?:\\\\.|[^"\\\\])*"|\\\\.|[\'"]\S*|[^\s\'"\\\\])+)/i',
-		'/("(?:' . $key . ')"\s*:\s*)("(?:\\\\.|[^"\\\\])*")/i',
+		'/((?<![\w-])--(?:' . $key . ')=)(' . $shell_value . ')/i',
+		'/("(?:' . $key . ')"\s*:\s*)("(?:\\\\.|[^"\\\\]++)*+"|-?\d[\d.]*+)/i',
+		'/((?<![\w-])-p)(\'[^\']*+\'|"(?:\\\\.|[^"\\\\]++)*+")/',
+		'/(\b(?:mysql|mysqldump|mysqladmin|mysqlshow|mariadb|mariadb-dump)\b[^\n|;&]*?\s-p)([^\s\'"]\S*+)/',
+		'/((?<![\w-])-pass(?:in|out)\s+pass:)(' . $shell_value . ')/',
 	];
 
 	$masked = preg_replace_callback(
 		$patterns,
 		function ( $matches ) {
-			// `"$value"` is a shell variable, not a secret.
-			if ( preg_match( '/^(["\']?)\\\\?\$\{?\w+\}?\1$/', $matches[2] ) ) {
+			// An unquoted or double-quoted `$value` is a shell variable, not a secret.
+			if ( preg_match( '/^"?\\\\?\$\{?\w+\}?"?$/', $matches[2] ) && substr_count( $matches[2], '"' ) !== 1 ) {
 				return $matches[0];
 			}
 			$quote = $matches[2][0];
@@ -1592,6 +1602,20 @@ function mask_secret_patterns( $text ) {
 	);
 
 	return null === $masked ? $text : $masked;
+}
+
+/**
+ * Read the config file as is, including keys the configurator doesn't know (such as `cloudflare-api-key`).
+ *
+ * @return array
+ */
+function get_config_file_values() {
+	$config_file = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	if ( ! is_file( $config_file ) || ! is_readable( $config_file ) ) {
+		return [];
+	}
+
+	return (array) Spyc::YAMLLoad( $config_file );
 }
 
 /**

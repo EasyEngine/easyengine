@@ -774,20 +774,6 @@ class Runner {
 		}
 	}
 
-	/**
-	 * Read config.yml as is, including keys the configurator doesn't know (such as `cloudflare-api-key`).
-	 *
-	 * @return array
-	 */
-	private function get_config_file_values() {
-		$config_file = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
-		if ( ! is_file( $config_file ) || ! is_readable( $config_file ) ) {
-			return [];
-		}
-
-		return (array) Spyc::YAMLLoad( $config_file );
-	}
-
 	private function set_alias( $alias ) {
 		$orig_config = $this->config;
 		$alias_config = $this->aliases[ $this->alias ];
@@ -805,7 +791,7 @@ class Runner {
 		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
 		list( $logged_argv, $secrets ) = Utils\mask_secret_argv( $GLOBALS['argv'] );
 		EE::obfuscate( $secrets );
-		EE::obfuscate( Utils\get_secret_values( $this->get_config_file_values() ) );
+		EE::obfuscate( Utils\get_secret_values( Utils\get_config_file_values() ) );
 		EE::debug( 'argv: ' . implode( ' ', $logged_argv ), 'bootstrap' );
 
 		$this->init_ee();

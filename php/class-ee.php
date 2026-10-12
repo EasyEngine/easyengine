@@ -27,6 +27,9 @@ class EE {
 	// Values masked in everything EE logs, see obfuscate().
 	private static $obfuscated = [];
 
+	// strtr() map of $obfuscated, rebuilt when a value is added.
+	private static $obfuscated_map;
+
 	/**
 	 * Set the logger instance.
 	 *
@@ -577,8 +580,9 @@ class EE {
 			// Also the forms a value takes inside escapeshellarg() and JSON.
 			$variants = [ $value, str_replace( "'", "'\\''", $value ), substr( (string) json_encode( $value ), 1, -1 ) ];
 			foreach ( $variants as $variant ) {
-				if ( strlen( $variant ) >= 6 ) {
+				if ( strlen( $variant ) >= 6 && ! isset( self::$obfuscated[ $variant ] ) ) {
 					self::$obfuscated[ $variant ] = true;
+					self::$obfuscated_map         = null;
 				}
 			}
 		}
@@ -635,6 +639,8 @@ class EE {
 				$data[ $key ] = '******';
 			} elseif ( is_array( $value ) && $depth < 8 ) {
 				$data[ $key ] = self::mask_secret_context( $value, $depth + 1 );
+			} elseif ( $value instanceof \Throwable || ( is_object( $value ) && method_exists( $value, '__toString' ) ) ) {
+				$data[ $key ] = self::mask_secrets( (string) $value );
 			} elseif ( is_string( $value ) ) {
 				$data[ $key ] = self::mask_secrets( $value );
 			}
@@ -644,8 +650,8 @@ class EE {
 	}
 
 	/**
-	 * Replace the obfuscated values and `$extra` with `******`, longest first so a value inside another can't leave
-	 * part of the longer one behind.
+	 * Replace the obfuscated values and `$extra` with `******`. strtr() replaces longest first in one pass, so a value
+	 * inside another can't leave part of the longer one behind.
 	 *
 	 * @param string $text  Text to mask.
 	 * @param array  $extra Additional values.
@@ -653,25 +659,23 @@ class EE {
 	 * @return string
 	 */
 	private static function replace_obfuscated( $text, $extra = [] ) {
-		$values = array_keys( self::$obfuscated );
-		foreach ( (array) $extra as $value ) {
-			if ( is_scalar( $value ) && '' !== (string) $value ) {
-				$values[] = $value;
-			}
-		}
-		if ( empty( $values ) || ! is_string( $text ) ) {
+		if ( ! is_string( $text ) || '' === $text ) {
 			return $text;
 		}
-
-		$values = array_map( 'strval', $values );
-		usort(
-			$values,
-			function ( $a, $b ) {
-				return strlen( $b ) - strlen( $a );
+		if ( null === self::$obfuscated_map ) {
+			self::$obfuscated_map = [];
+			foreach ( array_keys( self::$obfuscated ) as $value ) {
+				self::$obfuscated_map[ (string) $value ] = '******';
 			}
-		);
+		}
+		$map = self::$obfuscated_map;
+		foreach ( (array) $extra as $value ) {
+			if ( is_scalar( $value ) && '' !== (string) $value ) {
+				$map[ (string) $value ] = '******';
+			}
+		}
 
-		return str_replace( $values, '******', $text );
+		return empty( $map ) ? $text : strtr( $text, $map );
 	}
 
 	/**
