@@ -611,6 +611,7 @@ class Runner {
 			$file_logging_path = '/dev/null';
 		} else {
 			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
+			self::create_log_file( $file_logging_path );
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
@@ -622,6 +623,24 @@ class Runner {
 		$file_logger->pushHandler( $stream );
 		$file_logger->info( '::::::::::::::::::::::::ee invoked::::::::::::::::::::::::' );
 		EE::set_file_logger( $file_logger );
+	}
+
+	/**
+	 * Create the log directory (0700) and log file (0600) if missing, so the log is private from its first line.
+	 *
+	 * Existing modes are left alone; the log-permissions migration tightens them once.
+	 *
+	 * @param string $path Log file path.
+	 */
+	private static function create_log_file( $path ) {
+		$umask = umask( 0077 );
+		if ( ! is_dir( dirname( $path ) ) ) {
+			@mkdir( dirname( $path ), 0700, true );
+		}
+		if ( ! file_exists( $path ) ) {
+			@touch( $path );
+		}
+		umask( $umask );
 	}
 
 	public function get_required_files() {
