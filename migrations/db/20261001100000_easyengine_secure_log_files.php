@@ -44,7 +44,7 @@ class SecureLogFiles extends Base {
 			return;
 		}
 
-		// The active log last: this process appends to it.
+		// The active log last: this process appends to it until then.
 		usort(
 			$files,
 			function ( $a, $b ) {
@@ -98,10 +98,7 @@ class SecureLogFiles extends Base {
 			}
 		}
 
-		$config_file = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
-		if ( is_file( $config_file ) && is_readable( $config_file ) ) {
-			EE::obfuscate( Utils\get_secret_values( (array) \Mustangostang\Spyc::YAMLLoad( $config_file ) ) );
-		}
+		EE::obfuscate( Utils\get_secret_values( Utils\get_config_file_values() ) );
 	}
 
 	/**
@@ -112,29 +109,26 @@ class SecureLogFiles extends Base {
 	 */
 	private function get_old_log_patterns() {
 		$key   = Utils\secret_key_regex();
-		$quote = '\'(?:\\\\.|[^\'\\\\])*\'|"(?:\\\\.|[^"\\\\])*"';
+		$quote = '\'(?:\\\\.|[^\'\\\\]++)*+\'|"(?:\\\\.|[^"\\\\]++)*+"';
 
 		return [
-			// `ee config set cloudflare-api-key <key>` in the argv line.
-			'/(\bconfig\s+set\s+(?:' . $key . ')\s+)(\S+)/i',
+			// `ee config set cloudflare-api-key <key>`, `wp config set DB_PASSWORD <password>`.
+			'/(\bconfig\s+set\s+[\'"]?(?:' . $key . ')[\'"]?\s+)(' . $quote . '|\S+)/i',
 			// A failed `CREATE USER … IDENTIFIED BY '<password>'` echoed by the mysql client.
 			'/(\bIDENTIFIED\s+BY\s+(?:PASSWORD\s+)?)(' . $quote . '|\S+)/i',
 			// `wp config set DB_PASSWORD …` output during a restore.
 			'/(\bconstant\s+\'\w*(?:PASSWORD|_KEY|SALT)\w*\'.*?\bvalue\s+)(\'[^\r\n]*\')/i',
-			// mysql -p'<password>'.
-			'/((?<![\w-])-p)(' . $quote . ')/',
-			// openssl -passout pass:<password>.
-			'/(-pass(?:in|out)\s+pass:)(' . $quote . '|\S+)/',
+			// EasyDash backup debug lines.
+			'/((?:\bverify_token:|--dash-auth value:)\s*)(\S+)/',
 		];
 	}
 
 	/**
-	 * Rewrite a log file with its secrets masked. Plain files keep their inode (this process may hold ee.log open),
-	 * rotated .gz files are replaced.
+	 * Rewrite a log file with its secrets masked: a masked copy is written next to it, checked, and renamed over it.
 	 *
 	 * @param string $path Log file.
 	 *
-	 * @throws \Exception When the file can't be read or written.
+	 * @throws \Exception When the file can't be read or the copy can't be written completely.
 	 */
 	private function scrub_file( $path ) {
 		$gz  = '.gz' === substr( $path, -3 );
@@ -149,20 +143,25 @@ class SecureLogFiles extends Base {
 		}
 
 		$changed         = false;
+		$lines           = 0;
 		$this->info_mode = '';
 		while ( true ) {
 			$line = $gz ? gzgets( $in ) : fgets( $in );
 			if ( false === $line ) {
 				break;
 			}
+			$lines++;
 			$masked  = $this->mask_line( $line );
 			$changed = $changed || $masked !== $line;
-			if ( false === ( $gz ? gzwrite( $out, $masked ) : fwrite( $out, $masked ) ) ) {
+			$written = $gz ? gzwrite( $out, $masked ) : fwrite( $out, $masked );
+			if ( strlen( $masked ) !== $written ) {
 				throw new \Exception( 'unable to write the temporary copy' );
 			}
 		}
 		$gz ? gzclose( $in ) : fclose( $in );
-		$gz ? gzclose( $out ) : fclose( $out );
+		if ( ! ( $gz ? gzclose( $out ) : fclose( $out ) ) ) {
+			throw new \Exception( 'unable to write the temporary copy' );
+		}
 
 		if ( ! $changed ) {
 			unlink( $tmp );
@@ -170,25 +169,43 @@ class SecureLogFiles extends Base {
 			return;
 		}
 
-		if ( $gz ) {
-			touch( $tmp, filemtime( $path ) );
-			if ( ! rename( $tmp, $path ) ) {
-				unlink( $tmp );
-				throw new \Exception( 'unable to replace the file' );
+		// Read the copy back, so a full disk can't replace a log with a truncated one.
+		if ( $this->count_lines( $tmp, $gz ) !== $lines ) {
+			throw new \Exception( 'the temporary copy is incomplete' );
+		}
+
+		touch( $tmp, filemtime( $path ) );
+		if ( ! rename( $tmp, $path ) ) {
+			throw new \Exception( 'unable to replace the file' );
+		}
+
+		// This process may hold the old ee.log open; its handler reopens the path on the next write.
+		if ( EE_ROOT_DIR . '/logs/ee.log' === $path && EE::get_file_logger() ) {
+			foreach ( EE::get_file_logger()->getHandlers() as $handler ) {
+				$handler->close();
 			}
-		} else {
-			$mtime = filemtime( $path );
-			$src   = fopen( $tmp, 'rb' );
-			$dst   = fopen( $path, 'r+b' );
-			if ( ! $src || ! $dst || ! ftruncate( $dst, 0 ) || false === stream_copy_to_stream( $src, $dst ) ) {
-				throw new \Exception( 'unable to rewrite the file' );
-			}
-			fclose( $src );
-			fclose( $dst );
-			unlink( $tmp );
-			touch( $path, $mtime );
 		}
 		EE::debug( "Removed secrets from $path." );
+	}
+
+	/**
+	 * @param string $path File.
+	 * @param bool   $gz   Whether it is gzip-compressed.
+	 *
+	 * @return int Number of lines, or -1 when it can't be read.
+	 */
+	private function count_lines( $path, $gz ) {
+		$fh = $gz ? gzopen( $path, 'rb' ) : fopen( $path, 'rb' );
+		if ( ! $fh ) {
+			return -1;
+		}
+		$lines = 0;
+		while ( false !== ( $gz ? gzgets( $fh ) : fgets( $fh ) ) ) {
+			$lines++;
+		}
+		$gz ? gzclose( $fh ) : fclose( $fh );
+
+		return $lines;
 	}
 
 	/**
