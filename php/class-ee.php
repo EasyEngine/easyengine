@@ -24,6 +24,9 @@ class EE {
 
 	private static $file_logger;
 
+	// Values masked in everything EE logs, see obfuscate().
+	private static $obfuscated = [];
+
 	/**
 	 * Set the logger instance.
 	 *
@@ -549,8 +552,126 @@ class EE {
 	 * @return null
 	 */
 	public static function debug( $message, $group = false ) {
-		self::$logger->debug( self::error_to_string( $message ), $group );
+		self::$logger->debug( self::mask_secrets( self::error_to_string( $message ) ), $group );
 		self::$file_logger->debug( $message );
+	}
+
+	/**
+	 * Mask secret values in everything EE logs from now on, like `$obfuscate` does for one command.
+	 *
+	 * The values are replaced with `******` in the logged command lines, their STDOUT and STDERR, every message
+	 * written to the log file and debug output. What a command prints for the user is not changed.
+	 *
+	 * @access public
+	 * @category Output
+	 *
+	 * @param string|array $values Secret values. Values shorter than 6 characters are skipped, so that common
+	 *                             words don't disappear from every log line.
+	 */
+	public static function obfuscate( $values ) {
+		foreach ( (array) $values as $value ) {
+			if ( ! is_scalar( $value ) || is_bool( $value ) || strlen( (string) $value ) < 6 ) {
+				continue;
+			}
+			$value = (string) $value;
+			// Also the forms a value takes inside escapeshellarg() and JSON.
+			$variants = [ $value, str_replace( "'", "'\\''", $value ), substr( (string) json_encode( $value ), 1, -1 ) ];
+			foreach ( $variants as $variant ) {
+				if ( strlen( $variant ) >= 6 ) {
+					self::$obfuscated[ $variant ] = true;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Replace the obfuscated values, and any extra ones, with `******`, then mask known secret flag patterns.
+	 *
+	 * @access public
+	 * @category Output
+	 *
+	 * @param string $text  Text to be logged.
+	 * @param array  $extra Additional values to mask, as passed to `$obfuscate`.
+	 *
+	 * @return string
+	 */
+	public static function mask_secrets( $text, $extra = [] ) {
+		if ( ! is_string( $text ) || '' === $text ) {
+			return $text;
+		}
+
+		return Utils\mask_secret_patterns( self::replace_obfuscated( $text, $extra ) );
+	}
+
+	/**
+	 * Monolog processor for the log file: masks secrets in the message and in context values.
+	 *
+	 * @param array $record Monolog record.
+	 *
+	 * @return array
+	 */
+	public static function mask_log_record( $record ) {
+		if ( isset( $record['message'] ) ) {
+			$record['message'] = self::mask_secrets( (string) $record['message'] );
+		}
+		if ( ! empty( $record['context'] ) && is_array( $record['context'] ) ) {
+			$record['context'] = self::mask_secret_context( $record['context'] );
+		}
+
+		return $record;
+	}
+
+	/**
+	 * Mask the values of secret keys (e.g. a logged `$assoc_args`) and secrets inside the other values.
+	 *
+	 * @param array $data  Context data.
+	 * @param int   $depth Nesting depth.
+	 *
+	 * @return array
+	 */
+	private static function mask_secret_context( $data, $depth = 0 ) {
+		foreach ( $data as $key => $value ) {
+			if ( Utils\is_secret_key( $key ) && is_scalar( $value ) && ! is_bool( $value ) && '' !== (string) $value ) {
+				$data[ $key ] = '******';
+			} elseif ( is_array( $value ) && $depth < 8 ) {
+				$data[ $key ] = self::mask_secret_context( $value, $depth + 1 );
+			} elseif ( is_string( $value ) ) {
+				$data[ $key ] = self::mask_secrets( $value );
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Replace the obfuscated values and `$extra` with `******`, longest first so a value inside another can't leave
+	 * part of the longer one behind.
+	 *
+	 * @param string $text  Text to mask.
+	 * @param array  $extra Additional values.
+	 *
+	 * @return string
+	 */
+	private static function replace_obfuscated( $text, $extra = [] ) {
+		$values = array_keys( self::$obfuscated );
+		foreach ( (array) $extra as $value ) {
+			if ( is_scalar( $value ) && '' !== (string) $value ) {
+				$values[] = $value;
+			}
+		}
+		if ( empty( $values ) || ! is_string( $text ) ) {
+			return $text;
+		}
+
+		$values = array_map( 'strval', $values );
+		usort(
+			$values,
+			function ( $a, $b ) {
+				return strlen( $b ) - strlen( $a );
+			}
+		);
+
+		return str_replace( $values, '******', $text );
 	}
 
 	/**
@@ -831,14 +952,14 @@ class EE {
 	public static function launch( $command, $exit_on_error = false, $return_detailed = true, $obfuscate = [], $env = null, $cwd = null ) {
 		Utils\check_proc_available( 'launch' );
 
-		$command_to_log = empty( $obfuscate ) ? $command : str_replace( $obfuscate, '******', $command );
+		$command_to_log = self::replace_obfuscated( $command, $obfuscate );
 		self::debug( '-----------------------' );
 		self::debug( "COMMAND: $command_to_log" );
 
 		$proc    = Process::create( $command, $cwd, $env );
 		$results = $proc->run();
 
-		self::debug_run_command( $results );
+		self::debug_run_command( $results, $obfuscate );
 
 		if ( -1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
@@ -872,14 +993,14 @@ class EE {
 	public static function exec( $command, $echo_stdout = false, $echo_stderr = false, $obfuscate = [], $exit_on_error = false ) {
 		Utils\check_proc_available( 'exec' );
 
-		$command_to_log = empty( $obfuscate ) ? $command : str_replace( $obfuscate, '******', $command );
+		$command_to_log = self::replace_obfuscated( $command, $obfuscate );
 		self::debug( '-----------------------' );
 		self::debug( "COMMAND: $command_to_log" );
 
 		$proc    = Process::create( $command, null, null );
 		$results = $proc->run();
 
-		self::debug_run_command( $results );
+		self::debug_run_command( $results, $obfuscate );
 
 		if ( -1 == $results->return_code ) {
 			self::warning( "Spawned process returned exit code {$results->return_code}, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option." );
@@ -946,14 +1067,15 @@ class EE {
 	/**
 	 * Format and print debug messages for external command launch.
 	 *
-	 * @param Object $launch       external command object.
+	 * @param Object $launch    external command object.
+	 * @param array  $obfuscate Values to mask, as for the command line.
 	 */
-	private static function debug_run_command( $launch ) {
+	private static function debug_run_command( $launch, $obfuscate = [] ) {
 		if ( ! empty( $launch->stdout ) ) {
-			self::debug( "STDOUT: $launch->stdout" );
+			self::debug( 'STDOUT: ' . self::replace_obfuscated( $launch->stdout, $obfuscate ) );
 		}
 		if ( ! empty( $launch->stderr ) ) {
-			self::debug( "STDERR: $launch->stderr" );
+			self::debug( 'STDERR: ' . self::replace_obfuscated( $launch->stderr, $obfuscate ) );
 		}
 		self::debug( "RETURN CODE: $launch->return_code" );
 		self::debug( '-----------------------' );
