@@ -166,8 +166,9 @@ jobs:
     - name: Output logs
       if: ${{ always() }}
       run: |
-        [[ -f "/opt/easyengine/logs/install.log" ]] && cat /opt/easyengine/logs/install.log || echo 'No install log.'
-        [[ -f "/opt/easyengine/logs/ee.log" ]] && cat /opt/easyengine/logs/ee.log || echo 'No run log.'
+        # The logs directory is readable by root only.
+        sudo test -f /opt/easyengine/logs/install.log && sudo cat /opt/easyengine/logs/install.log || echo 'No install log.'
+        sudo test -f /opt/easyengine/logs/ee.log && sudo cat /opt/easyengine/logs/ee.log || echo 'No run log.'
 
   deploy: #-----------------------------------------------------------------------
     name: Deploy Phar

@@ -36,6 +36,20 @@ abstract class Base {
 	 */
 	public function __construct( array $fields = [] ) {
 		$this->fields = $fields;
+		self::obfuscate_secrets( $fields );
+	}
+
+	/**
+	 * Mask secret columns (site and auth passwords) and secret options in everything logged after the model is loaded.
+	 *
+	 * @param array $fields Column values.
+	 */
+	protected static function obfuscate_secrets( array $fields ) {
+		$secrets = \EE\Utils\get_secret_values( $fields );
+		if ( isset( $fields['key'], $fields['value'] ) && \EE\Utils\is_secret_key( $fields['key'] ) ) {
+			$secrets[] = $fields['value'];
+		}
+		EE::obfuscate( $secrets );
 	}
 
 	/**
@@ -159,6 +173,8 @@ abstract class Base {
 	 * @return bool Model created successfully
 	 */
 	public static function create( $columns = [] ) {
+		self::obfuscate_secrets( (array) $columns );
+
 		return EE::db()->table( static::$table )->insert( $columns );
 	}
 
@@ -219,6 +235,7 @@ abstract class Base {
 	 */
 	public function __set( string $name, $value ) {
 		$this->fields[$name] = $value;
+		self::obfuscate_secrets( [ $name => $value ] );
 	}
 
 	/**
@@ -302,6 +319,7 @@ abstract class Base {
 	 * @return bool Model updated successfully
 	 */
 	public static function update( array $where, array $updated_values ) {
+		self::obfuscate_secrets( $updated_values );
 
 		return EE::db()
 			->table( static::$table )
