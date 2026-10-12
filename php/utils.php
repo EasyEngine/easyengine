@@ -1562,15 +1562,27 @@ function mask_secret_argv( $argv ) {
 
 /**
  * Last-resort masking for secrets EE has no value for, such as another host's site details or a value shorter than
- * `EE::obfuscate()` accepts: `--<secret>=value` flags, `"<secret>": value` JSON members, mysql `-p<password>` and
- * openssl `pass:<password>`.
+ * `EE::obfuscate()` accepts: `--<secret>=value` flags, `"<secret>": value` JSON members, mysql `-p<password>`,
+ * openssl `pass:<password>` and the value cell of a `| DB Password | value |` table row.
  *
  * @param string $text Text to be logged.
  *
  * @return string
  */
 function mask_secret_patterns( $text ) {
-	if ( ! is_string( $text ) || ( false === strpos( $text, '-' ) && false === strpos( $text, '"' ) ) ) {
+	if ( ! is_string( $text ) ) {
+		return $text;
+	}
+	// A nested `ee site create` (clone) prints the new site's info table, whose values the parent process never saw.
+	if ( false !== strpos( $text, '|' ) ) {
+		$table = preg_replace(
+			'/(\|[ \t]*+[^|\n]*?(?:pass|pwd|secret|token|api[-_ ]?key)[^|\n]*+\|[ \t]*+)[^|\s][^|\n]*?([ \t]*+\|)/i',
+			'$1******$2',
+			$text
+		);
+		$text  = null === $table ? $text : $table;
+	}
+	if ( false === strpos( $text, '-' ) && false === strpos( $text, '"' ) ) {
 		return $text;
 	}
 
