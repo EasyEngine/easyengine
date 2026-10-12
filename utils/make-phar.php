@@ -267,6 +267,8 @@ foreach ( $finder as $file ) {
 	add_file( $phar, $file );
 }
 
+// A fresh finder: the one above still carries its *.php pattern and would add the packages' tests and features too.
+$finder = new Finder();
 $finder
 	->files()
 	->ignoreDotFiles(false)
