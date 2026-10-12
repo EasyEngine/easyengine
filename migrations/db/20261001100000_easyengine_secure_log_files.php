@@ -161,7 +161,14 @@ class SecureLogFiles extends Base {
 				throw new \Exception( 'unable to write the temporary copy' );
 			}
 		}
+		// false also comes from a read or decompression error; never replace the log with a partial copy.
+		$complete = $gz ? gzeof( $in ) : feof( $in );
 		$gz ? gzclose( $in ) : fclose( $in );
+		if ( ! $complete ) {
+			$gz ? gzclose( $out ) : fclose( $out );
+			unlink( $tmp );
+			throw new \Exception( 'unable to read the file completely' );
+		}
 		if ( ! ( $gz ? gzclose( $out ) : fclose( $out ) ) ) {
 			throw new \Exception( 'unable to write the temporary copy' );
 		}

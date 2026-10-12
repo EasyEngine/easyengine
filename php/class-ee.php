@@ -670,8 +670,15 @@ class EE {
 		}
 		$map = self::$obfuscated_map;
 		foreach ( (array) $extra as $value ) {
-			if ( is_scalar( $value ) && '' !== (string) $value ) {
-				$map[ (string) $value ] = '******';
+			if ( ! is_scalar( $value ) || '' === (string) $value ) {
+				continue;
+			}
+			// Same escapeshellarg() and JSON forms as obfuscate(), for this call only.
+			$value = (string) $value;
+			foreach ( [ $value, str_replace( "'", "'\\''", $value ), substr( (string) json_encode( $value ), 1, -1 ) ] as $variant ) {
+				if ( is_string( $variant ) && '' !== $variant ) {
+					$map[ $variant ] = '******';
+				}
 			}
 		}
 

@@ -1544,15 +1544,17 @@ function mask_secret_argv( $argv ) {
 				}
 				$argv[ $i ] = $matches[1] . '=******';
 			}
-		} elseif ( 0 !== strpos( (string) $arg, '-' ) ) {
+		} elseif ( 0 !== strpos( (string) $arg, '--' ) ) {
+			// Only `--` arguments are options, so a value like `-secret` stays positional.
 			$positional[] = $i;
 		}
 	}
 
-	// $positional[0] is the script itself.
-	if ( isset( $positional[4] ) && 'config' === $argv[ $positional[1] ] && 'set' === $argv[ $positional[2] ] && is_secret_key( $argv[ $positional[3] ] ) ) {
-		$secrets[]              = (string) $argv[ $positional[4] ];
-		$argv[ $positional[4] ] = '******';
+	// $positional[0] is the script itself, optionally followed by an `@alias`.
+	$k = ( isset( $positional[1] ) && 0 === strpos( (string) $argv[ $positional[1] ], '@' ) ) ? 2 : 1;
+	if ( isset( $positional[ $k + 3 ] ) && 'config' === $argv[ $positional[ $k ] ] && 'set' === $argv[ $positional[ $k + 1 ] ] && is_secret_key( $argv[ $positional[ $k + 2 ] ] ) ) {
+		$secrets[]                   = (string) $argv[ $positional[ $k + 3 ] ];
+		$argv[ $positional[ $k + 3 ] ] = '******';
 	}
 
 	return [ $argv, $secrets ];
