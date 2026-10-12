@@ -79,6 +79,10 @@ jobs:
       - name: Check phar
         run: sudo ./easyengine.phar cli info
 
+      - name: Check phar contents
+        run: |
+          php -r '$bad = []; foreach ( new RecursiveIteratorIterator( new Phar( "easyengine.phar" ) ) as $f ) { $p = $f->getPathname(); if ( preg_match( "#/vendor/easyengine/[^/]+/(tests|features)/#", $p ) ) { $bad[] = $p; } } if ( $bad ) { fwrite( STDERR, "Package tests or features in the phar:\n" . implode( "\n", $bad ) . "\n" ); exit( 1 ); }'
+
       - name: Upload built Phar file
         uses: actions/upload-artifact@v7
         with:
