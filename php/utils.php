@@ -1574,9 +1574,10 @@ function mask_secret_patterns( $text ) {
 		return $text;
 	}
 	// A nested `ee site create` (clone) prints the new site's info table, whose values the parent process never saw.
+	// The keyword must be a whole word of the label, so rows like `Cache bypass` stay readable.
 	if ( false !== strpos( $text, '|' ) ) {
 		$table = preg_replace(
-			'/(\|[ \t]*+[^|\n]*?(?:pass|pwd|secret|token|api[-_ ]?key)[^|\n]*+\|[ \t]*+)[^|\s][^|\n]*?([ \t]*+\|)/i',
+			'/(\|[ \t]*+[^|\n]*?(?<![a-z])(?:pass(?:word|wd|phrase)?|pwd|secret|token|api[-_ ]?key)s?(?![a-z])[^|\n]*+\|[ \t]*+)[^|\s][^|\n]*?([ \t]*+\|)/i',
 			'$1******$2',
 			$text
 		);
