@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b8701bc2c5566c8d00e44dfe4382889",
+    "content-hash": "518d66665777344372d7e76e0fcbc4a2",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1193,16 +1193,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.8.1",
+            "version": "v3.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "c5285f65e54d73090c8d6a9909f76281175d80c6"
+                "reference": "50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/c5285f65e54d73090c8d6a9909f76281175d80c6",
-                "reference": "c5285f65e54d73090c8d6a9909f76281175d80c6",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf",
+                "reference": "50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf",
                 "shasum": ""
             },
             "require": {
@@ -1264,22 +1264,22 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.8.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.8.2"
             },
-            "time": "2026-09-29T13:34:08+00:00"
+            "time": "2026-10-14T16:07:04+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.12.0",
+            "version": "v1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "4d5add5be83285544805c177e92ef289670aa846"
+                "reference": "acd17f2bf65c02d111873bbd5a4682911fff03ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/4d5add5be83285544805c177e92ef289670aa846",
-                "reference": "4d5add5be83285544805c177e92ef289670aa846",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/acd17f2bf65c02d111873bbd5a4682911fff03ec",
+                "reference": "acd17f2bf65c02d111873bbd5a4682911fff03ec",
                 "shasum": ""
             },
             "require-dev": {
@@ -1323,22 +1323,22 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.12.0"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.12.1"
             },
-            "time": "2026-09-29T13:34:09+00:00"
+            "time": "2026-10-14T16:07:06+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.12.0",
+            "version": "v1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "ea3e5018f1b98b79aa0034862e994c454fa8bd99"
+                "reference": "f993d53971135038f2832545f3ddd6fa051210ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/ea3e5018f1b98b79aa0034862e994c454fa8bd99",
-                "reference": "ea3e5018f1b98b79aa0034862e994c454fa8bd99",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/f993d53971135038f2832545f3ddd6fa051210ae",
+                "reference": "f993d53971135038f2832545f3ddd6fa051210ae",
                 "shasum": ""
             },
             "require-dev": {
@@ -1382,9 +1382,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.12.0"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.12.1"
             },
-            "time": "2026-09-29T13:34:08+00:00"
+            "time": "2026-10-14T16:07:05+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
