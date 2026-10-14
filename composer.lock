@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "518d66665777344372d7e76e0fcbc4a2",
+    "content-hash": "aded8382b751196e975cdcb25b7a0a92",
     "packages": [
         {
             "name": "acmephp/core",
@@ -769,16 +769,16 @@
         },
         {
             "name": "easyengine/admin-tools-command",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/admin-tools-command.git",
-                "reference": "2bdafc7d683424a156c00b5c82a4ac45f6797c74"
+                "reference": "0eacf5d7461a1c2a8169016b4e9a8441cb409240"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/2bdafc7d683424a156c00b5c82a4ac45f6797c74",
-                "reference": "2bdafc7d683424a156c00b5c82a4ac45f6797c74",
+                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/0eacf5d7461a1c2a8169016b4e9a8441cb409240",
+                "reference": "0eacf5d7461a1c2a8169016b4e9a8441cb409240",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -809,22 +809,22 @@
             "homepage": "https://github.com/easyengine/amdin-tools",
             "support": {
                 "issues": "https://github.com/EasyEngine/admin-tools-command/issues",
-                "source": "https://github.com/EasyEngine/admin-tools-command/tree/v1.1.1"
+                "source": "https://github.com/EasyEngine/admin-tools-command/tree/v1.1.2"
             },
-            "time": "2025-12-26T10:05:26+00:00"
+            "time": "2026-10-14T16:07:06+00:00"
         },
         {
             "name": "easyengine/auth-command",
-            "version": "v1.3.2",
+            "version": "v1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/auth-command.git",
-                "reference": "f306ddaba1b3e09c2209d07b5447d52533f6d501"
+                "reference": "2bec5539c7e17391f2d7ad8b33a3eaf20dc84dde"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/f306ddaba1b3e09c2209d07b5447d52533f6d501",
-                "reference": "f306ddaba1b3e09c2209d07b5447d52533f6d501",
+                "url": "https://api.github.com/repos/EasyEngine/auth-command/zipball/2bec5539c7e17391f2d7ad8b33a3eaf20dc84dde",
+                "reference": "2bec5539c7e17391f2d7ad8b33a3eaf20dc84dde",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -860,22 +860,22 @@
             "homepage": "https://github.com/easyengine/auth-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/auth-command/issues",
-                "source": "https://github.com/EasyEngine/auth-command/tree/v1.3.2"
+                "source": "https://github.com/EasyEngine/auth-command/tree/v1.3.3"
             },
-            "time": "2026-09-29T13:34:09+00:00"
+            "time": "2026-10-14T16:07:08+00:00"
         },
         {
             "name": "easyengine/config-command",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/config-command.git",
-                "reference": "78bf37e1161bd6449270a108c309d686849fb723"
+                "reference": "49bb3c76b683edc0e1935b8ca49fea4a1bccbc64"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/78bf37e1161bd6449270a108c309d686849fb723",
-                "reference": "78bf37e1161bd6449270a108c309d686849fb723",
+                "url": "https://api.github.com/repos/EasyEngine/config-command/zipball/49bb3c76b683edc0e1935b8ca49fea4a1bccbc64",
+                "reference": "49bb3c76b683edc0e1935b8ca49fea4a1bccbc64",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -908,9 +908,9 @@
             "homepage": "https://github.com/easyengine/config-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/config-command/issues",
-                "source": "https://github.com/EasyEngine/config-command/tree/v1.1.0"
+                "source": "https://github.com/EasyEngine/config-command/tree/v1.1.1"
             },
-            "time": "2025-09-27T06:24:03+00:00"
+            "time": "2026-10-14T16:07:07+00:00"
         },
         {
             "name": "easyengine/cron-command",
@@ -1010,16 +1010,16 @@
         },
         {
             "name": "easyengine/log-command",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/log-command.git",
-                "reference": "192a5a9dcdcf3f65aa3af3f9dbb6200e026e5c6c"
+                "reference": "9840481de643e853259694291d6f4c61a7ca23b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/log-command/zipball/192a5a9dcdcf3f65aa3af3f9dbb6200e026e5c6c",
-                "reference": "192a5a9dcdcf3f65aa3af3f9dbb6200e026e5c6c",
+                "url": "https://api.github.com/repos/EasyEngine/log-command/zipball/9840481de643e853259694291d6f4c61a7ca23b1",
+                "reference": "9840481de643e853259694291d6f4c61a7ca23b1",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1047,9 +1047,9 @@
             "homepage": "https://github.com/easyengine/log-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/log-command/issues",
-                "source": "https://github.com/EasyEngine/log-command/tree/v1.1.0"
+                "source": "https://github.com/EasyEngine/log-command/tree/v1.1.1"
             },
-            "time": "2021-06-16T14:24:11+00:00"
+            "time": "2026-10-14T16:07:07+00:00"
         },
         {
             "name": "easyengine/mailhog-command",
