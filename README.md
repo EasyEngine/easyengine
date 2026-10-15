@@ -12,13 +12,13 @@ EasyEngine makes it greatly easy to manage nginx, a fast web-server software tha
 * Docker
 * Docker-Compose
 * PHP CLI (>=7.4)
-* PHP Modules - `curl`, `sqlite3`, `pcntl`
+* PHP Modules - `curl`, `sqlite3`, `pcntl`, `zip`
 
 ## Installing
 
 ### Linux
 
-For Linux, we have created an installer script that will install all the dependencies for you. We have tested this on Ubuntu 20.04, 22.04, 24.04 and Debian 11, 12.
+For Linux, we have created an installer script that will install all the dependencies for you. We test it on Ubuntu 22.04, 24.04, 26.04 and Debian 12, 13.
 
 ```bash
 wget -qO ee https://rt.cx/ee4 && sudo bash ee

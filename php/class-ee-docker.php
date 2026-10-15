@@ -384,7 +384,7 @@ class EE_DOCKER {
 			if ( ! empty( $volume['skip_volume'] ) && true === $volume['skip_volume'] ) {
 				continue;
 			}
-			$vol_check = EE::launch( 'docker volume inspect ' . $volume_prefix . '_' . $volume['name'] );
+			$vol_check = EE::launch( 'docker volume inspect ' . escapeshellarg( $volume_prefix . '_' . $volume['name'] ) );
 			// Skip if volume already exists.
 			if ( 0 === $vol_check->return_code ) {
 				continue;
@@ -397,11 +397,10 @@ class EE_DOCKER {
 				sprintf(
 					'docker volume create \
 					--label "org.label-schema.vendor=EasyEngine" \
-					--label "io.easyengine.site=%s" \
-					%s_%s',
-					$prefix,
-					$volume_prefix,
-					$volume['name']
+					--label %s \
+					%s',
+					escapeshellarg( 'io.easyengine.site=' . $prefix ),
+					escapeshellarg( $volume_prefix . '_' . $volume['name'] )
 				)
 			);
 			if ( $path_to_symlink_not_empty ) {
@@ -419,7 +418,7 @@ class EE_DOCKER {
 	 */
 	public static function get_volumes_by_label( $label ) {
 
-		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter="label=io.easyengine.site=%s" -q', $label ) );
+		$launch = EE::launch( sprintf( 'docker volume ls --filter="label=org.label-schema.vendor=EasyEngine" --filter=%s -q', escapeshellarg( 'label=io.easyengine.site=' . $label ) ) );
 
 		return array_filter( explode( PHP_EOL, trim( $launch->stdout ) ), 'trim' );
 	}

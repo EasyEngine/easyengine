@@ -611,6 +611,7 @@ class Runner {
 			$file_logging_path = '/dev/null';
 		} else {
 			$file_logging_path = EE_ROOT_DIR . '/logs/ee.log';
+			self::create_log_file( $file_logging_path );
 		}
 
 		$dateFormat = 'd-m-Y H:i:s';
@@ -618,10 +619,31 @@ class Runner {
 		$formatter  = new \Monolog\Formatter\LineFormatter( $output, $dateFormat, false, true );
 		$stream     = new \Monolog\Handler\StreamHandler( $file_logging_path, Logger::DEBUG );
 		$stream->setFormatter( $formatter );
+		$stream->pushProcessor( [ 'EE', 'mask_log_record' ] );
 		$file_logger = new \Monolog\Logger( 'ee' );
 		$file_logger->pushHandler( $stream );
 		$file_logger->info( '::::::::::::::::::::::::ee invoked::::::::::::::::::::::::' );
 		EE::set_file_logger( $file_logger );
+	}
+
+	/**
+	 * Create the log directory (0700) and log file (0600) if missing, so the log is private from its first line.
+	 *
+	 * Existing modes are left alone; the log-permissions migration tightens them once.
+	 *
+	 * @param string $path Log file path.
+	 */
+	private static function create_log_file( $path ) {
+		$umask = umask( 0077 );
+		if ( ! is_dir( dirname( $path ) ) ) {
+			@mkdir( dirname( $path ), 0700, true );
+		}
+		if ( ! file_exists( $path ) ) {
+			@touch( $path );
+			// A default ACL on the logs path overrides the umask.
+			@chmod( $path, 0600 );
+		}
+		umask( $umask );
 	}
 
 	public function get_required_files() {
@@ -765,11 +787,87 @@ class Runner {
 		}
 	}
 
+	/**
+	 * EE only manages the host it runs on: the WP-CLI ssh/http targets were never wired up, so a command given one
+	 * would silently run here.
+	 *
+	 * @param array $args Command line arguments without the script name.
+	 */
+	private function refuse_remote_targets( $args ) {
+		$hint = 'EasyEngine only manages the server it runs on; run ee on the target server instead.';
+
+		if ( $this->alias ) {
+			$keys = $this->get_remote_alias_keys( $this->alias );
+			if ( $keys ) {
+				EE::error( sprintf( "The alias '%s' has a remote target (%s), which is not supported. %s", $this->alias, implode( ', ', $keys ), $hint ) );
+			}
+		}
+
+		// Raw argv: EE_STRICT_ARGS_MODE drops unknown global flags before they reach assoc_args.
+		list( , $assoc_args ) = Configurator::extract_assoc( $args );
+		foreach ( $assoc_args as $assoc_arg ) {
+			if ( in_array( $assoc_arg[0], array( 'ssh', 'http' ), true ) ) {
+				EE::error( "The --{$assoc_arg[0]} parameter is not supported. {$hint}" );
+			}
+		}
+
+		// Keep `ee config unset <key>` and help usable.
+		if ( empty( $this->arguments ) || in_array( $this->arguments[0], array( 'config', 'help' ), true ) ) {
+			return;
+		}
+
+		foreach ( array( 'ssh', 'http' ) as $key ) {
+			if ( ! empty( $this->extra_config[ $key ] ) ) {
+				$files = implode( ', ', array_filter( array( $this->global_config_path, $this->project_config_path ) ) );
+				EE::error( "The '{$key}' config key is not supported. {$hint} Remove it from the config ({$files}, or a file they inherit)." );
+			}
+		}
+	}
+
+	/**
+	 * Remote target keys (ssh, http) of an alias, or of any member of a group or of @all.
+	 *
+	 * @param string $alias Alias name.
+	 * @param array  $seen  Aliases already visited, so groups listing each other don't recurse forever.
+	 *
+	 * @return string[]
+	 */
+	private function get_remote_alias_keys( $alias, $seen = array() ) {
+		if ( isset( $seen[ $alias ] ) || ! isset( $this->aliases[ $alias ] ) ) {
+			return array();
+		}
+		$seen[ $alias ] = true;
+		$config         = $this->aliases[ $alias ];
+
+		if ( '@all' === $alias && is_string( $config ) ) {
+			$config = array_values( array_diff( array_keys( $this->aliases ), array( '@all' ) ) );
+		}
+		if ( ! is_array( $config ) ) {
+			return array();
+		}
+		if ( isset( $config[0] ) ) {
+			$keys = array();
+			foreach ( $config as $member ) {
+				$keys = array_merge( $keys, $this->get_remote_alias_keys( $member, $seen ) );
+			}
+
+			return array_values( array_unique( $keys ) );
+		}
+
+		return array_values( array_intersect( array( 'ssh', 'http' ), array_keys( $config ) ) );
+	}
+
 	public function start() {
 
 		EE::debug( $this->_global_config_path_debug, 'bootstrap' );
 		EE::debug( $this->_project_config_path_debug, 'bootstrap' );
-		EE::debug( 'argv: ' . implode( ' ', $GLOBALS['argv'] ), 'bootstrap' );
+		list( $logged_argv, $secrets ) = Utils\mask_secret_argv( $GLOBALS['argv'] );
+		EE::obfuscate( $secrets );
+		EE::obfuscate( Utils\get_secret_values( Utils\get_config_file_values() ) );
+		EE::debug( 'argv: ' . implode( ' ', $logged_argv ), 'bootstrap' );
+
+		// Before init_ee(): migrations must not run for a command we refuse.
+		$this->refuse_remote_targets( array_slice( $GLOBALS['argv'], 1 ) );
 
 		$this->init_ee();
 

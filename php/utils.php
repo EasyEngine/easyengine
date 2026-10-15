@@ -1483,6 +1483,157 @@ function random_password( $length = 18 ) {
 }
 
 /**
+ * Check whether a flag or config key holds a secret, such as `admin-pass`, `dbpass`, `cloudflare-api-key` or `dash-auth`.
+ *
+ * @param string $key Flag or key name, with or without leading dashes.
+ *
+ * @return bool
+ */
+function is_secret_key( $key ) {
+	if ( ! is_string( $key ) ) {
+		return false;
+	}
+
+	return (bool) preg_match( '/^(?:' . secret_key_regex() . ')$/i', ltrim( $key, '-' ) );
+}
+
+/**
+ * Regex (without delimiters) matching the names of secret flags and keys.
+ *
+ * @return string
+ */
+function secret_key_regex() {
+	return '[A-Za-z0-9_-]*(?:pass|password|passwd|passphrase|pwd|secret|token|api[-_]?key|apikey|private[-_]?key|[-_]auth)|api';
+}
+
+/**
+ * Collect the values of the secret keys in an array of flags or config values, for `EE::obfuscate()`.
+ *
+ * @param array $assoc_args Flags or config values, keyed by name.
+ *
+ * @return array
+ */
+function get_secret_values( $assoc_args ) {
+	$secrets = [];
+	foreach ( (array) $assoc_args as $key => $value ) {
+		if ( is_secret_key( $key ) && is_scalar( $value ) && ! is_bool( $value ) && '' !== (string) $value ) {
+			$secrets[] = (string) $value;
+		}
+	}
+
+	return $secrets;
+}
+
+/**
+ * Mask the secret values in a command line: `--<secret>=value` flags and the value of `config set <secret-key> <value>`.
+ *
+ * @param array $argv Command line arguments.
+ *
+ * @return array Masked arguments, and the secret values found, as [ $argv, $secrets ].
+ */
+function mask_secret_argv( $argv ) {
+	$secrets    = [];
+	$positional = [];
+	foreach ( $argv as $i => $arg ) {
+		if ( preg_match( '/^(--[^=]+)=(.+)$/s', (string) $arg, $matches ) ) {
+			if ( is_secret_key( $matches[1] ) ) {
+				$secrets[] = $matches[2];
+				// `--dash-auth=<id>:<token>`: the token is also logged on its own.
+				if ( false !== strpos( $matches[2], ':' ) ) {
+					$secrets[] = substr( $matches[2], strpos( $matches[2], ':' ) + 1 );
+				}
+				$argv[ $i ] = $matches[1] . '=******';
+			}
+		} elseif ( 0 !== strpos( (string) $arg, '--' ) ) {
+			// Only `--` arguments are options, so a value like `-secret` stays positional.
+			$positional[] = $i;
+		}
+	}
+
+	// $positional[0] is the script itself, optionally followed by an `@alias`.
+	$k = ( isset( $positional[1] ) && 0 === strpos( (string) $argv[ $positional[1] ], '@' ) ) ? 2 : 1;
+	if ( isset( $positional[ $k + 3 ] ) && 'config' === $argv[ $positional[ $k ] ] && 'set' === $argv[ $positional[ $k + 1 ] ] && is_secret_key( $argv[ $positional[ $k + 2 ] ] ) ) {
+		$secrets[]                   = (string) $argv[ $positional[ $k + 3 ] ];
+		$argv[ $positional[ $k + 3 ] ] = '******';
+	}
+
+	return [ $argv, $secrets ];
+}
+
+/**
+ * Last-resort masking for secrets EE has no value for, such as another host's site details or a value shorter than
+ * `EE::obfuscate()` accepts: `--<secret>=value` flags, `"<secret>": value` JSON members, mysql `-p<password>`,
+ * openssl `pass:<password>` and the value cell of a `| DB Password | value |` table row.
+ *
+ * @param string $text Text to be logged.
+ *
+ * @return string
+ */
+function mask_secret_patterns( $text ) {
+	if ( ! is_string( $text ) ) {
+		return $text;
+	}
+	// A nested `ee site create` (clone) prints the new site's info table, whose values the parent process never saw.
+	// The keyword must be a whole word of the label, so rows like `Cache bypass` stay readable.
+	if ( false !== strpos( $text, '|' ) ) {
+		$table = preg_replace(
+			'/(\|[ \t]*+[^|\n]*?(?<![a-z])(?:pass(?:word|wd|phrase)?|pwd|secret|token|api[-_ ]?key)s?(?![a-z])[^|\n]*+\|[ \t]*+)[^|\s][^|\n]*?([ \t]*+\|)/i',
+			'$1******$2',
+			$text
+		);
+		$text  = null === $table ? $text : $table;
+	}
+	if ( false === strpos( $text, '-' ) && false === strpos( $text, '"' ) ) {
+		return $text;
+	}
+
+	$key = secret_key_regex();
+	// Possessive quantifiers: a long value must not hit the PCRE JIT stack limit, which would skip all masking.
+	$shell_value = '(?:\'[^\']*+\'|"(?:\\\\.|[^"\\\\]++)*+"|\\\\.|[\'"]\S*+|[^\s\'"\\\\]++)++';
+	$patterns    = [
+		// A flag value runs to the next unquoted space; an unbalanced quote to the next space.
+		'/((?<![\w-])--(?:' . $key . ')=)(' . $shell_value . ')/i',
+		'/("(?:' . $key . ')"\s*:\s*)("(?:\\\\.|[^"\\\\]++)*+"|-?\d[\d.]*+)/i',
+		'/((?<![\w-])-p)(\'[^\']*+\'|"(?:\\\\.|[^"\\\\]++)*+")/',
+		'/(\b(?:mysql|mysqldump|mysqladmin|mysqlshow|mariadb|mariadb-dump)\b[^\n|;&]*?\s-p)([^\s\'"]\S*+)/',
+		'/((?<![\w-])-pass(?:in|out)\s+pass:)(' . $shell_value . ')/',
+	];
+
+	$masked = preg_replace_callback(
+		$patterns,
+		function ( $matches ) {
+			// An unquoted or double-quoted `$value` is a shell variable, not a secret.
+			if ( preg_match( '/^"?\\\\?\$\{?\w+\}?"?$/', $matches[2] ) && substr_count( $matches[2], '"' ) !== 1 ) {
+				return $matches[0];
+			}
+			$quote = $matches[2][0];
+			if ( ( '"' === $quote || "'" === $quote ) && strlen( $matches[2] ) > 1 && substr( $matches[2], -1 ) === $quote ) {
+				return $matches[1] . $quote . '******' . $quote;
+			}
+
+			return $matches[1] . '******';
+		},
+		$text
+	);
+
+	return null === $masked ? $text : $masked;
+}
+
+/**
+ * Read the config file as is, including keys the configurator doesn't know (such as `cloudflare-api-key`).
+ *
+ * @return array
+ */
+function get_config_file_values() {
+	$config_file = getenv( 'EE_CONFIG_PATH' ) ? getenv( 'EE_CONFIG_PATH' ) : EE_ROOT_DIR . '/config/config.yml';
+	if ( ! is_file( $config_file ) || ! is_readable( $config_file ) ) {
+		return [];
+	}
+
+	return (array) Spyc::YAMLLoad( $config_file );
+}
+
+/**
  * Log data with deliminators for separate view
  *
  * @param String $log_data Data to log

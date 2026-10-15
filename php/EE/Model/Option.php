@@ -21,6 +21,7 @@ class Option extends Base {
 	 * @return bool Key set or not
 	 */
 	public static function set( string $key, string $value ) {
+		static::obfuscate_secrets( [ 'key' => $key, 'value' => $value ] );
 		$existing_key = static::find( $key );
 
 		if ( empty( $existing_key ) ) {
