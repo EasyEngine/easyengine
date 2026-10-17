@@ -97,7 +97,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | run through a local alias, `@all`, a group, a group with an unknown member, unknown alias suggestion, `@all` without aliases | cli-alias.feature |
 | a group passes the command's flags to every member | cli-alias.feature |
 | `@all`/group exit status, `@all` running group members twice | cli-alias.feature `@known-bug` (2, CORE-12) |
-| aliases with `ssh:`/`http:`, `--ssh`, `--http`, `ssh:` in config | cli-alias.feature: refused (CORE-4, core `fix/refuse-remote-aliases`; they ran locally before) |
+| aliases with `ssh:`/`http:`, `--ssh`, `--http`, `ssh:` in config | cli-alias.feature: refused (CORE-4, fixed in v4.13.2 by easyengine#1945; they ran locally before) |
 | ssh schemes (docker, docker-compose, vagrant, ssh), `EE_SSH_PRE_CMD` | not covered: `run_ssh_command()` is dead code in EE; would need a remote host |
 
 ### `ee cli has-command <command_name>...`
@@ -150,7 +150,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | missing required parameters | unknown-command.feature |
 | requirement checks: missing docker-compose, docker retry/backoff | requirements.feature |
 | failed requirement exit status (CORE-1) | requirements.feature `@known-bug` |
-| argv logged to `ee.log` with secrets (LOG-1) | global-flags.feature `@known-bug` |
+| argv logged to `ee.log` with secrets (LOG-1) | global-flags.feature, regular since the v4.13.2 fix (easyengine#1944) |
 | `EE_PACKAGES_DIR` (package autoloader loaded, commands registered) | config-file.feature |
 | `BEHAT_RUN`, `EE_DISABLE_AUTO_CHECK_UPDATE`, `EE_AUTO_CHECK_UPDATE_DAYS`, `EE_PHP` | not covered: only affect error reporting or the phar+tty auto update (the phar scenarios set `EE_DISABLE_AUTO_CHECK_UPDATE`) |
 
@@ -225,7 +225,6 @@ Estimated runtime: default profile about 4 minutes (help outlines about 40 s, fi
 | Scenario | Issue |
 |---|---|
 | requirements.feature: failed requirement exits non-zero | CORE-1 |
-| global-flags.feature: secrets not written to ee.log | LOG-1 |
 | global-flags.feature: `--color`, `--no-color`, `color:` config, `--quiet`, `quiet:` config, success with `--quiet` (6) | CORE-3: `php/bootstrap.php` sets up colours and the logger before reading the config |
 | requirements.feature: help without `less` | CORE-5: nothing printed, exit 0 |
 | cli-has-command.feature: trailing words after a leaf | CORE-6: `has-command` stops at the first leaf |

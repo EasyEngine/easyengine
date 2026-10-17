@@ -117,8 +117,7 @@ Feature: Global parameters (--debug, --quiet, --color)
     Then the command should exit with code 1
     And STDERR should contain "Error: 'verison' is not a registered subcommand of 'cli'."
 
-  # LOG-1 (won't fix for now): the full argv is logged at debug level to ee.log, including secrets.
-  @known-bug
+  # LOG-1 (fixed in v4.13.2, easyengine#1944), regression check: the full argv used to be logged at debug level to ee.log, secrets included.
   Scenario: Secrets passed on the command line are not written to ee.log
     When I run 'bin/ee cli version --pass=bh-secret-{RAND}'
     Then the command should exit with code 0
