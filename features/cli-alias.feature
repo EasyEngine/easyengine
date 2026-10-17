@@ -190,7 +190,7 @@ Feature: ee cli alias and @alias execution
     Then the command should exit with code 1
     And STDERR should contain "Error: Cannot use '@all' when no aliases are registered."
 
-  # New (suspected): Runner::run_ssh_command() is never called, so an alias with `ssh:` silently runs the
+  # CORE-4: Runner::run_ssh_command() is never called, so an alias with `ssh:` silently runs the
   # command on the local machine instead of the remote one.
   @known-bug
   Scenario: A command for an ssh alias is not run locally
@@ -204,3 +204,61 @@ Feature: ee cli alias and @alias execution
     When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @bh-remote cli version'
     Then the command should fail
     And STDOUT should not contain "EE {EE_VERSION}"
+
+  Scenario: An alias group passes the command's flags to every member
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      @bh-one:
+        path: /var/tmp
+      @bh-two:
+        path: /var/tmp
+      @bh-group:
+        - @bh-one
+        - @bh-two
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @bh-group cli param-dump --with-values --le-mail=bh-group@example.test'
+    Then the command should exit with code 0
+    And STDOUT should match "#^@bh-one\n\{.*"current":"bh-group@example\.test".*@bh-two\n\{.*"current":"bh-group@example\.test"#s"
+
+  # CORE-12: run_alias_group() ignores the children's exit codes.
+  @known-bug
+  Scenario: @all fails when the command fails for an alias
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      @bh-one:
+        path: /var/tmp
+      @bh-two:
+        path: /var/tmp
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @all cli verison'
+    Then STDERR should contain "Error: 'verison' is not a registered subcommand of 'cli'."
+    And the command should fail
+
+  # CORE-12: @all also runs the group aliases, so their members run twice.
+  @known-bug
+  Scenario: @all runs the command once per alias when groups exist
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      @bh-one:
+        path: /var/tmp
+      @bh-two:
+        path: /var/tmp
+      @bh-group:
+        - @bh-one
+        - @bh-two
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @all cli version'
+    Then the command should exit with code 0
+    And STDOUT should be:
+      """
+      @bh-one
+      EE {EE_VERSION}
+      @bh-two
+      EE {EE_VERSION}
+      """

@@ -1,11 +1,12 @@
 # `cli info` runs the migration check when docker is available, so every scenario is guarded.
+# COLUMNS keeps cli-tools from wrapping the table to the terminal width.
 Feature: ee cli info
 
   Background:
     Given no EasyEngine migration is pending
 
   Scenario: cli info lists every diagnostic row
-    When I run 'bin/ee cli info'
+    When I run 'COLUMNS=250 bin/ee cli info'
     Then the command should exit with code 0
     And STDOUT should not contain "Executing migrations"
     And STDOUT should match "#^\| OS\s+\| \S+#m"
@@ -39,7 +40,7 @@ Feature: ee cli info
     When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli info --format=json'
     Then the command should exit with code 0
     And the json in STDOUT at "global_config_path" should be "{TMP}/config.yml"
-    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli info'
+    When I run 'COLUMNS=250 EE_CONFIG_PATH={TMP}/config.yml bin/ee cli info'
     Then STDOUT should match "#^\| EE global config\s+\| {TMP}/config\.yml\s+\|#m"
 
   Scenario: cli info rejects an unsupported format

@@ -29,7 +29,7 @@ Feature: Unknown commands and composite commands
     And STDERR should contain "Error: 'zzzzzzzzzz' is not a registered subcommand of 'cli'."
     And STDERR should not contain "Did you mean"
 
-  # Unknown top-level commands pass the requirement and migration checks before the lookup.
+  # CORE-9: unknown top-level commands pass the requirement and migration checks before the lookup.
   Scenario: An unknown top-level command suggests the closest one
     Given no EasyEngine migration is pending
     When I run 'bin/ee sitee'
@@ -69,3 +69,11 @@ Feature: Unknown commands and composite commands
     Then the command should exit with code 1
     And STDERR should contain "missing --line parameter"
     And STDERR should contain "missing --point parameter"
+
+  # CORE-9: without docker the requirement check fails first and hides the typo.
+  @known-bug
+  Scenario: An unknown top-level command is reported even when docker is not available
+    Given the directory "{TMP}/emptybin" exists
+    When I run 'PATH={TMP}/emptybin {PHP} {EE_ROOT}/php/boot-fs.php sitee'
+    Then the command should exit with code 1
+    And STDERR should contain "Error: 'sitee' is not a registered ee command."

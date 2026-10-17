@@ -150,7 +150,7 @@ Feature: Global and project config files
     And STDOUT should contain "ee cli update"
     And STDOUT should not contain "ee cli version"
 
-  # New (suspected): CompositeCommand::show_usage() counts the skipped disabled subcommand, so the
+  # CORE-7: CompositeCommand::show_usage() counts the skipped disabled subcommand, so the
   # first printed line loses its "usage:" prefix when the first subcommand is disabled.
   @known-bug
   Scenario: The composite usage still starts with "usage:" when its first subcommand is disabled
@@ -175,3 +175,64 @@ Feature: Global and project config files
     When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli aliases'
     Then the command should exit with code 1
     And STDERR should contain "has been disabled from the config file."
+
+  Scenario: A command section in the config file sets that command's default flags
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      cli param-dump:
+        format: var_export
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli param-dump'
+    Then the command should exit with code 0
+    And STDOUT should match "#^array \(#"
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli param-dump --format=json'
+    Then the command should exit with code 0
+    And STDOUT should be valid json
+
+  Scenario: help leaves disabled commands out of the command lists
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      disabled_commands:
+        - cli version
+        - mailhog
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee help cli'
+    Then the command should exit with code 0
+    And STDOUT should match "#^  update\s#m"
+    And STDOUT should not match "#^  version\s#m"
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee help'
+    Then the command should exit with code 0
+    And STDOUT should match "#^  log\s#m"
+    And STDOUT should not match "#^  mailhog\s#m"
+
+  Scenario: Disabling a namespace disables its subcommands
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      disabled_commands:
+        - cli
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli version'
+    Then the command should exit with code 1
+    And STDERR should contain "Error: The 'cli' command has been disabled from the config file."
+
+  Scenario: Commands from EE_PACKAGES_DIR are loaded
+    Given a file "{TMP}/pkgs/vendor/autoload.php" with:
+      """
+      <?php
+      EE::add_command( 'cli bh-pkg', function () { EE::line( 'bh-pkg ran' ); } );
+      """
+    When I run 'EE_PACKAGES_DIR={TMP}/pkgs bin/ee cli bh-pkg --debug'
+    Then the command should exit with code 0
+    And STDOUT should be:
+      """
+      bh-pkg ran
+      """
+    And STDERR should contain "Debug (bootstrap): Loading packages from: {TMP}/pkgs/vendor/autoload.php"
+    When I run 'bin/ee cli has-command "cli bh-pkg"'
+    Then the command should exit with code 1

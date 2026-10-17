@@ -79,7 +79,8 @@ Feature: ee cli completions
     When I run 'bin/ee cli completions --line="ee site create --type=wp --admin-u" --point=100'
     Then STDOUT should match "#^--admin-user=$#m"
     When I run 'bin/ee cli completions --line="ee site create --type=html --admin-u" --point=100'
-    Then STDOUT should be empty
+    Then the command should exit with code 0
+    And STDOUT should be empty
 
   Scenario: Aliases from the config file are completed
     Given a file "{TMP}/config.yml" with:
@@ -111,3 +112,10 @@ Feature: ee cli completions
     When I run 'bin/ee cli completions --line="ee cli bh{RAND}" --point=100'
     Then the command should exit with code 0
     And the file "{EE_ROOT_DIR}/logs/ee.log" should not contain "bh{RAND}"
+
+  # CORE-13: an unknown --type makes CommandFactory reflect an empty class name (uncaught ReflectionException).
+  @known-bug
+  Scenario: Completing options for an unknown site type does not crash
+    When I run 'bin/ee cli completions --line="ee site create --type=bogus --" --point=100'
+    Then the command should exit with code 0
+    And STDOUT should be empty

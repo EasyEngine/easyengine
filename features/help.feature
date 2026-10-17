@@ -179,12 +179,21 @@ Feature: ee help
     When I run 'bin/ee help site create --type=wp'
     Then STDOUT should contain "--admin-user=<admin-user>"
     When I run 'bin/ee help site create --type=html'
-    Then STDOUT should not contain "--admin-user=<admin-user>"
+    Then the command should exit with code 0
+    And STDOUT should contain "Runs the standard HTML site installation."
+    And STDOUT should not contain "--admin-user=<admin-user>"
 
   Scenario: help for an unknown site type fails
     When I run 'bin/ee help site create --type=bogus'
     Then the command should exit with code 1
     And STDERR should contain "Error: 'bogus' is not a registered site type"
+
+  # CORE-10 (site-command): the hint repeats the bogus type, and that command fails the same way.
+  @known-bug
+  Scenario: help for an unknown site type points to a working help command
+    When I run 'bin/ee help site create --type=bogus'
+    Then the command should exit with code 1
+    And STDERR should not contain "ee help site --type=bogus"
 
   Scenario: help for an unknown command fails with a hint
     When I run 'bin/ee help nosuchcommand'
@@ -214,9 +223,9 @@ Feature: ee help
     Then STDERR should contain "Did you mean 'version'?"
 
   Scenario: help honours the PAGER environment variable
-    When I run 'PAGER=cat bin/ee help cli version'
+    When I run 'PAGER="sed s/^/bh-pager:/" bin/ee help cli version'
     Then the command should exit with code 0
-    And STDOUT should contain "ee cli version"
+    And STDOUT should match "#^bh-pager:  ee cli version#m"
 
   Scenario: help pages include the command examples
     When I run 'bin/ee help cli has-command'

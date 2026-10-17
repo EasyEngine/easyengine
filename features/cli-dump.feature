@@ -13,7 +13,9 @@ Feature: ee cli param-dump and cmd-dump
 
   Scenario: param-dump without --with-values has no current values
     When I run 'bin/ee cli param-dump'
-    Then STDOUT should not contain "current"
+    Then the command should exit with code 0
+    And STDOUT should be valid json
+    And STDOUT should not contain "current"
 
   Scenario: param-dump --format=var_export prints a PHP array
     When I run 'bin/ee cli param-dump --format=var_export'
@@ -97,3 +99,10 @@ Feature: ee cli param-dump and cmd-dump
     And the json in STDOUT at "subcommands.name=site.subcommands.*.name" should contain "create --type=wp"
     And the json in STDOUT at "subcommands.name=site.subcommands.*.name" should contain "create --type=php"
     And the json in STDOUT at "subcommands.*.name" should not contain "site_type_wp"
+
+  Scenario: site cmd-dump works without docker
+    Given the directory "{TMP}/emptybin" exists
+    When I run 'PATH={TMP}/emptybin {PHP} {EE_ROOT}/php/boot-fs.php site cmd-dump --debug'
+    Then the command should exit with code 0
+    And STDOUT should be valid json
+    And STDERR should not contain "Docker check failed"

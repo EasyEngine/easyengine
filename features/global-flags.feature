@@ -18,7 +18,7 @@ Feature: Global parameters (--debug, --quiet, --color)
       """
     And STDERR should contain "Debug (bootstrap): Using global config from EE_CONFIG_PATH env var: {TMP}/config.yml"
     And STDERR should contain "Debug (bootstrap): Running command: cli version"
-    And STDERR should match "#^Debug \(bootstrap\): argv: .*cli version --debug \(\d+\.\d+s\)$#m"
+    And STDERR should match "#^Debug \(bootstrap\): argv: .*cli version --debug \(\d+(\.\d+)?s\)$#m"
 
   Scenario: --debug is accepted before the command too
     When I run 'bin/ee --debug cli version'
@@ -61,7 +61,7 @@ Feature: Global parameters (--debug, --quiet, --color)
     When I run 'SHELL_PIPE=0 bin/ee cli verison'
     Then STDERR should contain ANSI color codes
 
-  # New (suspected): InitializeColorization/InitializeLogger run before ConfigureRunner in
+  # CORE-3: InitializeColorization/InitializeLogger run before ConfigureRunner in
   # php/bootstrap.php, so --color, --no-color and `color:` in the config file are ignored.
   @known-bug
   Scenario: --color forces colors even when piped
@@ -84,7 +84,7 @@ Feature: Global parameters (--debug, --quiet, --color)
     When I run 'SHELL_PIPE=0 EE_CONFIG_PATH={TMP}/config.yml bin/ee cli verison'
     Then STDERR should not contain ANSI color codes
 
-  # New (suspected): same bootstrap order bug, the Quiet logger is never selected, so --quiet
+  # CORE-3: same bootstrap order bug, the Quiet logger is never selected, so --quiet
   # and `quiet: true` do not hide warnings. The missing docker-compose path warns without a migration.
   @known-bug
   Scenario: --quiet hides warnings

@@ -9,7 +9,7 @@ Feature: Requirement checks
     Then the command should exit with code 0
     And STDOUT should contain "ee cli"
 
-  # New: help pipes through `less -r` unless PAGER is set; without less it prints nothing and exits 0.
+  # CORE-5: help pipes through `less -r` unless PAGER is set; without less it prints nothing and exits 0.
   @known-bug
   Scenario: help still prints when the default pager is not installed
     Given the directory "{TMP}/emptybin" exists
@@ -44,3 +44,18 @@ Feature: Requirement checks
     Then STDERR should contain "Docker check failed (attempt 1/4), retrying in 1s..."
     And STDERR should contain "Docker check failed (attempt 3/4), retrying in 4s..."
     And STDERR should contain "Error: Docker not installed or not running (checked 4 times)."
+
+  # Safe by construction: without docker the command stops before the prompt, which `n` would decline anyway.
+  Scenario: self-uninstall refuses to run when docker is not available
+    Given the directory "{TMP}/emptybin" exists
+    When I run 'echo n | PATH={TMP}/emptybin {PHP} {EE_ROOT}/php/boot-fs.php cli self-uninstall'
+    Then STDERR should contain "Error: Unable to proceed with uninstallation. Seems there is a dependency down."
+    And STDOUT should not contain "Are you sure"
+
+  # CORE-11: the refusal uses `EE::error( ..., false ); die;`, so it exits 0 like CORE-1.
+  @known-bug
+  Scenario: self-uninstall refuses with a non-zero status when docker is not available
+    Given the directory "{TMP}/emptybin" exists
+    When I run 'echo n | PATH={TMP}/emptybin {PHP} {EE_ROOT}/php/boot-fs.php cli self-uninstall'
+    Then STDERR should contain "Unable to proceed with uninstallation"
+    And the command should fail
