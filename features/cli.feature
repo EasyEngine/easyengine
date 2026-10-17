@@ -1,5 +1,6 @@
-# Wipes every EasyEngine container, volume, network, image, /opt/easyengine and all sites (TEST-3).
-# Excluded by default (behat.yml); run with `vendor/bin/behat -p destructive`.
+# The @uninstall scenario wipes every EasyEngine container, volume, network, image, /opt/easyengine and all
+# sites (TEST-3). It is excluded from every profile but `uninstall`, refused without EE_BEHAT_ALLOW_UNINSTALL=1,
+# and must run alone and last (later scenarios would re-initialise EasyEngine).
 @destructive
 Feature: CLI Command
 
@@ -11,7 +12,9 @@ Feature: CLI Command
     And the number of containers with label "org.label-schema.vendor=EasyEngine" should be unchanged
     And the file "{EE_ROOT_DIR}/db/ee.sqlite" should exist
 
+  @uninstall
   Scenario: ee uninstall works properly
+    Given no EasyEngine migration is pending
     When I run 'sudo bin/ee cli info'
     And I run 'sudo bin/ee cli self-uninstall --yes'
     Then ee should be deleted

@@ -58,6 +58,7 @@ $runner->init_config();
 use Behat\Behat\Context\Context;
 use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
+use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
 use Behat\Gherkin\Node\PyStringNode,
 	Behat\Gherkin\Node\TableNode;
@@ -79,6 +80,30 @@ class FeatureContext implements Context
 	 * Base directory of the per-scenario scratch directories ({TMP}).
 	 */
 	const TMP_BASE = '/var/tmp/ee-behat-core';
+
+	/**
+	 * Tags that change the live EasyEngine state, each with the env var that must be set to run them.
+	 * A CLI --tags replaces the behat.yml filters, so the tags alone can't keep these scenarios off.
+	 */
+	const GUARDED_TAGS = [
+		'destructive' => 'EE_BEHAT_DESTRUCTIVE',
+		'migration'   => 'EE_BEHAT_ALLOW_MIGRATION',
+		'uninstall'   => 'EE_BEHAT_ALLOW_UNINSTALL',
+	];
+
+	/**
+	 * Phar built by "ee phar is generated", shared by the whole run ({PHAR}).
+	 *
+	 * @var string|null
+	 */
+	private static $phar;
+
+	/**
+	 * Whether the shutdown/signal restore of changed options is registered.
+	 *
+	 * @var bool
+	 */
+	private $restore_registered = false;
 
 	/**
 	 * Per-scenario scratch directory, created on first use of {TMP}.
@@ -122,18 +147,32 @@ class FeatureContext implements Context
 	 */
 	public function eePharIsPresent()
 	{
-		// Building the phar is slow, so reuse the copy cached by an earlier scenario.
-		if(file_exists('ee-old.phar')) {
-			@unlink('ee.phar');
-			copy('ee-old.phar','ee.phar');
-			return 0;
+		// Building takes about a minute, so the phar is shared by the whole run.
+		if ( self::$phar && file_exists( self::$phar ) ) {
+			return;
 		}
-		exec("php -dphar.readonly=0 utils/make-phar.php ee.phar --quiet", $output, $return_status);
-		if (0 !== $return_status) {
-			throw new Exception("Unable to generate phar" . $return_status);
+		// Build from a private copy with a --no-dev autoloader: a phar built on a dev vendor requires
+		// require-dev files it doesn't contain. The checkout and /usr/local/bin/ee are never touched.
+		$root = realpath( EE_ROOT );
+		$dir  = self::TMP_BASE . '/phar-' . getmypid();
+		$src  = "$dir/src";
+		$phar = "$dir/ee.phar";
+		$cmd  = sprintf(
+			'rm -rf %1$s && mkdir -p %1$s && tar -C %2$s --exclude=.git --exclude=./features --exclude="./*.phar" -cf - . | tar -C %1$s -xf -'
+			. ' && cd %1$s && COMPOSER_ALLOW_SUPERUSER=1 %3$scomposer dump-autoload --no-dev -q'
+			. ' && %4$s -dphar.readonly=0 utils/make-phar.php %5$s --quiet',
+			escapeshellarg( $src ),
+			escapeshellarg( $root ),
+			file_exists( "$root/composer.dev.json" ) ? 'COMPOSER=composer.dev.json ' : '',
+			escapeshellarg( PHP_BINARY ),
+			escapeshellarg( $phar )
+		);
+		exec( "( $cmd ) 2>&1", $output, $status );
+		exec( 'rm -rf ' . escapeshellarg( $src ) );
+		if ( 0 !== $status || ! file_exists( $phar ) ) {
+			throw new Exception( "Unable to generate the phar (exit $status):\n" . implode( "\n", $output ) );
 		}
-
-		copy('ee.phar','ee-old.phar');
+		self::$phar = $phar;
 	}
 
 	/**
@@ -434,6 +473,12 @@ class FeatureContext implements Context
 		if( trim($result->stdout) !== '0' ) {
 			throw new Exception("All containers have not been removed.");
 		}
+		foreach ( [ 'network', 'volume', 'image' ] as $object ) {
+			$left = trim( EE::launch( "docker $object ls -q -f label=org.label-schema.vendor=EasyEngine | wc -l", false, true )->stdout );
+			if ( '0' !== $left ) {
+				throw new Exception( "$left EasyEngine docker {$object}(s) have not been removed." );
+			}
+		}
 		$home = getenv('HOME');
 		if(file_exists("$home/.ee/")){
 			throw new Exception("~/.ee/ has not been removed");
@@ -453,7 +498,7 @@ class FeatureContext implements Context
 	 * Output steps act on the LAST command run in the scenario. Step strings
 	 * support the placeholders {TMP} (per-scenario scratch dir under
 	 * /var/tmp), {EE} (absolute bin/ee), {EE_ROOT}, {EE_ROOT_DIR},
-	 * {EE_VERSION}, {PHP} (PHP binary running Behat) and {RAND}.
+	 * {EE_VERSION}, {PHP} (PHP binary running Behat), {PHAR} (the built phar) and {RAND}.
 	 * ---------------------------------------------------------------------
 	 */
 
@@ -765,6 +810,17 @@ class FeatureContext implements Context
 		if ( ! array_key_exists( $key, $this->saved_options ) ) {
 			$this->saved_options[ $key ] = self::get_option( $key );
 		}
+		if ( ! $this->restore_registered ) {
+			// Also restore when the run dies mid-scenario (Behat's SIGINT handler exits, fatals, SIGTERM).
+			register_shutdown_function( [ $this, 'restoreOptions' ] );
+			if ( function_exists( 'pcntl_signal' ) ) {
+				pcntl_async_signals( true );
+				pcntl_signal( SIGTERM, function () {
+					exit( 143 );
+				} );
+			}
+			$this->restore_registered = true;
+		}
 		self::set_option( $key, $this->replace_variables( $value ) );
 	}
 
@@ -803,9 +859,22 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @AfterScenario
+	 * @BeforeScenario
 	 */
-	public function cleanupScenario(AfterScenarioScope $scope)
+	public function refuseGuardedScenarios( BeforeScenarioScope $scope )
+	{
+		$tags = array_merge( $scope->getFeature()->getTags(), $scope->getScenario()->getTags() );
+		foreach ( self::GUARDED_TAGS as $tag => $env ) {
+			if ( in_array( $tag, $tags, true ) && ! getenv( $env ) ) {
+				throw new Exception( "Refusing to run a @$tag scenario: it changes the live EasyEngine state. Set $env=1 to allow it." );
+			}
+		}
+	}
+
+	/**
+	 * Puts back the options changed by "the EasyEngine option :key is set to :value".
+	 */
+	public function restoreOptions()
 	{
 		foreach ( $this->saved_options as $key => $value ) {
 			if ( false === $value ) {
@@ -814,7 +883,15 @@ class FeatureContext implements Context
 				self::set_option( $key, $value );
 			}
 		}
-		$this->saved_options    = [];
+		$this->saved_options = [];
+	}
+
+	/**
+	 * @AfterScenario
+	 */
+	public function cleanupScenario(AfterScenarioScope $scope)
+	{
+		$this->restoreOptions();
 		$this->container_counts = [];
 		$this->commands         = [];
 		$this->rand             = null;
@@ -837,11 +914,16 @@ class FeatureContext implements Context
 			exec( 'bin/ee site delete ' . escapeshellarg( basename( $site_dir ) ) . ' --yes' );
 		}
 
-		if(file_exists('ee.phar')) {
-			unlink('ee.phar');
-		}
-		if(file_exists('ee-old.phar')) {
-			unlink('ee-old.phar');
+	}
+
+	/**
+	 * @AfterSuite
+	 */
+	public static function removePhar()
+	{
+		if ( self::$phar ) {
+			exec( 'rm -rf ' . escapeshellarg( dirname( self::$phar ) ) );
+			self::$phar = null;
 		}
 	}
 
@@ -856,6 +938,12 @@ class FeatureContext implements Context
 		];
 		if ( false !== strpos( $string, '{TMP}' ) ) {
 			$map['{TMP}'] = $this->tmp_dir();
+		}
+		if ( false !== strpos( $string, '{PHAR}' ) ) {
+			if ( null === self::$phar ) {
+				throw new Exception( '{PHAR} needs "Given ee phar is generated" first.' );
+			}
+			$map['{PHAR}'] = self::$phar;
 		}
 		if ( false !== strpos( $string, '{RAND}' ) ) {
 			if ( null === $this->rand ) {
