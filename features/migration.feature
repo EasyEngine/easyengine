@@ -91,3 +91,26 @@ Feature: Migration triggering
     Then the command should exit with code 0
     And STDOUT should contain "Executing migrations. This might take some time."
     And the EasyEngine option "version" should be "{EE_VERSION}"
+
+  # Registry blocked, so the image migration fails after the container migrations ran. They must be reverted
+  # (down() called, row removed) and run again by the next attempt; earlier ones stay recorded.
+  @migration
+  Scenario: A failed image migration reverts the container migrations of the same run
+    Given no EasyEngine migration is pending
+    And the core container migration "20990101000000_easyengine_behat_revert_probe.php" with class "BehatRevertProbe" logs its up and down calls to "{TMP}/probe.log"
+    And the EasyEngine option "version" is set to "4.0.0"
+    And Docker Hub is unreachable
+    When I run 'bin/ee cli info'
+    Then the command should exit with code 1
+    And STDERR should contain "Error while executing ee-docker-image-migrations"
+    And the file "{TMP}/probe.log" should contain "up,down,"
+    And the container migration "20990101000000_easyengine_behat_revert_probe.php" should not be recorded
+    And the container migration "20210830165250_auth-command_add_frontend_ip.php" should be recorded
+    And the EasyEngine option "version" should be "4.0.0"
+    When Docker Hub is reachable again
+    And I run 'bin/ee cli info'
+    Then the command should exit with code 0
+    And the file "{TMP}/probe.log" should contain "up,down,up,"
+    And the file "{TMP}/probe.log" should not contain "up,down,up,down"
+    And the container migration "20990101000000_easyengine_behat_revert_probe.php" should be recorded
+    And the EasyEngine option "version" should be "{EE_VERSION}"

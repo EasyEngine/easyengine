@@ -134,6 +134,20 @@ class FeatureContext implements Context
 	private $container_counts = [];
 
 	/**
+	 * Core container migrations written by a scenario (file => created its directory), removed afterwards.
+	 *
+	 * @var array
+	 */
+	private $probe_migrations = [];
+
+	/**
+	 * /etc/hosts before "Docker Hub is unreachable", restored afterwards.
+	 *
+	 * @var string|null
+	 */
+	private static $hosts_backup;
+
+	/**
 	 * Initializes context.
 	 */
 	public function __construct()
@@ -859,6 +873,76 @@ class FeatureContext implements Context
 	}
 
 	/**
+	 * @Given the core container migration :file with class :class logs its up and down calls to :log
+	 */
+	public function theCoreContainerMigrationLogsTo( $file, $class, $log )
+	{
+		$dir     = EE_ROOT . '/migrations/container';
+		$created = ! is_dir( $dir );
+		if ( $created && ! mkdir( $dir, 0755, true ) ) {
+			throw new Exception( "Could not create $dir" );
+		}
+		$this->probe_migrations[ $file ] = $created;
+		$log  = var_export( $this->replace_variables( $log ), true );
+		$code = "<?php\nnamespace EE\\Migration;\n\nclass $class extends Base {\n"
+			. "\tpublic function up() { file_put_contents( $log, 'up,', FILE_APPEND ); }\n"
+			. "\tpublic function down() { file_put_contents( $log, 'down,', FILE_APPEND ); }\n}\n";
+		if ( false === file_put_contents( "$dir/$file", $code ) ) {
+			throw new Exception( "Could not write $dir/$file" );
+		}
+	}
+
+	/**
+	 * @Then /^the container migration "([^"]*)" should ((?:not )?)be recorded$/
+	 */
+	public function theContainerMigrationShouldBeRecorded( $file, $negate )
+	{
+		$query = self::db()->prepare( "SELECT COUNT(*) FROM migrations WHERE migration = ? AND type = 'container'" );
+		$query->execute( [ $file ] );
+		$count = (int) $query->fetchColumn();
+		if ( $negate ? 0 !== $count : 1 !== $count ) {
+			throw new Exception( "Expected $file to " . ( $negate ? 'not ' : '' ) . "be recorded once, found $count rows." );
+		}
+	}
+
+	/**
+	 * @Given Docker Hub is unreachable
+	 */
+	public function dockerHubIsUnreachable()
+	{
+		if ( null === self::$hosts_backup ) {
+			self::$hosts_backup = file_get_contents( '/etc/hosts' );
+			register_shutdown_function( [ self::class, 'restoreHosts' ] );
+		}
+		file_put_contents( '/etc/hosts', self::$hosts_backup . "\n127.0.0.1 registry-1.docker.io auth.docker.io index.docker.io\n" );
+		exec( 'timeout 60 docker pull -q busybox:1.36 2>&1', $out, $rc );
+		if ( 0 === $rc ) {
+			exec( 'docker rmi busybox:1.36' );
+			self::restoreHosts();
+			throw new Exception( 'Blocking Docker Hub in /etc/hosts had no effect (a registry mirror?).' );
+		}
+	}
+
+	/**
+	 * @When Docker Hub is reachable again
+	 */
+	public function dockerHubIsReachableAgain()
+	{
+		self::restoreHosts();
+	}
+
+	/**
+	 * Puts back /etc/hosts saved by "Docker Hub is unreachable".
+	 */
+	public static function restoreHosts()
+	{
+		if ( null !== self::$hosts_backup ) {
+			file_put_contents( '/etc/hosts', self::$hosts_backup );
+			self::$hosts_backup = null;
+		}
+	}
+
+	/**
 	 * @BeforeScenario
 	 */
 	public function refuseGuardedScenarios( BeforeScenarioScope $scope )
@@ -891,6 +975,17 @@ class FeatureContext implements Context
 	 */
 	public function cleanupScenario(AfterScenarioScope $scope)
 	{
+		self::restoreHosts();
+		foreach ( $this->probe_migrations as $file => $created_dir ) {
+			@unlink( EE_ROOT . "/migrations/container/$file" );
+			if ( $created_dir ) {
+				@rmdir( EE_ROOT . '/migrations/container' );
+			}
+			if ( file_exists( self::db_path() ) ) {
+				self::db()->prepare( 'DELETE FROM migrations WHERE migration = ?' )->execute( [ $file ] );
+			}
+		}
+		$this->probe_migrations = [];
 		$this->restoreOptions();
 		$this->container_counts = [];
 		$this->commands         = [];
