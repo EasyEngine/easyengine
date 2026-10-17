@@ -488,7 +488,7 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then /^(STDOUT|STDERR) should (not )?contain "(.*)"$/
+	 * @Then /^(STDOUT|STDERR) should ((?:not )?)contain "(.*)"$/
 	 */
 	public function streamShouldContainText( $stream, $negate, $text )
 	{
@@ -496,7 +496,7 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then /^(STDOUT|STDERR) should (not )?contain:$/
+	 * @Then /^(STDOUT|STDERR) should ((?:not )?)contain:$/
 	 */
 	public function streamShouldContainBlock( $stream, $negate, PyStringNode $text )
 	{
@@ -526,7 +526,7 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then /^(STDOUT|STDERR) should (not )?match "(.*)"$/
+	 * @Then /^(STDOUT|STDERR) should ((?:not )?)match "(.*)"$/
 	 */
 	public function streamShouldMatch( $stream, $negate, $regex )
 	{
@@ -541,7 +541,7 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then /^(STDOUT|STDERR) should (not )?contain ANSI color codes$/
+	 * @Then /^(STDOUT|STDERR) should ((?:not )?)contain ANSI color codes$/
 	 */
 	public function streamShouldContainAnsiCodes( $stream, $negate )
 	{
@@ -630,7 +630,7 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @Then /^the json in STDOUT at "([^"]*)" should (not )?contain "([^"]*)"$/
+	 * @Then /^the json in STDOUT at "([^"]*)" should ((?:not )?)contain "([^"]*)"$/
 	 */
 	public function theJsonAtShouldContain( $path, $negate, $value )
 	{
