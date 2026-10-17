@@ -190,9 +190,7 @@ Feature: ee cli alias and @alias execution
     Then the command should exit with code 1
     And STDERR should contain "Error: Cannot use '@all' when no aliases are registered."
 
-  # CORE-4: Runner::run_ssh_command() is never called, so an alias with `ssh:` silently runs the
-  # command on the local machine instead of the remote one.
-  @known-bug
+  # CORE-4: remote targets were accepted but never dispatched, so the command ran on the local machine.
   Scenario: A command for an ssh alias is not run locally
     Given a file "{TMP}/config.yml" with:
       """
@@ -204,6 +202,59 @@ Feature: ee cli alias and @alias execution
     When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @bh-remote cli version'
     Then the command should fail
     And STDOUT should not contain "EE {EE_VERSION}"
+    And STDERR should contain "The alias '@bh-remote' has a remote target (ssh), which is not supported."
+
+  Scenario: A group or @all with an ssh alias is refused before any member runs
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      @bh-one:
+        path: /var/tmp
+      @bh-remote:
+        ssh: bh-nobody@127.0.0.1:1
+      @bh-group:
+        - @bh-one
+        - @bh-remote
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @bh-group cli version'
+    Then the command should fail
+    And STDOUT should not contain "EE {EE_VERSION}"
+    And STDERR should contain "The alias '@bh-group' has a remote target (ssh)"
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @all cli version'
+    Then the command should fail
+    And STDOUT should not contain "EE {EE_VERSION}"
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee @bh-one cli version'
+    Then the command should exit with code 0
+    And STDOUT should contain "EE {EE_VERSION}"
+
+  Scenario: --ssh and --http are refused
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee --ssh=bh-nobody@127.0.0.1:1 site list'
+    Then the command should fail
+    And STDERR should contain "The --ssh parameter is not supported."
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee site list --http=https://bh.example.test'
+    Then the command should fail
+    And STDERR should contain "The --http parameter is not supported."
+
+  Scenario: An ssh key in the config is refused, but ee config can remove it
+    Given a file "{TMP}/config.yml" with:
+      """
+      locale: en_US
+      ee_installer_version: stable
+      ssh: bh-nobody@127.0.0.1:1
+      """
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee site list'
+    Then the command should fail
+    And STDERR should contain "The 'ssh' config key is not supported."
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee config unset ssh'
+    Then the command should exit with code 0
+    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee site list'
+    Then STDERR should not contain "config key is not supported"
 
   Scenario: An alias group passes the command's flags to every member
     Given a file "{TMP}/config.yml" with:

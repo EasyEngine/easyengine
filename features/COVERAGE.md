@@ -97,7 +97,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | run through a local alias, `@all`, a group, a group with an unknown member, unknown alias suggestion, `@all` without aliases | cli-alias.feature |
 | a group passes the command's flags to every member | cli-alias.feature |
 | `@all`/group exit status, `@all` running group members twice | cli-alias.feature `@known-bug` (2, CORE-12) |
-| aliases with `ssh:` run remotely | cli-alias.feature `@known-bug` (CORE-4: they run locally) |
+| aliases with `ssh:`/`http:`, `--ssh`, `--http`, `ssh:` in config | cli-alias.feature: refused (CORE-4, core `fix/refuse-remote-aliases`; they ran locally before) |
 | ssh schemes (docker, docker-compose, vagrant, ssh), `EE_SSH_PRE_CMD` | not covered: `run_ssh_command()` is dead code in EE; would need a remote host |
 
 ### `ee cli has-command <command_name>...`
@@ -189,7 +189,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 
 ### Coverage estimate
 
-The inventory has 107 rows: 93 covered, 1 partly covered and 13 not covered (about 87% of rows, about 78% when rows with several flags are counted per flag). What is left is the real self-update and phar self-delete (unsafe on a live stack), ssh aliases (never wired up, CORE-4), permission errors that root cannot hit, fresh-install and nightly migration paths, and output that depends on live GitHub release data.
+The inventory has 107 rows: 93 covered, 1 partly covered and 13 not covered (about 87% of rows, about 78% when rows with several flags are counted per flag). What is left is the real self-update and phar self-delete (unsafe on a live stack), ssh aliases (never wired up; refused since CORE-4), permission errors that root cannot hit, fresh-install and nightly migration paths, and output that depends on live GitHub release data.
 
 ## How to run
 
@@ -227,7 +227,6 @@ Estimated runtime: default profile about 4 minutes (help outlines about 40 s, fi
 | requirements.feature: failed requirement exits non-zero | CORE-1 |
 | global-flags.feature: secrets not written to ee.log | LOG-1 |
 | global-flags.feature: `--color`, `--no-color`, `color:` config, `--quiet`, `quiet:` config, success with `--quiet` (6) | CORE-3: `php/bootstrap.php` sets up colours and the logger before reading the config |
-| cli-alias.feature: ssh alias runs locally | CORE-4: `Runner::run_ssh_command()` is never called |
 | requirements.feature: help without `less` | CORE-5: nothing printed, exit 0 |
 | cli-has-command.feature: trailing words after a leaf | CORE-6: `has-command` stops at the first leaf |
 | config-file.feature: composite usage prefix | CORE-7: `CompositeCommand::show_usage()` counts the skipped disabled subcommand |
