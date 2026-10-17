@@ -1,0 +1,16 @@
+# Destructive scenarios (self-uninstall, DB version changes, real migrations) are skipped by default.
+# Note: a CLI --tags option replaces these filters, so add `&&~@destructive` to it yourself.
+default:
+  gherkin:
+    filters:
+      tags: "~@destructive"
+
+destructive:
+  gherkin:
+    filters:
+      tags: "@destructive"
+
+all:
+  gherkin:
+    filters:
+      tags: "@destructive,~@destructive"
