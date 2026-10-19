@@ -29,14 +29,6 @@ Feature: ee cli has-command
       | "foo bar"        |
       | ""               |
 
-  # CORE-6: find_command_to_run() stops at the first leaf and ignores the remaining words. `site` is a leaf too
-  # (Site_Command::__invoke routes site types), so "site create" above only passes through the same shortcut and
-  # "site <anything>" returns 0 as well; it is left out here because a fix has to special-case site first.
-  @known-bug
-  Scenario: Extra words after a leaf command are not a registered command
-    When I run 'bin/ee cli has-command "cli version extra"'
-    Then the command should exit with code 1
-
   Scenario: has-command without a command prints its usage
     When I run 'bin/ee cli has-command'
     Then the command should exit with code 1

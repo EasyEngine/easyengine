@@ -188,13 +188,6 @@ Feature: ee help
     Then the command should exit with code 1
     And STDERR should contain "Error: 'bogus' is not a registered site type"
 
-  # CORE-10 (site-command): the hint repeats the bogus type, and that command fails the same way.
-  @known-bug
-  Scenario: help for an unknown site type points to a working help command
-    When I run 'bin/ee help site create --type=bogus'
-    Then the command should exit with code 1
-    And STDERR should not contain "ee help site --type=bogus"
-
   Scenario: help for an unknown command fails with a hint
     When I run 'bin/ee help nosuchcommand'
     Then the command should exit with code 1

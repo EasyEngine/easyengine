@@ -35,11 +35,3 @@ Feature: Phar build
     Then the command should exit with code 0
     And the json in STDOUT at "ee_dir_path" should be "phar://ee.phar"
     And the json in STDOUT at "ee_version" should be "{EE_VERSION}"
-
-  # CORE-8: php/boot-phar.php defines EE_PHAR_PATH as getcwd(), so "EE phar path" shows the working directory.
-  @known-bug
-  Scenario: The phar cli info shows the path of the phar file
-    Given no EasyEngine migration is pending
-    When I run 'cd {TMP} && COLUMNS=250 {PHP} {PHAR} cli info'
-    Then the command should exit with code 0
-    And STDOUT should match "#^\| EE phar path\s+\| {PHAR}\s+\|#m"

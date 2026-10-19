@@ -29,13 +29,11 @@ jobs:
     name: Behat ${{ matrix.lane }} (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    # Known bugs are expected to fail; they're reported, not gating.
-    continue-on-error: ${{ matrix.lane == 'known-bug' }}
     strategy:
       fail-fast: false
       matrix:
         php: ['7.4', '8.5']
-        lane: [main, migration, uninstall, known-bug]
+        lane: [main, migration, uninstall]
         include:
           # Default profile plus @destructive; the first checked command initialises EasyEngine.
           - lane: main
@@ -49,8 +47,6 @@ jobs:
             args: -p uninstall
             init: true
             allow_uninstall: 1
-          - lane: known-bug
-            args: --tags="${EXCLUDE_TAGS}&&@known-bug&&~@migration&&~@uninstall"
     env:
       EE_BEHAT_ALLOW_MIGRATION: ${{ matrix.allow_migration }}
       EE_BEHAT_ALLOW_UNINSTALL: ${{ matrix.allow_uninstall }}

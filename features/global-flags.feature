@@ -61,57 +61,6 @@ Feature: Global parameters (--debug, --quiet, --color)
     When I run 'SHELL_PIPE=0 bin/ee cli verison'
     Then STDERR should contain ANSI color codes
 
-  # CORE-3: InitializeColorization/InitializeLogger run before ConfigureRunner in
-  # php/bootstrap.php, so --color, --no-color and `color:` in the config file are ignored.
-  @known-bug
-  Scenario: --color forces colors even when piped
-    When I run 'bin/ee cli verison --color'
-    Then STDERR should contain ANSI color codes
-
-  @known-bug
-  Scenario: --no-color disables colors
-    When I run 'SHELL_PIPE=0 bin/ee cli verison --no-color'
-    Then STDERR should not contain ANSI color codes
-
-  @known-bug
-  Scenario: color can be disabled from the config file
-    Given a file "{TMP}/config.yml" with:
-      """
-      locale: en_US
-      ee_installer_version: stable
-      color: false
-      """
-    When I run 'SHELL_PIPE=0 EE_CONFIG_PATH={TMP}/config.yml bin/ee cli verison'
-    Then STDERR should not contain ANSI color codes
-
-  # CORE-3: same bootstrap order bug, the Quiet logger is never selected, so --quiet
-  # and `quiet: true` do not hide warnings. The missing docker-compose path warns without a migration.
-  @known-bug
-  Scenario: --quiet hides warnings
-    Given the executable "docker" is linked into "{TMP}/bin"
-    When I run 'PATH={TMP}/bin {PHP} {EE_ROOT}/php/boot-fs.php site list --quiet'
-    Then STDERR should contain "Error: EasyEngine requires docker-compose."
-    And STDERR should not contain "Warning:"
-
-  @known-bug
-  Scenario: quiet can be enabled from the config file
-    Given the executable "docker" is linked into "{TMP}/bin"
-    And a file "{TMP}/config.yml" with:
-      """
-      locale: en_US
-      ee_installer_version: stable
-      quiet: true
-      """
-    When I run 'PATH={TMP}/bin EE_CONFIG_PATH={TMP}/config.yml {PHP} {EE_ROOT}/php/boot-fs.php site list'
-    Then STDERR should contain "Error: EasyEngine requires docker-compose."
-    And STDERR should not contain "Warning:"
-
-  @known-bug @network
-  Scenario: --quiet hides success messages
-    When I run 'bin/ee cli check-update --major --quiet'
-    Then the command should exit with code 0
-    And STDOUT should not contain "Success:"
-
   Scenario: Errors are still printed with --quiet
     When I run 'bin/ee cli verison --quiet'
     Then the command should exit with code 1

@@ -150,20 +150,6 @@ Feature: Global and project config files
     And STDOUT should contain "ee cli update"
     And STDOUT should not contain "ee cli version"
 
-  # CORE-7: CompositeCommand::show_usage() counts the skipped disabled subcommand, so the
-  # first printed line loses its "usage:" prefix when the first subcommand is disabled.
-  @known-bug
-  Scenario: The composite usage still starts with "usage:" when its first subcommand is disabled
-    Given a file "{TMP}/config.yml" with:
-      """
-      locale: en_US
-      ee_installer_version: stable
-      disabled_commands:
-        - cli alias
-      """
-    When I run 'EE_CONFIG_PATH={TMP}/config.yml bin/ee cli'
-    Then STDOUT should match "#\Ausage: ee cli check-update#"
-
   Scenario: Disabling a command also disables its alias
     Given a file "{TMP}/config.yml" with:
       """

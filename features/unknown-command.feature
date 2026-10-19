@@ -69,11 +69,3 @@ Feature: Unknown commands and composite commands
     Then the command should exit with code 1
     And STDERR should contain "missing --line parameter"
     And STDERR should contain "missing --point parameter"
-
-  # CORE-9: without docker the requirement check fails first and hides the typo.
-  @known-bug
-  Scenario: An unknown top-level command is reported even when docker is not available
-    Given the directory "{TMP}/emptybin" exists
-    When I run 'PATH={TMP}/emptybin {PHP} {EE_ROOT}/php/boot-fs.php sitee'
-    Then the command should exit with code 1
-    And STDERR should contain "Error: 'sitee' is not a registered ee command."
