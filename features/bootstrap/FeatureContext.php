@@ -833,6 +833,40 @@ class FeatureContext implements Context
 	}
 
 	/**
+	 * Without a pull, a blocked registry can't fail the image migration: if every image it would pull
+	 * already runs (or is recorded) at its target tag, record a stale tag for one that isn't running.
+	 *
+	 * @Given the next image migration pulls at least one image
+	 */
+	public function theNextImageMigrationPullsAtLeastOneImage()
+	{
+		$running = [];
+		foreach ( array_filter( explode( "\n", (string) shell_exec( "docker ps --format '{{.Image}}'" ) ) ) as $image ) {
+			$parts                = explode( ':', $image, 2 );
+			$running[ $parts[0] ] = isset( $parts[1] ) ? $parts[1] : null;
+		}
+		$free = null;
+		foreach ( json_decode( file_get_contents( EE_ROOT . '/img-versions.json' ), true ) as $image => $version ) {
+			// Same exclusions as Containers::start_container_migration().
+			if ( preg_match( '#^easyengine/(php\d|newrelic-daemon)#', $image ) ) {
+				continue;
+			}
+			// Running containers take precedence over the options table, as in the migration.
+			$current = array_key_exists( $image, $running ) ? $running[ $image ] : self::get_option( $image );
+			if ( $current !== $version ) {
+				return;
+			}
+			if ( null === $free && ! array_key_exists( $image, $running ) ) {
+				$free = $image;
+			}
+		}
+		if ( null === $free ) {
+			throw new Exception( 'Every image the migration could pull runs at its target tag, so no pull can fail.' );
+		}
+		$this->theEasyEngineOptionIsSetTo( $free, 'v0.0.0-behat-stale' );
+	}
+
+	/**
 	 * @Then the EasyEngine option :key should be :value
 	 */
 	public function theEasyEngineOptionShouldBe( $key, $value )

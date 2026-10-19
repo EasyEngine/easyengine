@@ -99,6 +99,7 @@ Feature: Migration triggering
     Given no EasyEngine migration is pending
     And the core container migration "20990101000000_easyengine_behat_revert_probe.php" with class "BehatRevertProbe" logs its up and down calls to "{TMP}/probe.log"
     And the EasyEngine option "version" is set to "4.0.0"
+    And the next image migration pulls at least one image
     And Docker Hub is unreachable
     When I run 'bin/ee cli info'
     Then the command should exit with code 1
