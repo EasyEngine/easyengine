@@ -204,16 +204,6 @@ class FeatureContext implements Context
 	}
 
 	/**
-	 * @When I create subsite :subsite in :site
-	 */
-	public function iCreateSubsiteInOfType($subsite, $site )
-	{
-		$php_container = implode( explode( '.', $subsite ) ) . '_php_1';
-
-		EE::launch( "docker exec --user='www-data' $php_container sh -c 'wp site create --slug=$site'", false, true );
-	}
-
-	/**
 	 * @Then return value should be 0
 	 */
 	public function returnValueShouldBe0()
