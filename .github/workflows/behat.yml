@@ -110,6 +110,8 @@ jobs:
 
       - name: Run Behat
         shell: 'script -q -e -c "bash {0}"'
+        # A hung step (e.g. a command stopped on the TTY) should still leave logs.
+        timeout-minutes: 75
         env:
           # check-update calls the GitHub API; authenticated requests get a higher rate limit.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -134,11 +136,13 @@ jobs:
           sudo chown -R "$USER" "$out"
           # One block per failed scenario, from the junit files.
           python3 - "$out" <<'PY'
-          import glob, sys, xml.etree.ElementTree as ET
+          import glob, re, sys, xml.etree.ElementTree as ET
           out = sys.argv[1]
           lines = []
           for f in sorted(glob.glob(out + '/junit/*.xml')):
-              for case in ET.parse(f).getroot().iter('testcase'):
+              # Behat copies raw output (docker logs with ANSI escapes) into the junit file; XML 1.0 forbids those bytes.
+              data = re.sub(rb'[\x00-\x08\x0b\x0c\x0e-\x1f]', b'', open(f, 'rb').read())
+              for case in ET.fromstring(data).iter('testcase'):
                   for bad in list(case.findall('failure')) + list(case.findall('error')):
                       lines.append('### %s :: %s\n%s\n%s\n' % (case.get('classname'), case.get('name'), bad.get('message') or '', bad.text or ''))
           open(out + '/failures.txt', 'w').write('\n'.join(lines) or 'No failures.\n')
