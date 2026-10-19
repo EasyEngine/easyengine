@@ -242,7 +242,9 @@ Feature: ee cli alias and @alias execution
     And STDERR should contain "The --http parameter is not supported."
 
   Scenario: An ssh key in the config is refused, but ee config can remove it
-    Given a file "{TMP}/config.yml" with:
+    # The last site list passes the refusal and runs the requirement checks.
+    Given no EasyEngine migration is pending
+    And a file "{TMP}/config.yml" with:
       """
       locale: en_US
       ee_installer_version: stable

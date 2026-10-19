@@ -217,7 +217,7 @@ Safety rules built into the suite:
 - The phar is built from a `--no-dev` copy of the checkout under `/var/tmp/ee-behat-core/phar-<pid>/` and removed after the suite; the checkout, its `vendor/` autoloader and `/usr/local/bin/ee` are never touched, `cli update` is never run from the phar and `help` runs with `EE_DISABLE_AUTO_CHECK_UPDATE=1`.
 - Config scenarios point `EE_CONFIG_PATH` at a per-scenario file under `/var/tmp/ee-behat-core/` (`{TMP}`), removed after the scenario; the real `/opt/easyengine/config/config.yml` is never written (scenarios without `EE_CONFIG_PATH` read it, so `debug:`, aliases or `disabled_commands` there would break exact-output checks).
 - Requirement scenarios hide docker/docker-compose with a private `PATH` instead of stopping anything.
-- The suite creates no sites. The `@AfterFeature` cleanup only deletes sites named `bh-easyengine-*`.
+- The suite creates no sites and never deletes any.
 - Commands are run through `EE\Process` directly, not `EE::launch()`, so the harness does not write test command lines into `ee.log`.
 
 Estimated runtime: default profile about 4 minutes (help outlines about 40 s, five 7 s docker-retry scenarios, about 1 min for the phar build, a few seconds of GitHub API calls). `-p migration` takes 1 to 3 min (image pulls, a cron container restart) and `-p uninstall` about 1 min, after which the next site command re-initialises EasyEngine and pulls about 8 GB of images.

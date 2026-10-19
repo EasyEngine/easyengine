@@ -56,7 +56,6 @@ $runner->init_config();
 /* End. Loading required files to enable EE::launch() in tests. */
 
 use Behat\Behat\Context\Context;
-use Behat\Behat\Hook\Scope\AfterFeatureScope;
 use Behat\Behat\Hook\Scope\AfterScenarioScope;
 use Behat\Behat\Hook\Scope\BeforeScenarioScope;
 
@@ -70,11 +69,6 @@ class FeatureContext implements Context
 	public $commands;
 	public $webroot_path;
 	public $ee_path;
-
-	/**
-	 * Prefix of every site this suite may create; cleanup never touches other sites.
-	 */
-	const SITE_PREFIX = 'bh-easyengine-';
 
 	/**
 	 * Base directory of the per-scenario scratch directories ({TMP}).
@@ -1000,18 +994,6 @@ class FeatureContext implements Context
 		$this->tmp_dir = null;
 
 		chdir($this->ee_path);
-	}
-
-	/**
-	 * @AfterFeature
-	 */
-	public static function cleanup(AfterFeatureScope $scope)
-	{
-		// Only this suite's sites, never every site on the host.
-		foreach ( glob( EE_SITE_ROOT . '/' . self::SITE_PREFIX . '*', GLOB_ONLYDIR ) ?: [] as $site_dir ) {
-			exec( 'bin/ee site delete ' . escapeshellarg( basename( $site_dir ) ) . ' --yes' );
-		}
-
 	}
 
 	/**
