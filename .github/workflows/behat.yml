@@ -1,0 +1,155 @@
+# Behat suite of EasyEngine core (features/), run on a throwaway runner.
+name: Behat
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: behat-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSE_VERSION: v5.5.1
+  # No public DNS (Let's Encrypt) or real backup storage on hosted runners.
+  EXCLUDE_TAGS: '~@le&&~@remote-real'
+  COMPOSE_INTERACTIVE_NO_CLI: 1
+  # The suite's guards: a fresh runner has no ee.sqlite, and every lane may change global state.
+  EE_BEHAT_ALLOW_INIT: 1
+  EE_BEHAT_DESTRUCTIVE: 1
+
+jobs:
+  behat:
+    name: Behat ${{ matrix.lane }} (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    # Known bugs are expected to fail; they're reported, not gating.
+    continue-on-error: ${{ matrix.lane == 'known-bug' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.5']
+        lane: [main, migration, uninstall, known-bug]
+        include:
+          # Default profile plus @destructive; the first checked command initialises EasyEngine.
+          - lane: main
+            args: --tags="${EXCLUDE_TAGS}&&~@migration&&~@uninstall&&~@known-bug"
+          # The real upgrade pipeline and the self-uninstall need an initialised install, and a job each.
+          - lane: migration
+            args: -p migration
+            init: true
+            allow_migration: 1
+          - lane: uninstall
+            args: -p uninstall
+            init: true
+            allow_uninstall: 1
+          - lane: known-bug
+            args: --tags="${EXCLUDE_TAGS}&&@known-bug&&~@migration&&~@uninstall"
+    env:
+      EE_BEHAT_ALLOW_MIGRATION: ${{ matrix.allow_migration }}
+      EE_BEHAT_ALLOW_UNINSTALL: ${{ matrix.allow_uninstall }}
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer
+          extensions: pcntl, curl, sqlite3, zip, dom, mbstring, json
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config -g cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Composer caching
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-php${{ matrix.php }}-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-composer-php${{ matrix.php }}-
+
+      - name: Prepare the host
+        run: |
+          # The runner image ships web and database servers; EE needs 80/443.
+          sudo systemctl stop nginx apache2 mysql 2>/dev/null || true
+          sudo ss -ltnp | grep -E ':(80|443|3306) ' || true
+          sudo curl -fsSL "https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-linux-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+          docker version --format 'docker {{.Server.Version}}'
+          docker-compose version
+          openssl version
+          echo "umask $(umask), under sudo $(sudo sh -c umask)"
+
+      - name: Install dependencies
+        run: |
+          # Every easyengine/* package on dev-develop, as core CI does on PRs.
+          php -r '
+            $j = json_decode(file_get_contents("composer.json"), true);
+            foreach ($j["require"] as $k => $v) if (strpos($k, "easyengine/") === 0) $j["require"][$k] = "dev-develop";
+            file_put_contents("composer.json", json_encode($j, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");'
+          composer update --prefer-dist --no-progress --no-interaction
+          # Some package commands shell out to `ee` from PATH.
+          sudo ln -sf "$PWD/bin/ee" /usr/local/bin/ee
+          cat VERSION
+
+      - name: Initialise EasyEngine
+        if: matrix.init
+        run: |
+          # The first non-cli command runs the initial setup (DB, config, image pulls).
+          sudo -E bin/ee site list || true
+          sudo -E bin/ee cli info
+
+      - name: Run Behat
+        shell: 'script -q -e -c "bash {0}"'
+        env:
+          # check-update calls the GitHub API; authenticated requests get a higher rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/behat/junit"
+          # A CLI --tags replaces the profile filter, so the exclusions only apply to the --tags lanes.
+          sudo -E vendor/bin/behat --strict ${{ matrix.args }} \
+            --format=progress --out=std \
+            --format=junit --out="$RUNNER_TEMP/behat/junit" \
+            --format=pretty --out="$RUNNER_TEMP/behat/pretty.log"
+
+      - name: Collect logs
+        if: always()
+        run: |
+          out="$RUNNER_TEMP/behat"
+          mkdir -p "$out"
+          sudo cp /opt/easyengine/logs/ee.log "$out/" 2>/dev/null || echo 'No ee.log.'
+          sudo stat -c '%a %U:%G %n' /opt/easyengine /opt/easyengine/logs > "$out/dirs.txt" 2>/dev/null || true
+          sudo docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' > "$out/containers.txt" || true
+          sudo docker images --format '{{.Repository}}:{{.Tag}}' > "$out/images.txt" || true
+          sudo chown -R "$USER" "$out"
+          # One block per failed scenario, from the junit files.
+          python3 - "$out" <<'PY'
+          import glob, sys, xml.etree.ElementTree as ET
+          out = sys.argv[1]
+          lines = []
+          for f in sorted(glob.glob(out + '/junit/*.xml')):
+              for case in ET.parse(f).getroot().iter('testcase'):
+                  for bad in list(case.findall('failure')) + list(case.findall('error')):
+                      lines.append('### %s :: %s\n%s\n%s\n' % (case.get('classname'), case.get('name'), bad.get('message') or '', bad.text or ''))
+          open(out + '/failures.txt', 'w').write('\n'.join(lines) or 'No failures.\n')
+          print('%d failed scenarios' % len(lines))
+          PY
+          head -c 20000 "$out/failures.txt"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: behat-${{ matrix.lane }}-php${{ matrix.php }}
+          path: ${{ runner.temp }}/behat
+          retention-days: 14
