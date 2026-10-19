@@ -165,6 +165,10 @@ jobs:
         done
       env:
         COMPOSE_INTERACTIVE_NO_CLI: 1
+        # Core's suite refuses to initialise EasyEngine unless allowed; the runner starts without ee.sqlite.
+        EE_BEHAT_ALLOW_INIT: 1
+        # check-update calls the GitHub API; authenticated requests get a higher rate limit.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Output logs
       if: ${{ always() }}
