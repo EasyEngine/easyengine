@@ -151,10 +151,9 @@ jobs:
         set -e
         cd $GITHUB_WORKSPACE
         sudo -E ./vendor/bin/behat
+        # site-command and site-type-wp run their own Behat suites (with known-bug and Pebble lanes) on every PR.
         sub_commands=(
-          vendor/easyengine/site-command/features
           vendor/easyengine/site-type-php/features
-          vendor/easyengine/site-type-wp/features
         )
         for command in "${sub_commands[@]}"; do
           IFS='/' read -r -a array <<< "$command"
