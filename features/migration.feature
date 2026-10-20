@@ -81,7 +81,7 @@ Feature: Migration triggering
     Then the command should exit with code 1
     And STDERR should contain "Error: It seems you're not running latest version."
 
-  # Runs a real migration: image pulls (MIG-4), cron container restart and log rotation (MIG-5).
+  # Runs a real migration: image pulls, cron container restart and log rotation.
   # Never on a stack in use: excluded from every profile but `migration`, and refused without EE_BEHAT_ALLOW_MIGRATION=1.
   @migration
   Scenario: An older DB version triggers the upgrade on the next checked command

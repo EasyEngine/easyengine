@@ -1,5 +1,5 @@
 # The @uninstall scenario wipes every EasyEngine container, volume, network, image, /opt/easyengine and all
-# sites (TEST-3). It is excluded from every profile but `uninstall`, refused without EE_BEHAT_ALLOW_UNINSTALL=1,
+# sites. It is excluded from every profile but `uninstall`, refused without EE_BEHAT_ALLOW_UNINSTALL=1,
 # and must run alone and last (later scenarios would re-initialise EasyEngine).
 @destructive
 Feature: CLI Command

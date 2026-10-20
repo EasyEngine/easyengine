@@ -26,7 +26,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | invalid `--format`, typo suggestion, extra positional | cli-info.feature (3 scenarios) |
 | runs the migration check only when docker is up | migration.feature `@destructive`: "cli info skips the version check when docker is not available" and the newer/older version scenarios; requirements.feature: "cli info still works when docker is not available" |
 | no migration when versions match | cli-info.feature: "cli info lists every diagnostic row" (no "Executing migrations") |
-| phar values (`ee_dir_path` = `phar://ee.phar`, phar path) | phar.feature (the phar path is not covered yet: CORE-8, its scenario comes back with the fix) |
+| phar values (`ee_dir_path` = `phar://ee.phar`, phar path) | phar.feature (the phar path is not covered yet: `EE_PHAR_PATH` is the working directory, its scenario comes back with the fix) |
 
 ### `ee cli check-update [--patch] [--minor] [--major] [--field] [--fields] [--format]`
 
@@ -46,7 +46,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | Item | Covered by |
 |---|---|
 | refuses to run from source (`You can only self-update Phar files.`) with every flag combination | cli-update.feature outline (4 rows) |
-| real update (prompt, download, md5 check, child `cli info`, phar swap), macOS brew message, not-writable errors | not covered on purpose: an accepted prompt downloads a phar whose `cli info` runs the new version's migrations on the live DB (MIG-6); a declined prompt or an immutable (`chattr +i`) phar would be testable but a regression there would do exactly that; not on macOS |
+| real update (prompt, download, md5 check, child `cli info`, phar swap), macOS brew message, not-writable errors | not covered on purpose: an accepted prompt downloads a phar whose `cli info` runs the new version's migrations on the live DB; a declined prompt or an immutable (`chattr +i`) phar would be testable but a regression there would do exactly that; not on macOS |
 | `auto_check_update()` on help (phar + tty only) | not covered: needs a tty and a writable phar |
 
 ### `ee cli param-dump [--with-values] [--format=json|var_export]`
@@ -80,7 +80,7 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | site subcommands and `--type`-aware site options | cli-completions.feature |
 | aliases (`ee @`, `ee @alias cli ...`) | cli-completions.feature |
 | unknown command, invalid shell, missing `--line/--point` | cli-completions.feature, unknown-command.feature |
-| unknown `--type` in site completions doesn't crash | not covered yet: CORE-13 (its scenario comes back with the fix) |
+| unknown `--type` in site completions doesn't crash | not covered yet: it dies with an uncaught `ReflectionException` (its scenario comes back with the fix) |
 | does not log to `ee.log` | cli-completions.feature |
 | `<file>` positional completion, site type from an existing site (`Site::find`) | not covered: no core command has a `<file>` positional; needs a site |
 
@@ -96,8 +96,8 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | `EE_RUNTIME_ALIAS` replaces file aliases, filters keys and names | cli-alias.feature |
 | run through a local alias, `@all`, a group, a group with an unknown member, unknown alias suggestion, `@all` without aliases | cli-alias.feature |
 | a group passes the command's flags to every member | cli-alias.feature |
-| `@all`/group exit status, `@all` running group members twice | not covered yet: CORE-12 (its 2 scenarios come back with the fix) |
-| aliases with `ssh:`/`http:`, `--ssh`, `--http`, `ssh:` in config | cli-alias.feature: refused (CORE-4, fixed in v4.13.2 by easyengine#1945; they ran locally before) |
+| `@all`/group exit status, `@all` running group members twice | not covered yet: alias groups and `@all` ignore the children's exit codes (its 2 scenarios come back with the fix) |
+| aliases with `ssh:`/`http:`, `--ssh`, `--http`, `ssh:` in config | cli-alias.feature: refused (fixed in v4.13.2 by EasyEngine/easyengine#1945; they ran locally before) |
 | ssh schemes (docker, docker-compose, vagrant, ssh), `EE_SSH_PRE_CMD` | not covered: `run_ssh_command()` is dead code in EE; would need a remote host |
 
 ### `ee cli has-command <command_name>...`
@@ -106,8 +106,8 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 |---|---|
 | registered commands (quoted and split forms, packages' commands) exit 0 silently | cli-has-command.feature outline (8 rows) |
 | unknown commands and empty name exit 1 silently | cli-has-command.feature outline (3 rows) |
-| trailing words after a leaf (`cli version extra`) | not covered yet: CORE-6 (its scenario comes back with the fix) |
-| `site <anything>` is "registered" (site is a leaf) | not covered: documented in CORE-6; the passing `site create` rows use the same shortcut |
+| trailing words after a leaf (`cli version extra`) | not covered yet: `has-command` stops at the first leaf (its scenario comes back with the fix) |
+| `site <anything>` is "registered" (site is a leaf) | not covered: same first-leaf shortcut as the row above; the passing `site create` rows use the same shortcut |
 | missing argument prints usage | cli-has-command.feature |
 | disabled command reported as missing | cli-has-command.feature |
 
@@ -116,8 +116,8 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | Item | Covered by |
 |---|---|
 | declining the prompt removes nothing | cli.feature `@destructive` |
-| full uninstall (containers, networks, volumes, images, `/opt/easyengine`; site dirs not checked) | cli.feature `@destructive @uninstall` (existing scenario, TEST-3) |
-| refuses when docker is down (and its exit status) | requirements.feature (the exit status is not covered yet: CORE-11, its scenario comes back with the fix) |
+| full uninstall (containers, networks, volumes, images, `/opt/easyengine`; site dirs not checked) | cli.feature `@destructive @uninstall` (the existing scenario) |
+| refuses when docker is down (and its exit status) | requirements.feature (the exit status is not covered yet: the refusal exits 0, its scenario comes back with the fix) |
 | phar self-delete | not covered: needs a phar install, and would delete it |
 
 ### `ee help [<command>...]`
@@ -126,11 +126,11 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 |---|---|
 | `ee`, `ee help`, `ee --help` print the same top-level page, with global parameters | help.feature |
 | every top-level command (12) and subcommand (54) has a help page equal to `<command> --help` | help.feature outlines |
-| site type routing (`--type=html|wp|php`, default html, wp-only options, unknown type) | help.feature (the unknown-type hint is not covered yet: CORE-10, its scenario comes back with the fix) |
+| site type routing (`--type=html|wp|php`, default html, wp-only options, unknown type) | help.feature (the unknown-type hint is not covered yet: it repeats the bogus type, its scenario comes back with the fix) |
 | unknown command/subcommand errors and suggestions | help.feature |
 | `PAGER` (a `sed` pager that prefixes every line), examples section | help.feature |
 | works without docker | requirements.feature |
-| no output without `less` | not covered yet: CORE-5 (its scenario comes back with the fix) |
+| no output without `less` | not covered yet: nothing is printed and the exit status is 0 (its scenario comes back with the fix) |
 | disabled command: error, left out of `ee help` and `ee help cli` lists | config-file.feature |
 
 ### Global parameters and runner behaviour
@@ -140,17 +140,17 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | `--debug`, `--debug` before the command, `--debug=<group>`, unknown group, `debug:` in config | global-flags.feature |
 | `EE_STRICT_ARGS_MODE` | global-flags.feature |
 | color auto-detection (piped, `SHELL_PIPE=0`) | global-flags.feature |
-| `--color`, `--no-color`, `color:` in config | not covered yet: CORE-3 (its 3 scenarios come back with the fix) |
-| `--quiet`, `quiet:` in config (warnings, success), errors still shown | global-flags.feature (errors still shown; hiding warnings and success is not covered yet: CORE-3, its 3 scenarios come back with the fix) |
+| `--color`, `--no-color`, `color:` in config | not covered yet: colours and the logger are set up before the config is read (its 3 scenarios come back with the fix) |
+| `--quiet`, `quiet:` in config (warnings, success), errors still shown | global-flags.feature (errors still shown; hiding warnings and success is not covered yet for the same reason, its 3 scenarios come back with the fix) |
 | unknown parameter suggestions | cli-info.feature, cli-dump.feature |
 | `--sites_path`, `--locale`, `--le-mail`, `--env`, `--wp-mail`, `--sysctl`, `--skip-tty`, `--custom-compose` | partly: only `--le-mail` (runtime) and `locale`/`le-mail`/`wp-mail` (file) are exercised (cli-dump.feature, config-file.feature); their effects belong to the package suites |
 | unknown command/subcommand suggestions, shorthand map (`v`, `check`), no suggestion | unknown-command.feature |
-| unknown top-level command runs the checks before the lookup | unknown-command.feature (guarded), migration.feature `@destructive`; the typo without docker is not covered yet: CORE-9 (its scenario comes back with the fix) |
-| composite command usage, disabled subcommand hidden | unknown-command.feature, config-file.feature (the usage prefix with a disabled first subcommand is not covered yet: CORE-7, its scenario comes back with the fix) |
+| unknown top-level command runs the checks before the lookup | unknown-command.feature (guarded), migration.feature `@destructive`; the typo without docker is not covered yet: the checks run before the command lookup (its scenario comes back with the fix) |
+| composite command usage, disabled subcommand hidden | unknown-command.feature, config-file.feature (the usage prefix with a disabled first subcommand is not covered yet: the prefix counts the skipped subcommand, its scenario comes back with the fix) |
 | missing required parameters | unknown-command.feature |
 | requirement checks: missing docker-compose, docker retry/backoff | requirements.feature |
-| failed requirement exit status (CORE-1) | not covered yet: CORE-1 (its scenario comes back with the fix) |
-| argv logged to `ee.log` with secrets (LOG-1) | global-flags.feature, regular since the v4.13.2 fix (easyengine#1944) |
+| failed requirement exit status | not covered yet: a failed requirement exits 0 (its scenario comes back with the fix) |
+| argv logged to `ee.log` with secrets | global-flags.feature, regular since the v4.13.2 fix (EasyEngine/easyengine#1944) |
 | `EE_PACKAGES_DIR` (package autoloader loaded, commands registered) | config-file.feature |
 | `BEHAT_RUN`, `EE_DISABLE_AUTO_CHECK_UPDATE`, `EE_AUTO_CHECK_UPDATE_DAYS`, `EE_PHP` | not covered: only affect error reporting or the phar+tty auto update (the phar scenarios set `EE_DISABLE_AUTO_CHECK_UPDATE`) |
 
@@ -177,23 +177,23 @@ Core owns the runner (bootstrap, config, aliases, requirement checks, migration 
 | nightly suffix stripping itself | not covered: a distinguishing test would run a real migration when it fails |
 | DB version older: full pipeline runs, version bumped | migration.feature `@destructive @migration` (never on a stack in use) |
 | versions equal: nothing runs | cli-info.feature |
-| fresh install (`ee successfully setup.`), nightly VERSION always migrating, 5 GB disk check, rollback | not covered: needs a wiped machine, a modified VERSION or a full disk; MIG-1..19 are architectural and need the live upgrade tests |
+| fresh install (`ee successfully setup.`), nightly VERSION always migrating, 5 GB disk check, rollback | not covered: needs a wiped machine, a modified VERSION or a full disk; the rest of the upgrade pipeline needs live upgrade tests |
 
 ### Phar
 
 | Item | Covered by |
 |---|---|
 | build (from a `--no-dev` copy of the checkout into `/var/tmp`), version, help, bundled packages registered, `cli info` root | phar.feature `@phar` |
-| `EE_PHAR_PATH` is the working directory | not covered yet: CORE-8 (its scenario comes back with the fix) |
+| `EE_PHAR_PATH` is the working directory | not covered yet (its scenario comes back with the fix) |
 
 
 ### Coverage estimate
 
-The inventory has 107 rows: 93 covered, 1 partly covered and 13 not covered (about 87% of rows, about 78% when rows with several flags are counted per flag). What is left is the real self-update and phar self-delete (unsafe on a live stack), ssh aliases (never wired up; refused since CORE-4), permission errors that root cannot hit, fresh-install and nightly migration paths, and output that depends on live GitHub release data.
+The inventory has 107 rows: 93 covered, 1 partly covered and 13 not covered (about 87% of rows, about 78% when rows with several flags are counted per flag). What is left is the real self-update and phar self-delete (unsafe on a live stack), ssh aliases (never wired up; refused since EasyEngine/easyengine#1945), permission errors that root cannot hit, fresh-install and nightly migration paths, and output that depends on live GitHub release data.
 
 ## How to run
 
-The suite runs from the core root as root (see `/root/workspace/tools/run-behat.sh core`).
+The suite runs from the core root as root.
 
 | Command | Runs |
 |---|---|
@@ -208,7 +208,7 @@ A CLI `--tags` replaces the profile filter, so the tags alone can't keep the dan
 
 Tags: `@destructive` (22, changes global state; restored where possible), `@migration` (2, the real upgrade pipeline), `@uninstall` (1, self-uninstall), `@network` (7, query the GitHub releases API; unauthenticated calls share GitHub's 60/hour limit), `@phar` (4, build a phar, about 1 min). No `@le` or `@remote` scenarios: core has no Let's Encrypt or backup code.
 
-No `@known-bug` scenarios ship here: the 17 scenarios written for open bugs (CORE-1, CORE-3, CORE-5 to CORE-13) are held back until their fixes land and then return as regular scenarios.
+No `@known-bug` scenarios ship here: the 17 scenarios written for open bugs (listed under "Known bugs" below) are held back until their fixes land and then return as regular scenarios.
 
 Safety rules built into the suite:
 
@@ -226,14 +226,14 @@ Estimated runtime: default profile about 4 minutes (help outlines about 40 s, fi
 
 | Held-back scenario | Issue |
 |---|---|
-| requirements.feature: failed requirement exits non-zero | CORE-1 |
-| global-flags.feature: `--color`, `--no-color`, `color:` config, `--quiet`, `quiet:` config, success with `--quiet` (6) | CORE-3: `php/bootstrap.php` sets up colours and the logger before reading the config |
-| requirements.feature: help without `less` | CORE-5: nothing printed, exit 0 |
-| cli-has-command.feature: trailing words after a leaf | CORE-6: `has-command` stops at the first leaf |
-| config-file.feature: composite usage prefix | CORE-7: `CompositeCommand::show_usage()` counts the skipped disabled subcommand |
-| phar.feature: phar path | CORE-8: `EE_PHAR_PATH` is `getcwd()` |
-| unknown-command.feature: typo reported without docker | CORE-9: checks run before the command lookup |
-| help.feature: hint for an unknown site type | CORE-10 (site-command): the hint repeats the bogus type |
-| requirements.feature: self-uninstall refusal exit status | CORE-11 |
-| cli-alias.feature: `@all` exit status, `@all` running group members twice (2) | CORE-12 |
-| cli-completions.feature: unknown `--type` in site completions | CORE-13: uncaught `ReflectionException` |
+| requirements.feature: failed requirement exits non-zero | `check_requirements()` exits 0 after the error |
+| global-flags.feature: `--color`, `--no-color`, `color:` config, `--quiet`, `quiet:` config, success with `--quiet` (6) | `php/bootstrap.php` sets up colours and the logger before reading the config |
+| requirements.feature: help without `less` | nothing printed, exit 0 |
+| cli-has-command.feature: trailing words after a leaf | `has-command` stops at the first leaf |
+| config-file.feature: composite usage prefix | `CompositeCommand::show_usage()` counts the skipped disabled subcommand |
+| phar.feature: phar path | `EE_PHAR_PATH` is `getcwd()` |
+| unknown-command.feature: typo reported without docker | checks run before the command lookup |
+| help.feature: hint for an unknown site type | site-command: the hint repeats the bogus type |
+| requirements.feature: self-uninstall refusal exit status | the refusal exits 0 |
+| cli-alias.feature: `@all` exit status, `@all` running group members twice (2) | the children's exit codes are ignored; `@all` also runs the group keys |
+| cli-completions.feature: unknown `--type` in site completions | uncaught `ReflectionException` |

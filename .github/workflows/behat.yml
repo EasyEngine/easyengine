@@ -103,7 +103,7 @@ jobs:
           # The first non-cli command runs the initial setup (DB, config, image pulls).
           sudo -E bin/ee site list || true
           sudo -E bin/ee cli info
-          # The first run's compose download has no --fail (MIG-10): a GitHub error page can replace the binary.
+          # The first run's compose download has no --fail: a GitHub error page can replace the binary.
           if ! docker-compose version; then
             sudo curl -fsSL --retry 5 "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-$(uname -m)" -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose

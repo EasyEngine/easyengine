@@ -29,7 +29,7 @@ Feature: Unknown commands and composite commands
     And STDERR should contain "Error: 'zzzzzzzzzz' is not a registered subcommand of 'cli'."
     And STDERR should not contain "Did you mean"
 
-  # CORE-9: unknown top-level commands pass the requirement and migration checks before the lookup.
+  # Unknown top-level commands pass the requirement and migration checks before the lookup.
   Scenario: An unknown top-level command suggests the closest one
     Given no EasyEngine migration is pending
     When I run 'bin/ee sitee'

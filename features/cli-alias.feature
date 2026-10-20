@@ -190,7 +190,7 @@ Feature: ee cli alias and @alias execution
     Then the command should exit with code 1
     And STDERR should contain "Error: Cannot use '@all' when no aliases are registered."
 
-  # CORE-4: remote targets were accepted but never dispatched, so the command ran on the local machine.
+  # Fixed in v4.13.2 (EasyEngine/easyengine#1945): remote targets were accepted but never dispatched, so the command ran on the local machine.
   Scenario: A command for an ssh alias is not run locally
     Given a file "{TMP}/config.yml" with:
       """
