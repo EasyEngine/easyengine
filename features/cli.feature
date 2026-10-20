@@ -6,7 +6,8 @@ Feature: CLI Command
 
   Scenario: Declining the self-uninstall prompt removes nothing
     Given I record the number of containers with label "org.label-schema.vendor=EasyEngine"
-    When I run 'echo n | bin/ee cli self-uninstall'
+    # --no-yes overrides a `yes: true` default for self-uninstall in the config, which would skip the prompt.
+    When I run 'echo n | bin/ee cli self-uninstall --no-yes'
     Then the command should exit with code 0
     And STDOUT should contain "Are you sure you want to remove EasyEngine and all its sites(along with their data)?"
     And the number of containers with label "org.label-schema.vendor=EasyEngine" should be unchanged

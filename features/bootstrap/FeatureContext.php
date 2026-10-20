@@ -162,7 +162,7 @@ class FeatureContext implements Context
 		// Build from a private copy with a --no-dev autoloader: a phar built on a dev vendor requires
 		// require-dev files it doesn't contain. The checkout and /usr/local/bin/ee are never touched.
 		$root = realpath( EE_ROOT );
-		$dir  = self::TMP_BASE . '/phar-' . getmypid();
+		$dir  = self::tmp_base() . '/phar-' . getmypid();
 		$src  = "$dir/src";
 		$phar = "$dir/ee.phar";
 		$cmd  = sprintf(
@@ -1062,13 +1062,37 @@ class FeatureContext implements Context
 	private function tmp_dir()
 	{
 		if ( null === $this->tmp_dir ) {
-			$this->tmp_dir = self::TMP_BASE . '/' . uniqid( 'scenario-', true );
-			if ( ! mkdir( $this->tmp_dir, 0755, true ) ) {
+			$this->tmp_dir = self::tmp_base() . '/' . uniqid( 'scenario-', true );
+			if ( ! mkdir( $this->tmp_dir, 0755 ) ) {
 				throw new Exception( "Could not create {$this->tmp_dir}" );
 			}
 		}
 
 		return $this->tmp_dir;
+	}
+
+	/**
+	 * TMP_BASE is in world-writable /var/tmp, so it is only used as a real directory owned by the running
+	 * user and not writable by others; anything else could redirect root's writes and rm -rf through symlinks.
+	 */
+	private static function tmp_base()
+	{
+		$base = self::TMP_BASE;
+		if ( ! file_exists( $base ) && ! is_link( $base ) ) {
+			$umask = umask( 077 );
+			@mkdir( $base, 0700 );
+			umask( $umask );
+		}
+		clearstatcache();
+		$stat = @lstat( $base );
+		if ( false === $stat || is_link( $base ) || ! is_dir( $base ) ) {
+			throw new Exception( "$base is not a real directory." );
+		}
+		if ( $stat['uid'] !== posix_geteuid() || ( $stat['mode'] & 0022 ) ) {
+			throw new Exception( "$base must be owned by the running user and not writable by group or others." );
+		}
+
+		return $base;
 	}
 
 	private function last_command()
