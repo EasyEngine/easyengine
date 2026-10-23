@@ -467,14 +467,14 @@ class FeatureContext implements Context
 	 */
 	public function eeShouldBeDeleted()
 	{
-		$result = EE::launch("docker ps -aqf label=org.label-schema.vendor=\"EasyEngine\" | wc -l", false, true);
-		if( trim($result->stdout) !== '0' ) {
-			throw new Exception("All containers have not been removed.");
-		}
-		foreach ( [ 'network', 'volume', 'image' ] as $object ) {
-			$left = trim( EE::launch( "docker $object ls -q -f label=org.label-schema.vendor=EasyEngine | wc -l", false, true )->stdout );
-			if ( '0' !== $left ) {
-				throw new Exception( "$left EasyEngine docker {$object}(s) have not been removed." );
+		// A failed docker query must not read as "nothing left".
+		foreach ( [ 'container' => 'container ls -a', 'network' => 'network ls', 'volume' => 'volume ls', 'image' => 'image ls' ] as $object => $ls ) {
+			$result = EE::launch( "docker $ls -q -f label=org.label-schema.vendor=EasyEngine", false, true );
+			if ( 0 !== $result->return_code ) {
+				throw new Exception( "Unable to check EasyEngine docker {$object}s:\n" . $result->stderr );
+			}
+			if ( '' !== trim( $result->stdout ) ) {
+				throw new Exception( "EasyEngine docker {$object}s have not been removed:\n" . $result->stdout );
 			}
 		}
 		$home = getenv('HOME');
@@ -1249,6 +1249,12 @@ class FeatureContext implements Context
 
 	private static function count_containers( $label )
 	{
-		return (int) trim( (string) shell_exec( 'docker ps -aq --filter ' . escapeshellarg( 'label=' . $label ) . ' | wc -l' ) );
+		// Not EE::launch(), which would log to ee.log.
+		$result = \EE\Process::create( 'docker ps -aq --filter ' . escapeshellarg( 'label=' . $label ), null, null )->run();
+		if ( 0 !== $result->return_code ) {
+			throw new Exception( "Unable to count containers with label $label:\n" . $result->stderr );
+		}
+
+		return count( array_filter( explode( "\n", trim( $result->stdout ) ) ) );
 	}
 }
