@@ -22,7 +22,7 @@ class Containers {
 	public static function start_container_migration() {
 		EE\Utils\delem_log( 'Starting container migration' );
 
-		self::$rsp = new RevertableStepProcessor();
+		self::$rsp = new RevertableStepProcessor( true );
 
 		$img_versions     = EE\Utils\get_image_versions();
 		$current_versions = self::get_current_docker_images_versions();

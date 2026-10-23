@@ -791,6 +791,20 @@ class EE {
 	}
 
 	/**
+	 * Make `EE::error()` and `EE::halt()` throw `EE\ExitException` instead of exiting.
+	 *
+	 * @param bool $capture Whether to capture exits.
+	 *
+	 * @return bool The previous setting, to restore afterwards.
+	 */
+	public static function set_capture_exit( $capture ) {
+		$previous           = self::$capture_exit;
+		self::$capture_exit = (bool) $capture;
+
+		return $previous;
+	}
+
+	/**
 	 * Display a multi-line error message in a red box. Doesn't exit script.
 	 *
 	 * Error message is written to STDERR.
@@ -1248,6 +1262,7 @@ class EE {
 				self::$logger = new EE\Loggers\Execution;
 				self::$logger->ob_start();
 			}
+			$previous_capture_exit = self::$capture_exit;
 			if ( ! $exit_error ) {
 				self::$capture_exit = true;
 			}
@@ -1281,9 +1296,8 @@ class EE {
 					);
 				}
 			}
-			if ( ! $exit_error ) {
-				self::$capture_exit = false;
-			}
+			// Restore rather than clear: a caller (e.g. a migration step) may be capturing exits itself.
+			self::$capture_exit = $previous_capture_exit;
 		}
 		if ( ( true === $return || 'stdout' === $return )
 			&& 'json' === $parse ) {
