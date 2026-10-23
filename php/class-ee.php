@@ -1238,7 +1238,8 @@ class EE {
 			if ( -1 == $return_code ) {
 				self::warning( 'Spawned process returned exit code -1, which could be caused by a custom compiled version of PHP that uses the --enable-sigchild option.' );
 			} elseif ( $return_code && $exit_error ) {
-				exit( $return_code );
+				// halt(), not exit(): a migration step capturing exits must still roll back.
+				self::halt( $return_code );
 			}
 			if ( true === $return || 'stdout' === $return ) {
 				$retval = trim( $stdout );
@@ -1263,6 +1264,7 @@ class EE {
 				self::$logger->ob_start();
 			}
 			$previous_capture_exit = self::$capture_exit;
+			$exit_exception        = null;
 			if ( ! $exit_error ) {
 				self::$capture_exit = true;
 			}
@@ -1275,6 +1277,10 @@ class EE {
 				$return_code = 0;
 			} catch ( ExitException $e ) {
 				$return_code = $e->getCode();
+				// With exit_error the caller would have exited; a caller that captures exits gets the exit instead.
+				if ( $exit_error && $return_code ) {
+					$exit_exception = $e;
+				}
 			}
 			if ( $return ) {
 				$execution_logger = self::$logger;
@@ -1298,6 +1304,9 @@ class EE {
 			}
 			// Restore rather than clear: a caller (e.g. a migration step) may be capturing exits itself.
 			self::$capture_exit = $previous_capture_exit;
+			if ( $exit_exception ) {
+				throw $exit_exception;
+			}
 		}
 		if ( ( true === $return || 'stdout' === $return )
 			&& 'json' === $parse ) {
