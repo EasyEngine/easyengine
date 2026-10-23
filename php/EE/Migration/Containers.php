@@ -258,14 +258,7 @@ class Containers {
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
 		);
 
-		self::$rsp->add_step(
-			'stop-global-containers',
-			'EE\Migration\GlobalContainers::down_global_containers',
-			null,
-			[ $updated_global_images ],
-			null
-		);
-
+		// The services keep running until each is recreated in turn: no step stops them all at once.
 		self::$rsp->add_step(
 			'generate-global-docker-compose-file',
 			'EE\Service\Utils\generate_global_docker_compose_yml',
@@ -274,17 +267,16 @@ class Containers {
 			null
 		);
 
+		// No down steps: the backup step's down restores the old compose file and recreates these services from it.
 		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
-		foreach ( $updated_global_images as $image_name ) {
+		foreach ( GlobalContainers::sort_for_upgrade( $updated_global_images ) as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = ltrim( $global_container_name, 'services_' );
-			$global_service_name   = rtrim( $global_service_name, '_1' );
 			self::$rsp->add_step(
 				"upgrade-$global_container_name-container",
-				"EE\Migration\GlobalContainers::global_service_up",
-				"EE\Migration\GlobalContainers::global_service_down",
-				[  $global_service_name ],
-				[ $global_service_name ]
+				'EE\Migration\GlobalContainers::upgrade_global_service',
+				null,
+				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name ],
+				null
 			);
 		}
 	}
