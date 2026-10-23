@@ -37,6 +37,17 @@ class Containers {
 		$current_versions = self::get_current_docker_images_versions();
 		$updated_images   = [];
 
+		// An interrupted upgrade recreated some global services without recording their tags. Count those by their
+		// recorded tags, so this run checks their readiness again and can roll them back to the pending snapshot.
+		if ( GlobalContainers::has_pending_compose_backup( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ) ) {
+			foreach ( array_keys( GlobalContainers::get_all_global_images_with_service_name() ) as $image ) {
+				$recorded = EE\Model\Option::get( $image );
+				if ( $recorded ) {
+					$current_versions[ $image ] = $recorded;
+				}
+			}
+		}
+
 		$skip_download = [
 			'easyengine/php5.6',
 			'easyengine/php7.0',

@@ -73,13 +73,22 @@ class GlobalContainers {
 	 */
 	public static function backup_compose_file( $source, $backup ) {
 		$fs = new Filesystem();
-		if ( $fs->exists( [ $backup, $backup . '.pending' ] ) ) {
+		if ( self::has_pending_compose_backup( $backup ) ) {
 			EE::debug( "Keeping $backup from an upgrade that did not complete" );
 
 			return;
 		}
 		$fs->copy( $source, $backup, true );
 		$fs->touch( $backup . '.pending' );
+	}
+
+	/**
+	 * @param string $backup Snapshot path.
+	 *
+	 * @return bool Whether an upgrade that did not complete left its snapshot.
+	 */
+	public static function has_pending_compose_backup( $backup ) {
+		return ( new Filesystem() )->exists( [ $backup, $backup . '.pending' ] );
 	}
 
 	/**
@@ -323,7 +332,8 @@ class GlobalContainers {
 		$global_images           = self::get_all_global_images_with_service_name();
 		$running_global_services = [];
 		foreach ( $global_images as $image => $container_name ) {
-			if ( 'running' === \EE_DOCKER::container_status( $container_name ) ) {
+			// A restart-looping service is upgraded too (State.Running is false between its restarts).
+			if ( in_array( self::get_container_state( $container_name )['status'], [ 'running', 'restarting' ], true ) ) {
 				$running_global_services[] = $image;
 			}
 		}
@@ -391,7 +401,8 @@ class GlobalContainers {
 			$image   = is_array( $config ) && isset( $config['services'][ $service ]['image'] ) ? $config['services'][ $service ]['image'] : '';
 			$running = EE::launch( sprintf( "docker inspect --format '{{.State.Status}} {{.Config.Image}}' %s", escapeshellarg( $container ) ) );
 			$parts   = 0 === $running->return_code ? preg_split( '/\s+/', trim( $running->stdout ) ) : [];
-			if ( '' !== $image && 2 === count( $parts ) && 'running' === $parts[0] && $parts[1] !== $image ) {
+			// A restart-looping container counts: it is the failed new image to put back. One never created doesn't.
+			if ( '' !== $image && 2 === count( $parts ) && in_array( $parts[0], [ 'running', 'restarting' ], true ) && $parts[1] !== $image ) {
 				$services[] = $service;
 			}
 		}
