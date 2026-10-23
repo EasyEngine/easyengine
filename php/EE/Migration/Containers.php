@@ -355,6 +355,18 @@ class Containers {
 
 		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
 		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
+		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
+
+		if ( in_array( 'easyengine/nginx-proxy', $updated_global_images, true ) ) {
+			// Before anything is recreated: a rollback after the DB moved to a new image may not get its datadir back.
+			self::$rsp->add_step(
+				'check-running-proxy-config',
+				'EE\Migration\GlobalContainers::check_running_proxy_config',
+				null,
+				[ $all_global_images['easyengine/nginx-proxy'] ],
+				null
+			);
+		}
 
 		self::$rsp->add_step(
 			'backup-global-docker-compose-file',
@@ -374,7 +386,6 @@ class Containers {
 		);
 
 		// No down steps: the backup step's down restores the old compose file and recreates these services from it.
-		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
 		foreach ( GlobalContainers::sort_for_upgrade( $updated_global_images ) as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
 			self::$rsp->add_step(

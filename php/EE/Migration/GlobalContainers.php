@@ -61,6 +61,20 @@ class GlobalContainers {
 	}
 
 	/**
+	 * Refuse to upgrade when the running proxy's config fails `nginx -t`: it lives on volumes, so the recreated proxy and
+	 * the restored one would both fail to start. Runs before any global service is recreated.
+	 *
+	 * @param string $container Proxy container name.
+	 *
+	 * @throws \Exception
+	 */
+	public static function check_running_proxy_config( $container ) {
+		if ( 'running' === self::get_container_state( $container )['status'] && ! EE::exec( 'docker exec ' . escapeshellarg( $container ) . ' nginx -t' ) ) {
+			throw new \Exception( "The configuration of the running $container fails `nginx -t`, so a recreated proxy would not start. Fix it (see `docker exec $container nginx -t`) and run the upgrade again." );
+		}
+	}
+
+	/**
 	 * Recreate one global service with the image in the (already regenerated) global compose file,
 	 * then wait until it is ready. Throws on failure, so the image migration rolls back.
 	 *
@@ -71,12 +85,6 @@ class GlobalContainers {
 	 */
 	public static function upgrade_global_service( $service, $container ) {
 		EE::debug( "Start upgrading $container" );
-
-		// A config already broken on disk would stop the new proxy and the restored one alike: refuse before touching it.
-		if ( 'global-nginx-proxy' === $service && 'running' === self::get_container_state( $container )['status']
-			&& ! EE::exec( 'docker exec ' . escapeshellarg( $container ) . ' nginx -t' ) ) {
-			throw new \Exception( "The configuration of the running $container fails `nginx -t`, so a recreated proxy would not start. Fix it (see `docker exec $container nginx -t`) and run the upgrade again." );
-		}
 
 		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service ) ) {
 			throw new \Exception( "Unable to recreate $container with its new image. Please check logs for more details." );
