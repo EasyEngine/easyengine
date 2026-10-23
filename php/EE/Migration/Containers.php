@@ -11,8 +11,17 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class Containers {
 
+	/** EasyEngine needs at least this docker-compose (see Runner::check_requirements()). */
+	const DOCKER_COMPOSE_MIN_VERSION = '2.26.1';
+
+	/** Installed when docker-compose is missing or older than the minimum. */
+	const DOCKER_COMPOSE_INSTALL_VERSION = '2.27.0';
+
 	/** @var RevertableStepProcessor $rsp Keeps track of migration state. Reverts on error */
 	private static $rsp;
+
+	/** @var bool Whether the last update_docker_compose() call replaced the binary. */
+	private static $replaced_docker_compose = false;
 
 	/**
 	 * Main entry point for the script. Migrates all containers
@@ -22,11 +31,22 @@ class Containers {
 	public static function start_container_migration() {
 		EE\Utils\delem_log( 'Starting container migration' );
 
-		self::$rsp = new RevertableStepProcessor();
+		self::$rsp = new RevertableStepProcessor( true );
 
 		$img_versions     = EE\Utils\get_image_versions();
 		$current_versions = self::get_current_docker_images_versions();
 		$updated_images   = [];
+
+		// An interrupted upgrade recreated some global services without recording their tags. Count those by their
+		// recorded tags, so this run checks their readiness again and can roll them back to the pending snapshot.
+		if ( GlobalContainers::has_pending_compose_backup( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ) ) {
+			foreach ( array_keys( GlobalContainers::get_all_global_images_with_service_name() ) as $image ) {
+				$recorded = EE\Model\Option::get( $image );
+				if ( $recorded ) {
+					$current_versions[ $image ] = $recorded;
+				}
+			}
+		}
 
 		$skip_download = [
 			'easyengine/php5.6',
@@ -40,20 +60,16 @@ class Containers {
 			'easyengine/php8.3',
 			'easyengine/php8.4',
 			'easyengine/php8.5',
+			'easyengine/php',
 			'easyengine/newrelic-daemon',
 		];
 
+		// An image no container runs and the DB doesn't track (e.g. mailhog, the amd64-only easyengine/php) has nothing
+		// to upgrade: pulling it only fails on hosts it isn't built for. Compose pulls it when something first uses it.
 		foreach ( $img_versions as $img => $version ) {
-
-			if ( array_key_exists( $img, $current_versions ) ) {
-				if ( $current_versions[ $img ] !== $version ) {
-					$updated_images[] = $img;
-					if ( ! in_array( $img, $skip_download ) ) {
-						self::pull_or_error( $img, $version );
-					}
-				}
-			} else {
-				if ( ! in_array( $img, $skip_download ) ) {
+			if ( array_key_exists( $img, $current_versions ) && $current_versions[ $img ] !== $version ) {
+				$updated_images[] = $img;
+				if ( ! in_array( $img, $skip_download, true ) ) {
 					self::pull_or_error( $img, $version );
 				}
 			}
@@ -64,9 +80,10 @@ class Containers {
 			return;
 		}
 
+		// First: compose v1 can't recreate containers on Docker 25+, and on a rollback it is restored last.
+		self::maybe_update_docker_compose();
 		self::migrate_global_containers( $updated_images );
 		self::migrate_site_containers( $updated_images );
-		self::maybe_update_docker_compose();
 		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
 
 		if ( ! self::$rsp->execute() ) {
@@ -77,8 +94,8 @@ class Containers {
 	}
 
 	/**
-	 * Maybe update docker-compose at the end of migration.
-	 * Need to update to latest docker-compose version for new template changes.
+	 * Maybe update docker-compose before any container is recreated, for the new templates and because v1 fails to
+	 * recreate containers on current Docker.
 	 */
 	public static function maybe_update_docker_compose() {
 
@@ -108,6 +125,15 @@ class Containers {
 			[ $current_versions, $updated_images ]
 		);
 
+		// The upgrade is committed: a later run takes a fresh snapshot of the global compose file.
+		self::$rsp->add_step(
+			'clear-pending-global-compose-backup',
+			'EE\Migration\GlobalContainers::clear_pending_compose_backup',
+			null,
+			[ EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ],
+			null
+		);
+
 		self::$rsp->add_step(
 			'prune-old-docker-images',
 			'EE\Migration\Containers::docker_cleanup',
@@ -127,38 +153,138 @@ class Containers {
 	}
 
 	/**
-	 * Update docker-compose to v2.27.0 if lower version is installed.
+	 * Install docker-compose DOCKER_COMPOSE_INSTALL_VERSION when it is missing or older than DOCKER_COMPOSE_MIN_VERSION.
+	 * A newer one is never replaced. A failed download or check only warns and keeps the installed binary.
 	 */
 	public static function update_docker_compose() {
 
-		$docker_compose_version     = trim( EE::launch( 'docker-compose version --short' )->stdout );
+		// Only this call's replacement may be reverted, not one made earlier in the run (e.g. by a DB migration, which has no undo).
+		self::$replaced_docker_compose = false;
+		$installed                     = self::get_docker_compose_version();
+		if ( '' !== $installed && version_compare( $installed, self::DOCKER_COMPOSE_MIN_VERSION, '>=' ) ) {
+			EE::debug( "docker-compose $installed is recent enough, not replacing it." );
+
+			return;
+		}
+
+		$version = self::DOCKER_COMPOSE_INSTALL_VERSION;
+		$url     = self::get_docker_compose_download_url( $version, php_uname( 's' ), php_uname( 'm' ) );
+		if ( '' === $url ) {
+			EE::warning( sprintf( 'EasyEngine requires docker-compose %s or newer, and there is no docker-compose %s build for %s %s. Please install it manually.', self::DOCKER_COMPOSE_MIN_VERSION, $version, php_uname( 's' ), php_uname( 'm' ) ) );
+
+			return;
+		}
+
 		$docker_compose_path        = trim( EE::launch( 'command -v docker-compose' )->stdout );
+		$docker_compose_path        = '' === $docker_compose_path ? '/usr/local/bin/docker-compose' : $docker_compose_path;
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
 		$docker_compose_new_path    = EE_BACKUP_DIR . '/docker-compose';
 
-		if ( version_compare( '2.27.0', $docker_compose_version, '>' ) ) {
+		$fs = new Filesystem();
+		$fs->mkdir( EE_BACKUP_DIR );
+		$fs->remove( $docker_compose_new_path );
 
-			$fs = new Filesystem();
-			if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
-				$fs->mkdir( EE_BACKUP_DIR );
+		$failure = '';
+		// --max-time and --retry-max-time: a stalled download must not hang the upgrade (curl retries timeouts too).
+		if ( ! EE::exec( sprintf( 'curl -fsSL --retry 3 --retry-max-time 120 --connect-timeout 10 --max-time 300 -o %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $url ) ) ) ) {
+			$failure = "the download of $url failed";
+		} else {
+			$checksum = strtok( trim( EE::launch( sprintf( 'curl -fsSL --retry 3 --retry-max-time 60 --connect-timeout 10 --max-time 60 %s', escapeshellarg( "$url.sha256" ) ) )->stdout ), " \t" );
+			$actual   = is_file( $docker_compose_new_path ) ? hash_file( 'sha256', $docker_compose_new_path ) : '';
+			if ( ! preg_match( '/^[0-9a-f]{64}$/', (string) $checksum ) || ! hash_equals( (string) $checksum, (string) $actual ) ) {
+				$failure = "the checksum of $url doesn't match";
+			} else {
+				$fs->chmod( $docker_compose_new_path, 0755 );
+				$new_version = self::normalize_version( EE::launch( escapeshellarg( $docker_compose_new_path ) . ' version --short' )->stdout );
+				if ( ! version_compare( $new_version, self::DOCKER_COMPOSE_MIN_VERSION, '>=' ) ) {
+					$failure = 'the downloaded binary does not run';
+				}
 			}
-			$fs->copy( $docker_compose_path, $docker_compose_backup_path );
-
-			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_new_path && chmod +x $docker_compose_new_path" );
-			EE::exec( "mv $docker_compose_new_path $docker_compose_path" );
 		}
+
+		if ( '' === $failure ) {
+			// A backup from an earlier run must never be restored over this install.
+			$fs->remove( $docker_compose_backup_path );
+			if ( $fs->exists( $docker_compose_path ) ) {
+				$fs->copy( $docker_compose_path, $docker_compose_backup_path, true );
+			}
+			if ( EE::exec( sprintf( 'mv %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $docker_compose_path ) ) ) ) {
+				self::$replaced_docker_compose = true;
+				EE::debug( "Installed docker-compose $version at $docker_compose_path" );
+
+				return;
+			}
+			$failure = "it could not be moved to $docker_compose_path";
+		}
+
+		$fs->remove( $docker_compose_new_path );
+		EE::warning( sprintf( 'Could not install docker-compose %s (%s). EasyEngine requires docker-compose %s or newer, found %s.', $version, $failure, self::DOCKER_COMPOSE_MIN_VERSION, '' === $installed ? 'none' : $installed ) );
 	}
 
 	/**
-	 * Revert docker-compose to previous version.
+	 * Revert docker-compose to the binary the last update_docker_compose() call replaced, if it did.
+	 * An older backup from an earlier run is never restored.
 	 */
 	public static function revert_docker_compose() {
 
-		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
-		$docker_compose_path        = trim( $docker_compose_path );
+		if ( ! self::$replaced_docker_compose ) {
+			return;
+		}
+
+		$docker_compose_path        = trim( EE::launch( 'command -v docker-compose' )->stdout );
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
 		$fs                         = new Filesystem();
-		$fs->copy( $docker_compose_backup_path, $docker_compose_path );
+		if ( '' !== $docker_compose_path && $fs->exists( $docker_compose_backup_path ) ) {
+			$fs->copy( $docker_compose_backup_path, $docker_compose_path, true );
+		}
+		self::$replaced_docker_compose = false;
+	}
+
+	/**
+	 * @return string Installed docker-compose version as x.y.z, or '' if there is none.
+	 */
+	public static function get_docker_compose_version() {
+		return self::normalize_version( EE::launch( 'docker-compose version --short' )->stdout );
+	}
+
+	/**
+	 * Release asset URL of a docker-compose v2 build.
+	 *
+	 * @param string $version Version without `v`.
+	 * @param string $os      `uname -s`, e.g. Linux or Darwin.
+	 * @param string $arch    `uname -m`.
+	 *
+	 * @return string '' when there is no build for this platform.
+	 */
+	public static function get_docker_compose_download_url( $version, $os, $arch ) {
+		$os     = strtolower( $os );
+		$arches = [
+			'x86_64'  => 'x86_64',
+			'amd64'   => 'x86_64',
+			'aarch64' => 'aarch64',
+			'arm64'   => 'aarch64',
+			'armv7l'  => 'armv7',
+			'armv6l'  => 'armv6',
+			'ppc64le' => 'ppc64le',
+			's390x'   => 's390x',
+			'riscv64' => 'riscv64',
+		];
+		$arch   = $arches[ strtolower( $arch ) ] ?? '';
+
+		if ( '' === $arch || ! ( 'linux' === $os || ( 'darwin' === $os && in_array( $arch, [ 'x86_64', 'aarch64' ], true ) ) ) ) {
+			return '';
+		}
+
+		return sprintf( 'https://github.com/docker/compose/releases/download/v%s/docker-compose-%s-%s', $version, $os, $arch );
+	}
+
+	/**
+	 * @param string $output Output of `docker-compose version --short`, e.g. `2.27.0`, `v2.40.3` or `5.5.1-desktop.1`.
+	 *
+	 * @return string x.y.z, or ''.
+	 */
+	private static function normalize_version( $output ) {
+		return preg_match( '/(\d+\.\d+\.\d+)/', (string) $output, $matches ) ? $matches[1] : '';
 	}
 
 	/**
@@ -249,23 +375,29 @@ class Containers {
 
 		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
 		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
+		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
+		GlobalContainers::reset_recreated();
+
+		if ( in_array( 'easyengine/nginx-proxy', $updated_global_images, true ) ) {
+			// Before anything is recreated: a rollback after the DB moved to a new image may not get its datadir back.
+			self::$rsp->add_step(
+				'check-running-proxy-config',
+				'EE\Migration\GlobalContainers::check_running_proxy_config',
+				null,
+				[ $all_global_images['easyengine/nginx-proxy'] ],
+				null
+			);
+		}
 
 		self::$rsp->add_step(
 			'backup-global-docker-compose-file',
-			'EE\Migration\SiteContainers::backup_restore',
+			'EE\Migration\GlobalContainers::backup_compose_file',
 			'EE\Migration\GlobalContainers::revert_global_containers',
 			[ $global_compose_file_path, $global_compose_file_backup_path ],
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
 		);
 
-		self::$rsp->add_step(
-			'stop-global-containers',
-			'EE\Migration\GlobalContainers::down_global_containers',
-			null,
-			[ $updated_global_images ],
-			null
-		);
-
+		// The services keep running until each is recreated in turn: no step stops them all at once.
 		self::$rsp->add_step(
 			'generate-global-docker-compose-file',
 			'EE\Service\Utils\generate_global_docker_compose_yml',
@@ -274,17 +406,15 @@ class Containers {
 			null
 		);
 
-		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
-		foreach ( $updated_global_images as $image_name ) {
+		// No down steps: the backup step's down restores the old compose file and recreates these services from it.
+		foreach ( GlobalContainers::sort_for_upgrade( $updated_global_images ) as $image_name ) {
 			$global_container_name = $all_global_images[ $image_name ];
-			$global_service_name   = ltrim( $global_container_name, 'services_' );
-			$global_service_name   = rtrim( $global_service_name, '_1' );
 			self::$rsp->add_step(
 				"upgrade-$global_container_name-container",
-				"EE\Migration\GlobalContainers::global_service_up",
-				"EE\Migration\GlobalContainers::global_service_down",
-				[  $global_service_name ],
-				[ $global_service_name ]
+				'EE\Migration\GlobalContainers::upgrade_global_service',
+				null,
+				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name ],
+				null
 			);
 		}
 	}
