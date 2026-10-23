@@ -98,7 +98,7 @@ class SiteContainers {
 	private static $backed_up = [];
 
 	/**
-	 * EasyEngine images a site's docker-compose.yml sets, as image => tag.
+	 * EasyEngine images a docker-compose.yml sets, as image => tag.
 	 *
 	 * @param string $compose_file Path of the file.
 	 *
@@ -123,26 +123,6 @@ class SiteContainers {
 		}
 
 		return $images;
-	}
-
-	/**
-	 * Whether a disabled site's docker-compose.yml sets one of the updated images to a tag other than this release's.
-	 * A disabled site has no containers for `docker-compose images` to list.
-	 *
-	 * @param array $updated_images Updated images.
-	 * @param array $site_info      Site row.
-	 * @param array $img_versions   This release's image tags.
-	 *
-	 * @return bool
-	 */
-	public static function is_disabled_site_image_changed( $updated_images, $site_info, $img_versions ) {
-		foreach ( self::get_compose_file_images( $site_info['site_fs_path'] . '/docker-compose.yml' ) as $image => $tag ) {
-			if ( in_array( $image, $updated_images, true ) && isset( $img_versions[ $image ] ) && $img_versions[ $image ] !== $tag ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**

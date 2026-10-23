@@ -247,6 +247,17 @@ class GlobalContainers {
 	}
 
 	/**
+	 * @param string $container Container name.
+	 *
+	 * @return string The image it was created from, e.g. `easyengine/redis:v4.13.1`, or ''.
+	 */
+	private static function get_container_image( $container ) {
+		$result = EE::launch( sprintf( "docker inspect --format '{{.Config.Image}}' %s", escapeshellarg( $container ) ) );
+
+		return 0 === $result->return_code ? trim( $result->stdout ) : '';
+	}
+
+	/**
 	 * @param string $service   Compose service.
 	 * @param string $container Container name.
 	 * @param array  $state     From get_container_state().
@@ -334,14 +345,18 @@ class GlobalContainers {
 	/**
 	 * Updated global images by the state of their service's container.
 	 *
-	 * @param array $updated_images Updated docker images.
+	 * @param array      $updated_images Updated docker images.
+	 * @param array|null $img_versions   This release's tags; defaults to img-versions.json.
 	 *
-	 * @return array `running` (running or restart-looping), `stopped` (any other existing container) and `missing` images.
+	 * @return array `running` (running or restart-looping), `stopped` (any other existing container, still on an old tag),
+	 *               `current` (stopped, but already on the new tag, e.g. recreated by an interrupted run) and `missing` images.
 	 */
-	public static function get_updated_global_images_by_state( $updated_images ) {
-		$by_state = [
+	public static function get_updated_global_images_by_state( $updated_images, $img_versions = null ) {
+		$img_versions = null === $img_versions ? EE\Utils\get_image_versions() : $img_versions;
+		$by_state     = [
 			'running' => [],
 			'stopped' => [],
+			'current' => [],
 			'missing' => [],
 		];
 		foreach ( self::get_all_global_images_with_service_name() as $image => $container_name ) {
@@ -354,6 +369,8 @@ class GlobalContainers {
 				$by_state['running'][] = $image;
 			} elseif ( '' === $status ) {
 				$by_state['missing'][] = $image;
+			} elseif ( isset( $img_versions[ $image ] ) && self::get_container_image( $container_name ) === "$image:{$img_versions[ $image ]}" ) {
+				$by_state['current'][] = $image;
 			} else {
 				$by_state['stopped'][] = $image;
 			}
