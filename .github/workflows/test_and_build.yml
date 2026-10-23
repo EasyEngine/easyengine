@@ -150,22 +150,14 @@ jobs:
       run: |
         set -e
         cd $GITHUB_WORKSPACE
+        # site-command, site-type-php and site-type-wp run their own Behat suites (with Pebble lanes) on every PR.
         sudo -E ./vendor/bin/behat
-        sub_commands=(
-          vendor/easyengine/site-command/features
-          vendor/easyengine/site-type-php/features
-          vendor/easyengine/site-type-wp/features
-        )
-        for command in "${sub_commands[@]}"; do
-          IFS='/' read -r -a array <<< "$command"
-          rm -rf features/*
-          rsync -av --delete $command/ features/ > /dev/null
-          for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
-          echo "Running tests for $command"
-          sudo -E ./vendor/bin/behat
-        done
       env:
         COMPOSE_INTERACTIVE_NO_CLI: 1
+        # Core's suite refuses to initialise EasyEngine unless allowed; the runner starts without ee.sqlite.
+        EE_BEHAT_ALLOW_INIT: 1
+        # check-update calls the GitHub API; authenticated requests get a higher rate limit.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Output logs
       if: ${{ always() }}

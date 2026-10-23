@@ -1,0 +1,32 @@
+# The default profile skips everything that changes the live EasyEngine state. Those scenarios are also refused
+# at runtime unless their env var is set (see FeatureContext::GUARDED_TAGS), because a CLI --tags option
+# replaces these filters:
+#   @destructive  EE_BEHAT_DESTRUCTIVE=1      DB version changes, the self-uninstall prompt
+#   @migration    EE_BEHAT_ALLOW_MIGRATION=1  a real upgrade migration (image pulls, cron restart, log rotation)
+#   @uninstall    EE_BEHAT_ALLOW_UNINSTALL=1  `ee cli self-uninstall --yes`; run it alone and last
+# On a fresh machine (no /opt/easyengine/db/ee.sqlite) also set EE_BEHAT_ALLOW_INIT=1.
+default:
+  gherkin:
+    filters:
+      tags: "~@destructive"
+
+destructive:
+  gherkin:
+    filters:
+      tags: "@destructive&&~@migration&&~@uninstall"
+
+migration:
+  gherkin:
+    filters:
+      tags: "@migration"
+
+uninstall:
+  gherkin:
+    filters:
+      tags: "@uninstall"
+
+# Everything that can run in one pass (the uninstall would break every scenario after it).
+all:
+  gherkin:
+    filters:
+      tags: "~@migration&&~@uninstall"
