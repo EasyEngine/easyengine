@@ -40,20 +40,16 @@ class Containers {
 			'easyengine/php8.3',
 			'easyengine/php8.4',
 			'easyengine/php8.5',
+			'easyengine/php',
 			'easyengine/newrelic-daemon',
 		];
 
+		// An image no container runs and the DB doesn't track (e.g. mailhog, the amd64-only easyengine/php) has nothing
+		// to upgrade: pulling it only fails on hosts it isn't built for. Compose pulls it when something first uses it.
 		foreach ( $img_versions as $img => $version ) {
-
-			if ( array_key_exists( $img, $current_versions ) ) {
-				if ( $current_versions[ $img ] !== $version ) {
-					$updated_images[] = $img;
-					if ( ! in_array( $img, $skip_download ) ) {
-						self::pull_or_error( $img, $version );
-					}
-				}
-			} else {
-				if ( ! in_array( $img, $skip_download ) ) {
+			if ( array_key_exists( $img, $current_versions ) && $current_versions[ $img ] !== $version ) {
+				$updated_images[] = $img;
+				if ( ! in_array( $img, $skip_download, true ) ) {
 					self::pull_or_error( $img, $version );
 				}
 			}
