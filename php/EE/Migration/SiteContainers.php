@@ -146,8 +146,12 @@ class SiteContainers {
 				throw new \Exception( 'an image has no tag' );
 			}
 		} catch ( \Throwable $e ) {
-			if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
-				$fs->copy( $backup_path, $compose_file, true );
+			try {
+				if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
+					$fs->copy( $backup_path, $compose_file, true );
+				}
+			} catch ( \Exception $restore_error ) {
+				EE::warning( sprintf( 'Could not restore %s from %s: %s', $compose_file, $backup_path, $restore_error->getMessage() ) );
 			}
 			unset( self::$backed_up[ $site_info['site_url'] ] );
 			$reason = '' === $e->getMessage() ? 'see the error above' : $e->getMessage();
