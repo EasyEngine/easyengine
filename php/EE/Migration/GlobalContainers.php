@@ -72,12 +72,31 @@ class GlobalContainers {
 	public static function upgrade_global_service( $service, $container ) {
 		EE::debug( "Start upgrading $container" );
 
-		if ( ! chdir( EE_SERVICE_DIR ) || ! EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d ' . $service ) ) {
+		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service ) ) {
 			throw new \Exception( "Unable to recreate $container with its new image. Please check logs for more details." );
 		}
 
 		self::wait_until_ready( $service, $container );
 		EE::debug( "Complete upgrading $container" );
+	}
+
+	/**
+	 * `up -d` global services in the current directory. docker-compose v1 can't recreate a container on Docker 25+
+	 * (KeyError: 'ContainerConfig', leaving it stopped), so below the minimum version they are stopped and removed first.
+	 *
+	 * @param string $services Space-separated compose services.
+	 *
+	 * @return bool
+	 */
+	private static function compose_up( $services ) {
+		$compose = \EE_DOCKER::docker_compose_with_custom();
+		$up      = "$compose up -d $services";
+		$version = Containers::get_docker_compose_version();
+		if ( '' !== $version && version_compare( $version, Containers::DOCKER_COMPOSE_MIN_VERSION, '<' ) ) {
+			return EE::exec( "$compose stop $services && $compose rm -f $services && $up" );
+		}
+
+		return EE::exec( $up );
 	}
 
 	/**
@@ -280,7 +299,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! EE::exec( \EE_DOCKER::docker_compose_with_custom() . ' up -d ' . $services_to_regenerate ) ) {
+		if ( ! self::compose_up( trim( $services_to_regenerate ) ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		foreach ( $updated_images as $image_name ) {

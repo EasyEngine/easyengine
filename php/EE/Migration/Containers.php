@@ -69,9 +69,10 @@ class Containers {
 			return;
 		}
 
+		// First: compose v1 can't recreate containers on Docker 25+, and on a rollback it is restored last.
+		self::maybe_update_docker_compose();
 		self::migrate_global_containers( $updated_images );
 		self::migrate_site_containers( $updated_images );
-		self::maybe_update_docker_compose();
 		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
 
 		if ( ! self::$rsp->execute() ) {
@@ -82,8 +83,8 @@ class Containers {
 	}
 
 	/**
-	 * Maybe update docker-compose at the end of migration.
-	 * Need to update to latest docker-compose version for new template changes.
+	 * Maybe update docker-compose before any container is recreated, for the new templates and because v1 fails to
+	 * recreate containers on current Docker.
 	 */
 	public static function maybe_update_docker_compose() {
 
