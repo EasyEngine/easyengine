@@ -79,7 +79,29 @@ class GlobalContainers {
 			return;
 		}
 		$fs->copy( $source, $backup, true );
+		self::pin_running_images( $backup );
 		$fs->touch( $backup . '.pending' );
+	}
+
+	/**
+	 * Set each global service in a compose snapshot to the image its container was created from. A stopped service an
+	 * earlier upgrade left on its old image already has its new tag in the compose file, and a rollback must bring back
+	 * the image that worked, not that untested one.
+	 *
+	 * @param string $compose_file Snapshot of the global compose file.
+	 */
+	private static function pin_running_images( $compose_file ) {
+		$config = (string) file_get_contents( $compose_file );
+		$pinned = $config;
+		foreach ( self::get_all_global_images_with_service_name() as $image => $container ) {
+			$current = self::get_container_image( $container );
+			if ( 0 === strpos( $current, "$image:" ) ) {
+				$pinned = preg_replace( '/^(\s*container_name:\s*' . preg_quote( $container, '/' ) . '\s*\n\s*image:\s*)' . preg_quote( $image, '/' ) . ':\S+[ \t]*$/m', '${1}' . $current, $pinned, 1 );
+			}
+		}
+		if ( $pinned !== $config ) {
+			file_put_contents( $compose_file, $pinned );
+		}
 	}
 
 	/**
