@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Upgrade existing global containers to new docker-image
@@ -340,35 +341,65 @@ class GlobalContainers {
 	 */
 	public static function revert_global_containers( $source_path, $dest_path, $updated_images ) {
 
-		$services_to_regenerate = '';
-		$all_global_images      = self::get_all_global_images_with_service_name();
+		$all_global_images = self::get_all_global_images_with_service_name();
+		$services          = [];
 		foreach ( $updated_images as $image_name ) {
-			$services_to_regenerate .= self::get_service_name( $all_global_images[ $image_name ] ) . ' ';
+			$services[] = self::get_service_name( $all_global_images[ $image_name ] );
 		}
 		$recreated       = self::$recreated;
 		self::$recreated = [];
-		if ( empty( trim( $services_to_regenerate ) ) ) {
+		if ( empty( $services ) ) {
 			return;
 		}
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
 		$fs = new Filesystem();
 		$fs->copy( $source_path, $dest_path, true );
 
+		// Services an earlier, interrupted attempt moved to a new image aren't among this run's updates: put them back too.
+		$moved    = array_diff( self::get_services_off_compose_file( $dest_path ), $services );
+		$services = array_merge( $services, $moved );
+		$recreate = array_values( array_merge( array_intersect( $services, $recreated ), $moved ) );
+
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! self::compose_up( trim( $services_to_regenerate ), array_values( array_intersect( explode( ' ', trim( $services_to_regenerate ) ), $recreated ) ) ) ) {
+		if ( ! self::compose_up( implode( ' ', $services ), $recreate ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
-		foreach ( $updated_images as $image_name ) {
-			$container = $all_global_images[ $image_name ];
+		$containers = array_combine( array_map( [ self::class, 'get_service_name' ], $all_global_images ), $all_global_images );
+		foreach ( $services as $service ) {
 			try {
-				self::wait_until_ready( self::get_service_name( $container ), $container );
+				self::wait_until_ready( $service, $containers[ $service ] );
 			} catch ( \Exception $e ) {
 				EE::warning( 'After restoring the previous image: ' . $e->getMessage() );
 			}
 		}
 		self::clear_pending_compose_backup( $source_path );
 		EE::debug( 'Complete restoring global docker-compose.yml file from backup' );
+	}
+
+	/**
+	 * @param string $compose_file Global compose file.
+	 *
+	 * @return string[] Global services that run an image other than the one the compose file sets for them.
+	 */
+	private static function get_services_off_compose_file( $compose_file ) {
+		try {
+			$config = Yaml::parseFile( $compose_file );
+		} catch ( \Exception $e ) {
+			return [];
+		}
+		$services = [];
+		foreach ( self::get_all_global_images_with_service_name() as $container ) {
+			$service = self::get_service_name( $container );
+			$image   = is_array( $config ) && isset( $config['services'][ $service ]['image'] ) ? $config['services'][ $service ]['image'] : '';
+			$running = EE::launch( sprintf( "docker inspect --format '{{.State.Status}} {{.Config.Image}}' %s", escapeshellarg( $container ) ) );
+			$parts   = 0 === $running->return_code ? preg_split( '/\s+/', trim( $running->stdout ) ) : [];
+			if ( '' !== $image && 2 === count( $parts ) && 'running' === $parts[0] && $parts[1] !== $image ) {
+				$services[] = $service;
+			}
+		}
+
+		return $services;
 	}
 
 	/**
