@@ -149,7 +149,17 @@ class Containers {
 	 */
 	public static function docker_cleanup() {
 		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
-		EE::exec( 'docker network prune -f --filter=label=org.label-schema.vendor="EasyEngine"' );
+
+		// Not `docker network prune`: it also removes the networks of stopped containers, which then can't start, and the
+		// global networks that disabled sites join as external networks on `ee site enable`.
+		$keep     = [ defined( 'GLOBAL_FRONTEND_NETWORK' ) ? GLOBAL_FRONTEND_NETWORK : 'ee-global-frontend-network', defined( 'GLOBAL_BACKEND_NETWORK' ) ? GLOBAL_BACKEND_NETWORK : 'ee-global-backend-network' ];
+		$networks = array_filter( explode( "\n", trim( EE::launch( 'docker network ls --filter=label=org.label-schema.vendor="EasyEngine" --format "{{.Name}}"' )->stdout ) ) );
+		foreach ( array_diff( $networks, $keep ) as $network ) {
+			$users = EE::launch( 'docker ps -aq --filter network=' . escapeshellarg( $network ) );
+			if ( 0 === $users->return_code && '' === trim( $users->stdout ) ) {
+				EE::exec( 'docker network rm ' . escapeshellarg( $network ) );
+			}
+		}
 	}
 
 	/**
