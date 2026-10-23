@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
+use Mustangostang\Spyc;
 
 /**
  * Migrate site specific containers to new images.
@@ -91,6 +92,99 @@ class SiteContainers {
 		}
 
 		return false;
+	}
+
+	/** @var string[] Disabled sites whose compose file this run backed up, the only ones a rollback restores. */
+	private static $backed_up = [];
+
+	/**
+	 * EasyEngine images a site's docker-compose.yml sets, as image => tag.
+	 *
+	 * @param string $compose_file Path of the file.
+	 *
+	 * @return array
+	 */
+	public static function get_compose_file_images( $compose_file ) {
+		try {
+			// Spyc, not symfony/yaml: the phar doesn't ship symfony/yaml.
+			$config = is_file( $compose_file ) ? Spyc::YAMLLoad( $compose_file ) : [];
+		} catch ( \Exception $e ) {
+			$config = [];
+		}
+		$images = [];
+		if ( ! is_array( $config ) || empty( $config['services'] ) || ! is_array( $config['services'] ) ) {
+			return $images;
+		}
+		foreach ( $config['services'] as $service ) {
+			if ( is_array( $service ) && ! empty( $service['image'] ) && is_string( $service['image'] ) && 0 === strpos( $service['image'], 'easyengine/' ) ) {
+				list( $image, $tag ) = explode( ':', $service['image'], 2 ) + [ 1 => '' ];
+				$images[ $image ] = $tag;
+			}
+		}
+
+		return $images;
+	}
+
+	/**
+	 * Whether a disabled site's docker-compose.yml sets one of the updated images to a tag other than this release's.
+	 * A disabled site has no containers for `docker-compose images` to list.
+	 *
+	 * @param array $updated_images Updated images.
+	 * @param array $site_info      Site row.
+	 * @param array $img_versions   This release's image tags.
+	 *
+	 * @return bool
+	 */
+	public static function is_disabled_site_image_changed( $updated_images, $site_info, $img_versions ) {
+		foreach ( self::get_compose_file_images( $site_info['site_fs_path'] . '/docker-compose.yml' ) as $image => $tag ) {
+			if ( in_array( $image, $updated_images, true ) && isset( $img_versions[ $image ] ) && $img_versions[ $image ] !== $tag ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Back up and regenerate a disabled site's docker-compose.yml with this release's images, without starting anything,
+	 * so that `ee site enable` starts it on them. A failure only warns and keeps the old file: a disabled site must not
+	 * block or roll back the upgrade of the others.
+	 *
+	 * @param array  $site_info   Site row.
+	 * @param string $backup_path Where to back up its docker-compose.yml.
+	 */
+	public static function update_disabled_site_compose_file( $site_info, $backup_path ) {
+		$compose_file = $site_info['site_fs_path'] . '/docker-compose.yml';
+		$fs           = new Filesystem();
+		unset( self::$backed_up[ $site_info['site_url'] ] );
+		try {
+			$fs->copy( $compose_file, $backup_path, true );
+			self::$backed_up[ $site_info['site_url'] ] = $backup_path;
+			self::generate_site_docker_compose_file( $site_info, self::get_site_object( $site_info['site_type'] ) );
+			// A missing img-versions.json entry only raises a PHP warning and writes an image without a tag.
+			if ( preg_match( '/^\s*image:\s*\S+:\s*$/m', (string) file_get_contents( $compose_file ) ) ) {
+				throw new \Exception( 'an image has no tag' );
+			}
+		} catch ( \Throwable $e ) {
+			if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
+				$fs->copy( $backup_path, $compose_file, true );
+			}
+			unset( self::$backed_up[ $site_info['site_url'] ] );
+			$reason = '' === $e->getMessage() ? 'see the error above' : $e->getMessage();
+			EE::warning( sprintf( 'Could not update docker-compose.yml of the disabled site %1$s to the new images (%2$s). Run `ee site enable %1$s --refresh` to enable it on them.', $site_info['site_url'], $reason ) );
+		}
+	}
+
+	/**
+	 * Rollback of update_disabled_site_compose_file(): restore the file it backed up in this run, if any.
+	 *
+	 * @param array $site_info Site row.
+	 */
+	public static function restore_disabled_site_compose_file( $site_info ) {
+		if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
+			( new Filesystem() )->copy( self::$backed_up[ $site_info['site_url'] ], $site_info['site_fs_path'] . '/docker-compose.yml', true );
+			unset( self::$backed_up[ $site_info['site_url'] ] );
+		}
 	}
 
 	/**

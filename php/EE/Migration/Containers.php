@@ -447,13 +447,28 @@ class Containers {
 	 */
 	public static function migrate_site_containers( $updated_images ) {
 
-		$db    = new \EE_DB();
-		$sites = ( $db->table( 'sites' )->all() );
+		$db           = new \EE_DB();
+		$sites        = ( $db->table( 'sites' )->all() );
+		$img_versions = EE\Utils\get_image_versions();
 
 		foreach ( $sites as $site ) {
 
 			$docker_yml        = $site['site_fs_path'] . '/docker-compose.yml';
 			$docker_yml_backup = EE_BACKUP_DIR . '/' . $site['site_url'] . '/docker-compose.yml.backup';
+
+			// A disabled site has no containers, only its compose file, which nothing else would move to the new images.
+			if ( ! $site['site_enabled'] ) {
+				if ( SiteContainers::is_disabled_site_image_changed( $updated_images, $site, $img_versions ) ) {
+					self::$rsp->add_step(
+						sprintf( 'update-disabled-%s-docker-compose', $site['site_url'] ),
+						'EE\Migration\SiteContainers::update_disabled_site_compose_file',
+						'EE\Migration\SiteContainers::restore_disabled_site_compose_file',
+						[ $site, $docker_yml_backup ],
+						[ $site ]
+					);
+				}
+				continue;
+			}
 
 			if ( ! SiteContainers::is_site_service_image_changed( $updated_images, $site ) ) {
 				continue;
