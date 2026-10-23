@@ -72,6 +72,12 @@ class GlobalContainers {
 	public static function upgrade_global_service( $service, $container ) {
 		EE::debug( "Start upgrading $container" );
 
+		// A config already broken on disk would stop the new proxy and the restored one alike: refuse before touching it.
+		if ( 'global-nginx-proxy' === $service && 'running' === self::get_container_state( $container )['status']
+			&& ! EE::exec( 'docker exec ' . escapeshellarg( $container ) . ' nginx -t' ) ) {
+			throw new \Exception( "The configuration of the running $container fails `nginx -t`, so a recreated proxy would not start. Fix it (see `docker exec $container nginx -t`) and run the upgrade again." );
+		}
+
 		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service ) ) {
 			throw new \Exception( "Unable to recreate $container with its new image. Please check logs for more details." );
 		}
@@ -222,7 +228,8 @@ class GlobalContainers {
 				$port   = (string) \EE\Utils\get_config_value( 'proxy_80_port', '80' );
 				$host   = false === strpos( $port, ':' ) ? '127.0.0.1' : substr( $port, 0, strrpos( $port, ':' ) );
 				$port   = false === strpos( $port, ':' ) ? $port : substr( $port, strrpos( $port, ':' ) + 1 );
-				$status = trim( EE::launch( sprintf( "curl -s -o /dev/null -w '%%{http_code}' --max-time 5 %s", escapeshellarg( "http://$host:$port/" ) ) )->stdout );
+				// --noproxy: an http_proxy exported for pulls must not answer for the local proxy.
+				$status = trim( EE::launch( sprintf( "curl -s --noproxy '*' -o /dev/null -w '%%{http_code}' --max-time 5 %s", escapeshellarg( "http://$host:$port/" ) ) )->stdout );
 
 				return preg_match( '/^[1-5]\d\d$/', $status ) ? '' : "no HTTP response on port $port";
 

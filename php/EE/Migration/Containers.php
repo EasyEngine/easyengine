@@ -165,10 +165,11 @@ class Containers {
 		$fs->remove( $docker_compose_new_path );
 
 		$failure = '';
-		if ( ! EE::exec( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 -o %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $url ) ) ) ) {
+		// --max-time: a stalled download must not hang the upgrade.
+		if ( ! EE::exec( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 --max-time 300 -o %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $url ) ) ) ) {
 			$failure = "the download of $url failed";
 		} else {
-			$checksum = strtok( trim( EE::launch( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 %s', escapeshellarg( "$url.sha256" ) ) )->stdout ), " \t" );
+			$checksum = strtok( trim( EE::launch( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 --max-time 60 %s', escapeshellarg( "$url.sha256" ) ) )->stdout ), " \t" );
 			$actual   = is_file( $docker_compose_new_path ) ? hash_file( 'sha256', $docker_compose_new_path ) : '';
 			if ( ! preg_match( '/^[0-9a-f]{64}$/', (string) $checksum ) || ! hash_equals( (string) $checksum, (string) $actual ) ) {
 				$failure = "the checksum of $url doesn't match";
