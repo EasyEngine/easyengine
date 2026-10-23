@@ -179,6 +179,8 @@ class Containers {
 		}
 
 		if ( '' === $failure ) {
+			// A backup from an earlier run must never be restored over this install.
+			$fs->remove( $docker_compose_backup_path );
 			if ( $fs->exists( $docker_compose_path ) ) {
 				$fs->copy( $docker_compose_path, $docker_compose_backup_path, true );
 			}
