@@ -356,6 +356,7 @@ class Containers {
 		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
 		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
 		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
+		GlobalContainers::reset_recreated();
 
 		if ( in_array( 'easyengine/nginx-proxy', $updated_global_images, true ) ) {
 			// Before anything is recreated: a rollback after the DB moved to a new image may not get its datadir back.

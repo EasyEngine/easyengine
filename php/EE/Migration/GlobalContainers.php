@@ -38,6 +38,9 @@ class GlobalContainers {
 	/** @var callable|null Test seam: replaces sleep( $seconds ) while waiting for a service. */
 	public static $sleeper;
 
+	/** @var string[] Services this run has recreated, the only ones a rollback must recreate again. */
+	private static $recreated = [];
+
 	/**
 	 * Sort updated global images into the order their services are upgraded in.
 	 *
@@ -58,6 +61,13 @@ class GlobalContainers {
 	 */
 	public static function get_service_name( $container ) {
 		return preg_replace( '/^services_(.+)_1$/', '$1', $container );
+	}
+
+	/**
+	 * Start a new image migration with no service recorded as recreated.
+	 */
+	public static function reset_recreated() {
+		self::$recreated = [];
 	}
 
 	/**
@@ -86,7 +96,8 @@ class GlobalContainers {
 	public static function upgrade_global_service( $service, $container ) {
 		EE::debug( "Start upgrading $container" );
 
-		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service ) ) {
+		self::$recreated[] = $service;
+		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service, [ $service ] ) ) {
 			throw new \Exception( "Unable to recreate $container with its new image. Please check logs for more details." );
 		}
 
@@ -96,18 +107,21 @@ class GlobalContainers {
 
 	/**
 	 * `up -d` global services in the current directory. docker-compose v1 can't recreate a container on Docker 25+
-	 * (KeyError: 'ContainerConfig', leaving it stopped), so below the minimum version they are stopped and removed first.
+	 * (KeyError: 'ContainerConfig', leaving it stopped), so with v1 the services to recreate are stopped and removed first.
 	 *
-	 * @param string $services Space-separated compose services.
+	 * @param string   $services Space-separated compose services.
+	 * @param string[] $recreate Those whose container must be replaced; v1's `up -d` leaves the others alone.
 	 *
 	 * @return bool
 	 */
-	private static function compose_up( $services ) {
+	private static function compose_up( $services, $recreate ) {
 		$compose = \EE_DOCKER::docker_compose_with_custom();
 		$up      = "$compose up -d $services";
 		$version = Containers::get_docker_compose_version();
-		if ( '' !== $version && version_compare( $version, Containers::DOCKER_COMPOSE_MIN_VERSION, '<' ) ) {
-			return EE::exec( "$compose stop $services && $compose rm -f $services && $up" );
+		if ( $recreate && '' !== $version && version_compare( $version, '2.0.0', '<' ) ) {
+			$recreate = implode( ' ', $recreate );
+
+			return EE::exec( "$compose stop $recreate && $compose rm -f $recreate && $up" );
 		}
 
 		return EE::exec( $up );
@@ -302,9 +316,10 @@ class GlobalContainers {
 		$services_to_regenerate = '';
 		$all_global_images      = self::get_all_global_images_with_service_name();
 		foreach ( $updated_images as $image_name ) {
-			$global_container_name  = $all_global_images[ $image_name ];
-			$services_to_regenerate .= ltrim( rtrim( $global_container_name, '_1' ), 'services_' ) . ' ';
+			$services_to_regenerate .= self::get_service_name( $all_global_images[ $image_name ] ) . ' ';
 		}
+		$recreated       = self::$recreated;
+		self::$recreated = [];
 		if ( empty( trim( $services_to_regenerate ) ) ) {
 			return;
 		}
@@ -314,7 +329,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! self::compose_up( trim( $services_to_regenerate ) ) ) {
+		if ( ! self::compose_up( trim( $services_to_regenerate ), array_values( array_intersect( explode( ' ', trim( $services_to_regenerate ) ), $recreated ) ) ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		foreach ( $updated_images as $image_name ) {
