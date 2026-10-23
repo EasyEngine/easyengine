@@ -101,7 +101,7 @@ class Executor {
 
 		if ( ! file_exists( $migration_path ) ) {
 			EE::error( "Unable to find migration file at $migration_path", false );
-			throw new Exception();
+			throw new \Exception( "Unable to find migration file at $migration_path" );
 		}
 
 		require( $migration_path );
