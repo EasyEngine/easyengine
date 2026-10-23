@@ -11,8 +11,17 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class Containers {
 
+	/** EasyEngine needs at least this docker-compose (see Runner::check_requirements()). */
+	const DOCKER_COMPOSE_MIN_VERSION = '2.26.1';
+
+	/** Installed when docker-compose is missing or older than the minimum. */
+	const DOCKER_COMPOSE_INSTALL_VERSION = '2.27.0';
+
 	/** @var RevertableStepProcessor $rsp Keeps track of migration state. Reverts on error */
 	private static $rsp;
+
+	/** @var bool Whether update_docker_compose() replaced the binary in this process. */
+	private static $replaced_docker_compose = false;
 
 	/**
 	 * Main entry point for the script. Migrates all containers
@@ -123,38 +132,133 @@ class Containers {
 	}
 
 	/**
-	 * Update docker-compose to v2.27.0 if lower version is installed.
+	 * Install docker-compose DOCKER_COMPOSE_INSTALL_VERSION when it is missing or older than DOCKER_COMPOSE_MIN_VERSION.
+	 * A newer one is never replaced. A failed download or check only warns and keeps the installed binary.
 	 */
 	public static function update_docker_compose() {
 
-		$docker_compose_version     = trim( EE::launch( 'docker-compose version --short' )->stdout );
+		$installed = self::get_docker_compose_version();
+		if ( '' !== $installed && version_compare( $installed, self::DOCKER_COMPOSE_MIN_VERSION, '>=' ) ) {
+			EE::debug( "docker-compose $installed is recent enough, not replacing it." );
+
+			return;
+		}
+
+		$version = self::DOCKER_COMPOSE_INSTALL_VERSION;
+		$url     = self::get_docker_compose_download_url( $version, php_uname( 's' ), php_uname( 'm' ) );
+		if ( '' === $url ) {
+			EE::warning( sprintf( 'EasyEngine requires docker-compose %s or newer, and there is no docker-compose %s build for %s %s. Please install it manually.', self::DOCKER_COMPOSE_MIN_VERSION, $version, php_uname( 's' ), php_uname( 'm' ) ) );
+
+			return;
+		}
+
 		$docker_compose_path        = trim( EE::launch( 'command -v docker-compose' )->stdout );
+		$docker_compose_path        = '' === $docker_compose_path ? '/usr/local/bin/docker-compose' : $docker_compose_path;
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
 		$docker_compose_new_path    = EE_BACKUP_DIR . '/docker-compose';
 
-		if ( version_compare( '2.27.0', $docker_compose_version, '>' ) ) {
+		$fs = new Filesystem();
+		$fs->mkdir( EE_BACKUP_DIR );
+		$fs->remove( $docker_compose_new_path );
 
-			$fs = new Filesystem();
-			if ( ! $fs->exists( EE_BACKUP_DIR ) ) {
-				$fs->mkdir( EE_BACKUP_DIR );
+		$failure = '';
+		if ( ! EE::exec( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 -o %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $url ) ) ) ) {
+			$failure = "the download of $url failed";
+		} else {
+			$checksum = strtok( trim( EE::launch( sprintf( 'curl -fsSL --retry 3 --connect-timeout 10 %s', escapeshellarg( "$url.sha256" ) ) )->stdout ), " \t" );
+			$actual   = is_file( $docker_compose_new_path ) ? hash_file( 'sha256', $docker_compose_new_path ) : '';
+			if ( ! preg_match( '/^[0-9a-f]{64}$/', (string) $checksum ) || ! hash_equals( (string) $checksum, (string) $actual ) ) {
+				$failure = "the checksum of $url doesn't match";
+			} else {
+				$fs->chmod( $docker_compose_new_path, 0755 );
+				$new_version = self::normalize_version( EE::launch( escapeshellarg( $docker_compose_new_path ) . ' version --short' )->stdout );
+				if ( ! version_compare( $new_version, self::DOCKER_COMPOSE_MIN_VERSION, '>=' ) ) {
+					$failure = 'the downloaded binary does not run';
+				}
 			}
-			$fs->copy( $docker_compose_path, $docker_compose_backup_path );
-
-			EE::exec( "curl -L https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m) -o $docker_compose_new_path && chmod +x $docker_compose_new_path" );
-			EE::exec( "mv $docker_compose_new_path $docker_compose_path" );
 		}
+
+		if ( '' === $failure ) {
+			if ( $fs->exists( $docker_compose_path ) ) {
+				$fs->copy( $docker_compose_path, $docker_compose_backup_path, true );
+			}
+			if ( EE::exec( sprintf( 'mv %s %s', escapeshellarg( $docker_compose_new_path ), escapeshellarg( $docker_compose_path ) ) ) ) {
+				self::$replaced_docker_compose = true;
+				EE::debug( "Installed docker-compose $version at $docker_compose_path" );
+
+				return;
+			}
+			$failure = "it could not be moved to $docker_compose_path";
+		}
+
+		$fs->remove( $docker_compose_new_path );
+		EE::warning( sprintf( 'Could not install docker-compose %s (%s). EasyEngine requires docker-compose %s or newer, found %s.', $version, $failure, self::DOCKER_COMPOSE_MIN_VERSION, '' === $installed ? 'none' : $installed ) );
 	}
 
 	/**
-	 * Revert docker-compose to previous version.
+	 * Revert docker-compose to the binary update_docker_compose() replaced in this run, if it did.
+	 * An older backup from an earlier run is never restored.
 	 */
 	public static function revert_docker_compose() {
 
-		$docker_compose_path        = EE::launch( 'command -v docker-compose' )->stdout;
-		$docker_compose_path        = trim( $docker_compose_path );
+		if ( ! self::$replaced_docker_compose ) {
+			return;
+		}
+
+		$docker_compose_path        = trim( EE::launch( 'command -v docker-compose' )->stdout );
 		$docker_compose_backup_path = EE_BACKUP_DIR . '/docker-compose.backup';
 		$fs                         = new Filesystem();
-		$fs->copy( $docker_compose_backup_path, $docker_compose_path );
+		if ( '' !== $docker_compose_path && $fs->exists( $docker_compose_backup_path ) ) {
+			$fs->copy( $docker_compose_backup_path, $docker_compose_path, true );
+		}
+		self::$replaced_docker_compose = false;
+	}
+
+	/**
+	 * @return string Installed docker-compose version as x.y.z, or '' if there is none.
+	 */
+	public static function get_docker_compose_version() {
+		return self::normalize_version( EE::launch( 'docker-compose version --short' )->stdout );
+	}
+
+	/**
+	 * Release asset URL of a docker-compose v2 build.
+	 *
+	 * @param string $version Version without `v`.
+	 * @param string $os      `uname -s`, e.g. Linux or Darwin.
+	 * @param string $arch    `uname -m`.
+	 *
+	 * @return string '' when there is no build for this platform.
+	 */
+	public static function get_docker_compose_download_url( $version, $os, $arch ) {
+		$os     = strtolower( $os );
+		$arches = [
+			'x86_64'  => 'x86_64',
+			'amd64'   => 'x86_64',
+			'aarch64' => 'aarch64',
+			'arm64'   => 'aarch64',
+			'armv7l'  => 'armv7',
+			'armv6l'  => 'armv6',
+			'ppc64le' => 'ppc64le',
+			's390x'   => 's390x',
+			'riscv64' => 'riscv64',
+		];
+		$arch   = $arches[ strtolower( $arch ) ] ?? '';
+
+		if ( '' === $arch || ! ( 'linux' === $os || ( 'darwin' === $os && in_array( $arch, [ 'x86_64', 'aarch64' ], true ) ) ) ) {
+			return '';
+		}
+
+		return sprintf( 'https://github.com/docker/compose/releases/download/v%s/docker-compose-%s-%s', $version, $os, $arch );
+	}
+
+	/**
+	 * @param string $output Output of `docker-compose version --short`, e.g. `2.27.0`, `v2.40.3` or `5.5.1-desktop.1`.
+	 *
+	 * @return string x.y.z, or ''.
+	 */
+	private static function normalize_version( $output ) {
+		return preg_match( '/(\d+\.\d+\.\d+)/', (string) $output, $matches ) ? $matches[1] : '';
 	}
 
 	/**
