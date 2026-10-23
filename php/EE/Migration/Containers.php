@@ -20,7 +20,7 @@ class Containers {
 	/** @var RevertableStepProcessor $rsp Keeps track of migration state. Reverts on error */
 	private static $rsp;
 
-	/** @var bool Whether update_docker_compose() replaced the binary in this process. */
+	/** @var bool Whether the last update_docker_compose() call replaced the binary. */
 	private static $replaced_docker_compose = false;
 
 	/**
@@ -137,7 +137,9 @@ class Containers {
 	 */
 	public static function update_docker_compose() {
 
-		$installed = self::get_docker_compose_version();
+		// Only this call's replacement may be reverted, not one made earlier in the run (e.g. by a DB migration, which has no undo).
+		self::$replaced_docker_compose = false;
+		$installed                     = self::get_docker_compose_version();
 		if ( '' !== $installed && version_compare( $installed, self::DOCKER_COMPOSE_MIN_VERSION, '>=' ) ) {
 			EE::debug( "docker-compose $installed is recent enough, not replacing it." );
 
@@ -198,7 +200,7 @@ class Containers {
 	}
 
 	/**
-	 * Revert docker-compose to the binary update_docker_compose() replaced in this run, if it did.
+	 * Revert docker-compose to the binary the last update_docker_compose() call replaced, if it did.
 	 * An older backup from an earlier run is never restored.
 	 */
 	public static function revert_docker_compose() {
