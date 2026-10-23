@@ -12,7 +12,8 @@ class GlobalContainers {
 
 	/**
 	 * Upgrade order. The proxy goes last so that a failing backend is rolled back before every site loses its proxy,
-	 * and the database just before it, so its datadir is only reverted onto the old image if the proxy fails.
+	 * and the database just before it, so of the globals only a failing proxy reverts its datadir onto the old image
+	 * (a failure in a later site step still reverts every global).
 	 */
 	const UPGRADE_ORDER = [
 		'easyengine/cron',
@@ -142,7 +143,7 @@ class GlobalContainers {
 	private static function get_ready_timeout( $service ) {
 		$configured = \EE\Utils\get_config_value( 'global-service-ready-timeout' );
 		if ( is_numeric( $configured ) && $configured > 0 ) {
-			return (int) $configured;
+			return (int) ceil( $configured );
 		}
 
 		return 'global-db' === $service ? self::DB_READY_TIMEOUT : self::READY_TIMEOUT;
@@ -215,7 +216,8 @@ class GlobalContainers {
 			case 'global-redis':
 				$pong = trim( EE::launch( $exec . 'redis-cli ping' )->stdout );
 
-				return 'PONG' === $pong ? '' : 'redis-cli ping failed';
+				// NOAUTH (a requirepass in redis.conf) still means redis answers.
+				return 'PONG' === $pong || 0 === strpos( $pong, 'NOAUTH' ) ? '' : 'redis-cli ping failed';
 		}
 
 		return '';
