@@ -82,9 +82,9 @@ class Containers {
 
 		// First: compose v1 can't recreate containers on Docker 25+, and on a rollback it is restored last.
 		self::maybe_update_docker_compose();
-		self::migrate_global_containers( $updated_images );
+		$not_upgraded = self::migrate_global_containers( $updated_images );
 		self::migrate_site_containers( $updated_images );
-		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
+		self::save_upgraded_image_versions( $current_versions, $img_versions, array_values( array_diff( $updated_images, $not_upgraded ) ) );
 
 		if ( ! self::$rsp->execute() ) {
 			throw new \Exception( 'Unable to migrate sites to newer version' );
@@ -365,15 +365,22 @@ class Containers {
 	 * Migrates global containers. These are container which are not created per site (i.e. ee-cron-scheduler).
 	 *
 	 * @param $updated_images array of updated images.
+	 *
+	 * @return array Updated images of stopped services, which keep their old container and recorded tag.
 	 */
 	private static function migrate_global_containers( $updated_images ) {
 
-		$updated_global_images = GlobalContainers::get_updated_global_images( $updated_images );
-		if ( empty( $updated_global_images ) ) {
-			return;
+		$global_compose_file_path = EE_ROOT_DIR . '/services/docker-compose.yml';
+
+		// A stopped service keeps its container (Docker restarts it on boot) and the old image the prune then keeps, so its
+		// old tag stays recorded; the regenerated compose file still has the new one for `ee service enable`. A missing
+		// service is created from that file later. Without a file, one is generated with the new tags when needed.
+		$by_state              = GlobalContainers::get_updated_global_images_by_state( $updated_images );
+		$updated_global_images = $by_state['running'];
+		if ( empty( $updated_global_images ) && ( ! is_file( $global_compose_file_path ) || empty( $by_state['stopped'] ) && empty( $by_state['missing'] ) ) ) {
+			return $by_state['stopped'];
 		}
 
-		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
 		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
 		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
 		GlobalContainers::reset_recreated();
@@ -417,6 +424,8 @@ class Containers {
 				null
 			);
 		}
+
+		return $by_state['stopped'];
 	}
 
 	/**

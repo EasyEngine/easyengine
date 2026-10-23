@@ -328,17 +328,38 @@ class GlobalContainers {
 	 * @return array
 	 */
 	public static function get_updated_global_images( $updated_images ) {
+		return self::get_updated_global_images_by_state( $updated_images )['running'];
+	}
 
-		$global_images           = self::get_all_global_images_with_service_name();
-		$running_global_services = [];
-		foreach ( $global_images as $image => $container_name ) {
+	/**
+	 * Updated global images by the state of their service's container.
+	 *
+	 * @param array $updated_images Updated docker images.
+	 *
+	 * @return array `running` (running or restart-looping), `stopped` (any other existing container) and `missing` images.
+	 */
+	public static function get_updated_global_images_by_state( $updated_images ) {
+		$by_state = [
+			'running' => [],
+			'stopped' => [],
+			'missing' => [],
+		];
+		foreach ( self::get_all_global_images_with_service_name() as $image => $container_name ) {
+			if ( ! in_array( $image, $updated_images, true ) ) {
+				continue;
+			}
+			$status = self::get_container_state( $container_name )['status'];
 			// A restart-looping service is upgraded too (State.Running is false between its restarts).
-			if ( in_array( self::get_container_state( $container_name )['status'], [ 'running', 'restarting' ], true ) ) {
-				$running_global_services[] = $image;
+			if ( in_array( $status, [ 'running', 'restarting' ], true ) ) {
+				$by_state['running'][] = $image;
+			} elseif ( '' === $status ) {
+				$by_state['missing'][] = $image;
+			} else {
+				$by_state['stopped'][] = $image;
 			}
 		}
 
-		return array_intersect( $running_global_services, $updated_images );
+		return $by_state;
 	}
 
 	/**
@@ -358,11 +379,9 @@ class GlobalContainers {
 		}
 		$recreated       = self::$recreated;
 		self::$recreated = [];
-		if ( empty( $services ) ) {
-			return;
-		}
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
 		$fs = new Filesystem();
+		// Also when no running service changed: the regenerated file alone carries the new tags of the others.
 		$fs->copy( $source_path, $dest_path, true );
 
 		// Services an earlier, interrupted attempt moved to a new image aren't among this run's updates: put them back too.
@@ -372,7 +391,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! self::compose_up( implode( ' ', $services ), $recreate ) ) {
+		if ( $services && ! self::compose_up( implode( ' ', $services ), $recreate ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		$containers = array_combine( array_map( [ self::class, 'get_service_name' ], $all_global_images ), $all_global_images );
