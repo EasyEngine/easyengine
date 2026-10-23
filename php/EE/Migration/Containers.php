@@ -81,6 +81,8 @@ class Containers {
 					throw new \Exception( 'Unable to migrate sites to newer version' );
 				}
 			}
+			// Every tag is recorded (e.g. a run interrupted just after saving them): a pending snapshot is done with.
+			GlobalContainers::clear_pending_compose_backup( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' );
 
 			return;
 		}
