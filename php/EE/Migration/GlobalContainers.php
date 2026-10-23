@@ -4,7 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
+use Mustangostang\Spyc;
 
 /**
  * Upgrade existing global containers to new docker-image
@@ -383,11 +383,8 @@ class GlobalContainers {
 	 * @return string[] Global services that run an image other than the one the compose file sets for them.
 	 */
 	private static function get_services_off_compose_file( $compose_file ) {
-		try {
-			$config = Yaml::parseFile( $compose_file );
-		} catch ( \Exception $e ) {
-			return [];
-		}
+		// Spyc, not symfony/yaml: the phar doesn't ship symfony/yaml.
+		$config   = is_file( $compose_file ) ? Spyc::YAMLLoad( $compose_file ) : [];
 		$services = [];
 		foreach ( self::get_all_global_images_with_service_name() as $container ) {
 			$service = self::get_service_name( $container );
