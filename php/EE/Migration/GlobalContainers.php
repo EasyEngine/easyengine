@@ -64,6 +64,33 @@ class GlobalContainers {
 	}
 
 	/**
+	 * Snapshot the global compose file before it is regenerated. A run that was interrupted after its snapshot left the
+	 * services half upgraded, so its snapshot (marked pending until a run completes) is kept instead of the current file.
+	 *
+	 * @param string $source Global compose file.
+	 * @param string $backup Snapshot path.
+	 */
+	public static function backup_compose_file( $source, $backup ) {
+		$fs = new Filesystem();
+		if ( $fs->exists( [ $backup, $backup . '.pending' ] ) ) {
+			EE::debug( "Keeping $backup from an upgrade that did not complete" );
+
+			return;
+		}
+		$fs->copy( $source, $backup, true );
+		$fs->touch( $backup . '.pending' );
+	}
+
+	/**
+	 * Mark the compose snapshot as no longer needed by a later run: the upgrade completed or was rolled back.
+	 *
+	 * @param string $backup Snapshot path.
+	 */
+	public static function clear_pending_compose_backup( $backup ) {
+		( new Filesystem() )->remove( $backup . '.pending' );
+	}
+
+	/**
 	 * Start a new image migration with no service recorded as recreated.
 	 */
 	public static function reset_recreated() {
@@ -340,6 +367,7 @@ class GlobalContainers {
 				EE::warning( 'After restoring the previous image: ' . $e->getMessage() );
 			}
 		}
+		self::clear_pending_compose_backup( $source_path );
 		EE::debug( 'Complete restoring global docker-compose.yml file from backup' );
 	}
 

@@ -114,6 +114,15 @@ class Containers {
 			[ $current_versions, $updated_images ]
 		);
 
+		// The upgrade is committed: a later run takes a fresh snapshot of the global compose file.
+		self::$rsp->add_step(
+			'clear-pending-global-compose-backup',
+			'EE\Migration\GlobalContainers::clear_pending_compose_backup',
+			null,
+			[ EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ],
+			null
+		);
+
 		self::$rsp->add_step(
 			'prune-old-docker-images',
 			'EE\Migration\Containers::docker_cleanup',
@@ -371,7 +380,7 @@ class Containers {
 
 		self::$rsp->add_step(
 			'backup-global-docker-compose-file',
-			'EE\Migration\SiteContainers::backup_restore',
+			'EE\Migration\GlobalContainers::backup_compose_file',
 			'EE\Migration\GlobalContainers::revert_global_containers',
 			[ $global_compose_file_path, $global_compose_file_backup_path ],
 			[ $global_compose_file_backup_path, $global_compose_file_path, $updated_global_images ]
