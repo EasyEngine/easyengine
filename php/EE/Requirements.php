@@ -180,7 +180,8 @@ class Requirements {
 			return [];
 		}
 
-		return array_values( array_filter( array_map( 'trim', explode( ',', (string) $value ) ) ) );
+		// PHP splits the list on spaces and commas only.
+		return array_values( array_filter( preg_split( '/[ ,]+/', (string) $value ) ) );
 	}
 
 	/**
@@ -228,7 +229,7 @@ class Requirements {
 			}
 			// The last directive in a file is the one that counts; `;` starts a comment.
 			$value  = preg_replace( '/;.*$/', '', end( $matches[1] ) );
-			$listed = array_map( 'strtolower', array_map( 'trim', explode( ',', trim( $value, " \t\r\"'" ) ) ) );
+			$listed = array_map( 'strtolower', preg_split( '/[ ,]+/', trim( $value, " \t\r\"'" ) ) );
 			if ( array_intersect( $functions, $listed ) ) {
 				$disabling[] = $file;
 			}
@@ -294,7 +295,7 @@ class Requirements {
 	 */
 	private static function get_override_hint( $disabled, $files ) {
 		$scanned  = array_slice( self::get_ini_files(), function_exists( 'php_ini_loaded_file' ) && php_ini_loaded_file() ? 1 : 0 );
-		$scan_dir = empty( $scanned ) ? ( defined( 'PHP_CONFIG_FILE_SCAN_DIR' ) ? PHP_CONFIG_FILE_SCAN_DIR : '' ) : dirname( end( $scanned ) );
+		$scan_dir = empty( $scanned ) ? self::get_scan_dir() : dirname( end( $scanned ) );
 		// Without a disabling ini file the value comes from `php -d`, which no ini file overrides.
 		if ( '' === $scan_dir || empty( $files ) ) {
 			return '';
@@ -315,6 +316,24 @@ class Requirements {
 			$name,
 			empty( $keep ) ? '""' : implode( ',', $keep )
 		);
+	}
+
+	/**
+	 * Get the directory PHP scans last for ini files.
+	 *
+	 * @return string Empty when PHP scans none.
+	 */
+	private static function get_scan_dir() {
+		$builtin = defined( 'PHP_CONFIG_FILE_SCAN_DIR' ) ? PHP_CONFIG_FILE_SCAN_DIR : '';
+		$env     = function_exists( 'getenv' ) ? getenv( 'PHP_INI_SCAN_DIR' ) : ( isset( $_SERVER['PHP_INI_SCAN_DIR'] ) ? $_SERVER['PHP_INI_SCAN_DIR'] : false );
+		// PHP_INI_SCAN_DIR replaces the built-in directory: empty turns scanning off, an empty entry in a list stands for the built-in one.
+		if ( false === $env || '' === $env ) {
+			return false === $env ? $builtin : '';
+		}
+		$dirs = explode( PATH_SEPARATOR, $env );
+		$last = end( $dirs );
+
+		return '' === $last ? $builtin : $last;
 	}
 
 	/**
