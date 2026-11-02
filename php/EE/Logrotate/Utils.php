@@ -219,7 +219,7 @@ class Utils {
 	}
 
 	/**
-	 * Errors `logrotate -d` reports for a config, with its path masked so two copies compare equal.
+	 * Errors `logrotate -d` reports for a config, with its path and line numbers masked so two copies compare equal.
 	 *
 	 * @param string $file Config file path.
 	 * @return array
@@ -231,7 +231,8 @@ class Utils {
 
 		foreach ( explode( "\n", $result->stdout ) as $line ) {
 			if ( 0 === strpos( $line, 'error:' ) ) {
-				$errors[] = trim( str_replace( $file, '<config>', $line ) );
+				// The inserted lines shift the line numbers of errors the original already has.
+				$errors[] = trim( preg_replace( '/<config>:\d+/', '<config>', str_replace( $file, '<config>', $line ) ) );
 			}
 		}
 
@@ -262,6 +263,12 @@ class Utils {
 
 		if ( ! is_executable( self::CRON_DAILY_FILE ) || ! is_dir( dirname( self::CRON_HOURLY_FILE ) ) ) {
 			\EE::debug( 'Neither logrotate.timer nor cron.daily runs logrotate; not scheduling hourly rotation.' );
+			return;
+		}
+
+		// Newer cron.daily scripts exit when systemd runs, leaving rotation to logrotate.timer.
+		if ( is_dir( '/run/systemd/system' ) && false !== strpos( (string) file_get_contents( self::CRON_DAILY_FILE ), '/run/systemd/system' ) ) {
+			\EE::warning( 'logrotate.timer is not available and ' . self::CRON_DAILY_FILE . ' defers to it, so logrotate is not scheduled hourly and maxsize is only checked when logrotate runs.' );
 			return;
 		}
 
