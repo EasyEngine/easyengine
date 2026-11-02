@@ -12,6 +12,8 @@ class Utils {
 	const SITES_CONFIG_FILE = '/etc/logrotate.d/ee_sites';
 	const NGINX_PROXY_CONFIG_FILE = '/etc/logrotate.d/ee_nginx_proxy';
 	const EE_LOG_MAX_SIZE = '1G';
+	// With dateext, a day-only suffix makes a second size rotation on the same day fail ("destination already exists").
+	const DATE_FORMAT = '-%Y%m%d-%s';
 
 	// rsyslog's rule (Debian/Ubuntu and RHEL 8+), and its older RHEL name.
 	const HOST_SYSLOG_CONFIG_FILES = [ '/etc/logrotate.d/rsyslog', '/etc/logrotate.d/syslog' ];
@@ -134,7 +136,8 @@ class Utils {
 	}
 
 	/**
-	 * Insert a maxsize line at the top of every stanza that has no maxsize or size directive.
+	 * Insert a maxsize line at the top of every stanza that has no maxsize or size directive, plus a dateformat that
+	 * keeps same-day rotations apart unless the stanza or file sets its own.
 	 *
 	 * @param string $contents Config contents.
 	 * @param string $max_size logrotate size.
@@ -145,11 +148,13 @@ class Utils {
 		$lines        = preg_split( '/(?<=\n)/', $contents, -1, PREG_SPLIT_NO_EMPTY );
 		$scripts      = [ 'postrotate', 'prerotate', 'firstaction', 'lastaction', 'preremove' ];
 		$global_limit = false;
+		$global_date  = false;
 		$in_stanza    = false;
 		$in_script    = false;
 		$output       = '';
 		$stanza       = [];
 		$limited      = false;
+		$dated        = false;
 		$indent       = null;
 
 		foreach ( $lines as $line ) {
@@ -170,18 +175,24 @@ class Utils {
 					}
 					$in_stanza = true;
 					$limited   = $global_limit;
+					$dated     = $global_date;
 					$indent    = null;
 					$stanza    = [ $line ];
 					continue;
 				}
 				$global_limit = $global_limit || in_array( $word, [ 'maxsize', 'size' ], true );
+				$global_date  = $global_date || 'dateformat' === $word;
 			} elseif ( '}' === $trimmed[0] ) {
 				if ( false !== strpos( $trimmed, '{' ) ) {
 					return null;
 				}
 				if ( ! $limited ) {
 					$indent = null === $indent ? '    ' : $indent;
-					array_splice( $stanza, 1, 0, [ $indent . '# Added by EasyEngine: rotate early when a log outgrows this.' . "\n", $indent . "maxsize $max_size\n" ] );
+					$added  = [ $indent . '# Added by EasyEngine: rotate a log early when it outgrows maxsize.' . "\n", $indent . "maxsize $max_size\n" ];
+					if ( ! $dated ) {
+						$added[] = $indent . 'dateformat ' . self::DATE_FORMAT . "\n";
+					}
+					array_splice( $stanza, 1, 0, $added );
 				}
 				$output   .= implode( '', $stanza );
 				$stanza    = [];
@@ -191,6 +202,7 @@ class Utils {
 			} else {
 				$in_script = in_array( $word, $scripts, true );
 				$limited   = $limited || in_array( $word, [ 'maxsize', 'size' ], true );
+				$dated     = $dated || 'dateformat' === $word;
 				if ( null === $indent ) {
 					$indent = substr( $line, 0, strspn( $line, " \t" ) );
 				}
@@ -615,13 +627,15 @@ class Utils {
 	 */
 	private static function get_ee_log_config() {
 
-		$root_dir = rtrim( EE_ROOT_DIR, '/' );
-		$max_size = self::EE_LOG_MAX_SIZE;
+		$root_dir    = rtrim( EE_ROOT_DIR, '/' );
+		$max_size    = self::EE_LOG_MAX_SIZE;
+		$date_format = self::DATE_FORMAT;
 
 		return <<<LOGROTATE
 {$root_dir}/logs/*.log {
     daily
     maxsize {$max_size}
+    dateformat {$date_format}
     missingok
     rotate 30
     compress
@@ -641,14 +655,16 @@ LOGROTATE
 	 */
 	private static function get_sites_config() {
 
-		$root_dir = rtrim( EE_ROOT_DIR, '/' );
-		$max_size = self::EE_LOG_MAX_SIZE;
+		$root_dir    = rtrim( EE_ROOT_DIR, '/' );
+		$max_size    = self::EE_LOG_MAX_SIZE;
+		$date_format = self::DATE_FORMAT;
 
 		return <<<LOGROTATE
 {$root_dir}/sites/*/logs/nginx/*.log
 {$root_dir}/sites/*/logs/php/*.log {
     daily
     maxsize {$max_size}
+    dateformat {$date_format}
     missingok
     rotate 30
     compress
@@ -668,13 +684,15 @@ LOGROTATE
 	 */
 	private static function get_nginx_proxy_config() {
 
-		$root_dir = rtrim( EE_ROOT_DIR, '/' );
-		$max_size = self::EE_LOG_MAX_SIZE;
+		$root_dir    = rtrim( EE_ROOT_DIR, '/' );
+		$max_size    = self::EE_LOG_MAX_SIZE;
+		$date_format = self::DATE_FORMAT;
 
 		return <<<LOGROTATE
 {$root_dir}/services/nginx-proxy/logs/*.log {
     daily
     maxsize {$max_size}
+    dateformat {$date_format}
     missingok
     rotate 30
     compress
