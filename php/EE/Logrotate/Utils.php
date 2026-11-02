@@ -104,11 +104,16 @@ class Utils {
 			return false;
 		}
 
+		// Private: a rule restricted to root may hold credentials in its scripts.
 		$backup = EE_BACKUP_DIR . '/logrotate/' . basename( $file );
+		$umask  = umask( 0077 );
 		if ( ! is_dir( dirname( $backup ) ) ) {
-			mkdir( dirname( $backup ), 0755, true );
+			mkdir( dirname( $backup ), 0700, true );
 		}
-		if ( ! copy( $file, $backup ) ) {
+		chmod( dirname( $backup ), 0700 );
+		$copied = copy( $file, $backup ) && chmod( $backup, 0600 );
+		umask( $umask );
+		if ( ! $copied ) {
 			\EE::warning( "Not adding maxsize to $file: unable to back it up to $backup." );
 			return false;
 		}
