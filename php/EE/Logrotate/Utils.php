@@ -11,6 +11,7 @@ class Utils {
 	const EE_LOG_CONFIG_FILE = '/etc/logrotate.d/ee_cli';
 	const SITES_CONFIG_FILE = '/etc/logrotate.d/ee_sites';
 	const NGINX_PROXY_CONFIG_FILE = '/etc/logrotate.d/ee_nginx_proxy';
+	const EE_LOG_MAX_SIZE = '1G';
 
 	// rsyslog's rule (Debian/Ubuntu and RHEL 8+), and its older RHEL name.
 	const HOST_SYSLOG_CONFIG_FILES = [ '/etc/logrotate.d/rsyslog', '/etc/logrotate.d/syslog' ];
@@ -615,10 +616,12 @@ class Utils {
 	private static function get_ee_log_config() {
 
 		$root_dir = rtrim( EE_ROOT_DIR, '/' );
+		$max_size = self::EE_LOG_MAX_SIZE;
 
 		return <<<LOGROTATE
 {$root_dir}/logs/*.log {
     daily
+    maxsize {$max_size}
     missingok
     rotate 30
     compress
@@ -639,11 +642,13 @@ LOGROTATE
 	private static function get_sites_config() {
 
 		$root_dir = rtrim( EE_ROOT_DIR, '/' );
+		$max_size = self::EE_LOG_MAX_SIZE;
 
 		return <<<LOGROTATE
 {$root_dir}/sites/*/logs/nginx/*.log
 {$root_dir}/sites/*/logs/php/*.log {
     daily
+    maxsize {$max_size}
     missingok
     rotate 30
     compress
@@ -664,10 +669,12 @@ LOGROTATE
 	private static function get_nginx_proxy_config() {
 
 		$root_dir = rtrim( EE_ROOT_DIR, '/' );
+		$max_size = self::EE_LOG_MAX_SIZE;
 
 		return <<<LOGROTATE
 {$root_dir}/services/nginx-proxy/logs/*.log {
     daily
+    maxsize {$max_size}
     missingok
     rotate 30
     compress
