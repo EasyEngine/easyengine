@@ -11,6 +11,13 @@ on:
 
 name: Build 🔨 + Test 👨‍🔧
 
+env:
+  # CI only, for `composer update` (develop and PRs): Composer blocks these versions for security advisories. Remove after the symfony/yaml and guzzlehttp/psr7 upgrade.
+  ADVISORY_IGNORE: >-
+    {"symfony/yaml": {"constraint": "4.4.*", "reason": "pinned by core and behat/behat 3.8.1", "on-audit": false},
+    "guzzlehttp/psr7": {"constraint": "1.9.*", "reason": "required by acmephp/core 1.3.0", "on-audit": false},
+    "guzzlehttp/guzzle": {"constraint": "7.8.*", "reason": "last guzzle 7 line that accepts guzzlehttp/psr7 1.x", "on-audit": false}}
+
 jobs:
   build: #---------------------------------------------------------------------
     name: Build Phar
@@ -49,6 +56,7 @@ jobs:
               composer install --no-dev --no-progress --no-interaction
           else
               sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+              composer config --json --merge policy.advisories.ignore "$ADVISORY_IGNORE"
               composer update --prefer-dist --no-dev --no-progress --no-interaction
           fi
 
@@ -142,6 +150,7 @@ jobs:
             composer install --prefer-dist --no-progress --no-interaction
         else
             sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+            composer config --json --merge policy.advisories.ignore "$ADVISORY_IGNORE"
             composer update --prefer-dist --no-progress --no-interaction
         fi
 
