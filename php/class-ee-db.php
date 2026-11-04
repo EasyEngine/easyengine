@@ -32,17 +32,23 @@ class EE_DB {
 	 */
 	private static function init_db() {
 
-		if ( ! ( file_exists( DB ) ) ) {
-			self::create_required_tables();
-
-			return;
-		}
+		// PDO creates a missing file; an empty one (e.g. left by the sqlite3 CLI or an interrupted first run) has no schema either.
+		clearstatcache( true, DB );
+		$is_new = ! file_exists( DB ) || 0 === filesize( DB );
 
 		try {
 			self::$pdo = new PDO( 'sqlite:' . DB );
 			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+			$tables = $is_new ? [] : self::$pdo->query( "SELECT name FROM sqlite_master WHERE type = 'table'" )->fetchAll( PDO::FETCH_COLUMN );
 		} catch ( PDOException $exception ) {
-			EE::error( 'Unable to initialize connection to EE sqlite database: ' . $exception->getMessage() );
+			EE::error( sprintf( 'Unable to open the EasyEngine database %s: %s. If it is damaged, restore it from a backup, or move it away to start with an empty database.', DB, $exception->getMessage() ) );
+		}
+
+		if ( empty( $tables ) ) {
+			self::create_required_tables();
+		} elseif ( array_diff( [ 'migrations', 'options' ], $tables ) ) {
+			// Tables but no base schema: not ours to initialise over.
+			EE::error( sprintf( 'The EasyEngine database %s lacks the %s table(s). Restore it from a backup, or move it away to start with an empty database.', DB, implode( ', ', array_diff( [ 'migrations', 'options' ], $tables ) ) ) );
 		}
 	}
 
@@ -50,30 +56,32 @@ class EE_DB {
 	 * Sqlite database creation.
 	 */
 	private static function create_required_tables() {
-		try {
-			self::$pdo = new PDO( 'sqlite:' . DB );
-			self::$pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-		} catch ( PDOException $exception ) {
-			EE::error( $exception->getMessage() );
-		}
 
-		$query = 'CREATE TABLE migrations (
+		$queries = [
+			'CREATE TABLE IF NOT EXISTS migrations (
 			id INTEGER,
 			migration VARCHAR,
 			type VARCHAR,
 			timestamp DATETIME,
 			PRIMARY KEY (id)
-		);';
-
-		$query .= 'CREATE TABLE options (
+		);',
+			'CREATE TABLE IF NOT EXISTS options (
 			key VARCHAR NOT NULL,
 			value VARCHAR NOT NULL,
 			PRIMARY KEY (key)
-		);';
+		);',
+		];
 
 		try {
-			self::$pdo->exec( $query );
+			self::$pdo->beginTransaction();
+			foreach ( $queries as $query ) {
+				self::$pdo->exec( $query );
+			}
+			self::$pdo->commit();
 		} catch ( PDOException $exception ) {
+			if ( self::$pdo->inTransaction() ) {
+				self::$pdo->rollBack();
+			}
 			EE::error( 'Encountered Error while creating table: ' . $exception->getMessage() );
 		}
 	}
