@@ -84,13 +84,28 @@ class Runner {
 	/**
 	 * Check EE requirements for required commands.
 	 *
-	 * @param bool $show_error To display error or to retutn status.
+	 * @param bool          $show_error       To display error or to return status.
+	 * @param string[]|null $php_requirements PHP extensions or functions to require, null for all EasyEngine needs.
 	 */
-	public function check_requirements( $show_error = true ) {
+	public function check_requirements( $show_error = true, $php_requirements = null ) {
 
 		$docker_running = true;
 		$status         = true;
 		$error          = [];
+
+		// Before the Docker checks, which already need proc_open() and the stream functions.
+		$missing_php = Requirements::get_missing( $php_requirements );
+		if ( Requirements::has_missing( $missing_php ) ) {
+			if ( $show_error ) {
+				EE::error( Requirements::get_error_message( $missing_php ) );
+			}
+			return false;
+		}
+		if ( null === $php_requirements ) {
+			foreach ( Requirements::get_missing_optional() as $function => $impact ) {
+				EE::debug( sprintf( 'PHP function %s() is unavailable, so %s.', $function, $impact ), 'bootstrap' );
+			}
+		}
 
 		// Retry logic for Docker availability check to handle transient failures under system load.
 		$docker_running_cmd = 'docker ps > /dev/null 2>&1';
@@ -137,7 +152,7 @@ class Runner {
 			if ( IS_DARWIN && ! $docker_running ) {
 				EE::log( 'For macOS docker can be installed using: `brew cask install docker`' );
 			}
-			die;
+			EE::halt( 1 );
 		}
 
 		return $status;
@@ -600,7 +615,7 @@ class Runner {
 
 		// Create the config directory if not exist for file logger to initialize.
 		if ( ! is_dir( EE_ROOT_DIR ) ) {
-			shell_exec('mkdir -p ' . EE_ROOT_DIR);
+			@mkdir( EE_ROOT_DIR, 0777, true );
 		}
 
 		if ( ! is_writable( EE_ROOT_DIR ) ) {

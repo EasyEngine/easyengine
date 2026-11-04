@@ -521,6 +521,11 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 		}
 	}
 
+	// Requests picks curl when curl_init() and curl_exec() exist, then calls the other curl functions unchecked.
+	if ( ! isset( $options['transport'] ) && count( array_filter( \EE\Requirements::FUNCTIONS['curl'], 'function_exists' ) ) < count( \EE\Requirements::FUNCTIONS['curl'] ) ) {
+		$options['transport'] = \WpOrg\Requests\Transport\Fsockopen::class;
+	}
+
 	try {
 		// Updated class name: \WpOrg\Requests\Requests
 		$response = \WpOrg\Requests\Requests::request( $url, $headers, $data, $method, $options );

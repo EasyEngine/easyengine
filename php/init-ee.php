@@ -4,7 +4,8 @@
 define( 'EE', true );
 define( 'EE_VERSION', trim( file_get_contents( EE_ROOT . '/VERSION' ) ) );
 define( 'EE_START_MICROTIME', microtime( true ) );
-define( 'IS_DARWIN', 'Darwin' === php_uname( 's' ) );
+// PHP_OS, not php_uname(): that can be disabled, and this runs before the requirements check.
+define( 'IS_DARWIN', 'Darwin' === PHP_OS );
 
 if ( IS_DARWIN ) {
 	define( 'EE_ROOT_DIR', rtrim( getenv( 'HOME' ), '/\\' ) . '/easyengine' );
