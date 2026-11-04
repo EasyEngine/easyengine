@@ -102,8 +102,27 @@ class SiteContainers {
 	public static function generate_site_docker_compose_file( $site_info, $site_object ) {
 		$site_object->populate_site_info( $site_info['site_url'] );
 		EE::debug( "Start generating new docker-compose.yml for ${site_info['site_url']}" );
-		$site_object->dump_docker_compose_yml( [ 'nohttps' => ! $site_info['site_ssl'] ] );
+		$site_object->dump_docker_compose_yml( [ 'nohttps' => self::is_served_without_https( $site_info ) ] );
 		EE::debug( "Complete generating new docker-compose.yml for ${site_info['site_url']}" );
+	}
+
+	/**
+	 * Whether the site's docker-compose.yml turns HTTPS off: without SSL, or while its Let's Encrypt certificate waits for `ee site ssl-verify`.
+	 *
+	 * With HTTPS on, nginx-proxy would serve a pending site with the closest matching certificate of another site.
+	 *
+	 * @param array $site_info array of site information.
+	 *
+	 * @return bool
+	 */
+	public static function is_served_without_https( $site_info ) {
+		if ( empty( $site_info['site_ssl'] ) ) {
+			return true;
+		}
+
+		// site-command versions without the pending state don't have the helper and keep HTTPS on.
+		return function_exists( 'EE\Site\Utils\is_le_ssl_pending' )
+			&& \EE\Site\Utils\is_le_ssl_pending( $site_info['site_url'], $site_info['site_ssl'] );
 	}
 
 	/**
