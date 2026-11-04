@@ -23,6 +23,11 @@ env:
   # The suite's guards: a fresh runner has no ee.sqlite, and every lane may change global state.
   EE_BEHAT_ALLOW_INIT: 1
   EE_BEHAT_DESTRUCTIVE: 1
+  # CI only, for `composer update` (develop and PRs): Composer blocks these versions for security advisories. Remove after the symfony/yaml and guzzlehttp/psr7 upgrade.
+  ADVISORY_IGNORE: >-
+    {"symfony/yaml": {"constraint": "4.4.*", "reason": "pinned by core and behat/behat 3.8.1", "on-audit": false},
+    "guzzlehttp/psr7": {"constraint": "1.9.*", "reason": "required by acmephp/core 1.3.0", "on-audit": false},
+    "guzzlehttp/guzzle": {"constraint": "7.8.*", "reason": "last guzzle 7 line that accepts guzzlehttp/psr7 1.x", "on-audit": false}}
 
 jobs:
   behat:
@@ -92,6 +97,7 @@ jobs:
             $j = json_decode(file_get_contents("composer.json"), true);
             foreach ($j["require"] as $k => $v) if (strpos($k, "easyengine/") === 0) $j["require"][$k] = "dev-develop";
             file_put_contents("composer.json", json_encode($j, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");'
+          composer config --json --merge policy.advisories.ignore "$ADVISORY_IGNORE"
           composer update --prefer-dist --no-progress --no-interaction
           # Some package commands shell out to `ee` from PATH.
           sudo ln -sf "$PWD/bin/ee" /usr/local/bin/ee
