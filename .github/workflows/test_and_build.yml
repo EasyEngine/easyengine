@@ -11,6 +11,13 @@ on:
 
 name: Build 🔨 + Test 👨‍🔧
 
+env:
+  # CI only, for `composer update` (develop and PRs): Composer blocks these versions for security advisories. Remove after the symfony/yaml and guzzlehttp/psr7 upgrade.
+  ADVISORY_IGNORE: >-
+    {"symfony/yaml": {"constraint": "4.4.*", "reason": "pinned by core and behat/behat 3.8.1", "on-audit": false},
+    "guzzlehttp/psr7": {"constraint": "1.9.*", "reason": "required by acmephp/core 1.3.0", "on-audit": false},
+    "guzzlehttp/guzzle": {"constraint": "7.8.*", "reason": "last guzzle 7 line that accepts guzzlehttp/psr7 1.x", "on-audit": false}}
+
 jobs:
   build: #---------------------------------------------------------------------
     name: Build Phar
@@ -49,6 +56,7 @@ jobs:
               composer install --no-dev --no-progress --no-interaction
           else
               sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+              composer config --json --merge policy.advisories.ignore "$ADVISORY_IGNORE"
               composer update --prefer-dist --no-dev --no-progress --no-interaction
           fi
 
@@ -142,6 +150,7 @@ jobs:
             composer install --prefer-dist --no-progress --no-interaction
         else
             sed -i 's/\(easyengine\/.*\):\ \".*\"/\1:\ \"dev-develop\"/' composer.json
+            composer config --json --merge policy.advisories.ignore "$ADVISORY_IGNORE"
             composer update --prefer-dist --no-progress --no-interaction
         fi
 
@@ -150,22 +159,14 @@ jobs:
       run: |
         set -e
         cd $GITHUB_WORKSPACE
+        # site-command, site-type-php and site-type-wp run their own Behat suites (with Pebble lanes) on every PR.
         sudo -E ./vendor/bin/behat
-        sub_commands=(
-          vendor/easyengine/site-command/features
-          vendor/easyengine/site-type-php/features
-          vendor/easyengine/site-type-wp/features
-        )
-        for command in "${sub_commands[@]}"; do
-          IFS='/' read -r -a array <<< "$command"
-          rm -rf features/*
-          rsync -av --delete $command/ features/ > /dev/null
-          for file in features/*.feature; do mv "$file" "${file%.feature}_${array[2]}.feature"; done
-          echo "Running tests for $command"
-          sudo -E ./vendor/bin/behat
-        done
       env:
         COMPOSE_INTERACTIVE_NO_CLI: 1
+        # Core's suite refuses to initialise EasyEngine unless allowed; the runner starts without ee.sqlite.
+        EE_BEHAT_ALLOW_INIT: 1
+        # check-update calls the GitHub API; authenticated requests get a higher rate limit.
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Output logs
       if: ${{ always() }}
