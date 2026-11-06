@@ -653,7 +653,6 @@ class Utils {
     compress
     delaycompress
     notifempty
-    copytruncate
     sharedscripts
 }
 LOGROTATE
@@ -682,8 +681,11 @@ LOGROTATE
     compress
     delaycompress
     notifempty
-    copytruncate
     sharedscripts
+    postrotate
+        docker ps -q -f label=io.easyengine.site -f label=com.docker.compose.service=nginx | xargs -r docker kill -s USR1 >/dev/null 2>&1 || true
+        docker ps -q -f label=io.easyengine.site -f label=com.docker.compose.service=php | xargs -r docker kill -s USR1 >/dev/null 2>&1 || true
+    endscript
 }
 LOGROTATE
 		. PHP_EOL;
@@ -710,8 +712,10 @@ LOGROTATE
     compress
     delaycompress
     notifempty
-    copytruncate
     sharedscripts
+    postrotate
+        docker ps -q -f label=com.docker.compose.service=global-nginx-proxy | xargs -r -I{} docker exec {} nginx -s reopen >/dev/null 2>&1 || true
+    endscript
 }
 LOGROTATE
 		. PHP_EOL;
