@@ -34,7 +34,8 @@ env:
 jobs:
   behat:
     name: Behat ${{ matrix.lane }} (PHP ${{ matrix.php }})
-    runs-on: ubuntu-latest
+    # ubuntu-latest is now 26.04, whose sudo-rs ignores `sudo -E`, so the job's env (the Behat guards) never reaches commands run under sudo.
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     strategy:
       fail-fast: false
