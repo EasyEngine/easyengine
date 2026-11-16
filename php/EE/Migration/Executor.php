@@ -30,7 +30,8 @@ class Executor {
 			self::execute_migration_stack( $migrations );
 		} catch ( \Throwable $e ) {
 			Utils\delem_log( 'ee migration ended abruptly' );
-			exit( 1 );
+			// Rethrown, not exit(1): the migration step processor reports it and rolls back.
+			throw $e;
 		}
 
 		EE::debug( 'Successfully migrated EasyEngine' );
@@ -100,7 +101,7 @@ class Executor {
 
 		if ( ! file_exists( $migration_path ) ) {
 			EE::error( "Unable to find migration file at $migration_path", false );
-			throw new Exception();
+			throw new \Exception( "Unable to find migration file at $migration_path" );
 		}
 
 		require( $migration_path );

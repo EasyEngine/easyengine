@@ -167,7 +167,8 @@ class Runner {
 			EE::error( 'EasyEngine update requires minimum 5GB disk space to run. Please free up some space and try again.' );
 		}
 
-		$rsp = new \EE\RevertableStepProcessor();
+		// Capture EE::error() exits inside the steps so a failure still reverts what ran.
+		$rsp = new \EE\RevertableStepProcessor( true );
 
 		$rsp->add_step( 'ee-db-migrations', 'EE\Migration\Executor::execute_migrations' );
 		$rsp->add_step( 'ee-custom-container-migrations', 'EE\Migration\CustomContainerMigrations::execute_migrations', 'EE\Migration\CustomContainerMigrations::revert_executed_migrations' );
