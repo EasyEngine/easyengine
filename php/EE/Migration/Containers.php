@@ -23,6 +23,9 @@ class Containers {
 	/** @var bool Whether the last update_docker_compose() call replaced the binary. */
 	private static $replaced_docker_compose = false;
 
+	/** @var string[] Images (without tag) the last get_current_docker_images_versions() found running. */
+	private static $running_images = [];
+
 	/**
 	 * Main entry point for the script. Migrates all containers
 	 *
@@ -64,27 +67,52 @@ class Containers {
 			'easyengine/newrelic-daemon',
 		];
 
-		// An image no container runs and the DB doesn't track (e.g. mailhog, the amd64-only easyengine/php) has nothing
-		// to upgrade: pulling it only fails on hosts it isn't built for. Compose pulls it when something first uses it.
 		foreach ( $img_versions as $img => $version ) {
 			if ( array_key_exists( $img, $current_versions ) && $current_versions[ $img ] !== $version ) {
 				$updated_images[] = $img;
-				if ( ! in_array( $img, $skip_download, true ) ) {
-					self::pull_or_error( $img, $version );
-				}
 			}
 		}
 
 		if ( empty( $updated_images ) ) {
+			// Disabled sites an earlier upgrade skipped, or an interrupted one left behind, have no image in $updated_images.
+			if ( self::get_disabled_sites_to_update( $img_versions ) ) {
+				self::migrate_site_containers( [] );
+				if ( ! self::$rsp->execute() ) {
+					throw new \Exception( 'Unable to migrate sites to newer version' );
+				}
+			}
+			// Every tag is recorded (e.g. a run interrupted just after saving them): a pending snapshot is done with.
+			GlobalContainers::clear_pending_compose_backup( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' );
 
 			return;
 		}
 
+		// Stopped global services keep their old image and tag (see migrate_global_containers()), so their images stay
+		// "updated" on every later run: when nothing running uses them and nothing else is left to do, stop here.
+		$by_state = GlobalContainers::get_updated_global_images_by_state( $updated_images, $img_versions, GlobalContainers::get_interrupted_services( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ) );
+		$idle     = array_diff( $by_state['stopped'], self::$running_images );
+		if ( ! array_diff( $updated_images, $idle ) && ! self::has_old_tags( EE_SERVICE_DIR . '/docker-compose.yml', $idle, $img_versions ) && ! self::get_disabled_sites_to_update( $img_versions ) ) {
+			EE::debug( 'Only stopped global services have new images, and their compose files have them already.' );
+			// Nothing running needs a gate (that would count as updated), so an interrupted run's snapshot is done with.
+			GlobalContainers::clear_pending_compose_backup( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' );
+
+			return;
+		}
+
+		// An image no container runs and the DB doesn't track (e.g. mailhog, the amd64-only easyengine/php) has nothing
+		// to upgrade: pulling it only fails on hosts it isn't built for. Nor has one only stopped services use, which keep
+		// their old image, or one only missing services use. Compose pulls these when something first uses them. A stopped
+		// service on its new tag has it.
+		$unused = array_diff( $by_state['missing'], self::$running_images );
+		foreach ( array_diff( $updated_images, $idle, $by_state['current'], $unused, $skip_download ) as $img ) {
+			self::pull_or_error( $img, $img_versions[ $img ] );
+		}
+
 		// First: compose v1 can't recreate containers on Docker 25+, and on a rollback it is restored last.
 		self::maybe_update_docker_compose();
-		self::migrate_global_containers( $updated_images );
+		self::migrate_global_containers( $by_state );
 		self::migrate_site_containers( $updated_images );
-		self::save_upgraded_image_versions( $current_versions, $img_versions, $updated_images );
+		self::save_upgraded_image_versions( $current_versions, $img_versions, array_values( array_diff( $updated_images, $by_state['stopped'] ) ) );
 
 		if ( ! self::$rsp->execute() ) {
 			throw new \Exception( 'Unable to migrate sites to newer version' );
@@ -149,7 +177,17 @@ class Containers {
 	 */
 	public static function docker_cleanup() {
 		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
-		EE::exec( 'docker network prune -f --filter=label=org.label-schema.vendor="EasyEngine"' );
+
+		// Not `docker network prune`: it also removes the networks of stopped containers, which then can't start, and the
+		// global networks that disabled sites join as external networks on `ee site enable`.
+		$keep     = [ defined( 'GLOBAL_FRONTEND_NETWORK' ) ? GLOBAL_FRONTEND_NETWORK : 'ee-global-frontend-network', defined( 'GLOBAL_BACKEND_NETWORK' ) ? GLOBAL_BACKEND_NETWORK : 'ee-global-backend-network' ];
+		$networks = array_filter( explode( "\n", trim( EE::launch( 'docker network ls --filter=label=org.label-schema.vendor="EasyEngine" --format "{{.Name}}"' )->stdout ) ) );
+		foreach ( array_diff( $networks, $keep ) as $network ) {
+			$users = EE::launch( 'docker ps -aq --filter network=' . escapeshellarg( $network ) );
+			if ( 0 === $users->return_code && '' === trim( $users->stdout ) ) {
+				EE::exec( 'docker network rm ' . escapeshellarg( $network ) );
+			}
+		}
 	}
 
 	/**
@@ -347,7 +385,7 @@ class Containers {
 		$dockerImages = EE::launch( 'docker ps --format "{{.Image}}" | grep "^easyengine/" | sort -u' )->stdout;
 		$dockerImages = explode( "\n", trim( $dockerImages ) );
 
-		$dockerImages = array_reduce( $dockerImages, function ( $result, $image ) {
+		$dockerImages = array_reduce( array_filter( $dockerImages ), function ( $result, $image ) {
 
 			[ $imageName, $tag ] = explode( ':', $image, 2 ) + [ 1 => null ];
 			$result[ $imageName ] = $tag;
@@ -355,7 +393,8 @@ class Containers {
 			return $result;
 		}, [] );
 
-		$mergedImages = $dockerImages + $dbImages;
+		self::$running_images = array_keys( $dockerImages );
+		$mergedImages         = $dockerImages + $dbImages;
 		$mergedImages = array_filter( $mergedImages );
 
 		return $mergedImages;
@@ -364,18 +403,22 @@ class Containers {
 	/**
 	 * Migrates global containers. These are container which are not created per site (i.e. ee-cron-scheduler).
 	 *
-	 * @param $updated_images array of updated images.
+	 * @param array $by_state Updated global images by state, from GlobalContainers::get_updated_global_images_by_state().
 	 */
-	private static function migrate_global_containers( $updated_images ) {
+	private static function migrate_global_containers( $by_state ) {
 
-		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
-		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
-		$updated_global_images           = GlobalContainers::get_updated_global_images( $updated_images, GlobalContainers::get_interrupted_services( $global_compose_file_backup_path ) );
-		if ( empty( $updated_global_images ) ) {
+		$global_compose_file_path = EE_ROOT_DIR . '/services/docker-compose.yml';
+
+		// A stopped service keeps its container (Docker restarts it on boot) and the old image the cleanup then keeps, so
+		// its old tag stays recorded; the regenerated compose file has the new one for `ee service enable`. A missing
+		// service is created from that file later. Without a file, one is generated with the new tags when needed.
+		$updated_global_images = $by_state['running'];
+		if ( empty( $updated_global_images ) && ( ! is_file( $global_compose_file_path ) || empty( $by_state['stopped'] ) && empty( $by_state['missing'] ) ) ) {
 			return;
 		}
 
-		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
+		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
+		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
 		GlobalContainers::reset_recreated();
 
 		if ( in_array( 'easyengine/nginx-proxy', $updated_global_images, true ) ) {
@@ -420,6 +463,41 @@ class Containers {
 	}
 
 	/**
+	 * @param string $compose_file   A docker-compose.yml.
+	 * @param array  $images         Images to check.
+	 * @param array  $img_versions   This release's tags.
+	 *
+	 * @return bool Whether the file sets one of $images to a tag other than this release's.
+	 */
+	private static function has_old_tags( $compose_file, $images, $img_versions ) {
+		foreach ( SiteContainers::get_compose_file_images( $compose_file ) as $image => $tag ) {
+			if ( in_array( $image, $images, true ) && isset( $img_versions[ $image ] ) && $img_versions[ $image ] !== $tag ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param array $img_versions This release's tags.
+	 *
+	 * @return array Disabled sites whose docker-compose.yml sets an EasyEngine image to a tag other than this release's.
+	 */
+	private static function get_disabled_sites_to_update( $img_versions ) {
+		$sites = ( new \EE_DB() )->table( 'sites' )->all();
+
+		return array_values(
+			array_filter(
+				$sites,
+				function ( $site ) use ( $img_versions ) {
+					return ! $site['site_enabled'] && self::has_old_tags( $site['site_fs_path'] . '/docker-compose.yml', array_keys( $img_versions ), $img_versions );
+				}
+			)
+		);
+	}
+
+	/**
 	 *  Migrate site specific container.
 	 *
 	 * @param $updated_images array of updated images
@@ -428,15 +506,32 @@ class Containers {
 	 */
 	public static function migrate_site_containers( $updated_images ) {
 
-		$db    = new \EE_DB();
-		$sites = ( $db->table( 'sites' )->all() );
+		$db           = new \EE_DB();
+		$sites        = ( $db->table( 'sites' )->all() );
+		$img_versions = EE\Utils\get_image_versions();
 
 		foreach ( $sites as $site ) {
 
 			$docker_yml        = $site['site_fs_path'] . '/docker-compose.yml';
 			$docker_yml_backup = EE_BACKUP_DIR . '/' . $site['site_url'] . '/docker-compose.yml.backup';
 
-			if ( ! SiteContainers::is_site_service_image_changed( $updated_images, $site ) ) {
+			// A disabled site has no containers, only its compose file, which nothing else would move to the new images.
+			// It is compared with this release's tags, not with this run's changed images: those can miss an image an
+			// interrupted run already moved for the enabled sites, or an earlier upgrade recorded without updating it.
+			if ( ! $site['site_enabled'] ) {
+				if ( self::has_old_tags( $docker_yml, array_keys( $img_versions ), $img_versions ) ) {
+					self::$rsp->add_step(
+						sprintf( 'update-disabled-%s-docker-compose', $site['site_url'] ),
+						'EE\Migration\SiteContainers::update_disabled_site_compose_file',
+						'EE\Migration\SiteContainers::restore_disabled_site_compose_file',
+						[ $site, $docker_yml_backup ],
+						[ $site ]
+					);
+				}
+				continue;
+			}
+
+			if ( ! $updated_images || ! SiteContainers::is_site_service_image_changed( $updated_images, $site ) ) {
 				continue;
 			}
 

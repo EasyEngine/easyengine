@@ -835,10 +835,15 @@ class FeatureContext implements Context
 			$parts                = explode( ':', $image, 2 );
 			$running[ $parts[0] ] = isset( $parts[1] ) ? $parts[1] : null;
 		}
-		$free = null;
+		$free   = null;
+		$global = [ 'easyengine/nginx-proxy', 'easyengine/mariadb', 'easyengine/redis', 'easyengine/cron' ];
 		foreach ( json_decode( file_get_contents( EE_ROOT . '/img-versions.json' ), true ) as $image => $version ) {
 			// Never pulled by the migration (easyengine/php only since the upgrade fix).
 			if ( preg_match( '#^easyengine/(php(\d|$)|newrelic-daemon)#', $image ) ) {
+				continue;
+			}
+			// A global service's image is only pulled while it runs: a stopped one keeps its old image, a missing one gets it on creation.
+			if ( in_array( $image, $global, true ) && ! array_key_exists( $image, $running ) ) {
 				continue;
 			}
 			// Running containers take precedence over the options table, as in the migration.
@@ -847,7 +852,8 @@ class FeatureContext implements Context
 			if ( false !== $current && null !== $current && $current !== $version ) {
 				return;
 			}
-			if ( null === $free && ! array_key_exists( $image, $running ) ) {
+			// Only a tracked image, so the step doesn't start tracking one (e.g. mailhog) the stack never recorded.
+			if ( null === $free && false !== $current && ! array_key_exists( $image, $running ) ) {
 				$free = $image;
 			}
 		}

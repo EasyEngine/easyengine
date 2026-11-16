@@ -82,8 +82,30 @@ class GlobalContainers {
 			return;
 		}
 		$fs->copy( $source, $backup, true );
+		self::pin_running_images( $backup );
 		// Empty: it lists the services this upgrade starts to recreate.
 		$fs->dumpFile( $backup . '.pending', '' );
+	}
+
+	/**
+	 * Set each global service in a compose snapshot to the image its container was created from. A stopped service an
+	 * earlier upgrade left on its old image already has its new tag in the compose file, and a rollback must bring back
+	 * the image that worked, not that untested one.
+	 *
+	 * @param string $compose_file Snapshot of the global compose file.
+	 */
+	private static function pin_running_images( $compose_file ) {
+		$config = (string) file_get_contents( $compose_file );
+		$pinned = $config;
+		foreach ( self::get_all_global_images_with_service_name() as $image => $container ) {
+			$current = self::get_container_image( $container );
+			if ( 0 === strpos( $current, "$image:" ) ) {
+				$pinned = preg_replace( '/^(\s*container_name:\s*' . preg_quote( $container, '/' ) . '\s*\n\s*image:\s*)' . preg_quote( $image, '/' ) . ':\S+[ \t]*$/m', '${1}' . $current, $pinned, 1 );
+			}
+		}
+		if ( $pinned !== $config ) {
+			file_put_contents( $compose_file, $pinned );
+		}
 	}
 
 	/**
@@ -276,6 +298,17 @@ class GlobalContainers {
 	}
 
 	/**
+	 * @param string $container Container name.
+	 *
+	 * @return string The image it was created from, e.g. `easyengine/redis:v4.13.1`, or ''.
+	 */
+	private static function get_container_image( $container ) {
+		$result = EE::launch( sprintf( "docker inspect --format '{{.Config.Image}}' %s", escapeshellarg( $container ) ) );
+
+		return 0 === $result->return_code ? trim( $result->stdout ) : '';
+	}
+
+	/**
 	 * @param string $service   Compose service.
 	 * @param string $container Container name.
 	 * @param array  $state     From get_container_state().
@@ -394,17 +427,45 @@ class GlobalContainers {
 	 * @return array
 	 */
 	public static function get_updated_global_images( $updated_images, $interrupted = [] ) {
+		return self::get_updated_global_images_by_state( $updated_images, null, $interrupted )['running'];
+	}
 
-		$global_images           = self::get_all_global_images_with_service_name();
-		$running_global_services = [];
-		foreach ( $global_images as $image => $container_name ) {
+	/**
+	 * Updated global images by the state of their service's container.
+	 *
+	 * @param array      $updated_images Updated docker images.
+	 * @param array|null $img_versions   This release's tags; defaults to img-versions.json.
+	 * @param string[]   $interrupted    Services an interrupted upgrade started to recreate, from get_interrupted_services().
+	 *
+	 * @return array `running` (running or restart-looping, or listed by an interrupted upgrade), `stopped` (any other existing
+	 *               container, still on an old tag), `current` (stopped, but already on the new tag) and `missing` images.
+	 */
+	public static function get_updated_global_images_by_state( $updated_images, $img_versions = null, $interrupted = [] ) {
+		$img_versions = null === $img_versions ? EE\Utils\get_image_versions() : $img_versions;
+		$by_state     = [
+			'running' => [],
+			'stopped' => [],
+			'current' => [],
+			'missing' => [],
+		];
+		foreach ( self::get_all_global_images_with_service_name() as $image => $container_name ) {
+			if ( ! in_array( $image, $updated_images, true ) ) {
+				continue;
+			}
+			$status = self::get_container_state( $container_name )['status'];
 			// A restart-looping service is upgraded too (State.Running is false between its restarts), as is one an interrupted run listed.
-			if ( in_array( self::get_service_name( $container_name ), $interrupted, true ) || in_array( self::get_container_state( $container_name )['status'], [ 'running', 'restarting' ], true ) ) {
-				$running_global_services[] = $image;
+			if ( in_array( self::get_service_name( $container_name ), $interrupted, true ) || in_array( $status, [ 'running', 'restarting' ], true ) ) {
+				$by_state['running'][] = $image;
+			} elseif ( '' === $status ) {
+				$by_state['missing'][] = $image;
+			} elseif ( isset( $img_versions[ $image ] ) && self::get_container_image( $container_name ) === "$image:{$img_versions[ $image ]}" ) {
+				$by_state['current'][] = $image;
+			} else {
+				$by_state['stopped'][] = $image;
 			}
 		}
 
-		return array_intersect( $running_global_services, $updated_images );
+		return $by_state;
 	}
 
 	/**
@@ -426,11 +487,9 @@ class GlobalContainers {
 		$interrupted     = self::get_interrupted_services( $source_path );
 		$recreated       = array_merge( self::$recreated, $interrupted );
 		self::$recreated = [];
-		if ( empty( $services ) ) {
-			return;
-		}
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
 		$fs = new Filesystem();
+		// Also when no running service changed: the regenerated file alone carries the new tags of the others.
 		$fs->copy( $source_path, $dest_path, true );
 
 		// Services an earlier, interrupted attempt moved to a new image may not be among this run's updates: put them back too.
@@ -442,7 +501,7 @@ class GlobalContainers {
 
 		chdir( EE_ROOT_DIR . '/services' );
 
-		if ( ! self::compose_up( implode( ' ', $services ), $recreate ) ) {
+		if ( $services && ! self::compose_up( implode( ' ', $services ), $recreate ) ) {
 			throw new \Exception( 'Unable to downgrade global containers. Please check logs for more details.' );
 		}
 		$containers = array_combine( array_map( [ self::class, 'get_service_name' ], $all_global_images ), $all_global_images );
