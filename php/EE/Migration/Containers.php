@@ -101,8 +101,10 @@ class Containers {
 
 		// An image no container runs and the DB doesn't track (e.g. mailhog, the amd64-only easyengine/php) has nothing
 		// to upgrade: pulling it only fails on hosts it isn't built for. Nor has one only stopped services use, which keep
-		// their old image. Compose pulls these when something first uses them. A stopped service on its new tag has it.
-		foreach ( array_diff( $updated_images, $idle, $by_state['current'], $skip_download ) as $img ) {
+		// their old image, or one only missing services use. Compose pulls these when something first uses them. A stopped
+		// service on its new tag has it.
+		$unused = array_diff( $by_state['missing'], self::$running_images );
+		foreach ( array_diff( $updated_images, $idle, $by_state['current'], $unused, $skip_download ) as $img ) {
 			self::pull_or_error( $img, $img_versions[ $img ] );
 		}
 
