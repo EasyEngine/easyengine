@@ -1281,11 +1281,16 @@ class EE {
 				if ( $exit_error && $return_code ) {
 					$exit_exception = $e;
 				}
+			} finally {
+				// Also when another throwable escapes. Restore rather than clear: a caller (e.g. a migration step) may capture exits too.
+				self::$capture_exit = $previous_capture_exit;
+				if ( $return ) {
+					$execution_logger = self::$logger;
+					$execution_logger->ob_end();
+					self::$logger = $existing_logger;
+				}
 			}
 			if ( $return ) {
-				$execution_logger = self::$logger;
-				$execution_logger->ob_end();
-				self::$logger = $existing_logger;
 				$stdout = $execution_logger->stdout;
 				$stderr = $execution_logger->stderr;
 				if ( true === $return || 'stdout' === $return ) {
@@ -1302,8 +1307,6 @@ class EE {
 					);
 				}
 			}
-			// Restore rather than clear: a caller (e.g. a migration step) may be capturing exits itself.
-			self::$capture_exit = $previous_capture_exit;
 			if ( $exit_exception ) {
 				throw $exit_exception;
 			}
