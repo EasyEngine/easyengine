@@ -2,6 +2,7 @@
 
 use Composer\Semver\Comparator;
 use EE\Model\Site;
+use EE\Requirements;
 use EE\Utils;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -105,7 +106,7 @@ class CLI_Command extends EE_Command {
 	public function info( $_, $assoc_args ) {
 		$php_bin = Utils\get_php_binary();
 
-		$system_os = sprintf( '%s %s %s %s', php_uname( 's' ), php_uname( 'r' ), php_uname( 'v' ), php_uname( 'm' ) );
+		$system_os = function_exists( 'php_uname' ) ? sprintf( '%s %s %s %s', php_uname( 's' ), php_uname( 'r' ), php_uname( 'v' ), php_uname( 'm' ) ) : PHP_OS;
 		$shell     = getenv( 'SHELL' );
 		if ( ! $shell && Utils\is_windows() ) {
 			$shell = getenv( 'ComSpec' );
@@ -116,6 +117,15 @@ class CLI_Command extends EE_Command {
 		if ( ! is_dir( $packages_dir ) ) {
 			$packages_dir = null;
 		}
+
+		// Informational only, so a host missing something can still diagnose and update.
+		$missing_php      = Requirements::get_missing();
+		$missing_optional = array_keys( Requirements::get_missing_optional() );
+		$php_requirements = Requirements::has_missing( $missing_php ) ? Requirements::get_summary( $missing_php ) : 'OK';
+		if ( ! empty( $missing_optional ) ) {
+			$php_requirements .= ' (optional, unavailable: ' . implode( ', ', $missing_optional ) . ')';
+		}
+
 		if ( \EE\Utils\get_flag_value( $assoc_args, 'format' ) === 'json' ) {
 			$info = array(
 				'php_binary_path'      => $php_bin,
@@ -126,6 +136,7 @@ class CLI_Command extends EE_Command {
 				'ee_version'           => EE_VERSION,
 				'system_os'            => $system_os,
 				'shell'                => $shell,
+				'php_requirements'     => $php_requirements,
 			);
 
 			EE::line( json_encode( $info ) );
@@ -136,7 +147,8 @@ class CLI_Command extends EE_Command {
 				array( 'Shell', $shell ),
 				array( 'PHP binary', $php_bin ),
 				array( 'PHP version', PHP_VERSION ),
-				array( 'php.ini used', get_cfg_var( 'cfg_file_path' ) ),
+				array( 'php.ini used', function_exists( 'get_cfg_var' ) ? get_cfg_var( 'cfg_file_path' ) : '' ),
+				array( 'PHP requirements', $php_requirements ),
 				array( 'EE root dir', EE_ROOT ),
 				array( 'EE vendor dir', EE_VENDOR_DIR ),
 				array( 'EE phar path', ( defined( 'EE_PHAR_PATH' ) ? EE_PHAR_PATH : '' ) ),
@@ -153,6 +165,10 @@ class CLI_Command extends EE_Command {
 			foreach ( $lines as $line ) {
 				\EE::line( $line );
 			}
+		}
+
+		if ( Requirements::has_missing( $missing_php ) ) {
+			EE::warning( Requirements::get_error_message( $missing_php ) );
 		}
 	}
 
@@ -290,7 +306,12 @@ class CLI_Command extends EE_Command {
 			$download_url = $newest['package_url'];
 			$md5_url      = str_replace( '.phar', '.phar.md5', $download_url );
 		}
-		EE::get_runner()->check_requirements();
+		// Updating only needs to run the new phar; blocking it on the rest would keep a host off fixed releases.
+		EE::get_runner()->check_requirements( true, Requirements::PROCESS_FUNCTIONS );
+		$missing_php = Requirements::get_missing();
+		if ( Requirements::has_missing( $missing_php ) ) {
+			EE::warning( 'The update can go ahead, but other ee commands will not run until this is fixed:' . PHP_EOL . Requirements::get_error_message( $missing_php ) );
+		}
 		EE::log( sprintf( 'Downloading from %s...', $download_url ) );
 		$temp    = \EE\Utils\get_temp_dir() . uniqid( 'ee_', true ) . '.phar';
 		$headers = array();
@@ -500,9 +521,11 @@ class CLI_Command extends EE_Command {
 	 */
 	public function self_uninstall( $args, $assoc_args ) {
 
-		if ( ! EE::get_runner()->check_requirements( false ) ) {
-			EE::error( 'Unable to proceed with uninstallation. Seems there is a dependency down.', false );
-			die;
+		// Uninstalling only runs docker and reads the site list.
+		$php_requirements = array_merge( Requirements::PROCESS_FUNCTIONS, [ 'pdo_sqlite' ] );
+		if ( ! EE::get_runner()->check_requirements( false, $php_requirements ) ) {
+			$missing_php = Requirements::get_missing( $php_requirements );
+			EE::error( 'Unable to proceed with uninstallation. Seems there is a dependency down.' . ( Requirements::has_missing( $missing_php ) ? PHP_EOL . Requirements::get_error_message( $missing_php ) : '' ) );
 		}
 
 		EE::confirm( "Are you sure you want to remove EasyEngine and all its sites(along with their data)?\nThis is an irreversible action. No backup will be kept.", $assoc_args );
@@ -512,7 +535,16 @@ class CLI_Command extends EE_Command {
 		EE::exec( 'docker volume rm -f $(docker volume ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 		EE::exec( 'docker image rm $(docker image ls -f "label=org.label-schema.vendor=EasyEngine" -q)' );
 
-		$records = Site::all( [ 'site_fs_path' ] );
+		try {
+			$records = Site::all( [ 'site_fs_path' ] );
+		} catch ( \PDOException $e ) {
+			// No sites table yet: no command ran its migrations, e.g. while a PHP requirement was missing.
+			if ( false === stripos( $e->getMessage(), 'no such table' ) ) {
+				throw $e;
+			}
+			EE::debug( 'Could not read the site list: ' . $e->getMessage() );
+			$records = [];
+		}
 
 		$fs = new Filesystem();
 		if ( ! empty( $records ) ) {
