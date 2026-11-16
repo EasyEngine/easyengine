@@ -83,7 +83,8 @@ class GlobalContainers {
 		}
 		$fs->copy( $source, $backup, true );
 		self::pin_running_images( $backup );
-		$fs->touch( $backup . '.pending' );
+		// Empty: it lists the services this upgrade starts to recreate.
+		$fs->dumpFile( $backup . '.pending', '' );
 	}
 
 	/**
@@ -126,6 +127,19 @@ class GlobalContainers {
 	}
 
 	/**
+	 * @param string $backup Snapshot path.
+	 *
+	 * @return string[] Services the upgrade that left the pending snapshot started to recreate.
+	 */
+	public static function get_interrupted_services( $backup ) {
+		if ( ! self::has_pending_compose_backup( $backup ) ) {
+			return [];
+		}
+
+		return array_values( array_unique( preg_split( '/\s+/', (string) file_get_contents( $backup . '.pending' ), -1, PREG_SPLIT_NO_EMPTY ) ) );
+	}
+
+	/**
 	 * Start a new image migration with no service recorded as recreated.
 	 */
 	public static function reset_recreated() {
@@ -157,15 +171,20 @@ class GlobalContainers {
 	 * Recreate one global service with the image in the (already regenerated) global compose file,
 	 * then wait until it is ready. Throws on failure, so the image migration rolls back.
 	 *
-	 * @param string $service   Compose service, e.g. `global-db`.
-	 * @param string $container Its container name.
+	 * @param string      $service   Compose service, e.g. `global-db`.
+	 * @param string      $container Its container name.
+	 * @param string|null $backup    Pending snapshot path, whose marker records the service.
 	 *
 	 * @throws \Exception
 	 */
-	public static function upgrade_global_service( $service, $container ) {
+	public static function upgrade_global_service( $service, $container, $backup = null ) {
 		EE::debug( "Start upgrading $container" );
 
 		self::$recreated[] = $service;
+		// An interruption mid-recreate can leave it stopped or missing, so a retry must not judge it by its state.
+		if ( null !== $backup ) {
+			( new Filesystem() )->appendToFile( $backup . '.pending', "$service\n" );
+		}
 		if ( ! chdir( EE_SERVICE_DIR ) || ! self::compose_up( $service, [ $service ] ) ) {
 			throw new \Exception( "Unable to recreate $container with its new image. Please check logs for more details." );
 		}
@@ -402,12 +421,13 @@ class GlobalContainers {
 	/**
 	 * Get global containers which has new image update.
 	 *
-	 * @param $updated_images array of updated docker-images
+	 * @param array    $updated_images Updated docker-images.
+	 * @param string[] $interrupted    Services an interrupted upgrade started to recreate, from get_interrupted_services().
 	 *
 	 * @return array
 	 */
-	public static function get_updated_global_images( $updated_images ) {
-		return self::get_updated_global_images_by_state( $updated_images )['running'];
+	public static function get_updated_global_images( $updated_images, $interrupted = [] ) {
+		return self::get_updated_global_images_by_state( $updated_images, null, $interrupted )['running'];
 	}
 
 	/**
@@ -415,11 +435,12 @@ class GlobalContainers {
 	 *
 	 * @param array      $updated_images Updated docker images.
 	 * @param array|null $img_versions   This release's tags; defaults to img-versions.json.
+	 * @param string[]   $interrupted    Services an interrupted upgrade started to recreate, from get_interrupted_services().
 	 *
-	 * @return array `running` (running or restart-looping), `stopped` (any other existing container, still on an old tag),
-	 *               `current` (stopped, but already on the new tag, e.g. recreated by an interrupted run) and `missing` images.
+	 * @return array `running` (running or restart-looping, or listed by an interrupted upgrade), `stopped` (any other existing
+	 *               container, still on an old tag), `current` (stopped, but already on the new tag) and `missing` images.
 	 */
-	public static function get_updated_global_images_by_state( $updated_images, $img_versions = null ) {
+	public static function get_updated_global_images_by_state( $updated_images, $img_versions = null, $interrupted = [] ) {
 		$img_versions = null === $img_versions ? EE\Utils\get_image_versions() : $img_versions;
 		$by_state     = [
 			'running' => [],
@@ -432,8 +453,8 @@ class GlobalContainers {
 				continue;
 			}
 			$status = self::get_container_state( $container_name )['status'];
-			// A restart-looping service is upgraded too (State.Running is false between its restarts).
-			if ( in_array( $status, [ 'running', 'restarting' ], true ) ) {
+			// A restart-looping service is upgraded too (State.Running is false between its restarts), as is one an interrupted run listed.
+			if ( in_array( self::get_service_name( $container_name ), $interrupted, true ) || in_array( $status, [ 'running', 'restarting' ], true ) ) {
 				$by_state['running'][] = $image;
 			} elseif ( '' === $status ) {
 				$by_state['missing'][] = $image;
@@ -462,17 +483,19 @@ class GlobalContainers {
 		foreach ( $updated_images as $image_name ) {
 			$services[] = self::get_service_name( $all_global_images[ $image_name ] );
 		}
-		$recreated       = self::$recreated;
+		// Also those an interrupted attempt started to recreate, which this run may not have reached.
+		$recreated       = array_merge( self::$recreated, self::get_interrupted_services( $source_path ) );
 		self::$recreated = [];
 		EE::debug( 'Start restoring global docker-compose.yml file from backup' );
 		$fs = new Filesystem();
 		// Also when no running service changed: the regenerated file alone carries the new tags of the others.
 		$fs->copy( $source_path, $dest_path, true );
 
-		// Services an earlier, interrupted attempt moved to a new image aren't among this run's updates: put them back too.
-		$moved    = array_diff( self::get_services_off_compose_file( $dest_path ), $services );
-		$services = array_merge( $services, $moved );
-		$recreate = array_values( array_merge( array_intersect( $services, $recreated ), $moved ) );
+		// Services an earlier, interrupted attempt moved to a new image may not be among this run's updates: put them back too.
+		$off_snapshot = self::get_services_off_compose_file( $dest_path );
+		$services     = array_values( array_unique( array_merge( $services, $off_snapshot ) ) );
+		// v1 must stop and remove each one off the snapshot's image, also if neither this run nor the marker lists it.
+		$recreate = array_values( array_unique( array_merge( array_intersect( $services, $recreated ), $off_snapshot ) ) );
 
 		chdir( EE_ROOT_DIR . '/services' );
 

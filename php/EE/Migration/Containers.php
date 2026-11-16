@@ -89,7 +89,7 @@ class Containers {
 
 		// Stopped global services keep their old image and tag (see migrate_global_containers()), so their images stay
 		// "updated" on every later run: when nothing running uses them and nothing else is left to do, stop here.
-		$by_state = GlobalContainers::get_updated_global_images_by_state( $updated_images, $img_versions );
+		$by_state = GlobalContainers::get_updated_global_images_by_state( $updated_images, $img_versions, GlobalContainers::get_interrupted_services( EE_BACKUP_DIR . '/services/docker-compose.yml.backup' ) );
 		$idle     = array_diff( $by_state['stopped'], self::$running_images );
 		if ( ! array_diff( $updated_images, $idle ) && ! self::has_old_tags( EE_SERVICE_DIR . '/docker-compose.yml', $idle, $img_versions ) && ! self::get_disabled_sites_to_update( $img_versions ) ) {
 			EE::debug( 'Only stopped global services have new images, and their compose files have them already.' );
@@ -454,7 +454,7 @@ class Containers {
 				"upgrade-$global_container_name-container",
 				'EE\Migration\GlobalContainers::upgrade_global_service',
 				null,
-				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name ],
+				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name, $global_compose_file_backup_path ],
 				null
 			);
 		}
