@@ -368,14 +368,14 @@ class Containers {
 	 */
 	private static function migrate_global_containers( $updated_images ) {
 
-		$updated_global_images = GlobalContainers::get_updated_global_images( $updated_images );
+		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
+		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
+		$updated_global_images           = GlobalContainers::get_updated_global_images( $updated_images, GlobalContainers::get_interrupted_services( $global_compose_file_backup_path ) );
 		if ( empty( $updated_global_images ) ) {
 			return;
 		}
 
-		$global_compose_file_path        = EE_ROOT_DIR . '/services/docker-compose.yml';
-		$global_compose_file_backup_path = EE_BACKUP_DIR . '/services/docker-compose.yml.backup';
-		$all_global_images               = GlobalContainers::get_all_global_images_with_service_name();
+		$all_global_images = GlobalContainers::get_all_global_images_with_service_name();
 		GlobalContainers::reset_recreated();
 
 		if ( in_array( 'easyengine/nginx-proxy', $updated_global_images, true ) ) {
@@ -413,7 +413,7 @@ class Containers {
 				"upgrade-$global_container_name-container",
 				'EE\Migration\GlobalContainers::upgrade_global_service',
 				null,
-				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name ],
+				[ GlobalContainers::get_service_name( $global_container_name ), $global_container_name, $global_compose_file_backup_path ],
 				null
 			);
 		}
