@@ -423,7 +423,8 @@ class GlobalContainers {
 			$services[] = self::get_service_name( $all_global_images[ $image_name ] );
 		}
 		// Also those an interrupted attempt started to recreate, which this run may not have reached.
-		$recreated       = array_merge( self::$recreated, self::get_interrupted_services( $source_path ) );
+		$interrupted     = self::get_interrupted_services( $source_path );
+		$recreated       = array_merge( self::$recreated, $interrupted );
 		self::$recreated = [];
 		if ( empty( $services ) ) {
 			return;
@@ -434,7 +435,8 @@ class GlobalContainers {
 
 		// Services an earlier, interrupted attempt moved to a new image may not be among this run's updates: put them back too.
 		$off_snapshot = self::get_services_off_compose_file( $dest_path );
-		$services     = array_values( array_unique( array_merge( $services, $off_snapshot ) ) );
+		// A listed service left stopped or missing, whose image this run didn't select, is restored too.
+		$services     = array_values( array_unique( array_merge( $services, $interrupted, $off_snapshot ) ) );
 		// v1 must stop and remove each one off the snapshot's image, also if neither this run nor the marker lists it.
 		$recreate = array_values( array_unique( array_merge( array_intersect( $services, $recreated ), $off_snapshot ) ) );
 
