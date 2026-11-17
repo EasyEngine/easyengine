@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "966345d813ab445e6cafa3b3b04310fe",
+    "content-hash": "8a999b5e52aacf9673f5e9d490186769",
     "packages": [
         {
             "name": "acmephp/core",
@@ -1193,7 +1193,7 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.9.0",
+            "version": "v3.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
