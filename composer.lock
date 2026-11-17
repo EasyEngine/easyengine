@@ -1197,12 +1197,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "abc91793702b76c9873bd12f25798cbaac75fb1a"
+                "reference": "7c49e850cdfadaa0a4720fc661c4d1a4380798c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/abc91793702b76c9873bd12f25798cbaac75fb1a",
-                "reference": "abc91793702b76c9873bd12f25798cbaac75fb1a",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/7c49e850cdfadaa0a4720fc661c4d1a4380798c5",
+                "reference": "7c49e850cdfadaa0a4720fc661c4d1a4380798c5",
                 "shasum": ""
             },
             "require": {
@@ -1266,7 +1266,7 @@
                 "issues": "https://github.com/EasyEngine/site-command/issues",
                 "source": "https://github.com/EasyEngine/site-command/tree/v3.9.0"
             },
-            "time": "2026-11-16T17:25:36+00:00"
+            "time": "2026-11-17T03:41:45+00:00"
         },
         {
             "name": "easyengine/site-type-php",
