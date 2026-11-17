@@ -401,7 +401,10 @@ class SiteContainers {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$command = sprintf( 'docker-compose --project-name=%s up -d nginx', $project_name );
+		$services = self::get_support_services( $site_fs_path . '/docker-compose.yml' );
+		$command  = empty( $services )
+			? sprintf( 'docker-compose --project-name=%s up -d nginx', $project_name )
+			: sprintf( 'docker-compose --project-name=%s up -d --no-deps %s', $project_name, implode( ' ', array_map( 'escapeshellarg', $services ) ) );
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
 		}
@@ -432,6 +435,42 @@ class SiteContainers {
 		}
 
 		EE::debug( sprintf( 'Complete disabling support containers for %s', $site_url ) );
+	}
+
+	/**
+	 * Services of a site's support project: nginx and what it depends on, except the local db. A support db would be a
+	 * second MariaDB on the site's db_data volume, answering to the same `db` alias as the site's own.
+	 *
+	 * @param string $compose_file Path of the site's docker-compose.yml.
+	 *
+	 * @return string[] Empty when the file has no nginx service or can't be read.
+	 */
+	private static function get_support_services( $compose_file ) {
+		try {
+			$config = is_file( $compose_file ) ? Spyc::YAMLLoad( $compose_file ) : [];
+		} catch ( \Exception $e ) {
+			$config = [];
+		}
+		if ( ! is_array( $config ) || empty( $config['services'] ) || ! is_array( $config['services'] ) || ! isset( $config['services']['nginx'] ) ) {
+			return [];
+		}
+
+		$services = [];
+		$pending  = [ 'nginx' ];
+		while ( $pending ) {
+			$service = array_shift( $pending );
+			if ( ! is_string( $service ) || 'db' === $service || in_array( $service, $services, true ) || ! isset( $config['services'][ $service ] ) ) {
+				continue;
+			}
+			$services[] = $service;
+			$depends_on = isset( $config['services'][ $service ]['depends_on'] ) ? (array) $config['services'][ $service ]['depends_on'] : [];
+			// List form (`- php`) or map form (`php: { condition: … }`).
+			foreach ( $depends_on as $key => $value ) {
+				$pending[] = is_string( $key ) ? $key : $value;
+			}
+		}
+
+		return $services;
 	}
 
 	/**
