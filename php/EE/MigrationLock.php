@@ -117,6 +117,12 @@ class MigrationLock {
 		if ( $this->handle ) {
 			return true;
 		}
+		// PHP 8 removes a function listed in disable_functions, so calling it would be fatal.
+		if ( ! function_exists( 'flock' ) ) {
+			$this->unavailable = true;
+			EE::warning( 'PHP function flock() is unavailable, so migrations are not protected against concurrent ee processes.' );
+			return false;
+		}
 
 		// 'e' (O_CLOEXEC): docker and other children must not keep the lock after ee dies.
 		$umask        = umask( 0077 );
