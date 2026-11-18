@@ -4,6 +4,7 @@ namespace EE\Migration;
 
 use EE;
 use Symfony\Component\Filesystem\Filesystem;
+use Mustangostang\Spyc;
 
 /**
  * Migrate site specific containers to new images.
@@ -93,6 +94,83 @@ class SiteContainers {
 		return false;
 	}
 
+	/** @var string[] Disabled sites whose compose file this run backed up, the only ones a rollback restores. */
+	private static $backed_up = [];
+
+	/**
+	 * EasyEngine images a docker-compose.yml sets, as image => tag.
+	 *
+	 * @param string $compose_file Path of the file.
+	 *
+	 * @return array
+	 */
+	public static function get_compose_file_images( $compose_file ) {
+		try {
+			// Spyc, not symfony/yaml: the phar doesn't ship symfony/yaml.
+			$config = is_file( $compose_file ) ? Spyc::YAMLLoad( $compose_file ) : [];
+		} catch ( \Exception $e ) {
+			$config = [];
+		}
+		$images = [];
+		if ( ! is_array( $config ) || empty( $config['services'] ) || ! is_array( $config['services'] ) ) {
+			return $images;
+		}
+		foreach ( $config['services'] as $service ) {
+			if ( is_array( $service ) && ! empty( $service['image'] ) && is_string( $service['image'] ) && 0 === strpos( $service['image'], 'easyengine/' ) ) {
+				list( $image, $tag ) = explode( ':', $service['image'], 2 ) + [ 1 => '' ];
+				$images[ $image ] = $tag;
+			}
+		}
+
+		return $images;
+	}
+
+	/**
+	 * Back up and regenerate a disabled site's docker-compose.yml with this release's images, without starting anything,
+	 * so that `ee site enable` starts it on them. A failure only warns and keeps the old file: a disabled site must not
+	 * block or roll back the upgrade of the others.
+	 *
+	 * @param array  $site_info   Site row.
+	 * @param string $backup_path Where to back up its docker-compose.yml.
+	 */
+	public static function update_disabled_site_compose_file( $site_info, $backup_path ) {
+		$compose_file = $site_info['site_fs_path'] . '/docker-compose.yml';
+		$fs           = new Filesystem();
+		unset( self::$backed_up[ $site_info['site_url'] ] );
+		try {
+			$fs->copy( $compose_file, $backup_path, true );
+			self::$backed_up[ $site_info['site_url'] ] = $backup_path;
+			self::generate_site_docker_compose_file( $site_info, self::get_site_object( $site_info['site_type'] ) );
+			// A missing img-versions.json entry only raises a PHP warning and writes an image without a tag.
+			if ( preg_match( '/^\s*image:\s*\S+:\s*$/m', (string) file_get_contents( $compose_file ) ) ) {
+				throw new \Exception( 'an image has no tag' );
+			}
+		} catch ( \Throwable $e ) {
+			try {
+				if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
+					$fs->copy( $backup_path, $compose_file, true );
+				}
+			} catch ( \Exception $restore_error ) {
+				EE::warning( sprintf( 'Could not restore %s from %s: %s', $compose_file, $backup_path, $restore_error->getMessage() ) );
+			}
+			unset( self::$backed_up[ $site_info['site_url'] ] );
+			$reason = '' === $e->getMessage() ? 'see the error above' : $e->getMessage();
+			EE::warning( sprintf( 'Could not update docker-compose.yml of the disabled site %1$s to the new images (%2$s). Run `ee site enable %1$s --refresh` to enable it on them.', $site_info['site_url'], $reason ) );
+		}
+	}
+
+	/**
+	 * Rollback of update_disabled_site_compose_file(): restore the file it backed up in this run, if any.
+	 *
+	 * @param array $site_info Site row.
+	 */
+	public static function restore_disabled_site_compose_file( $site_info ) {
+		if ( isset( self::$backed_up[ $site_info['site_url'] ] ) ) {
+			( new Filesystem() )->copy( self::$backed_up[ $site_info['site_url'] ], $site_info['site_fs_path'] . '/docker-compose.yml', true );
+			unset( self::$backed_up[ $site_info['site_url'] ] );
+		}
+	}
+
 	/**
 	 * Generate docker-compose.yml for specific site.
 	 *
@@ -102,8 +180,27 @@ class SiteContainers {
 	public static function generate_site_docker_compose_file( $site_info, $site_object ) {
 		$site_object->populate_site_info( $site_info['site_url'] );
 		EE::debug( "Start generating new docker-compose.yml for ${site_info['site_url']}" );
-		$site_object->dump_docker_compose_yml( [ 'nohttps' => ! $site_info['site_ssl'] ] );
+		$site_object->dump_docker_compose_yml( [ 'nohttps' => self::is_served_without_https( $site_info ) ] );
 		EE::debug( "Complete generating new docker-compose.yml for ${site_info['site_url']}" );
+	}
+
+	/**
+	 * Whether the site's docker-compose.yml turns HTTPS off: without SSL, or while its Let's Encrypt certificate waits for `ee site ssl-verify`.
+	 *
+	 * With HTTPS on, nginx-proxy would serve a pending site with the closest matching certificate of another site.
+	 *
+	 * @param array $site_info array of site information.
+	 *
+	 * @return bool
+	 */
+	public static function is_served_without_https( $site_info ) {
+		if ( empty( $site_info['site_ssl'] ) ) {
+			return true;
+		}
+
+		// site-command versions without the pending state don't have the helper and keep HTTPS on.
+		return function_exists( 'EE\Site\Utils\is_le_ssl_pending' )
+			&& \EE\Site\Utils\is_le_ssl_pending( $site_info['site_url'], $site_info['site_ssl'] );
 	}
 
 	/**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d12a5ee6fea03c5bbfd66ac11703e5cc",
+    "content-hash": "8a999b5e52aacf9673f5e9d490186769",
     "packages": [
         {
             "name": "acmephp/core",
@@ -769,16 +769,16 @@
         },
         {
             "name": "easyengine/admin-tools-command",
-            "version": "v1.1.2",
+            "version": "v1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/admin-tools-command.git",
-                "reference": "0eacf5d7461a1c2a8169016b4e9a8441cb409240"
+                "reference": "edceb582ea0c0009356ba25801cefadaab3e39ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/0eacf5d7461a1c2a8169016b4e9a8441cb409240",
-                "reference": "0eacf5d7461a1c2a8169016b4e9a8441cb409240",
+                "url": "https://api.github.com/repos/EasyEngine/admin-tools-command/zipball/edceb582ea0c0009356ba25801cefadaab3e39ae",
+                "reference": "edceb582ea0c0009356ba25801cefadaab3e39ae",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -809,9 +809,9 @@
             "homepage": "https://github.com/easyengine/amdin-tools",
             "support": {
                 "issues": "https://github.com/EasyEngine/admin-tools-command/issues",
-                "source": "https://github.com/EasyEngine/admin-tools-command/tree/v1.1.2"
+                "source": "https://github.com/EasyEngine/admin-tools-command/tree/v1.1.3"
             },
-            "time": "2026-10-14T16:07:06+00:00"
+            "time": "2026-11-16T17:28:41+00:00"
         },
         {
             "name": "easyengine/auth-command",
@@ -965,16 +965,16 @@
         },
         {
             "name": "easyengine/dash-command",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/dash-command.git",
-                "reference": "ad84e936af9f28d19e911c330752e5ebe282cc5d"
+                "reference": "fd35bd29e48b9af28db8811bd7a974d8c0709c56"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/dash-command/zipball/ad84e936af9f28d19e911c330752e5ebe282cc5d",
-                "reference": "ad84e936af9f28d19e911c330752e5ebe282cc5d",
+                "url": "https://api.github.com/repos/EasyEngine/dash-command/zipball/fd35bd29e48b9af28db8811bd7a974d8c0709c56",
+                "reference": "fd35bd29e48b9af28db8811bd7a974d8c0709c56",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1004,9 +1004,9 @@
             "homepage": "https://github.com/easyengine/dash-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/dash-command/issues",
-                "source": "https://github.com/EasyEngine/dash-command/tree/v1.0.1"
+                "source": "https://github.com/EasyEngine/dash-command/tree/v1.0.2"
             },
-            "time": "2025-12-11T04:42:36+00:00"
+            "time": "2026-11-16T17:26:15+00:00"
         },
         {
             "name": "easyengine/log-command",
@@ -1100,16 +1100,16 @@
         },
         {
             "name": "easyengine/service-command",
-            "version": "v1.6.2",
+            "version": "v1.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/service-command.git",
-                "reference": "d6f642d26b019bee68b3f23f3ccb59c2ee4266ae"
+                "reference": "93d4266c7ee39b82f6c599673352d6ba2f639c33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/d6f642d26b019bee68b3f23f3ccb59c2ee4266ae",
-                "reference": "d6f642d26b019bee68b3f23f3ccb59c2ee4266ae",
+                "url": "https://api.github.com/repos/EasyEngine/service-command/zipball/93d4266c7ee39b82f6c599673352d6ba2f639c33",
+                "reference": "93d4266c7ee39b82f6c599673352d6ba2f639c33",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -1143,9 +1143,9 @@
             "homepage": "https://github.com/easyengine/service-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/service-command/issues",
-                "source": "https://github.com/EasyEngine/service-command/tree/v1.6.2"
+                "source": "https://github.com/EasyEngine/service-command/tree/v1.6.3"
             },
-            "time": "2025-09-04T07:03:26+00:00"
+            "time": "2026-11-16T17:26:04+00:00"
         },
         {
             "name": "easyengine/shell-command",
@@ -1193,16 +1193,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.8.2",
+            "version": "v3.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf"
+                "reference": "7c49e850cdfadaa0a4720fc661c4d1a4380798c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf",
-                "reference": "50d8a3bd60f5c0de4d7cfd8aab39e38548f527cf",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/7c49e850cdfadaa0a4720fc661c4d1a4380798c5",
+                "reference": "7c49e850cdfadaa0a4720fc661c4d1a4380798c5",
                 "shasum": ""
             },
             "require": {
@@ -1264,22 +1264,22 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.8.2"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.9.0"
             },
-            "time": "2026-10-14T16:07:04+00:00"
+            "time": "2026-11-17T03:41:45+00:00"
         },
         {
             "name": "easyengine/site-type-php",
-            "version": "v1.12.2",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-php.git",
-                "reference": "57eb71881349f9fe8cdc05f3be0e3a7bc2fff731"
+                "reference": "6a4aed75b07717bcb6eb1cb7880e61a8942ae195"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/57eb71881349f9fe8cdc05f3be0e3a7bc2fff731",
-                "reference": "57eb71881349f9fe8cdc05f3be0e3a7bc2fff731",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-php/zipball/6a4aed75b07717bcb6eb1cb7880e61a8942ae195",
+                "reference": "6a4aed75b07717bcb6eb1cb7880e61a8942ae195",
                 "shasum": ""
             },
             "require-dev": {
@@ -1323,22 +1323,22 @@
             "homepage": "https://github.com/easyengine/site-type-php",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-php/issues",
-                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.12.2"
+                "source": "https://github.com/EasyEngine/site-type-php/tree/v1.13.0"
             },
-            "time": "2026-10-21T15:20:51+00:00"
+            "time": "2026-11-16T17:25:59+00:00"
         },
         {
             "name": "easyengine/site-type-wp",
-            "version": "v1.12.2",
+            "version": "v1.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-type-wp.git",
-                "reference": "8a80b30fa2d22ed65c405c04768f33cda470d4e5"
+                "reference": "60cc6f1e50e0983360b4857859fa3cacd7c480b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/8a80b30fa2d22ed65c405c04768f33cda470d4e5",
-                "reference": "8a80b30fa2d22ed65c405c04768f33cda470d4e5",
+                "url": "https://api.github.com/repos/EasyEngine/site-type-wp/zipball/60cc6f1e50e0983360b4857859fa3cacd7c480b7",
+                "reference": "60cc6f1e50e0983360b4857859fa3cacd7c480b7",
                 "shasum": ""
             },
             "require-dev": {
@@ -1382,9 +1382,9 @@
             "homepage": "https://github.com/easyengine/site-type-wp",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-type-wp/issues",
-                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.12.2"
+                "source": "https://github.com/EasyEngine/site-type-wp/tree/v1.13.0"
             },
-            "time": "2026-10-21T15:20:50+00:00"
+            "time": "2026-11-16T17:25:52+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

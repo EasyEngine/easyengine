@@ -81,13 +81,27 @@ function compareContents( $expected, $actual ) {
 
 	if ( is_object( $expected ) ) {
 		foreach ( get_object_vars( $expected ) as $name => $value ) {
-			if ( ! compareContents( $value, $actual->$name ) ) {
+			if ( ! property_exists( $actual, $name ) || ! compareContents( $value, $actual->$name ) ) {
+				return false;
+			}
+		}
+	} else if ( is_array( $expected ) && array_values( $expected ) === $expected ) {
+		// Lists match by membership, so [1,3,5] is contained in [1,2,3,4,5].
+		foreach ( $expected as $value ) {
+			$found = false;
+			foreach ( $actual as $candidate ) {
+				if ( compareContents( $value, $candidate ) ) {
+					$found = true;
+					break;
+				}
+			}
+			if ( ! $found ) {
 				return false;
 			}
 		}
 	} else if ( is_array( $expected ) ) {
 		foreach ( $expected as $key => $value ) {
-			if ( ! compareContents( $value, $actual[$key] ) ) {
+			if ( ! array_key_exists( $key, $actual ) || ! compareContents( $value, $actual[ $key ] ) ) {
 				return false;
 			}
 		}

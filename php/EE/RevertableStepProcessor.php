@@ -18,6 +18,16 @@ class RevertableStepProcessor {
 	/** @var int Keeps track of steps executed. All items in $steps till this index have been executed */
 	private $execution_index = 0;
 
+	/** @var bool Whether an `EE::error()`/`EE::halt()` inside a step throws, so the rollback still runs, instead of exiting. */
+	private $capture_exit;
+
+	/**
+	 * @param bool $capture_exit Turn exits inside up and down steps into failures of that step.
+	 */
+	public function __construct( $capture_exit = false ) {
+		$this->capture_exit = (bool) $capture_exit;
+	}
+
 	/**
 	 * Adds a new step.
 	 *
@@ -53,11 +63,11 @@ class RevertableStepProcessor {
 			$context = $step['context'];
 			try {
 				EE::debug( "Executing $context... " );
-				call_user_func_array( $step['up'], $step['up_params'] ?? [] );
+				$this->call( $step['up'], $step['up_params'] );
 				$this->execution_index ++;
 				EE::debug( "Executed $context." );
-			} catch ( \Exception $e ) {
-				$exception_message = $e->getMessage();
+			} catch ( \Throwable $e ) {
+				$exception_message = self::describe( $e );
 				$callable          = EE\Utils\get_callable_name( $step['up'] );
 				if ( $show_error ) {
 					EE::error( "Error while executing $context. $callable: $exception_message", false );
@@ -86,15 +96,50 @@ class RevertableStepProcessor {
 			try {
 				EE::debug( "Reverting $context... " );
 				if ( null !== $step['down'] ) {
-					call_user_func_array( $step['down'], $step['down_params'] ?? [] );
+					$this->call( $step['down'], $step['down_params'] );
 				}
 				EE::debug( "Reverted $context" );
-			} catch ( \Exception $e ) {
-				$exception_message = $e->getMessage();
+			} catch ( \Throwable $e ) {
+				$exception_message = self::describe( $e );
 				EE::debug( "Encountered error while reverting $context: $exception_message. If possible, do it manually" );
 			} finally {
 				$this->execution_index --;
 			}
 		}
+	}
+
+	/**
+	 * Calls a step callable, capturing exits if this processor does.
+	 *
+	 * @param callable   $callable Step callable.
+	 * @param array|null $params   Its parameters.
+	 */
+	private function call( $callable, $params ) {
+		if ( ! $this->capture_exit ) {
+			call_user_func_array( $callable, $params ?? [] );
+
+			return;
+		}
+
+		$previous = EE::set_capture_exit( true );
+		try {
+			call_user_func_array( $callable, $params ?? [] );
+		} finally {
+			EE::set_capture_exit( $previous );
+		}
+	}
+
+	/**
+	 * @param \Throwable $e Failure of a step.
+	 *
+	 * @return string
+	 */
+	private static function describe( \Throwable $e ) {
+		// EE::error() has already printed its message.
+		if ( $e instanceof ExitException ) {
+			return sprintf( 'exited with code %d', $e->getCode() );
+		}
+
+		return $e->getMessage();
 	}
 }

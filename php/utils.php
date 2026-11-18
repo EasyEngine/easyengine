@@ -521,6 +521,23 @@ function http_request( $method, $url, $data = null, $headers = array(), $options
 		}
 	}
 
+	// Requests picks curl when curl_init() and curl_exec() exist, then calls the other curl functions unchecked.
+	$curl_missing = array_values( array_diff( \EE\Requirements::FUNCTIONS['curl'], array_filter( \EE\Requirements::FUNCTIONS['curl'], 'function_exists' ) ) );
+	if ( ! isset( $options['transport'] ) && $curl_missing ) {
+		// Fsockopen calls these unchecked too, and Requests' own transport test doesn't cover stream_socket_client().
+		$fallback = 0 === stripos( $url, 'https:' ) ? [ 'stream_socket_client', 'openssl_x509_parse' ] : [ 'stream_socket_client' ];
+		if ( ! \EE\Requirements::has_missing( \EE\Requirements::get_missing( $fallback ) ) ) {
+			$options['transport'] = \WpOrg\Requests\Transport\Fsockopen::class;
+		} elseif ( [ 'curl_close' ] !== $curl_missing ) {
+			// Without curl_close() Requests' curl still works: it only calls it on PHP 7, where a disabled one just warns.
+			$error_msg = \EE\Requirements::get_error_message( \EE\Requirements::get_missing( array_merge( $curl_missing, $fallback ) ) );
+			if ( $halt_on_error ) {
+				EE::error( $error_msg );
+			}
+			throw new \RuntimeException( $error_msg );
+		}
+	}
+
 	try {
 		// Updated class name: \WpOrg\Requests\Requests
 		$response = \WpOrg\Requests\Requests::request( $url, $headers, $data, $method, $options );
