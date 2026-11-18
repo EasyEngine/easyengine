@@ -237,7 +237,9 @@ class SiteContainers {
 			throw new \Exception( sprintf( '%s path does not exist', $site_info['site_fs_path'] ) );
 		}
 
-		if ( ! EE::exec( 'docker-compose stop && docker-compose rm -f' ) ) {
+		// Same files as the site's own commands, so services added in user-docker-compose files are stopped too.
+		$compose = rtrim( \EE_DOCKER::docker_compose_with_custom() );
+		if ( ! EE::exec( "$compose stop && $compose rm -f" ) ) {
 			throw new \Exception( sprintf( 'Something went wrong on disable site %s', $site_info['site_url'] ) );
 		}
 
@@ -349,9 +351,7 @@ class SiteContainers {
 	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
 	 */
 	public static function reload_support_nginx( $site_url, $site_fs_path ) {
-		$command = sprintf( "docker-compose --project-name=%s exec nginx sh -c 'nginx -t && nginx -s reload'", self::get_support_project_name( $site_url ) );
-
-		if ( ! chdir( $site_fs_path ) || ! EE::exec( $command ) ) {
+		if ( ! chdir( $site_fs_path ) || ! EE::exec( self::get_support_compose( $site_url ) . " exec nginx sh -c 'nginx -t && nginx -s reload'" ) ) {
 			EE::debug( sprintf( 'Could not reload support nginx of %s', $site_url ) );
 		}
 	}
@@ -395,16 +395,18 @@ class SiteContainers {
 	public static function enable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start enabling containers for %s', $site_url ) );
 
-		$project_name = self::get_support_project_name( $site_url );
-
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$services = self::get_support_services( $site_fs_path . '/docker-compose.yml' );
-		$command  = empty( $services )
-			? sprintf( 'docker-compose --project-name=%s up -d nginx', $project_name )
-			: sprintf( 'docker-compose --project-name=%s up -d --no-deps %s', $project_name, implode( ' ', array_map( 'escapeshellarg', $services ) ) );
+		$compose  = self::get_support_compose( $site_url );
+		$services = self::get_support_services( $compose );
+		if ( empty( $services ) ) {
+			EE::warning( sprintf( 'Could not read the docker-compose config of %s, starting its support nginx with all its dependencies.', $site_url ) );
+			$command = $compose . ' up -d nginx';
+		} else {
+			$command = $compose . ' up -d --no-deps ' . implode( ' ', array_map( 'escapeshellarg', $services ) );
+		}
 		if ( ! EE::exec( $command ) ) {
 			throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
 		}
@@ -423,14 +425,12 @@ class SiteContainers {
 	public static function disable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start disabling support containers for %s', $site_url ) );
 
-		$project_name = self::get_support_project_name( $site_url );
-
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$command = sprintf( 'docker-compose --project-name=%1$s stop && docker-compose --project-name=%1$s rm -f', $project_name );
-		if ( ! EE::exec( $command ) ) {
+		$compose = self::get_support_compose( $site_url );
+		if ( ! EE::exec( "$compose stop && $compose rm -f" ) ) {
 			throw new \Exception( sprintf( 'Unable to remove support container for %s', $site_url ) );
 		}
 
@@ -438,19 +438,29 @@ class SiteContainers {
 	}
 
 	/**
+	 * docker-compose command of a site's support project, with the same compose files as the site's own commands.
+	 * Run it in the site directory: the user-docker-compose paths are relative.
+	 *
+	 * @param string $site_url Site URL.
+	 *
+	 * @return string
+	 */
+	private static function get_support_compose( $site_url ) {
+		return rtrim( \EE_DOCKER::docker_compose_with_custom() ) . ' --project-name=' . self::get_support_project_name( $site_url );
+	}
+
+	/**
 	 * Services of a site's support project: nginx and what it depends on, except the local db. A support db would be a
 	 * second MariaDB on the site's db_data volume, answering to the same `db` alias as the site's own.
 	 *
-	 * @param string $compose_file Path of the site's docker-compose.yml.
+	 * @param string $compose docker-compose command of the support project (see get_support_compose()).
 	 *
-	 * @return string[] Empty when the file has no nginx service or can't be read.
+	 * @return string[] Empty when compose can't render the config or it has no nginx service.
 	 */
-	private static function get_support_services( $compose_file ) {
-		try {
-			$config = is_file( $compose_file ) ? Spyc::YAMLLoad( $compose_file ) : [];
-		} catch ( \Exception $e ) {
-			$config = [];
-		}
+	private static function get_support_services( $compose ) {
+		// Compose's merged config: depends_on from every file, always in map form.
+		$result = EE::launch( $compose . ' config --format json' );
+		$config = 0 === $result->return_code ? json_decode( $result->stdout, true ) : null;
 		if ( ! is_array( $config ) || empty( $config['services'] ) || ! is_array( $config['services'] ) || ! isset( $config['services']['nginx'] ) ) {
 			return [];
 		}
@@ -463,10 +473,8 @@ class SiteContainers {
 				continue;
 			}
 			$services[] = $service;
-			$depends_on = isset( $config['services'][ $service ]['depends_on'] ) ? (array) $config['services'][ $service ]['depends_on'] : [];
-			// List form (`- php`) or map form (`php: { condition: … }`).
-			foreach ( $depends_on as $key => $value ) {
-				$pending[] = is_string( $key ) ? $key : $value;
+			if ( isset( $config['services'][ $service ]['depends_on'] ) && is_array( $config['services'][ $service ]['depends_on'] ) ) {
+				$pending = array_merge( $pending, array_keys( $config['services'][ $service ]['depends_on'] ) );
 			}
 		}
 
