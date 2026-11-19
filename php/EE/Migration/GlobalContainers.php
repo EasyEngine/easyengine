@@ -25,7 +25,7 @@ class GlobalContainers {
 	];
 
 	/** Seconds a service may take to become ready (`global-service-ready-timeout` in config.yml overrides it). */
-	const READY_TIMEOUT = 60;
+	const READY_TIMEOUT = 180;
 
 	/** MariaDB may run crash recovery or a datadir upgrade first. */
 	const DB_READY_TIMEOUT = 300;
