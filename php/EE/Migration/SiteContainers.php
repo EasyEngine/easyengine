@@ -97,6 +97,9 @@ class SiteContainers {
 	/** @var string[] Disabled sites whose compose file this run backed up, the only ones a rollback restores. */
 	private static $backed_up = [];
 
+	/** @var string[] Sites this run upgrades without support containers, as site URL => reason. */
+	private static $without_support = [];
+
 	/**
 	 * EasyEngine images a docker-compose.yml sets, as image => tag.
 	 *
@@ -237,7 +240,9 @@ class SiteContainers {
 			throw new \Exception( sprintf( '%s path does not exist', $site_info['site_fs_path'] ) );
 		}
 
-		if ( ! EE::exec( 'docker-compose stop && docker-compose rm -f' ) ) {
+		// Same files as the site's own commands, so services added in user-docker-compose files are stopped too.
+		$compose = rtrim( \EE_DOCKER::docker_compose_with_custom() );
+		if ( ! EE::exec( "$compose stop && $compose rm -f" ) ) {
 			throw new \Exception( sprintf( 'Something went wrong on disable site %s', $site_info['site_url'] ) );
 		}
 
@@ -349,9 +354,10 @@ class SiteContainers {
 	 * @param string $site_fs_path Directory containing site's docker-compose.yml.
 	 */
 	public static function reload_support_nginx( $site_url, $site_fs_path ) {
-		$command = sprintf( "docker-compose --project-name=%s exec nginx sh -c 'nginx -t && nginx -s reload'", self::get_support_project_name( $site_url ) );
-
-		if ( ! chdir( $site_fs_path ) || ! EE::exec( $command ) ) {
+		if ( isset( self::$without_support[ $site_url ] ) ) {
+			return;
+		}
+		if ( ! chdir( $site_fs_path ) || ! EE::exec( self::get_support_compose( $site_url ) . " exec nginx sh -c 'nginx -t && nginx -s reload'" ) ) {
 			EE::debug( sprintf( 'Could not reload support nginx of %s', $site_url ) );
 		}
 	}
@@ -395,15 +401,38 @@ class SiteContainers {
 	public static function enable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start enabling containers for %s', $site_url ) );
 
-		$project_name = self::get_support_project_name( $site_url );
+		// Also when called as a rollback: a site upgraded without support containers never gets them in this run.
+		if ( isset( self::$without_support[ $site_url ] ) ) {
+			return;
+		}
 
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$command = sprintf( 'docker-compose --project-name=%s up -d nginx', $project_name );
+		$compose  = self::get_support_compose( $site_url );
+		$config   = self::get_compose_config( $compose );
+		$services = self::get_support_services( $config );
+		if ( empty( $services ) ) {
+			EE::warning( sprintf( 'Could not read the docker-compose config of %s, starting its support nginx with all its dependencies.', $site_url ) );
+			$command = $compose . ' up -d nginx';
+		} else {
+			$clashes = self::get_support_clashes( $config, $services );
+			if ( $clashes ) {
+				self::upgrade_without_support( $site_url, implode( ', ', $clashes ) . ', which would clash with its running containers' );
+
+				return;
+			}
+			$command = $compose . ' up -d --no-deps ' . implode( ' ', array_map( 'escapeshellarg', $services ) );
+		}
 		if ( ! EE::exec( $command ) ) {
-			throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
+			// Remove what did start, or keep failing the step if that leaves support containers behind.
+			if ( ! EE::exec( "$compose stop && $compose rm -f" ) ) {
+				throw new \Exception( sprintf( 'Unable to create support container for %s', $site_url ) );
+			}
+			self::upgrade_without_support( $site_url, 'its support containers failed to start' );
+
+			return;
 		}
 
 		EE::debug( sprintf( 'Complete enabling support containers for %s', $site_url ) );
@@ -420,18 +449,113 @@ class SiteContainers {
 	public static function disable_support_containers( $site_url, $site_fs_path ) {
 		EE::debug( sprintf( 'Start disabling support containers for %s', $site_url ) );
 
-		$project_name = self::get_support_project_name( $site_url );
+		if ( isset( self::$without_support[ $site_url ] ) ) {
+			return;
+		}
 
 		if ( ! chdir( $site_fs_path ) ) {
 			throw new \Exception( sprintf( '%s does not exist.', $site_fs_path ) );
 		}
 
-		$command = sprintf( 'docker-compose --project-name=%1$s stop && docker-compose --project-name=%1$s rm -f', $project_name );
-		if ( ! EE::exec( $command ) ) {
+		$compose = self::get_support_compose( $site_url );
+		if ( ! EE::exec( "$compose stop && $compose rm -f" ) ) {
 			throw new \Exception( sprintf( 'Unable to remove support container for %s', $site_url ) );
 		}
 
 		EE::debug( sprintf( 'Complete disabling support containers for %s', $site_url ) );
+	}
+
+	/**
+	 * docker-compose command of a site's support project, with the same compose files as the site's own commands.
+	 * Run it in the site directory: the user-docker-compose paths are relative.
+	 *
+	 * @param string $site_url Site URL.
+	 *
+	 * @return string
+	 */
+	private static function get_support_compose( $site_url ) {
+		return rtrim( \EE_DOCKER::docker_compose_with_custom() ) . ' --project-name=' . self::get_support_project_name( $site_url );
+	}
+
+	/**
+	 * Merged config of a compose command's files: depends_on from every file, always in map form.
+	 *
+	 * @param string $compose docker-compose command.
+	 *
+	 * @return array|null Null when compose can't render it.
+	 */
+	private static function get_compose_config( $compose ) {
+		$result = EE::launch( $compose . ' config --format json' );
+		$config = 0 === $result->return_code ? json_decode( $result->stdout, true ) : null;
+
+		return is_array( $config ) ? $config : null;
+	}
+
+	/**
+	 * Services of a site's support project: nginx and what it depends on, except the local db. A support db would be a
+	 * second MariaDB on the site's db_data volume, answering to the same `db` alias as the site's own.
+	 *
+	 * @param array|null $config Merged compose config of the site (see get_compose_config()).
+	 *
+	 * @return string[] Empty when there is no config or it has no nginx service.
+	 */
+	private static function get_support_services( $config ) {
+		if ( ! is_array( $config ) || empty( $config['services'] ) || ! is_array( $config['services'] ) || ! isset( $config['services']['nginx'] ) ) {
+			return [];
+		}
+
+		$services = [];
+		$pending  = [ 'nginx' ];
+		while ( $pending ) {
+			$service = array_shift( $pending );
+			if ( ! is_string( $service ) || 'db' === $service || in_array( $service, $services, true ) || ! isset( $config['services'][ $service ] ) ) {
+				continue;
+			}
+			$services[] = $service;
+			if ( isset( $config['services'][ $service ]['depends_on'] ) && is_array( $config['services'][ $service ]['depends_on'] ) ) {
+				$pending = array_merge( $pending, array_keys( $config['services'][ $service ]['depends_on'] ) );
+			}
+		}
+
+		return $services;
+	}
+
+	/**
+	 * What in the support services can't run next to the site's own containers: published host ports and fixed
+	 * container names, which only a site's custom compose files set.
+	 *
+	 * @param array    $config   Merged compose config of the site.
+	 * @param string[] $services Support services.
+	 *
+	 * @return string[] One description per clash, empty when there is none.
+	 */
+	private static function get_support_clashes( $config, $services ) {
+		$clashes = [];
+		foreach ( $services as $service ) {
+			$definition = $config['services'][ $service ];
+			foreach ( isset( $definition['ports'] ) && is_array( $definition['ports'] ) ? $definition['ports'] : [] as $port ) {
+				// A port without a published one gets a free host port.
+				if ( is_array( $port ) && isset( $port['published'] ) && '' !== (string) $port['published'] ) {
+					$clashes[] = sprintf( '%s publishes host port %s', $service, $port['published'] );
+				}
+			}
+			if ( ! empty( $definition['container_name'] ) && is_string( $definition['container_name'] ) ) {
+				$clashes[] = sprintf( '%s has the fixed container name %s', $service, $definition['container_name'] );
+			}
+		}
+
+		return $clashes;
+	}
+
+	/**
+	 * Upgrade a site without support containers: the rest of its steps then stop and recreate its own containers.
+	 *
+	 * @param string $site_url Site URL.
+	 * @param string $reason   Why it has none.
+	 */
+	private static function upgrade_without_support( $site_url, $reason ) {
+		self::$without_support[ $site_url ] = $reason;
+		EE::warning( sprintf( 'Upgrading %s without support containers because %s. The site is down for a few seconds while its containers are recreated.', $site_url, $reason ) );
 	}
 
 	/**
