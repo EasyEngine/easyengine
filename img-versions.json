@@ -1,4 +1,5 @@
 {
+    "easyengine/compat-scanner": "v4.16.0",
     "easyengine/cron": "v4.14.0",
     "easyengine/mailhog": "v4.6.5",
     "easyengine/mariadb": "v4.9.1",
