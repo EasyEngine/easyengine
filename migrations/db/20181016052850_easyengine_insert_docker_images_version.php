@@ -43,6 +43,8 @@ class InsertDockerImagesVersion extends Base {
 			'easyengine/php8.1',
 			'easyengine/mailhog',
 			'easyengine/newrelic-daemon',
+			// Pulled by `ee site php-compat` on first use; most servers never run it.
+			'easyengine/compat-scanner',
 		];
 
 		$pull_queue = [];

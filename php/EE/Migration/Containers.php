@@ -26,6 +26,9 @@ class Containers {
 	/** @var string[] Images (without tag) the last get_current_docker_images_versions() found running. */
 	private static $running_images = [];
 
+	/** Images of one-off containers (`ee site php-compat`), pulled on first use: a running one is no service to upgrade. */
+	const NOT_MIGRATED_IMAGES = [ 'easyengine/compat-scanner' ];
+
 	/**
 	 * Main entry point for the script. Migrates all containers
 	 *
@@ -37,7 +40,7 @@ class Containers {
 		self::$rsp = new RevertableStepProcessor( true );
 
 		$img_versions     = EE\Utils\get_image_versions();
-		$current_versions = self::get_current_docker_images_versions();
+		$current_versions = array_diff_key( self::get_current_docker_images_versions(), array_flip( self::NOT_MIGRATED_IMAGES ) );
 		$updated_images   = [];
 
 		// An interrupted upgrade recreated some global services without recording their tags. Count those by their
