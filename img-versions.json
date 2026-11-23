@@ -1,6 +1,6 @@
 {
     "easyengine/compat-scanner": "v4.16.0",
-    "easyengine/cron": "v4.14.0",
+    "easyengine/cron": "v4.16.0",
     "easyengine/mailhog": "v4.6.5",
     "easyengine/mariadb": "v4.9.1",
     "easyengine/nginx-proxy": "v4.14.1",
@@ -12,13 +12,13 @@
     "easyengine/php7.3": "v4.7.4",
     "easyengine/php7.4": "v4.13.0",
     "easyengine/php8.0": "v4.13.0",
-    "easyengine/php8.1": "v4.14.0",
-    "easyengine/php8.2": "v4.14.2",
-    "easyengine/php8.3": "v4.15.0",
-    "easyengine/php8.4": "v4.14.2",
+    "easyengine/php8.1": "v4.16.0",
+    "easyengine/php8.2": "v4.16.0",
+    "easyengine/php8.3": "v4.16.0",
+    "easyengine/php8.4": "v4.16.0",
     "easyengine/php8.5": "v4.15.0",
     "easyengine/php8.6": "v4.15.0",
     "easyengine/postfix": "v4.14.0",
     "easyengine/redis": "v4.14.0",
-    "easyengine/newrelic-daemon": "v4.14.0"
+    "easyengine/newrelic-daemon": "v4.16.0"
 }
