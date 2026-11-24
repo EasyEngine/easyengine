@@ -406,7 +406,8 @@ class CLI_Command extends EE_Command {
 		if ( ! Utils\check_proc_available( null, true ) ) {
 			return [];
 		}
-		$ps = EE::launch( 'docker ps --filter ' . escapeshellarg( "name=$prefix" ) . " --format '{{.Names}}'" );
+		// Bounded: a hung daemon must not block the update, which may be what fixes it.
+		$ps = EE::launch( 'timeout -k 5 15 docker ps --filter ' . escapeshellarg( "name=$prefix" ) . " --format '{{.Names}}'" );
 		if ( 0 !== $ps->return_code ) {
 			EE::debug( 'Could not list running php-compat scans; continuing the update.' );
 
