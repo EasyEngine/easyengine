@@ -28,7 +28,7 @@ class EE_DOCKER {
 			// The caller's files still go first: dropping e.g. docker-compose-admin.yml would strip its mounts on recreation.
 			foreach ( $files_before_custom as $file ) {
 				if ( $fs->exists( $file ) ) {
-					$command .= ' -f ' . $file;
+					$command .= ' -f ' . escapeshellarg( $file );
 				}
 			}
 
@@ -39,7 +39,7 @@ class EE_DOCKER {
 				}
 			}
 			if ( $fs->exists( $custom_compose_path ) ) {
-				$command .= ' -f ' . $custom_compose_path;
+				$command .= ' -f ' . escapeshellarg( $custom_compose_path );
 			} else {
 				EE::warning( 'File: ' . $custom_compose_path . ' does not exist. Falling back to default compose file.' );
 			}
@@ -56,7 +56,7 @@ class EE_DOCKER {
 
 			foreach ( $files_before_custom as $file ) {
 				if ( $fs->exists( $file ) ) {
-					$command .= ' -f ' . $file;
+					$command .= ' -f ' . escapeshellarg( $file );
 				}
 			}
 
