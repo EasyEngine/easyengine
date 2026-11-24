@@ -40,6 +40,15 @@ class EE {
 	}
 
 	/**
+	 * Return the logger instance.
+	 *
+	 * @return object
+	 */
+	public static function get_logger() {
+		return self::$logger;
+	}
+
+	/**
 	 * Set the file logger instance.
 	 *
 	 * @param object $file_logger
