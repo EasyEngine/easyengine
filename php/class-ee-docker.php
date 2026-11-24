@@ -100,6 +100,15 @@ class EE_DOCKER {
 		}
 	}
 
+	/**
+	 * State of a container as `docker inspect` reports `.State.Running`.
+	 *
+	 * false doesn't mean the container doesn't exist: any inspect failure (no such container, daemon down or restarting, socket error) returns it. Callers that act on its absence (create, remove, "gone") must check that separately.
+	 *
+	 * @param string $container Container name or id.
+	 *
+	 * @return string|false 'running' while it runs, also when paused or restarting; 'exited' for any other state (created, exited, dead); false when inspect fails for any reason. Exits via EE::error() when docker isn't on PATH.
+	 */
 	public static function container_status( $container ) {
 
 		$exec_command = 'which docker';
@@ -109,7 +118,7 @@ class EE_DOCKER {
 		if ( $ret ) {
 			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
 		}
-		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container" );
+		$status = EE::launch( "docker inspect -f '{{.State.Running}}' " . escapeshellarg( $container ) );
 		if ( ! $status->return_code ) {
 			if ( preg_match( '/true/', $status->stdout ) ) {
 				return 'running';
