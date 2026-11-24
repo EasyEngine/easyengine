@@ -73,12 +73,42 @@ class Runner {
 		define( 'EE_PROXY_TYPE', 'services_global-nginx-proxy_1' );
 		if ( $check_requirements ) {
 			$this->check_requirements();
-			$this->maybe_trigger_migration();
+			$this->migrate_if_needed();
 		}
 
 		if ( [ 'cli', 'info' ] === $this->arguments && $this->check_requirements( false ) ) {
-			$this->maybe_trigger_migration();
+			$this->migrate_if_needed();
 		}
+	}
+
+	/**
+	 * Run maybe_trigger_migration(), with its messages on STDERR when STDOUT carries data for a program.
+	 */
+	private function migrate_if_needed() {
+		$logger = $this->prints_data() ? EE::get_logger() : null;
+		if ( ! $logger instanceof Loggers\Regular ) {
+			$this->maybe_trigger_migration();
+			return;
+		}
+
+		$logger->info_to_stderr( true );
+		try {
+			$this->maybe_trigger_migration();
+		} finally {
+			$logger->info_to_stderr( false );
+		}
+	}
+
+	/**
+	 * Whether the command was asked for output meant to be parsed, e.g. `--format=json`.
+	 *
+	 * @return bool
+	 */
+	private function prints_data() {
+		$format = isset( $this->assoc_args['format'] ) ? $this->assoc_args['format'] : null;
+
+		// table, text and list are for people; json, yaml, csv, count, ids and the rest are parsed.
+		return is_string( $format ) && ! in_array( $format, [ 'table', 'text', 'list' ], true );
 	}
 
 	/**

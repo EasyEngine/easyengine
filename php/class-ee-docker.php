@@ -25,6 +25,13 @@ class EE_DOCKER {
 		$custom_compose = \EE::get_runner()->config['custom-compose'];
 
 		if ( ! empty( $custom_compose ) ) {
+			// The caller's files still go first: dropping e.g. docker-compose-admin.yml would strip its mounts on recreation.
+			foreach ( $files_before_custom as $file ) {
+				if ( $fs->exists( $file ) ) {
+					$command .= ' -f ' . self::quote_compose_file( $file );
+				}
+			}
+
 			$custom_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $custom_compose;
 			if ( SITE_CUSTOM_DOCKER_COMPOSE === $custom_compose ) {
 				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
@@ -32,7 +39,7 @@ class EE_DOCKER {
 				}
 			}
 			if ( $fs->exists( $custom_compose_path ) ) {
-				$command .= ' -f ' . $custom_compose_path;
+				$command .= ' -f ' . self::quote_compose_file( $custom_compose_path );
 			} else {
 				EE::warning( 'File: ' . $custom_compose_path . ' does not exist. Falling back to default compose file.' );
 			}
@@ -49,7 +56,7 @@ class EE_DOCKER {
 
 			foreach ( $files_before_custom as $file ) {
 				if ( $fs->exists( $file ) ) {
-					$command .= ' -f ' . $file;
+					$command .= ' -f ' . self::quote_compose_file( $file );
 				}
 			}
 
@@ -59,6 +66,16 @@ class EE_DOCKER {
 		}
 
 		return $command;
+	}
+
+	/**
+	 * @param string $file Compose file path.
+	 *
+	 * @return string The path as one shell argument.
+	 */
+	private static function quote_compose_file( $file ) {
+		// Not escapeshellarg(): under a C LC_CTYPE it drops non-ASCII bytes, so `café.yml` would become `caf.yml`.
+		return "'" . str_replace( "'", "'\\''", (string) $file ) . "'";
 	}
 
 	/**
@@ -83,6 +100,15 @@ class EE_DOCKER {
 		}
 	}
 
+	/**
+	 * State of a container as `docker inspect` reports `.State.Running`.
+	 *
+	 * false doesn't mean the container doesn't exist: any inspect failure (no such container, daemon down or restarting, socket error) returns it. Callers that act on its absence (create, remove, "gone") must check that separately.
+	 *
+	 * @param string $container Container name or id.
+	 *
+	 * @return string|false 'running' while it runs, also when paused or restarting; 'exited' for any other state (created, exited, dead); false when inspect fails for any reason. Exits via EE::error() when docker isn't on PATH.
+	 */
 	public static function container_status( $container ) {
 
 		$exec_command = 'which docker';
@@ -92,7 +118,7 @@ class EE_DOCKER {
 		if ( $ret ) {
 			EE::error( 'Docker is not installed. Please install Docker to run EasyEngine.' );
 		}
-		$status = EE::launch( "docker inspect -f '{{.State.Running}}' $container" );
+		$status = EE::launch( "docker inspect -f '{{.State.Running}}' " . escapeshellarg( $container ) );
 		if ( ! $status->return_code ) {
 			if ( preg_match( '/true/', $status->stdout ) ) {
 				return 'running';
