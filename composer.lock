@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fa9f9dea8f9cfb011b63fb7bca8cf632",
+    "content-hash": "5394327249c8e9f7757a703d4b814316",
     "packages": [
         {
             "name": "acmephp/core",
@@ -914,16 +914,16 @@
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v2.1.1",
+            "version": "v2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
-                "reference": "768a7961d6ca357655f9601381d07a2da65516d2"
+                "reference": "5bafeb45db34bdb467a3adc35760fd5f03159ccd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/768a7961d6ca357655f9601381d07a2da65516d2",
-                "reference": "768a7961d6ca357655f9601381d07a2da65516d2",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/5bafeb45db34bdb467a3adc35760fd5f03159ccd",
+                "reference": "5bafeb45db34bdb467a3adc35760fd5f03159ccd",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -959,9 +959,9 @@
             "homepage": "https://github.com/easyengine/cron-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/cron-command/issues",
-                "source": "https://github.com/EasyEngine/cron-command/tree/v2.1.1"
+                "source": "https://github.com/EasyEngine/cron-command/tree/v2.1.2"
             },
-            "time": "2026-09-29T13:34:09+00:00"
+            "time": "2026-11-24T05:29:29+00:00"
         },
         {
             "name": "easyengine/dash-command",
@@ -1193,16 +1193,16 @@
         },
         {
             "name": "easyengine/site-command",
-            "version": "v3.10.1",
+            "version": "v3.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/site-command.git",
-                "reference": "b644fbc5da8db1def3182abec53e0342b44f3b73"
+                "reference": "98a897853320a58e13e994238bf8b0430b692564"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/b644fbc5da8db1def3182abec53e0342b44f3b73",
-                "reference": "b644fbc5da8db1def3182abec53e0342b44f3b73",
+                "url": "https://api.github.com/repos/EasyEngine/site-command/zipball/98a897853320a58e13e994238bf8b0430b692564",
+                "reference": "98a897853320a58e13e994238bf8b0430b692564",
                 "shasum": ""
             },
             "require": {
@@ -1246,6 +1246,7 @@
                     "src/helper/Site_Self_Signed.php",
                     "src/helper/Site_Letsencrypt.php",
                     "src/helper/Site_Backup_Restore.php",
+                    "src/helper/Site_PHP_Compat.php",
                     "src/helper/Shutdown_Handler.php",
                     "src/clone/Cloner.php",
                     "src/clone/clone-utils.php"
@@ -1264,9 +1265,9 @@
             "homepage": "https://github.com/easyengine/site-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/site-command/issues",
-                "source": "https://github.com/EasyEngine/site-command/tree/v3.10.1"
+                "source": "https://github.com/EasyEngine/site-command/tree/v3.11.0"
             },
-            "time": "2026-11-21T02:35:27+00:00"
+            "time": "2026-11-24T07:36:09+00:00"
         },
         {
             "name": "easyengine/site-type-php",
