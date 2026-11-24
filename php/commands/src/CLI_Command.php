@@ -285,6 +285,7 @@ class CLI_Command extends EE_Command {
 		} elseif ( ! is_writable( dirname( $old_phar ) ) ) {
 			EE::error( sprintf( '%s is not writable by current user.', dirname( $old_phar ) ) );
 		}
+		$this->refuse_during_php_compat_scans();
 		EE::confirm( "Note: 1. It is recommended to run EasyEngine update in tmux/screen.\n2. Have minimum 5GB free disk space.\nUpdate at times may take some time.\n\nTo view progress, tail logs in a different window using `tail -f /opt/easyengine/logs/ee.log`.\n\nAre you sure you want to continue?", $assoc_args );
 		if ( Utils\get_flag_value( $assoc_args, 'nightly' ) ) {
 			EE::confirm( sprintf( 'You have version %s. Would you like to update to the latest nightly?', EE_VERSION ), $assoc_args );
@@ -351,6 +352,8 @@ class CLI_Command extends EE_Command {
 			$updated_version = $newest['version'];
 		}
 		$is_quiet = ! empty( EE::get_runner()->config['quiet'] );
+		// A scan may have started during the download.
+		$this->refuse_during_php_compat_scans( $temp );
 		$mode = fileperms( $old_phar ) & 511;
 		if ( false === chmod( $temp, $mode ) ) {
 			EE::error( sprintf( 'Cannot chmod %s.', $temp ) );
@@ -362,6 +365,62 @@ class CLI_Command extends EE_Command {
 		if ( ! $is_quiet ) {
 			fwrite( STDOUT, sprintf( 'Success: Updated EE to %s.' . PHP_EOL, $updated_version ) );
 		}
+	}
+
+	/**
+	 * Stops the update while an `ee site php-compat` scan (up to hours) runs from this Phar: after the swap it would read classes from the new file at the old offsets.
+	 *
+	 * @param string|null $temp Downloaded Phar to remove when refusing.
+	 */
+	private function refuse_during_php_compat_scans( $temp = null ) {
+		$sites = $this->running_php_compat_scans();
+		if ( empty( $sites ) ) {
+			return;
+		}
+		if ( null !== $temp ) {
+			@unlink( $temp ); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- best effort.
+		}
+		$cancel = array_map(
+			function ( $site ) {
+				return "  ee site php-compat $site --cancel";
+			},
+			$sites
+		);
+		EE::error(
+			sprintf(
+				'A PHP compatibility check is running for %s. Updating now would replace the EasyEngine Phar it runs from. Wait for it to finish, or stop it with:%s%s%sthen run `ee cli update` again.',
+				implode( ', ', $sites ),
+				PHP_EOL,
+				implode( PHP_EOL, $cancel ),
+				PHP_EOL
+			)
+		);
+	}
+
+	/**
+	 * @return string[] Sites with a running php-compat scan container; empty when Docker can't be asked.
+	 */
+	private function running_php_compat_scans() {
+		$prefix = 'ee-php-compat-';
+		// update() reports missing process functions itself.
+		if ( ! Utils\check_proc_available( null, true ) ) {
+			return [];
+		}
+		$ps = EE::launch( 'docker ps --filter ' . escapeshellarg( "name=$prefix" ) . " --format '{{.Names}}'" );
+		if ( 0 !== $ps->return_code ) {
+			EE::debug( 'Could not list running php-compat scans; continuing the update.' );
+
+			return [];
+		}
+		$sites = [];
+		foreach ( preg_split( '/\R/', trim( $ps->stdout ), -1, PREG_SPLIT_NO_EMPTY ) as $name ) {
+			// The name filter matches anywhere in the name.
+			if ( 0 === strpos( $name, $prefix ) && strlen( $name ) > strlen( $prefix ) ) {
+				$sites[] = substr( $name, strlen( $prefix ) );
+			}
+		}
+
+		return $sites;
 	}
 
 	/**
