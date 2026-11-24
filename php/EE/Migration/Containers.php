@@ -29,6 +29,9 @@ class Containers {
 	/** Images of one-off containers (`ee site php-compat`), pulled on first use: a running one is no service to upgrade. */
 	const NOT_MIGRATED_IMAGES = [ 'easyengine/compat-scanner' ];
 
+	/** Never-started container that keeps the pinned compat scanner image during docker_cleanup(). */
+	const COMPAT_SCANNER_KEEPER = 'ee-compat-scanner-keeper';
+
 	/**
 	 * Main entry point for the script. Migrates all containers
 	 *
@@ -180,7 +183,14 @@ class Containers {
 	 * Prune old and extra EE Docker images.
 	 */
 	public static function docker_cleanup() {
-		EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
+		$keeper = self::keep_compat_scanner_image();
+		try {
+			EE::exec( 'docker image prune -af --filter=label=org.label-schema.vendor="EasyEngine"' );
+		} finally {
+			if ( $keeper ) {
+				EE::launch( 'docker rm -f ' . self::COMPAT_SCANNER_KEEPER );
+			}
+		}
 
 		// Not `docker network prune`: it also removes the networks of stopped containers, which then can't start, and the
 		// global networks that disabled sites join as external networks on `ee site enable`.
@@ -192,6 +202,29 @@ class Containers {
 				EE::exec( 'docker network rm ' . escapeshellarg( $network ) );
 			}
 		}
+	}
+
+	/**
+	 * The compat scanner runs no service, so the prune would delete its pinned tag after every upgrade and the next
+	 * `ee site php-compat` would download it again. A never-started container holds it; older tags are still pruned.
+	 *
+	 * @return bool Whether the keeper container was created.
+	 */
+	private static function keep_compat_scanner_image() {
+		// A keeper left by a killed run would hold an old tag and block the name.
+		EE::launch( 'docker rm -f ' . self::COMPAT_SCANNER_KEEPER );
+
+		$versions = EE\Utils\get_image_versions();
+		if ( empty( $versions['easyengine/compat-scanner'] ) ) {
+			return false;
+		}
+		$image = escapeshellarg( 'easyengine/compat-scanner:' . $versions['easyengine/compat-scanner'] );
+		// Only a pulled scanner is kept: most hosts never run a check.
+		if ( 0 !== EE::launch( "docker image inspect --format '{{.Id}}' $image" )->return_code ) {
+			return false;
+		}
+
+		return 0 === EE::launch( 'docker create --pull=never --network none --name ' . self::COMPAT_SCANNER_KEEPER . " $image" )->return_code;
 	}
 
 	/**
