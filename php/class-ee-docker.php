@@ -25,6 +25,13 @@ class EE_DOCKER {
 		$custom_compose = \EE::get_runner()->config['custom-compose'];
 
 		if ( ! empty( $custom_compose ) ) {
+			// The caller's files still go first: dropping e.g. docker-compose-admin.yml would strip its mounts on recreation.
+			foreach ( $files_before_custom as $file ) {
+				if ( $fs->exists( $file ) ) {
+					$command .= ' -f ' . $file;
+				}
+			}
+
 			$custom_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $custom_compose;
 			if ( SITE_CUSTOM_DOCKER_COMPOSE === $custom_compose ) {
 				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
