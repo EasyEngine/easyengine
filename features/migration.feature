@@ -92,6 +92,18 @@ Feature: Migration triggering
     And STDOUT should contain "Executing migrations. This might take some time."
     And the EasyEngine option "version" should be "{EE_VERSION}"
 
+  # The migration runs before the command, so its messages must not end up in front of the command's data.
+  @migration
+  Scenario: An upgrade triggered by a --format=json command keeps its messages off STDOUT
+    Given no EasyEngine migration is pending
+    And the EasyEngine option "version" is set to "4.0.0"
+    When I run 'bin/ee cli info --format=json'
+    Then the command should exit with code 0
+    And STDOUT should be valid json
+    And STDOUT should not contain "Executing migrations"
+    And STDERR should contain "Executing migrations. This might take some time."
+    And the EasyEngine option "version" should be "{EE_VERSION}"
+
   # Registry blocked, so the image migration fails after the container migrations ran. They must be reverted
   # (down() called, row removed) and run again by the next attempt; earlier ones stay recorded.
   @migration

@@ -25,6 +25,13 @@ class EE_DOCKER {
 		$custom_compose = \EE::get_runner()->config['custom-compose'];
 
 		if ( ! empty( $custom_compose ) ) {
+			// The caller's files still go first: dropping e.g. docker-compose-admin.yml would strip its mounts on recreation.
+			foreach ( $files_before_custom as $file ) {
+				if ( $fs->exists( $file ) ) {
+					$command .= ' -f ' . self::quote_compose_file( $file );
+				}
+			}
+
 			$custom_compose_path = SITE_CUSTOM_DOCKER_COMPOSE_DIR . '/' . $custom_compose;
 			if ( SITE_CUSTOM_DOCKER_COMPOSE === $custom_compose ) {
 				if ( $fs->exists( SITE_CUSTOM_DOCKER_COMPOSE ) ) {
@@ -32,7 +39,7 @@ class EE_DOCKER {
 				}
 			}
 			if ( $fs->exists( $custom_compose_path ) ) {
-				$command .= ' -f ' . $custom_compose_path;
+				$command .= ' -f ' . self::quote_compose_file( $custom_compose_path );
 			} else {
 				EE::warning( 'File: ' . $custom_compose_path . ' does not exist. Falling back to default compose file.' );
 			}
@@ -49,7 +56,7 @@ class EE_DOCKER {
 
 			foreach ( $files_before_custom as $file ) {
 				if ( $fs->exists( $file ) ) {
-					$command .= ' -f ' . $file;
+					$command .= ' -f ' . self::quote_compose_file( $file );
 				}
 			}
 
@@ -59,6 +66,16 @@ class EE_DOCKER {
 		}
 
 		return $command;
+	}
+
+	/**
+	 * @param string $file Compose file path.
+	 *
+	 * @return string The path as one shell argument.
+	 */
+	private static function quote_compose_file( $file ) {
+		// Not escapeshellarg(): under a C LC_CTYPE it drops non-ASCII bytes, so `café.yml` would become `caf.yml`.
+		return "'" . str_replace( "'", "'\\''", (string) $file ) . "'";
 	}
 
 	/**

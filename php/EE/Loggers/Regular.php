@@ -8,6 +8,13 @@ namespace EE\Loggers;
 class Regular extends Base {
 
 	/**
+	 * Whether info and success messages go to STDERR.
+	 *
+	 * @var bool
+	 */
+	private $info_to_stderr = false;
+
+	/**
 	 * @param bool $in_color Whether or not to Colorize strings.
 	 */
 	public function __construct( $in_color ) {
@@ -15,12 +22,21 @@ class Regular extends Base {
 	}
 
 	/**
-	 * Write an informational message to STDOUT.
+	 * Write info and success messages to STDERR instead of STDOUT, e.g. while STDOUT carries a command's data.
+	 *
+	 * @param bool $enable Whether to write them to STDERR.
+	 */
+	public function info_to_stderr( $enable ) {
+		$this->info_to_stderr = (bool) $enable;
+	}
+
+	/**
+	 * Write an informational message to STDOUT, or STDERR after info_to_stderr( true ).
 	 *
 	 * @param string $message Message to write.
 	 */
 	public function info( $message ) {
-		$this->write( STDOUT, $message . "\n" );
+		$this->write( $this->info_to_stderr ? STDERR : STDOUT, $message . "\n" );
 	}
 
 	/**
@@ -29,7 +45,7 @@ class Regular extends Base {
 	 * @param string $message Message to write.
 	 */
 	public function success( $message ) {
-		$this->_line( $message, 'Success', '%G' );
+		$this->_line( $message, 'Success', '%G', $this->info_to_stderr ? STDERR : STDOUT );
 	}
 
 	/**
