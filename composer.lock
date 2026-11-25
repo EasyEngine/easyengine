@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5394327249c8e9f7757a703d4b814316",
+    "content-hash": "f849012ba1a89bf77e5b3f5e059afb81",
     "packages": [
         {
             "name": "acmephp/core",
@@ -914,16 +914,16 @@
         },
         {
             "name": "easyengine/cron-command",
-            "version": "v2.1.2",
+            "version": "v2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/EasyEngine/cron-command.git",
-                "reference": "5bafeb45db34bdb467a3adc35760fd5f03159ccd"
+                "reference": "aaa84821a99ff28169b3680184a973808cb5fa4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/5bafeb45db34bdb467a3adc35760fd5f03159ccd",
-                "reference": "5bafeb45db34bdb467a3adc35760fd5f03159ccd",
+                "url": "https://api.github.com/repos/EasyEngine/cron-command/zipball/aaa84821a99ff28169b3680184a973808cb5fa4b",
+                "reference": "aaa84821a99ff28169b3680184a973808cb5fa4b",
                 "shasum": ""
             },
             "type": "ee-cli-package",
@@ -959,9 +959,9 @@
             "homepage": "https://github.com/easyengine/cron-command",
             "support": {
                 "issues": "https://github.com/EasyEngine/cron-command/issues",
-                "source": "https://github.com/EasyEngine/cron-command/tree/v2.1.2"
+                "source": "https://github.com/EasyEngine/cron-command/tree/v2.1.3"
             },
-            "time": "2026-11-24T05:29:29+00:00"
+            "time": "2026-11-24T12:12:09+00:00"
         },
         {
             "name": "easyengine/dash-command",
