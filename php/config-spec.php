@@ -31,6 +31,13 @@ return array(
 		'desc'    => 'Mail-id to be used for letsencrypt.',
 	),
 
+	'le-live' => array(
+		'runtime' => '=<true/false>',
+		'file'    => '<bool>',
+		'default' => false,
+		'desc'    => 'Whether to use LetsEncrypt live environment.',
+	),
+
 	'env' => array(
 		'runtime' => '=<env>',
 		'file'    => '<env>',
