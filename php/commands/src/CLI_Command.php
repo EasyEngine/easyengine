@@ -335,12 +335,21 @@ class CLI_Command extends EE_Command {
 
 		EE::log( 'Updating EasyEngine to new version. This might take some time.' );
 
+		// The new phar migrates under the migration lock with its output captured, so wait visibly for a running migration first.
+		$migration_lock = new EE\MigrationLock();
+		$migration_lock->acquire( false );
+		$migration_lock->release();
+
 		$php_binary = Utils\get_php_binary();
 		$process    = EE\Process::create( "{$php_binary} $temp cli info", null, null );
 		$result     = $process->run();
 		if ( 0 !== $result->return_code || false === stripos( $result->stdout, 'EE version' ) ) {
 			$multi_line = explode( PHP_EOL, $result->stderr );
 			EE::error_multi_line( $multi_line );
+			if ( EE\MigrationLock::RETRY_EXIT_CODE === $result->return_code ) {
+				// Only a lock give-up: `cli info` just warns if ee was updated meanwhile. The new phar gave up before migrating anything, so keep the installed one.
+				EE::error( sprintf( 'Another ee process is running EasyEngine migrations, so EasyEngine was not updated and is still at %s. Try running ee cli update again once it has finished.', EE_VERSION ), EE\MigrationLock::RETRY_EXIT_CODE );
+			}
 			EE::error( 'The downloaded PHAR is broken, try running ee cli update again.' );
 		}
 		EE::log( 'New version works. Proceeding to replace.' );

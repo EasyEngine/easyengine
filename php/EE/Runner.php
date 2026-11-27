@@ -1049,13 +1049,64 @@ class Runner {
 	/**
 	 * Triggers migration if current phar version > version in ee_option table.
 	 * Also, trigger migrations if phar version >= version in ee_option table but nightly version differ.
+	 *
+	 * Runs under the migration lock, so a command started while another process migrates waits for it.
 	 */
 	private function maybe_trigger_migration() {
 
-		$db_version      = Option::get( 'version' );
+		$lock   = new MigrationLock();
+		$waited = $lock->acquire( false );
+
+		try {
+			$db_version = Option::get( 'version' );
+			$action     = $this->get_migration_action( $db_version );
+
+			if ( 'setup' === $action || 'migrate' === $action ) {
+				$waited     = $lock->acquire( true ) || $waited;
+				// Another process may have migrated while this one waited.
+				$db_version = Option::get( 'version' );
+				$action     = $this->get_migration_action( $db_version );
+			}
+
+			$this->run_migration_action( $action, $db_version, $waited );
+		} finally {
+			$lock->release();
+		}
+	}
+
+	/**
+	 * @param string|false $db_version Version stored in the DB.
+	 *
+	 * @return string 'setup', 'outdated', 'migrate' or 'none'.
+	 */
+	private function get_migration_action( $db_version ) {
+		if ( ! $db_version ) {
+			return 'setup';
+		}
+
+		$base_db_version      = preg_replace( '/-nightly.*$/', '', $db_version );
+		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
+
+		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
+			return 'outdated';
+		}
+		if ( $db_version !== EE_VERSION || false !== strpos( EE_VERSION, 'nightly' ) ) {
+			return 'migrate';
+		}
+
+		return 'none';
+	}
+
+	/**
+	 * @param string       $action     From get_migration_action().
+	 * @param string|false $db_version Version stored in the DB.
+	 * @param bool         $waited     Whether this process waited for another one's migration.
+	 */
+	private function run_migration_action( $action, $db_version, $waited ) {
+
 		$current_version = EE_VERSION;
 
-		if ( ! $db_version ) {
+		if ( 'setup' === $action ) {
 			$this->trigger_migration( $current_version );
 			EE::log( 'ee successfully setup.' );
 			if ( IS_DARWIN ) {
@@ -1071,26 +1122,28 @@ class Runner {
 			return;
 		}
 
-		$base_db_version      = preg_replace( '/-nightly.*$/', '', $db_version );
-		$base_current_version = preg_replace( '/-nightly.*$/', '', EE_VERSION );
+		if ( 'outdated' === $action ) {
 
-		if ( Comparator::lessThan( $base_current_version, $base_db_version ) ) {
-
-			$ee_update_command = IS_DARWIN ? 'brew upgrade easyengine' : 'ee cli update --stable --yes';
-			$ee_update_msg = sprintf(
-				'It seems you\'re not running latest version. Update EasyEngine using `%s`.',
-				$ee_update_command
-			);
+			if ( $waited ) {
+				// Typically `ee cli update` replaced this phar while the command waited for its migration.
+				$ee_update_msg = sprintf( 'EasyEngine was updated to %s while this command waited for the migration. Please run it again.', $db_version );
+			} else {
+				$ee_update_command = IS_DARWIN ? 'brew upgrade easyengine' : 'ee cli update --stable --yes';
+				$ee_update_msg = sprintf(
+					'It seems you\'re not running latest version. Update EasyEngine using `%s`.',
+					$ee_update_command
+				);
+			}
 
 			if ( ! empty( $this->arguments ) && 'cli' === $this->arguments[0] ) {
 				EE::warning( $ee_update_msg );
 			} else {
-				EE::error( $ee_update_msg );
+				EE::error( $ee_update_msg, $waited ? MigrationLock::RETRY_EXIT_CODE : true );
 			}
-		} elseif ( $db_version !== $current_version ) {
-			EE::log( 'Executing migrations. This might take some time.' );
-			$this->trigger_migration( $current_version );
-		} elseif ( false !== strpos( $current_version, 'nightly' ) ) {
+		} elseif ( 'migrate' === $action ) {
+			if ( $db_version !== $current_version ) {
+				EE::log( 'Executing migrations. This might take some time.' );
+			}
 			$this->trigger_migration( $current_version );
 		}
 	}
